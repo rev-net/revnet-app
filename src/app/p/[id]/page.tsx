@@ -192,11 +192,12 @@ export default function Page({ params }: { params: { id: string } }) {
       <br />
       <div>
         Gen {cycleData.number.toString()} buy price: {formatEther(ethQuote)} ETH
+        / {token?.symbol}
       </div>
       <div>
         Gen {(cycleData.number + 1n).toString()} buy price:{" "}
-        {formatEther(nextCycleEthQuote)} ETH (+
-        {formatEther(nextCycleEthQuote - ethQuote)})
+        {formatEther(nextCycleEthQuote)} ETH / {token?.symbol} (+
+        {formatEther(nextCycleEthQuote - ethQuote)} ETH)
       </div>
       <br />
       <div>Immediate redemption value: </div>
