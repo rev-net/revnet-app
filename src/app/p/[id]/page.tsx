@@ -1,20 +1,27 @@
 "use client";
 
+import { Input } from "@/components/ui/input";
+import { intervalToDuration } from "date-fns";
+import formatDuration from "date-fns/formatDuration";
 import {
+  jbSingleTokenPaymentTerminalStoreABI,
+  jbethPaymentTerminal3_1_2ABI,
   useJbController3_1CurrentFundingCycleOf,
+  useJbDirectoryPrimaryTerminalOf,
   useJbProjectsOwnerOf,
   useJbTokenStoreTokenOf,
+  useJbTokenStoreTotalSupplyOf
 } from "juice-hooks";
 import { useEffect, useState } from "react";
 import { formatEther, parseEther } from "viem";
-import { useToken } from "wagmi";
-import formatDuration from "date-fns/formatDuration";
-import { intervalToDuration } from "date-fns";
+import { useContractRead, useToken } from "wagmi";
 
 export const MAX_DISCOUNT_RATE = 1_000_000_000n;
 export const MAX_REDEMPTION_RATE = 10_000n;
 export const MAX_RESERVED_RATE = 10_000n;
 export const ONE_ETHER = parseEther("1");
+// contracts/libraries/JBTokens.sol
+export const ETH_TOKEN_ADDRESS = "0x000000000000000000000000000000000000eeee";
 
 const bigIntToPercent = (bigInt: bigint, max: bigint) => {
   return Number((bigInt * 100n) / (max / 100n)) / 100;
@@ -33,9 +40,9 @@ const getPaymentQuoteTokens = (
 ) => {
   const { weight, reservedRate } = cycleParams;
 
-  const totalTokens = weight;
+  const totalTokens = (weight * ethAmount) / ONE_ETHER;
   const reservedTokens =
-    (weight * reservedRate * ONE_ETHER) / (MAX_RESERVED_RATE * ONE_ETHER);
+    (weight * reservedRate * ethAmount) / MAX_RESERVED_RATE / ONE_ETHER;
   const payerTokens = totalTokens - reservedTokens;
 
   return {
@@ -92,21 +99,20 @@ const formatReservedRate = (reservedRate: bigint) => {
 
 export const useCountdownToDate = (date: Date | undefined) => {
   const [secondsRemaining, setSecondsRemaining] = useState<number>();
-
+  const endSeconds = date ? date.getTime() / 1000 : undefined;
   useEffect(() => {
-    if (!date) return;
+    if (!endSeconds) return;
 
     const updateSecondsRemaining = () => {
       const now = Date.now() / 1000;
-      const endSeconds = date.getTime() / 1000;
-      const _secondsRemaining = date.getTime() - now > 0 ? endSeconds - now : 0;
+      const _secondsRemaining = endSeconds - now > 0 ? endSeconds - now : 0;
       setSecondsRemaining(_secondsRemaining);
     };
     updateSecondsRemaining(); // call immediately
 
     const timer = setInterval(updateSecondsRemaining, 1000); // update every second
     return () => clearInterval(timer);
-  }, [date]);
+  }, [endSeconds]);
 
   return secondsRemaining;
 };
@@ -119,7 +125,48 @@ function formatSeconds(seconds: number) {
   });
 }
 
+/**
+ * Returns the ETH value (in wei) that a given [tokensAmount] can be redeemed for.
+ * Formula: https://www.desmos.com/calculator/sp9ru6zbpk
+ *
+ * y = ox/s * ( r + (x(1 - r)/s) )
+ *
+ * Where:
+ * y = redeemable amount
+ *
+ * o = overflow (primaryTerminalCurrentOverflow)
+ * x = tokenAmount
+ * s = total supply of token (realTotalTokenSupply)
+ * r = redemptionRate
+ *
+ * @returns amount in ETH
+ */
+const getTokenRedemptionQuoteEth = (
+  tokensAmount: bigint,
+  {
+    overflowWei,
+    totalSupply,
+    redemptionRate,
+  }: {
+    overflowWei: bigint;
+    totalSupply: bigint;
+    redemptionRate: bigint;
+  }
+) => {
+  // base = ox/s
+  const base = (overflowWei * tokensAmount) / totalSupply;
+
+  // numerator = r + (x(1 - r)/s)
+  const numerator =
+    redemptionRate +
+    (tokensAmount * (MAX_REDEMPTION_RATE - redemptionRate)) / totalSupply;
+
+  // y = base * numerator ==> ox/s * ( r + (x(1 - r)/s) )
+  return ((base * numerator) / MAX_REDEMPTION_RATE);
+};
+
 export default function Page({ params }: { params: { id: string } }) {
+  const [payAmountWei, setPayAmountWei] = useState<bigint>(0n);
   const projectId = BigInt(params.id);
   const { data: address } = useJbProjectsOwnerOf({
     args: [projectId],
@@ -138,6 +185,25 @@ export default function Page({ params }: { params: { id: string } }) {
     args: [projectId],
   });
   const { data: token } = useToken({ address: tokenAddress });
+  const { data: primaryTerminal } = useJbDirectoryPrimaryTerminalOf({
+    args: [projectId, ETH_TOKEN_ADDRESS],
+  });
+  const { data: store } = useContractRead({
+    address: primaryTerminal,
+    abi: jbethPaymentTerminal3_1_2ABI,
+    functionName: "store",
+  });
+
+  const { data: overflow } = useContractRead({
+    args: primaryTerminal ? [primaryTerminal, projectId] : undefined,
+    address: store,
+    abi: jbSingleTokenPaymentTerminalStoreABI,
+    functionName: "currentOverflowOf",
+  });
+
+  const { data: totalTokenSupply } = useJbTokenStoreTotalSupplyOf({
+    args: [projectId],
+  });
 
   const [cycleData, cycleMetadata] = cycleResponse || [];
 
@@ -153,15 +219,31 @@ export default function Page({ params }: { params: { id: string } }) {
   const exitTax = cycleMetadata.redemptionRate;
   const devTax = cycleMetadata.reservedRate;
 
-  const ethQuote = getPaymentQuoteEth(1n, {
+  const ethQuote = getPaymentQuoteEth(ONE_ETHER, {
     weight: cycleData.weight,
     reservedRate: devTax,
   });
 
+  const formTokensQuote = getPaymentQuoteTokens(payAmountWei, {
+    weight: cycleData.weight,
+    reservedRate: devTax,
+  });
+
+  const formRedemptionQuote =
+    token && overflow && totalTokenSupply
+      ? getTokenRedemptionQuoteEth(formTokensQuote.payerTokens, {
+          overflowWei: overflow,
+          totalSupply: totalTokenSupply,
+          redemptionRate: cycleMetadata.redemptionRate,
+        })
+      : undefined;
+
+  console.log(formRedemptionQuote);
+
   const nextCycleWeight =
     (cycleData.weight * (MAX_DISCOUNT_RATE - cycleData.discountRate)) /
     MAX_DISCOUNT_RATE;
-  const nextCycleEthQuote = getPaymentQuoteEth(1n, {
+  const nextCycleEthQuote = getPaymentQuoteEth(ONE_ETHER, {
     weight: nextCycleWeight,
     reservedRate: devTax,
   });
@@ -200,7 +282,31 @@ export default function Page({ params }: { params: { id: string } }) {
         {formatEther(nextCycleEthQuote - ethQuote)} ETH)
       </div>
       <br />
-      <div>Immediate redemption value: </div>
+
+      <div className="max-w-sm">
+        <label htmlFor="">Pay</label>
+        <Input
+          type="number"
+          onChange={(e) => {
+            const value = e.target.value;
+            if (!value) return;
+            setPayAmountWei(parseEther(`${parseFloat(value)}` as `${number}`));
+          }}
+          value={formatEther(payAmountWei)}
+        />
+      </div>
+      <div>
+        Recieve: {formatEther(formTokensQuote.payerTokens)} {token?.symbol}
+      </div>
+      <div>
+        Boost contribution: {formatEther(formTokensQuote.reservedTokens)}{" "}
+        {token?.symbol}
+      </div>
+      {formRedemptionQuote ? (
+        <div>
+          Immediate redemption value: {formatEther(formRedemptionQuote)} ETH
+        </div>
+      ) : null}
     </div>
   );
 }
