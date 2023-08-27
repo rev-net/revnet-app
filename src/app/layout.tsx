@@ -4,6 +4,7 @@ import "./globals.css";
 import { Providers } from "./providers";
 import { ConnectKitButton } from "connectkit";
 import { Nav } from "@/components/layout/Nav";
+import { Footer } from "@/components/layout/Footer";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -38,7 +39,8 @@ export default function RootLayout({
           <Nav />
           <main>{children}</main>
         </Providers>
-        <footer></footer>
+
+        <Footer />
       </body>
     </html>
   );

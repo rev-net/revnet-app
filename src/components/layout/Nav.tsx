@@ -1,6 +1,4 @@
-"use client";
-
-import { ConnectKitButton } from "connectkit";
+import { ConnectKitButton } from "@/components/ConnectKitButton";
 
 export function Nav() {
   return (
