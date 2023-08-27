@@ -37,7 +37,7 @@ export default function RootLayout({
       >
         <Providers>
           <Nav />
-          <main>{children}</main>
+          <main className="my-10">{children}</main>
         </Providers>
 
         <Footer />

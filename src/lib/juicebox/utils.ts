@@ -1,4 +1,5 @@
 import { formatDuration, intervalToDuration } from "date-fns";
+import { Chain, mainnet } from "wagmi";
 import {
   MAX_DISCOUNT_RATE,
   MAX_REDEMPTION_RATE,
@@ -142,4 +143,41 @@ export function getNextCycleWeight(currentCycle: {
     MAX_DISCOUNT_RATE;
 
   return nextCycleWeight;
+}
+
+export function etherscanLink(
+  addressOrTxHash: string,
+  opts: {
+    type: "address" | "tx";
+    chain?: Chain;
+  }
+) {
+  const { type, chain = mainnet } = opts;
+
+  const baseUrl = `https://${
+    chain.name === "mainnet" ? "" : `${chain.name}.`
+  }etherscan.io`;
+
+  switch (type) {
+    case "address":
+      return `${baseUrl}/address/${addressOrTxHash}`;
+    case "tx":
+      return `${baseUrl}/tx/${addressOrTxHash}`;
+  }
+}
+
+export function formatEthAddress(
+  address: string,
+  {
+    truncateTo = 4,
+  }: {
+    truncateTo?: number;
+  }
+) {
+  const frontTruncate = truncateTo + 2; // account for 0x
+  return (
+    address.substring(0, frontTruncate) +
+    "..." +
+    address.substring(address.length - truncateTo, address.length)
+  );
 }

@@ -1,5 +1,7 @@
 "use client";
 
+import EtherscanLink from "@/components/EtherscanLink";
+import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { useCountdownToDate } from "@/hooks/useCountdownToDate";
 import { ETH_TOKEN_ADDRESS, ONE_ETHER } from "@/lib/juicebox/constants";
@@ -139,9 +141,16 @@ export default function Page({ params }: { params: { id: string } }) {
 
   return (
     <div className="container">
-      <h1 className="text-3xl font-regular">${token?.symbol} </h1>
+      <div className="flex items-center gap-2">
+        <h1 className="text-3xl font-regular">${token?.symbol}</h1>
+        <Badge variant="secondary">
+          <EtherscanLink value={token?.address} />
+        </Badge>
+      </div>
       <div>
-        <span className="text-4xl font-bold mr-2">{formatEther(ethQuote)} ETH</span>
+        <span className="text-4xl font-bold mr-2">
+          {formatEther(ethQuote)} ETH
+        </span>
         <span className="text-sm">/DEFIFA</span>
       </div>
       <span className="text-sm text-neutral-700">
