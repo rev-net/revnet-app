@@ -1,6 +1,7 @@
 "use client";
 
 import EtherscanLink from "@/components/EtherscanLink";
+import { ClockIcon } from "@heroicons/react/24/outline";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -153,7 +154,7 @@ export default function Page({ params }: { params: { id: string } }) {
   return (
     <div className="">
       <header>
-        <div className="container container-border-x flex justify-between items-center py-5">
+        <div className="container container-border-x flex justify-between items-center py-10">
           <div>
             <div className="flex items-center gap-2">
               <h1 className="text-3xl font-regular">${token?.symbol}</h1>
@@ -180,12 +181,13 @@ export default function Page({ params }: { params: { id: string } }) {
         </div>
       </header>
 
-      <div className="border-y border-yzinc-200">
-        <div className="container container-border-x py-10 bg-zinc-100">
+      <div className="border-y border-y-zinc-400">
+        <div className="container container-border-x py-6 bg-zinc-100">
           <div className="flex items-center gap-2 mb-2">
             <h2 className="text-base font-medium">Join network</h2>
             {secondsUntilNextCycle ? (
               <Badge variant="warn" className="font-normal gap-1">
+                <ClockIcon className="w-4 h-4" />
                 Price increase in{" "}
                 <span className="font-medium">
                   {formatSeconds(secondsUntilNextCycle)}
@@ -193,7 +195,10 @@ export default function Page({ params }: { params: { id: string } }) {
               </Badge>
             ) : null}
           </div>
-          <form action="" className="flex justify-between gap-5 flex-col md:flex-row">
+          <form
+            action=""
+            className="flex justify-between gap-5 flex-col md:flex-row"
+          >
             <Input
               onChange={(e) => {
                 const value = e.target.value;
@@ -243,9 +248,6 @@ export default function Page({ params }: { params: { id: string } }) {
             </div>
           ) : null}
         </div>
-        {overflow ? <div>Backed by: {formatEther(overflow)} ETH</div> : null}
-
-        <br />
 
         <div>
           Gen {(cycleData.number + 1n).toString()} buy price:{" "}
