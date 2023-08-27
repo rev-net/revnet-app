@@ -18,7 +18,7 @@ const dmSans = DM_Sans({
 });
 
 export const metadata = {
-  title: "Next.js + Juicebox",
+  title: "REVNET",
 };
 
 export default function RootLayout({

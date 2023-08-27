@@ -2,7 +2,9 @@
 
 import EtherscanLink from "@/components/EtherscanLink";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Stat } from "@/components/ui/stat";
 import { useCountdownToDate } from "@/hooks/useCountdownToDate";
 import { ETH_TOKEN_ADDRESS, ONE_ETHER } from "@/lib/juicebox/constants";
 import {
@@ -14,6 +16,7 @@ import {
   getPaymentQuoteEth,
   getPaymentQuoteTokens,
   getTokenRedemptionQuoteEth,
+  formatEther,
 } from "@/lib/juicebox/utils";
 import {
   jbSingleTokenPaymentTerminalStoreABI,
@@ -25,8 +28,8 @@ import {
   useJbTokenStoreTokenOf,
   useJbTokenStoreTotalSupplyOf,
 } from "juice-hooks";
-import { useMemo, useState } from "react";
-import { formatEther, parseEther } from "viem";
+import { useEffect, useMemo, useState } from "react";
+import { parseEther } from "viem";
 import { useContractRead, useToken } from "wagmi";
 
 export default function Page({ params }: { params: { id: string } }) {
@@ -88,6 +91,12 @@ export default function Page({ params }: { params: { id: string } }) {
     }
   }, [formPayAmount]);
 
+  // set title
+  // TODO, hacky, probably eventually a next-idiomatic way to do this.
+  useEffect(() => {
+    document.title = `$${token?.symbol} | REVNET`;
+  }, [token?.symbol]);
+
   if (!cycleData || !cycleMetadata) return null;
 
   const entryTax = cycleData.discountRate;
@@ -140,82 +149,106 @@ export default function Page({ params }: { params: { id: string } }) {
     });
 
   return (
-    <div className="container">
-      <div className="flex items-center gap-2">
-        <h1 className="text-3xl font-regular">${token?.symbol}</h1>
-        <Badge variant="secondary">
-          <EtherscanLink value={token?.address} />
-        </Badge>
-      </div>
-      <div>
-        <span className="text-4xl font-bold mr-2">
-          {formatEther(ethQuote)} ETH
-        </span>
-        <span className="text-sm">/DEFIFA</span>
-      </div>
-      <span className="text-sm text-neutral-700">
-        Network {projectId.toString()}
-      </span>
-      <div>entry curve: {formatDiscountRate(entryTax)}%</div>
-      <div>exit curve: {formatRedemptionRate(exitTax)}%</div>
-      <div>boost: {formatReservedRate(devTax)}%</div>
-      {secondsUntilNextCycle ? (
-        <div>
-          Next generation starts in: {formatSeconds(secondsUntilNextCycle)}
+    <div className="">
+      <header className="border-b border-b-zinc-500 pb-10">
+        <div className="container flex justify-between items-center">
+          <div>
+            <div className="flex items-center gap-2">
+              <h1 className="text-3xl font-regular">${token?.symbol}</h1>
+              <Badge variant="secondary">
+                <EtherscanLink value={token?.address} />
+              </Badge>
+            </div>
+            <div>
+              <span className="text-4xl font-bold mr-2">
+                {formatEther(ethQuote, { decimals: 4 })} ETH
+              </span>
+              <span className="text-sm">/DEFIFA</span>
+            </div>
+          </div>
+          <div>
+            {overflow ? (
+              <Stat label="Treasury">
+                {formatEther(overflow, { decimals: 4 })} ETH
+              </Stat>
+            ) : null}
+          </div>
         </div>
-      ) : null}
+      </header>
 
-      <br />
-
-      <div>
-        {totalTokenSupply && tokensReserved ? (
-          <div>
-            {formatEther(totalTokenSupply)} {token?.symbol} in circulation (+{" "}
-            {formatEther(tokensReserved)} reserved)
+      <div className="border-b border-b-zinc-500 bg-zinc-100">
+        <div className="container py-10">
+          <div className="flex items-center gap-2 mb-2">
+            <h2 className="text-base font-medium">Join network</h2>
+            {secondsUntilNextCycle ? (
+              <Badge variant="warn" className="font-normal gap-1">
+                Price increase in{" "}
+                <span className="font-medium">
+                  {formatSeconds(secondsUntilNextCycle)}
+                </span>
+              </Badge>
+            ) : null}
           </div>
-        ) : null}
-      </div>
-      {overflow ? <div>Backed by: {formatEther(overflow)} ETH</div> : null}
+          <form action="" className="flex justify-between gap-5">
+            <Input
+              onChange={(e) => {
+                const value = e.target.value;
+                setFormPayAmount(value);
+              }}
+              value={formPayAmount}
+              className="max-w-sm"
+            />
+            <Button>Buy and Join</Button>
+          </form>
 
-      <br />
-      <div>
-        Gen {cycleData.number.toString()} buy price: {formatEther(ethQuote)} ETH
-        / {token?.symbol}
-      </div>
-      <div>
-        Gen {(cycleData.number + 1n).toString()} buy price:{" "}
-        {formatEther(nextCycleEthQuote)} ETH / {token?.symbol} (+
-        {formatEther(nextCycleEthQuote - ethQuote)} ETH)
-      </div>
-      <br />
+          {formTokensQuote ? (
+            <>
+              <div>
+                Recieve: {formatEther(formTokensQuote.payerTokens)}{" "}
+                {token?.symbol}
+              </div>
+              <div>
+                Boost contribution:{" "}
+                {formatEther(formTokensQuote.reservedTokens)} {token?.symbol}
+              </div>
+            </>
+          ) : null}
 
-      <div className="max-w-sm">
-        <label htmlFor="">Pay</label>
-        <Input
-          onChange={(e) => {
-            const value = e.target.value;
-            setFormPayAmount(value);
-          }}
-          value={formPayAmount}
-        />
-      </div>
-      {formTokensQuote ? (
-        <>
-          <div>
-            Recieve: {formatEther(formTokensQuote.payerTokens)} {token?.symbol}
-          </div>
-          <div>
-            Boost contribution: {formatEther(formTokensQuote.reservedTokens)}{" "}
-            {token?.symbol}
-          </div>
-        </>
-      ) : null}
-
-      {formRedemptionQuote ? (
-        <div>
-          Immediate redemption value: {formatEther(formRedemptionQuote)} ETH
+          {formRedemptionQuote ? (
+            <div>
+              Immediate redemption value: {formatEther(formRedemptionQuote)} ETH
+            </div>
+          ) : null}
         </div>
-      ) : null}
+      </div>
+
+      <div className="container py-10">
+        <div className="flex gap-10">
+          <Stat label="Entry curve">{formatDiscountRate(entryTax)}%</Stat>
+          <Stat label="Exit curve">{formatRedemptionRate(exitTax)}%</Stat>
+          <Stat label="Boost">{formatReservedRate(devTax)}%</Stat>
+        </div>
+
+        <br />
+
+        <div>
+          {totalTokenSupply && tokensReserved ? (
+            <div>
+              {formatEther(totalTokenSupply)} {token?.symbol} in circulation (+{" "}
+              {formatEther(tokensReserved)} reserved)
+            </div>
+          ) : null}
+        </div>
+        {overflow ? <div>Backed by: {formatEther(overflow)} ETH</div> : null}
+
+        <br />
+
+        <div>
+          Gen {(cycleData.number + 1n).toString()} buy price:{" "}
+          {formatEther(nextCycleEthQuote)} ETH / {token?.symbol} (+
+          {formatEther(nextCycleEthQuote - ethQuote)} ETH)
+        </div>
+      </div>
     </div>
   );
 }

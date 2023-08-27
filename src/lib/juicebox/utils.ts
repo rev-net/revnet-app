@@ -1,4 +1,5 @@
 import { formatDuration, intervalToDuration } from "date-fns";
+import { formatEther as formatEtherViem } from "viem";
 import { Chain, mainnet } from "wagmi";
 import {
   MAX_DISCOUNT_RATE,
@@ -84,7 +85,12 @@ export const formatReservedRate = (reservedRate: bigint) => {
 export function formatSeconds(seconds: number) {
   const duration = intervalToDuration({ start: 0, end: seconds * 1000 }); // convert seconds to milliseconds
   return formatDuration(duration, {
-    format: ["days", "hours", "minutes", "seconds"],
+    format:
+      seconds > 86400 // if greater than a day, only show 'days'
+        ? ["days"]
+        : seconds > 3600 // if greater than an hour, only show 'hours' and 'minutes'
+        ? ["hours", "minutes"]
+        : ["minutes", "seconds"],
     delimiter: ", ",
   });
 }
@@ -180,4 +186,16 @@ export function formatEthAddress(
     "..." +
     address.substring(address.length - truncateTo, address.length)
   );
+}
+
+export function formatEther(
+  value: bigint,
+  opts?: { decimals?: number }
+): string {
+  const formatted = formatEtherViem(value);
+
+  if (typeof opts?.decimals === "undefined") return formatted;
+
+  // parse float again to trim trailing 0s
+  return parseFloat(parseFloat(formatted).toFixed(opts?.decimals)).toString();
 }
