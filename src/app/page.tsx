@@ -23,7 +23,7 @@ export function Page() {
       <div className="grid grid-cols-2 gap-5">
         <div className="relative flex items-center space-x-3 rounded-lg border border-zinc-300 bg-white px-6 py-5 shadow-sm focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 hover:border-zinc-400">
           <div className="flex-shrink-0">
-            <img className="h-10 w-10 rounded-full" alt="" />
+            {/* <img className="h-10 w-10 rounded-full" alt="" /> */}
           </div>
 
           <div className="min-w-0 flex-1">
@@ -42,7 +42,7 @@ export function Page() {
         </div>
         <div className="relative flex items-center space-x-3 rounded-lg border border-zinc-300 bg-white px-6 py-5 shadow-sm focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 hover:border-zinc-400">
           <div className="flex-shrink-0">
-            <img className="h-10 w-10 rounded-full" alt="" />
+            {/* <img className="h-10 w-10 rounded-full" alt="" /> */}
           </div>
 
           <div className="min-w-0 flex-1">
