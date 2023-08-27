@@ -1,7 +1,7 @@
 import { ConnectKitButton } from "@/components/ConnectKitButton";
 import { Button } from "@/components/ui/button";
 
-export function Page() {
+export default function Page() {
   return (
     <div className="container">
       <nav className="flex justify-between py-4">
