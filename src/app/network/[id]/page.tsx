@@ -193,7 +193,7 @@ export default function Page({ params }: { params: { id: string } }) {
               </Badge>
             ) : null}
           </div>
-          <form action="" className="flex justify-between gap-5">
+          <form action="" className="flex justify-between gap-5 flex-col md:flex-row">
             <Input
               onChange={(e) => {
                 const value = e.target.value;
