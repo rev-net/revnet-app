@@ -151,8 +151,8 @@ export default function Page({ params }: { params: { id: string } }) {
 
   return (
     <div className="">
-      <header className="border-b border-b-zinc-500 pb-10">
-        <div className="container flex justify-between items-center">
+      <header>
+        <div className="container container-border-x flex justify-between items-center py-5">
           <div>
             <div className="flex items-center gap-2">
               <h1 className="text-3xl font-regular">${token?.symbol}</h1>
@@ -179,8 +179,8 @@ export default function Page({ params }: { params: { id: string } }) {
         </div>
       </header>
 
-      <div className="border-b border-b-zinc-500 bg-zinc-100">
-        <div className="container py-10">
+      <div className="border-y border-y-zinc-300 bg-zinc-100">
+        <div className="container container-border-x py-10">
           <div className="flex items-center gap-2 mb-2">
             <h2 className="text-base font-medium">Join network</h2>
             {secondsUntilNextCycle ? (
@@ -225,7 +225,7 @@ export default function Page({ params }: { params: { id: string } }) {
         </div>
       </div>
 
-      <div className="container py-10">
+      <div className="container container-border-x py-10">
         <div className="flex gap-10">
           <Stat label="Entry curve">{formatDiscountRate(entryTax)}%</Stat>
           <Stat label="Exit curve">{formatRedemptionRate(exitTax)}%</Stat>

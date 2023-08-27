@@ -2,3 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
+
+@layer components {
+    .container-border-x {
+      border-left: 1px solid theme('colors.zinc.300');
+      border-right: 1px solid theme('colors.zinc.300');
+      padding: 0 theme('spacing.7')
+    }
+  }
