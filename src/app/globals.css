@@ -5,8 +5,8 @@
 
 @layer components {
     .container-border-x {
-      border-left: 1px solid theme('colors.zinc.300');
-      border-right: 1px solid theme('colors.zinc.300');
+      border-left: 1px solid theme('colors.zinc.200');
+      border-right: 1px solid theme('colors.zinc.200');
       padding: 0 theme('spacing.7')
     }
   }

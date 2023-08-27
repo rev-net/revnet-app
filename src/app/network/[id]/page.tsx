@@ -180,8 +180,8 @@ export default function Page({ params }: { params: { id: string } }) {
         </div>
       </header>
 
-      <div className="border-y border-y-zinc-300 bg-zinc-100">
-        <div className="container container-border-x py-10">
+      <div className="border-y border-yzinc-200">
+        <div className="container container-border-x py-10 bg-zinc-100">
           <div className="flex items-center gap-2 mb-2">
             <h2 className="text-base font-medium">Join network</h2>
             {secondsUntilNextCycle ? (

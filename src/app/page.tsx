@@ -21,7 +21,7 @@ export default function Page() {
 
       <h2>Open for Retail</h2>
       <div className="grid grid-cols-2 gap-5">
-        <div className="relative flex items-center space-x-3 rounded-lg border border-zinc-300 bg-white px-6 py-5 shadow-sm focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 hover:border-zinc-400">
+        <div className="relative flex items-center space-x-3 rounded-lg border borderzinc-200 bg-white px-6 py-5 shadow-sm focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 hover:border-zinc-400">
           <div className="flex-shrink-0">
             {/* <img className="h-10 w-10 rounded-full" alt="" /> */}
           </div>
@@ -40,7 +40,7 @@ export default function Page() {
             <p className="truncate text-sm text-zinc-500">Backed by 10 ETH</p>
           </div>
         </div>
-        <div className="relative flex items-center space-x-3 rounded-lg border border-zinc-300 bg-white px-6 py-5 shadow-sm focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 hover:border-zinc-400">
+        <div className="relative flex items-center space-x-3 rounded-lg border borderzinc-200 bg-white px-6 py-5 shadow-sm focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 hover:border-zinc-400">
           <div className="flex-shrink-0">
             {/* <img className="h-10 w-10 rounded-full" alt="" /> */}
           </div>
