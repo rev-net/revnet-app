@@ -14,7 +14,7 @@
     "clsx": "^2.0.0",
     "connectkit": "^1.4.0",
     "date-fns": "^2.30.0",
-    "juice-hooks": "4.0.3-beta",
+    "juice-hooks": "4.0.4-beta",
     "lucide-react": "^0.268.0",
     "next": "^13.4.0",
     "react": "^18.2.0",
