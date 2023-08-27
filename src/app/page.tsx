@@ -1,8 +1,4 @@
-import { Account } from "@/components/Account";
-import { Balance } from "@/components/Balance";
 import { ConnectKitButton } from "@/components/ConnectKitButton";
-import { Connected } from "@/components/Connected";
-import { JuiceboxProjectOwner } from "@/components/JuiceboxProjectOwner";
 import { Button } from "@/components/ui/button";
 
 export function Page() {
@@ -58,8 +54,6 @@ export function Page() {
           </div>
         </div>
       </div>
-
-      <JuiceboxProjectOwner />
     </div>
   );
 }

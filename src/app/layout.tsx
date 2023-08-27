@@ -1,14 +1,19 @@
+import { DM_Sans, Playfair_Display } from "next/font/google";
+import { twMerge } from "tailwind-merge";
 import "./globals.css";
 import { Providers } from "./providers";
-
-import type { Metadata } from "next";
-import { Playfair_Display } from "next/font/google";
-import { twMerge } from "tailwind-merge";
+import { ConnectKitButton } from "connectkit";
+import { Nav } from "@/components/layout/Nav";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
   display: "swap",
   variable: "--font-playfair",
+});
+
+const dmSans = DM_Sans({
+  subsets: ["latin"],
+  display: "swap",
 });
 
 export const metadata = {
@@ -23,9 +28,17 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={twMerge(playfair.variable, "bg-neutral-25 text-stone-950")}
+        className={twMerge(
+          playfair.variable,
+          dmSans.className,
+          "bg-zinc-25 text-zinc-950"
+        )}
       >
-        <Providers>{children}</Providers>
+        <Providers>
+          <Nav />
+          <main>{children}</main>
+        </Providers>
+        <footer></footer>
       </body>
     </html>
   );
