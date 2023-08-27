@@ -157,7 +157,7 @@ export default function Page({ params }: { params: { id: string } }) {
             <div className="flex items-center gap-2">
               <h1 className="text-3xl font-regular">${token?.symbol}</h1>
               {token ? (
-                <Badge variant="secondary">
+                <Badge variant="secondary" className="font-normal">
                   <EtherscanLink value={formatEthAddress(token.address)} />
                 </Badge>
               ) : null}
