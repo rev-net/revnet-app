@@ -5,7 +5,7 @@ export function Footer() {
         <div>
           <div>REVNET ($REV)</div>
           <div className="text-zinc-400">
-            Built on Juicebox, backed by the full faith of ETH.
+            Backed by the full faith of ETH. Built on Juicebox.
           </div>
         </div>
       </div>

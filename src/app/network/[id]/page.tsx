@@ -95,6 +95,7 @@ export default function Page({ params }: { params: { id: string } }) {
   // set title
   // TODO, hacky, probably eventually a next-idiomatic way to do this.
   useEffect(() => {
+    if (!token?.symbol) return;
     document.title = `$${token?.symbol} | REVNET`;
   }, [token?.symbol]);
 
