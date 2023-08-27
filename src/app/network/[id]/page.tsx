@@ -17,6 +17,7 @@ import {
   getPaymentQuoteTokens,
   getTokenRedemptionQuoteEth,
   formatEther,
+  formatEthAddress,
 } from "@/lib/juicebox/utils";
 import {
   jbSingleTokenPaymentTerminalStoreABI,
@@ -155,9 +156,11 @@ export default function Page({ params }: { params: { id: string } }) {
           <div>
             <div className="flex items-center gap-2">
               <h1 className="text-3xl font-regular">${token?.symbol}</h1>
-              <Badge variant="secondary">
-                <EtherscanLink value={token?.address} />
-              </Badge>
+              {token ? (
+                <Badge variant="secondary">
+                  <EtherscanLink value={formatEthAddress(token.address)} />
+                </Badge>
+              ) : null}
             </div>
             <div>
               <span className="text-4xl font-bold mr-2">

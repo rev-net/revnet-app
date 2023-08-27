@@ -174,17 +174,17 @@ export function etherscanLink(
 
 export function formatEthAddress(
   address: string,
-  {
-    truncateTo = 4,
-  }: {
-    truncateTo?: number;
+  opts: {
+    truncateTo: number;
+  } = {
+    truncateTo: 4,
   }
 ) {
-  const frontTruncate = truncateTo + 2; // account for 0x
+  const frontTruncate = opts.truncateTo + 2; // account for 0x
   return (
     address.substring(0, frontTruncate) +
     "..." +
-    address.substring(address.length - truncateTo, address.length)
+    address.substring(address.length - opts.truncateTo, address.length)
   );
 }
 
