@@ -1,6 +1,6 @@
 export function Footer() {
   return (
-    <footer className="border-t border-t-zinc-900">
+    <footer className="border-t border-t-zinc-500">
       <div className="container py-10 grid grid-cols-4">
         <div>
           <div>REVNET ($REV)</div>
