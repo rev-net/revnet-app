@@ -1,15 +1,21 @@
 "use client";
 
+import { Ether } from "@/components/Ether";
 import EtherscanLink from "@/components/EtherscanLink";
-import { ClockIcon } from "@heroicons/react/24/outline";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Stat } from "@/components/ui/stat";
 import { useCountdownToDate } from "@/hooks/useCountdownToDate";
-import { ETH_TOKEN_ADDRESS, ONE_ETHER } from "@/lib/juicebox/constants";
+import {
+  ETHER_ADDRESS,
+  JB_CURRENCIES,
+  ONE_ETHER,
+} from "@/lib/juicebox/constants";
 import {
   formatDiscountRate,
+  formatEthAddress,
+  formatEther,
   formatRedemptionRate,
   formatReservedRate,
   formatSeconds,
@@ -17,9 +23,8 @@ import {
   getPaymentQuoteEth,
   getPaymentQuoteTokens,
   getTokenRedemptionQuoteEth,
-  formatEther,
-  formatEthAddress,
 } from "@/lib/juicebox/utils";
+import { ClockIcon } from "@heroicons/react/24/outline";
 import {
   jbSingleTokenPaymentTerminalStoreABI,
   jbethPaymentTerminal3_1_2ABI,
@@ -31,7 +36,7 @@ import {
   useJbTokenStoreTotalSupplyOf,
 } from "juice-hooks";
 import { useEffect, useMemo, useState } from "react";
-import { parseEther } from "viem";
+import { etherUnits, formatUnits, parseEther, parseUnits } from "viem";
 import { useContractRead, useToken } from "wagmi";
 
 export default function Page({ params }: { params: { id: string } }) {
@@ -55,19 +60,21 @@ export default function Page({ params }: { params: { id: string } }) {
     args: [projectId],
   });
   const { data: token } = useToken({ address: tokenAddress });
-  const { data: primaryTerminal } = useJbDirectoryPrimaryTerminalOf({
-    args: [projectId, ETH_TOKEN_ADDRESS],
+
+  const { data: primaryTerminalEth } = useJbDirectoryPrimaryTerminalOf({
+    args: [projectId, ETHER_ADDRESS],
   });
+
   const { data: store } = useContractRead({
-    address: primaryTerminal,
+    address: primaryTerminalEth,
     abi: jbethPaymentTerminal3_1_2ABI,
     functionName: "store",
   });
-  const { data: overflow } = useContractRead({
-    args: primaryTerminal ? [primaryTerminal, projectId] : undefined,
+  const { data: overflowEth } = useContractRead({
+    args: [projectId, BigInt(etherUnits.wei), JB_CURRENCIES.ETH],
     address: store,
     abi: jbSingleTokenPaymentTerminalStoreABI,
-    functionName: "currentOverflowOf",
+    functionName: "currentTotalOverflowOf",
   });
   const { data: tokensReserved } = useJbController3_1ReservedTokenBalanceOf({
     args: [projectId],
@@ -120,14 +127,52 @@ export default function Page({ params }: { params: { id: string } }) {
 
   // get token redemption quote AS IF the payment goes through and tokens are minted.
   const formRedemptionQuote =
-    formTokensQuote && token && overflow && totalTokenSupply && tokensReserved
+    formTokensQuote &&
+    token &&
+    overflowEth &&
+    totalTokenSupply &&
+    tokensReserved
       ? getTokenRedemptionQuoteEth(formTokensQuote.payerTokens, {
-          overflowWei: overflow + formTokensQuote.ethAmount,
+          overflowWei: overflowEth + formTokensQuote.ethAmount,
           totalSupply: totalTokenSupply + formTokensQuote.payerTokens,
           redemptionRate: cycleMetadata.redemptionRate,
           tokensReserved,
         })
       : undefined;
+
+  const totalSupplyFormatted =
+    totalTokenSupply && token
+      ? formatUnits(totalTokenSupply, token.decimals)
+      : null;
+
+  // if total supply is less than 1, use a decimal for the exit price base unit (0.1, 0.01, 0.001, etc.)
+  // if total supply is greater than 1, use 1 for the exit price base unit.
+  const exitFloorPriceUnit =
+    totalSupplyFormatted && totalTokenSupply && token
+      ? totalTokenSupply < parseUnits("1", token.decimals)
+        ? `0.${"0".repeat(
+            formatUnits(totalTokenSupply, token.decimals).split(".")[1].length -
+              1
+          )}1`
+        : "1"
+      : null;
+
+  const exitFloorPrice =
+    token &&
+    tokensReserved &&
+    totalTokenSupply &&
+    overflowEth &&
+    exitFloorPriceUnit
+      ? getTokenRedemptionQuoteEth(
+          parseUnits(exitFloorPriceUnit as `${number}`, token.decimals),
+          {
+            overflowWei: overflowEth,
+            totalSupply: totalTokenSupply,
+            redemptionRate: cycleMetadata.redemptionRate,
+            tokensReserved,
+          }
+        ) * 10n
+      : null;
 
   const nextCycleWeight = getNextCycleWeight({
     weight: cycleData.weight,
@@ -139,20 +184,8 @@ export default function Page({ params }: { params: { id: string } }) {
     reservedRate: devTax,
   });
 
-  // double the current supply
-  const scenarioNewTokens =
-    formTokensQuote &&
-    totalTokenSupply &&
-    (totalTokenSupply + formTokensQuote.payerTokens) * 2n;
-  const scenarioNewEth =
-    scenarioNewTokens &&
-    getPaymentQuoteEth(scenarioNewTokens, {
-      weight: nextCycleWeight,
-      reservedRate: devTax,
-    });
-
   return (
-    <div className="">
+    <div>
       <header>
         <div className="container container-border-x flex justify-between items-center py-10">
           <div>
@@ -164,17 +197,25 @@ export default function Page({ params }: { params: { id: string } }) {
                 </Badge>
               ) : null}
             </div>
-            <div>
+            <div className="mb-1">
               <span className="text-4xl font-bold mr-2">
-                {formatEther(ethQuote, { decimals: 4 })} ETH
+                <Ether wei={ethQuote} />
               </span>
-              <span className="text-sm">/DEFIFA</span>
+              <span className="text-sm">/{token?.symbol}</span>
             </div>
+            {exitFloorPrice ? (
+              <div className="text-sm">
+                <span className="font-medium">
+                  <Ether wei={exitFloorPrice} />
+                </span>{" "}
+                / {exitFloorPriceUnit} {token?.symbol} current floor
+              </div>
+            ) : null}
           </div>
           <div>
-            {overflow ? (
+            {overflowEth ? (
               <Stat label="Treasury">
-                {formatEther(overflow, { decimals: 4 })} ETH
+                <Ether wei={overflowEth} />
               </Stat>
             ) : null}
           </div>
@@ -210,22 +251,24 @@ export default function Page({ params }: { params: { id: string } }) {
             <Button>Buy and Join</Button>
           </form>
 
-          {formTokensQuote ? (
+          {formTokensQuote && token ? (
             <>
               <div>
-                Recieve: {formatEther(formTokensQuote.payerTokens)}{" "}
-                {token?.symbol}
+                Recieve:{" "}
+                {formatUnits(formTokensQuote.payerTokens, token.decimals)}{" "}
+                {token.symbol}
               </div>
               <div>
                 Boost contribution:{" "}
-                {formatEther(formTokensQuote.reservedTokens)} {token?.symbol}
+                {formatUnits(formTokensQuote.reservedTokens, token.decimals)}{" "}
+                {token.symbol}
               </div>
             </>
           ) : null}
 
           {formRedemptionQuote ? (
             <div>
-              Immediate redemption value: {formatEther(formRedemptionQuote)} ETH
+              Immediate redemption value: <Ether wei={formRedemptionQuote} />
             </div>
           ) : null}
         </div>
@@ -241,10 +284,11 @@ export default function Page({ params }: { params: { id: string } }) {
         <br />
 
         <div>
-          {totalTokenSupply && tokensReserved ? (
+          {totalTokenSupply && tokensReserved && token ? (
             <div>
-              {formatEther(totalTokenSupply)} {token?.symbol} in circulation (+{" "}
-              {formatEther(tokensReserved)} reserved)
+              {formatUnits(totalTokenSupply, token.decimals)} {token.symbol} in
+              circulation (+ {formatUnits(tokensReserved, token.decimals)}{" "}
+              reserved)
             </div>
           ) : null}
         </div>

@@ -1,5 +1,8 @@
 import { formatDuration, intervalToDuration } from "date-fns";
-import { formatEther as formatEtherViem } from "viem";
+import {
+  formatEther as formatEtherViem,
+  formatUnits as formatUnitsViem,
+} from "viem";
 import { Chain, mainnet } from "wagmi";
 import {
   MAX_DISCOUNT_RATE,
@@ -97,18 +100,18 @@ export function formatSeconds(seconds: number) {
 
 /**
  * Returns the ETH value (in wei) that a given [tokensAmount] can be redeemed for.
- * Formula: https://www.desmos.com/calculator/sp9ru6zbpk
  *
+ * Formula: https://www.desmos.com/calculator/sp9ru6zbpk
  * y = ox/s * ( r + (x(1 - r)/s) )
  *
  * Where:
- * y = redeemable amount
+ * - y = redeemable amount
+ * - o = overflow (primaryTerminalCurrentOverflow)
+ * - x = tokenAmount
+ * - s = total supply of token (realTotalTokenSupply)
+ * - r = redemptionRate
  *
- * o = overflow (primaryTerminalCurrentOverflow)
- * x = tokenAmount
- * s = total supply of token (realTotalTokenSupply)
- * r = redemptionRate
- *
+ * @implements JBSingleTokenPaymentTerminalStore._reclaimableOverflowDuring (https://github.com/jbx-protocol/juice-contracts-v3/blob/main/contracts/JBSingleTokenPaymentTerminalStore.sol#L688)
  * @returns amount in ETH
  */
 export const getTokenRedemptionQuoteEth = (
@@ -125,15 +128,19 @@ export const getTokenRedemptionQuoteEth = (
     tokensReserved: bigint;
   }
 ) => {
+  // totalOutstandingTokensOf in contract.
   const realTotalSupply = totalSupply + tokensReserved;
+
   // base = ox/s
   const base = (overflowWei * tokensAmount) / realTotalSupply;
 
-  // numerator = r + (x(1 - r)/s)
-  const numerator =
-    redemptionRate +
+  if (redemptionRate === MAX_REDEMPTION_RATE) return base;
+
+  const frac =
     (tokensAmount * (MAX_REDEMPTION_RATE - redemptionRate)) / realTotalSupply;
 
+  // numerator = r + (x(1 - r)/s)
+  const numerator = redemptionRate + frac;
   // y = base * numerator ==> ox/s * ( r + (x(1 - r)/s) )
   const y = (base * numerator) / MAX_REDEMPTION_RATE;
 
@@ -193,6 +200,19 @@ export function formatEther(
   opts?: { decimals?: number }
 ): string {
   const formatted = formatEtherViem(value);
+
+  if (typeof opts?.decimals === "undefined") return formatted;
+
+  // parse float again to trim trailing 0s
+  return parseFloat(parseFloat(formatted).toFixed(opts?.decimals)).toString();
+}
+
+export function formatUnits(
+  value: bigint,
+  units: number,
+  opts?: { decimals?: number }
+) {
+  const formatted = formatUnitsViem(value, units);
 
   if (typeof opts?.decimals === "undefined") return formatted;
 
