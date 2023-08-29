@@ -40,9 +40,13 @@ import { useEffect, useMemo, useState } from "react";
 import { etherUnits, formatUnits, parseEther, parseUnits } from "viem";
 import { useContractRead, useToken } from "wagmi";
 import { ParticipantsTable } from "./ParticipantsTable";
+import { PayInput } from "@/components/pay/PayInput";
+import { ArrowRight } from "lucide-react";
+import { set } from "date-fns";
 
 export default function Page({ params }: { params: { id: string } }) {
-  const [formPayAmount, setFormPayAmount] = useState<string>("");
+  const [formPayAmountA, setFormPayAmountA] = useState<string>("");
+  const [formPayAmountB, setFormPayAmountB] = useState<string>("");
 
   const projectId = BigInt(params.id);
   const { data: address } = useJbProjectsOwnerOf({
@@ -96,14 +100,14 @@ export default function Page({ params }: { params: { id: string } }) {
       : undefined
   );
 
-  const payAmountWei = useMemo(() => {
-    if (!formPayAmount) return 0n;
+  const payAmountAWei = useMemo(() => {
+    if (!formPayAmountA) return 0n;
     try {
-      return parseEther(`${parseFloat(formPayAmount)}` as `${number}`);
+      return parseEther(`${parseFloat(formPayAmountA)}` as `${number}`);
     } catch {
       return 0n;
     }
-  }, [formPayAmount]);
+  }, [formPayAmountA]);
 
   // set title
   // TODO, hacky, probably eventually a next-idiomatic way to do this.
@@ -124,8 +128,8 @@ export default function Page({ params }: { params: { id: string } }) {
   });
 
   const formTokensQuote =
-    payAmountWei &&
-    getPaymentQuoteTokens(payAmountWei, {
+    payAmountAWei &&
+    getPaymentQuoteTokens(payAmountAWei, {
       weight: cycleData.weight,
       reservedRate: devTax,
     });
@@ -229,7 +233,7 @@ export default function Page({ params }: { params: { id: string } }) {
 
       <div className="border-y border-y-zinc-400">
         <div className="container container-border-x md:border-x py-6 bg-zinc-100">
-          <div className="flex items-center gap-2 mb-2">
+          <div className="flex items-center gap-2 mb-3">
             <h2 className="text-base font-medium">Join network</h2>
             {secondsUntilNextCycle ? (
               <Badge variant="warn" className="font-normal gap-1">
@@ -245,24 +249,73 @@ export default function Page({ params }: { params: { id: string } }) {
             action=""
             className="flex justify-between gap-5 flex-col md:flex-row"
           >
-            <Input
-              onChange={(e) => {
-                const value = e.target.value;
-                setFormPayAmount(value);
-              }}
-              value={formPayAmount}
-              className="max-w-sm"
-            />
-            <Button>Buy and Join</Button>
+            {token ? (
+              <div className="flex gap-5 items-center flex-col md:flex-row">
+                <PayInput
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    if (!value) {
+                      setFormPayAmountA("");
+                      setFormPayAmountB("");
+                      return;
+                    }
+
+                    const amountWei = parseEther(
+                      `${parseFloat(value)}` as `${number}`
+                    );
+                    const amountBQuote = getPaymentQuoteTokens(amountWei, {
+                      weight: cycleData.weight,
+                      reservedRate: devTax,
+                    });
+
+                    const amountBFormatted = formatUnits(
+                      amountBQuote.payerTokens,
+                      token?.decimals
+                    );
+
+                    setFormPayAmountA(value);
+                    setFormPayAmountB(amountBFormatted);
+                  }}
+                  value={formPayAmountA}
+                  className="w-full md:max-w-md"
+                  currency="ETH"
+                />
+                <div>
+                  <ArrowRight className="h-6 w-6 rotate-90 md:rotate-0" />
+                </div>
+                <PayInput
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    if (!value) {
+                      setFormPayAmountA("");
+                      setFormPayAmountB("");
+                      return;
+                    }
+
+                    const amountAQuote = parseEther(
+                      `${parseFloat(value) * parseFloat(formatEther(ethQuote))}`
+                    );
+                    const amountAFormatted = formatEther(amountAQuote, {
+                      decimals: 4,
+                    });
+
+                    setFormPayAmountA(amountAFormatted);
+                    setFormPayAmountB(value);
+                  }}
+                  value={formPayAmountB}
+                  className="w-full md:max-w-md"
+                  currency={token?.symbol}
+                />
+              </div>
+            ) : null}
+
+            <Button size="lg" className="h-12">
+              Buy and Join
+            </Button>
           </form>
 
           {formTokensQuote && token ? (
             <>
-              <div>
-                Recieve:{" "}
-                {formatUnits(formTokensQuote.payerTokens, token.decimals)}{" "}
-                {token.symbol}
-              </div>
               <div>
                 Boost contribution:{" "}
                 {formatUnits(formTokensQuote.reservedTokens, token.decimals)}{" "}
