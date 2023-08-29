@@ -50,20 +50,24 @@ export function ParticipantsTable({
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead className="w-[100px]">Account</TableHead>
+          <TableHead className="w-auto md:w-1/2">Account</TableHead>
           <TableHead>Paid</TableHead>
           <TableHead>Tokens</TableHead>
-          <TableHead>% ownership</TableHead>
+          <TableHead>Ownership %</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
         {participantsData?.participants.map((participant) => (
           <TableRow key={participant.id}>
             <TableCell>
-              <EthereumAddress address={participant.wallet.id} short withEns />
+              <EthereumAddress
+                address={participant.wallet.id}
+                short
+                withEnsAvatar
+                withEnsName
+              />
             </TableCell>
             <TableCell>{formatEther(participant.volume)} ETH</TableCell>
-
             <TableCell>
               {formatUnits(participant.balance, token.decimals)} {token.symbol}
             </TableCell>
