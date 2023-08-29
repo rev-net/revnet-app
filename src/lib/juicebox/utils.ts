@@ -182,11 +182,13 @@ export function etherscanLink(
 export function formatEthAddress(
   address: string,
   opts: {
-    truncateTo: number;
+    truncateTo?: number;
   } = {
     truncateTo: 4,
   }
 ) {
+  if (!opts.truncateTo) return address;
+
   const frontTruncate = opts.truncateTo + 2; // account for 0x
   return (
     address.substring(0, frontTruncate) +

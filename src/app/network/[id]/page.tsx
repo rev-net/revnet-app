@@ -24,6 +24,7 @@ import {
   getPaymentQuoteTokens,
   getTokenRedemptionQuoteEth,
 } from "@/lib/juicebox/utils";
+import { ApolloClient, InMemoryCache } from "@apollo/client";
 import { ClockIcon } from "@heroicons/react/24/outline";
 import {
   jbSingleTokenPaymentTerminalStoreABI,
@@ -38,6 +39,7 @@ import {
 import { useEffect, useMemo, useState } from "react";
 import { etherUnits, formatUnits, parseEther, parseUnits } from "viem";
 import { useContractRead, useToken } from "wagmi";
+import { ParticipantsTable } from "./ParticipantsTable";
 
 export default function Page({ params }: { params: { id: string } }) {
   const [formPayAmount, setFormPayAmount] = useState<string>("");
@@ -82,6 +84,9 @@ export default function Page({ params }: { params: { id: string } }) {
   const { data: totalTokenSupply } = useJbTokenStoreTotalSupplyOf({
     args: [projectId],
   });
+
+  const totalOutstandingTokens =
+    (totalTokenSupply ?? 0n) + (tokensReserved ?? 0n);
 
   const [cycleData, cycleMetadata] = cycleResponse || [];
 
@@ -187,7 +192,7 @@ export default function Page({ params }: { params: { id: string } }) {
   return (
     <div>
       <header>
-        <div className="container container-border-x flex justify-between items-center py-10">
+        <div className="container container-border-x md:border-x flex justify-between md:items-center py-10 md:flex-row flex-col gap-5 ">
           <div>
             <div className="flex items-center gap-2">
               <h1 className="text-3xl font-regular">${token?.symbol}</h1>
@@ -223,7 +228,7 @@ export default function Page({ params }: { params: { id: string } }) {
       </header>
 
       <div className="border-y border-y-zinc-400">
-        <div className="container container-border-x py-6 bg-zinc-100">
+        <div className="container container-border-x md:border-x py-6 bg-zinc-100">
           <div className="flex items-center gap-2 mb-2">
             <h2 className="text-base font-medium">Join network</h2>
             {secondsUntilNextCycle ? (
@@ -274,7 +279,7 @@ export default function Page({ params }: { params: { id: string } }) {
         </div>
       </div>
 
-      <div className="container container-border-x py-10">
+      <div className="container container-border-x md:border-x py-10">
         <div className="flex gap-10">
           <Stat label="Entry curve">{formatDiscountRate(entryTax)}%</Stat>
           <Stat label="Exit curve">{formatRedemptionRate(exitTax)}%</Stat>
@@ -284,6 +289,18 @@ export default function Page({ params }: { params: { id: string } }) {
         <br />
 
         <div>
+          <h2 className="text-zinc-500">Holders</h2>
+
+          {token && (
+            <ParticipantsTable
+              projectId={projectId}
+              token={token}
+              totalSupply={totalOutstandingTokens}
+            />
+          )}
+        </div>
+        {/* 
+        <div>
           {totalTokenSupply && tokensReserved && token ? (
             <div>
               {formatUnits(totalTokenSupply, token.decimals)} {token.symbol} in
@@ -291,13 +308,13 @@ export default function Page({ params }: { params: { id: string } }) {
               reserved)
             </div>
           ) : null}
-        </div>
+        </div> */}
 
-        <div>
+        {/* <div>
           Gen {(cycleData.number + 1n).toString()} buy price:{" "}
           {formatEther(nextCycleEthQuote)} ETH / {token?.symbol} (+
           {formatEther(nextCycleEthQuote - ethQuote)} ETH)
-        </div>
+        </div> */}
       </div>
     </div>
   );

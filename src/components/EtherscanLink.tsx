@@ -21,10 +21,7 @@ const EtherscanLink: React.FC<
 
   return (
     <ExternalLink
-      className={twMerge(
-        "text-current hover:text-bluebs-500 hover:underline",
-        className
-      )}
+      className={twMerge("text-current", className)}
       href={etherscanLink(value, {
         type,
         chain,
