@@ -287,9 +287,10 @@ export default function Page({ params }: { params: { id: string } }) {
         </div>
 
         <br />
+        <br />
 
         <div>
-          <h2 className="text-zinc-500">Holders</h2>
+          <h2 className="font-medium uppercase text-sm mb-3">Holders</h2>
 
           {token && (
             <ParticipantsTable

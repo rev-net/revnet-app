@@ -46,8 +46,6 @@ export function ParticipantsTable({
     },
   });
 
-  console.log(participantsData, totalSupply);
-
   return (
     <Table>
       <TableHeader>
@@ -61,7 +59,7 @@ export function ParticipantsTable({
       <TableBody>
         {participantsData?.participants.map((participant) => (
           <TableRow key={participant.id}>
-            <TableCell className="font-medium">
+            <TableCell>
               <EthereumAddress address={participant.wallet.id} short withEns />
             </TableCell>
             <TableCell>{formatEther(participant.volume)} ETH</TableCell>
