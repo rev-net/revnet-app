@@ -9873,6 +9873,15 @@ export type ParticipantsQueryVariables = Exact<{
 
 export type ParticipantsQuery = { participants: Array<{ volume: any, lastPaidTimestamp: number, balance: any, stakedBalance: any, id: string, wallet: { id: string } }> };
 
+export type ProjectsQueryVariables = Exact<{
+  where?: InputMaybe<Project_Filter>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+export type ProjectsQuery = { projects: Array<{ projectId: number, metadataUri: string | null, handle: string | null, contributorsCount: number }> };
+
 
 
 export type ResolverTypeWrapper<T> = Promise<T> | T;
@@ -11150,3 +11159,43 @@ export function useParticipantsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptio
 export type ParticipantsQueryHookResult = ReturnType<typeof useParticipantsQuery>;
 export type ParticipantsLazyQueryHookResult = ReturnType<typeof useParticipantsLazyQuery>;
 export type ParticipantsQueryResult = Apollo.QueryResult<ParticipantsQuery, ParticipantsQueryVariables>;
+export const ProjectsDocument = gql`
+    query Projects($where: Project_filter, $first: Int, $skip: Int) {
+  projects(where: $where, first: $first, skip: $skip) {
+    projectId
+    metadataUri
+    handle
+    contributorsCount
+  }
+}
+    `;
+
+/**
+ * __useProjectsQuery__
+ *
+ * To run a query within a React component, call `useProjectsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useProjectsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useProjectsQuery({
+ *   variables: {
+ *      where: // value for 'where'
+ *      first: // value for 'first'
+ *      skip: // value for 'skip'
+ *   },
+ * });
+ */
+export function useProjectsQuery(baseOptions?: Apollo.QueryHookOptions<ProjectsQuery, ProjectsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ProjectsQuery, ProjectsQueryVariables>(ProjectsDocument, options);
+      }
+export function useProjectsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ProjectsQuery, ProjectsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ProjectsQuery, ProjectsQueryVariables>(ProjectsDocument, options);
+        }
+export type ProjectsQueryHookResult = ReturnType<typeof useProjectsQuery>;
+export type ProjectsLazyQueryHookResult = ReturnType<typeof useProjectsLazyQuery>;
+export type ProjectsQueryResult = Apollo.QueryResult<ProjectsQuery, ProjectsQueryVariables>;

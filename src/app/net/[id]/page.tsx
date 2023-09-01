@@ -2,15 +2,23 @@
 
 import { Ether } from "@/components/Ether";
 import EtherscanLink from "@/components/EtherscanLink";
+import { PayInput } from "@/components/pay/PayInput";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Stat } from "@/components/ui/stat";
+import {
+  OrderDirection,
+  Participant_OrderBy,
+  useParticipantsQuery,
+  useProjectsQuery,
+} from "@/generated/graphql";
+import { useProjectMetadata } from "@/hooks/juicebox/useProjectMetadata";
 import { useCountdownToDate } from "@/hooks/useCountdownToDate";
 import {
   ETHER_ADDRESS,
   JB_CURRENCIES,
   ONE_ETHER,
+  PV2,
 } from "@/lib/juicebox/constants";
 import {
   formatDiscountRate,
@@ -24,8 +32,7 @@ import {
   getPaymentQuoteTokens,
   getTokenRedemptionQuoteEth,
 } from "@/lib/juicebox/utils";
-import { ApolloClient, InMemoryCache } from "@apollo/client";
-import { ClockIcon } from "@heroicons/react/24/outline";
+import { ArrowTrendingUpIcon, ClockIcon } from "@heroicons/react/24/outline";
 import {
   jbSingleTokenPaymentTerminalStoreABI,
   jbethPaymentTerminal3_1_2ABI,
@@ -36,13 +43,18 @@ import {
   useJbTokenStoreTokenOf,
   useJbTokenStoreTotalSupplyOf,
 } from "juice-hooks";
+import { ArrowRight } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import { etherUnits, formatUnits, parseEther, parseUnits } from "viem";
+import {
+  etherUnits,
+  formatUnits,
+  parseEther,
+  parseUnits,
+  zeroAddress,
+} from "viem";
 import { useContractRead, useToken } from "wagmi";
 import { ParticipantsTable } from "./ParticipantsTable";
-import { PayInput } from "@/components/pay/PayInput";
-import { ArrowRight } from "lucide-react";
-import { set } from "date-fns";
+import { ipfsUriToGatewayUrl } from "@/lib/ipfs";
 
 export default function Page({ params }: { params: { id: string } }) {
   const [formPayAmountA, setFormPayAmountA] = useState<string>("");
@@ -115,6 +127,32 @@ export default function Page({ params }: { params: { id: string } }) {
     if (!token?.symbol) return;
     document.title = `$${token?.symbol} | REVNET`;
   }, [token?.symbol]);
+
+  const { data: projects } = useProjectsQuery({
+    variables: {
+      where: {
+        projectId: Number(projectId),
+        pv: PV2,
+      },
+      first: 1,
+    },
+  });
+  const { data: participantsData } = useParticipantsQuery({
+    variables: {
+      orderBy: Participant_OrderBy.balance,
+      orderDirection: OrderDirection.desc,
+      where: {
+        projectId: Number(projectId),
+        pv: PV2,
+        balance_gt: "0",
+        wallet_not: zeroAddress,
+      },
+    },
+  });
+
+  const { metadataUri, contributorsCount } = projects?.projects?.[0] ?? {};
+  const { data: projectMetadata } = useProjectMetadata(metadataUri);
+  const { name: projectName, projectTagline, logoUri } = projectMetadata ?? {};
 
   if (!cycleData || !cycleMetadata) return null;
 
@@ -199,33 +237,48 @@ export default function Page({ params }: { params: { id: string } }) {
         <div className="container container-border-x md:border-x flex justify-between md:items-center py-10 md:flex-row flex-col gap-5 ">
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-3xl font-regular">${token?.symbol}</h1>
+              {logoUri && (
+                <img
+                  src={ipfsUriToGatewayUrl(logoUri)}
+                  className="rounded-full overflow-hidden h-9 w-9 block"
+                  alt={token?.symbol}
+                />
+              )}
+              <h1 className="text-3xl font-regular">{projectName}</h1>
               {token ? (
                 <Badge variant="secondary" className="font-normal">
-                  <EtherscanLink value={formatEthAddress(token.address)} />
+                  <EtherscanLink value={formatEthAddress(token.address)}>
+                    ${token?.symbol}
+                  </EtherscanLink>
                 </Badge>
               ) : null}
             </div>
-            <div className="mb-1">
+            <div>
+              <span>{projectTagline}</span>
+            </div>
+            {/* <div className="mb-1">
               <span className="text-4xl font-bold mr-2">
                 <Ether wei={ethQuote} />
               </span>
-              <span className="text-sm">/{token?.symbol}</span>
-            </div>
-            {exitFloorPrice ? (
+              <span className="text-sm"> / ${token?.symbol}</span>
+            </div> */}
+            {/* {exitFloorPrice ? (
               <div className="text-sm">
                 <span className="font-medium">
                   <Ether wei={exitFloorPrice} />
                 </span>{" "}
                 / {exitFloorPriceUnit} {token?.symbol} current floor
               </div>
-            ) : null}
+            ) : null} */}
           </div>
-          <div>
-            {overflowEth ? (
-              <Stat label="Treasury">
+          <div className="flex gap-10">
+            {typeof overflowEth !== "undefined" ? (
+              <Stat label="Backed by">
                 <Ether wei={overflowEth} />
               </Stat>
+            ) : null}
+            {typeof contributorsCount !== "undefined" ? (
+              <Stat label="Participants">{contributorsCount}</Stat>
             ) : null}
           </div>
         </div>
@@ -235,77 +288,91 @@ export default function Page({ params }: { params: { id: string } }) {
         <div className="container container-border-x md:border-x py-6 bg-zinc-100">
           <div className="flex items-center gap-2 mb-3">
             <h2 className="text-base font-medium">Join network</h2>
-            {secondsUntilNextCycle ? (
-              <Badge variant="warn" className="font-normal gap-1">
-                <ClockIcon className="w-4 h-4" />
-                Price increase in{" "}
-                <span className="font-medium">
-                  {formatSeconds(secondsUntilNextCycle)}
-                </span>
-              </Badge>
-            ) : null}
           </div>
           <form
             action=""
             className="flex justify-between gap-5 flex-col md:flex-row"
           >
             {token ? (
-              <div className="flex gap-5 items-center flex-col md:flex-row">
-                <PayInput
-                  onChange={(e) => {
-                    const value = e.target.value;
-                    if (!value) {
-                      setFormPayAmountA("");
-                      setFormPayAmountB("");
-                      return;
-                    }
+              <div>
+                <div className="flex gap-5 items-center flex-col md:flex-row mb-2">
+                  <PayInput
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      if (!value) {
+                        setFormPayAmountA("");
+                        setFormPayAmountB("");
+                        return;
+                      }
 
-                    const amountWei = parseEther(
-                      `${parseFloat(value)}` as `${number}`
-                    );
-                    const amountBQuote = getPaymentQuoteTokens(amountWei, {
-                      weight: cycleData.weight,
-                      reservedRate: devTax,
-                    });
+                      const amountWei = parseEther(
+                        `${parseFloat(value)}` as `${number}`
+                      );
+                      const amountBQuote = getPaymentQuoteTokens(amountWei, {
+                        weight: cycleData.weight,
+                        reservedRate: devTax,
+                      });
 
-                    const amountBFormatted = formatUnits(
-                      amountBQuote.payerTokens,
-                      token?.decimals
-                    );
+                      const amountBFormatted = formatUnits(
+                        amountBQuote.payerTokens,
+                        token?.decimals
+                      );
 
-                    setFormPayAmountA(value);
-                    setFormPayAmountB(amountBFormatted);
-                  }}
-                  value={formPayAmountA}
-                  className="w-full md:max-w-md"
-                  currency="ETH"
-                />
-                <div>
-                  <ArrowRight className="h-6 w-6 rotate-90 md:rotate-0" />
+                      setFormPayAmountA(value);
+                      setFormPayAmountB(amountBFormatted);
+                    }}
+                    value={formPayAmountA}
+                    className="w-full md:max-w-md"
+                    currency="ETH"
+                  />
+                  <div>
+                    <ArrowRight className="h-6 w-6 rotate-90 md:rotate-0" />
+                  </div>
+                  <PayInput
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      if (!value) {
+                        setFormPayAmountA("");
+                        setFormPayAmountB("");
+                        return;
+                      }
+
+                      const amountAQuote = parseEther(
+                        `${
+                          parseFloat(value) * parseFloat(formatEther(ethQuote))
+                        }`
+                      );
+                      const amountAFormatted = formatEther(amountAQuote, {
+                        decimals: 4,
+                      });
+
+                      setFormPayAmountA(amountAFormatted);
+                      setFormPayAmountB(value);
+                    }}
+                    value={formPayAmountB}
+                    className="w-full md:max-w-md"
+                    currency={token?.symbol}
+                  />
                 </div>
-                <PayInput
-                  onChange={(e) => {
-                    const value = e.target.value;
-                    if (!value) {
-                      setFormPayAmountA("");
-                      setFormPayAmountB("");
-                      return;
-                    }
+                <div className="flex gap-2 text-sm">
+                  <div>
+                    1 {token?.symbol} = <Ether wei={ethQuote} />
+                  </div>
 
-                    const amountAQuote = parseEther(
-                      `${parseFloat(value) * parseFloat(formatEther(ethQuote))}`
-                    );
-                    const amountAFormatted = formatEther(amountAQuote, {
-                      decimals: 4,
-                    });
-
-                    setFormPayAmountA(amountAFormatted);
-                    setFormPayAmountB(value);
-                  }}
-                  value={formPayAmountB}
-                  className="w-full md:max-w-md"
-                  currency={token?.symbol}
-                />
+                  {secondsUntilNextCycle ? (
+                    <Badge variant="warn" className="font-normal gap-1">
+                      <ArrowTrendingUpIcon className="w-4 h-4" />
+                      Increasing{" "}
+                      <span className="font-medium">
+                        {formatDiscountRate(entryTax)}%
+                      </span>{" "}
+                      in{" "}
+                      <span className="font-medium">
+                        {formatSeconds(secondsUntilNextCycle)}
+                      </span>
+                    </Badge>
+                  ) : null}
+                </div>
               </div>
             ) : null}
 
@@ -345,12 +412,16 @@ export default function Page({ params }: { params: { id: string } }) {
         <div>
           <h2 className="font-medium uppercase text-sm mb-3">Holders</h2>
 
-          {token && (
+          {token &&
+          participantsData &&
+          participantsData.participants.length > 0 ? (
             <ParticipantsTable
-              projectId={projectId}
+              participants={participantsData}
               token={token}
               totalSupply={totalOutstandingTokens}
             />
+          ) : (
+            "No holders yet."
           )}
         </div>
         {/* 

@@ -2,50 +2,24 @@ import { EthereumAddress } from "@/components/EthereumAddress";
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  OrderDirection,
-  Participant_OrderBy,
-  ParticipantsDocument,
-  ParticipantsQuery,
-  QueryParticipantsArgs,
-} from "@/generated/graphql";
+import { ParticipantsQuery } from "@/generated/graphql";
 import { formatEther, formatUnits } from "@/lib/juicebox/utils";
-import { useQuery } from "@apollo/client";
-import { zeroAddress } from "viem";
 import { FetchTokenResult } from "wagmi/dist/actions";
-const PV = "2";
 
 export function ParticipantsTable({
-  projectId,
+  participants,
   token,
   totalSupply,
 }: {
-  projectId: bigint;
+  participants: ParticipantsQuery;
   token: FetchTokenResult;
   totalSupply: bigint;
 }) {
-  const { data: participantsData } = useQuery<
-    ParticipantsQuery,
-    QueryParticipantsArgs
-  >(ParticipantsDocument, {
-    variables: {
-      orderBy: Participant_OrderBy.balance,
-      orderDirection: OrderDirection.desc,
-      where: {
-        projectId: Number(projectId),
-        pv: PV,
-        balance_gt: "0",
-        wallet_not: zeroAddress,
-      },
-    },
-  });
-
   return (
     <Table>
       <TableHeader>
@@ -57,7 +31,7 @@ export function ParticipantsTable({
         </TableRow>
       </TableHeader>
       <TableBody>
-        {participantsData?.participants.map((participant) => (
+        {participants?.participants.map((participant) => (
           <TableRow key={participant.id}>
             <TableCell>
               <EthereumAddress

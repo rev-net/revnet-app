@@ -11,3 +11,4 @@ export const JB_CURRENCIES = {
   ETH: 1n,
   USD: 2n,
 };
+export const PV2 = "2";
