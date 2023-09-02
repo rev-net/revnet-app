@@ -236,7 +236,7 @@ export default function Page({ params }: { params: { id: string } }) {
       <header>
         <div className="container container-border-x md:border-x flex justify-between md:items-center py-10 md:flex-row flex-col gap-5 ">
           <div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 mb-2">
               {logoUri && (
                 <img
                   src={ipfsUriToGatewayUrl(logoUri)}
@@ -354,30 +354,29 @@ export default function Page({ params }: { params: { id: string } }) {
                     currency={token?.symbol}
                   />
                 </div>
-                <div className="flex gap-2 text-sm">
+                <div className="flex flex-col gap-1 text-sm">
                   <div>
                     1 {token?.symbol} = <Ether wei={ethQuote} />
                   </div>
 
                   {secondsUntilNextCycle ? (
-                    <Badge variant="warn" className="font-normal gap-1">
+                    <div className="font-normal gap-1 text-red-600 flex">
                       <ArrowTrendingUpIcon className="w-4 h-4" />
-                      Increasing{" "}
                       <span className="font-medium">
                         {formatDiscountRate(entryTax)}%
                       </span>{" "}
-                      in{" "}
+                      increase in{" "}
                       <span className="font-medium">
                         {formatSeconds(secondsUntilNextCycle)}
                       </span>
-                    </Badge>
+                    </div>
                   ) : null}
                 </div>
               </div>
             ) : null}
 
             <Button size="lg" className="h-12">
-              Buy and Join
+              Join now
             </Button>
           </form>
 
