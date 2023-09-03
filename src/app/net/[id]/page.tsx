@@ -42,6 +42,7 @@ import {
   useJbProjectsOwnerOf,
   useJbTokenStoreTokenOf,
   useJbTokenStoreTotalSupplyOf,
+  usePrepareJbethPaymentTerminal3_1_2Pay,
 } from "juice-hooks";
 import { ArrowRight } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
@@ -55,6 +56,7 @@ import {
 import { useContractRead, useToken } from "wagmi";
 import { ParticipantsTable } from "./ParticipantsTable";
 import { ipfsUriToGatewayUrl } from "@/lib/ipfs";
+import { usePayEthPaymentTerminal } from "@/hooks/juicebox/usePayEthPaymentTerminal";
 
 export default function Page({ params }: { params: { id: string } }) {
   const [formPayAmountA, setFormPayAmountA] = useState<string>("");
@@ -127,6 +129,22 @@ export default function Page({ params }: { params: { id: string } }) {
     if (!token?.symbol) return;
     document.title = `$${token?.symbol} | REVNET`;
   }, [token?.symbol]);
+
+  const { write, isLoading, isSuccess, isError } = usePayEthPaymentTerminal(
+    {
+      projectId,
+      amountWei: payAmountAWei,
+      token: ETHER_ADDRESS,
+      minReturnedTokens: 0n,
+      preferClaimedTokens: true,
+      memo: `Joined REVNET ${projectId}`,
+    },
+    {
+      onSuccess() {
+        alert("Mint complete");
+      },
+    }
+  );
 
   const { data: projects } = useProjectsQuery({
     variables: {
@@ -253,7 +271,7 @@ export default function Page({ params }: { params: { id: string } }) {
                 </Badge>
               ) : null}
             </div>
-            <div>
+            <div className="text-zinc-500">
               <span>{projectTagline}</span>
             </div>
             {/* <div className="mb-1">
@@ -287,16 +305,21 @@ export default function Page({ params }: { params: { id: string } }) {
       <div className="border-y border-y-zinc-400">
         <div className="container container-border-x md:border-x py-6 bg-zinc-100">
           <div className="flex items-center gap-2 mb-3">
-            <h2 className="text-base font-medium">Join network</h2>
+            <h2 className="text-lg font-medium">Join network</h2>
           </div>
           <form
             action=""
-            className="flex justify-between gap-5 flex-col md:flex-row"
+            className="flex justify-between flex-col md:flex-row mb-3 gap-10"
+            onSubmit={(e) => {
+              e.preventDefault();
+              write?.();
+            }}
           >
             {token ? (
-              <div>
-                <div className="flex gap-5 items-center flex-col md:flex-row mb-2">
+              <div className="w-full">
+                <div className="flex gap-5 items-center flex-col md:flex-row mb-4">
                   <PayInput
+                    label="You pay"
                     onChange={(e) => {
                       const value = e.target.value;
                       if (!value) {
@@ -322,13 +345,13 @@ export default function Page({ params }: { params: { id: string } }) {
                       setFormPayAmountB(amountBFormatted);
                     }}
                     value={formPayAmountA}
-                    className="w-full md:max-w-md"
                     currency="ETH"
                   />
                   <div>
                     <ArrowRight className="h-6 w-6 rotate-90 md:rotate-0" />
                   </div>
                   <PayInput
+                    label="You receive"
                     onChange={(e) => {
                       const value = e.target.value;
                       if (!value) {
@@ -350,37 +373,35 @@ export default function Page({ params }: { params: { id: string } }) {
                       setFormPayAmountB(value);
                     }}
                     value={formPayAmountB}
-                    className="w-full md:max-w-md"
                     currency={token?.symbol}
                   />
                 </div>
-                <div className="flex flex-col gap-1 text-sm">
+                <div className="flex flex-col gap-1 text-sm items-center md:items-start">
                   <div>
                     1 {token?.symbol} = <Ether wei={ethQuote} />
                   </div>
 
                   {secondsUntilNextCycle ? (
-                    <div className="font-normal gap-1 text-red-600 flex">
-                      <ArrowTrendingUpIcon className="w-4 h-4" />
-                      <span className="font-medium">
-                        {formatDiscountRate(entryTax)}%
-                      </span>{" "}
-                      increase in{" "}
-                      <span className="font-medium">
-                        {formatSeconds(secondsUntilNextCycle)}
-                      </span>
+                    <div className="gap-1 text-orange-600 text-xs flex items-center font-medium">
+                      <ClockIcon className="w-4 h-4" />
+                      {formatDiscountRate(entryTax)}% increase scheduled in{" "}
+                      {formatSeconds(secondsUntilNextCycle)}
                     </div>
                   ) : null}
                 </div>
               </div>
             ) : null}
 
-            <Button size="lg" className="h-12">
-              Join now
+            <Button
+              size="lg"
+              className="h-16 text-base min-w-[20%] flex items-center gap-2 hover:gap-[10px] whitespace-nowrap transition-all"
+              type="submit"
+            >
+              Join now <ArrowRight className="h-4 w-4" />
             </Button>
           </form>
 
-          {formTokensQuote && token ? (
+          {/* {formTokensQuote && token ? (
             <>
               <div>
                 Boost contribution:{" "}
@@ -388,7 +409,7 @@ export default function Page({ params }: { params: { id: string } }) {
                 {token.symbol}
               </div>
             </>
-          ) : null}
+          ) : null} */}
 
           {formRedemptionQuote ? (
             <div>
