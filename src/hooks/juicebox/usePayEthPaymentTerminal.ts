@@ -1,10 +1,20 @@
 import { DEFAULT_MEMO, DEFAULT_METADATA } from "@/lib/juicebox/constants";
-import { usePrepareJbethPaymentTerminal3_1_2Pay } from "juice-hooks";
+import {
+  jbethPaymentTerminal3_1_2ABI,
+  usePrepareJbethPaymentTerminal3_1_2Pay,
+} from "juice-hooks";
 import { Hash } from "viem";
-import { useAccount, useContractWrite, useWaitForTransaction } from "wagmi";
+import {
+  UsePrepareContractWriteConfig,
+  useAccount,
+  useContractWrite,
+  usePrepareContractWrite,
+  useWaitForTransaction,
+} from "wagmi";
 
 interface PayParams {
   projectId: bigint;
+  terminalAddress: Hash | undefined;
   amountWei: bigint;
   token: Hash;
   minReturnedTokens: bigint;
@@ -19,6 +29,7 @@ interface PayCallbacks {
 export function usePayEthPaymentTerminal(
   {
     projectId,
+    terminalAddress,
     amountWei,
     token,
     minReturnedTokens,
@@ -40,11 +51,14 @@ export function usePayEthPaymentTerminal(
     "0x00",
   ] as const;
 
-  const { config } = usePrepareJbethPaymentTerminal3_1_2Pay({
+  const { config } = usePrepareContractWrite({
+    abi: jbethPaymentTerminal3_1_2ABI,
+    address: terminalAddress,
+    functionName: "pay",
     args,
     value: amountWei,
-    enabled: Boolean(address && amountWei > 0n),
-  });
+    enabled: Boolean(address && terminalAddress && amountWei > 0n),
+  } as UsePrepareContractWriteConfig<typeof jbethPaymentTerminal3_1_2ABI, "pay">);
 
   const { data, write, isError, error } = useContractWrite(config);
   if (isError) {
@@ -52,10 +66,7 @@ export function usePayEthPaymentTerminal(
   }
 
   const { isLoading, isSuccess } = useWaitForTransaction({
-    hash: data?.hash,
-    onSuccess() {
-      onSuccess?.();
-    },
+    hash: data?.hash
   });
 
   return {

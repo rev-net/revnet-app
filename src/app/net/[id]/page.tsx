@@ -95,6 +95,8 @@ export default function Page({ params }: { params: { id: string } }) {
     address: store,
     abi: jbSingleTokenPaymentTerminalStoreABI,
     functionName: "currentTotalOverflowOf",
+    watch: true,
+    staleTime: 10_000, // 10 seconds
   });
   const { data: tokensReserved } = useJbController3_1ReservedTokenBalanceOf({
     args: [projectId],
@@ -133,6 +135,7 @@ export default function Page({ params }: { params: { id: string } }) {
   const { write, isLoading, isSuccess, isError } = usePayEthPaymentTerminal(
     {
       projectId,
+      terminalAddress: primaryTerminalEth,
       amountWei: payAmountAWei,
       token: ETHER_ADDRESS,
       minReturnedTokens: 0n,
@@ -166,6 +169,7 @@ export default function Page({ params }: { params: { id: string } }) {
         wallet_not: zeroAddress,
       },
     },
+    pollInterval: 10_000,
   });
 
   const { metadataUri, contributorsCount } = projects?.projects?.[0] ?? {};
@@ -366,7 +370,7 @@ export default function Page({ params }: { params: { id: string } }) {
                         }`
                       );
                       const amountAFormatted = formatEther(amountAQuote, {
-                        decimals: 4,
+                        decimals: 8,
                       });
 
                       setFormPayAmountA(amountAFormatted);
