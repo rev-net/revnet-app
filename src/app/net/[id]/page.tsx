@@ -60,6 +60,7 @@ import { useContractRead, useToken } from "wagmi";
 import { ParticipantsTable } from "./ParticipantsTable";
 import { SplitGroup } from "@/types/juicebox";
 import { EthereumAddress } from "@/components/EthereumAddress";
+import { PayDialog } from "./PayDialog";
 
 export default function Page({ params }: { params: { id: string } }) {
   const [formPayAmountA, setFormPayAmountA] = useState<string>("");
@@ -142,23 +143,6 @@ export default function Page({ params }: { params: { id: string } }) {
     if (!token?.symbol) return;
     document.title = `$${token?.symbol} | REVNET`;
   }, [token?.symbol]);
-
-  const { write, isLoading, isSuccess, isError } = usePayEthPaymentTerminal(
-    {
-      projectId,
-      terminalAddress: primaryTerminalEth,
-      amountWei: payAmountAWei,
-      token: ETHER_ADDRESS,
-      minReturnedTokens: 0n,
-      preferClaimedTokens: true,
-      memo: `Joined REVNET ${projectId}`,
-    },
-    {
-      onSuccess() {
-        alert("Mint complete");
-      },
-    }
-  );
 
   const { data: projects } = useProjectsQuery({
     variables: {
@@ -324,15 +308,8 @@ export default function Page({ params }: { params: { id: string } }) {
           <div className="flex items-center gap-2 mb-3">
             <h2 className="text-lg font-medium">Join network</h2>
           </div>
-          <form
-            action=""
-            className="flex justify-between flex-col md:flex-row mb-3 gap-10"
-            onSubmit={(e) => {
-              e.preventDefault();
-              write?.();
-            }}
-          >
-            {token ? (
+          {token && primaryTerminalEth ? (
+            <div className="flex justify-between flex-col md:flex-row mb-3 gap-10">
               <div className="w-full">
                 <div className="flex gap-5 items-center flex-col md:flex-row mb-4">
                   <PayInput
@@ -420,16 +397,22 @@ export default function Page({ params }: { params: { id: string } }) {
                   ) : null}
                 </div>
               </div>
-            ) : null}
 
-            <Button
-              size="lg"
-              className="h-16 text-base min-w-[20%] flex items-center gap-2 hover:gap-[10px] whitespace-nowrap transition-all"
-              type="submit"
-            >
-              Join now <ArrowRight className="h-4 w-4" />
-            </Button>
-          </form>
+              <PayDialog
+                payAmountWei={payAmountAWei}
+                projectId={projectId}
+                primaryTerminalEth={primaryTerminalEth}
+                disabled={!payAmountAWei}
+              >
+                <Button
+                  size="lg"
+                  className="h-16 text-base min-w-[20%] flex items-center gap-2 hover:gap-[10px] whitespace-nowrap transition-all"
+                >
+                  Join now <ArrowRight className="h-4 w-4" />
+                </Button>
+              </PayDialog>
+            </div>
+          ) : null}
 
           {/* {formTokensQuote && token ? (
             <>
@@ -441,11 +424,11 @@ export default function Page({ params }: { params: { id: string } }) {
             </>
           ) : null} */}
 
-          {formRedemptionQuote ? (
+          {/* {formRedemptionQuote ? (
             <div>
               Immediate redemption value: <Ether wei={formRedemptionQuote} />
             </div>
-          ) : null}
+          ) : null} */}
         </div>
       </div>
 
