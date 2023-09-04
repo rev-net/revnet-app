@@ -1,4 +1,5 @@
 import { EthereumAddress } from "@/components/EthereumAddress";
+import { Badge } from "@/components/ui/badge";
 import {
   Table,
   TableBody,
@@ -9,16 +10,19 @@ import {
 } from "@/components/ui/table";
 import { ParticipantsQuery } from "@/generated/graphql";
 import { formatEther, formatUnits } from "@/lib/juicebox/utils";
+import { Address, isAddressEqual } from "viem";
 import { FetchTokenResult } from "wagmi/dist/actions";
 
 export function ParticipantsTable({
   participants,
   token,
   totalSupply,
+  boostRecipient,
 }: {
   participants: ParticipantsQuery;
   token: FetchTokenResult;
   totalSupply: bigint;
+  boostRecipient?: Address;
 }) {
   return (
     <Table>
@@ -40,6 +44,13 @@ export function ParticipantsTable({
                 withEnsAvatar
                 withEnsName
               />
+              {boostRecipient &&
+              isAddressEqual(
+                boostRecipient,
+                participant.wallet.id as Address
+              ) ? (
+                <Badge variant='secondary' className="ml-2">Boost</Badge>
+              ) : null}
             </TableCell>
             <TableCell>{formatEther(participant.volume)} ETH</TableCell>
             <TableCell>

@@ -452,6 +452,7 @@ export default function Page({ params }: { params: { id: string } }) {
                 participants={participantsData}
                 token={token}
                 totalSupply={totalOutstandingTokens}
+                boostRecipient={boostRecipient}
               />
             ) : (
               "No participants yet."
