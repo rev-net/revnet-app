@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/table";
 import { ParticipantsQuery } from "@/generated/graphql";
 import { formatEther, formatUnits } from "@/lib/juicebox/utils";
+import { ForwardIcon } from "@heroicons/react/24/solid";
 import { Address, isAddressEqual } from "viem";
 import { FetchTokenResult } from "wagmi/dist/actions";
 
@@ -38,6 +39,7 @@ export function ParticipantsTable({
         {participants?.participants.map((participant) => (
           <TableRow key={participant.id}>
             <TableCell>
+              <div className="flex items-center">
               <EthereumAddress
                 address={participant.wallet.id}
                 short
@@ -49,8 +51,12 @@ export function ParticipantsTable({
                 boostRecipient,
                 participant.wallet.id as Address
               ) ? (
-                <Badge variant='secondary' className="ml-2">Boost</Badge>
+                <Badge variant="secondary" className="ml-2">
+                  <ForwardIcon className="w-4 h-4 mr-1 inline-block" />
+                  Boost
+                </Badge>
               ) : null}
+              </div>
             </TableCell>
             <TableCell>{formatEther(participant.volume)} ETH</TableCell>
             <TableCell>
