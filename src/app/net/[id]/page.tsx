@@ -454,7 +454,6 @@ export default function Page({ params }: { params: { id: string } }) {
           <div className="flex gap-10">
             <Stat label="Entry curve">{formatDiscountRate(entryTax)}%</Stat>
             <Stat label="Exit curve">{formatRedemptionRate(exitTax)}%</Stat>
-            <Stat label="Boost">{formatReservedRate(devTax)}%</Stat>
           </div>
 
           <br />
