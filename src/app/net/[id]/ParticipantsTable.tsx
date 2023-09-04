@@ -51,7 +51,7 @@ export function ParticipantsTable({
                 boostRecipient,
                 participant.wallet.id as Address
               ) ? (
-                <Badge variant="secondary" className="ml-2">
+                <Badge variant="secondary" className="ml-2 font-normal">
                   <ForwardIcon className="w-4 h-4 mr-1 inline-block" />
                   Boost
                 </Badge>

@@ -265,7 +265,7 @@ export default function Page({ params }: { params: { id: string } }) {
                 {projectName}
               </h1>
               {token ? (
-                <Badge variant="secondary" className="font-normal">
+                <Badge variant="secondary">
                   <EtherscanLink value={formatEthAddress(token.address)}>
                     ${token?.symbol}
                   </EtherscanLink>
