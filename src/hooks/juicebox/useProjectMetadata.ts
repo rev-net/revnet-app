@@ -1,5 +1,5 @@
 import { ipfsGatewayUrl } from "@/lib/ipfs";
-import { JBProjectMetadata } from "@/types/juicebox/projectMetadata";
+import { JBProjectMetadata } from "@/types/juicebox";
 import { useQuery } from "react-query";
 
 export function useProjectMetadata(metadataCid: string | undefined | null) {

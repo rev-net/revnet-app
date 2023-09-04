@@ -32,7 +32,7 @@ export function EthereumAddress({
   const renderValue = ensName ?? formattedAddress;
 
   return (
-    <EtherscanLink className="flex gap-1 items-center" value={address}>
+    <EtherscanLink className="inline-flex gap-1 items-center" value={address}>
       {withEnsName && ensName && (
         <Image
           src={ensAvatarUrlForAddress(address)}

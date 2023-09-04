@@ -12,8 +12,10 @@ import {
   useParticipantsQuery,
   useProjectsQuery,
 } from "@/generated/graphql";
+import { usePayEthPaymentTerminal } from "@/hooks/juicebox/usePayEthPaymentTerminal";
 import { useProjectMetadata } from "@/hooks/juicebox/useProjectMetadata";
 import { useCountdownToDate } from "@/hooks/useCountdownToDate";
+import { ipfsUriToGatewayUrl } from "@/lib/ipfs";
 import {
   ETHER_ADDRESS,
   JB_CURRENCIES,
@@ -32,7 +34,8 @@ import {
   getPaymentQuoteTokens,
   getTokenRedemptionQuoteEth,
 } from "@/lib/juicebox/utils";
-import { ArrowTrendingUpIcon, ClockIcon } from "@heroicons/react/24/outline";
+import { ClockIcon } from "@heroicons/react/24/outline";
+import { ForwardIcon } from "@heroicons/react/24/solid";
 import {
   jbSingleTokenPaymentTerminalStoreABI,
   jbethPaymentTerminal3_1_2ABI,
@@ -40,9 +43,9 @@ import {
   useJbController3_1ReservedTokenBalanceOf,
   useJbDirectoryPrimaryTerminalOf,
   useJbProjectsOwnerOf,
+  useJbSplitsStoreSplitsOf,
   useJbTokenStoreTokenOf,
   useJbTokenStoreTotalSupplyOf,
-  usePrepareJbethPaymentTerminal3_1_2Pay,
 } from "juice-hooks";
 import { ArrowRight } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
@@ -55,8 +58,8 @@ import {
 } from "viem";
 import { useContractRead, useToken } from "wagmi";
 import { ParticipantsTable } from "./ParticipantsTable";
-import { ipfsUriToGatewayUrl } from "@/lib/ipfs";
-import { usePayEthPaymentTerminal } from "@/hooks/juicebox/usePayEthPaymentTerminal";
+import { SplitGroup } from "@/types/juicebox";
+import { EthereumAddress } from "@/components/EthereumAddress";
 
 export default function Page({ params }: { params: { id: string } }) {
   const [formPayAmountA, setFormPayAmountA] = useState<string>("");
@@ -109,6 +112,14 @@ export default function Page({ params }: { params: { id: string } }) {
     (totalTokenSupply ?? 0n) + (tokensReserved ?? 0n);
 
   const [cycleData, cycleMetadata] = cycleResponse || [];
+
+  const { data: reservedTokenSplits } = useJbSplitsStoreSplitsOf({
+    args: cycleData
+      ? [projectId, cycleData.configuration, BigInt(SplitGroup.ReservedTokens)]
+      : undefined,
+  });
+
+  const boostRecipient = reservedTokenSplits?.[0]?.beneficiary;
 
   const secondsUntilNextCycle = useCountdownToDate(
     cycleData
@@ -266,7 +277,9 @@ export default function Page({ params }: { params: { id: string } }) {
                   alt={token?.symbol}
                 />
               )}
-              <h1 className="text-3xl font-regular">{projectName}</h1>
+              <h1 className="text-3xl font-semibold tracking-tight">
+                {projectName}
+              </h1>
               {token ? (
                 <Badge variant="secondary" className="font-normal">
                   <EtherscanLink value={formatEthAddress(token.address)}>
@@ -307,7 +320,7 @@ export default function Page({ params }: { params: { id: string } }) {
       </header>
 
       <div className="border-y border-y-zinc-400">
-        <div className="container container-border-x md:border-x py-6 bg-zinc-100">
+        <div className="container container-border-x md:border-x py-8 px-10 bg-zinc-100">
           <div className="flex items-center gap-2 mb-3">
             <h2 className="text-lg font-medium">Join network</h2>
           </div>
@@ -380,17 +393,30 @@ export default function Page({ params }: { params: { id: string } }) {
                     currency={token?.symbol}
                   />
                 </div>
-                <div className="flex flex-col gap-1 text-sm items-center md:items-start">
-                  <div>
-                    1 {token?.symbol} = <Ether wei={ethQuote} />
-                  </div>
-
-                  {secondsUntilNextCycle ? (
-                    <div className="gap-1 text-orange-600 text-xs flex items-center font-medium">
-                      <ClockIcon className="w-4 h-4" />
-                      {formatDiscountRate(entryTax)}% increase scheduled in{" "}
-                      {formatSeconds(secondsUntilNextCycle)}
+                <div className="flex justify-between gap-3 items-center md:items-start flex-col md:flex-row">
+                  <div className="flex flex-col gap-2 text-sm items-center md:items-start">
+                    <div>
+                      1 {token?.symbol} = <Ether wei={ethQuote} />
                     </div>
+
+                    {secondsUntilNextCycle ? (
+                      <div className="gap-1 text-orange-600 text-xs flex items-center font-medium">
+                        <ClockIcon className="w-4 h-4" />
+                        {formatDiscountRate(entryTax)}% increase scheduled in{" "}
+                        {formatSeconds(secondsUntilNextCycle)}
+                      </div>
+                    ) : null}
+                  </div>
+                  {devTax && boostRecipient ? (
+                    <span className="text-sm inline-flex items-center gap-1">
+                      <ForwardIcon className="h-4 w-4 inline-block" />
+                      {formatReservedRate(devTax)}% boost to{" "}
+                      <EthereumAddress
+                        address={boostRecipient}
+                        short
+                        withEnsName
+                      />
+                    </span>
                   ) : null}
                 </div>
               </div>
@@ -424,31 +450,32 @@ export default function Page({ params }: { params: { id: string } }) {
       </div>
 
       <div className="container container-border-x md:border-x py-10">
-        <div className="flex gap-10">
-          <Stat label="Entry curve">{formatDiscountRate(entryTax)}%</Stat>
-          <Stat label="Exit curve">{formatRedemptionRate(exitTax)}%</Stat>
-          <Stat label="Boost">{formatReservedRate(devTax)}%</Stat>
-        </div>
+        <div className="max-w-4xl mx-auto">
+          <div className="flex gap-10">
+            <Stat label="Entry curve">{formatDiscountRate(entryTax)}%</Stat>
+            <Stat label="Exit curve">{formatRedemptionRate(exitTax)}%</Stat>
+            <Stat label="Boost">{formatReservedRate(devTax)}%</Stat>
+          </div>
 
-        <br />
-        <br />
+          <br />
+          <br />
 
-        <div>
-          <h2 className="font-medium uppercase text-sm mb-3">Holders</h2>
+          <div>
+            <h2 className="font-medium uppercase text-sm mb-3">Participants</h2>
 
-          {token &&
-          participantsData &&
-          participantsData.participants.length > 0 ? (
-            <ParticipantsTable
-              participants={participantsData}
-              token={token}
-              totalSupply={totalOutstandingTokens}
-            />
-          ) : (
-            "No holders yet."
-          )}
-        </div>
-        {/* 
+            {token &&
+            participantsData &&
+            participantsData.participants.length > 0 ? (
+              <ParticipantsTable
+                participants={participantsData}
+                token={token}
+                totalSupply={totalOutstandingTokens}
+              />
+            ) : (
+              "No participants yet."
+            )}
+          </div>
+          {/* 
         <div>
           {totalTokenSupply && tokensReserved && token ? (
             <div>
@@ -459,11 +486,12 @@ export default function Page({ params }: { params: { id: string } }) {
           ) : null}
         </div> */}
 
-        {/* <div>
+          {/* <div>
           Gen {(cycleData.number + 1n).toString()} buy price:{" "}
           {formatEther(nextCycleEthQuote)} ETH / {token?.symbol} (+
           {formatEther(nextCycleEthQuote - ethQuote)} ETH)
         </div> */}
+        </div>
       </div>
     </div>
   );

@@ -46,9 +46,14 @@ export function ParticipantsTable({
               {formatUnits(participant.balance, token.decimals)} {token.symbol}
             </TableCell>
             <TableCell>
-              {parseFloat(
-                ((BigInt(participant.balance) * 1000n) / totalSupply).toString()
-              ) / 10}
+              {participant.balance
+                ? parseFloat(
+                    (
+                      (BigInt(participant.balance) * 1000n) /
+                      totalSupply
+                    ).toString()
+                  ) / 10
+                : 0}
               %
             </TableCell>
           </TableRow>
