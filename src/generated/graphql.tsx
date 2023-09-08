@@ -4169,6 +4169,7 @@ export type PayEvent = {
   amount: Scalars['BigInt']['output'];
   amountUSD: Maybe<Scalars['BigInt']['output']>;
   beneficiary: Scalars['Bytes']['output'];
+  beneficiaryTokenCount: Scalars['BigInt']['output'];
   caller: Scalars['Bytes']['output'];
   feeFromV2Project: Maybe<Scalars['Int']['output']>;
   from: Scalars['Bytes']['output'];
@@ -4204,6 +4205,14 @@ export type PayEvent_Filter = {
   amount_not_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
   and?: InputMaybe<Array<InputMaybe<PayEvent_Filter>>>;
   beneficiary?: InputMaybe<Scalars['Bytes']['input']>;
+  beneficiaryTokenCount?: InputMaybe<Scalars['BigInt']['input']>;
+  beneficiaryTokenCount_gt?: InputMaybe<Scalars['BigInt']['input']>;
+  beneficiaryTokenCount_gte?: InputMaybe<Scalars['BigInt']['input']>;
+  beneficiaryTokenCount_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
+  beneficiaryTokenCount_lt?: InputMaybe<Scalars['BigInt']['input']>;
+  beneficiaryTokenCount_lte?: InputMaybe<Scalars['BigInt']['input']>;
+  beneficiaryTokenCount_not?: InputMaybe<Scalars['BigInt']['input']>;
+  beneficiaryTokenCount_not_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
   beneficiary_contains?: InputMaybe<Scalars['Bytes']['input']>;
   beneficiary_gt?: InputMaybe<Scalars['Bytes']['input']>;
   beneficiary_gte?: InputMaybe<Scalars['Bytes']['input']>;
@@ -4357,6 +4366,7 @@ export enum PayEvent_OrderBy {
   amount = 'amount',
   amountUSD = 'amountUSD',
   beneficiary = 'beneficiary',
+  beneficiaryTokenCount = 'beneficiaryTokenCount',
   caller = 'caller',
   feeFromV2Project = 'feeFromV2Project',
   from = 'from',
@@ -5829,6 +5839,7 @@ export enum ProjectEvent_OrderBy {
   payEvent__amount = 'payEvent__amount',
   payEvent__amountUSD = 'payEvent__amountUSD',
   payEvent__beneficiary = 'payEvent__beneficiary',
+  payEvent__beneficiaryTokenCount = 'payEvent__beneficiaryTokenCount',
   payEvent__caller = 'payEvent__caller',
   payEvent__feeFromV2Project = 'payEvent__feeFromV2Project',
   payEvent__from = 'payEvent__from',
@@ -6441,6 +6452,7 @@ export enum ProtocolLog_OrderBy {
   oldestTrendingPayEvent__amount = 'oldestTrendingPayEvent__amount',
   oldestTrendingPayEvent__amountUSD = 'oldestTrendingPayEvent__amountUSD',
   oldestTrendingPayEvent__beneficiary = 'oldestTrendingPayEvent__beneficiary',
+  oldestTrendingPayEvent__beneficiaryTokenCount = 'oldestTrendingPayEvent__beneficiaryTokenCount',
   oldestTrendingPayEvent__caller = 'oldestTrendingPayEvent__caller',
   oldestTrendingPayEvent__feeFromV2Project = 'oldestTrendingPayEvent__feeFromV2Project',
   oldestTrendingPayEvent__from = 'oldestTrendingPayEvent__from',
@@ -9873,6 +9885,17 @@ export type ParticipantsQueryVariables = Exact<{
 
 export type ParticipantsQuery = { participants: Array<{ volume: any, lastPaidTimestamp: number, balance: any, stakedBalance: any, id: string, wallet: { id: string } }> };
 
+export type PayEventsQueryVariables = Exact<{
+  where?: InputMaybe<PayEvent_Filter>;
+  orderBy?: InputMaybe<PayEvent_OrderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+export type PayEventsQuery = { payEvents: Array<{ id: string, amount: any, beneficiary: any, note: string, timestamp: number, feeFromV2Project: number | null, beneficiaryTokenCount: any, from: any, txHash: any, project: { id: string, projectId: number, handle: string | null, pv: string } }> };
+
 export type ProjectsQueryVariables = Exact<{
   where?: InputMaybe<Project_Filter>;
   first?: InputMaybe<Scalars['Int']['input']>;
@@ -10562,6 +10585,7 @@ export type PayEventResolvers<ContextType = any, ParentType extends ResolversPar
   amount?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   amountUSD?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
   beneficiary?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
+  beneficiaryTokenCount?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   caller?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
   feeFromV2Project?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   from?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
@@ -11159,6 +11183,65 @@ export function useParticipantsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptio
 export type ParticipantsQueryHookResult = ReturnType<typeof useParticipantsQuery>;
 export type ParticipantsLazyQueryHookResult = ReturnType<typeof useParticipantsLazyQuery>;
 export type ParticipantsQueryResult = Apollo.QueryResult<ParticipantsQuery, ParticipantsQueryVariables>;
+export const PayEventsDocument = gql`
+    query PayEvents($where: PayEvent_filter, $orderBy: PayEvent_orderBy, $orderDirection: OrderDirection, $first: Int, $skip: Int) {
+  payEvents(
+    where: $where
+    orderBy: $orderBy
+    orderDirection: $orderDirection
+    first: $first
+    skip: $skip
+  ) {
+    id
+    amount
+    beneficiary
+    note
+    timestamp
+    feeFromV2Project
+    beneficiaryTokenCount
+    from
+    txHash
+    project {
+      id
+      projectId
+      handle
+      pv
+    }
+  }
+}
+    `;
+
+/**
+ * __usePayEventsQuery__
+ *
+ * To run a query within a React component, call `usePayEventsQuery` and pass it any options that fit your needs.
+ * When your component renders, `usePayEventsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = usePayEventsQuery({
+ *   variables: {
+ *      where: // value for 'where'
+ *      orderBy: // value for 'orderBy'
+ *      orderDirection: // value for 'orderDirection'
+ *      first: // value for 'first'
+ *      skip: // value for 'skip'
+ *   },
+ * });
+ */
+export function usePayEventsQuery(baseOptions?: Apollo.QueryHookOptions<PayEventsQuery, PayEventsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<PayEventsQuery, PayEventsQueryVariables>(PayEventsDocument, options);
+      }
+export function usePayEventsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<PayEventsQuery, PayEventsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<PayEventsQuery, PayEventsQueryVariables>(PayEventsDocument, options);
+        }
+export type PayEventsQueryHookResult = ReturnType<typeof usePayEventsQuery>;
+export type PayEventsLazyQueryHookResult = ReturnType<typeof usePayEventsLazyQuery>;
+export type PayEventsQueryResult = Apollo.QueryResult<PayEventsQuery, PayEventsQueryVariables>;
 export const ProjectsDocument = gql`
     query Projects($where: Project_filter, $first: Int, $skip: Int) {
   projects(where: $where, first: $first, skip: $skip) {

@@ -20,6 +20,7 @@ export function EthereumAddress({
   address,
   short,
   withEnsName,
+  withEnsAvatar,
 }: {
   address: string;
   short?: boolean;
@@ -33,10 +34,10 @@ export function EthereumAddress({
 
   return (
     <EtherscanLink className="inline-flex gap-1 items-center" value={address}>
-      {withEnsName && ensName && (
+      {withEnsAvatar && (
         <Image
           src={ensAvatarUrlForAddress(address)}
-          alt={ensName}
+          alt={ensName ?? address}
           className="inline-block w-9 h-9 mr-1 rounded-full"
           width={36}
           height={36}

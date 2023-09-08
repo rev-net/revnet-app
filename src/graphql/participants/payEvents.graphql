@@ -1,0 +1,31 @@
+query PayEvents(
+  $where: PayEvent_filter
+  $orderBy: PayEvent_orderBy
+  $orderDirection: OrderDirection
+  $first: Int
+  $skip: Int
+) {
+  payEvents(
+    where: $where
+    orderBy: $orderBy
+    orderDirection: $orderDirection
+    first: $first
+    skip: $skip
+  ) {
+    id
+    amount
+    beneficiary
+    note
+    timestamp
+    feeFromV2Project
+    beneficiaryTokenCount
+    from
+    txHash
+    project {
+      id
+      projectId
+      handle
+      pv
+    }
+  }
+}

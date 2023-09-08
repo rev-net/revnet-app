@@ -1,6 +1,7 @@
 "use client";
 
 import { Ether } from "@/components/Ether";
+import { EthereumAddress } from "@/components/EthereumAddress";
 import EtherscanLink from "@/components/EtherscanLink";
 import { PayInput } from "@/components/pay/PayInput";
 import { Badge } from "@/components/ui/badge";
@@ -12,7 +13,6 @@ import {
   useParticipantsQuery,
   useProjectsQuery,
 } from "@/generated/graphql";
-import { usePayEthPaymentTerminal } from "@/hooks/juicebox/usePayEthPaymentTerminal";
 import { useProjectMetadata } from "@/hooks/juicebox/useProjectMetadata";
 import { useCountdownToDate } from "@/hooks/useCountdownToDate";
 import { ipfsUriToGatewayUrl } from "@/lib/ipfs";
@@ -23,17 +23,15 @@ import {
   PV2,
 } from "@/lib/juicebox/constants";
 import {
-  formatDiscountRate,
   formatEthAddress,
   formatEther,
-  formatRedemptionRate,
-  formatReservedRate,
   formatSeconds,
   getNextCycleWeight,
   getPaymentQuoteEth,
   getPaymentQuoteTokens,
   getTokenRedemptionQuoteEth,
 } from "@/lib/juicebox/utils";
+import { SplitGroup } from "@/types/juicebox";
 import { ClockIcon } from "@heroicons/react/24/outline";
 import { ForwardIcon } from "@heroicons/react/24/solid";
 import {
@@ -49,6 +47,7 @@ import {
 } from "juice-hooks";
 import { ArrowRight } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
+import { DiscountRate, RedemptionRate, ReservedRate } from "superint";
 import {
   etherUnits,
   formatUnits,
@@ -58,8 +57,6 @@ import {
 } from "viem";
 import { useContractRead, useToken } from "wagmi";
 import { ParticipantsTable } from "./ParticipantsTable";
-import { SplitGroup } from "@/types/juicebox";
-import { EthereumAddress } from "@/components/EthereumAddress";
 import { PayDialog } from "./PayDialog";
 
 export default function Page({ params }: { params: { id: string } }) {
@@ -79,6 +76,21 @@ export default function Page({ params }: { params: { id: string } }) {
   // not a great assumption, will break for older projects, or projects using a newer controller in future.
   const { data: cycleResponse } = useJbController3_1CurrentFundingCycleOf({
     args: [projectId],
+    select: ([fundingCycleData, fundingCycleMetadata]) => {
+      return [
+        {
+          ...fundingCycleData,
+          discountRate: new DiscountRate(fundingCycleData.discountRate),
+        },
+        {
+          ...fundingCycleMetadata,
+          redemptionRate: new RedemptionRate(
+            fundingCycleMetadata.redemptionRate
+          ),
+          reservedRate: new ReservedRate(fundingCycleMetadata.reservedRate),
+        },
+      ];
+    },
   });
   const { data: tokenAddress } = useJbTokenStoreTokenOf({
     args: [projectId],
@@ -179,14 +191,14 @@ export default function Page({ params }: { params: { id: string } }) {
 
   const ethQuote = getPaymentQuoteEth(ONE_ETHER, {
     weight: cycleData.weight,
-    reservedRate: devTax,
+    reservedRate: devTax.value,
   });
 
   const formTokensQuote =
     payAmountAWei &&
     getPaymentQuoteTokens(payAmountAWei, {
       weight: cycleData.weight,
-      reservedRate: devTax,
+      reservedRate: devTax.value,
     });
 
   // get token redemption quote AS IF the payment goes through and tokens are minted.
@@ -199,7 +211,7 @@ export default function Page({ params }: { params: { id: string } }) {
       ? getTokenRedemptionQuoteEth(formTokensQuote.payerTokens, {
           overflowWei: overflowEth + formTokensQuote.ethAmount,
           totalSupply: totalTokenSupply + formTokensQuote.payerTokens,
-          redemptionRate: cycleMetadata.redemptionRate,
+          redemptionRate: cycleMetadata.redemptionRate.value,
           tokensReserved,
         })
       : undefined;
@@ -209,21 +221,21 @@ export default function Page({ params }: { params: { id: string } }) {
       ? formatUnits(totalTokenSupply, token.decimals)
       : null;
 
+  const exitLeadingZeroes =
+    totalSupplyFormatted?.split(".")[1]?.match(/^0+/)?.[0]?.length ?? 0;
+
   // if total supply is less than 1, use a decimal for the exit price base unit (0.1, 0.01, 0.001, etc.)
   // if total supply is greater than 1, use 1 for the exit price base unit.
   const exitFloorPriceUnit =
     totalSupplyFormatted && totalTokenSupply && token
       ? totalTokenSupply < parseUnits("1", token.decimals)
-        ? `0.${"0".repeat(
-            formatUnits(totalTokenSupply, token.decimals).split(".")[1].length -
-              1
-          )}1`
+        ? `0.${"0".repeat(exitLeadingZeroes)}1`
         : "1"
       : null;
 
   const exitFloorPrice =
     token &&
-    tokensReserved &&
+    typeof tokensReserved !== "undefined" &&
     totalTokenSupply &&
     overflowEth &&
     exitFloorPriceUnit
@@ -232,7 +244,7 @@ export default function Page({ params }: { params: { id: string } }) {
           {
             overflowWei: overflowEth,
             totalSupply: totalTokenSupply,
-            redemptionRate: cycleMetadata.redemptionRate,
+            redemptionRate: cycleMetadata.redemptionRate.value,
             tokensReserved,
           }
         ) * 10n
@@ -240,12 +252,12 @@ export default function Page({ params }: { params: { id: string } }) {
 
   const nextCycleWeight = getNextCycleWeight({
     weight: cycleData.weight,
-    discountRate: cycleData.discountRate,
+    discountRate: cycleData.discountRate.value,
   });
 
   const nextCycleEthQuote = getPaymentQuoteEth(ONE_ETHER, {
     weight: nextCycleWeight,
-    reservedRate: devTax,
+    reservedRate: devTax.value,
   });
 
   return (
@@ -265,7 +277,7 @@ export default function Page({ params }: { params: { id: string } }) {
                 {projectName}
               </h1>
               {token ? (
-                <Badge variant="secondary">
+                <Badge variant="secondary" className="font-normal">
                   <EtherscanLink value={formatEthAddress(token.address)}>
                     ${token?.symbol}
                   </EtherscanLink>
@@ -311,7 +323,7 @@ export default function Page({ params }: { params: { id: string } }) {
           {token && primaryTerminalEth ? (
             <div className="flex justify-between flex-col md:flex-row mb-3 gap-10">
               <div className="w-full">
-                <div className="flex gap-5 items-center flex-col md:flex-row mb-4">
+                <div className="flex gap-5 items-center flex-col md:flex-row mb-3">
                   <PayInput
                     label="You pay"
                     onChange={(e) => {
@@ -327,7 +339,7 @@ export default function Page({ params }: { params: { id: string } }) {
                       );
                       const amountBQuote = getPaymentQuoteTokens(amountWei, {
                         weight: cycleData.weight,
-                        reservedRate: devTax,
+                        reservedRate: devTax.value,
                       });
 
                       const amountBFormatted = formatUnits(
@@ -379,7 +391,7 @@ export default function Page({ params }: { params: { id: string } }) {
                     {secondsUntilNextCycle ? (
                       <div className="gap-1 text-orange-600 text-xs flex items-center font-medium">
                         <ClockIcon className="w-4 h-4" />
-                        {formatDiscountRate(entryTax)}% increase scheduled in{" "}
+                        {entryTax.toPercentage()}% increase scheduled in{" "}
                         {formatSeconds(secondsUntilNextCycle)}
                       </div>
                     ) : null}
@@ -387,7 +399,7 @@ export default function Page({ params }: { params: { id: string } }) {
                   {devTax && boostRecipient ? (
                     <span className="text-sm inline-flex items-center gap-1">
                       <ForwardIcon className="h-4 w-4 inline-block" />
-                      {formatReservedRate(devTax)}% boost to{" "}
+                      {devTax.toPercentage()}% boost to{" "}
                       <EthereumAddress
                         address={boostRecipient}
                         short
@@ -424,21 +436,36 @@ export default function Page({ params }: { params: { id: string } }) {
             </>
           ) : null} */}
 
-          {/* {formRedemptionQuote ? (
+          {formRedemptionQuote ? (
             <div>
               Immediate redemption value: <Ether wei={formRedemptionQuote} />
             </div>
-          ) : null} */}
+          ) : null}
         </div>
       </div>
 
       <div className="container container-border-x md:border-x py-10">
         <div className="max-w-4xl mx-auto">
           <div className="flex gap-10">
-            <Stat label="Entry curve">{formatDiscountRate(entryTax)}%</Stat>
-            <Stat label="Exit curve">{formatRedemptionRate(exitTax)}%</Stat>
+            <Stat label="Entry curve">{entryTax.toPercentage()}%</Stat>
+            <Stat label="Exit curve">{exitTax.toPercentage()}%</Stat>
           </div>
 
+          <br />
+          <br />
+
+          {exitFloorPrice ? (
+            <Stat label="Exit value">
+              {formatEther(exitFloorPrice)} / {exitFloorPriceUnit}{" "}
+              {token?.symbol}
+            </Stat>
+          ) : null}
+
+          {/* <HistoricalExitValueChart
+            projectId={projectId}
+            redemptionRate={exitTax.value}
+            reservedRate={devTax.value}
+          /> */}
           <br />
           <br />
 

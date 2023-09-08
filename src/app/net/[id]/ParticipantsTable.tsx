@@ -60,7 +60,7 @@ export function ParticipantsTable({
             </TableCell>
             <TableCell>{formatEther(participant.volume)} ETH</TableCell>
             <TableCell>
-              {formatUnits(participant.balance, token.decimals)} {token.symbol}
+              {formatUnits(participant.balance, token.decimals, {decimals: 8})} {token.symbol}
             </TableCell>
             <TableCell>
               {participant.balance

@@ -144,7 +144,7 @@ export const getTokenRedemptionQuoteEth = (
   // y = base * numerator ==> ox/s * ( r + (x(1 - r)/s) )
   const y = (base * numerator) / MAX_REDEMPTION_RATE;
 
-  return y;
+  return y / 10n
 };
 
 export function getNextCycleWeight(currentCycle: {
