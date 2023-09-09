@@ -5,7 +5,7 @@ import { createConfig } from "wagmi";
 export const wagmiConfig = createConfig(
   getDefaultConfig({
     autoConnect: true,
-    appName: "Juicebox Retail",
+    appName: "Revnet",
     walletConnectProjectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID!,
     infuraId: process.env.NEXT_PUBLIC_INFURA_ID!,
     chains: [goerli],
