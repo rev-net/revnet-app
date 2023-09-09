@@ -11,10 +11,6 @@ import {
   ONE_ETHER,
 } from "./constants";
 
-export const bigIntToPercent = (bigInt: bigint, max: bigint) => {
-  return Number((bigInt * 100n) / (max / 100n)) / 100;
-};
-
 /**
  * Return a quote for token mints for a given [payAmount].
  * Returned quote contains:
@@ -53,36 +49,6 @@ export const getPaymentQuoteEth = (
 ) => {
   const { payerTokens } = getPaymentQuoteTokens(tokensAmount, cycleParams);
   return (ONE_ETHER * ONE_ETHER) / payerTokens;
-};
-
-export const formatDiscountRate = (discountRate: bigint) => {
-  if (discountRate === 0n) return 0;
-
-  const discountRatePercentage = bigIntToPercent(
-    discountRate,
-    MAX_DISCOUNT_RATE
-  );
-  return discountRatePercentage;
-};
-
-export const formatRedemptionRate = (redemptionRate: bigint) => {
-  if (redemptionRate === 0n) return 0;
-
-  const redemptionRatePercentage = bigIntToPercent(
-    redemptionRate,
-    MAX_REDEMPTION_RATE
-  );
-  return redemptionRatePercentage;
-};
-
-export const formatReservedRate = (reservedRate: bigint) => {
-  if (reservedRate === 0n) return 0;
-
-  const reservedRatePercentage = bigIntToPercent(
-    reservedRate,
-    MAX_RESERVED_RATE
-  );
-  return reservedRatePercentage;
 };
 
 export function formatSeconds(seconds: number) {
@@ -144,7 +110,7 @@ export const getTokenRedemptionQuoteEth = (
   // y = base * numerator ==> ox/s * ( r + (x(1 - r)/s) )
   const y = (base * numerator) / MAX_REDEMPTION_RATE;
 
-  return y / 10n
+  return y / 10n;
 };
 
 export function getNextCycleWeight(currentCycle: {

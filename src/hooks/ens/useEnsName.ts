@@ -1,5 +1,5 @@
 import { useQuery } from "react-query";
-import { Hash, isAddress } from "viem";
+import { Address, isAddress } from "viem";
 import { goerli } from "viem/chains";
 import { PublicClient, useChainId, usePublicClient } from "wagmi";
 
@@ -29,7 +29,7 @@ async function resolveAddressEnsIdeas(addressOrEnsName: string) {
  * @returns
  */
 async function resolveAddress(
-  address: Hash,
+  address: Address,
   { chainId, publicClient }: { chainId: number; publicClient: PublicClient }
 ) {
   if (chainId === goerli.id) {

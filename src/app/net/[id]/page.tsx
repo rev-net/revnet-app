@@ -35,15 +35,15 @@ import { SplitGroup } from "@/types/juicebox";
 import { ClockIcon } from "@heroicons/react/24/outline";
 import { ForwardIcon } from "@heroicons/react/24/solid";
 import {
-  jbSingleTokenPaymentTerminalStoreABI,
-  jbethPaymentTerminal3_1_2ABI,
   useJbController3_1CurrentFundingCycleOf,
   useJbController3_1ReservedTokenBalanceOf,
   useJbDirectoryPrimaryTerminalOf,
   useJbProjectsOwnerOf,
+  useJbSingleTokenPaymentTerminalStoreCurrentTotalOverflowOf,
   useJbSplitsStoreSplitsOf,
   useJbTokenStoreTokenOf,
   useJbTokenStoreTotalSupplyOf,
+  useJbethPaymentTerminal3_1_2Store
 } from "juice-hooks";
 import { ArrowRight } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
@@ -55,7 +55,7 @@ import {
   parseUnits,
   zeroAddress,
 } from "viem";
-import { useContractRead, useToken } from "wagmi";
+import { useToken } from "wagmi";
 import { ParticipantsTable } from "./ParticipantsTable";
 import { PayDialog } from "./PayDialog";
 
@@ -101,19 +101,17 @@ export default function Page({ params }: { params: { id: string } }) {
     args: [projectId, ETHER_ADDRESS],
   });
 
-  const { data: store } = useContractRead({
+  const { data: store } = useJbethPaymentTerminal3_1_2Store({
     address: primaryTerminalEth,
-    abi: jbethPaymentTerminal3_1_2ABI,
-    functionName: "store",
   });
-  const { data: overflowEth } = useContractRead({
-    args: [projectId, BigInt(etherUnits.wei), JB_CURRENCIES.ETH],
-    address: store,
-    abi: jbSingleTokenPaymentTerminalStoreABI,
-    functionName: "currentTotalOverflowOf",
-    watch: true,
-    staleTime: 10_000, // 10 seconds
-  });
+
+  const { data: overflowEth } =
+    useJbSingleTokenPaymentTerminalStoreCurrentTotalOverflowOf({
+      address: store,
+      args: [projectId, BigInt(etherUnits.wei), JB_CURRENCIES.ETH],
+      watch: true,
+      staleTime: 10_000, // 10 seconds
+    });
   const { data: tokensReserved } = useJbController3_1ReservedTokenBalanceOf({
     args: [projectId],
   });

@@ -36,8 +36,8 @@ dependencies:
     specifier: ^16.8.0
     version: 16.8.0
   juice-hooks:
-    specifier: 4.0.4-beta
-    version: 4.0.4-beta(wagmi@1.4.1)
+    specifier: 4.0.5-beta
+    version: 4.0.5-beta(wagmi@1.4.1)
   lucide-react:
     specifier: ^0.268.0
     version: 0.268.0(react@18.2.0)
@@ -5550,8 +5550,8 @@ packages:
       object.values: 1.1.7
     dev: true
 
-  /juice-hooks@4.0.4-beta(wagmi@1.4.1):
-    resolution: {integrity: sha512-Ys//gALCZf6jUHcG9iled0uBNtBgAP96G34+MY7REatEjjj+UZtMiL+g69XtNEHFj99CZVCkyS41FNpNJ5qILQ==}
+  /juice-hooks@4.0.5-beta(wagmi@1.4.1):
+    resolution: {integrity: sha512-jTUH6B/hRG+u55m78CMHlPW5vAs8pVzU8uing8G6HyhG+5Kpl5G+odVPLTN0opEt6AIMD2gI4RZxZvd24AXwIQ==}
     peerDependencies:
       wagmi: ^1.3.10
     dependencies:

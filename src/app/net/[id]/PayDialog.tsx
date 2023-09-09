@@ -11,7 +11,7 @@ import {
 import { usePayEthPaymentTerminal } from "@/hooks/juicebox/usePayEthPaymentTerminal";
 import { ETHER_ADDRESS } from "@/lib/juicebox/constants";
 import { PropsWithChildren } from "react";
-import { Hash } from "viem";
+import { Address } from "viem";
 
 export function PayDialog({
   payAmountWei,
@@ -22,7 +22,7 @@ export function PayDialog({
 }: PropsWithChildren<{
   payAmountWei: bigint;
   projectId: bigint;
-  primaryTerminalEth: Hash;
+  primaryTerminalEth: Address;
   disabled?: boolean;
 }>) {
   const { write, isLoading, isSuccess, isError } = usePayEthPaymentTerminal(
