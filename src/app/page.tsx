@@ -8,15 +8,15 @@ export default function Page() {
         <div>Juicebox Retail</div>
         <ConnectKitButton />
       </nav>
-
       <h1 className="text-7xl font-bold font-serif max-w-lg mb-5">
         Let's end the Rugs on Retail.
       </h1>
-
       Site is WIP
-
-      <a href="/net/1223">Example revnet (WIP)</a>
-   
+      <div>
+        <a href="/net/1223" className="underline text-blue-500">
+          Example revnet
+        </a>
+      </div>
     </div>
   );
 }
