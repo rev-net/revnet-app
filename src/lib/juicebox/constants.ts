@@ -11,6 +11,7 @@ export const JB_CURRENCIES = {
   ETH: 1n,
   USD: 2n,
 };
+export const JB_TOKEN_DECIMALS = 18 as const;
 export const PV2 = "2";
 export const DEFAULT_MEMO = "";
 export const DEFAULT_METADATA = "0x0";

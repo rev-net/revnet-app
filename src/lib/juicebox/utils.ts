@@ -2,6 +2,7 @@ import { formatDuration, intervalToDuration } from "date-fns";
 import {
   formatEther as formatEtherViem,
   formatUnits as formatUnitsViem,
+  parseUnits,
 } from "viem";
 import { Chain, mainnet } from "wagmi";
 import {
@@ -10,6 +11,19 @@ import {
   MAX_RESERVED_RATE,
   ONE_ETHER,
 } from "./constants";
+import { FixedInt, ReservedRate } from "fpnum";
+
+export class JBTokenValue extends FixedInt<18> {
+  constructor(value: bigint) {
+    super(value, 18);
+  }
+}
+
+export class FundingCycleWeight extends FixedInt<18> {
+  constructor(value: bigint) {
+    super(value, 18);
+  }
+}
 
 /**
  * Return a quote for token mints for a given [payAmount].
@@ -18,23 +32,46 @@ import {
  * - tokens reserved for project.
  * - tokens minted for the payer.
  */
-export const getPaymentQuoteTokens = (
-  ethAmount: bigint, // wei
-  cycleParams: { weight: bigint; reservedRate: bigint }
+export const getTokenAToBQuote = <D extends number>(
+  tokenAAmount: FixedInt<D>, // wei
+  cycleParams: { weight: FundingCycleWeight; reservedRate: ReservedRate }
 ) => {
   const { weight, reservedRate } = cycleParams;
 
-  const totalTokens = (weight * ethAmount) / ONE_ETHER;
+  const weightRatio = BigInt(10 ** tokenAAmount.decimals);
+
+  const totalTokens = (weight.val * tokenAAmount.val) / weightRatio;
   const reservedTokens =
-    (weight * reservedRate * ethAmount) / MAX_RESERVED_RATE / ONE_ETHER;
+    (weight.val * reservedRate.val * tokenAAmount.val) /
+    MAX_RESERVED_RATE /
+    weightRatio;
+
   const payerTokens = totalTokens - reservedTokens;
 
   return {
-    ethAmount,
+    tokenAAmount,
     payerTokens,
     reservedTokens,
     totalTokens,
   };
+};
+
+/**
+ * Return the amount of Token A it costs to buy 1 Token B.
+ */
+export const getTokenBPrice = (
+  tokenADecimals: number,
+  cycleParams: { weight: FundingCycleWeight; reservedRate: ReservedRate }
+) => {
+  const oneTokenA = FixedInt.parse("1", tokenADecimals);
+  const weightRatio = BigInt(10 ** tokenADecimals);
+
+  // 1 Token A = x Token B
+  const tokenBQuote = getTokenAToBQuote(oneTokenA, cycleParams);
+
+  const tokenBPrice = (ONE_ETHER * weightRatio) / tokenBQuote.payerTokens;
+
+  return tokenBPrice;
 };
 
 /**
@@ -43,12 +80,16 @@ export const getPaymentQuoteTokens = (
  * @param cycleParams
  * @returns
  */
-export const getPaymentQuoteEth = (
-  tokensAmount: bigint, // wei
-  cycleParams: { weight: bigint; reservedRate: bigint }
+export const getTokenBtoAQuote = <D extends number>(
+  tokenBAmount: FixedInt<D>, // wei
+  tokenADecimals: number,
+  cycleParams: { weight: FundingCycleWeight; reservedRate: ReservedRate }
 ) => {
-  const { payerTokens } = getPaymentQuoteTokens(tokensAmount, cycleParams);
-  return (ONE_ETHER * ONE_ETHER) / payerTokens;
+  const tokenBPrice = getTokenBPrice(tokenADecimals, cycleParams);
+  const oneTokenA = parseUnits("1", tokenADecimals);
+
+  const tokenAQuote = (tokenBPrice * tokenBAmount.val) / oneTokenA;
+  return new FixedInt(tokenAQuote, tokenADecimals);
 };
 
 export function formatSeconds(seconds: number) {

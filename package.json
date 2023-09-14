@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "test": "jest",
     "gql:build": "graphql-code-generator --config codegen.yml -r dotenv/config"
   },
   "dependencies": {
@@ -19,7 +20,9 @@
     "clsx": "^2.0.0",
     "connectkit": "^1.4.0",
     "date-fns": "^2.30.0",
+    "fpnum": "^0.0.5",
     "graphql": "^16.8.0",
+    "jest": "^29.7.0",
     "juice-hooks": "4.0.6-beta",
     "lucide-react": "^0.268.0",
     "next": "^13.4.0",
@@ -27,27 +30,32 @@
     "react-dom": "^18.2.0",
     "react-query": "^3.39.3",
     "recharts": "^2.8.0",
-    "superint": "^0.0.4",
     "tailwind-merge": "^1.14.0",
     "tailwindcss-animate": "^1.0.6",
     "viem": "~0.3.36",
     "wagmi": "^1.0.6"
   },
   "devDependencies": {
+    "@babel/core": "^7.22.17",
+    "@babel/preset-env": "^7.22.15",
+    "@babel/preset-typescript": "^7.22.15",
     "@graphql-codegen/cli": "^5.0.0",
     "@graphql-codegen/introspection": "^4.0.0",
     "@graphql-codegen/typescript": "^4.0.1",
     "@graphql-codegen/typescript-operations": "^4.0.1",
     "@graphql-codegen/typescript-react-apollo": "^3.3.7",
     "@graphql-codegen/typescript-resolvers": "^4.0.1",
+    "@types/jest": "^29.5.4",
     "@types/node": "^17.0.31",
     "@types/react": "^18.0.9",
     "@types/react-dom": "^18.0.3",
     "autoprefixer": "^10.4.15",
+    "babel-jest": "^29.7.0",
     "eslint": "^8.15.0",
     "eslint-config-next": "^12.1.6",
     "postcss": "^8.4.28",
     "tailwindcss": "^3.3.3",
+    "ts-jest": "^29.1.1",
     "typescript": "^5.0.4"
   }
 }

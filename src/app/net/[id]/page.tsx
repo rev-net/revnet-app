@@ -1,11 +1,8 @@
 "use client";
 
 import { Ether } from "@/components/Ether";
-import { EthereumAddress } from "@/components/EthereumAddress";
 import EtherscanLink from "@/components/EtherscanLink";
-import { PayInput } from "@/components/pay/PayInput";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Stat } from "@/components/ui/stat";
 import {
   OrderDirection,
@@ -14,56 +11,38 @@ import {
   useProjectsQuery,
 } from "@/generated/graphql";
 import { useProjectMetadata } from "@/hooks/juicebox/useProjectMetadata";
-import { useCountdownToDate } from "@/hooks/useCountdownToDate";
 import { ipfsUriToGatewayUrl } from "@/lib/ipfs";
-import {
-  ETHER_ADDRESS,
-  JB_CURRENCIES,
-  ONE_ETHER,
-  PV2,
-} from "@/lib/juicebox/constants";
+import { JB_CURRENCIES, PV2 } from "@/lib/juicebox/constants";
 import {
   formatEthAddress,
   formatEther,
-  formatSeconds,
-  getNextCycleWeight,
-  getPaymentQuoteEth,
-  getPaymentQuoteTokens,
   getTokenRedemptionQuoteEth,
 } from "@/lib/juicebox/utils";
 import { SplitGroup } from "@/types/juicebox";
-import { ClockIcon } from "@heroicons/react/24/outline";
-import { ForwardIcon } from "@heroicons/react/24/solid";
 import {
-  useJbController3_1CurrentFundingCycleOf,
   useJbController3_1ReservedTokenBalanceOf,
-  useJbDirectoryPrimaryTerminalOf,
   useJbProjectsOwnerOf,
   useJbSingleTokenPaymentTerminalStoreCurrentTotalOverflowOf,
   useJbSplitsStoreSplitsOf,
   useJbTokenStoreTokenOf,
   useJbTokenStoreTotalSupplyOf,
-  useJbethPaymentTerminal3_1_2Store
 } from "juice-hooks";
-import { ArrowRight } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
-import { DiscountRate, RedemptionRate, ReservedRate } from "superint";
-import {
-  etherUnits,
-  formatUnits,
-  parseEther,
-  parseUnits,
-  zeroAddress,
-} from "viem";
+import { useEffect } from "react";
+import { etherUnits, formatUnits, parseUnits, zeroAddress } from "viem";
 import { useToken } from "wagmi";
-import { ParticipantsTable } from "./ParticipantsTable";
-import { PayDialog } from "./PayDialog";
+import { Providers } from "./Providers";
+import { ParticipantsTable } from "./components/ParticipantsTable";
+import { useJBProjectContext } from "./contexts/JBProjectContext/JBProjectContext";
+import { PayForm } from "./components/pay/PayForm";
 
-export default function Page({ params }: { params: { id: string } }) {
-  const [formPayAmountA, setFormPayAmountA] = useState<string>("");
-  const [formPayAmountB, setFormPayAmountB] = useState<string>("");
+function NetworkDashboard() {
+  const {
+    projectId,
+    primaryTerminalEthStore,
+    fundingCycle,
+    fundingCycleMetadata,
+  } = useJBProjectContext();
 
-  const projectId = BigInt(params.id);
   const { data: address } = useJbProjectsOwnerOf({
     args: [projectId],
   });
@@ -72,42 +51,14 @@ export default function Page({ params }: { params: { id: string } }) {
   //   args: [projectId],
   // })
 
-  // TODO assumes all projects are on Controller v3.1.
-  // not a great assumption, will break for older projects, or projects using a newer controller in future.
-  const { data: cycleResponse } = useJbController3_1CurrentFundingCycleOf({
-    args: [projectId],
-    select: ([fundingCycleData, fundingCycleMetadata]) => {
-      return [
-        {
-          ...fundingCycleData,
-          discountRate: new DiscountRate(fundingCycleData.discountRate),
-        },
-        {
-          ...fundingCycleMetadata,
-          redemptionRate: new RedemptionRate(
-            fundingCycleMetadata.redemptionRate
-          ),
-          reservedRate: new ReservedRate(fundingCycleMetadata.reservedRate),
-        },
-      ];
-    },
-  });
   const { data: tokenAddress } = useJbTokenStoreTokenOf({
     args: [projectId],
   });
   const { data: token } = useToken({ address: tokenAddress });
 
-  const { data: primaryTerminalEth } = useJbDirectoryPrimaryTerminalOf({
-    args: [projectId, ETHER_ADDRESS],
-  });
-
-  const { data: store } = useJbethPaymentTerminal3_1_2Store({
-    address: primaryTerminalEth,
-  });
-
   const { data: overflowEth } =
     useJbSingleTokenPaymentTerminalStoreCurrentTotalOverflowOf({
-      address: store,
+      address: primaryTerminalEthStore?.data,
       args: [projectId, BigInt(etherUnits.wei), JB_CURRENCIES.ETH],
       watch: true,
       staleTime: 10_000, // 10 seconds
@@ -122,30 +73,17 @@ export default function Page({ params }: { params: { id: string } }) {
   const totalOutstandingTokens =
     (totalTokenSupply ?? 0n) + (tokensReserved ?? 0n);
 
-  const [cycleData, cycleMetadata] = cycleResponse || [];
-
   const { data: reservedTokenSplits } = useJbSplitsStoreSplitsOf({
-    args: cycleData
-      ? [projectId, cycleData.configuration, BigInt(SplitGroup.ReservedTokens)]
+    args: fundingCycle?.data
+      ? [
+          projectId,
+          fundingCycle.data?.configuration,
+          BigInt(SplitGroup.ReservedTokens),
+        ]
       : undefined,
   });
 
   const boostRecipient = reservedTokenSplits?.[0]?.beneficiary;
-
-  const secondsUntilNextCycle = useCountdownToDate(
-    cycleData
-      ? new Date(Number(cycleData?.start + cycleData?.duration) * 1000)
-      : undefined
-  );
-
-  const payAmountAWei = useMemo(() => {
-    if (!formPayAmountA) return 0n;
-    try {
-      return parseEther(`${parseFloat(formPayAmountA)}` as `${number}`);
-    } catch {
-      return 0n;
-    }
-  }, [formPayAmountA]);
 
   // set title
   // TODO, hacky, probably eventually a next-idiomatic way to do this.
@@ -181,38 +119,9 @@ export default function Page({ params }: { params: { id: string } }) {
   const { data: projectMetadata } = useProjectMetadata(metadataUri);
   const { name: projectName, projectTagline, logoUri } = projectMetadata ?? {};
 
-  if (!cycleData || !cycleMetadata) return null;
-
-  const entryTax = cycleData.discountRate;
-  const exitTax = cycleMetadata.redemptionRate;
-  const devTax = cycleMetadata.reservedRate;
-
-  const ethQuote = getPaymentQuoteEth(ONE_ETHER, {
-    weight: cycleData.weight,
-    reservedRate: devTax.value,
-  });
-
-  const formTokensQuote =
-    payAmountAWei &&
-    getPaymentQuoteTokens(payAmountAWei, {
-      weight: cycleData.weight,
-      reservedRate: devTax.value,
-    });
-
-  // get token redemption quote AS IF the payment goes through and tokens are minted.
-  const formRedemptionQuote =
-    formTokensQuote &&
-    token &&
-    overflowEth &&
-    totalTokenSupply &&
-    tokensReserved
-      ? getTokenRedemptionQuoteEth(formTokensQuote.payerTokens, {
-          overflowWei: overflowEth + formTokensQuote.ethAmount,
-          totalSupply: totalTokenSupply + formTokensQuote.payerTokens,
-          redemptionRate: cycleMetadata.redemptionRate.value,
-          tokensReserved,
-        })
-      : undefined;
+  const entryTax = fundingCycle?.data?.discountRate;
+  const exitTax = fundingCycleMetadata?.data?.redemptionRate;
+  const devTax = fundingCycleMetadata?.data?.reservedRate;
 
   const totalSupplyFormatted =
     totalTokenSupply && token
@@ -236,32 +145,23 @@ export default function Page({ params }: { params: { id: string } }) {
     typeof tokensReserved !== "undefined" &&
     totalTokenSupply &&
     overflowEth &&
-    exitFloorPriceUnit
+    exitFloorPriceUnit &&
+    fundingCycleMetadata?.data
       ? getTokenRedemptionQuoteEth(
           parseUnits(exitFloorPriceUnit as `${number}`, token.decimals),
           {
             overflowWei: overflowEth,
             totalSupply: totalTokenSupply,
-            redemptionRate: cycleMetadata.redemptionRate.value,
+            redemptionRate: fundingCycleMetadata?.data?.redemptionRate.val,
             tokensReserved,
           }
         ) * 10n
       : null;
 
-  const nextCycleWeight = getNextCycleWeight({
-    weight: cycleData.weight,
-    discountRate: cycleData.discountRate.value,
-  });
-
-  const nextCycleEthQuote = getPaymentQuoteEth(ONE_ETHER, {
-    weight: nextCycleWeight,
-    reservedRate: devTax.value,
-  });
-
   return (
     <div>
       <header>
-        <div className="container container-border-x md:border-x flex justify-between md:items-center py-10 md:flex-row flex-col gap-5 ">
+        <div className="container flex justify-between md:items-center py-10 md:flex-row flex-col gap-5 ">
           <div>
             <div className="flex items-center gap-2 mb-2">
               {logoUri && (
@@ -313,177 +213,51 @@ export default function Page({ params }: { params: { id: string } }) {
         </div>
       </header>
 
-      <div className="border-y border-y-zinc-400">
-        <div className="container container-border-x md:border-x py-8 px-10 bg-zinc-100">
-          <div className="flex items-center gap-2 mb-3">
-            <h2 className="text-lg font-medium">Join network</h2>
-          </div>
-          {token && primaryTerminalEth ? (
-            <div className="flex justify-between flex-col md:flex-row mb-3 gap-10">
-              <div className="w-full">
-                <div className="flex gap-5 items-center flex-col md:flex-row mb-3">
-                  <PayInput
-                    label="You pay"
-                    onChange={(e) => {
-                      const value = e.target.value;
-                      if (!value) {
-                        setFormPayAmountA("");
-                        setFormPayAmountB("");
-                        return;
-                      }
-
-                      const amountWei = parseEther(
-                        `${parseFloat(value)}` as `${number}`
-                      );
-                      const amountBQuote = getPaymentQuoteTokens(amountWei, {
-                        weight: cycleData.weight,
-                        reservedRate: devTax.value,
-                      });
-
-                      const amountBFormatted = formatUnits(
-                        amountBQuote.payerTokens,
-                        token?.decimals
-                      );
-
-                      setFormPayAmountA(value);
-                      setFormPayAmountB(amountBFormatted);
-                    }}
-                    value={formPayAmountA}
-                    currency="ETH"
-                  />
-                  <div>
-                    <ArrowRight className="h-6 w-6 rotate-90 md:rotate-0" />
-                  </div>
-                  <PayInput
-                    label="You receive"
-                    onChange={(e) => {
-                      const value = e.target.value;
-                      if (!value) {
-                        setFormPayAmountA("");
-                        setFormPayAmountB("");
-                        return;
-                      }
-
-                      const amountAQuote = parseEther(
-                        `${
-                          parseFloat(value) * parseFloat(formatEther(ethQuote))
-                        }`
-                      );
-                      const amountAFormatted = formatEther(amountAQuote, {
-                        decimals: 8,
-                      });
-
-                      setFormPayAmountA(amountAFormatted);
-                      setFormPayAmountB(value);
-                    }}
-                    value={formPayAmountB}
-                    currency={token?.symbol}
-                  />
-                </div>
-                <div className="flex justify-between gap-3 items-center md:items-start flex-col md:flex-row">
-                  <div className="flex flex-col gap-2 text-sm items-center md:items-start">
-                    <div>
-                      1 {token?.symbol} = <Ether wei={ethQuote} />
-                    </div>
-
-                    {secondsUntilNextCycle ? (
-                      <div className="gap-1 text-orange-600 text-xs flex items-center font-medium">
-                        <ClockIcon className="w-4 h-4" />
-                        {entryTax.toPercentage()}% increase scheduled in{" "}
-                        {formatSeconds(secondsUntilNextCycle)}
-                      </div>
-                    ) : null}
-                  </div>
-                  {devTax && boostRecipient ? (
-                    <span className="text-sm inline-flex items-center gap-1">
-                      <ForwardIcon className="h-4 w-4 inline-block" />
-                      {devTax.toPercentage()}% boost to{" "}
-                      <EthereumAddress
-                        address={boostRecipient}
-                        short
-                        withEnsName
-                      />
-                    </span>
-                  ) : null}
-                </div>
-              </div>
-
-              <PayDialog
-                payAmountWei={payAmountAWei}
-                projectId={projectId}
-                primaryTerminalEth={primaryTerminalEth}
-                disabled={!payAmountAWei}
-              >
-                <Button
-                  size="lg"
-                  className="h-16 text-base min-w-[20%] flex items-center gap-2 hover:gap-[10px] whitespace-nowrap transition-all"
-                >
-                  Join now <ArrowRight className="h-4 w-4" />
-                </Button>
-              </PayDialog>
+      <div className="grid md:grid-cols-3 md:gap-10 container ">
+        <div className="py-10 col-span-2 order-1 md:-order-1">
+          <div className="max-w-4xl mx-auto">
+            <div className="flex gap-10">
+              <Stat label="Entry curve">{entryTax?.toPercentage()}%</Stat>
+              <Stat label="Exit curve">{exitTax?.toPercentage()}%</Stat>
             </div>
-          ) : null}
 
-          {/* {formTokensQuote && token ? (
-            <>
-              <div>
-                Boost contribution:{" "}
-                {formatUnits(formTokensQuote.reservedTokens, token.decimals)}{" "}
-                {token.symbol}
-              </div>
-            </>
-          ) : null} */}
+            <br />
+            <br />
 
-          {formRedemptionQuote ? (
-            <div>
-              Immediate redemption value: <Ether wei={formRedemptionQuote} />
-            </div>
-          ) : null}
-        </div>
-      </div>
+            {exitFloorPrice ? (
+              <Stat label="Exit value">
+                {formatEther(exitFloorPrice)} / {exitFloorPriceUnit}{" "}
+                {token?.symbol}
+              </Stat>
+            ) : null}
 
-      <div className="container container-border-x md:border-x py-10">
-        <div className="max-w-4xl mx-auto">
-          <div className="flex gap-10">
-            <Stat label="Entry curve">{entryTax.toPercentage()}%</Stat>
-            <Stat label="Exit curve">{exitTax.toPercentage()}%</Stat>
-          </div>
-
-          <br />
-          <br />
-
-          {exitFloorPrice ? (
-            <Stat label="Exit value">
-              {formatEther(exitFloorPrice)} / {exitFloorPriceUnit}{" "}
-              {token?.symbol}
-            </Stat>
-          ) : null}
-
-          {/* <HistoricalExitValueChart
+            {/* <HistoricalExitValueChart
             projectId={projectId}
-            redemptionRate={exitTax.value}
-            reservedRate={devTax.value}
+            redemptionRate={exitTax.val}
+            reservedRate={devTax.val}
           /> */}
-          <br />
-          <br />
+            <br />
+            <br />
 
-          <div>
-            <h2 className="font-medium uppercase text-sm mb-3">Participants</h2>
+            <div>
+              <h2 className="font-medium uppercase text-sm mb-3">
+                Participants
+              </h2>
 
-            {token &&
-            participantsData &&
-            participantsData.participants.length > 0 ? (
-              <ParticipantsTable
-                participants={participantsData}
-                token={token}
-                totalSupply={totalOutstandingTokens}
-                boostRecipient={boostRecipient}
-              />
-            ) : (
-              "No participants yet."
-            )}
-          </div>
-          {/* 
+              {token &&
+              participantsData &&
+              participantsData.participants.length > 0 ? (
+                <ParticipantsTable
+                  participants={participantsData}
+                  token={token}
+                  totalSupply={totalOutstandingTokens}
+                  boostRecipient={boostRecipient}
+                />
+              ) : (
+                "No participants yet."
+              )}
+            </div>
+            {/* 
         <div>
           {totalTokenSupply && tokensReserved && token ? (
             <div>
@@ -494,13 +268,29 @@ export default function Page({ params }: { params: { id: string } }) {
           ) : null}
         </div> */}
 
-          {/* <div>
+            {/* <div>
           Gen {(cycleData.number + 1n).toString()} buy price:{" "}
           {formatEther(nextCycleEthQuote)} ETH / {token?.symbol} (+
           {formatEther(nextCycleEthQuote - ethQuote)} ETH)
         </div> */}
+          </div>
+        </div>
+        <div>
+          {token ? (
+            <PayForm tokenA={{ symbol: "ETH", decimals: 18 }} tokenB={token} />
+          ) : null}
         </div>
       </div>
     </div>
+  );
+}
+
+export default function Page({ params }: { params: { id: string } }) {
+  const projectId = BigInt(params.id);
+
+  return (
+    <Providers projectId={projectId}>
+      <NetworkDashboard />
+    </Providers>
   );
 }
