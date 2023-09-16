@@ -16,8 +16,6 @@ async function resolveAddressEnsIdeas(addressOrEnsName: string) {
       (res) => res.json()
     );
 
-  console.log(response);
-
   return response.data;
 }
 

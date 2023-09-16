@@ -10,20 +10,9 @@ import {
   MAX_REDEMPTION_RATE,
   MAX_RESERVED_RATE,
   ONE_ETHER,
-} from "./constants";
-import { FixedInt, ReservedRate } from "fpnum";
-
-export class JBTokenValue extends FixedInt<18> {
-  constructor(value: bigint) {
-    super(value, 18);
-  }
-}
-
-export class FundingCycleWeight extends FixedInt<18> {
-  constructor(value: bigint) {
-    super(value, 18);
-  }
-}
+} from "juice-hooks/lib/constants";
+import { FixedInt } from "fpnum";
+import { ReservedRate, FundingCycleWeight } from "juice-hooks/lib/utils/data";
 
 /**
  * Return a quote for token mints for a given [payAmount].
@@ -92,19 +81,6 @@ export const getTokenBtoAQuote = <D extends number>(
   return new FixedInt(tokenAQuote, tokenADecimals);
 };
 
-export function formatSeconds(seconds: number) {
-  const duration = intervalToDuration({ start: 0, end: seconds * 1000 }); // convert seconds to milliseconds
-  return formatDuration(duration, {
-    format:
-      seconds > 86400 // if greater than a day, only show 'days'
-        ? ["days"]
-        : seconds > 3600 // if greater than an hour, only show 'hours' and 'minutes'
-        ? ["hours", "minutes"]
-        : ["minutes", "seconds"],
-    delimiter: ", ",
-  });
-}
-
 /**
  * Returns the ETH value (in wei) that a given [tokensAmount] can be redeemed for.
  *
@@ -163,6 +139,19 @@ export function getNextCycleWeight(currentCycle: {
     MAX_DISCOUNT_RATE;
 
   return nextCycleWeight;
+}
+
+export function formatSeconds(seconds: number) {
+  const duration = intervalToDuration({ start: 0, end: seconds * 1000 }); // convert seconds to milliseconds
+  return formatDuration(duration, {
+    format:
+      seconds > 86400 // if greater than a day, only show 'days'
+        ? ["days"]
+        : seconds > 3600 // if greater than an hour, only show 'hours' and 'minutes'
+        ? ["hours", "minutes"]
+        : ["minutes", "seconds"],
+    delimiter: ", ",
+  });
 }
 
 export function etherscanLink(

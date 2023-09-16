@@ -10,9 +10,9 @@ import {
   useParticipantsQuery,
   useProjectsQuery,
 } from "@/generated/graphql";
-import { useProjectMetadata } from "@/hooks/juicebox/useProjectMetadata";
+import { useProjectMetadata } from "@/lib/juicebox/hooks/useProjectMetadata";
 import { ipfsUriToGatewayUrl } from "@/lib/ipfs";
-import { JB_CURRENCIES, PV2 } from "@/lib/juicebox/constants";
+import { JB_CURRENCIES, PV2 } from "juice-hooks/lib/constants";
 import {
   formatEthAddress,
   formatEther,
@@ -26,22 +26,24 @@ import {
   useJbSplitsStoreSplitsOf,
   useJbTokenStoreTokenOf,
   useJbTokenStoreTotalSupplyOf,
-} from "juice-hooks";
+} from "juice-hooks/lib/react";
 import { useEffect } from "react";
 import { etherUnits, formatUnits, parseUnits, zeroAddress } from "viem";
 import { useToken } from "wagmi";
 import { Providers } from "./Providers";
 import { ParticipantsTable } from "./components/ParticipantsTable";
-import { useJBProjectContext } from "./contexts/JBProjectContext/JBProjectContext";
+import {
+  useJBFundingCycleContext,
+  useJBProjectContext,
+} from "juice-hooks/lib/react";
 import { PayForm } from "./components/pay/PayForm";
 
 function NetworkDashboard() {
   const {
     projectId,
-    primaryTerminalEthStore,
-    fundingCycle,
-    fundingCycleMetadata,
+    contracts: { primaryTerminalEthStore },
   } = useJBProjectContext();
+  const { fundingCycleData, fundingCycleMetadata } = useJBFundingCycleContext();
 
   const { data: address } = useJbProjectsOwnerOf({
     args: [projectId],
@@ -74,10 +76,10 @@ function NetworkDashboard() {
     (totalTokenSupply ?? 0n) + (tokensReserved ?? 0n);
 
   const { data: reservedTokenSplits } = useJbSplitsStoreSplitsOf({
-    args: fundingCycle?.data
+    args: fundingCycleData?.data
       ? [
           projectId,
-          fundingCycle.data?.configuration,
+          fundingCycleData.data?.configuration,
           BigInt(SplitGroup.ReservedTokens),
         ]
       : undefined,
@@ -119,9 +121,11 @@ function NetworkDashboard() {
   const { data: projectMetadata } = useProjectMetadata(metadataUri);
   const { name: projectName, projectTagline, logoUri } = projectMetadata ?? {};
 
-  const entryTax = fundingCycle?.data?.discountRate;
+  const entryTax = fundingCycleData?.data?.discountRate;
   const exitTax = fundingCycleMetadata?.data?.redemptionRate;
   const devTax = fundingCycleMetadata?.data?.reservedRate;
+
+  console.log(entryTax);
 
   const totalSupplyFormatted =
     totalTokenSupply && token
@@ -217,8 +221,8 @@ function NetworkDashboard() {
         <div className="py-10 col-span-2 order-1 md:-order-1">
           <div className="max-w-4xl mx-auto">
             <div className="flex gap-10">
-              <Stat label="Entry curve">{entryTax?.toPercentage()}%</Stat>
-              <Stat label="Exit curve">{exitTax?.toPercentage()}%</Stat>
+              <Stat label="Entry curve">{entryTax?.formatPercentage()}%</Stat>
+              <Stat label="Exit curve">{exitTax?.formatPercentage()}%</Stat>
             </div>
 
             <br />

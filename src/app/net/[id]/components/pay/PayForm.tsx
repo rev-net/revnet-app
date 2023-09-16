@@ -1,16 +1,16 @@
 import { Button } from "@/components/ui/button";
-import {
-  JBTokenValue,
-  getTokenAToBQuote,
-  getTokenBtoAQuote,
-} from "@/lib/juicebox/utils";
+import { getTokenAToBQuote, getTokenBtoAQuote } from "@/lib/juicebox/utils";
 import { ArrowDownIcon, ArrowRightIcon } from "@heroicons/react/24/solid";
 import { FixedInt } from "fpnum";
 import { useMemo, useState } from "react";
 import { formatUnits, parseEther, parseUnits } from "viem";
-import { useJBProjectContext } from "../../contexts/JBProjectContext/JBProjectContext";
+import {
+  useJBFundingCycleContext,
+  useJBProjectContext,
+} from "juice-hooks/lib/react";
 import { PayDialog } from "./PayDialog";
 import { PayInput } from "./PayInput";
+import { JBToken } from "juice-hooks/lib/utils/data";
 
 export function PayForm({
   tokenA,
@@ -22,8 +22,11 @@ export function PayForm({
   const [amountA, setAmountA] = useState<string>("");
   const [amountB, setAmountB] = useState<string>("");
 
-  const { fundingCycle, fundingCycleMetadata, projectId, primaryTerminalEth } =
-    useJBProjectContext();
+  const {
+    projectId,
+    contracts: { primaryTerminalEth },
+  } = useJBProjectContext();
+  const { fundingCycleData, fundingCycleMetadata } = useJBFundingCycleContext();
 
   const amountAValue = useMemo(() => {
     if (!amountA) return 0n;
@@ -39,7 +42,7 @@ export function PayForm({
     setAmountB("");
   }
 
-  if (!fundingCycle?.data || !fundingCycleMetadata?.data) return null;
+  if (!fundingCycleData?.data || !fundingCycleMetadata?.data) return null;
 
   return (
     <div className="flex flex-col p-5 rounded-md border border-zinc-200 bg-zinc-100 w-full">
@@ -56,7 +59,7 @@ export function PayForm({
               return;
             }
 
-            if (!fundingCycle?.data || !fundingCycleMetadata?.data) return;
+            if (!fundingCycleData?.data || !fundingCycleMetadata?.data) return;
 
             const value = parseUnits(
               `${parseFloat(valueRaw)}` as `${number}`,
@@ -65,7 +68,7 @@ export function PayForm({
             const amountBQuote = getTokenAToBQuote(
               new FixedInt(value, tokenA.decimals),
               {
-                weight: fundingCycle.data.weight,
+                weight: fundingCycleData.data.weight,
                 reservedRate: fundingCycleMetadata.data.reservedRate,
               }
             );
@@ -87,17 +90,17 @@ export function PayForm({
               return;
             }
 
-            const value = new JBTokenValue(
+            const value = new JBToken(
               parseUnits(
                 `${parseFloat(valueRaw)}` as `${number}`,
                 tokenB.decimals
               )
             );
 
-            if (!fundingCycle?.data || !fundingCycleMetadata?.data) return;
+            if (!fundingCycleData?.data || !fundingCycleMetadata?.data) return;
 
             const amountAQuote = getTokenBtoAQuote(value, tokenA.decimals, {
-              weight: fundingCycle.data.weight,
+              weight: fundingCycleData.data.weight,
               reservedRate: fundingCycleMetadata.data.reservedRate,
             });
 

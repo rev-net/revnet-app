@@ -1,5 +1,8 @@
 "use client";
-import { JBProjectProvider } from "./contexts/JBProjectContext/JBProjectContext";
+import {
+  JBFundingCycleProvider,
+  JBProjectProvider,
+} from "juice-hooks/lib/react";
 
 export function Providers({
   children,
@@ -9,6 +12,10 @@ export function Providers({
   children: React.ReactNode;
 }) {
   return (
-    <JBProjectProvider projectId={projectId}>{children}</JBProjectProvider>
+    <JBProjectProvider projectId={projectId}>
+      <JBFundingCycleProvider projectId={projectId}>
+        {children}
+      </JBFundingCycleProvider>
+    </JBProjectProvider>
   );
 }

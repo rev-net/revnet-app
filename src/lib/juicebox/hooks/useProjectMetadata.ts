@@ -12,8 +12,6 @@ export function useProjectMetadata(metadataCid: string | undefined | null) {
         res.json()
       )) as JBProjectMetadata;
 
-      console.log(response);
-
       return response;
     },
     {

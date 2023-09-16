@@ -3,7 +3,6 @@ import {
   PayEvent_OrderBy,
   usePayEventsQuery,
 } from "@/generated/graphql";
-import { ONE_ETHER } from "@/lib/juicebox/constants";
 import { formatEther, getTokenRedemptionQuoteEth } from "@/lib/juicebox/utils";
 import { Line, LineChart, XAxis, YAxis } from "recharts";
 import { parseEther } from "viem";
@@ -78,7 +77,12 @@ export function HistoricalExitValueChart({
   return (
     <div>
       <LineChart width={800} height={200} data={historicalTokenExitValue}>
-        <Line type="monotone" dataKey="exitValue" stroke="#16a34a" strokeWidth={2} />
+        <Line
+          type="monotone"
+          dataKey="exitValue"
+          stroke="#16a34a"
+          strokeWidth={2}
+        />
         <XAxis dataKey="id" />
         <YAxis dataKey="exitValue" />
       </LineChart>
