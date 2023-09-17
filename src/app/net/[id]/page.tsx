@@ -18,7 +18,7 @@ import {
   formatEther,
   getTokenRedemptionQuoteEth,
 } from "@/lib/juicebox/utils";
-import { SplitGroup } from "@/types/juicebox";
+import { SplitGroup } from "juice-hooks/lib/types";
 import {
   useJbController3_1ReservedTokenBalanceOf,
   useJbProjectsOwnerOf,

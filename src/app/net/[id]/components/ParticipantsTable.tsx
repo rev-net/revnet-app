@@ -12,6 +12,7 @@ import { ParticipantsQuery } from "@/generated/graphql";
 import { formatEther, formatUnits } from "@/lib/juicebox/utils";
 import { ForwardIcon } from "@heroicons/react/24/solid";
 import { Address, isAddressEqual } from "viem";
+import { useAccount } from "wagmi";
 import { FetchTokenResult } from "wagmi/dist/actions";
 
 export function ParticipantsTable({
@@ -25,6 +26,8 @@ export function ParticipantsTable({
   totalSupply: bigint;
   boostRecipient?: Address;
 }) {
+  const { address: accountAddress } = useAccount();
+
   return (
     <Table>
       <TableHeader>
@@ -40,27 +43,38 @@ export function ParticipantsTable({
           <TableRow key={participant.id}>
             <TableCell>
               <div className="flex items-center">
-              <EthereumAddress
-                address={participant.wallet.id}
-                short
-                withEnsAvatar
-                withEnsName
-              />
-              {boostRecipient &&
-              isAddressEqual(
-                boostRecipient,
-                participant.wallet.id as Address
-              ) ? (
-                <Badge variant="secondary" className="ml-2 font-normal">
-                  <ForwardIcon className="w-4 h-4 mr-1 inline-block" />
-                  Boost
-                </Badge>
-              ) : null}
+                <EthereumAddress
+                  address={participant.wallet.id}
+                  short
+                  withEnsAvatar
+                  withEnsName
+                />
+                {boostRecipient &&
+                isAddressEqual(
+                  boostRecipient,
+                  participant.wallet.id as Address
+                ) ? (
+                  <Badge variant="secondary" className="ml-2">
+                    <ForwardIcon className="w-4 h-4 mr-1 inline-block" />
+                    Boost
+                  </Badge>
+                ) : accountAddress &&
+                  isAddressEqual(
+                    accountAddress,
+                    participant.wallet.id as Address
+                  ) ? (
+                  <Badge variant="secondary" className="ml-2">
+                    You
+                  </Badge>
+                ) : null}
               </div>
             </TableCell>
             <TableCell>{formatEther(participant.volume)} ETH</TableCell>
             <TableCell>
-              {formatUnits(participant.balance, token.decimals, {decimals: 8})} {token.symbol}
+              {formatUnits(participant.balance, token.decimals, {
+                decimals: 8,
+              })}{" "}
+              {token.symbol}
             </TableCell>
             <TableCell>
               {participant.balance
