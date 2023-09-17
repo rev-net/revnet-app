@@ -141,6 +141,18 @@ export function getNextCycleWeight(currentCycle: {
   return nextCycleWeight;
 }
 
+export function getPrevCycleWeight(currentCycle: {
+  weight: bigint;
+  discountRate: bigint;
+}) {
+  // reverse of getNextCycleWeight
+  const prevCycleWeight =
+    (currentCycle.weight * MAX_DISCOUNT_RATE) /
+    (MAX_DISCOUNT_RATE - currentCycle.discountRate);
+
+  return prevCycleWeight;
+}
+
 export function formatSeconds(seconds: number) {
   const duration = intervalToDuration({ start: 0, end: seconds * 1000 }); // convert seconds to milliseconds
   return formatDuration(duration, {

@@ -37,6 +37,7 @@ import {
   useJBProjectContext,
 } from "juice-hooks/lib/react";
 import { PayForm } from "./components/pay/PayForm";
+import StepChart from "./components/StepChart";
 
 function NetworkDashboard() {
   const {
@@ -124,8 +125,6 @@ function NetworkDashboard() {
   const entryTax = fundingCycleData?.data?.discountRate;
   const exitTax = fundingCycleMetadata?.data?.redemptionRate;
   const devTax = fundingCycleMetadata?.data?.reservedRate;
-
-  console.log(entryTax);
 
   const totalSupplyFormatted =
     totalTokenSupply && token
@@ -220,6 +219,7 @@ function NetworkDashboard() {
       <div className="grid md:grid-cols-3 md:gap-10 container ">
         <div className="py-10 col-span-2 order-1 md:-order-1">
           <div className="max-w-4xl mx-auto">
+            <StepChart />
             <div className="flex gap-10">
               <Stat label="Entry curve">{entryTax?.formatPercentage()}%</Stat>
               <Stat label="Exit curve">{exitTax?.formatPercentage()}%</Stat>
