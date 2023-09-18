@@ -56,9 +56,10 @@ const CustomizedDot = (
         cx={cx}
         cy={cy}
         r={6}
-        fill="#a3e635"
-        stroke="#65a30d"
-        strokeWidth={1}
+        fill="#4ade80"
+        stroke="#fff"
+        strokeWidth={2}
+        className="animate-pulse"
       />
     );
   }
@@ -80,7 +81,14 @@ const CustomizedTick = (props: {
 
   return (
     <g transform={`translate(${x},${y})`}>
-      <text x={0} y={0} dy={16} textAnchor="end" fill="#666">
+      <text
+        x={0}
+        y={0}
+        dy={16}
+        textAnchor="end"
+        fill="#71717A"
+        fontSize={"0.75rem"}
+      >
         {d.fc}
       </text>
     </g>
@@ -91,7 +99,8 @@ const StepChart = () => {
   const { fundingCycleData, fundingCycleMetadata } = useJBFundingCycleContext();
 
   const currentFcStart = fundingCycleData?.data?.start;
-  const startBuffer = currentFcStart ?? 0n - BigInt(3600 * 24 * 4);
+  const startBuffer =
+    currentFcStart ?? 0n - (fundingCycleData?.data?.duration ?? 0n);
   const currentFcEnd =
     fundingCycleData?.data?.start ??
     0n + (fundingCycleData?.data?.duration ?? 0n);
@@ -133,22 +142,27 @@ const StepChart = () => {
   });
 
   const timeElapsed = Math.abs(Date.now() - Number(currentFcStart) * 1000);
-  const percentElapsed = timeElapsed / (3600 * 24 * 28 * 1000);
+  const percentElapsed =
+    timeElapsed / (Number(fundingCycleData?.data?.duration ?? 0n) * 1000);
+
   const datapointIndex = Math.floor(percentElapsed * steps);
+
   const renderData = useMemo(() => {
     return [
       ...generateDateRange(
         new Date(Number(startBuffer) * 1000),
         new Date(Number(currentFcStart) * 1000),
         steps
-      ).map((d, i) => {
-        return {
-          fc: 1,
-          groupIdx: i,
-          date: d,
-          value: prevPrice.toFloat().toFixed(2),
-        };
-      }),
+      )
+        .map((d, i) => {
+          return {
+            fc: 1,
+            groupIdx: i,
+            date: d,
+            value: prevPrice.toFloat().toFixed(2),
+          };
+        })
+        .slice(steps * 0.6, steps),
       ...generateDateRange(
         new Date(Number(currentFcStart) * 1000),
         new Date(Number(currentFcEnd) * 1000),
@@ -202,6 +216,7 @@ const StepChart = () => {
             tick={<CustomizedTick renderData={renderData} />}
             interval={0}
             tickCount={renderData.length}
+            axisLine={false}
           />
           <YAxis
             type="number"
@@ -212,7 +227,7 @@ const StepChart = () => {
           <Line
             type="stepBefore"
             dataKey="value"
-            stroke="#84cc16"
+            stroke="#22c55e"
             isAnimationActive={false}
             dot={
               <CustomizedDot

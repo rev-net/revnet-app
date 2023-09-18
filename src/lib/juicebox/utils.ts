@@ -57,6 +57,7 @@ export const getTokenBPrice = (
 
   // 1 Token A = x Token B
   const tokenBQuote = getTokenAToBQuote(oneTokenA, cycleParams);
+  if (tokenBQuote.payerTokens === 0n) return 0n;
 
   const tokenBPrice = (ONE_ETHER * weightRatio) / tokenBQuote.payerTokens;
 
