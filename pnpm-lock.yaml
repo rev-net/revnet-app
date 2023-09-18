@@ -32,6 +32,9 @@ dependencies:
   date-fns:
     specifier: ^2.30.0
     version: 2.30.0
+  dompurify:
+    specifier: ^3.0.5
+    version: 3.0.5
   fpnum:
     specifier: ^0.0.8
     version: 0.0.8
@@ -103,6 +106,9 @@ devDependencies:
   '@graphql-codegen/typescript-resolvers':
     specifier: ^4.0.1
     version: 4.0.1(graphql@16.8.0)
+  '@types/dompurify':
+    specifier: ^3.0.2
+    version: 3.0.2
   '@types/jest':
     specifier: ^29.5.4
     version: 29.5.4
@@ -3431,6 +3437,12 @@ packages:
       '@types/ms': 0.7.31
     dev: false
 
+  /@types/dompurify@3.0.2:
+    resolution: {integrity: sha512-YBL4ziFebbbfQfH5mlC+QTJsvh0oJUrWbmxKMyEdL7emlHJqGR2Qb34TEFKj+VCayBvjKy3xczMFNhugThUsfQ==}
+    dependencies:
+      '@types/trusted-types': 2.0.3
+    dev: true
+
   /@types/graceful-fs@4.1.6:
     resolution: {integrity: sha512-Sig0SNORX9fdW+bQuTEovKj3uHcUL6LQKbCrrqb1X7J6/ReAbhCXRAhc+SMejhLELFj2QcyuxmUooZ4bt5ReSw==}
     dependencies:
@@ -3509,7 +3521,6 @@ packages:
 
   /@types/trusted-types@2.0.3:
     resolution: {integrity: sha512-NfQ4gyz38SL8sDNrSixxU2Os1a5xcdFxipAFxYEuLUlvU2uDwS4NUpsImcf1//SlWItCVMMLiylsxbmNMToV/g==}
-    dev: false
 
   /@types/ws@7.4.7:
     resolution: {integrity: sha512-JQbbmxZTZehdc2iszGKs5oC3NFnjeay7mtAWrdt7qNtAVK0g19muApzAy4bm9byz79xa2ZnO/BOBC2R8RC5Lww==}
@@ -5311,6 +5322,10 @@ packages:
     resolution: {integrity: sha512-LnuPJ+dwqKDIyotW1VzmOZ5TONUN7CwkCR5hrgawTUbkBGYdeoNLZo6nNfGkCrjtE1nXXaj7iMMpDa8/d9WoIA==}
     dependencies:
       '@babel/runtime': 7.22.15
+    dev: false
+
+  /dompurify@3.0.5:
+    resolution: {integrity: sha512-F9e6wPGtY+8KNMRAVfxeCOHU0/NPWMSENNq4pQctuXRqqdEPW7q3CrLbR5Nse044WwacyjHGOMlvNsBe1y6z9A==}
     dev: false
 
   /dot-case@3.0.4:

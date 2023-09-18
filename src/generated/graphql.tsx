@@ -20,6 +20,7 @@ export type Scalars = {
   BigDecimal: { input: any; output: any; }
   BigInt: { input: any; output: any; }
   Bytes: { input: any; output: any; }
+  Int8: { input: any; output: any; }
 };
 
 export type AddToBalanceEvent = {
@@ -9903,7 +9904,7 @@ export type ProjectsQueryVariables = Exact<{
 }>;
 
 
-export type ProjectsQuery = { projects: Array<{ projectId: number, metadataUri: string | null, handle: string | null, contributorsCount: number }> };
+export type ProjectsQuery = { projects: Array<{ projectId: number, metadataUri: string | null, handle: string | null, contributorsCount: number, createdAt: number }> };
 
 
 
@@ -10033,6 +10034,7 @@ export type ResolversTypes = {
   InitEvent_filter: InitEvent_Filter;
   InitEvent_orderBy: InitEvent_OrderBy;
   Int: ResolverTypeWrapper<Scalars['Int']['output']>;
+  Int8: ResolverTypeWrapper<Scalars['Int8']['output']>;
   JB721DelegateToken: ResolverTypeWrapper<Jb721DelegateToken>;
   JB721DelegateToken_filter: Jb721DelegateToken_Filter;
   JB721DelegateToken_orderBy: Jb721DelegateToken_OrderBy;
@@ -10145,6 +10147,7 @@ export type ResolversParentTypes = {
   InitEvent: InitEvent;
   InitEvent_filter: InitEvent_Filter;
   Int: Scalars['Int']['output'];
+  Int8: Scalars['Int8']['output'];
   JB721DelegateToken: Jb721DelegateToken;
   JB721DelegateToken_filter: Jb721DelegateToken_Filter;
   MigrateEvent: MigrateEvent;
@@ -10509,6 +10512,10 @@ export type InitEventResolvers<ContextType = any, ParentType extends ResolversPa
   txHash?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
+
+export interface Int8ScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['Int8'], any> {
+  name: 'Int8';
+}
 
 export type Jb721DelegateTokenResolvers<ContextType = any, ParentType extends ResolversParentTypes['JB721DelegateToken'] = ResolversParentTypes['JB721DelegateToken']> = {
   address?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
@@ -11098,6 +11105,7 @@ export type Resolvers<ContextType = any> = {
   ETHERC20ProjectPayer?: Etherc20ProjectPayerResolvers<ContextType>;
   ETHERC20SplitsPayer?: Etherc20SplitsPayerResolvers<ContextType>;
   InitEvent?: InitEventResolvers<ContextType>;
+  Int8?: GraphQLScalarType;
   JB721DelegateToken?: Jb721DelegateTokenResolvers<ContextType>;
   MigrateEvent?: MigrateEventResolvers<ContextType>;
   MintTokensEvent?: MintTokensEventResolvers<ContextType>;
@@ -11249,6 +11257,7 @@ export const ProjectsDocument = gql`
     metadataUri
     handle
     contributorsCount
+    createdAt
   }
 }
     `;

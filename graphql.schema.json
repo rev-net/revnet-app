@@ -38465,6 +38465,16 @@
         "possibleTypes": null
       },
       {
+        "kind": "SCALAR",
+        "name": "Int8",
+        "description": "8 bytes signed integer\n",
+        "fields": null,
+        "inputFields": null,
+        "interfaces": null,
+        "enumValues": null,
+        "possibleTypes": null
+      },
+      {
         "kind": "OBJECT",
         "name": "JB721DelegateToken",
         "description": null,

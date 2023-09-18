@@ -41,6 +41,8 @@ import {
 import { PayForm } from "./components/pay/PayForm";
 import StepChart from "./components/StepChart";
 import { NetworkDetailsTable } from "./components/NetworkDetailsTable";
+import { Html } from "@/components/ui/html";
+import { format } from "date-fns";
 
 function NetworkDashboard() {
   const {
@@ -90,7 +92,8 @@ function NetworkDashboard() {
       : undefined,
   });
 
-  const boostRecipient = reservedTokenSplits?.[0]?.beneficiary;
+  const boost = reservedTokenSplits?.[0];
+  const boostRecipient = boost?.beneficiary;
 
   // set title
   // TODO, hacky, probably eventually a next-idiomatic way to do this.
@@ -122,7 +125,9 @@ function NetworkDashboard() {
     pollInterval: 10_000,
   });
 
-  const { metadataUri, contributorsCount } = projects?.projects?.[0] ?? {};
+  const { metadataUri, contributorsCount, createdAt } =
+    projects?.projects?.[0] ?? {};
+  console.log(createdAt);
   const { data: projectMetadata } = useProjectMetadata(metadataUri);
   const { name: projectName, projectTagline, logoUri } = projectMetadata ?? {};
 
@@ -227,7 +232,7 @@ function NetworkDashboard() {
         </div>
       </header>
 
-      <div className="grid md:grid-cols-3 md:gap-20 container ">
+      <div className="grid md:grid-cols-3 gap-20 container ">
         <div className="col-span-2 order-1 md:-order-1">
           <div className="max-w-4xl mx-auto">
             <div>
@@ -242,17 +247,18 @@ function NetworkDashboard() {
                 {entryTax?.formatPercentage()}% increase every{" "}
                 {fundingCycleData?.data?.duration === 86400n
                   ? "day"
-                  : formatSeconds(Number(fundingCycleData?.data?.duration))}
+                  : formatSeconds(
+                      Number(fundingCycleData?.data?.duration ?? 0)
+                    )}
                 , forever
               </div>
             </div>
-            <StepChart />
+            <div className="mb-24">
+              <StepChart />
+            </div>
             {/* <div className="flex gap-10">
               <Stat label="Exit curve">{exitTax?.formatPercentage()}%</Stat>
             </div> */}
-
-            <br />
-            <br />
 
             {/* {exitFloorPrice ? (
               <Stat label="Exit value">
@@ -266,12 +272,26 @@ function NetworkDashboard() {
             redemptionRate={exitTax.val}
             reservedRate={devTax.val}
           /> */}
-            <br />
-            <br />
 
-            <NetworkDetailsTable />
+            <div className="mb-16">
+              <div className="mb-5">
+                <h2 className="text-2xl font-medium mb-1">
+                  About {projectMetadata?.name}
+                </h2>
+                {createdAt ? (
+                  <div className="text-zinc-500 text-sm">
+                    Since {format(createdAt * 1000, "yyyy-mm-dd")}
+                  </div>
+                ) : null}
+              </div>
+              {projectMetadata?.description ? (
+                <Html source={projectMetadata?.description} />
+              ) : null}
+            </div>
 
-            <div>
+            {/* <NetworkDetailsTable boost={boost} /> */}
+
+            <div className="mb-16">
               <h2 className="font-medium uppercase text-sm mb-3">
                 Participants
               </h2>

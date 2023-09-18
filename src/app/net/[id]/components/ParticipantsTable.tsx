@@ -69,7 +69,9 @@ export function ParticipantsTable({
                 ) : null}
               </div>
             </TableCell>
-            <TableCell>{formatEther(participant.volume)} ETH</TableCell>
+            <TableCell>
+              {formatUnits(participant.volume, 18, { decimals: 8 })} ETH
+            </TableCell>
             <TableCell>
               {formatUnits(participant.balance, token.decimals, {
                 decimals: 8,

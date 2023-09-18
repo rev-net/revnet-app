@@ -1,6 +1,17 @@
+import { EthereumAddress } from "@/components/EthereumAddress";
 import { useJBFundingCycleContext } from "juice-hooks/lib/react";
+import { Address, formatUnits } from "viem";
 
-export function NetworkDetailsTable() {
+export function NetworkDetailsTable({
+  boost,
+}: {
+  boost:
+    | {
+        percent: bigint;
+        beneficiary: `0x${string}`;
+      }
+    | undefined;
+}) {
   const { fundingCycleData, fundingCycleMetadata } = useJBFundingCycleContext();
   if (!fundingCycleData?.data || !fundingCycleMetadata?.data) return null;
 
@@ -24,13 +35,22 @@ export function NetworkDetailsTable() {
       </div>
       <div className="border-t border-gray-100 px-4 py-6 sm:col-span-1 sm:px-0 grid grid-cols-2">
         <dt className="text-sm font-medium leading-6 text-gray-900">Boost</dt>
-        <dd className="text-sm leading-6 text-gray-700">todo</dd>
+        {boost ? (
+          <dd className="text-sm leading-6 text-gray-700">
+            {formatUnits(boost?.percent * 100n, 10)}%
+          </dd>
+        ) : null}
       </div>
       <div className="border-t border-gray-100 px-4 py-6 sm:col-span-1 sm:px-0 grid grid-cols-2">
         <dt className="text-sm font-medium leading-6 text-gray-900">
           Boost to
         </dt>
-        <dd className="text-sm leading-6 text-gray-700">todo</dd>
+        <dd className="text-sm leading-6 text-gray-700">
+          <EthereumAddress
+            withEnsName
+            address={boost?.beneficiary as Address}
+          />
+        </dd>
       </div>
     </div>
   );
