@@ -40,6 +40,7 @@ import {
 } from "juice-hooks/lib/react";
 import { PayForm } from "./components/pay/PayForm";
 import StepChart from "./components/StepChart";
+import { NetworkDetailsTable } from "./components/NetworkDetailsTable";
 
 function NetworkDashboard() {
   const {
@@ -246,9 +247,9 @@ function NetworkDashboard() {
               </div>
             </div>
             <StepChart />
-            <div className="flex gap-10">
+            {/* <div className="flex gap-10">
               <Stat label="Exit curve">{exitTax?.formatPercentage()}%</Stat>
-            </div>
+            </div> */}
 
             <br />
             <br />
@@ -267,6 +268,8 @@ function NetworkDashboard() {
           /> */}
             <br />
             <br />
+
+            <NetworkDetailsTable />
 
             <div>
               <h2 className="font-medium uppercase text-sm mb-3">
