@@ -105,6 +105,7 @@ const StepChart = () => {
     fundingCycleData?.data?.start ??
     0n + (fundingCycleData?.data?.duration ?? 0n);
   const nextFcEnd = currentFcEnd + (fundingCycleData?.data?.duration ?? 0n);
+  const nextNextFcEnd = nextFcEnd + (fundingCycleData?.data?.duration ?? 0n);
 
   const prevWeight = new FundingCycleWeight(
     getPrevCycleWeight({
@@ -115,6 +116,12 @@ const StepChart = () => {
   const nextWeight = new FundingCycleWeight(
     getNextCycleWeight({
       weight: fundingCycleData?.data?.weight.val ?? 0n,
+      discountRate: fundingCycleData?.data?.discountRate.val ?? 0n,
+    })
+  );
+  const nextNextWeight = new FundingCycleWeight(
+    getNextCycleWeight({
+      weight: nextWeight.val ?? 0n,
       discountRate: fundingCycleData?.data?.discountRate.val ?? 0n,
     })
   );
@@ -134,6 +141,16 @@ const StepChart = () => {
     weight: new FundingCycleWeight(
       getNextCycleWeight({
         weight: nextWeight.val,
+        discountRate: fundingCycleData?.data?.discountRate.val ?? 0n,
+      })
+    ),
+    reservedRate:
+      fundingCycleMetadata?.data?.reservedRate ?? new ReservedRate(0n),
+  });
+  const nextNextPrice = getTokenBtoAQuote(new Ether(ONE_ETHER), 18, {
+    weight: new FundingCycleWeight(
+      getNextCycleWeight({
+        weight: nextNextWeight.val,
         discountRate: fundingCycleData?.data?.discountRate.val ?? 0n,
       })
     ),
@@ -189,21 +206,30 @@ const StepChart = () => {
           value: nextPrice.toFloat().toFixed(2),
         };
       }),
+      ...generateDateRange(
+        new Date(Number(nextFcEnd) * 1000),
+        new Date(Number(nextNextFcEnd) * 1000),
+        steps
+      ).map((d, i) => {
+        return {
+          fc: 4,
+
+          groupIdx: i,
+          date: d,
+          value: nextNextPrice.toFloat().toFixed(2),
+        };
+      }),
     ];
   }, [
     currentPrice,
     nextPrice,
+    nextNextPrice,
     prevPrice,
     currentFcEnd,
     currentFcStart,
     nextFcEnd,
+    nextNextFcEnd,
     startBuffer,
-  ]);
-
-  console.log([
-    prevPrice.toFloat().toFixed(2),
-    currentPrice.toFloat().toFixed(2),
-    nextPrice.toFloat().toFixed(2),
   ]);
 
   return (
@@ -216,7 +242,7 @@ const StepChart = () => {
             tick={<CustomizedTick renderData={renderData} />}
             interval={0}
             tickCount={renderData.length}
-            axisLine={false}
+            stroke="#d4d4d8"
           />
           <YAxis
             type="number"

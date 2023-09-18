@@ -57,11 +57,11 @@ export const getTokenBPrice = (
 
   // 1 Token A = x Token B
   const tokenBQuote = getTokenAToBQuote(oneTokenA, cycleParams);
-  if (tokenBQuote.payerTokens === 0n) return 0n;
+  if (tokenBQuote.payerTokens === 0n) return new FixedInt(0n, tokenADecimals);
 
   const tokenBPrice = (ONE_ETHER * weightRatio) / tokenBQuote.payerTokens;
 
-  return tokenBPrice;
+  return new FixedInt(tokenBPrice, tokenADecimals);
 };
 
 /**
@@ -78,7 +78,7 @@ export const getTokenBtoAQuote = <D extends number>(
   const tokenBPrice = getTokenBPrice(tokenADecimals, cycleParams);
   const oneTokenA = parseUnits("1", tokenADecimals);
 
-  const tokenAQuote = (tokenBPrice * tokenBAmount.val) / oneTokenA;
+  const tokenAQuote = (tokenBPrice.val * tokenBAmount.val) / oneTokenA;
   return new FixedInt(tokenAQuote, tokenADecimals);
 };
 

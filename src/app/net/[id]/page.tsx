@@ -16,6 +16,8 @@ import { JB_CURRENCIES, PV2 } from "juice-hooks/lib/constants";
 import {
   formatEthAddress,
   formatEther,
+  formatSeconds,
+  getTokenBPrice,
   getTokenRedemptionQuoteEth,
 } from "@/lib/juicebox/utils";
 import { SplitGroup } from "juice-hooks/lib/types";
@@ -58,6 +60,7 @@ function NetworkDashboard() {
     args: [projectId],
   });
   const { data: token } = useToken({ address: tokenAddress });
+  const tokenA = { symbol: "ETH", decimals: 18 };
 
   const { data: overflowEth } =
     useJbSingleTokenPaymentTerminalStoreCurrentTotalOverflowOf({
@@ -160,10 +163,17 @@ function NetworkDashboard() {
           }
         ) * 10n
       : null;
+  const currentTokenBPrice =
+    fundingCycleData?.data && fundingCycleMetadata?.data
+      ? getTokenBPrice(tokenA.decimals, {
+          weight: fundingCycleData?.data?.weight,
+          reservedRate: fundingCycleMetadata?.data?.reservedRate,
+        })
+      : null;
 
   return (
     <div>
-      <header>
+      <header className="mb-10">
         <div className="container flex justify-between md:items-center py-10 md:flex-row flex-col gap-5 ">
           <div>
             <div className="flex items-center gap-2 mb-2">
@@ -203,7 +213,7 @@ function NetworkDashboard() {
               </div>
             ) : null} */}
           </div>
-          <div className="flex gap-10">
+          <div className="flex gap-12">
             {typeof overflowEth !== "undefined" ? (
               <Stat label="Backed by">
                 <Ether wei={overflowEth} />
@@ -216,24 +226,39 @@ function NetworkDashboard() {
         </div>
       </header>
 
-      <div className="grid md:grid-cols-3 md:gap-10 container ">
-        <div className="py-10 col-span-2 order-1 md:-order-1">
+      <div className="grid md:grid-cols-3 md:gap-20 container ">
+        <div className="col-span-2 order-1 md:-order-1">
           <div className="max-w-4xl mx-auto">
+            <div>
+              <div className="text-3xl mb-1">
+                {currentTokenBPrice?.format(4)} {tokenA.symbol}
+                <span className="text-base leading-tight">
+                  {" "}
+                  / {token?.symbol}
+                </span>
+              </div>
+              <div className="text-zinc-500 text-sm">
+                {entryTax?.formatPercentage()}% increase every{" "}
+                {fundingCycleData?.data?.duration === 86400n
+                  ? "day"
+                  : formatSeconds(Number(fundingCycleData?.data?.duration))}
+                , forever
+              </div>
+            </div>
             <StepChart />
             <div className="flex gap-10">
-              <Stat label="Entry curve">{entryTax?.formatPercentage()}%</Stat>
               <Stat label="Exit curve">{exitTax?.formatPercentage()}%</Stat>
             </div>
 
             <br />
             <br />
 
-            {exitFloorPrice ? (
+            {/* {exitFloorPrice ? (
               <Stat label="Exit value">
                 {formatEther(exitFloorPrice)} / {exitFloorPriceUnit}{" "}
                 {token?.symbol}
               </Stat>
-            ) : null}
+            ) : null} */}
 
             {/* <HistoricalExitValueChart
             projectId={projectId}
@@ -279,11 +304,7 @@ function NetworkDashboard() {
         </div> */}
           </div>
         </div>
-        <div>
-          {token ? (
-            <PayForm tokenA={{ symbol: "ETH", decimals: 18 }} tokenB={token} />
-          ) : null}
-        </div>
+        <div>{token ? <PayForm tokenA={tokenA} tokenB={token} /> : null}</div>
       </div>
     </div>
   );

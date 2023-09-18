@@ -33,8 +33,8 @@ dependencies:
     specifier: ^2.30.0
     version: 2.30.0
   fpnum:
-    specifier: ^0.0.5
-    version: 0.0.5
+    specifier: ^0.0.8
+    version: 0.0.8
   graphql:
     specifier: ^16.8.0
     version: 16.8.0
@@ -5994,12 +5994,12 @@ packages:
     dependencies:
       is-callable: 1.2.7
 
-  /fpnum@0.0.5:
-    resolution: {integrity: sha512-Bov94bqvZ9IlAVbs8jOz8MtTtp+8HYZwj5XokDuPWJcNc7FasCXZ1Psvrt1NA3M2QsQ+wIqDRBFLQ3nvGzSN7w==}
-    dev: false
-
   /fpnum@0.0.7:
     resolution: {integrity: sha512-H/mu5jm81y/vposS/lmkxwWcxaoqUoTcEXDQ88koVkNwCDGk+t2WBgYJ5M0fR4ixFFXTjKX27euV4B8ZJlRVAQ==}
+    dev: false
+
+  /fpnum@0.0.8:
+    resolution: {integrity: sha512-rjAE+LAjDPiYl6VGbiLF8yyEQgQci7KIjTTGUBeGjVFZSPx25z4OPWYg29Fi2U4t9Rr70JUZJ52EOexI2QxtpQ==}
     dev: false
 
   /fraction.js@4.3.6:
