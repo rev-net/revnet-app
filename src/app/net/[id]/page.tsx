@@ -3,6 +3,7 @@
 import { Ether } from "@/components/Ether";
 import EtherscanLink from "@/components/EtherscanLink";
 import { Badge } from "@/components/ui/badge";
+import { Html } from "@/components/ui/html";
 import { Stat } from "@/components/ui/stat";
 import {
   OrderDirection,
@@ -10,39 +11,33 @@ import {
   useParticipantsQuery,
   useProjectsQuery,
 } from "@/generated/graphql";
-import { useProjectMetadata } from "@/lib/juicebox/hooks/useProjectMetadata";
 import { ipfsUriToGatewayUrl } from "@/lib/ipfs";
-import { JB_CURRENCIES, PV2 } from "juice-hooks/lib/constants";
+import { useProjectMetadata } from "@/hooks/juicebox/useProjectMetadata";
+import { formatSeconds } from "@/lib/utils";
+import { format } from "date-fns";
 import {
+  JB_CURRENCIES,
+  PV2,
+  SplitGroup,
   formatEthAddress,
-  formatEther,
-  formatSeconds,
   getTokenBPrice,
   getTokenRedemptionQuoteEth,
-} from "@/lib/juicebox/utils";
-import { SplitGroup } from "juice-hooks/lib/types";
-import {
+  useJBFundingCycleContext,
+  useJBProjectContext,
   useJbController3_1ReservedTokenBalanceOf,
   useJbProjectsOwnerOf,
   useJbSingleTokenPaymentTerminalStoreCurrentTotalOverflowOf,
   useJbSplitsStoreSplitsOf,
   useJbTokenStoreTokenOf,
   useJbTokenStoreTotalSupplyOf,
-} from "juice-hooks/lib/react";
+} from "juice-hooks";
 import { useEffect } from "react";
 import { etherUnits, formatUnits, parseUnits, zeroAddress } from "viem";
 import { useToken } from "wagmi";
 import { Providers } from "./Providers";
 import { ParticipantsTable } from "./components/ParticipantsTable";
-import {
-  useJBFundingCycleContext,
-  useJBProjectContext,
-} from "juice-hooks/lib/react";
-import { PayForm } from "./components/pay/PayForm";
 import StepChart from "./components/StepChart";
-import { NetworkDetailsTable } from "./components/NetworkDetailsTable";
-import { Html } from "@/components/ui/html";
-import { format } from "date-fns";
+import { PayForm } from "./components/pay/PayForm";
 
 function NetworkDashboard() {
   const {

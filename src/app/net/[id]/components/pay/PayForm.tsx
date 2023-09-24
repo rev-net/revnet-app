@@ -1,16 +1,17 @@
 import { Button } from "@/components/ui/button";
-import { getTokenAToBQuote, getTokenBtoAQuote } from "@/lib/juicebox/utils";
 import { ArrowDownIcon, ArrowRightIcon } from "@heroicons/react/24/solid";
 import { FixedInt } from "fpnum";
-import { useMemo, useState } from "react";
-import { formatUnits, parseEther, parseUnits } from "viem";
 import {
+  JBToken,
+  getTokenAToBQuote,
+  getTokenBtoAQuote,
   useJBFundingCycleContext,
   useJBProjectContext,
-} from "juice-hooks/lib/react";
+} from "juice-hooks";
+import { useMemo, useState } from "react";
+import { formatUnits, parseEther, parseUnits } from "viem";
 import { PayDialog } from "./PayDialog";
 import { PayInput } from "./PayInput";
-import { JBToken } from "juice-hooks/lib/utils/data";
 
 export function PayForm({
   tokenA,

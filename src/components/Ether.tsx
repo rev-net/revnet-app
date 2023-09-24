@@ -1,4 +1,4 @@
-import { formatEther } from "@/lib/juicebox/utils";
+import { formatEther } from "juice-hooks";
 
 export function Ether({
   wei,

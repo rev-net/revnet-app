@@ -2,14 +2,10 @@ import {
   getNextCycleWeight,
   getPrevCycleWeight,
   getTokenBtoAQuote,
-} from "@/lib/juicebox/utils";
-import { ONE_ETHER } from "juice-hooks/lib/constants";
-import { useJBFundingCycleContext } from "juice-hooks/lib/react";
-import {
-  Ether,
-  FundingCycleWeight,
-  ReservedRate,
-} from "juice-hooks/lib/utils/data";
+} from "juice-hooks";
+import { ONE_ETHER } from "juice-hooks";
+import { useJBFundingCycleContext } from "juice-hooks";
+import { Ether, FundingCycleWeight, ReservedRate } from "juice-hooks";
 import { useMemo } from "react";
 import {
   Dot,

@@ -9,8 +9,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { ParticipantsQuery } from "@/generated/graphql";
-import { formatEther, formatUnits } from "@/lib/juicebox/utils";
 import { ForwardIcon } from "@heroicons/react/24/solid";
+import { formatUnits } from "juice-hooks";
 import { Address, isAddressEqual } from "viem";
 import { useAccount } from "wagmi";
 import { FetchTokenResult } from "wagmi/dist/actions";

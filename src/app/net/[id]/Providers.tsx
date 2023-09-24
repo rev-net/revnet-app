@@ -2,7 +2,7 @@
 import {
   JBFundingCycleProvider,
   JBProjectProvider,
-} from "juice-hooks/lib/react";
+} from "juice-hooks";
 
 export function Providers({
   children,

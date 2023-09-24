@@ -1,4 +1,4 @@
-import { etherscanLink, formatEthAddress } from "@/lib/juicebox/utils";
+import { etherscanLink, formatEthAddress } from "@/lib/utils";
 import { twMerge } from "tailwind-merge";
 import { useNetwork } from "wagmi";
 import { ExternalLink } from "./ExternalLink";

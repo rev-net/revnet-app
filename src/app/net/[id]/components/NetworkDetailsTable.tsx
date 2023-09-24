@@ -1,5 +1,5 @@
 import { EthereumAddress } from "@/components/EthereumAddress";
-import { useJBFundingCycleContext } from "juice-hooks/lib/react";
+import { useJBFundingCycleContext } from "juice-hooks";
 import { Address, formatUnits } from "viem";
 
 export function NetworkDetailsTable({

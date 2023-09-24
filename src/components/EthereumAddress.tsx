@@ -1,5 +1,5 @@
 import { useEnsName } from "@/hooks/ens/useEnsName";
-import { formatEthAddress } from "@/lib/juicebox/utils";
+import { formatEthAddress } from "@/lib/utils";
 import Image from "next/image";
 import EtherscanLink from "./EtherscanLink";
 

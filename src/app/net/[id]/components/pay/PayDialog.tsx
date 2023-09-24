@@ -8,8 +8,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { usePayEthPaymentTerminal } from "@/lib/juicebox/hooks/usePayEthPaymentTerminal";
-import { ETHER_ADDRESS } from "juice-hooks/lib/constants";
+import { usePayEthPaymentTerminal } from "@/hooks/juicebox/usePayEthPaymentTerminal";
+import { ETHER_ADDRESS } from "juice-hooks";
 import { PropsWithChildren } from "react";
 import { Address } from "viem";
 

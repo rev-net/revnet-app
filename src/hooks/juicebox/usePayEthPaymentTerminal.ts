@@ -1,5 +1,7 @@
-import { DEFAULT_MEMO } from "juice-hooks/lib/constants";
-import { usePrepareJbethPaymentTerminal3_1_2Pay } from "juice-hooks/lib/react";
+import {
+  DEFAULT_MEMO,
+  usePrepareJbethPaymentTerminal3_1_2Pay,
+} from "juice-hooks";
 import { Address } from "viem";
 import { useAccount, useContractWrite, useWaitForTransaction } from "wagmi";
 
