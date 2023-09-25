@@ -36,6 +36,7 @@ import { Providers } from "./Providers";
 import { ParticipantsTable } from "./components/ParticipantsTable";
 import StepChart from "./components/StepChart";
 import { PayForm } from "./components/pay/PayForm";
+import { ActivityFeed } from "./components/activity/ActivityFeed";
 
 function NetworkDashboard() {
   const {
@@ -310,7 +311,13 @@ function NetworkDashboard() {
           </div>
         </div>
         <div>
-          {token?.data ? <PayForm tokenA={tokenA} tokenB={token.data} /> : null}
+          <div className="mb-16">
+            {token?.data ? (
+              <PayForm tokenA={tokenA} tokenB={token.data} />
+            ) : null}
+          </div>
+
+          <ActivityFeed />
         </div>
       </div>
     </div>
