@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "test": "jest",
+    "tsc": "tsc",
     "gql:build": "graphql-code-generator --config codegen.yml -r dotenv/config"
   },
   "dependencies": {

@@ -128,21 +128,21 @@ function NetworkDashboard() {
   // if total supply is less than 1, use a decimal for the exit price base unit (0.1, 0.01, 0.001, etc.)
   // if total supply is greater than 1, use 1 for the exit price base unit.
   const exitFloorPriceUnit =
-    totalSupplyFormatted && totalTokenSupply && token
-      ? totalTokenSupply < parseUnits("1", token.decimals)
+    totalSupplyFormatted && totalTokenSupply && token?.data
+      ? totalTokenSupply < parseUnits("1", token.data.decimals)
         ? `0.${"0".repeat(exitLeadingZeroes)}1`
         : "1"
       : null;
 
   const exitFloorPrice =
-    token &&
+    token?.data &&
     typeof tokensReserved !== "undefined" &&
     totalTokenSupply &&
     overflowEth &&
     exitFloorPriceUnit &&
     fundingCycleMetadata?.data
       ? getTokenRedemptionQuoteEth(
-          parseUnits(exitFloorPriceUnit as `${number}`, token.decimals),
+          parseUnits(exitFloorPriceUnit as `${number}`, token.data.decimals),
           {
             overflowWei: overflowEth,
             totalSupply: totalTokenSupply,
@@ -278,12 +278,12 @@ function NetworkDashboard() {
                 Participants
               </h2>
 
-              {token &&
+              {token?.data &&
               participantsData &&
               participantsData.participants.length > 0 ? (
                 <ParticipantsTable
                   participants={participantsData}
-                  token={token}
+                  token={token?.data}
                   totalSupply={totalOutstandingTokens}
                   boostRecipient={boostRecipient}
                 />
@@ -309,7 +309,9 @@ function NetworkDashboard() {
         </div> */}
           </div>
         </div>
-        <div>{token ? <PayForm tokenA={tokenA} tokenB={token} /> : null}</div>
+        <div>
+          {token?.data ? <PayForm tokenA={tokenA} tokenB={token.data} /> : null}
+        </div>
       </div>
     </div>
   );
