@@ -5,8 +5,8 @@ import {
   JBToken,
   getTokenAToBQuote,
   getTokenBtoAQuote,
+  useJBContractContext,
   useJBFundingCycleContext,
-  useJBProjectContext,
 } from "juice-hooks";
 import { useMemo, useState } from "react";
 import { formatUnits, parseEther, parseUnits } from "viem";
@@ -26,7 +26,7 @@ export function PayForm({
   const {
     projectId,
     contracts: { primaryTerminalEth },
-  } = useJBProjectContext();
+  } = useJBContractContext();
   const { fundingCycleData, fundingCycleMetadata } = useJBFundingCycleContext();
 
   const amountAValue = useMemo(() => {
