@@ -35,8 +35,8 @@ import { etherUnits, formatUnits, parseUnits, zeroAddress } from "viem";
 import { Providers } from "./Providers";
 import { ParticipantsTable } from "./components/ParticipantsTable";
 import StepChart from "./components/StepChart";
-import { PayForm } from "./components/pay/PayForm";
 import { ActivityFeed } from "./components/activity/ActivityFeed";
+import { PayForm } from "./components/pay/PayForm";
 
 function NetworkDashboard() {
   const {
@@ -162,38 +162,41 @@ function NetworkDashboard() {
 
   return (
     <div>
-      <header className="mb-10">
-        <div className="container flex justify-between md:items-center py-10 md:flex-row flex-col gap-5 ">
-          <div>
-            <div className="flex items-center gap-2 mb-2">
-              {logoUri && (
-                <img
-                  src={ipfsUriToGatewayUrl(logoUri)}
-                  className="rounded-full overflow-hidden h-9 w-9 block"
-                  alt={token?.data?.symbol}
-                />
-              )}
-              <h1 className="text-3xl font-semibold tracking-tight">
-                {projectName}
-              </h1>
-              {token?.data ? (
-                <Badge variant="secondary" className="font-normal">
-                  <EtherscanLink value={formatEthAddress(token.data.address)}>
-                    ${token?.data?.symbol}
-                  </EtherscanLink>
-                </Badge>
-              ) : null}
-            </div>
-            <div className="text-zinc-500">
-              <span>{projectTagline}</span>
-            </div>
-            {/* <div className="mb-1">
+      <div className="grid md:grid-cols-3 gap-20 container py-10">
+        <div className="col-span-2">
+          <header className="mb-10">
+            <div className="flex justify-between md:items-center md:flex-row flex-col gap-5 ">
+              <div>
+                <div className="flex items-baseline gap-2 mb-2">
+                  {logoUri && (
+                    <img
+                      src={ipfsUriToGatewayUrl(logoUri)}
+                      className="rounded-full overflow-hidden h-9 w-9 block"
+                      alt={token?.data?.symbol}
+                    />
+                  )}
+                  <h1 className="text-3xl font-semibold tracking-tight">
+                    {projectName}
+                  </h1>
+                  {token?.data ? (
+                    <EtherscanLink
+                      value={formatEthAddress(token.data.address)}
+                      className="text-zinc-500"
+                    >
+                      ${token?.data?.symbol}
+                    </EtherscanLink>
+                  ) : null}
+                </div>
+                <div className="text-zinc-500">
+                  <span>{projectTagline}</span>
+                </div>
+                {/* <div className="mb-1">
               <span className="text-4xl font-bold mr-2">
                 <Ether wei={ethQuote} />
               </span>
               <span className="text-sm"> / ${token?.data?.symbol}</span>
             </div> */}
-            {/* {exitFloorPrice ? (
+                {/* {exitFloorPrice ? (
               <div className="text-sm">
                 <span className="font-medium">
                   <Ether wei={exitFloorPrice} />
@@ -201,22 +204,9 @@ function NetworkDashboard() {
                 / {exitFloorPriceUnit} {token?.data?.symbol} current floor
               </div>
             ) : null} */}
-          </div>
-          <div className="flex gap-12">
-            {typeof overflowEth !== "undefined" ? (
-              <Stat label="Backed by">
-                <Ether wei={overflowEth} />
-              </Stat>
-            ) : null}
-            {typeof contributorsCount !== "undefined" ? (
-              <Stat label="Participants">{contributorsCount}</Stat>
-            ) : null}
-          </div>
-        </div>
-      </header>
-
-      <div className="grid md:grid-cols-3 gap-20 container ">
-        <div className="col-span-2 order-1 md:-order-1">
+              </div>
+            </div>
+          </header>
           <div className="max-w-4xl mx-auto">
             <div>
               <div className="text-3xl mb-1">
@@ -236,9 +226,23 @@ function NetworkDashboard() {
                 , forever
               </div>
             </div>
-            <div className="mb-24">
+            <div>
               <StepChart />
             </div>
+
+            <div className="my-12 border-b border-zinc-100 py-10">
+              <div className="flex gap-12">
+                {typeof overflowEth !== "undefined" ? (
+                  <Stat label="Backed by">
+                    <Ether wei={overflowEth} />
+                  </Stat>
+                ) : null}
+                {typeof contributorsCount !== "undefined" ? (
+                  <Stat label="Participants">{contributorsCount}</Stat>
+                ) : null}
+              </div>
+            </div>
+
             {/* <div className="flex gap-10">
               <Stat label="Exit curve">{exitTax?.formatPercentage()}%</Stat>
             </div> */}
@@ -312,11 +316,14 @@ function NetworkDashboard() {
         </div>
         <div>
           <div className="mb-16">
-            {token?.data ? (
-              <PayForm tokenA={tokenA} tokenB={token.data} />
+            {token?.data && boostRecipient ? (
+              <PayForm
+                tokenA={tokenA}
+                tokenB={token.data}
+                boostRecipient={boostRecipient}
+              />
             ) : null}
           </div>
-
           <ActivityFeed />
         </div>
       </div>

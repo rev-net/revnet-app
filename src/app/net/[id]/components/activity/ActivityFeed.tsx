@@ -1,18 +1,17 @@
 import { EthereumAddress } from "@/components/EthereumAddress";
 import EtherscanLink from "@/components/EtherscanLink";
-import { ExternalLink } from "@/components/ExternalLink";
 import {
-  OrderDirection,
-  PayEvent_OrderBy,
-  PayEventsQuery,
-  usePayEventsQuery,
+    OrderDirection,
+    PayEvent_OrderBy,
+    PayEventsQuery,
+    usePayEventsQuery,
 } from "@/generated/graphql";
 import { formatDistance, subDays } from "date-fns";
 import {
-  Ether,
-  JBToken,
-  useJBContractContext,
-  useJBTokenContext,
+    Ether,
+    JBToken,
+    useJBContractContext,
+    useJBTokenContext,
 } from "juice-hooks";
 import { Address } from "viem";
 

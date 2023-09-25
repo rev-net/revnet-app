@@ -1,5 +1,9 @@
 import { Button } from "@/components/ui/button";
-import { ArrowDownIcon, ArrowRightIcon } from "@heroicons/react/24/solid";
+import {
+  ArrowDownIcon,
+  ArrowRightIcon,
+  ForwardIcon,
+} from "@heroicons/react/24/solid";
 import { FixedInt } from "fpnum";
 import {
   JBToken,
@@ -9,16 +13,19 @@ import {
   useJBFundingCycleContext,
 } from "juice-hooks";
 import { useMemo, useState } from "react";
-import { formatUnits, parseEther, parseUnits } from "viem";
+import { Address, formatUnits, parseEther, parseUnits } from "viem";
 import { PayDialog } from "./PayDialog";
 import { PayInput } from "./PayInput";
+import { EthereumAddress } from "@/components/EthereumAddress";
 
 export function PayForm({
   tokenA,
   tokenB,
+  boostRecipient,
 }: {
   tokenA: { symbol: string; decimals: number };
   tokenB: { symbol: string; decimals: number };
+  boostRecipient: Address;
 }) {
   const [amountA, setAmountA] = useState<string>("");
   const [amountB, setAmountB] = useState<string>("");
@@ -28,7 +35,8 @@ export function PayForm({
     contracts: { primaryTerminalEth },
   } = useJBContractContext();
   const { fundingCycleData, fundingCycleMetadata } = useJBFundingCycleContext();
-
+  const devTax = fundingCycleMetadata?.data?.reservedRate;
+  boostRecipient;
   const amountAValue = useMemo(() => {
     if (!amountA) return 0n;
     try {
@@ -46,8 +54,8 @@ export function PayForm({
   if (!fundingCycleData?.data || !fundingCycleMetadata?.data) return null;
 
   return (
-    <div className="flex flex-col p-5 rounded-md border border-zinc-200 bg-zinc-100 w-full">
-      <h2 className="text-lg font-medium mb-5">Join network</h2>
+    <div className="flex flex-col p-5 rounded-md bg-zinc-50 border border-zinc-100 w-full shadow-2xl">
+      <h2 className="font-medium mb-5">Join</h2>
       <div className="flex justify-center items-center flex-col mb-10 gap-2">
         <PayInput
           label="You pay"
@@ -125,14 +133,16 @@ export function PayForm({
               </div>
             ) : null}
           </div>
-          {devTax && boostRecipient ? (
-            <span className="text-sm inline-flex items-center gap-1">
-              <ForwardIcon className="h-4 w-4 inline-block" />
-              {devTax.toPercentage()}% boost to{" "}
-              <EthereumAddress address={boostRecipient} short withEnsName />
-            </span>
-          ) : null}
+ 
         </div> */}
+
+      {devTax && boostRecipient ? (
+        <div className="text-sm flex items-center gap-1 mb-5">
+          <ForwardIcon className="h-4 w-4 inline-block" />
+          {devTax.formatPercentage()}% boost to{" "}
+          <EthereumAddress address={boostRecipient} short withEnsName />
+        </div>
+      ) : null}
 
       {primaryTerminalEth?.data ? (
         <PayDialog
