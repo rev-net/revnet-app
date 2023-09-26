@@ -249,7 +249,9 @@ function NetworkDashboard() {
                   </Stat>
                 ) : null}
                 {typeof contributorsCount !== "undefined" ? (
-                  <Stat label="Participants">{contributorsCount}</Stat>
+                  <Stat label="Participants">
+                    {contributorsCount === 0 ? 0 : contributorsCount + 1}
+                  </Stat>
                 ) : null}
               </div>
             </div>
