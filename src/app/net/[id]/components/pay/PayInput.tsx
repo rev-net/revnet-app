@@ -14,7 +14,7 @@ const PayInput = React.forwardRef<HTMLInputElement, PayInputProps>(
     return (
       <div
         className={cn(
-          "flex rounded-md h-20 px-5 w-full items-center justify-between shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-zinc-600 bg-zinc-50",
+          "flex rounded-md h-20 px-5 w-full items-center justify-between shadow-sm focus-within:ring-1 focus-within:ring-inset focus-within:ring-zinc-500 bg-zinc-100",
           className
         )}
       >

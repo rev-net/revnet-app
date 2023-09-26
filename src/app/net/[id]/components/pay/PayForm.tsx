@@ -54,9 +54,9 @@ export function PayForm({
   if (!fundingCycleData?.data || !fundingCycleMetadata?.data) return null;
 
   return (
-    <div className="flex flex-col p-5 rounded-md bg-zinc-50 border border-zinc-100 w-full shadow-2xl">
-      <h2 className="font-medium mb-5">Join</h2>
-      <div className="flex justify-center items-center flex-col mb-10 gap-2">
+    <div className="flex flex-col p-5 rounded-xl bg-zinc-50 border border-zinc-200 w-full shadow-lg">
+      <h2 className="font-medium mb-4">Join network</h2>
+      <div className="flex justify-center items-center flex-col gap-2 mb-5">
         <PayInput
           label="You pay"
           onChange={(e) => {
@@ -136,14 +136,6 @@ export function PayForm({
  
         </div> */}
 
-      {devTax && boostRecipient ? (
-        <div className="text-sm flex items-center gap-1 mb-5">
-          <ForwardIcon className="h-4 w-4 inline-block" />
-          {devTax.formatPercentage()}% boost to{" "}
-          <EthereumAddress address={boostRecipient} short withEnsName />
-        </div>
-      ) : null}
-
       {primaryTerminalEth?.data ? (
         <PayDialog
           payAmountWei={amountAValue}
@@ -153,11 +145,29 @@ export function PayForm({
         >
           <Button
             size="lg"
-            className="w-full h-16 text-base min-w-[20%] flex items-center gap-2 hover:gap-[10px] whitespace-nowrap transition-all"
+            className="w-full mb-5 h-16 text-base min-w-[20%] flex items-center gap-2 hover:gap-[10px] whitespace-nowrap transition-all"
           >
             Join now <ArrowRightIcon className="h-4 w-4" />
           </Button>
         </PayDialog>
+      ) : null}
+
+      {devTax && boostRecipient ? (
+        <div className="text-sm flex items-center justify-between gap-1 mb-3">
+          <span className="flex items-center gap-1">
+            <ForwardIcon className="h-4 w-4 inline-block" />
+            <span className="font-medium">
+              {devTax.formatPercentage()}%
+            </span>{" "}
+            boost to{" "}
+          </span>
+          <EthereumAddress
+            address={boostRecipient}
+            short
+            withEnsName
+            className="font-medium"
+          />
+        </div>
       ) : null}
     </div>
   );

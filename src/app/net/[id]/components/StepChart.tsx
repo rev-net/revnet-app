@@ -249,8 +249,9 @@ const StepChart = () => {
           <Line
             type="stepBefore"
             dataKey="value"
-            stroke="#22c55e"
+            stroke="#34d399"
             isAnimationActive={false}
+            strokeWidth={2}
             dot={
               <CustomizedDot
                 datapointIndex={datapointIndex}

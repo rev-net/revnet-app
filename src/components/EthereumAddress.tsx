@@ -42,7 +42,7 @@ export function EthereumAddress({
 
   return (
     <EtherscanLink
-      className={twMerge("inline-flex gap-1 items-center", className)}
+      className={twMerge("inline-flex items-center", className)}
       value={address}
     >
       {withEnsAvatar && (

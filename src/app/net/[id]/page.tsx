@@ -37,6 +37,7 @@ import { ParticipantsTable } from "./components/ParticipantsTable";
 import StepChart from "./components/StepChart";
 import { ActivityFeed } from "./components/activity/ActivityFeed";
 import { PayForm } from "./components/pay/PayForm";
+import { LockClosedIcon } from "@heroicons/react/24/outline";
 
 function NetworkDashboard() {
   const {
@@ -162,8 +163,8 @@ function NetworkDashboard() {
 
   return (
     <div>
-      <div className="grid md:grid-cols-3 gap-20 container py-10">
-        <div className="col-span-2">
+      <div className="flex gap-20 container py-10">
+        <div>
           <header className="mb-10">
             <div className="flex justify-between md:items-center md:flex-row flex-col gap-5 ">
               <div>
@@ -171,7 +172,7 @@ function NetworkDashboard() {
                   {logoUri && (
                     <img
                       src={ipfsUriToGatewayUrl(logoUri)}
-                      className="rounded-full overflow-hidden h-9 w-9 block"
+                      className="rounded-md overflow-hidden h-20 h-20 block"
                       alt={token?.data?.symbol}
                     />
                   )}
@@ -187,9 +188,9 @@ function NetworkDashboard() {
                     </EtherscanLink>
                   ) : null}
                 </div>
-                <div className="text-zinc-500">
+                {/* <div className="text-zinc-500">
                   <span>{projectTagline}</span>
-                </div>
+                </div> */}
                 {/* <div className="mb-1">
               <span className="text-4xl font-bold mr-2">
                 <Ether wei={ethQuote} />
@@ -209,21 +210,31 @@ function NetworkDashboard() {
           </header>
           <div className="max-w-4xl mx-auto">
             <div>
-              <div className="text-3xl mb-1">
-                {currentTokenBPrice?.format(4)} {tokenA.symbol}
+              <div className="mb-1">
+                <span className="text-3xl font-medium">
+                  {currentTokenBPrice?.format(4)} {tokenA.symbol}
+                </span>
                 <span className="text-base leading-tight">
                   {" "}
                   / {token?.data?.symbol}
                 </span>
               </div>
-              <div className="text-zinc-500 text-sm">
-                {entryTax?.formatPercentage()}% increase every{" "}
-                {fundingCycleData?.data?.duration === 86400n
-                  ? "day"
-                  : formatSeconds(
-                      Number(fundingCycleData?.data?.duration ?? 0)
-                    )}
-                , forever
+              <div className="text-zinc-500 text-sm flex items-center gap-1">
+                <LockClosedIcon className="h-3 w-3" />{" "}
+                <span>
+                  <span className="font-medium">
+                    {entryTax?.formatPercentage()}%
+                  </span>{" "}
+                  increase every{" "}
+                  <span className="font-medium">
+                    {fundingCycleData?.data?.duration === 86400n
+                      ? "day"
+                      : formatSeconds(
+                          Number(fundingCycleData?.data?.duration ?? 0)
+                        )}
+                  </span>
+                  , forever
+                </span>
               </div>
             </div>
             <div>
@@ -260,7 +271,7 @@ function NetworkDashboard() {
             reservedRate={devTax.val}
           /> */}
 
-            <div className="mb-16">
+            <div className="mb-10">
               <div className="mb-5">
                 <h2 className="text-2xl font-medium mb-1">
                   About {projectMetadata?.name}
@@ -278,10 +289,8 @@ function NetworkDashboard() {
 
             {/* <NetworkDetailsTable boost={boost} /> */}
 
-            <div className="mb-16">
-              <h2 className="font-medium uppercase text-sm mb-3">
-                Participants
-              </h2>
+            <div className="mb-10">
+              <h2 className="text-2xl font-medium mb-1">Participants</h2>
 
               {token?.data &&
               participantsData &&
@@ -314,7 +323,7 @@ function NetworkDashboard() {
         </div> */}
           </div>
         </div>
-        <div>
+        <div className="md:w-[340px]">
           <div className="mb-16">
             {token?.data && boostRecipient ? (
               <PayForm
