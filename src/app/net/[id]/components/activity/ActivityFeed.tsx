@@ -1,17 +1,17 @@
 import { EthereumAddress } from "@/components/EthereumAddress";
 import EtherscanLink from "@/components/EtherscanLink";
 import {
-    OrderDirection,
-    PayEvent_OrderBy,
-    PayEventsQuery,
-    usePayEventsQuery,
+  OrderDirection,
+  PayEvent_OrderBy,
+  PayEventsQuery,
+  usePayEventsQuery,
 } from "@/generated/graphql";
 import { formatDistance, subDays } from "date-fns";
 import {
-    Ether,
-    JBToken,
-    useJBContractContext,
-    useJBTokenContext,
+  Ether,
+  JBToken,
+  useJBContractContext,
+  useJBTokenContext,
 } from "juice-hooks";
 import { Address } from "viem";
 
@@ -28,7 +28,7 @@ function ActivityItem(ev: PayEvent) {
   const { token } = useJBTokenContext();
   if (!token?.data) return null;
 
-  const formattedDate = formatDistance(subDays(new Date(), 3), new Date(), {
+  const formattedDate = formatDistance(ev.timestamp * 1000, new Date(), {
     addSuffix: true,
   });
 
