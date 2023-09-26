@@ -111,7 +111,6 @@ function NetworkDashboard() {
 
   const { metadataUri, contributorsCount, createdAt } =
     projects?.projects?.[0] ?? {};
-  console.log(createdAt);
   const { data: projectMetadata } = useProjectMetadata(metadataUri);
   const { name: projectName, projectTagline, logoUri } = projectMetadata ?? {};
 
