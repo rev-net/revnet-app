@@ -5,7 +5,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 export default defineConfig({
-  out: "src/lib/revnet/hooks.ts",
+  out: "src/lib/revnet/hooks/contract.ts",
   plugins: [
     etherscan({
       apiKey: process.env.ETHERSCAN_API_KEY!,

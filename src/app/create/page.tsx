@@ -22,10 +22,25 @@ function Field(props: FieldAttributes<any>) {
 function DetailsPage() {
   return (
     <div>
-      <h2>Details</h2>
-
       <label htmlFor="name">Name</label>
       <Field id="name" name="name" />
+
+      <label htmlFor="tagline">Tagline</label>
+      <Field id="tagline" name="tagline" />
+    </div>
+  );
+}
+
+function TokensPage() {
+  return (
+    <div>
+      <label htmlFor="tokenName">Token name</label>
+      <Field id="tokenName" name="tokenName" />
+
+      <label htmlFor="tokenSymbol">Token symbol</label>
+      <Field id="tokenSymbol" name="tokenSymbol" />
+
+      <label htmlFor="tokenSymbol">Token logo</label>
     </div>
   );
 }
@@ -33,10 +48,24 @@ function DetailsPage() {
 function ConfigPage() {
   return (
     <div>
-      <h2>Configure</h2>
-
       <label htmlFor="entryTax">Entry tax</label>
       <Field id="entryTax" name="entryTax" />
+    </div>
+  );
+}
+
+function BoostPage() {
+  return (
+    <div>
+      <label htmlFor="boostOperator">Boost operator</label>
+      <Field id="boostOperator" name="boostOperator" />
+
+      {/* TODO eventually, multiple boostss */}
+      <label htmlFor="boostPercentage">Boost</label>
+      <Field id="boostPercentage" name="boostPercentage" />
+
+      <label htmlFor="boostDuration">Until</label>
+      <Field id="boostDuration" name="boostDuration" />
     </div>
   );
 }
@@ -52,7 +81,8 @@ function ReviewPage() {
 
 const pages = [
   { name: "Details", component: DetailsPage },
-  { name: "Configure", component: ConfigPage },
+  { name: "Token", component: TokensPage },
+  { name: "Configure", component: ConfigPage },ƒ
   { name: "Review", component: ReviewPage },
 ];
 
