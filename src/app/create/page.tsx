@@ -12,20 +12,11 @@ import {
   Field as FormikField,
   useFormikContext,
 } from "formik";
-import {
-  DiscountRate,
-  ONE_ETHER,
-  RedemptionRate,
-  ReservedRate,
-} from "juice-hooks";
+import { DiscountRate, RedemptionRate, ReservedRate } from "juice-hooks";
 import { useEffect, useState } from "react";
 import { twMerge } from "tailwind-merge";
 import { zeroAddress } from "viem";
-import {
-  Address,
-  UsePrepareContractWriteConfig,
-  useContractWrite,
-} from "wagmi";
+import { Address, UsePrepareContractWriteConfig } from "wagmi";
 
 const DEFAULT_FORM_DATA = {
   name: "",
@@ -37,6 +28,7 @@ const DEFAULT_FORM_DATA = {
   priceCeilingIncreasePercentage: "",
   priceCeilingIncreaseFrequency: "",
   priceFloorTaxIntensity: "",
+  premintTokenAmount: "",
 
   boostOperator: "",
   boostPercentage: "",
@@ -152,8 +144,8 @@ function BoostPage() {
         label="Boost Operator"
       />
       <FieldGroup
-        id="boostOperator"
-        name="boostOperator"
+        id="premintTokenAmount"
+        name="premintTokenAmount"
         label="Premint amount"
         className="mb-5"
       />
@@ -273,8 +265,8 @@ function parseDeployData(
       priceCeilingIncreaseFrequency: BigInt(data.priceCeilingIncreaseFrequency), // seconds
       priceFloorTaxIntensity:
         RedemptionRate.parse(data.priceFloorTaxIntensity, 4).val / 100n, //
-      initialIssuanceRate: ONE_ETHER,
-      premintTokenAmount: 0n,
+      initialIssuanceRate: 1n, // 1 token per eth
+      premintTokenAmount: BigInt(data.premintTokenAmount),
       boosts: [
         {
           rate: ReservedRate.parse(data.boostPercentage, 4).val / 100n,

@@ -54,7 +54,5 @@ export function useDeployRevnet(
   // }
 
   const write = useContractWrite(config);
-  console.log(config);
-
   return write;
 }
