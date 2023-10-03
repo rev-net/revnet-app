@@ -90,10 +90,10 @@ function TokensPage() {
 function ConfigPage() {
   return (
     <div>
-      <h2 className="text-2xl font-medium mb-2">Configure your Revnet</h2>
+      <h2 className="text-2xl font-medium mb-2">Configure the Revnet</h2>
       <p className="text-zinc-600 text-sm mb-7">
-        Your Revnet's settings influence how it will grow and evolve. Settings
-        are locked, forever. Choose wisely!
+        A Revnet's settings influence how it will grow and evolve. Settings are
+        locked, forever. Choose wisely!
       </p>
 
       <div className="mb-4">
