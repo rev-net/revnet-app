@@ -13,8 +13,13 @@ export default function Page() {
       <div className="mb-16">
         <span>This website is in development –</span>{" "}
         <Link href="/net/1223" className="underline text-blue-500">
-          see an example Revnet.
+          see an example Revnet
         </Link>
+        , or{" "}
+        <Link href="/create" className="underline text-blue-500">
+          create a new one.
+        </Link>
+        .
       </div>
 
       <h2 className="text-xl mb-3">Learn about Revnets and Retailism</h2>
