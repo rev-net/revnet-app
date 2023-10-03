@@ -14,7 +14,7 @@ export default defineConfig({
         {
           name: "BasicRevnetDeployer",
           address: {
-            [goerli.id]: "0x3A394794C60737B7D20DBE484e42cEE713A93c0B",
+            [goerli.id]: "0x04b70D5B629464C555fca5aAC0dA70302d351D62",
           },
         },
       ],

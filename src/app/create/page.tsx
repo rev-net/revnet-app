@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { basicRevnetDeployerABI } from "@/lib/revnet/hooks/contract";
 import { useDeployRevnet } from "@/lib/revnet/hooks/useDeployRevnet";
 import { cn } from "@/lib/utils";
+import { ArrowLeftIcon } from "@heroicons/react/24/solid";
 import {
   FieldAttributes,
   Form,
@@ -56,7 +57,7 @@ function Field(props: FieldAttributes<any>) {
 
 function FieldGroup(props: FieldAttributes<any> & { label: string }) {
   return (
-    <div className="mb-5">
+    <div className="mb-3">
       <label
         htmlFor={props.name}
         className="block text-sm font-medium leading-6 mb-1"
@@ -71,7 +72,7 @@ function FieldGroup(props: FieldAttributes<any> & { label: string }) {
 function DetailsPage() {
   return (
     <div>
-      <h2 className="text-2xl font-medium mb-5">Name your Revnet</h2>
+      <h2 className="text-2xl font-medium mb-7">Name the Revnet</h2>
 
       <FieldGroup id="name" name="name" label="Name" />
       <FieldGroup id="tagline" name="tagline" label="Tagline" />
@@ -82,7 +83,11 @@ function DetailsPage() {
 function TokensPage() {
   return (
     <div>
-      <h2 className="text-2xl font-medium mb-5">Name your Revnet's token</h2>
+      <h2 className="text-2xl font-medium mb-2">Name the Revnet's token</h2>
+      <p className="text-zinc-600 text-sm mb-7">
+        The Revnet's token represents a member's ownership. It's an ERC-20 token
+        and can be traded on any exchange.
+      </p>
 
       <FieldGroup id="tokenName" name="tokenName" label="Token name" />
       <FieldGroup id="tokenSymbol" name="tokenSymbol" label="Token symbol" />
@@ -93,20 +98,20 @@ function TokensPage() {
 function ConfigPage() {
   return (
     <div>
-      <h2 className="text-2xl font-medium mb-2">Set up your Revnet</h2>
-      <p className="text-zinc-600 text-sm mb-5">
-        Your Revnet settings influence how the network will grow and evolve.
-        Settings are locked, forever. Choose wisely!
+      <h2 className="text-2xl font-medium mb-2">Configure your Revnet</h2>
+      <p className="text-zinc-600 text-sm mb-7">
+        Your Revnet's settings influence how it will grow and evolve. Settings
+        are locked, forever. Choose wisely!
       </p>
 
       <div className="mb-4">
-        <div className="font-medium mb-2">Price ceiling</div>
-        <div className="flex gap-2 items-center text-sm text-zinc-600">
+        <div className="text-sm font-medium mb-2">Price ceiling</div>
+        <div className="flex gap-2 items-center text-sm text-zinc-600 italic">
           <label
             htmlFor="priceCeilingIncreasePercentage"
             className="whitespace-nowrap"
           >
-            Increase token price by
+            Raise ceiling by
           </label>
           <Field
             id="priceCeilingIncreasePercentage"
@@ -134,15 +139,34 @@ function ConfigPage() {
 function BoostPage() {
   return (
     <div>
-      <label htmlFor="boostOperator">Boost operator</label>
-      <Field id="boostOperator" name="boostOperator" />
+      <h2 className="text-2xl font-medium mb-2">Add a Boost</h2>
+      <p className="text-zinc-600 text-sm mb-5">
+        Send a portion of tokens purchases (a Boost) to a Boost Operator. It
+        could be a core team, airdrop stockpile, staking rewards contract, or
+        something else. Boosts are locked, forever.
+      </p>
+
+      <FieldGroup
+        id="boostOperator"
+        name="boostOperator"
+        label="Boost Operator"
+      />
+      <FieldGroup
+        id="boostOperator"
+        name="boostOperator"
+        label="Premint amount"
+        className="mb-5"
+      />
+
+      <h3 className="text-lg font-medium mb-2">Boost</h3>
 
       {/* TODO eventually, multiple boosts */}
-      <label htmlFor="boostPercentage">Boost amount</label>
-      <Field id="boostPercentage" name="boostPercentage" />
-
-      <label htmlFor="boostDuration">Until</label>
-      <Field id="boostDuration" name="boostDuration" />
+      <FieldGroup
+        id="boostPercentage"
+        name="boostPercentage"
+        label="Percentage"
+      />
+      <FieldGroup id="boostDuration" name="boostDuration" label="Duration" />
     </div>
   );
 }
@@ -150,9 +174,7 @@ function BoostPage() {
 function ReviewPage() {
   return (
     <div>
-      <h2>Review and deploy</h2>
-
-      <Button type="submit">Deploy Revnet</Button>
+      <h2 className="text-2xl font-medium mb-7">Review and deploy</h2>
     </div>
   );
 }
@@ -195,6 +217,8 @@ function CreatePage({
 }) {
   const [page, setPage] = useState(0);
   const CurrentPage = pages[page].component;
+  const prevPage = pages[page - 1];
+  const nextPage = pages[page + 1];
 
   const { values } = useFormikContext<typeof DEFAULT_FORM_DATA>();
   useEffect(() => {
@@ -203,13 +227,26 @@ function CreatePage({
 
   return (
     <div className="container">
-      <h1>Create a Revnet</h1>
-
-      <CreateNav currentPage={page} onChange={setPage} />
-
       <Form>
-        <div className="max-w-lg rounded-lg shadow-lg my-24 p-10 mx-auto">
+        <div className="max-w-lg rounded-lg shadow-lg my-24 p-10 mx-auto border border-zinc-100">
           <CurrentPage />
+          <div className="flex justify-between mt-7">
+            {prevPage ? (
+              <Button variant="link" onClick={() => setPage(page - 1)}>
+                <ArrowLeftIcon className="h-3 w-3 mr-1" />
+                Back
+              </Button>
+            ) : (
+              <div />
+            )}
+            {nextPage ? (
+              <Button onClick={() => setPage(page + 1)}>
+                Next: {nextPage.name}
+              </Button>
+            ) : (
+              <Button type="submit">Deploy Revnet</Button>
+            )}
+          </div>
         </div>
       </Form>
     </div>
@@ -231,20 +268,16 @@ function parseDeployData(
     data.tokenName,
     data.tokenSymbol,
     {
-      priceCeilingIncreasePercentage: DiscountRate.parse(
-        data.priceCeilingIncreasePercentage,
-        9
-      ).val,
+      priceCeilingIncreasePercentage:
+        DiscountRate.parse(data.priceCeilingIncreasePercentage, 9).val / 100n,
       priceCeilingIncreaseFrequency: BigInt(data.priceCeilingIncreaseFrequency), // seconds
-      priceFloorTaxIntensity: RedemptionRate.parse(
-        data.priceFloorTaxIntensity,
-        4
-      ).val, //
+      priceFloorTaxIntensity:
+        RedemptionRate.parse(data.priceFloorTaxIntensity, 4).val / 100n, //
       initialIssuanceRate: ONE_ETHER,
       premintTokenAmount: 0n,
       boosts: [
         {
-          rate: ReservedRate.parse(data.boostPercentage, 4).val,
+          rate: ReservedRate.parse(data.boostPercentage, 4).val / 100n,
           startsAtOrAfter: BigInt(data.boostDuration), // seconds
         },
       ],

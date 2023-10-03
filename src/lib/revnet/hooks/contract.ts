@@ -18,7 +18,7 @@ import {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x3A394794C60737B7D20DBE484e42cEE713A93c0B)
+ * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x04b70D5B629464C555fca5aAC0dA70302d351D62)
  */
 export const basicRevnetDeployerABI = [
   {
@@ -212,14 +212,14 @@ export const basicRevnetDeployerABI = [
 ] as const
 
 /**
- * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x3A394794C60737B7D20DBE484e42cEE713A93c0B)
+ * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x04b70D5B629464C555fca5aAC0dA70302d351D62)
  */
 export const basicRevnetDeployerAddress = {
-  5: '0x3A394794C60737B7D20DBE484e42cEE713A93c0B',
+  5: '0x04b70D5B629464C555fca5aAC0dA70302d351D62',
 } as const
 
 /**
- * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x3A394794C60737B7D20DBE484e42cEE713A93c0B)
+ * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x04b70D5B629464C555fca5aAC0dA70302d351D62)
  */
 export const basicRevnetDeployerConfig = {
   address: basicRevnetDeployerAddress,
@@ -233,7 +233,7 @@ export const basicRevnetDeployerConfig = {
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link basicRevnetDeployerABI}__.
  *
- * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x3A394794C60737B7D20DBE484e42cEE713A93c0B)
+ * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x04b70D5B629464C555fca5aAC0dA70302d351D62)
  */
 export function useBasicRevnetDeployerRead<
   TFunctionName extends string,
@@ -265,7 +265,7 @@ export function useBasicRevnetDeployerRead<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link basicRevnetDeployerABI}__ and `functionName` set to `"boostOperatorPermissionIndexes"`.
  *
- * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x3A394794C60737B7D20DBE484e42cEE713A93c0B)
+ * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x04b70D5B629464C555fca5aAC0dA70302d351D62)
  */
 export function useBasicRevnetDeployerBoostOperatorPermissionIndexes<
   TFunctionName extends 'boostOperatorPermissionIndexes',
@@ -298,7 +298,7 @@ export function useBasicRevnetDeployerBoostOperatorPermissionIndexes<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link basicRevnetDeployerABI}__ and `functionName` set to `"boostsOf"`.
  *
- * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x3A394794C60737B7D20DBE484e42cEE713A93c0B)
+ * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x04b70D5B629464C555fca5aAC0dA70302d351D62)
  */
 export function useBasicRevnetDeployerBoostsOf<
   TFunctionName extends 'boostsOf',
@@ -331,7 +331,7 @@ export function useBasicRevnetDeployerBoostsOf<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link basicRevnetDeployerABI}__ and `functionName` set to `"controller"`.
  *
- * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x3A394794C60737B7D20DBE484e42cEE713A93c0B)
+ * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x04b70D5B629464C555fca5aAC0dA70302d351D62)
  */
 export function useBasicRevnetDeployerController<
   TFunctionName extends 'controller',
@@ -364,7 +364,7 @@ export function useBasicRevnetDeployerController<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link basicRevnetDeployerABI}__ and `functionName` set to `"currentBoostNumberOf"`.
  *
- * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x3A394794C60737B7D20DBE484e42cEE713A93c0B)
+ * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x04b70D5B629464C555fca5aAC0dA70302d351D62)
  */
 export function useBasicRevnetDeployerCurrentBoostNumberOf<
   TFunctionName extends 'currentBoostNumberOf',
@@ -397,7 +397,7 @@ export function useBasicRevnetDeployerCurrentBoostNumberOf<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link basicRevnetDeployerABI}__ and `functionName` set to `"onERC721Received"`.
  *
- * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x3A394794C60737B7D20DBE484e42cEE713A93c0B)
+ * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x04b70D5B629464C555fca5aAC0dA70302d351D62)
  */
 export function useBasicRevnetDeployerOnErc721Received<
   TFunctionName extends 'onERC721Received',
@@ -430,7 +430,7 @@ export function useBasicRevnetDeployerOnErc721Received<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link basicRevnetDeployerABI}__ and `functionName` set to `"supportsInterface"`.
  *
- * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x3A394794C60737B7D20DBE484e42cEE713A93c0B)
+ * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x04b70D5B629464C555fca5aAC0dA70302d351D62)
  */
 export function useBasicRevnetDeployerSupportsInterface<
   TFunctionName extends 'supportsInterface',
@@ -463,7 +463,7 @@ export function useBasicRevnetDeployerSupportsInterface<
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link basicRevnetDeployerABI}__.
  *
- * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x3A394794C60737B7D20DBE484e42cEE713A93c0B)
+ * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x04b70D5B629464C555fca5aAC0dA70302d351D62)
  */
 export function useBasicRevnetDeployerWrite<
   TFunctionName extends string,
@@ -499,7 +499,7 @@ export function useBasicRevnetDeployerWrite<
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link basicRevnetDeployerABI}__ and `functionName` set to `"deployRevnetFor"`.
  *
- * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x3A394794C60737B7D20DBE484e42cEE713A93c0B)
+ * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x04b70D5B629464C555fca5aAC0dA70302d351D62)
  */
 export function useBasicRevnetDeployerDeployRevnetFor<
   TMode extends WriteContractMode = undefined,
@@ -544,7 +544,7 @@ export function useBasicRevnetDeployerDeployRevnetFor<
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link basicRevnetDeployerABI}__ and `functionName` set to `"replaceBoostOperatorOf"`.
  *
- * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x3A394794C60737B7D20DBE484e42cEE713A93c0B)
+ * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x04b70D5B629464C555fca5aAC0dA70302d351D62)
  */
 export function useBasicRevnetDeployerReplaceBoostOperatorOf<
   TMode extends WriteContractMode = undefined,
@@ -589,7 +589,7 @@ export function useBasicRevnetDeployerReplaceBoostOperatorOf<
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link basicRevnetDeployerABI}__ and `functionName` set to `"scheduleNextBoostOf"`.
  *
- * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x3A394794C60737B7D20DBE484e42cEE713A93c0B)
+ * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x04b70D5B629464C555fca5aAC0dA70302d351D62)
  */
 export function useBasicRevnetDeployerScheduleNextBoostOf<
   TMode extends WriteContractMode = undefined,
@@ -634,7 +634,7 @@ export function useBasicRevnetDeployerScheduleNextBoostOf<
 /**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link basicRevnetDeployerABI}__.
  *
- * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x3A394794C60737B7D20DBE484e42cEE713A93c0B)
+ * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x04b70D5B629464C555fca5aAC0dA70302d351D62)
  */
 export function usePrepareBasicRevnetDeployerWrite<
   TFunctionName extends string,
@@ -657,7 +657,7 @@ export function usePrepareBasicRevnetDeployerWrite<
 /**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link basicRevnetDeployerABI}__ and `functionName` set to `"deployRevnetFor"`.
  *
- * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x3A394794C60737B7D20DBE484e42cEE713A93c0B)
+ * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x04b70D5B629464C555fca5aAC0dA70302d351D62)
  */
 export function usePrepareBasicRevnetDeployerDeployRevnetFor(
   config: Omit<
@@ -682,7 +682,7 @@ export function usePrepareBasicRevnetDeployerDeployRevnetFor(
 /**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link basicRevnetDeployerABI}__ and `functionName` set to `"replaceBoostOperatorOf"`.
  *
- * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x3A394794C60737B7D20DBE484e42cEE713A93c0B)
+ * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x04b70D5B629464C555fca5aAC0dA70302d351D62)
  */
 export function usePrepareBasicRevnetDeployerReplaceBoostOperatorOf(
   config: Omit<
@@ -707,7 +707,7 @@ export function usePrepareBasicRevnetDeployerReplaceBoostOperatorOf(
 /**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link basicRevnetDeployerABI}__ and `functionName` set to `"scheduleNextBoostOf"`.
  *
- * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x3A394794C60737B7D20DBE484e42cEE713A93c0B)
+ * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x04b70D5B629464C555fca5aAC0dA70302d351D62)
  */
 export function usePrepareBasicRevnetDeployerScheduleNextBoostOf(
   config: Omit<
