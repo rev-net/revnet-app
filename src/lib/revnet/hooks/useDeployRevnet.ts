@@ -1,6 +1,9 @@
 import { ONE_ETHER } from "juice-hooks";
-import { useContractWrite } from "wagmi";
-import { usePrepareBasicRevnetDeployerDeployRevnetFor } from "./contract";
+import { UsePrepareContractWriteConfig, useContractWrite } from "wagmi";
+import {
+  basicRevnetDeployerABI,
+  usePrepareBasicRevnetDeployerDeployRevnetFor,
+} from "./contract";
 
 type Boost = {
   rate: bigint;
@@ -21,7 +24,12 @@ type JBProjectMetadata = {
   content: string;
 };
 
-export function useDeployRevnet() {
+export function useDeployRevnet(
+  args: UsePrepareContractWriteConfig<
+    typeof basicRevnetDeployerABI,
+    "deployRevnetFor"
+  >["args"]
+) {
   const { config } = usePrepareBasicRevnetDeployerDeployRevnetFor({
     /**
     address _boostOperator,
@@ -33,7 +41,7 @@ export function useDeployRevnet() {
     IJBPaymentTerminal[] memory _terminals,
     BuybackHookSetupData memory _buybackHookSetupData
      */
-    args: [ONE_ETHER],
+    args,
   });
   const write = useContractWrite(config);
 
