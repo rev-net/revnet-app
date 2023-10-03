@@ -1,4 +1,4 @@
-import { ONE_ETHER } from "juice-hooks";
+import { encodeFunctionData } from "viem";
 import { UsePrepareContractWriteConfig, useContractWrite } from "wagmi";
 import {
   basicRevnetDeployerABI,
@@ -24,14 +24,7 @@ type JBProjectMetadata = {
   content: string;
 };
 
-export function useDeployRevnet(
-  args: UsePrepareContractWriteConfig<
-    typeof basicRevnetDeployerABI,
-    "deployRevnetFor"
-  >["args"]
-) {
-  const { config } = usePrepareBasicRevnetDeployerDeployRevnetFor({
-    /**
+/**
     address _boostOperator,
     JBProjectMetadata memory _revnetMetadata,
     string memory _name,
@@ -41,9 +34,27 @@ export function useDeployRevnet(
     IJBPaymentTerminal[] memory _terminals,
     BuybackHookSetupData memory _buybackHookSetupData
      */
+export function useDeployRevnet(
+  args: UsePrepareContractWriteConfig<
+    typeof basicRevnetDeployerABI,
+    "deployRevnetFor"
+  >["args"]
+) {
+  const { config, data } = usePrepareBasicRevnetDeployerDeployRevnetFor({
     args,
   });
+  // if (args) {
+  //   const x = encodeFunctionData({
+  //     abi: basicRevnetDeployerABI,
+  //     functionName: "deployRevnetFor",
+  //     args,
+  //   });
+
+  //   console.log(x);
+  // }
+
   const write = useContractWrite(config);
+  console.log(config);
 
   return write;
 }

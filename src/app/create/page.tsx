@@ -18,6 +18,7 @@ import {
   ReservedRate,
 } from "juice-hooks";
 import { useEffect, useState } from "react";
+import { twMerge } from "tailwind-merge";
 import { zeroAddress } from "viem";
 import {
   Address,
@@ -45,19 +46,35 @@ function Field(props: FieldAttributes<any>) {
   return (
     <FormikField
       {...props}
-      className="flex h-10 w-full rounded-sm border border-zinc-200 bg-white px-3 py-2 text-sm ring-offset-white file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-zinc-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-950 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:border-zinc-800 dark:border-zinc-800 dark:bg-zinc-950 dark:ring-offset-zinc-950 dark:placeholder:text-zinc-400 dark:focus-visible:ring-zinc-300"
+      className={twMerge(
+        "flex h-10 w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm ring-offset-white file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-zinc-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-950 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:border-zinc-800 dark:border-zinc-800 dark:bg-zinc-950 dark:ring-offset-zinc-950 dark:placeholder:text-zinc-400 dark:focus-visible:ring-zinc-300",
+        props.className
+      )}
     />
+  );
+}
+
+function FieldGroup(props: FieldAttributes<any> & { label: string }) {
+  return (
+    <div className="mb-5">
+      <label
+        htmlFor={props.name}
+        className="block text-sm font-medium leading-6 mb-1"
+      >
+        {props.label}
+      </label>
+      <Field {...props} />
+    </div>
   );
 }
 
 function DetailsPage() {
   return (
     <div>
-      <label htmlFor="name">Name</label>
-      <Field id="name" name="name" />
+      <h2 className="text-2xl font-medium mb-5">Name your Revnet</h2>
 
-      <label htmlFor="tagline">Tagline</label>
-      <Field id="tagline" name="tagline" />
+      <FieldGroup id="name" name="name" label="Name" />
+      <FieldGroup id="tagline" name="tagline" label="Tagline" />
     </div>
   );
 }
@@ -65,11 +82,10 @@ function DetailsPage() {
 function TokensPage() {
   return (
     <div>
-      <label htmlFor="tokenName">Token name</label>
-      <Field id="tokenName" name="tokenName" />
+      <h2 className="text-2xl font-medium mb-5">Name your Revnet's token</h2>
 
-      <label htmlFor="tokenSymbol">Token symbol</label>
-      <Field id="tokenSymbol" name="tokenSymbol" />
+      <FieldGroup id="tokenName" name="tokenName" label="Token name" />
+      <FieldGroup id="tokenSymbol" name="tokenSymbol" label="Token symbol" />
     </div>
   );
 }
@@ -77,26 +93,40 @@ function TokensPage() {
 function ConfigPage() {
   return (
     <div>
+      <h2 className="text-2xl font-medium mb-2">Set up your Revnet</h2>
+      <p className="text-zinc-600 text-sm mb-5">
+        Your Revnet settings influence how the network will grow and evolve.
+        Settings are locked, forever. Choose wisely!
+      </p>
+
       <div className="mb-4">
-        <div>Price ceiling</div>
-        <label htmlFor="priceCeilingIncreasePercentage">
-          Increase token price by
-        </label>
-        <Field
-          id="priceCeilingIncreasePercentage"
-          name="priceCeilingIncreasePercentage"
-        />
-        <label htmlFor="priceCeilingIncreaseFrequency">Every</label>
-        <Field
-          id="priceCeilingIncreaseFrequency"
-          name="priceCeilingIncreaseFrequency"
-        />
+        <div className="font-medium mb-2">Price ceiling</div>
+        <div className="flex gap-2 items-center text-sm text-zinc-600">
+          <label
+            htmlFor="priceCeilingIncreasePercentage"
+            className="whitespace-nowrap"
+          >
+            Increase token price by
+          </label>
+          <Field
+            id="priceCeilingIncreasePercentage"
+            name="priceCeilingIncreasePercentage"
+            className="h-9"
+          />
+          <label htmlFor="priceCeilingIncreaseFrequency">every</label>
+          <Field
+            id="priceCeilingIncreaseFrequency"
+            name="priceCeilingIncreaseFrequency"
+            className="h-9"
+          />
+          days.
+        </div>
       </div>
-      <div>
-        <div>Price floor</div>
-        <label htmlFor="priceFloorTaxIntensity">Intensity</label>
-        <Field id="priceFloorTaxIntensity" name="priceFloorTaxIntensity" />
-      </div>
+      <FieldGroup
+        id="priceFloorTaxIntensity"
+        name="priceFloorTaxIntensity"
+        label="Price Floor Tax intensity"
+      />
     </div>
   );
 }
@@ -178,7 +208,9 @@ function CreatePage({
       <CreateNav currentPage={page} onChange={setPage} />
 
       <Form>
-        <CurrentPage />
+        <div className="max-w-lg rounded-lg shadow-lg my-24 p-10 mx-auto">
+          <CurrentPage />
+        </div>
       </Form>
     </div>
   );
@@ -191,7 +223,7 @@ function parseDeployData(
   "deployRevnetFor"
 >["args"] {
   return [
-    data.boostOperator as Address,
+    (data.boostOperator as Address) ?? zeroAddress,
     {
       content: "",
       domain: 0n,
