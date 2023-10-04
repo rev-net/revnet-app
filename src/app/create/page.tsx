@@ -40,16 +40,19 @@ function Field(props: FieldAttributes<any>) {
     <FormikField
       {...props}
       className={twMerge(
-        "flex h-10 w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm ring-offset-white file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-zinc-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-950 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:border-zinc-800 dark:border-zinc-800 dark:bg-zinc-950 dark:ring-offset-zinc-950 dark:placeholder:text-zinc-400 dark:focus-visible:ring-zinc-300",
+        "flex w-full rounded-md border border-zinc-200 bg-white px-3 py-1.5 text-sm ring-offset-white file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-zinc-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-950 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:border-zinc-800 dark:bg-zinc-950 dark:ring-offset-zinc-950 dark:placeholder:text-zinc-400 dark:focus-visible:ring-zinc-300",
         props.className
       )}
     />
   );
 }
 
-function FieldGroup(props: FieldAttributes<any> & { label: string }) {
+function FieldGroup(
+  props: FieldAttributes<any> & { label: string; description?: string },
+  containerProps?: React.HTMLAttributes<HTMLDivElement>
+) {
   return (
-    <div className="mb-3">
+    <div className={twMerge("mb-3", containerProps?.className)}>
       <label
         htmlFor={props.name}
         className="block text-sm font-medium leading-6 mb-1"
@@ -57,6 +60,9 @@ function FieldGroup(props: FieldAttributes<any> & { label: string }) {
         {props.label}
       </label>
       <Field {...props} />
+      {props.description ? (
+        <p className="text-sm text-zinc-500 mt-1">{props.description}</p>
+      ) : null}
     </div>
   );
 }
@@ -132,23 +138,25 @@ function BoostPage() {
   return (
     <div>
       <h2 className="text-2xl font-medium mb-2">Add a Boost</h2>
-      <p className="text-zinc-600 text-sm mb-5">
+      <p className="text-zinc-600 text-sm mb-7">
         Send a portion of tokens purchases (a Boost) to a Boost Operator. It
         could be a core team, airdrop stockpile, staking rewards contract, or
         something else. Boosts are locked, forever.
       </p>
 
-      <FieldGroup
-        id="boostOperator"
-        name="boostOperator"
-        label="Boost Operator"
-      />
-      <FieldGroup
-        id="premintTokenAmount"
-        name="premintTokenAmount"
-        label="Premint amount"
-        className="mb-5"
-      />
+      <div className="mb-7">
+        <FieldGroup
+          id="boostOperator"
+          name="boostOperator"
+          label="Boost Operator"
+        />
+        <FieldGroup
+          id="premintTokenAmount"
+          name="premintTokenAmount"
+          label="Premint amount"
+          description="Premint some tokens to Boost Operator. This only happens once."
+        />
+      </div>
 
       <h3 className="text-lg font-medium mb-2">Boost</h3>
 
