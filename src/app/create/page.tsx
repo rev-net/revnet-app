@@ -36,6 +36,29 @@ const DEFAULT_FORM_DATA = {
 };
 
 function Field(props: FieldAttributes<any>) {
+  if (props.suffix || props.prefix) {
+    return (
+      <div className="relative">
+        {props.prefix ? (
+          <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+            <span className="text-zinc-500 sm:text-sm">{props.prefix}</span>
+          </div>
+        ) : null}
+        <FormikField
+          {...props}
+          className={twMerge(
+            "flex w-full rounded-md border border-zinc-200 bg-white px-3 py-1.5 text-sm ring-offset-white file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-zinc-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-950 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:border-zinc-800 dark:bg-zinc-950 dark:ring-offset-zinc-950 dark:placeholder:text-zinc-400 dark:focus-visible:ring-zinc-300",
+            props.className
+          )}
+        />
+        {props.suffix ? (
+          <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+            <span className="text-zinc-500 sm:text-sm">{props.suffix}</span>
+          </div>
+        ) : null}
+      </div>
+    );
+  }
   return (
     <FormikField
       {...props}
@@ -48,11 +71,10 @@ function Field(props: FieldAttributes<any>) {
 }
 
 function FieldGroup(
-  props: FieldAttributes<any> & { label: string; description?: string },
-  containerProps?: React.HTMLAttributes<HTMLDivElement>
+  props: FieldAttributes<any> & { label: string; description?: string }
 ) {
   return (
-    <div className={twMerge("mb-3", containerProps?.className)}>
+    <div className="mb-3">
       <label
         htmlFor={props.name}
         className="block text-sm font-medium leading-6 mb-1"
@@ -121,6 +143,7 @@ function ConfigPage() {
             id="priceCeilingIncreaseFrequency"
             name="priceCeilingIncreaseFrequency"
             className="h-9"
+            type="number"
           />
           days.
         </div>
@@ -166,7 +189,13 @@ function BoostPage() {
         name="boostPercentage"
         label="Percentage"
       />
-      <FieldGroup id="boostDuration" name="boostDuration" label="Duration" />
+      <FieldGroup
+        id="boostDuration"
+        name="boostDuration"
+        label="Duration"
+        suffix="days"
+        type="number"
+      />
     </div>
   );
 }
@@ -259,6 +288,7 @@ function parseDeployData(
   typeof basicRevnetDeployerABI,
   "deployRevnetFor"
 >["args"] {
+  const now = BigInt(Math.floor(Date.now() / 1000));
   return [
     (data.boostOperator as Address) ?? zeroAddress,
     {
@@ -270,15 +300,23 @@ function parseDeployData(
     {
       priceCeilingIncreasePercentage:
         DiscountRate.parse(data.priceCeilingIncreasePercentage, 9).val / 100n,
-      priceCeilingIncreaseFrequency: BigInt(data.priceCeilingIncreaseFrequency), // seconds
+      priceCeilingIncreaseFrequency:
+        BigInt(data.priceCeilingIncreaseFrequency) * 86400n, // seconds
       priceFloorTaxIntensity:
         RedemptionRate.parse(data.priceFloorTaxIntensity, 4).val / 100n, //
       initialIssuanceRate: 1n, // 1 token per eth
       premintTokenAmount: BigInt(data.premintTokenAmount),
       boosts: [
+        // Start the first boost straight away
         {
           rate: ReservedRate.parse(data.boostPercentage, 4).val / 100n,
-          startsAtOrAfter: BigInt(data.boostDuration), // seconds
+          startsAtOrAfter: now, // seconds
+        },
+        // Start a second boost with 0-rate when the user wants the first one to end.
+        // This effectively ends the first boost.
+        {
+          rate: 0n,
+          startsAtOrAfter: BigInt(data.boostDuration) * 86400n + now, // seconds
         },
       ],
     },
