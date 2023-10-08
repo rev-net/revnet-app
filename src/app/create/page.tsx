@@ -43,7 +43,7 @@ const DEFAULT_FORM_DATA = {
 function Field(props: FieldAttributes<any>) {
   if (props.suffix || props.prefix) {
     return (
-      <div className="relative">
+      <div className="relative w-full">
         {props.prefix ? (
           <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
             <span className="text-zinc-500 sm:text-sm">{props.prefix}</span>
@@ -110,8 +110,9 @@ function TokensPage() {
     <div>
       <h2 className="text-2xl font-medium mb-2">Name the Revnet's token</h2>
       <p className="text-zinc-600 text-sm mb-7">
-        The Revnet's token represents a member's ownership. It's an ERC-20 token
-        and can be traded on any exchange.
+        The Revnet's token represents a member's ownership. It's an{" "}
+        <span className="whitespace-nowrap">ERC-20</span> token and can be
+        traded on any exchange.
       </p>
 
       <FieldGroup id="tokenName" name="tokenName" label="Token name" />
@@ -142,6 +143,7 @@ function ConfigPage() {
             id="priceCeilingIncreasePercentage"
             name="priceCeilingIncreasePercentage"
             className="h-9"
+            suffix="%"
           />
           <label htmlFor="priceCeilingIncreaseFrequency">every</label>
           <Field
@@ -157,6 +159,7 @@ function ConfigPage() {
         id="priceFloorTaxIntensity"
         name="priceFloorTaxIntensity"
         label="Exit Tax intensity"
+        suffix="%"
       />
     </div>
   );
@@ -167,9 +170,9 @@ function BoostPage() {
     <div>
       <h2 className="text-2xl font-medium mb-2">Add a Boost</h2>
       <p className="text-zinc-600 text-sm mb-7">
-        Send a portion of tokens purchases (a Boost) to a Boost Operator. It
-        could be a core team, airdrop stockpile, staking rewards contract, or
-        something else. Boosts are locked, forever.
+        Send a portion of new token purchases to a Boost Operator. It could be a
+        core team, airdrop stockpile, staking rewards contract, or something
+        else. Boosts are locked, forever.
       </p>
 
       <div className="mb-7">
@@ -177,12 +180,14 @@ function BoostPage() {
           id="boostOperator"
           name="boostOperator"
           label="Boost Operator"
+          placeholder="0x"
         />
         <FieldGroup
           id="premintTokenAmount"
           name="premintTokenAmount"
           label="Premint amount"
-          description="Premint some tokens to Boost Operator. This only happens once."
+          description="Premint some tokens to the Boost Operator. This only happens once."
+          suffix="tokens"
         />
       </div>
 
@@ -193,6 +198,7 @@ function BoostPage() {
         id="boostPercentage"
         name="boostPercentage"
         label="Percentage"
+        suffix="%"
       />
       <FieldGroup
         id="boostDuration"
@@ -364,7 +370,7 @@ function parseDeployData(
 }
 
 async function pinProjectMetadata(metadata: JBProjectMetadata) {
-  const metadataCid = await fetch("/api/ipfs/pinJson", {
+  const { Hash } = await fetch("/api/ipfs/pinJson", {
     method: "post",
     headers: {
       "Content-Type": "application/json",
@@ -372,7 +378,7 @@ async function pinProjectMetadata(metadata: JBProjectMetadata) {
     body: JSON.stringify(metadata),
   }).then((res) => res.json());
 
-  return metadataCid;
+  return Hash;
 }
 
 export default function Page() {
