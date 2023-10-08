@@ -400,6 +400,8 @@ export default function Page() {
       metadataCid,
     });
 
+    console.log("deployData::", deployData);
+
     // Deploy onchain
     deployRevnet?.(deployData);
   }
@@ -408,9 +410,14 @@ export default function Page() {
     <Formik
       initialValues={DEFAULT_FORM_DATA}
       onSubmit={() => {
-        console.log("submit");
+        console.log("submitting");
         setIsLoading(true);
-        deployProject?.();
+        try {
+          deployProject?.();
+        } catch (e) {
+          setIsLoading(false);
+          console.error(e);
+        }
       }}
     >
       <CreatePage onFormChange={setFormData} isLoading={isLoading} />
