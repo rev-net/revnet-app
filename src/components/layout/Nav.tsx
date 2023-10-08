@@ -1,6 +1,7 @@
 import { ConnectKitButton } from "@/components/ConnectKitButton";
 import Link from "next/link";
 import { Badge } from "../ui/badge";
+import Image from "next/image";
 
 export function Nav() {
   return (
@@ -8,7 +9,12 @@ export function Nav() {
       <div className="flex justify-between items-center container py-3">
         <div className="flex items-center gap-2">
           <Link href="/" className="italic">
-            Revnet
+            <Image
+              src="/assets/img/revnet.svg"
+              width={100}
+              height={100}
+              alt="Revnet logo"
+            />
           </Link>
           <Badge variant="success">Goerli</Badge>
         </div>

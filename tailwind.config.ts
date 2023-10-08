@@ -1,3 +1,5 @@
+const defaultTheme = require("tailwindcss/defaultTheme");
+
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   darkMode: ["class"],
@@ -17,7 +19,7 @@ module.exports = {
     },
     extend: {
       fontFamily: {
-        serif: ["var(--font-playfair)"],
+        sans: ["var(--font-ibm)", ...defaultTheme.fontFamily.sans],
       },
       keyframes: {
         "accordion-down": {
