@@ -1,8 +1,7 @@
-import { encodeFunctionData } from "viem";
-import { UsePrepareContractWriteConfig, useContractWrite } from "wagmi";
+import { UsePrepareContractWriteConfig } from "wagmi";
 import {
   basicRevnetDeployerABI,
-  usePrepareBasicRevnetDeployerDeployRevnetFor,
+  useBasicRevnetDeployerDeployRevnetFor,
 } from "./contract";
 
 type Boost = {
@@ -34,25 +33,16 @@ type JBProjectMetadata = {
     IJBPaymentTerminal[] memory _terminals,
     BuybackHookSetupData memory _buybackHookSetupData
      */
-export function useDeployRevnet(
-  args: UsePrepareContractWriteConfig<
-    typeof basicRevnetDeployerABI,
-    "deployRevnetFor"
-  >["args"]
-) {
-  const { config, data } = usePrepareBasicRevnetDeployerDeployRevnetFor({
-    args,
-  });
-  // if (args) {
-  //   const x = encodeFunctionData({
-  //     abi: basicRevnetDeployerABI,
-  //     functionName: "deployRevnetFor",
-  //     args,
-  //   });
-
-  //   console.log(x);
-  // }
-
-  const write = useContractWrite(config);
-  return write;
+export function useDeployRevnet() {
+  const { write } = useBasicRevnetDeployerDeployRevnetFor();
+  return (
+    args: UsePrepareContractWriteConfig<
+      typeof basicRevnetDeployerABI,
+      "deployRevnetFor"
+    >["args"]
+  ) => {
+    write?.({
+      args,
+    });
+  };
 }

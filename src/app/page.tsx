@@ -17,7 +17,7 @@ export default function Page() {
         </Link>
         , or{" "}
         <Link href="/create" className="underline text-blue-500">
-          create a new one.
+          create a new one
         </Link>
         .
       </div>

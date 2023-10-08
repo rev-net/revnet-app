@@ -12,7 +12,12 @@ import {
   Field as FormikField,
   useFormikContext,
 } from "formik";
-import { DiscountRate, RedemptionRate, ReservedRate } from "juice-hooks";
+import {
+  DiscountRate,
+  JBProjectMetadata,
+  RedemptionRate,
+  ReservedRate,
+} from "juice-hooks";
 import { useEffect, useState } from "react";
 import { twMerge } from "tailwind-merge";
 import { zeroAddress } from "viem";
@@ -151,7 +156,7 @@ function ConfigPage() {
       <FieldGroup
         id="priceFloorTaxIntensity"
         name="priceFloorTaxIntensity"
-        label="Price Floor Tax intensity"
+        label="Exit Tax intensity"
       />
     </div>
   );
@@ -241,8 +246,10 @@ function CreateNav({
 
 function CreatePage({
   onFormChange,
+  isLoading,
 }: {
   onFormChange: (data: typeof DEFAULT_FORM_DATA) => void;
+  isLoading: boolean;
 }) {
   const [page, setPage] = useState(0);
   const CurrentPage = pages[page].component;
@@ -261,7 +268,14 @@ function CreatePage({
           <CurrentPage />
           <div className="flex justify-between mt-7">
             {prevPage ? (
-              <Button variant="link" onClick={() => setPage(page - 1)}>
+              <Button
+                variant="link"
+                onClick={(ev) => {
+                  ev.stopPropagation();
+                  ev.preventDefault();
+                  setPage(page - 1);
+                }}
+              >
                 <ArrowLeftIcon className="h-3 w-3 mr-1" />
                 Back
               </Button>
@@ -269,11 +283,19 @@ function CreatePage({
               <div />
             )}
             {nextPage ? (
-              <Button onClick={() => setPage(page + 1)}>
+              <Button
+                onClick={(ev) => {
+                  ev.stopPropagation();
+                  ev.preventDefault();
+                  setPage(page + 1);
+                }}
+              >
                 Next: {nextPage.name}
               </Button>
             ) : (
-              <Button type="submit">Deploy Revnet</Button>
+              <Button type="submit" loading={isLoading}>
+                Deploy Revnet
+              </Button>
             )}
           </div>
         </div>
@@ -283,40 +305,44 @@ function CreatePage({
 }
 
 function parseDeployData(
-  data: typeof DEFAULT_FORM_DATA
+  formData: typeof DEFAULT_FORM_DATA,
+  extra: {
+    metadataCid: string;
+  }
 ): UsePrepareContractWriteConfig<
   typeof basicRevnetDeployerABI,
   "deployRevnetFor"
 >["args"] {
   const now = BigInt(Math.floor(Date.now() / 1000));
   return [
-    (data.boostOperator as Address) ?? zeroAddress,
+    (formData.boostOperator as Address) ?? zeroAddress,
     {
-      content: "",
+      content: extra.metadataCid,
       domain: 0n,
     },
-    data.tokenName,
-    data.tokenSymbol,
+    formData.tokenName,
+    formData.tokenSymbol,
     {
       priceCeilingIncreasePercentage:
-        DiscountRate.parse(data.priceCeilingIncreasePercentage, 9).val / 100n,
+        DiscountRate.parse(formData.priceCeilingIncreasePercentage, 9).val /
+        100n,
       priceCeilingIncreaseFrequency:
-        BigInt(data.priceCeilingIncreaseFrequency) * 86400n, // seconds
+        BigInt(formData.priceCeilingIncreaseFrequency) * 86400n, // seconds
       priceFloorTaxIntensity:
-        RedemptionRate.parse(data.priceFloorTaxIntensity, 4).val / 100n, //
+        RedemptionRate.parse(formData.priceFloorTaxIntensity, 4).val / 100n, //
       initialIssuanceRate: 1n, // 1 token per eth
-      premintTokenAmount: BigInt(data.premintTokenAmount),
+      premintTokenAmount: BigInt(formData.premintTokenAmount),
       boosts: [
         // Start the first boost straight away
         {
-          rate: ReservedRate.parse(data.boostPercentage, 4).val / 100n,
-          startsAtOrAfter: now, // seconds
+          rate: ReservedRate.parse(formData.boostPercentage, 4).val / 100n,
+          startsAtOrAfter: 1n, // seconds
         },
         // Start a second boost with 0-rate when the user wants the first one to end.
         // This effectively ends the first boost.
         {
           rate: 0n,
-          startsAtOrAfter: BigInt(data.boostDuration) * 86400n + now, // seconds
+          startsAtOrAfter: BigInt(formData.boostDuration) * 86400n + now, // seconds
         },
       ],
     },
@@ -337,18 +363,51 @@ function parseDeployData(
   ];
 }
 
+async function pinProjectMetadata(metadata: JBProjectMetadata) {
+  const metadataCid = await fetch("/api/ipfs/pinJson", {
+    method: "post",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(metadata),
+  }).then((res) => res.json());
+
+  return metadataCid;
+}
+
 export default function Page() {
   const [formData, setFormData] = useState(DEFAULT_FORM_DATA);
-  const { write } = useDeployRevnet(parseDeployData(formData));
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  const deployRevnet = useDeployRevnet();
+
+  async function deployProject() {
+    // Upload metadata
+    const metadataCid = await pinProjectMetadata({
+      name: formData.name,
+      projectTagline: formData.tagline,
+      description: "",
+      logoUri: "",
+    });
+
+    const deployData = parseDeployData(formData, {
+      metadataCid,
+    });
+
+    // Deploy onchain
+    deployRevnet?.(deployData);
+  }
 
   return (
     <Formik
       initialValues={DEFAULT_FORM_DATA}
       onSubmit={() => {
-        write?.();
+        console.log("submit");
+        setIsLoading(true);
+        deployProject?.();
       }}
     >
-      <CreatePage onFormChange={setFormData} />
+      <CreatePage onFormChange={setFormData} isLoading={isLoading} />
     </Formik>
   );
 }

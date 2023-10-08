@@ -163,7 +163,7 @@ function NetworkDashboard() {
   return (
     <div>
       <div className="flex gap-20 container py-10">
-        <div>
+        <div className="flex-1">
           <header className="mb-10">
             <div className="flex justify-between md:items-center md:flex-row flex-col gap-5 ">
               <div>
