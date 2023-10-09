@@ -1,4 +1,5 @@
 import { NextApiRequest, NextApiResponse } from "next";
+import { NextRequest } from "next/server";
 
 export type InfuraPinResponse = {
   Hash: string;
@@ -21,7 +22,7 @@ const origin =
 /**
  * https://docs.infura.io/infura/networks/ipfs/http-api-methods/pin
  */
-export async function pinFile(file: string | Blob): Promise<InfuraPinResponse> {
+async function pinFile(file: string | Blob): Promise<InfuraPinResponse> {
   const formData = new FormData();
   formData.append("file", file);
 
@@ -37,18 +38,13 @@ export async function pinFile(file: string | Blob): Promise<InfuraPinResponse> {
   return res;
 }
 
-interface ApiRequest extends NextApiRequest {
-  body: {
-    data: string;
-  };
-}
-
-export async function POST(
-  req: ApiRequest,
-  res: NextApiResponse<InfuraPinResponse | { error: string }>
-) {
+export async function POST(req: NextRequest) {
   try {
-    const { data } = req.body;
+    const {
+      data,
+    }: {
+      data: string;
+    } = await req.json();
 
     const pinJson = await pinFile(JSON.stringify(data));
 
