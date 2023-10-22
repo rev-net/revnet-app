@@ -3,6 +3,7 @@ import {
   basicRevnetDeployerABI,
   useBasicRevnetDeployerDeployRevnetFor,
 } from "./contract";
+import { useCallback } from "react";
 
 type Boost = {
   rate: bigint;
@@ -23,7 +24,10 @@ type JBProjectMetadata = {
   content: string;
 };
 
-/**
+export function useDeployRevnet() {
+  const { write, data } = useBasicRevnetDeployerDeployRevnetFor();
+
+  /**
     address _boostOperator,
     JBProjectMetadata memory _revnetMetadata,
     string memory _name,
@@ -32,17 +36,20 @@ type JBProjectMetadata = {
 
     IJBPaymentTerminal[] memory _terminals,
     BuybackHookSetupData memory _buybackHookSetupData
-     */
-export function useDeployRevnet() {
-  const { write } = useBasicRevnetDeployerDeployRevnetFor();
-  return (
-    args: UsePrepareContractWriteConfig<
-      typeof basicRevnetDeployerABI,
-      "deployRevnetFor"
-    >["args"]
-  ) => {
-    write?.({
-      args,
-    });
-  };
+  */
+  const deployRevnet = useCallback(
+    (
+      args: UsePrepareContractWriteConfig<
+        typeof basicRevnetDeployerABI,
+        "deployRevnetFor"
+      >["args"]
+    ) => {
+      write?.({
+        args,
+      });
+    },
+    [write]
+  );
+
+  return { write: deployRevnet, data };
 }

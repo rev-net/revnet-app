@@ -1,10 +1,18 @@
 "use client";
 
+import { EthereumAddress } from "@/components/EthereumAddress";
+import EtherscanLink from "@/components/EtherscanLink";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { basicRevnetDeployerABI } from "@/lib/revnet/hooks/contract";
 import { useDeployRevnet } from "@/lib/revnet/hooks/useDeployRevnet";
 import { cn } from "@/lib/utils";
-import { ArrowLeftIcon } from "@heroicons/react/24/solid";
+import { ArrowLeftIcon, CheckCircleIcon } from "@heroicons/react/24/solid";
 import {
   FieldAttributes,
   Form,
@@ -18,10 +26,15 @@ import {
   RedemptionRate,
   ReservedRate,
 } from "juice-hooks";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { twMerge } from "tailwind-merge";
 import { zeroAddress } from "viem";
-import { Address, UsePrepareContractWriteConfig } from "wagmi";
+import {
+  Address,
+  UsePrepareContractWriteConfig,
+  useWaitForTransaction,
+} from "wagmi";
 
 const DEFAULT_FORM_DATA = {
   name: "",
@@ -212,9 +225,115 @@ function BoostPage() {
 }
 
 function ReviewPage() {
+  const { values } = useFormikContext<typeof DEFAULT_FORM_DATA>();
+
   return (
     <div>
       <h2 className="text-2xl font-medium mb-7">Review and deploy</h2>
+
+      <div className="mb-5">
+        <div className="px-4 sm:px-0">
+          <h3 className="text-base font-semibold leading-7 text-gray-900">
+            General
+          </h3>
+        </div>
+
+        <div className="mt-6 border-t border-gray-100">
+          <dl className="divide-y divide-gray-100">
+            <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+              <dt className="text-sm font-medium leading-6 text-gray-900">
+                Revnet name
+              </dt>
+              <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
+                {values.name}
+              </dd>
+            </div>
+            <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+              <dt className="text-sm font-medium leading-6 text-gray-900">
+                Revnet tagline
+              </dt>
+              <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
+                {values.tagline}
+              </dd>
+            </div>
+            <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+              <dt className="text-sm font-medium leading-6 text-gray-900">
+                Token
+              </dt>
+              <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
+                {values.tokenName} (${values.tokenSymbol})
+              </dd>
+            </div>
+          </dl>
+        </div>
+      </div>
+
+      <div className="mb-5">
+        <div className="px-4 sm:px-0">
+          <h3 className="text-base font-semibold leading-7 text-gray-900">
+            Configuration
+          </h3>
+        </div>
+
+        <div className="mt-6 border-t border-gray-100">
+          <dl className="divide-y divide-gray-100">
+            <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+              <dt className="text-sm font-medium leading-6 text-gray-900">
+                Raise ceiling by
+              </dt>
+              <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
+                {values.priceCeilingIncreasePercentage}% every{" "}
+                {values.priceCeilingIncreaseFrequency} days
+              </dd>
+            </div>
+            <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+              <dt className="text-sm font-medium leading-6 text-gray-900">
+                Exit tax
+              </dt>
+              <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
+                {values.priceFloorTaxIntensity}%
+              </dd>
+            </div>
+          </dl>
+        </div>
+      </div>
+
+      <div>
+        <div className="px-4 sm:px-0">
+          <h3 className="text-base font-semibold leading-7 text-gray-900">
+            Boost
+          </h3>
+        </div>
+
+        <div className="mt-6 border-t border-gray-100">
+          <dl className="divide-y divide-gray-100">
+            <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+              <dt className="text-sm font-medium leading-6 text-gray-900">
+                Boost operator
+              </dt>
+              <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0 overflow-ellipsis">
+                <EthereumAddress address={values.boostOperator} />
+              </dd>
+            </div>
+            <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+              <dt className="text-sm font-medium leading-6 text-gray-900">
+                Boost amount
+              </dt>
+              <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
+                {values.boostPercentage}%
+              </dd>
+            </div>
+            <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+              <dt className="text-sm font-medium leading-6 text-gray-900">
+                Boost duration
+              </dt>
+              <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
+                {values.boostDuration} days
+              </dd>
+            </div>
+          </dl>
+        </div>
+      </div>
     </div>
   );
 }
@@ -385,7 +504,10 @@ export default function Page() {
   const [formData, setFormData] = useState(DEFAULT_FORM_DATA);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  const deployRevnet = useDeployRevnet();
+  const { write, data } = useDeployRevnet();
+  const { data: txData, isSuccess } = useWaitForTransaction({
+    hash: data?.hash,
+  });
 
   async function deployProject() {
     // Upload metadata
@@ -403,7 +525,45 @@ export default function Page() {
     console.log("deployData::", deployData);
 
     // Deploy onchain
-    deployRevnet?.(deployData);
+    write?.(deployData);
+  }
+
+  if (isSuccess && txData) {
+    console.log("useDeployRevnet::tx success", txData.logs);
+    const projectIdHex = txData.logs[0].topics[3];
+    if (!projectIdHex) {
+      console.warn("useDeployRevnet::fail::no project id");
+
+      return (
+        <div className="container">
+          <div className="max-w-lg rounded-lg shadow-lg my-24 p-10 mx-auto border border-zinc-100">
+            Something went wrong.{" "}
+            <EtherscanLink type="tx" value={data?.hash}>
+              {" "}
+              Check the transaction on Etherscan
+            </EtherscanLink>
+            .
+          </div>
+        </div>
+      );
+    }
+
+    const projectId = BigInt(projectIdHex).toString(10);
+    console.warn("useDeployRevnet::success::project id", projectId);
+
+    return (
+      <div className="container">
+        <div className="max-w-lg rounded-lg shadow-lg my-24 p-10 mx-auto border border-zinc-100 flex flex-col items-center">
+          <CheckCircleIcon className="h-9 w-9 text-green-600 mb-4" />
+          <h1 className="text-4xl mb-10">Your Revnet is Live</h1>
+          <p>
+            <Link href={`/net/${projectId}`}>
+              <Button size="lg">Go to Revnet</Button>
+            </Link>
+          </p>
+        </div>
+      </div>
+    );
   }
 
   return (
