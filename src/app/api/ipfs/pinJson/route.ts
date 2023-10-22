@@ -40,11 +40,9 @@ async function pinFile(file: string | Blob): Promise<InfuraPinResponse> {
 
 export async function POST(req: NextRequest) {
   try {
-    const {
-      data,
-    }: {
-      data: string;
-    } = await req.json();
+    const data = await req.json();
+
+    console.log("pinning::", data);
 
     const pinJson = await pinFile(JSON.stringify(data));
 
