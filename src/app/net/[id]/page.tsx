@@ -2,18 +2,19 @@
 
 import { Ether } from "@/components/Ether";
 import EtherscanLink from "@/components/EtherscanLink";
-import { Badge } from "@/components/ui/badge";
 import { Html } from "@/components/ui/html";
 import { Stat } from "@/components/ui/stat";
 import {
   OrderDirection,
   Participant_OrderBy,
   useParticipantsQuery,
+  useProjectCreateEventQuery,
   useProjectsQuery,
 } from "@/generated/graphql";
 import { useProjectMetadata } from "@/hooks/juicebox/useProjectMetadata";
 import { ipfsUriToGatewayUrl } from "@/lib/ipfs";
 import { formatSeconds } from "@/lib/utils";
+import { LockClosedIcon } from "@heroicons/react/24/outline";
 import { format } from "date-fns";
 import {
   JB_CURRENCIES,
@@ -26,9 +27,10 @@ import {
   useJBFundingCycleContext,
   useJBTokenContext,
   useJbController3_1ReservedTokenBalanceOf,
+  useJbControllerLatestConfiguredFundingCycleOf,
   useJbSingleTokenPaymentTerminalStoreCurrentTotalOverflowOf,
   useJbSplitsStoreSplitsOf,
-  useJbTokenStoreTotalSupplyOf,
+  useJbTokenStoreTotalSupplyOf
 } from "juice-hooks";
 import { useEffect } from "react";
 import { etherUnits, formatUnits, parseUnits, zeroAddress } from "viem";
@@ -37,14 +39,35 @@ import { ParticipantsTable } from "./components/ParticipantsTable";
 import StepChart from "./components/StepChart";
 import { ActivityFeed } from "./components/activity/ActivityFeed";
 import { PayForm } from "./components/pay/PayForm";
-import { LockClosedIcon } from "@heroicons/react/24/outline";
 
 function NetworkDashboard() {
   const {
     projectId,
-    contracts: { primaryTerminalEthStore },
+    contracts: { primaryTerminalEthStore, controller },
   } = useJBContractContext();
   const { fundingCycleData, fundingCycleMetadata } = useJBFundingCycleContext();
+  const { data: latestConfiguredFundingCycle } =
+    useJbControllerLatestConfiguredFundingCycleOf({
+      address: controller?.data,
+      args: [projectId],
+    });
+
+  const [
+    latestConfiguredFundingCycleData,
+    latestConfiguredFundingCycleMetadata,
+    latestConfiguredFundingCycleBallotState,
+  ] = latestConfiguredFundingCycle ?? [];
+  const { data: latestConfiguredReservedTokenSplits } =
+    useJbSplitsStoreSplitsOf({
+      args: latestConfiguredFundingCycleData
+        ? [
+            projectId,
+            latestConfiguredFundingCycleData.configuration,
+            BigInt(SplitGroup.ReservedTokens),
+          ]
+        : undefined,
+    });
+
   const { token } = useJBTokenContext();
 
   const tokenA = { symbol: "ETH", decimals: 18 };
@@ -78,6 +101,11 @@ function NetworkDashboard() {
 
   const boost = reservedTokenSplits?.[0];
   const boostRecipient = boost?.beneficiary;
+  const { data: projectCreateEvent } = useProjectCreateEventQuery({
+    variables: { where: { projectId: Number(projectId) } },
+  });
+  const projectCreateEventTxHash =
+    projectCreateEvent?.projectEvents[0].projectCreateEvent?.txHash;
 
   // set title
   // TODO, hacky, probably eventually a next-idiomatic way to do this.
@@ -277,10 +305,14 @@ function NetworkDashboard() {
                 <h2 className="text-2xl font-medium mb-1">
                   About {projectMetadata?.name}
                 </h2>
-                {createdAt ? (
-                  <div className="text-zinc-500 text-sm">
+                {createdAt && projectCreateEventTxHash ? (
+                  <EtherscanLink
+                    value={projectCreateEventTxHash}
+                    type="tx"
+                    className="text-zinc-500 text-sm block"
+                  >
                     Since {format(createdAt * 1000, "yyyy-mm-dd")}
-                  </div>
+                  </EtherscanLink>
                 ) : null}
               </div>
               {projectMetadata?.description ? (

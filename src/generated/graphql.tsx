@@ -9906,6 +9906,13 @@ export type ProjectsQueryVariables = Exact<{
 
 export type ProjectsQuery = { projects: Array<{ projectId: number, metadataUri: string | null, handle: string | null, contributorsCount: number, createdAt: number }> };
 
+export type ProjectCreateEventQueryVariables = Exact<{
+  where?: InputMaybe<ProjectEvent_Filter>;
+}>;
+
+
+export type ProjectCreateEventQuery = { projectEvents: Array<{ projectCreateEvent: { txHash: any } | null }> };
+
 
 
 export type ResolverTypeWrapper<T> = Promise<T> | T;
@@ -11291,3 +11298,40 @@ export function useProjectsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<P
 export type ProjectsQueryHookResult = ReturnType<typeof useProjectsQuery>;
 export type ProjectsLazyQueryHookResult = ReturnType<typeof useProjectsLazyQuery>;
 export type ProjectsQueryResult = Apollo.QueryResult<ProjectsQuery, ProjectsQueryVariables>;
+export const ProjectCreateEventDocument = gql`
+    query ProjectCreateEvent($where: ProjectEvent_filter) {
+  projectEvents(where: $where, first: 1, orderBy: projectCreateEvent__txHash) {
+    projectCreateEvent {
+      txHash
+    }
+  }
+}
+    `;
+
+/**
+ * __useProjectCreateEventQuery__
+ *
+ * To run a query within a React component, call `useProjectCreateEventQuery` and pass it any options that fit your needs.
+ * When your component renders, `useProjectCreateEventQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useProjectCreateEventQuery({
+ *   variables: {
+ *      where: // value for 'where'
+ *   },
+ * });
+ */
+export function useProjectCreateEventQuery(baseOptions?: Apollo.QueryHookOptions<ProjectCreateEventQuery, ProjectCreateEventQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ProjectCreateEventQuery, ProjectCreateEventQueryVariables>(ProjectCreateEventDocument, options);
+      }
+export function useProjectCreateEventLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ProjectCreateEventQuery, ProjectCreateEventQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ProjectCreateEventQuery, ProjectCreateEventQueryVariables>(ProjectCreateEventDocument, options);
+        }
+export type ProjectCreateEventQueryHookResult = ReturnType<typeof useProjectCreateEventQuery>;
+export type ProjectCreateEventLazyQueryHookResult = ReturnType<typeof useProjectCreateEventLazyQuery>;
+export type ProjectCreateEventQueryResult = Apollo.QueryResult<ProjectCreateEventQuery, ProjectCreateEventQueryVariables>;
