@@ -6,7 +6,7 @@ import {
   PayEventsQuery,
   usePayEventsQuery,
 } from "@/generated/graphql";
-import { formatDistance, subDays } from "date-fns";
+import { formatDistance } from "date-fns";
 import {
   Ether,
   JBToken,
@@ -41,13 +41,14 @@ function ActivityItem(ev: PayEvent) {
           withEnsAvatar
           avatarProps={{ size: "sm" }}
           className="font-medium"
+          short
         />{" "}
         <div>
           bought {ev.beneficiaryTokenCount.format()} {token.data.symbol}
         </div>
       </div>
-      <div className="text-xs text-zinc-500 ml-8">
-        {ev.amount.format()} ETH •{" "}
+      <div className="text-xs text-zinc-500 ml-7">
+        Paid {ev.amount.format()} ETH •{" "}
         <EtherscanLink type="tx" value={ev.txHash}>
           {formattedDate}
         </EtherscanLink>

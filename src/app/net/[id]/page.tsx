@@ -31,9 +31,10 @@ import {
   useJbSplitsStoreSplitsOf,
   useJbTokenStoreTotalSupplyOf,
 } from "juice-hooks";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { etherUnits, formatUnits, parseUnits, zeroAddress } from "viem";
 import { Providers } from "./Providers";
+import { ParticipantsPieChart } from "./components/ParticipantsPieChart";
 import { ParticipantsTable } from "./components/ParticipantsTable";
 import StepChart from "./components/StepChart";
 import { ActivityFeed } from "./components/activity/ActivityFeed";
@@ -50,6 +51,10 @@ function NetworkDashboard() {
       address: controller?.data,
       args: [projectId],
     });
+
+  const [participantsView, setParticipantsView] = useState<"table" | "pie">(
+    "pie"
+  );
 
   const [
     latestConfiguredFundingCycleData,
@@ -327,12 +332,19 @@ function NetworkDashboard() {
               {token?.data &&
               participantsData &&
               participantsData.participants.length > 0 ? (
-                <ParticipantsTable
-                  participants={participantsData}
-                  token={token?.data}
-                  totalSupply={totalOutstandingTokens}
-                  boostRecipient={boostRecipient}
-                />
+                <>
+                  <ParticipantsTable
+                    participants={participantsData}
+                    token={token?.data}
+                    totalSupply={totalOutstandingTokens}
+                    boostRecipient={boostRecipient}
+                  />
+                  <ParticipantsPieChart
+                    participants={participantsData}
+                    totalSupply={totalOutstandingTokens}
+                    token={token?.data}
+                  />
+                </>
               ) : (
                 "No participants yet."
               )}

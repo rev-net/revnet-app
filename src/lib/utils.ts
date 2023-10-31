@@ -58,3 +58,10 @@ export function formatEthAddress(
     address.substring(address.length - opts.truncateTo, address.length)
   );
 }
+
+/**
+ * Return percentage of numerator / denominator (e.g. 69 for 69%)
+ */
+export function formatPortion(numerator: bigint, denominator: bigint) {
+  return parseFloat(((numerator * 1000n) / denominator).toString()) / 10;
+}

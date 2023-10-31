@@ -9,6 +9,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { ParticipantsQuery } from "@/generated/graphql";
+import { formatPortion } from "@/lib/utils";
 import { ForwardIcon } from "@heroicons/react/24/solid";
 import { formatUnits } from "juice-hooks";
 import { Address, isAddressEqual } from "viem";
@@ -80,12 +81,7 @@ export function ParticipantsTable({
             </TableCell>
             <TableCell>
               {participant.balance
-                ? parseFloat(
-                    (
-                      (BigInt(participant.balance) * 1000n) /
-                      totalSupply
-                    ).toString()
-                  ) / 10
+                ? formatPortion(BigInt(participant.balance), totalSupply)
                 : 0}
               %
             </TableCell>
