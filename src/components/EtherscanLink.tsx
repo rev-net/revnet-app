@@ -1,6 +1,6 @@
+import { useChain } from "@/hooks/useNetwork";
 import { etherscanLink, formatEthAddress } from "@/lib/utils";
 import { twMerge } from "tailwind-merge";
-import { useNetwork } from "wagmi";
 import { ExternalLink } from "./ExternalLink";
 
 const EtherscanLink: React.FC<
@@ -11,8 +11,7 @@ const EtherscanLink: React.FC<
     truncateTo?: number;
   }>
 > = ({ className, value, type = "address", truncateTo, children }) => {
-  const { chain } = useNetwork();
-
+  const chain = useChain();
   if (!value) return null;
 
   const renderValue = truncateTo

@@ -30,7 +30,7 @@ export function etherscanLink(
   const { type, chain = mainnet } = opts;
 
   const baseUrl = `https://${
-    chain.name === "mainnet" ? "" : `${chain.name}.`
+    chain.id === mainnet.id ? "" : `${chain.name}.`
   }etherscan.io`;
 
   switch (type) {
