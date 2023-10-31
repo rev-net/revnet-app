@@ -20,7 +20,6 @@ import {
   JB_CURRENCIES,
   PV2,
   SplitGroup,
-  formatEthAddress,
   getTokenBPrice,
   getTokenRedemptionQuoteEth,
   useJBContractContext,
@@ -30,7 +29,7 @@ import {
   useJbControllerLatestConfiguredFundingCycleOf,
   useJbSingleTokenPaymentTerminalStoreCurrentTotalOverflowOf,
   useJbSplitsStoreSplitsOf,
-  useJbTokenStoreTotalSupplyOf
+  useJbTokenStoreTotalSupplyOf,
 } from "juice-hooks";
 import { useEffect } from "react";
 import { etherUnits, formatUnits, parseUnits, zeroAddress } from "viem";
@@ -208,10 +207,10 @@ function NetworkDashboard() {
                   </h1>
                   {token?.data ? (
                     <EtherscanLink
-                      value={formatEthAddress(token.data.address)}
+                      value={token.data.address}
                       className="text-zinc-500"
                     >
-                      ${token?.data?.symbol}
+                      ${token.data.symbol}
                     </EtherscanLink>
                   ) : null}
                 </div>
