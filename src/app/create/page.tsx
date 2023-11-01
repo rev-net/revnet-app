@@ -9,7 +9,11 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
-import { basicRevnetDeployerABI } from "@/lib/revnet/hooks/contract";
+import {
+  basicRevnetDeployerABI,
+  useBasicRevnetDeployerScheduleNextBoostOf,
+  usePrepareBasicRevnetDeployerScheduleNextBoostOf,
+} from "@/lib/revnet/hooks/contract";
 import { useDeployRevnet } from "@/lib/revnet/hooks/useDeployRevnet";
 import { cn } from "@/lib/utils";
 import { ArrowLeftIcon, CheckCircleIcon } from "@heroicons/react/24/solid";
@@ -346,7 +350,7 @@ function ReviewPage() {
   );
 }
 
-const pages = [
+const steps = [
   { name: "Details", component: DetailsPage },
   { name: "Token", component: TokensPage },
   { name: "Configure", component: ConfigPage },
@@ -363,7 +367,7 @@ function CreateNav({
 }) {
   return (
     <ol className="flex gap-4">
-      {pages.map((page, i) => (
+      {steps.map((page, i) => (
         <li
           key={i}
           className={cn(currentPage === i && "font-medium", "hover:underline")}
@@ -377,7 +381,11 @@ function CreateNav({
   );
 }
 
-function CreatePage({
+function ScheduleBoostStep() {}
+
+function DeploySuccessStep() {}
+
+function CreateRevnetWizard({
   onFormChange,
   isLoading,
 }: {
@@ -385,14 +393,14 @@ function CreatePage({
   isLoading: boolean;
 }) {
   const [page, setPage] = useState(0);
-  const CurrentPage = pages[page].component;
-  const prevPage = pages[page - 1];
-  const nextPage = pages[page + 1];
+  const CurrentPage = steps[page].component;
+  const prevPage = steps[page - 1];
+  const nextPage = steps[page + 1];
 
   const { values } = useFormikContext<typeof DEFAULT_FORM_DATA>();
   useEffect(() => {
     onFormChange(values);
-  });
+  }, [values, onFormChange]);
 
   return (
     <div className="container">
@@ -437,7 +445,7 @@ function CreatePage({
   );
 }
 
-function parseDeployData(
+function prepareDeployPayload(
   formData: typeof DEFAULT_FORM_DATA,
   extra: {
     metadataCid: string;
@@ -512,10 +520,36 @@ export default function Page() {
   const [formData, setFormData] = useState(DEFAULT_FORM_DATA);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  const { write, data } = useDeployRevnet();
-  const { data: txData, isSuccess } = useWaitForTransaction({
-    hash: data?.hash,
+  /**
+   * Deploy tx prep
+   */
+  const { write: deployRevnet, data: deployRevnetData } = useDeployRevnet();
+  const { data: deployRevnetTxData, isSuccess: isDeploySuccess } =
+    useWaitForTransaction({
+      hash: deployRevnetData?.hash,
+    });
+  const projectIdHex = deployRevnetTxData?.logs?.[0]?.topics[3];
+  const projectId = projectIdHex
+    ? BigInt(BigInt(projectIdHex).toString(10))
+    : null;
+
+  /**
+   * Schedule boost tx prep
+   */
+  const { config: scheduleNextBoostConfig } =
+    usePrepareBasicRevnetDeployerScheduleNextBoostOf({
+      args: projectId ? [projectId] : undefined,
+    });
+  const { write: scheduleNextBoost, data: scheduleNextBoostData, error } =
+    useBasicRevnetDeployerScheduleNextBoostOf(scheduleNextBoostConfig);
+  const {
+    data: scheduleNextBoostTxData,
+    isSuccess: isScheduleNextBoostSuccess,
+    isLoading: isScheduleNextBoostLoading,
+  } = useWaitForTransaction({
+    hash: scheduleNextBoostData?.hash,
   });
+  console.error(error)
 
   async function deployProject() {
     // Upload metadata
@@ -526,19 +560,18 @@ export default function Page() {
       logoUri: "",
     });
 
-    const deployData = parseDeployData(formData, {
+    const deployPayload = prepareDeployPayload(formData, {
       metadataCid,
     });
 
-    console.log("deployData::", deployData);
+    console.log("deployPayload::", deployPayload);
 
     // Deploy onchain
-    write?.(deployData);
+    deployRevnet?.(deployPayload);
   }
 
-  if (isSuccess && txData) {
-    console.log("useDeployRevnet::tx success", txData.logs);
-    const projectIdHex = txData.logs[0].topics[3];
+  if (isDeploySuccess && deployRevnetTxData) {
+    console.log("useDeployRevnet::tx success", deployRevnetTxData.logs);
     if (!projectIdHex) {
       console.warn("useDeployRevnet::fail::no project id");
 
@@ -546,8 +579,7 @@ export default function Page() {
         <div className="container">
           <div className="max-w-lg rounded-lg shadow-lg my-24 p-10 mx-auto border border-zinc-100">
             Something went wrong.{" "}
-            <EtherscanLink type="tx" value={data?.hash}>
-              {" "}
+            <EtherscanLink type="tx" value={deployRevnetData?.hash}>
               Check the transaction on Etherscan
             </EtherscanLink>
             .
@@ -556,19 +588,66 @@ export default function Page() {
       );
     }
 
-    const projectId = BigInt(projectIdHex).toString(10);
     console.warn("useDeployRevnet::success::project id", projectId);
+
+    if (isScheduleNextBoostSuccess && scheduleNextBoostTxData) {
+      console.log(
+        "useScheduleNextBoost::tx success",
+        scheduleNextBoostTxData.logs
+      );
+      const projectIdHex = scheduleNextBoostTxData.logs[0].topics[3];
+      if (!projectIdHex) {
+        console.warn("useScheduleNextBoost::fail::no project id");
+
+        return (
+          <div className="container">
+            <div className="max-w-lg rounded-lg shadow-lg my-24 p-10 mx-auto border border-zinc-100">
+              Something went wrong.{" "}
+              <EtherscanLink type="tx" value={scheduleNextBoostData?.hash}>
+                Check the transaction on Etherscan
+              </EtherscanLink>
+              .
+            </div>
+          </div>
+        );
+      }
+
+      console.warn("useScheduleNextBoost::success::project id", projectId);
+
+      return (
+        <div className="container">
+          <div className="max-w-lg rounded-lg shadow-lg my-24 p-10 mx-auto border border-zinc-100 flex flex-col items-center">
+            <CheckCircleIcon className="h-9 w-9 text-green-600 mb-4" />
+            <h2 className="text-4xl mb-10">Your Revnet is Live</h2>
+            <p>
+              <Link href={`/net/${projectId}`}>
+                <Button size="lg">Go to Revnet</Button>
+              </Link>
+            </p>
+          </div>
+        </div>
+      );
+    }
 
     return (
       <div className="container">
         <div className="max-w-lg rounded-lg shadow-lg my-24 p-10 mx-auto border border-zinc-100 flex flex-col items-center">
           <CheckCircleIcon className="h-9 w-9 text-green-600 mb-4" />
-          <h1 className="text-4xl mb-10">Your Revnet is Live</h1>
-          <p>
-            <Link href={`/net/${projectId}`}>
-              <Button size="lg">Go to Revnet</Button>
-            </Link>
-          </p>
+          <h2 className="text-2xl font-medium mb-7">
+            Last step – lock in your boost
+          </h2>
+
+          <Button
+            onClick={() => {
+              console.log("here");
+              scheduleNextBoost?.();
+            }}
+            loading={isScheduleNextBoostLoading}
+            disabled={!!scheduleNextBoost}
+            size="lg"
+          >
+            Confirm boost
+          </Button>
         </div>
       </div>
     );
@@ -588,7 +667,7 @@ export default function Page() {
         }
       }}
     >
-      <CreatePage onFormChange={setFormData} isLoading={isLoading} />
+      <CreateRevnetWizard onFormChange={setFormData} isLoading={isLoading} />
     </Formik>
   );
 }
