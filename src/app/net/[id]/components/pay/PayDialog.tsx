@@ -8,8 +8,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { usePayEthPaymentTerminal } from "@/hooks/juicebox/usePayEthPaymentTerminal";
-import { ETHER_ADDRESS } from "juice-hooks";
+import { usePayEthPaymentTerminal } from "juice-hooks";
 import { PropsWithChildren } from "react";
 import { Address } from "viem";
 
@@ -25,22 +24,13 @@ export function PayDialog({
   primaryTerminalEth: Address;
   disabled?: boolean;
 }>) {
-  const { write, isLoading, isSuccess, isError } = usePayEthPaymentTerminal(
-    {
-      projectId,
-      terminalAddress: primaryTerminalEth,
-      amountWei: payAmountWei,
-      token: ETHER_ADDRESS,
-      minReturnedTokens: 0n,
-      preferClaimedTokens: true,
-      memo: `Joined REVNET ${projectId}`,
-    },
-    {
-      onSuccess() {
-        alert("Mint complete");
-      },
-    }
-  );
+  const { write, isLoading, isSuccess, isError } = usePayEthPaymentTerminal({
+    projectId,
+    terminalAddress: primaryTerminalEth,
+    amountWei: payAmountWei,
+    preferClaimedTokens: true,
+    memo: `Joined REVNET ${projectId}`,
+  });
 
   return (
     <Dialog open={disabled === true ? false : undefined}>
