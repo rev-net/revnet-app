@@ -10,6 +10,7 @@ import { formatDistance } from "date-fns";
 import {
   Ether,
   JBToken,
+  PV2,
   useJBContractContext,
   useJBTokenContext,
 } from "juice-hooks";
@@ -79,6 +80,7 @@ export function ActivityFeed() {
       orderBy: PayEvent_OrderBy.id,
       orderDirection: OrderDirection.desc,
       where: {
+        pv: PV2,
         projectId: Number(projectId),
       },
     },

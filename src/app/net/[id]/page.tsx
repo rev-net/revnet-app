@@ -106,7 +106,7 @@ function NetworkDashboard() {
   const boost = reservedTokenSplits?.[0];
   const boostRecipient = boost?.beneficiary;
   const { data: projectCreateEvent } = useProjectCreateEventQuery({
-    variables: { where: { projectId: Number(projectId) } },
+    variables: { where: { projectId: Number(projectId), pv: PV2 } },
   });
   const projectCreateEventTxHash =
     projectCreateEvent?.projectEvents[0].projectCreateEvent?.txHash;
