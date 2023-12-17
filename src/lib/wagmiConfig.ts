@@ -1,5 +1,5 @@
 import { getDefaultConfig } from "connectkit";
-import { goerli } from "viem/chains";
+import { sepolia } from "viem/chains";
 import { createConfig } from "wagmi";
 
 export const wagmiConfig = createConfig(
@@ -8,6 +8,6 @@ export const wagmiConfig = createConfig(
     appName: "Revnet",
     walletConnectProjectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID!,
     infuraId: process.env.NEXT_PUBLIC_INFURA_ID!,
-    chains: [goerli],
+    chains: [sepolia],
   })
 );

@@ -444,27 +444,27 @@ function parseDeployData(
   }
 ): UsePrepareContractWriteConfig<
   typeof basicRevnetDeployerABI,
-  "deployRevnetFor"
+  "deployRevnetWith"
 >["args"] {
   const now = BigInt(Math.floor(Date.now() / 1000));
   return [
-    (formData.boostOperator as Address) ?? zeroAddress,
+    formData.tokenName,
+    formData.tokenSymbol,
     {
       content: extra.metadataCid,
       domain: 0n,
     },
-    formData.tokenName,
-    formData.tokenSymbol,
     {
+      baseCurrency: "", // TODO
+      initialIssuanceRate: 1n, // 1 token per eth
+      premintTokenAmount: BigInt(formData.premintTokenAmount),
+      priceCeilingIncreaseFrequency:
+        BigInt(formData.priceCeilingIncreaseFrequency) * 86400n, // seconds
       priceCeilingIncreasePercentage:
         DiscountRate.parse(formData.priceCeilingIncreasePercentage, 9).val /
         100n,
-      priceCeilingIncreaseFrequency:
-        BigInt(formData.priceCeilingIncreaseFrequency) * 86400n, // seconds
       priceFloorTaxIntensity:
         RedemptionRate.parse(formData.priceFloorTaxIntensity, 4).val / 100n, //
-      initialIssuanceRate: 1n, // 1 token per eth
-      premintTokenAmount: BigInt(formData.premintTokenAmount),
       boosts: [
         // Start the first boost straight away
         {
@@ -479,8 +479,12 @@ function parseDeployData(
         },
       ],
     },
+    (formData.boostOperator as Address) ?? zeroAddress,
     [
-      "0xd89Ed8008961F68Aab849f49e122f9a1266240Db", // latest eth terminal goerli
+      {
+        terminal: "0xd89Ed8008961F68Aab849f49e122f9a1266240Db", // latest eth terminal sepolia
+        tokensToAccept: [], // TODO help
+      },
     ],
     {
       hook: zeroAddress,

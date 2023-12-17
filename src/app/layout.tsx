@@ -1,9 +1,9 @@
-import { IBM_Plex_Sans, Playfair_Display } from "next/font/google";
+import { Footer } from "@/components/layout/Footer";
+import { Nav } from "@/components/layout/Nav";
+import { IBM_Plex_Sans } from "next/font/google";
 import { twMerge } from "tailwind-merge";
 import "./globals.css";
 import { Providers } from "./providers";
-import { Nav } from "@/components/layout/Nav";
-import { Footer } from "@/components/layout/Footer";
 
 const ibm = IBM_Plex_Sans({
   subsets: ["latin"],
@@ -23,7 +23,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={twMerge(ibm.variable, "bg-zinc-25 text-zinc-950 font-sans")}>
+      <body
+        className={twMerge(ibm.variable, "bg-zinc-25 text-zinc-950 font-sans")}
+      >
         <Providers>
           <Nav />
           <main>{children}</main>

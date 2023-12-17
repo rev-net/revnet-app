@@ -8,6 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "tsc": "tsc",
+    "pregenerate": "ts-node --project=tsconfig.json scripts/generateAddresses.ts",
+    "generate": "wagmi generate",
     "gql:build": "graphql-code-generator --config codegen.yml -r dotenv/config"
   },
   "dependencies": {
@@ -22,6 +24,7 @@
     "connectkit": "^1.4.0",
     "date-fns": "^2.30.0",
     "dompurify": "^3.0.5",
+    "forge-run-parser": "^1.0.3",
     "formik": "^2.4.5",
     "fpnum": "^0.0.8",
     "graphql": "^16.8.0",

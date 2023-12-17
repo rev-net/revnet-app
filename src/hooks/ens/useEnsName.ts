@@ -1,6 +1,6 @@
 import { useQuery } from "react-query";
 import { Address, isAddress } from "viem";
-import { goerli } from "viem/chains";
+import { sepolia } from "viem/chains";
 import { PublicClient, useChainId, usePublicClient } from "wagmi";
 
 const ENS_IDEAS_BASE_URL = "https://api.ensideas.com";
@@ -30,7 +30,7 @@ async function resolveAddress(
   address: Address,
   { chainId, publicClient }: { chainId: number; publicClient: PublicClient }
 ) {
-  if (chainId === goerli.id) {
+  if (chainId === sepolia.id) {
     const data = await publicClient.getEnsName({ address });
     return {
       name: data,
