@@ -14,89 +14,47 @@ import {
 } from 'wagmi/actions'
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// BasicRevnetDeployer
+// REVBasicDeployer
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x42369a6E077d5E3E6A8268FEb05A046369833c77)
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0xEdD3651f5BAAcaa7f8d8507c85a155849d4F7155)
  */
-export const basicRevnetDeployerABI = [
+export const revBasicDeployerABI = [
   {
     stateMutability: 'nonpayable',
     type: 'constructor',
     inputs: [
       {
-        name: '_controller',
-        internalType: 'contract IJBController3_1',
+        name: 'controller',
+        internalType: 'contract IJBController',
         type: 'address',
       },
     ],
   },
-  { type: 'error', inputs: [], name: 'BAD_BOOST_SEQUENCE' },
-  { type: 'error', inputs: [], name: 'RECONFIGURATION_ALREADY_SCHEDULED' },
-  { type: 'error', inputs: [], name: 'RECONFIGURATION_NOT_POSSIBLE' },
-  { type: 'error', inputs: [], name: 'UNAUTHORIZED' },
-  {
-    stateMutability: 'view',
-    type: 'function',
-    inputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
-    name: 'boostOperatorPermissionIndexes',
-    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
-  },
-  {
-    stateMutability: 'view',
-    type: 'function',
-    inputs: [{ name: '_revnetId', internalType: 'uint256', type: 'uint256' }],
-    name: 'boostsOf',
-    outputs: [
-      {
-        name: '',
-        internalType: 'struct Boost[]',
-        type: 'tuple[]',
-        components: [
-          { name: 'rate', internalType: 'uint128', type: 'uint128' },
-          { name: 'startsAtOrAfter', internalType: 'uint128', type: 'uint128' },
-        ],
-      },
-    ],
-  },
+  { type: 'error', inputs: [], name: 'REV_UNAUTHORIZED' },
   {
     stateMutability: 'view',
     type: 'function',
     inputs: [],
-    name: 'controller',
+    name: 'CONTROLLER',
     outputs: [
-      { name: '', internalType: 'contract IJBController3_1', type: 'address' },
+      { name: '', internalType: 'contract IJBController', type: 'address' },
     ],
-  },
-  {
-    stateMutability: 'view',
-    type: 'function',
-    inputs: [{ name: '_revnetId', internalType: 'uint256', type: 'uint256' }],
-    name: 'currentBoostNumberOf',
-    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
   },
   {
     stateMutability: 'nonpayable',
     type: 'function',
     inputs: [
-      { name: '_boostOperator', internalType: 'address', type: 'address' },
+      { name: 'name', internalType: 'string', type: 'string' },
+      { name: 'symbol', internalType: 'string', type: 'string' },
+      { name: 'metadata', internalType: 'string', type: 'string' },
       {
-        name: '_revnetMetadata',
-        internalType: 'struct JBProjectMetadata',
+        name: 'configuration',
+        internalType: 'struct REVConfig',
         type: 'tuple',
         components: [
-          { name: 'content', internalType: 'string', type: 'string' },
-          { name: 'domain', internalType: 'uint256', type: 'uint256' },
-        ],
-      },
-      { name: '_name', internalType: 'string', type: 'string' },
-      { name: '_symbol', internalType: 'string', type: 'string' },
-      {
-        name: '_revnetData',
-        internalType: 'struct RevnetParams',
-        type: 'tuple',
-        components: [
+          { name: 'baseCurrency', internalType: 'uint256', type: 'uint256' },
           {
             name: 'initialIssuanceRate',
             internalType: 'uint256',
@@ -123,8 +81,8 @@ export const basicRevnetDeployerABI = [
             type: 'uint256',
           },
           {
-            name: 'boosts',
-            internalType: 'struct Boost[]',
+            name: 'boostConfigs',
+            internalType: 'struct REVBoostConfig[]',
             type: 'tuple[]',
             components: [
               { name: 'rate', internalType: 'uint128', type: 'uint128' },
@@ -137,24 +95,37 @@ export const basicRevnetDeployerABI = [
           },
         ],
       },
+      { name: 'boostOperator', internalType: 'address', type: 'address' },
       {
-        name: '_terminals',
-        internalType: 'contract IJBPaymentTerminal[]',
-        type: 'address[]',
+        name: 'terminalConfigurations',
+        internalType: 'struct JBTerminalConfig[]',
+        type: 'tuple[]',
+        components: [
+          {
+            name: 'terminal',
+            internalType: 'contract IJBTerminal',
+            type: 'address',
+          },
+          {
+            name: 'tokensToAccept',
+            internalType: 'address[]',
+            type: 'address[]',
+          },
+        ],
       },
       {
-        name: '_buybackHookSetupData',
-        internalType: 'struct BuybackHookSetupData',
+        name: 'buybackHookConfiguration',
+        internalType: 'struct REVBuybackHookConfig',
         type: 'tuple',
         components: [
           {
             name: 'hook',
-            internalType: 'contract IJBGenericBuybackDelegate',
+            internalType: 'contract IJBBuybackHook',
             type: 'address',
           },
           {
-            name: 'pools',
-            internalType: 'struct BuybackPool[]',
+            name: 'poolConfigs',
+            internalType: 'struct REVBuybackPoolConfig[]',
             type: 'tuple[]',
             components: [
               { name: 'token', internalType: 'address', type: 'address' },
@@ -170,17 +141,17 @@ export const basicRevnetDeployerABI = [
         ],
       },
     ],
-    name: 'deployRevnetFor',
+    name: 'deployRevnetWith',
     outputs: [{ name: 'revnetId', internalType: 'uint256', type: 'uint256' }],
   },
   {
     stateMutability: 'view',
     type: 'function',
     inputs: [
-      { name: '_operator', internalType: 'address', type: 'address' },
-      { name: '_from', internalType: 'address', type: 'address' },
-      { name: '_tokenId', internalType: 'uint256', type: 'uint256' },
-      { name: '_data', internalType: 'bytes', type: 'bytes' },
+      { name: 'operator', internalType: 'address', type: 'address' },
+      { name: 'from', internalType: 'address', type: 'address' },
+      { name: 'tokenId', internalType: 'uint256', type: 'uint256' },
+      { name: 'data', internalType: 'bytes', type: 'bytes' },
     ],
     name: 'onERC721Received',
     outputs: [{ name: '', internalType: 'bytes4', type: 'bytes4' }],
@@ -189,17 +160,10 @@ export const basicRevnetDeployerABI = [
     stateMutability: 'nonpayable',
     type: 'function',
     inputs: [
-      { name: '_revnetId', internalType: 'uint256', type: 'uint256' },
-      { name: '_newBoostOperator', internalType: 'address', type: 'address' },
+      { name: 'revnetId', internalType: 'uint256', type: 'uint256' },
+      { name: 'newBoostOperator', internalType: 'address', type: 'address' },
     ],
     name: 'replaceBoostOperatorOf',
-    outputs: [],
-  },
-  {
-    stateMutability: 'nonpayable',
-    type: 'function',
-    inputs: [{ name: '_revnetId', internalType: 'uint256', type: 'uint256' }],
-    name: 'scheduleNextBoostOf',
     outputs: [],
   },
   {
@@ -212,18 +176,18 @@ export const basicRevnetDeployerABI = [
 ] as const
 
 /**
- * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x42369a6E077d5E3E6A8268FEb05A046369833c77)
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0xEdD3651f5BAAcaa7f8d8507c85a155849d4F7155)
  */
-export const basicRevnetDeployerAddress = {
-  5: '0x42369a6E077d5E3E6A8268FEb05A046369833c77',
+export const revBasicDeployerAddress = {
+  11155111: '0xEdD3651f5BAAcaa7f8d8507c85a155849d4F7155',
 } as const
 
 /**
- * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x42369a6E077d5E3E6A8268FEb05A046369833c77)
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0xEdD3651f5BAAcaa7f8d8507c85a155849d4F7155)
  */
-export const basicRevnetDeployerConfig = {
-  address: basicRevnetDeployerAddress,
-  abi: basicRevnetDeployerABI,
+export const revBasicDeployerConfig = {
+  address: revBasicDeployerAddress,
+  abi: revBasicDeployerABI,
 } as const
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -231,256 +195,145 @@ export const basicRevnetDeployerConfig = {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * Wraps __{@link useContractRead}__ with `abi` set to __{@link basicRevnetDeployerABI}__.
+ * Wraps __{@link useContractRead}__ with `abi` set to __{@link revBasicDeployerABI}__.
  *
- * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x42369a6E077d5E3E6A8268FEb05A046369833c77)
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0xEdD3651f5BAAcaa7f8d8507c85a155849d4F7155)
  */
-export function useBasicRevnetDeployerRead<
+export function useRevBasicDeployerRead<
   TFunctionName extends string,
-  TSelectData = ReadContractResult<
-    typeof basicRevnetDeployerABI,
-    TFunctionName
-  >,
+  TSelectData = ReadContractResult<typeof revBasicDeployerABI, TFunctionName>,
 >(
   config: Omit<
     UseContractReadConfig<
-      typeof basicRevnetDeployerABI,
+      typeof revBasicDeployerABI,
       TFunctionName,
       TSelectData
     >,
     'abi' | 'address'
-  > & { chainId?: keyof typeof basicRevnetDeployerAddress } = {} as any,
+  > & { chainId?: keyof typeof revBasicDeployerAddress } = {} as any,
 ) {
   return useContractRead({
-    abi: basicRevnetDeployerABI,
-    address: basicRevnetDeployerAddress[5],
+    abi: revBasicDeployerABI,
+    address: revBasicDeployerAddress[11155111],
     ...config,
   } as UseContractReadConfig<
-    typeof basicRevnetDeployerABI,
+    typeof revBasicDeployerABI,
     TFunctionName,
     TSelectData
   >)
 }
 
 /**
- * Wraps __{@link useContractRead}__ with `abi` set to __{@link basicRevnetDeployerABI}__ and `functionName` set to `"boostOperatorPermissionIndexes"`.
+ * Wraps __{@link useContractRead}__ with `abi` set to __{@link revBasicDeployerABI}__ and `functionName` set to `"CONTROLLER"`.
  *
- * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x42369a6E077d5E3E6A8268FEb05A046369833c77)
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0xEdD3651f5BAAcaa7f8d8507c85a155849d4F7155)
  */
-export function useBasicRevnetDeployerBoostOperatorPermissionIndexes<
-  TFunctionName extends 'boostOperatorPermissionIndexes',
-  TSelectData = ReadContractResult<
-    typeof basicRevnetDeployerABI,
-    TFunctionName
-  >,
+export function useRevBasicDeployerController<
+  TFunctionName extends 'CONTROLLER',
+  TSelectData = ReadContractResult<typeof revBasicDeployerABI, TFunctionName>,
 >(
   config: Omit<
     UseContractReadConfig<
-      typeof basicRevnetDeployerABI,
+      typeof revBasicDeployerABI,
       TFunctionName,
       TSelectData
     >,
     'abi' | 'address' | 'functionName'
-  > & { chainId?: keyof typeof basicRevnetDeployerAddress } = {} as any,
+  > & { chainId?: keyof typeof revBasicDeployerAddress } = {} as any,
 ) {
   return useContractRead({
-    abi: basicRevnetDeployerABI,
-    address: basicRevnetDeployerAddress[5],
-    functionName: 'boostOperatorPermissionIndexes',
+    abi: revBasicDeployerABI,
+    address: revBasicDeployerAddress[11155111],
+    functionName: 'CONTROLLER',
     ...config,
   } as UseContractReadConfig<
-    typeof basicRevnetDeployerABI,
+    typeof revBasicDeployerABI,
     TFunctionName,
     TSelectData
   >)
 }
 
 /**
- * Wraps __{@link useContractRead}__ with `abi` set to __{@link basicRevnetDeployerABI}__ and `functionName` set to `"boostsOf"`.
+ * Wraps __{@link useContractRead}__ with `abi` set to __{@link revBasicDeployerABI}__ and `functionName` set to `"onERC721Received"`.
  *
- * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x42369a6E077d5E3E6A8268FEb05A046369833c77)
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0xEdD3651f5BAAcaa7f8d8507c85a155849d4F7155)
  */
-export function useBasicRevnetDeployerBoostsOf<
-  TFunctionName extends 'boostsOf',
-  TSelectData = ReadContractResult<
-    typeof basicRevnetDeployerABI,
-    TFunctionName
-  >,
->(
-  config: Omit<
-    UseContractReadConfig<
-      typeof basicRevnetDeployerABI,
-      TFunctionName,
-      TSelectData
-    >,
-    'abi' | 'address' | 'functionName'
-  > & { chainId?: keyof typeof basicRevnetDeployerAddress } = {} as any,
-) {
-  return useContractRead({
-    abi: basicRevnetDeployerABI,
-    address: basicRevnetDeployerAddress[5],
-    functionName: 'boostsOf',
-    ...config,
-  } as UseContractReadConfig<
-    typeof basicRevnetDeployerABI,
-    TFunctionName,
-    TSelectData
-  >)
-}
-
-/**
- * Wraps __{@link useContractRead}__ with `abi` set to __{@link basicRevnetDeployerABI}__ and `functionName` set to `"controller"`.
- *
- * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x42369a6E077d5E3E6A8268FEb05A046369833c77)
- */
-export function useBasicRevnetDeployerController<
-  TFunctionName extends 'controller',
-  TSelectData = ReadContractResult<
-    typeof basicRevnetDeployerABI,
-    TFunctionName
-  >,
->(
-  config: Omit<
-    UseContractReadConfig<
-      typeof basicRevnetDeployerABI,
-      TFunctionName,
-      TSelectData
-    >,
-    'abi' | 'address' | 'functionName'
-  > & { chainId?: keyof typeof basicRevnetDeployerAddress } = {} as any,
-) {
-  return useContractRead({
-    abi: basicRevnetDeployerABI,
-    address: basicRevnetDeployerAddress[5],
-    functionName: 'controller',
-    ...config,
-  } as UseContractReadConfig<
-    typeof basicRevnetDeployerABI,
-    TFunctionName,
-    TSelectData
-  >)
-}
-
-/**
- * Wraps __{@link useContractRead}__ with `abi` set to __{@link basicRevnetDeployerABI}__ and `functionName` set to `"currentBoostNumberOf"`.
- *
- * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x42369a6E077d5E3E6A8268FEb05A046369833c77)
- */
-export function useBasicRevnetDeployerCurrentBoostNumberOf<
-  TFunctionName extends 'currentBoostNumberOf',
-  TSelectData = ReadContractResult<
-    typeof basicRevnetDeployerABI,
-    TFunctionName
-  >,
->(
-  config: Omit<
-    UseContractReadConfig<
-      typeof basicRevnetDeployerABI,
-      TFunctionName,
-      TSelectData
-    >,
-    'abi' | 'address' | 'functionName'
-  > & { chainId?: keyof typeof basicRevnetDeployerAddress } = {} as any,
-) {
-  return useContractRead({
-    abi: basicRevnetDeployerABI,
-    address: basicRevnetDeployerAddress[5],
-    functionName: 'currentBoostNumberOf',
-    ...config,
-  } as UseContractReadConfig<
-    typeof basicRevnetDeployerABI,
-    TFunctionName,
-    TSelectData
-  >)
-}
-
-/**
- * Wraps __{@link useContractRead}__ with `abi` set to __{@link basicRevnetDeployerABI}__ and `functionName` set to `"onERC721Received"`.
- *
- * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x42369a6E077d5E3E6A8268FEb05A046369833c77)
- */
-export function useBasicRevnetDeployerOnErc721Received<
+export function useRevBasicDeployerOnErc721Received<
   TFunctionName extends 'onERC721Received',
-  TSelectData = ReadContractResult<
-    typeof basicRevnetDeployerABI,
-    TFunctionName
-  >,
+  TSelectData = ReadContractResult<typeof revBasicDeployerABI, TFunctionName>,
 >(
   config: Omit<
     UseContractReadConfig<
-      typeof basicRevnetDeployerABI,
+      typeof revBasicDeployerABI,
       TFunctionName,
       TSelectData
     >,
     'abi' | 'address' | 'functionName'
-  > & { chainId?: keyof typeof basicRevnetDeployerAddress } = {} as any,
+  > & { chainId?: keyof typeof revBasicDeployerAddress } = {} as any,
 ) {
   return useContractRead({
-    abi: basicRevnetDeployerABI,
-    address: basicRevnetDeployerAddress[5],
+    abi: revBasicDeployerABI,
+    address: revBasicDeployerAddress[11155111],
     functionName: 'onERC721Received',
     ...config,
   } as UseContractReadConfig<
-    typeof basicRevnetDeployerABI,
+    typeof revBasicDeployerABI,
     TFunctionName,
     TSelectData
   >)
 }
 
 /**
- * Wraps __{@link useContractRead}__ with `abi` set to __{@link basicRevnetDeployerABI}__ and `functionName` set to `"supportsInterface"`.
+ * Wraps __{@link useContractRead}__ with `abi` set to __{@link revBasicDeployerABI}__ and `functionName` set to `"supportsInterface"`.
  *
- * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x42369a6E077d5E3E6A8268FEb05A046369833c77)
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0xEdD3651f5BAAcaa7f8d8507c85a155849d4F7155)
  */
-export function useBasicRevnetDeployerSupportsInterface<
+export function useRevBasicDeployerSupportsInterface<
   TFunctionName extends 'supportsInterface',
-  TSelectData = ReadContractResult<
-    typeof basicRevnetDeployerABI,
-    TFunctionName
-  >,
+  TSelectData = ReadContractResult<typeof revBasicDeployerABI, TFunctionName>,
 >(
   config: Omit<
     UseContractReadConfig<
-      typeof basicRevnetDeployerABI,
+      typeof revBasicDeployerABI,
       TFunctionName,
       TSelectData
     >,
     'abi' | 'address' | 'functionName'
-  > & { chainId?: keyof typeof basicRevnetDeployerAddress } = {} as any,
+  > & { chainId?: keyof typeof revBasicDeployerAddress } = {} as any,
 ) {
   return useContractRead({
-    abi: basicRevnetDeployerABI,
-    address: basicRevnetDeployerAddress[5],
+    abi: revBasicDeployerABI,
+    address: revBasicDeployerAddress[11155111],
     functionName: 'supportsInterface',
     ...config,
   } as UseContractReadConfig<
-    typeof basicRevnetDeployerABI,
+    typeof revBasicDeployerABI,
     TFunctionName,
     TSelectData
   >)
 }
 
 /**
- * Wraps __{@link useContractWrite}__ with `abi` set to __{@link basicRevnetDeployerABI}__.
+ * Wraps __{@link useContractWrite}__ with `abi` set to __{@link revBasicDeployerABI}__.
  *
- * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x42369a6E077d5E3E6A8268FEb05A046369833c77)
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0xEdD3651f5BAAcaa7f8d8507c85a155849d4F7155)
  */
-export function useBasicRevnetDeployerWrite<
+export function useRevBasicDeployerWrite<
   TFunctionName extends string,
   TMode extends WriteContractMode = undefined,
-  TChainId extends number = keyof typeof basicRevnetDeployerAddress,
+  TChainId extends number = keyof typeof revBasicDeployerAddress,
 >(
   config: TMode extends 'prepared'
     ? UseContractWriteConfig<
         PrepareWriteContractResult<
-          typeof basicRevnetDeployerABI,
+          typeof revBasicDeployerABI,
           string
         >['request']['abi'],
         TFunctionName,
         TMode
       > & { address?: Address; chainId?: TChainId }
     : UseContractWriteConfig<
-        typeof basicRevnetDeployerABI,
+        typeof revBasicDeployerABI,
         TFunctionName,
         TMode
       > & {
@@ -489,71 +342,71 @@ export function useBasicRevnetDeployerWrite<
         chainId?: TChainId
       } = {} as any,
 ) {
-  return useContractWrite<typeof basicRevnetDeployerABI, TFunctionName, TMode>({
-    abi: basicRevnetDeployerABI,
-    address: basicRevnetDeployerAddress[5],
+  return useContractWrite<typeof revBasicDeployerABI, TFunctionName, TMode>({
+    abi: revBasicDeployerABI,
+    address: revBasicDeployerAddress[11155111],
     ...config,
   } as any)
 }
 
 /**
- * Wraps __{@link useContractWrite}__ with `abi` set to __{@link basicRevnetDeployerABI}__ and `functionName` set to `"deployRevnetFor"`.
+ * Wraps __{@link useContractWrite}__ with `abi` set to __{@link revBasicDeployerABI}__ and `functionName` set to `"deployRevnetWith"`.
  *
- * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x42369a6E077d5E3E6A8268FEb05A046369833c77)
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0xEdD3651f5BAAcaa7f8d8507c85a155849d4F7155)
  */
-export function useBasicRevnetDeployerDeployRevnetFor<
+export function useRevBasicDeployerDeployRevnetWith<
   TMode extends WriteContractMode = undefined,
-  TChainId extends number = keyof typeof basicRevnetDeployerAddress,
+  TChainId extends number = keyof typeof revBasicDeployerAddress,
 >(
   config: TMode extends 'prepared'
     ? UseContractWriteConfig<
         PrepareWriteContractResult<
-          typeof basicRevnetDeployerABI,
-          'deployRevnetFor'
+          typeof revBasicDeployerABI,
+          'deployRevnetWith'
         >['request']['abi'],
-        'deployRevnetFor',
+        'deployRevnetWith',
         TMode
       > & {
         address?: Address
         chainId?: TChainId
-        functionName?: 'deployRevnetFor'
+        functionName?: 'deployRevnetWith'
       }
     : UseContractWriteConfig<
-        typeof basicRevnetDeployerABI,
-        'deployRevnetFor',
+        typeof revBasicDeployerABI,
+        'deployRevnetWith',
         TMode
       > & {
         abi?: never
         address?: never
         chainId?: TChainId
-        functionName?: 'deployRevnetFor'
+        functionName?: 'deployRevnetWith'
       } = {} as any,
 ) {
   return useContractWrite<
-    typeof basicRevnetDeployerABI,
-    'deployRevnetFor',
+    typeof revBasicDeployerABI,
+    'deployRevnetWith',
     TMode
   >({
-    abi: basicRevnetDeployerABI,
-    address: basicRevnetDeployerAddress[5],
-    functionName: 'deployRevnetFor',
+    abi: revBasicDeployerABI,
+    address: revBasicDeployerAddress[11155111],
+    functionName: 'deployRevnetWith',
     ...config,
   } as any)
 }
 
 /**
- * Wraps __{@link useContractWrite}__ with `abi` set to __{@link basicRevnetDeployerABI}__ and `functionName` set to `"replaceBoostOperatorOf"`.
+ * Wraps __{@link useContractWrite}__ with `abi` set to __{@link revBasicDeployerABI}__ and `functionName` set to `"replaceBoostOperatorOf"`.
  *
- * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x42369a6E077d5E3E6A8268FEb05A046369833c77)
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0xEdD3651f5BAAcaa7f8d8507c85a155849d4F7155)
  */
-export function useBasicRevnetDeployerReplaceBoostOperatorOf<
+export function useRevBasicDeployerReplaceBoostOperatorOf<
   TMode extends WriteContractMode = undefined,
-  TChainId extends number = keyof typeof basicRevnetDeployerAddress,
+  TChainId extends number = keyof typeof revBasicDeployerAddress,
 >(
   config: TMode extends 'prepared'
     ? UseContractWriteConfig<
         PrepareWriteContractResult<
-          typeof basicRevnetDeployerABI,
+          typeof revBasicDeployerABI,
           'replaceBoostOperatorOf'
         >['request']['abi'],
         'replaceBoostOperatorOf',
@@ -564,7 +417,7 @@ export function useBasicRevnetDeployerReplaceBoostOperatorOf<
         functionName?: 'replaceBoostOperatorOf'
       }
     : UseContractWriteConfig<
-        typeof basicRevnetDeployerABI,
+        typeof revBasicDeployerABI,
         'replaceBoostOperatorOf',
         TMode
       > & {
@@ -575,156 +428,81 @@ export function useBasicRevnetDeployerReplaceBoostOperatorOf<
       } = {} as any,
 ) {
   return useContractWrite<
-    typeof basicRevnetDeployerABI,
+    typeof revBasicDeployerABI,
     'replaceBoostOperatorOf',
     TMode
   >({
-    abi: basicRevnetDeployerABI,
-    address: basicRevnetDeployerAddress[5],
+    abi: revBasicDeployerABI,
+    address: revBasicDeployerAddress[11155111],
     functionName: 'replaceBoostOperatorOf',
     ...config,
   } as any)
 }
 
 /**
- * Wraps __{@link useContractWrite}__ with `abi` set to __{@link basicRevnetDeployerABI}__ and `functionName` set to `"scheduleNextBoostOf"`.
+ * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link revBasicDeployerABI}__.
  *
- * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x42369a6E077d5E3E6A8268FEb05A046369833c77)
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0xEdD3651f5BAAcaa7f8d8507c85a155849d4F7155)
  */
-export function useBasicRevnetDeployerScheduleNextBoostOf<
-  TMode extends WriteContractMode = undefined,
-  TChainId extends number = keyof typeof basicRevnetDeployerAddress,
->(
-  config: TMode extends 'prepared'
-    ? UseContractWriteConfig<
-        PrepareWriteContractResult<
-          typeof basicRevnetDeployerABI,
-          'scheduleNextBoostOf'
-        >['request']['abi'],
-        'scheduleNextBoostOf',
-        TMode
-      > & {
-        address?: Address
-        chainId?: TChainId
-        functionName?: 'scheduleNextBoostOf'
-      }
-    : UseContractWriteConfig<
-        typeof basicRevnetDeployerABI,
-        'scheduleNextBoostOf',
-        TMode
-      > & {
-        abi?: never
-        address?: never
-        chainId?: TChainId
-        functionName?: 'scheduleNextBoostOf'
-      } = {} as any,
-) {
-  return useContractWrite<
-    typeof basicRevnetDeployerABI,
-    'scheduleNextBoostOf',
-    TMode
-  >({
-    abi: basicRevnetDeployerABI,
-    address: basicRevnetDeployerAddress[5],
-    functionName: 'scheduleNextBoostOf',
-    ...config,
-  } as any)
-}
-
-/**
- * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link basicRevnetDeployerABI}__.
- *
- * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x42369a6E077d5E3E6A8268FEb05A046369833c77)
- */
-export function usePrepareBasicRevnetDeployerWrite<
-  TFunctionName extends string,
->(
+export function usePrepareRevBasicDeployerWrite<TFunctionName extends string>(
   config: Omit<
-    UsePrepareContractWriteConfig<typeof basicRevnetDeployerABI, TFunctionName>,
+    UsePrepareContractWriteConfig<typeof revBasicDeployerABI, TFunctionName>,
     'abi' | 'address'
-  > & { chainId?: keyof typeof basicRevnetDeployerAddress } = {} as any,
+  > & { chainId?: keyof typeof revBasicDeployerAddress } = {} as any,
 ) {
   return usePrepareContractWrite({
-    abi: basicRevnetDeployerABI,
-    address: basicRevnetDeployerAddress[5],
+    abi: revBasicDeployerABI,
+    address: revBasicDeployerAddress[11155111],
     ...config,
-  } as UsePrepareContractWriteConfig<
-    typeof basicRevnetDeployerABI,
-    TFunctionName
-  >)
+  } as UsePrepareContractWriteConfig<typeof revBasicDeployerABI, TFunctionName>)
 }
 
 /**
- * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link basicRevnetDeployerABI}__ and `functionName` set to `"deployRevnetFor"`.
+ * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link revBasicDeployerABI}__ and `functionName` set to `"deployRevnetWith"`.
  *
- * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x42369a6E077d5E3E6A8268FEb05A046369833c77)
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0xEdD3651f5BAAcaa7f8d8507c85a155849d4F7155)
  */
-export function usePrepareBasicRevnetDeployerDeployRevnetFor(
+export function usePrepareRevBasicDeployerDeployRevnetWith(
   config: Omit<
     UsePrepareContractWriteConfig<
-      typeof basicRevnetDeployerABI,
-      'deployRevnetFor'
+      typeof revBasicDeployerABI,
+      'deployRevnetWith'
     >,
     'abi' | 'address' | 'functionName'
-  > & { chainId?: keyof typeof basicRevnetDeployerAddress } = {} as any,
+  > & { chainId?: keyof typeof revBasicDeployerAddress } = {} as any,
 ) {
   return usePrepareContractWrite({
-    abi: basicRevnetDeployerABI,
-    address: basicRevnetDeployerAddress[5],
-    functionName: 'deployRevnetFor',
+    abi: revBasicDeployerABI,
+    address: revBasicDeployerAddress[11155111],
+    functionName: 'deployRevnetWith',
     ...config,
   } as UsePrepareContractWriteConfig<
-    typeof basicRevnetDeployerABI,
-    'deployRevnetFor'
+    typeof revBasicDeployerABI,
+    'deployRevnetWith'
   >)
 }
 
 /**
- * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link basicRevnetDeployerABI}__ and `functionName` set to `"replaceBoostOperatorOf"`.
+ * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link revBasicDeployerABI}__ and `functionName` set to `"replaceBoostOperatorOf"`.
  *
- * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x42369a6E077d5E3E6A8268FEb05A046369833c77)
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0xEdD3651f5BAAcaa7f8d8507c85a155849d4F7155)
  */
-export function usePrepareBasicRevnetDeployerReplaceBoostOperatorOf(
+export function usePrepareRevBasicDeployerReplaceBoostOperatorOf(
   config: Omit<
     UsePrepareContractWriteConfig<
-      typeof basicRevnetDeployerABI,
+      typeof revBasicDeployerABI,
       'replaceBoostOperatorOf'
     >,
     'abi' | 'address' | 'functionName'
-  > & { chainId?: keyof typeof basicRevnetDeployerAddress } = {} as any,
+  > & { chainId?: keyof typeof revBasicDeployerAddress } = {} as any,
 ) {
   return usePrepareContractWrite({
-    abi: basicRevnetDeployerABI,
-    address: basicRevnetDeployerAddress[5],
+    abi: revBasicDeployerABI,
+    address: revBasicDeployerAddress[11155111],
     functionName: 'replaceBoostOperatorOf',
     ...config,
   } as UsePrepareContractWriteConfig<
-    typeof basicRevnetDeployerABI,
+    typeof revBasicDeployerABI,
     'replaceBoostOperatorOf'
-  >)
-}
-
-/**
- * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link basicRevnetDeployerABI}__ and `functionName` set to `"scheduleNextBoostOf"`.
- *
- * [__View Contract on Goerli Etherscan__](https://goerli.etherscan.io/address/0x42369a6E077d5E3E6A8268FEb05A046369833c77)
- */
-export function usePrepareBasicRevnetDeployerScheduleNextBoostOf(
-  config: Omit<
-    UsePrepareContractWriteConfig<
-      typeof basicRevnetDeployerABI,
-      'scheduleNextBoostOf'
-    >,
-    'abi' | 'address' | 'functionName'
-  > & { chainId?: keyof typeof basicRevnetDeployerAddress } = {} as any,
-) {
-  return usePrepareContractWrite({
-    abi: basicRevnetDeployerABI,
-    address: basicRevnetDeployerAddress[5],
-    functionName: 'scheduleNextBoostOf',
-    ...config,
-  } as UsePrepareContractWriteConfig<
-    typeof basicRevnetDeployerABI,
-    'scheduleNextBoostOf'
   >)
 }

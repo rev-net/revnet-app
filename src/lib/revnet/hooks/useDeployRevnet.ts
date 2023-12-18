@@ -1,7 +1,7 @@
 import { UsePrepareContractWriteConfig } from "wagmi";
 import {
-  basicRevnetDeployerABI,
-  useBasicRevnetDeployerDeployRevnetFor,
+  revBasicDeployerABI,
+  useRevBasicDeployerDeployRevnetWith,
 } from "./contract";
 import { useCallback } from "react";
 
@@ -25,7 +25,7 @@ type JBProjectMetadata = {
 };
 
 export function useDeployRevnet() {
-  const { write, data } = useBasicRevnetDeployerDeployRevnetFor();
+  const { write, data } = useRevBasicDeployerDeployRevnetWith();
 
   /**
     address _boostOperator,
@@ -40,8 +40,8 @@ export function useDeployRevnet() {
   const deployRevnet = useCallback(
     (
       args: UsePrepareContractWriteConfig<
-        typeof basicRevnetDeployerABI,
-        "deployRevnetFor"
+        typeof revBasicDeployerABI,
+        "deployRevnetWith"
       >["args"]
     ) => {
       write?.({

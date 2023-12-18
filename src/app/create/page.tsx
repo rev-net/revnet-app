@@ -9,7 +9,8 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
-import { basicRevnetDeployerABI } from "@/lib/revnet/hooks/contract";
+import { NATIVE_TOKEN } from "@/lib/juicebox/constants";
+import { revBasicDeployerABI } from "@/lib/revnet/hooks/contract";
 import { useDeployRevnet } from "@/lib/revnet/hooks/useDeployRevnet";
 import { cn } from "@/lib/utils";
 import { ArrowLeftIcon, CheckCircleIcon } from "@heroicons/react/24/solid";
@@ -443,19 +444,16 @@ function parseDeployData(
     metadataCid: string;
   }
 ): UsePrepareContractWriteConfig<
-  typeof basicRevnetDeployerABI,
+  typeof revBasicDeployerABI,
   "deployRevnetWith"
 >["args"] {
   const now = BigInt(Math.floor(Date.now() / 1000));
   return [
     formData.tokenName,
     formData.tokenSymbol,
+    extra.metadataCid,
     {
-      content: extra.metadataCid,
-      domain: 0n,
-    },
-    {
-      baseCurrency: "", // TODO
+      baseCurrency: BigInt(NATIVE_TOKEN),
       initialIssuanceRate: 1n, // 1 token per eth
       premintTokenAmount: BigInt(formData.premintTokenAmount),
       priceCeilingIncreaseFrequency:
@@ -465,7 +463,7 @@ function parseDeployData(
         100n,
       priceFloorTaxIntensity:
         RedemptionRate.parse(formData.priceFloorTaxIntensity, 4).val / 100n, //
-      boosts: [
+      boostConfigs: [
         // Start the first boost straight away
         {
           rate: ReservedRate.parse(formData.boostPercentage, 4).val / 100n,
@@ -483,12 +481,12 @@ function parseDeployData(
     [
       {
         terminal: "0xd89Ed8008961F68Aab849f49e122f9a1266240Db", // latest eth terminal sepolia
-        tokensToAccept: [], // TODO help
+        tokensToAccept: [NATIVE_TOKEN],
       },
     ],
     {
       hook: zeroAddress,
-      pools: [
+      poolConfigs: [
         // {
         //   token: zeroAddress,
         //   fee: 0,
