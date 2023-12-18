@@ -39,6 +39,7 @@ import { ParticipantsTable } from "./components/ParticipantsTable";
 import StepChart from "./components/StepChart";
 import { ActivityFeed } from "./components/activity/ActivityFeed";
 import { PayForm } from "./components/pay/PayForm";
+import { useJbControllerMetadataOf } from "@/lib/juicebox/hooks/contract";
 
 function NetworkDashboard() {
   const {
@@ -118,31 +119,34 @@ function NetworkDashboard() {
     document.title = `$${token?.data?.symbol} | REVNET`;
   }, [token?.data?.symbol]);
 
-  const { data: projects } = useProjectsQuery({
-    variables: {
-      where: {
-        projectId: Number(projectId),
-        pv: PV2,
-      },
-      first: 1,
-    },
-  });
-  const { data: participantsData } = useParticipantsQuery({
-    variables: {
-      orderBy: Participant_OrderBy.balance,
-      orderDirection: OrderDirection.desc,
-      where: {
-        projectId: Number(projectId),
-        pv: PV2,
-        balance_gt: "0",
-        wallet_not: zeroAddress,
-      },
-    },
-    pollInterval: 10_000,
-  });
+  // const { data: projects } = useProjectsQuery({
+  //   variables: {
+  //     where: {
+  //       projectId: Number(projectId),
+  //       pv: PV2,
+  //     },
+  //     first: 1,
+  //   },
+  // });
+  // const { data: participantsData } = useParticipantsQuery({
+  //   variables: {
+  //     orderBy: Participant_OrderBy.balance,
+  //     orderDirection: OrderDirection.desc,
+  //     where: {
+  //       projectId: Number(projectId),
+  //       pv: PV2,
+  //       balance_gt: "0",
+  //       wallet_not: zeroAddress,
+  //     },
+  //   },
+  //   pollInterval: 10_000,
+  // });
 
-  const { metadataUri, contributorsCount, createdAt } =
-    projects?.projects?.[0] ?? {};
+  // const { metadataUri, contributorsCount, createdAt } =
+  //   projects?.projects?.[0] ?? {};
+  const { data: metadataUri } = useJbControllerMetadataOf({
+    args: [projectId],
+  });
   const { data: projectMetadata } = useProjectMetadata(metadataUri);
   const { name: projectName, projectTagline, logoUri } = projectMetadata ?? {};
 
@@ -279,11 +283,11 @@ function NetworkDashboard() {
                     <Ether wei={overflowEth} />
                   </Stat>
                 ) : null}
-                {typeof contributorsCount !== "undefined" ? (
+                {/* {typeof contributorsCount !== "undefined" ? (
                   <Stat label="Participants">
                     {contributorsCount === 0 ? 0 : contributorsCount + 1}
                   </Stat>
-                ) : null}
+                ) : null} */}
               </div>
             </div>
 
@@ -309,7 +313,7 @@ function NetworkDashboard() {
                 <h2 className="text-2xl font-medium mb-1">
                   About {projectMetadata?.name}
                 </h2>
-                {createdAt && projectCreateEventTxHash ? (
+                {/* {createdAt && projectCreateEventTxHash ? (
                   <EtherscanLink
                     value={projectCreateEventTxHash}
                     type="tx"
@@ -317,7 +321,7 @@ function NetworkDashboard() {
                   >
                     Since {format(createdAt * 1000, "yyyy-mm-dd")}
                   </EtherscanLink>
-                ) : null}
+                ) : null} */}
               </div>
               {projectMetadata?.description ? (
                 <Html source={projectMetadata?.description} />
@@ -329,7 +333,7 @@ function NetworkDashboard() {
             <div className="mb-10">
               <h2 className="text-2xl font-medium mb-1">Participants</h2>
 
-              {token?.data &&
+              {/* {token?.data &&
               participantsData &&
               participantsData.participants.length > 0 ? (
                 <>
@@ -347,7 +351,7 @@ function NetworkDashboard() {
                 </>
               ) : (
                 "No participants yet."
-              )}
+              )} */}
             </div>
             {/* 
         <div>
