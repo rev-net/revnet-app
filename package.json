@@ -9,7 +9,7 @@
     "lint": "next lint",
     "tsc": "tsc",
     "pregenerate": "ts-node --project=tsconfig.json scripts/generateAddresses.ts",
-    "generate": "wagmi generate",
+    "generate": "patch-package && wagmi generate",
     "gql:build": "graphql-code-generator --config codegen.yml -r dotenv/config"
   },
   "dependencies": {
@@ -31,6 +31,7 @@
     "juice-hooks": "8.2.0-beta",
     "lucide-react": "^0.268.0",
     "next": "^13.4.0",
+    "patch-package": "^8.0.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-query": "^3.39.3",

@@ -39,62 +39,80 @@ import { ParticipantsTable } from "./components/ParticipantsTable";
 import StepChart from "./components/StepChart";
 import { ActivityFeed } from "./components/activity/ActivityFeed";
 import { PayForm } from "./components/pay/PayForm";
-import { useJbControllerMetadataOf } from "@/lib/juicebox/hooks/contract";
+import {
+  useJbControllerCurrentRulesetOf,
+  useJbControllerLatestQueuedRulesetOf,
+  useJbControllerMetadataOf,
+  useJbControllerPendingReservedTokenBalanceOf,
+  useJbMultiTerminalCurrentSurplusOf,
+  useJbRulesetsCurrentOf,
+  useJbSplitsSplitsOf,
+  useJbTerminalStoreCurrentSurplusOf,
+  useJbTokensTotalSupplyOf,
+} from "@/lib/juicebox/hooks/contract";
 
 function NetworkDashboard() {
-  const {
-    projectId,
-    contracts: { primaryTerminalEthStore, controller },
-  } = useJBContractContext();
-  const { fundingCycleData, fundingCycleMetadata } = useJBFundingCycleContext();
-  const { data: latestConfiguredFundingCycle } =
-    useJbControllerLatestConfiguredFundingCycleOf({
-      address: controller?.data,
-      args: [projectId],
-    });
-
   const [participantsView, setParticipantsView] = useState<"table" | "pie">(
     "pie"
   );
 
-  const [
-    latestConfiguredFundingCycleData,
-    latestConfiguredFundingCycleMetadata,
-    latestConfiguredFundingCycleBallotState,
-  ] = latestConfiguredFundingCycle ?? [];
-  const { data: latestConfiguredReservedTokenSplits } =
-    useJbSplitsStoreSplitsOf({
-      args: latestConfiguredFundingCycleData
-        ? [
-            projectId,
-            latestConfiguredFundingCycleData.configuration,
-            BigInt(SplitGroup.ReservedTokens),
-          ]
-        : undefined,
+  const {
+    projectId,
+    contracts: { primaryTerminalEthStore, controller, primaryTerminalEth },
+  } = useJBContractContext();
+  const { fundingCycleData, fundingCycleMetadata } = useJBFundingCycleContext();
+  const { data: latestConfiguredRuleset } =
+    useJbControllerLatestQueuedRulesetOf({
+      args: [projectId],
     });
+
+  console.log(latestConfiguredRuleset, "here");
+
+  const { data: ruleset } = useJbControllerCurrentRulesetOf({
+    args: [projectId],
+  });
+
+  const [rulesetData, rulesetMetadata] = ruleset ?? [];
+  console.log(rulesetData);
+
+  const [
+    latestConfiguredRulesetData,
+    latestConfiguredRulesetMetadata,
+    latestConfiguredRulesetApprovalStatus,
+  ] = latestConfiguredRuleset ?? [];
+  const { data: latestConfiguredReservedTokenSplits } = useJbSplitsSplitsOf({
+    args: latestConfiguredRulesetData
+      ? [
+          projectId,
+          latestConfiguredRulesetData.id,
+          BigInt(SplitGroup.ReservedTokens),
+        ]
+      : undefined,
+  });
 
   const { token } = useJBTokenContext();
 
   const tokenA = { symbol: "ETH", decimals: 18 };
 
-  const { data: overflowEth } =
-    useJbSingleTokenPaymentTerminalStoreCurrentTotalOverflowOf({
-      address: primaryTerminalEthStore?.data,
-      args: [projectId, BigInt(etherUnits.wei), JB_CURRENCIES.ETH],
-      watch: true,
-      staleTime: 10_000, // 10 seconds
-    });
-  const { data: tokensReserved } = useJbController3_1ReservedTokenBalanceOf({
-    args: [projectId],
+  const { data: overflowEth } = useJbMultiTerminalCurrentSurplusOf({
+    address: primaryTerminalEthStore?.data,
+    args: [projectId, BigInt(etherUnits.wei), JB_CURRENCIES.ETH],
+    watch: true,
+    staleTime: 10_000, // 10 seconds
   });
-  const { data: totalTokenSupply } = useJbTokenStoreTotalSupplyOf({
+  const { data: tokensReserved } = useJbControllerPendingReservedTokenBalanceOf(
+    {
+      args: [projectId],
+    }
+  );
+  const { data: totalTokenSupply } = useJbTokensTotalSupplyOf({
     args: [projectId],
   });
 
   const totalOutstandingTokens =
     (totalTokenSupply ?? 0n) + (tokensReserved ?? 0n);
 
-  const { data: reservedTokenSplits } = useJbSplitsStoreSplitsOf({
+  const { data: reservedTokenSplits } = useJbSplitsSplitsOf({
     args: fundingCycleData?.data
       ? [
           projectId,
@@ -106,11 +124,11 @@ function NetworkDashboard() {
 
   const boost = reservedTokenSplits?.[0];
   const boostRecipient = boost?.beneficiary;
-  const { data: projectCreateEvent } = useProjectCreateEventQuery({
-    variables: { where: { projectId: Number(projectId), pv: PV2 } },
-  });
-  const projectCreateEventTxHash =
-    projectCreateEvent?.projectEvents[0].projectCreateEvent?.txHash;
+  // const { data: projectCreateEvent } = useProjectCreateEventQuery({
+  //   variables: { where: { projectId: Number(projectId), pv: PV2 } },
+  // });
+  // const projectCreateEventTxHash =
+  //   projectCreateEvent?.projectEvents[0].projectCreateEvent?.txHash;
 
   // set title
   // TODO, hacky, probably eventually a next-idiomatic way to do this.

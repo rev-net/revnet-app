@@ -1,8 +1,8 @@
 import {
+  Address,
   useContractRead,
   UseContractReadConfig,
   useContractWrite,
-  Address,
   UseContractWriteConfig,
   usePrepareContractWrite,
   UsePrepareContractWriteConfig,
@@ -18,7 +18,7 @@ import {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x0227b76E082c635887ec58BaCaabAcC86934fe1c)
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x5f1fFe756b4F8206e8e29c3f3a481Eea087CFE47)
  */
 export const revBasicDeployerABI = [
   {
@@ -176,14 +176,14 @@ export const revBasicDeployerABI = [
 ] as const
 
 /**
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x0227b76E082c635887ec58BaCaabAcC86934fe1c)
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x5f1fFe756b4F8206e8e29c3f3a481Eea087CFE47)
  */
 export const revBasicDeployerAddress = {
-  11155111: '0x0227b76E082c635887ec58BaCaabAcC86934fe1c',
+  11155111: '0x5f1fFe756b4F8206e8e29c3f3a481Eea087CFE47',
 } as const
 
 /**
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x0227b76E082c635887ec58BaCaabAcC86934fe1c)
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x5f1fFe756b4F8206e8e29c3f3a481Eea087CFE47)
  */
 export const revBasicDeployerConfig = {
   address: revBasicDeployerAddress,
@@ -197,7 +197,7 @@ export const revBasicDeployerConfig = {
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link revBasicDeployerABI}__.
  *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x0227b76E082c635887ec58BaCaabAcC86934fe1c)
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x5f1fFe756b4F8206e8e29c3f3a481Eea087CFE47)
  */
 export function useRevBasicDeployerRead<
   TFunctionName extends string,
@@ -210,7 +210,10 @@ export function useRevBasicDeployerRead<
       TSelectData
     >,
     'abi' | 'address'
-  > & { chainId?: keyof typeof revBasicDeployerAddress } = {} as any,
+  > & {
+    chainId?: keyof typeof revBasicDeployerAddress
+    address?: Address
+  } = {} as any,
 ) {
   return useContractRead({
     abi: revBasicDeployerABI,
@@ -226,7 +229,7 @@ export function useRevBasicDeployerRead<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link revBasicDeployerABI}__ and `functionName` set to `"CONTROLLER"`.
  *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x0227b76E082c635887ec58BaCaabAcC86934fe1c)
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x5f1fFe756b4F8206e8e29c3f3a481Eea087CFE47)
  */
 export function useRevBasicDeployerController<
   TFunctionName extends 'CONTROLLER',
@@ -239,7 +242,10 @@ export function useRevBasicDeployerController<
       TSelectData
     >,
     'abi' | 'address' | 'functionName'
-  > & { chainId?: keyof typeof revBasicDeployerAddress } = {} as any,
+  > & {
+    chainId?: keyof typeof revBasicDeployerAddress
+    address?: Address
+  } = {} as any,
 ) {
   return useContractRead({
     abi: revBasicDeployerABI,
@@ -256,7 +262,7 @@ export function useRevBasicDeployerController<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link revBasicDeployerABI}__ and `functionName` set to `"onERC721Received"`.
  *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x0227b76E082c635887ec58BaCaabAcC86934fe1c)
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x5f1fFe756b4F8206e8e29c3f3a481Eea087CFE47)
  */
 export function useRevBasicDeployerOnErc721Received<
   TFunctionName extends 'onERC721Received',
@@ -269,7 +275,10 @@ export function useRevBasicDeployerOnErc721Received<
       TSelectData
     >,
     'abi' | 'address' | 'functionName'
-  > & { chainId?: keyof typeof revBasicDeployerAddress } = {} as any,
+  > & {
+    chainId?: keyof typeof revBasicDeployerAddress
+    address?: Address
+  } = {} as any,
 ) {
   return useContractRead({
     abi: revBasicDeployerABI,
@@ -286,7 +295,7 @@ export function useRevBasicDeployerOnErc721Received<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link revBasicDeployerABI}__ and `functionName` set to `"supportsInterface"`.
  *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x0227b76E082c635887ec58BaCaabAcC86934fe1c)
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x5f1fFe756b4F8206e8e29c3f3a481Eea087CFE47)
  */
 export function useRevBasicDeployerSupportsInterface<
   TFunctionName extends 'supportsInterface',
@@ -299,7 +308,10 @@ export function useRevBasicDeployerSupportsInterface<
       TSelectData
     >,
     'abi' | 'address' | 'functionName'
-  > & { chainId?: keyof typeof revBasicDeployerAddress } = {} as any,
+  > & {
+    chainId?: keyof typeof revBasicDeployerAddress
+    address?: Address
+  } = {} as any,
 ) {
   return useContractRead({
     abi: revBasicDeployerABI,
@@ -316,7 +328,7 @@ export function useRevBasicDeployerSupportsInterface<
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link revBasicDeployerABI}__.
  *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x0227b76E082c635887ec58BaCaabAcC86934fe1c)
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x5f1fFe756b4F8206e8e29c3f3a481Eea087CFE47)
  */
 export function useRevBasicDeployerWrite<
   TFunctionName extends string,
@@ -352,7 +364,7 @@ export function useRevBasicDeployerWrite<
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link revBasicDeployerABI}__ and `functionName` set to `"deployRevnetWith"`.
  *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x0227b76E082c635887ec58BaCaabAcC86934fe1c)
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x5f1fFe756b4F8206e8e29c3f3a481Eea087CFE47)
  */
 export function useRevBasicDeployerDeployRevnetWith<
   TMode extends WriteContractMode = undefined,
@@ -397,7 +409,7 @@ export function useRevBasicDeployerDeployRevnetWith<
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link revBasicDeployerABI}__ and `functionName` set to `"replaceBoostOperatorOf"`.
  *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x0227b76E082c635887ec58BaCaabAcC86934fe1c)
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x5f1fFe756b4F8206e8e29c3f3a481Eea087CFE47)
  */
 export function useRevBasicDeployerReplaceBoostOperatorOf<
   TMode extends WriteContractMode = undefined,
@@ -442,13 +454,16 @@ export function useRevBasicDeployerReplaceBoostOperatorOf<
 /**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link revBasicDeployerABI}__.
  *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x0227b76E082c635887ec58BaCaabAcC86934fe1c)
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x5f1fFe756b4F8206e8e29c3f3a481Eea087CFE47)
  */
 export function usePrepareRevBasicDeployerWrite<TFunctionName extends string>(
   config: Omit<
     UsePrepareContractWriteConfig<typeof revBasicDeployerABI, TFunctionName>,
     'abi' | 'address'
-  > & { chainId?: keyof typeof revBasicDeployerAddress } = {} as any,
+  > & {
+    chainId?: keyof typeof revBasicDeployerAddress
+    address?: Address
+  } = {} as any,
 ) {
   return usePrepareContractWrite({
     abi: revBasicDeployerABI,
@@ -460,7 +475,7 @@ export function usePrepareRevBasicDeployerWrite<TFunctionName extends string>(
 /**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link revBasicDeployerABI}__ and `functionName` set to `"deployRevnetWith"`.
  *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x0227b76E082c635887ec58BaCaabAcC86934fe1c)
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x5f1fFe756b4F8206e8e29c3f3a481Eea087CFE47)
  */
 export function usePrepareRevBasicDeployerDeployRevnetWith(
   config: Omit<
@@ -469,7 +484,10 @@ export function usePrepareRevBasicDeployerDeployRevnetWith(
       'deployRevnetWith'
     >,
     'abi' | 'address' | 'functionName'
-  > & { chainId?: keyof typeof revBasicDeployerAddress } = {} as any,
+  > & {
+    chainId?: keyof typeof revBasicDeployerAddress
+    address?: Address
+  } = {} as any,
 ) {
   return usePrepareContractWrite({
     abi: revBasicDeployerABI,
@@ -485,7 +503,7 @@ export function usePrepareRevBasicDeployerDeployRevnetWith(
 /**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link revBasicDeployerABI}__ and `functionName` set to `"replaceBoostOperatorOf"`.
  *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x0227b76E082c635887ec58BaCaabAcC86934fe1c)
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x5f1fFe756b4F8206e8e29c3f3a481Eea087CFE47)
  */
 export function usePrepareRevBasicDeployerReplaceBoostOperatorOf(
   config: Omit<
@@ -494,7 +512,10 @@ export function usePrepareRevBasicDeployerReplaceBoostOperatorOf(
       'replaceBoostOperatorOf'
     >,
     'abi' | 'address' | 'functionName'
-  > & { chainId?: keyof typeof revBasicDeployerAddress } = {} as any,
+  > & {
+    chainId?: keyof typeof revBasicDeployerAddress
+    address?: Address
+  } = {} as any,
 ) {
   return usePrepareContractWrite({
     abi: revBasicDeployerABI,

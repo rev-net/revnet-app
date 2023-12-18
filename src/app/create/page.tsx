@@ -2,14 +2,8 @@
 
 import { EthereumAddress } from "@/components/EthereumAddress";
 import EtherscanLink from "@/components/EtherscanLink";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
-import { NATIVE_TOKEN } from "@/lib/juicebox/constants";
+import { NATIVE_CURRENCY, NATIVE_TOKEN } from "@/lib/juicebox/constants";
 import { revBasicDeployerABI } from "@/lib/revnet/hooks/contract";
 import { useDeployRevnet } from "@/lib/revnet/hooks/useDeployRevnet";
 import { cn } from "@/lib/utils";
@@ -427,9 +421,7 @@ function CreatePage({
                 Next: {nextPage.name}
               </Button>
             ) : (
-              <Button type="submit" loading={isLoading}>
-                Deploy Revnet
-              </Button>
+              <Button type="submit">Deploy Revnet</Button>
             )}
           </div>
         </div>
@@ -453,7 +445,7 @@ function parseDeployData(
     formData.tokenSymbol,
     extra.metadataCid,
     {
-      baseCurrency: BigInt(NATIVE_TOKEN),
+      baseCurrency: NATIVE_CURRENCY,
       initialIssuanceRate: 1n, // 1 token per eth
       premintTokenAmount: BigInt(formData.premintTokenAmount),
       priceCeilingIncreaseFrequency:
@@ -480,7 +472,7 @@ function parseDeployData(
     (formData.boostOperator as Address) ?? zeroAddress,
     [
       {
-        terminal: "0xd89Ed8008961F68Aab849f49e122f9a1266240Db", // latest eth terminal sepolia
+        terminal: "0x5cE634Df088B264ADb206a30DE8963d729571b7A", // latest multiterminal sepolia
         tokensToAccept: [NATIVE_TOKEN],
       },
     ],
