@@ -1,10 +1,10 @@
 import { defineConfig } from "@wagmi/cli";
 import { etherscan, react } from "@wagmi/cli/plugins";
-import { goerli, sepolia } from "wagmi/chains";
 import dotenv from "dotenv";
-dotenv.config();
+import { sepolia } from "wagmi/chains";
 import addresses from "./addresses.json";
-import { sep } from "path";
+
+dotenv.config();
 
 const juiceboxContracts = Object.keys(addresses).map((name) => {
   return {
@@ -26,7 +26,7 @@ export default defineConfig([
           {
             name: "REVBasicDeployer",
             address: {
-              [sepolia.id]: "0x5f1fFe756b4F8206e8e29c3f3a481Eea087CFE47",
+              [sepolia.id]: "0xa6463A1caA73D9a9A762EF3da58934779A3233f1",
             },
           },
         ],

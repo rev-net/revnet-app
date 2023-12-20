@@ -4,52 +4,34 @@ import { Ether } from "@/components/Ether";
 import EtherscanLink from "@/components/EtherscanLink";
 import { Html } from "@/components/ui/html";
 import { Stat } from "@/components/ui/stat";
-import {
-  OrderDirection,
-  Participant_OrderBy,
-  useParticipantsQuery,
-  useProjectCreateEventQuery,
-  useProjectsQuery,
-} from "@/generated/graphql";
 import { useProjectMetadata } from "@/hooks/juicebox/useProjectMetadata";
 import { ipfsUriToGatewayUrl } from "@/lib/ipfs";
-import { formatSeconds } from "@/lib/utils";
-import { LockClosedIcon } from "@heroicons/react/24/outline";
-import { format } from "date-fns";
-import {
-  JB_CURRENCIES,
-  PV2,
-  SplitGroup,
-  getTokenBPrice,
-  getTokenRedemptionQuoteEth,
-  useJBContractContext,
-  useJBFundingCycleContext,
-  useJBTokenContext,
-  useJbController3_1ReservedTokenBalanceOf,
-  useJbControllerLatestConfiguredFundingCycleOf,
-  useJbSingleTokenPaymentTerminalStoreCurrentTotalOverflowOf,
-  useJbSplitsStoreSplitsOf,
-  useJbTokenStoreTotalSupplyOf,
-} from "juice-hooks";
-import { useEffect, useState } from "react";
-import { etherUnits, formatUnits, parseUnits, zeroAddress } from "viem";
-import { Providers } from "./Providers";
-import { ParticipantsPieChart } from "./components/ParticipantsPieChart";
-import { ParticipantsTable } from "./components/ParticipantsTable";
-import StepChart from "./components/StepChart";
-import { ActivityFeed } from "./components/activity/ActivityFeed";
-import { PayForm } from "./components/pay/PayForm";
 import {
   useJbControllerCurrentRulesetOf,
   useJbControllerLatestQueuedRulesetOf,
   useJbControllerMetadataOf,
   useJbControllerPendingReservedTokenBalanceOf,
   useJbMultiTerminalCurrentSurplusOf,
-  useJbRulesetsCurrentOf,
   useJbSplitsSplitsOf,
-  useJbTerminalStoreCurrentSurplusOf,
   useJbTokensTotalSupplyOf,
 } from "@/lib/juicebox/hooks/contract";
+import { formatSeconds } from "@/lib/utils";
+import { LockClosedIcon } from "@heroicons/react/24/outline";
+import {
+  JB_CURRENCIES,
+  SplitGroup,
+  getTokenBPrice,
+  getTokenRedemptionQuoteEth,
+  useJBContractContext,
+  useJBFundingCycleContext,
+  useJBTokenContext
+} from "juice-hooks";
+import { useEffect, useState } from "react";
+import { etherUnits, formatUnits, parseUnits } from "viem";
+import { Providers } from "./Providers";
+import StepChart from "./components/StepChart";
+import { ActivityFeed } from "./components/activity/ActivityFeed";
+import { PayForm } from "./components/pay/PayForm";
 
 function NetworkDashboard() {
   const [participantsView, setParticipantsView] = useState<"table" | "pie">(

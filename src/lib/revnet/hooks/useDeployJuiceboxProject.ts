@@ -38,7 +38,7 @@ export function useDeployJuiceboxProject() {
       ],
       [
         {
-          terminal: "0x5cE634Df088B264ADb206a30DE8963d729571b7A",
+          terminal: "0x4319cb152D46Db72857AfE368B19A4483c0Bff0D",
           tokensToAccept: [NATIVE_TOKEN],
         },
       ],
