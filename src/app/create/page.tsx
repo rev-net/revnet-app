@@ -2,14 +2,9 @@
 
 import { EthereumAddress } from "@/components/EthereumAddress";
 import EtherscanLink from "@/components/EtherscanLink";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
-import { basicRevnetDeployerABI } from "@/lib/revnet/hooks/contract";
+import { NATIVE_CURRENCY, NATIVE_TOKEN } from "@/lib/juicebox/constants";
+import { revBasicDeployerABI } from "@/lib/revnet/hooks/contract";
 import { useDeployRevnet } from "@/lib/revnet/hooks/useDeployRevnet";
 import { cn } from "@/lib/utils";
 import { ArrowLeftIcon, CheckCircleIcon } from "@heroicons/react/24/solid";
@@ -21,11 +16,10 @@ import {
   useFormikContext,
 } from "formik";
 import {
-  DiscountRate,
   JBProjectMetadata,
   RedemptionRate,
   ReservedRate,
-} from "juice-hooks";
+} from "juice-sdk-core";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { twMerge } from "tailwind-merge";
@@ -35,6 +29,7 @@ import {
   UsePrepareContractWriteConfig,
   useWaitForTransaction,
 } from "wagmi";
+import { DecayRate } from "../net/[id]/contexts/datatypes";
 
 const DEFAULT_FORM_DATA = {
   name: "",
@@ -426,9 +421,7 @@ function CreatePage({
                 Next: {nextPage.name}
               </Button>
             ) : (
-              <Button type="submit" loading={isLoading}>
-                Deploy Revnet
-              </Button>
+              <Button type="submit">Deploy Revnet</Button>
             )}
           </div>
         </div>
@@ -443,29 +436,25 @@ function parseDeployData(
     metadataCid: string;
   }
 ): UsePrepareContractWriteConfig<
-  typeof basicRevnetDeployerABI,
-  "deployRevnetFor"
+  typeof revBasicDeployerABI,
+  "deployRevnetWith"
 >["args"] {
   const now = BigInt(Math.floor(Date.now() / 1000));
   return [
-    (formData.boostOperator as Address) ?? zeroAddress,
-    {
-      content: extra.metadataCid,
-      domain: 0n,
-    },
     formData.tokenName,
     formData.tokenSymbol,
+    extra.metadataCid,
     {
-      priceCeilingIncreasePercentage:
-        DiscountRate.parse(formData.priceCeilingIncreasePercentage, 9).val /
-        100n,
-      priceCeilingIncreaseFrequency:
-        BigInt(formData.priceCeilingIncreaseFrequency) * 86400n, // seconds
-      priceFloorTaxIntensity:
-        RedemptionRate.parse(formData.priceFloorTaxIntensity, 4).val / 100n, //
+      baseCurrency: BigInt(NATIVE_TOKEN),
       initialIssuanceRate: 1n, // 1 token per eth
       premintTokenAmount: BigInt(formData.premintTokenAmount),
-      boosts: [
+      priceCeilingIncreaseFrequency:
+        BigInt(formData.priceCeilingIncreaseFrequency) * 86400n, // seconds
+      priceCeilingIncreasePercentage:
+        DecayRate.parse(formData.priceCeilingIncreasePercentage, 9).val / 100n,
+      priceFloorTaxIntensity:
+        RedemptionRate.parse(formData.priceFloorTaxIntensity, 4).val / 100n, //
+      boostConfigs: [
         // Start the first boost straight away
         {
           rate: ReservedRate.parse(formData.boostPercentage, 4).val / 100n,
@@ -479,12 +468,16 @@ function parseDeployData(
         },
       ],
     },
+    (formData.boostOperator as Address) ?? zeroAddress,
     [
-      "0xd89Ed8008961F68Aab849f49e122f9a1266240Db", // latest eth terminal goerli
+      {
+        terminal: "0x4319cb152D46Db72857AfE368B19A4483c0Bff0D", // latest multiterminal sepolia
+        tokensToAccept: [NATIVE_TOKEN],
+      },
     ],
     {
       hook: zeroAddress,
-      pools: [
+      poolConfigs: [
         // {
         //   token: zeroAddress,
         //   fee: 0,

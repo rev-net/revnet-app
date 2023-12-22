@@ -4,112 +4,104 @@ import { Ether } from "@/components/Ether";
 import EtherscanLink from "@/components/EtherscanLink";
 import { Html } from "@/components/ui/html";
 import { Stat } from "@/components/ui/stat";
-import {
-  OrderDirection,
-  Participant_OrderBy,
-  useParticipantsQuery,
-  useProjectCreateEventQuery,
-  useProjectsQuery,
-} from "@/generated/graphql";
 import { useProjectMetadata } from "@/hooks/juicebox/useProjectMetadata";
 import { ipfsUriToGatewayUrl } from "@/lib/ipfs";
+import {
+  useJbControllerLatestQueuedRulesetOf,
+  useJbControllerMetadataOf,
+  useJbControllerPendingReservedTokenBalanceOf,
+  useJbMultiTerminalCurrentSurplusOf,
+  useJbSplitsSplitsOf,
+  useJbTokensTotalSupplyOf,
+} from "@/lib/juicebox/hooks/contract";
 import { formatSeconds } from "@/lib/utils";
 import { LockClosedIcon } from "@heroicons/react/24/outline";
-import { format } from "date-fns";
 import {
-  JB_CURRENCIES,
-  PV2,
   SplitGroup,
   getTokenBPrice,
   getTokenRedemptionQuoteEth,
-  useJBContractContext,
-  useJBFundingCycleContext,
-  useJBTokenContext,
-  useJbController3_1ReservedTokenBalanceOf,
-  useJbControllerLatestConfiguredFundingCycleOf,
-  useJbSingleTokenPaymentTerminalStoreCurrentTotalOverflowOf,
-  useJbSplitsStoreSplitsOf,
-  useJbTokenStoreTotalSupplyOf,
-} from "juice-hooks";
+} from "juice-sdk-core";
 import { useEffect, useState } from "react";
-import { etherUnits, formatUnits, parseUnits, zeroAddress } from "viem";
+import { formatUnits, parseUnits } from "viem";
 import { Providers } from "./Providers";
-import { ParticipantsPieChart } from "./components/ParticipantsPieChart";
-import { ParticipantsTable } from "./components/ParticipantsTable";
 import StepChart from "./components/StepChart";
 import { ActivityFeed } from "./components/activity/ActivityFeed";
 import { PayForm } from "./components/pay/PayForm";
+import { useJBContractContext } from "./contexts/JBContractContext/JBContractContext";
+import { useJBRulesetContext } from "./contexts/JBRulesetContext/JBRulesetContext";
+import { useJBTokenContext } from "./contexts/JBTokenContext/JBTokenContext";
+import { NATIVE_TOKEN } from "./contexts/datatypes";
+
+const RESERVED_TOKEN_SPLIT_GROUP_ID = 1n;
 
 function NetworkDashboard() {
-  const {
-    projectId,
-    contracts: { primaryTerminalEthStore, controller },
-  } = useJBContractContext();
-  const { fundingCycleData, fundingCycleMetadata } = useJBFundingCycleContext();
-  const { data: latestConfiguredFundingCycle } =
-    useJbControllerLatestConfiguredFundingCycleOf({
-      address: controller?.data,
-      args: [projectId],
-    });
-
   const [participantsView, setParticipantsView] = useState<"table" | "pie">(
     "pie"
   );
 
-  const [
-    latestConfiguredFundingCycleData,
-    latestConfiguredFundingCycleMetadata,
-    latestConfiguredFundingCycleBallotState,
-  ] = latestConfiguredFundingCycle ?? [];
-  const { data: latestConfiguredReservedTokenSplits } =
-    useJbSplitsStoreSplitsOf({
-      args: latestConfiguredFundingCycleData
-        ? [
-            projectId,
-            latestConfiguredFundingCycleData.configuration,
-            BigInt(SplitGroup.ReservedTokens),
-          ]
-        : undefined,
+  const {
+    projectId,
+    contracts: { primaryNativeTerminal },
+  } = useJBContractContext();
+  const { ruleset, rulesetMetadata } = useJBRulesetContext();
+  const { data: latestConfiguredRuleset } =
+    useJbControllerLatestQueuedRulesetOf({
+      args: [projectId],
     });
+
+  console.log(latestConfiguredRuleset, "here");
+
+  const [
+    latestConfiguredRulesetData,
+    latestConfiguredRulesetMetadata,
+    latestConfiguredRulesetApprovalStatus,
+  ] = latestConfiguredRuleset ?? [];
+  const { data: latestConfiguredReservedTokenSplits } = useJbSplitsSplitsOf({
+    args: latestConfiguredRulesetData
+      ? [
+          projectId,
+          latestConfiguredRulesetData.id,
+          BigInt(SplitGroup.ReservedTokens),
+        ]
+      : undefined,
+  });
 
   const { token } = useJBTokenContext();
 
   const tokenA = { symbol: "ETH", decimals: 18 };
 
-  const { data: overflowEth } =
-    useJbSingleTokenPaymentTerminalStoreCurrentTotalOverflowOf({
-      address: primaryTerminalEthStore?.data,
-      args: [projectId, BigInt(etherUnits.wei), JB_CURRENCIES.ETH],
-      watch: true,
-      staleTime: 10_000, // 10 seconds
-    });
-  const { data: tokensReserved } = useJbController3_1ReservedTokenBalanceOf({
-    args: [projectId],
+  const { data: overflowEth } = useJbMultiTerminalCurrentSurplusOf({
+    address: primaryNativeTerminal.data,
+    args: [projectId, 18n, BigInt(NATIVE_TOKEN)],
+    watch: true,
+    staleTime: 10_000, // 10 seconds
   });
-  const { data: totalTokenSupply } = useJbTokenStoreTotalSupplyOf({
+
+  const { data: tokensReserved } = useJbControllerPendingReservedTokenBalanceOf(
+    {
+      args: [projectId],
+    }
+  );
+  const { data: totalTokenSupply } = useJbTokensTotalSupplyOf({
     args: [projectId],
   });
 
   const totalOutstandingTokens =
     (totalTokenSupply ?? 0n) + (tokensReserved ?? 0n);
 
-  const { data: reservedTokenSplits } = useJbSplitsStoreSplitsOf({
-    args: fundingCycleData?.data
-      ? [
-          projectId,
-          fundingCycleData.data?.configuration,
-          BigInt(SplitGroup.ReservedTokens),
-        ]
+  const { data: reservedTokenSplits } = useJbSplitsSplitsOf({
+    args: ruleset
+      ? [projectId, ruleset?.data?.id, RESERVED_TOKEN_SPLIT_GROUP_ID]
       : undefined,
   });
 
   const boost = reservedTokenSplits?.[0];
   const boostRecipient = boost?.beneficiary;
-  const { data: projectCreateEvent } = useProjectCreateEventQuery({
-    variables: { where: { projectId: Number(projectId), pv: PV2 } },
-  });
-  const projectCreateEventTxHash =
-    projectCreateEvent?.projectEvents[0].projectCreateEvent?.txHash;
+  // const { data: projectCreateEvent } = useProjectCreateEventQuery({
+  //   variables: { where: { projectId: Number(projectId), pv: PV2 } },
+  // });
+  // const projectCreateEventTxHash =
+  //   projectCreateEvent?.projectEvents[0].projectCreateEvent?.txHash;
 
   // set title
   // TODO, hacky, probably eventually a next-idiomatic way to do this.
@@ -118,37 +110,40 @@ function NetworkDashboard() {
     document.title = `$${token?.data?.symbol} | REVNET`;
   }, [token?.data?.symbol]);
 
-  const { data: projects } = useProjectsQuery({
-    variables: {
-      where: {
-        projectId: Number(projectId),
-        pv: PV2,
-      },
-      first: 1,
-    },
-  });
-  const { data: participantsData } = useParticipantsQuery({
-    variables: {
-      orderBy: Participant_OrderBy.balance,
-      orderDirection: OrderDirection.desc,
-      where: {
-        projectId: Number(projectId),
-        pv: PV2,
-        balance_gt: "0",
-        wallet_not: zeroAddress,
-      },
-    },
-    pollInterval: 10_000,
-  });
+  // const { data: projects } = useProjectsQuery({
+  //   variables: {
+  //     where: {
+  //       projectId: Number(projectId),
+  //       pv: PV2,
+  //     },
+  //     first: 1,
+  //   },
+  // });
+  // const { data: participantsData } = useParticipantsQuery({
+  //   variables: {
+  //     orderBy: Participant_OrderBy.balance,
+  //     orderDirection: OrderDirection.desc,
+  //     where: {
+  //       projectId: Number(projectId),
+  //       pv: PV2,
+  //       balance_gt: "0",
+  //       wallet_not: zeroAddress,
+  //     },
+  //   },
+  //   pollInterval: 10_000,
+  // });
 
-  const { metadataUri, contributorsCount, createdAt } =
-    projects?.projects?.[0] ?? {};
+  // const { metadataUri, contributorsCount, createdAt } =
+  //   projects?.projects?.[0] ?? {};
+  const { data: metadataUri } = useJbControllerMetadataOf({
+    args: [projectId],
+  });
   const { data: projectMetadata } = useProjectMetadata(metadataUri);
   const { name: projectName, projectTagline, logoUri } = projectMetadata ?? {};
 
-  const entryTax = fundingCycleData?.data?.discountRate;
-  const exitTax = fundingCycleMetadata?.data?.redemptionRate;
-  const devTax = fundingCycleMetadata?.data?.reservedRate;
+  const entryTax = ruleset?.data?.decayRate;
+  const exitTax = rulesetMetadata?.data?.redemptionRate;
+  const devTax = rulesetMetadata?.data?.reservedRate;
 
   const totalSupplyFormatted =
     totalTokenSupply && token?.data
@@ -173,22 +168,22 @@ function NetworkDashboard() {
     totalTokenSupply &&
     overflowEth &&
     exitFloorPriceUnit &&
-    fundingCycleMetadata?.data
+    rulesetMetadata?.data
       ? getTokenRedemptionQuoteEth(
           parseUnits(exitFloorPriceUnit as `${number}`, token.data.decimals),
           {
             overflowWei: overflowEth,
             totalSupply: totalTokenSupply,
-            redemptionRate: fundingCycleMetadata?.data?.redemptionRate.val,
+            redemptionRate: rulesetMetadata?.data?.redemptionRate.val,
             tokensReserved,
           }
         ) * 10n
       : null;
   const currentTokenBPrice =
-    fundingCycleData?.data && fundingCycleMetadata?.data
+    ruleset?.data && rulesetMetadata?.data
       ? getTokenBPrice(tokenA.decimals, {
-          weight: fundingCycleData?.data?.weight,
-          reservedRate: fundingCycleMetadata?.data?.reservedRate,
+          weight: ruleset?.data?.weight,
+          reservedRate: rulesetMetadata?.data?.reservedRate,
         })
       : null;
 
@@ -258,11 +253,9 @@ function NetworkDashboard() {
                   </span>{" "}
                   increase every{" "}
                   <span className="font-medium">
-                    {fundingCycleData?.data?.duration === 86400n
+                    {ruleset?.data?.duration === 86400n
                       ? "day"
-                      : formatSeconds(
-                          Number(fundingCycleData?.data?.duration ?? 0)
-                        )}
+                      : formatSeconds(Number(ruleset?.data?.duration ?? 0))}
                   </span>
                   , forever
                 </span>
@@ -279,17 +272,17 @@ function NetworkDashboard() {
                     <Ether wei={overflowEth} />
                   </Stat>
                 ) : null}
-                {typeof contributorsCount !== "undefined" ? (
+                {/* {typeof contributorsCount !== "undefined" ? (
                   <Stat label="Participants">
                     {contributorsCount === 0 ? 0 : contributorsCount + 1}
                   </Stat>
-                ) : null}
+                ) : null} */}
               </div>
             </div>
 
-            {/* <div className="flex gap-10">
+            <div className="flex gap-10">
               <Stat label="Exit curve">{exitTax?.formatPercentage()}%</Stat>
-            </div> */}
+            </div>
 
             {/* {exitFloorPrice ? (
               <Stat label="Exit value">
@@ -309,7 +302,7 @@ function NetworkDashboard() {
                 <h2 className="text-2xl font-medium mb-1">
                   About {projectMetadata?.name}
                 </h2>
-                {createdAt && projectCreateEventTxHash ? (
+                {/* {createdAt && projectCreateEventTxHash ? (
                   <EtherscanLink
                     value={projectCreateEventTxHash}
                     type="tx"
@@ -317,7 +310,7 @@ function NetworkDashboard() {
                   >
                     Since {format(createdAt * 1000, "yyyy-mm-dd")}
                   </EtherscanLink>
-                ) : null}
+                ) : null} */}
               </div>
               {projectMetadata?.description ? (
                 <Html source={projectMetadata?.description} />
@@ -329,7 +322,7 @@ function NetworkDashboard() {
             <div className="mb-10">
               <h2 className="text-2xl font-medium mb-1">Participants</h2>
 
-              {token?.data &&
+              {/* {token?.data &&
               participantsData &&
               participantsData.participants.length > 0 ? (
                 <>
@@ -347,7 +340,7 @@ function NetworkDashboard() {
                 </>
               ) : (
                 "No participants yet."
-              )}
+              )} */}
             </div>
             {/* 
         <div>

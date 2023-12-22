@@ -16,7 +16,7 @@ export function Nav() {
               alt="Revnet logo"
             />
           </Link>
-          <Badge variant="success">Goerli</Badge>
+          <Badge variant="success">Sepolia</Badge>
         </div>
 
         <ConnectKitButton />

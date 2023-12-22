@@ -3,7 +3,7 @@ import {
   PayEvent_OrderBy,
   usePayEventsQuery,
 } from "@/generated/graphql";
-import { formatEther, getTokenRedemptionQuoteEth } from "juice-hooks";
+import { formatEther, getTokenRedemptionQuoteEth } from "juice-sdk-core";
 import { Line, LineChart, XAxis, YAxis } from "recharts";
 import { parseEther } from "viem";
 

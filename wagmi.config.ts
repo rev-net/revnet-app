@@ -1,24 +1,48 @@
 import { defineConfig } from "@wagmi/cli";
 import { etherscan, react } from "@wagmi/cli/plugins";
-import { goerli } from "wagmi/chains";
 import dotenv from "dotenv";
+import { sepolia } from "wagmi/chains";
+import addresses from "./addresses.json";
+
 dotenv.config();
 
-export default defineConfig({
-  out: "src/lib/revnet/hooks/contract.ts",
-  plugins: [
-    etherscan({
-      apiKey: process.env.ETHERSCAN_API_KEY!,
-      chainId: goerli.id,
-      contracts: [
-        {
-          name: "BasicRevnetDeployer",
-          address: {
-            [goerli.id]: "0x42369a6E077d5E3E6A8268FEb05A046369833c77",
-          },
-        },
-      ],
-    }),
-    react(),
-  ],
+const juiceboxContracts = Object.keys(addresses).map((name) => {
+  return {
+    name,
+    address: {
+      [sepolia.id]: (addresses as any)[name].sepolia as `0x${string}`,
+    },
+  };
 });
+
+export default defineConfig([
+  {
+    out: "src/lib/revnet/hooks/contract.ts",
+    plugins: [
+      etherscan({
+        apiKey: process.env.ETHERSCAN_API_KEY!,
+        chainId: sepolia.id,
+        contracts: [
+          {
+            name: "REVBasicDeployer",
+            address: {
+              [sepolia.id]: "0x33962F08376C9B88BA28a5936D2Be6b8e688E7A3",
+            },
+          },
+        ],
+      }),
+      react(),
+    ],
+  },
+  {
+    out: "src/lib/juicebox/hooks/contract.ts",
+    plugins: [
+      etherscan({
+        apiKey: process.env.ETHERSCAN_API_KEY!,
+        chainId: sepolia.id,
+        contracts: [...juiceboxContracts],
+      }),
+      react(),
+    ],
+  },
+]);

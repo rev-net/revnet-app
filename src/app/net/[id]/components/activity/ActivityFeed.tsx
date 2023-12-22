@@ -7,14 +7,10 @@ import {
   usePayEventsQuery,
 } from "@/generated/graphql";
 import { formatDistance } from "date-fns";
-import {
-  Ether,
-  JBToken,
-  PV2,
-  useJBContractContext,
-  useJBTokenContext,
-} from "juice-hooks";
+import { Ether, JBToken, PV2 } from "juice-sdk-core";
 import { Address } from "viem";
+import { useJBTokenContext } from "../../contexts/JBTokenContext/JBTokenContext";
+import { useJBContractContext } from "../../contexts/JBContractContext/JBContractContext";
 
 type PayEvent = {
   id: string;
