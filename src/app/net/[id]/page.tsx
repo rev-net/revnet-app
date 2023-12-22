@@ -17,7 +17,12 @@ import {
 import { formatSeconds } from "@/lib/utils";
 import { LockClosedIcon } from "@heroicons/react/24/outline";
 
-import { SplitGroup, getTokenBPrice } from "juice-sdk-core";
+import {
+  SplitGroup,
+  formatEther,
+  getTokenBPrice,
+  getTokenRedemptionQuoteEth,
+} from "juice-sdk-core";
 import { useEffect, useState } from "react";
 import { etherUnits, formatUnits, parseUnits } from "viem";
 import { Providers } from "./Providers";
@@ -157,23 +162,23 @@ function NetworkDashboard() {
         : "1"
       : null;
 
-  // const exitFloorPrice =
-  //   token?.data &&
-  //   typeof tokensReserved !== "undefined" &&
-  //   totalTokenSupply &&
-  //   overflowEth &&
-  //   exitFloorPriceUnit &&
-  //   rulesetMetadata?.data
-  //     ? getTokenRedemptionQuoteEth(
-  //         parseUnits(exitFloorPriceUnit as `${number}`, token.data.decimals),
-  //         {
-  //           overflowWei: overflowEth,
-  //           totalSupply: totalTokenSupply,
-  //           redemptionRate: rulesetMetadata?.data?.redemptionRate.val,
-  //           tokensReserved,
-  //         }
-  //       ) * 10n
-  //     : null;
+  const exitFloorPrice =
+    token?.data &&
+    typeof tokensReserved !== "undefined" &&
+    totalTokenSupply &&
+    overflowEth &&
+    exitFloorPriceUnit &&
+    rulesetMetadata?.data
+      ? getTokenRedemptionQuoteEth(
+          parseUnits(exitFloorPriceUnit as `${number}`, token.data.decimals),
+          {
+            overflowWei: overflowEth,
+            totalSupply: totalTokenSupply,
+            redemptionRate: rulesetMetadata?.data?.redemptionRate.val,
+            tokensReserved,
+          }
+        ) * 10n
+      : null;
   const currentTokenBPrice =
     ruleset?.data && rulesetMetadata?.data
       ? getTokenBPrice(tokenA.decimals, {
@@ -275,16 +280,16 @@ function NetworkDashboard() {
               </div>
             </div>
 
-            {/* <div className="flex gap-10">
+            <div className="flex gap-10">
               <Stat label="Exit curve">{exitTax?.formatPercentage()}%</Stat>
-            </div> */}
+            </div>
 
-            {/* {exitFloorPrice ? (
+            {exitFloorPrice ? (
               <Stat label="Exit value">
                 {formatEther(exitFloorPrice)} / {exitFloorPriceUnit}{" "}
                 {token?.data?.symbol}
               </Stat>
-            ) : null} */}
+            ) : null}
 
             {/* <HistoricalExitValueChart
             projectId={projectId}

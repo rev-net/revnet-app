@@ -445,7 +445,7 @@ function parseDeployData(
     formData.tokenSymbol,
     extra.metadataCid,
     {
-      baseCurrency: NATIVE_CURRENCY,
+      baseCurrency: BigInt(NATIVE_TOKEN),
       initialIssuanceRate: 1n, // 1 token per eth
       premintTokenAmount: BigInt(formData.premintTokenAmount),
       priceCeilingIncreaseFrequency:
