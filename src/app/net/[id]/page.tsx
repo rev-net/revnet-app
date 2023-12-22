@@ -7,7 +7,6 @@ import { Stat } from "@/components/ui/stat";
 import { useProjectMetadata } from "@/hooks/juicebox/useProjectMetadata";
 import { ipfsUriToGatewayUrl } from "@/lib/ipfs";
 import {
-  useJbControllerCurrentRulesetOf,
   useJbControllerLatestQueuedRulesetOf,
   useJbControllerMetadataOf,
   useJbControllerPendingReservedTokenBalanceOf,
@@ -17,21 +16,19 @@ import {
 } from "@/lib/juicebox/hooks/contract";
 import { formatSeconds } from "@/lib/utils";
 import { LockClosedIcon } from "@heroicons/react/24/outline";
-import {
-  JB_CURRENCIES,
-  SplitGroup,
-  getTokenBPrice,
-  getTokenRedemptionQuoteEth,
-  useJBContractContext,
-  useJBFundingCycleContext,
-  useJBTokenContext
-} from "juice-hooks";
+
+import { SplitGroup, getTokenBPrice } from "juice-sdk-core";
 import { useEffect, useState } from "react";
 import { etherUnits, formatUnits, parseUnits } from "viem";
 import { Providers } from "./Providers";
 import StepChart from "./components/StepChart";
 import { ActivityFeed } from "./components/activity/ActivityFeed";
 import { PayForm } from "./components/pay/PayForm";
+import { useJBContractContext } from "./contexts/JBContractContext/JBContractContext";
+import { useJBRulesetContext } from "./contexts/JBRulesetContext/JBRulesetContext";
+import { useJBTokenContext } from "./contexts/JBTokenContext/JBTokenContext";
+import { NATIVE_TOKEN } from "./contexts/datatypes";
+const RESERVED_TOKEN_SPLIT_GROUP_ID = 1n;
 
 function NetworkDashboard() {
   const [participantsView, setParticipantsView] = useState<"table" | "pie">(
@@ -40,22 +37,15 @@ function NetworkDashboard() {
 
   const {
     projectId,
-    contracts: { primaryTerminalEthStore, controller, primaryTerminalEth },
+    contracts: { primaryNativeTerminalStore },
   } = useJBContractContext();
-  const { fundingCycleData, fundingCycleMetadata } = useJBFundingCycleContext();
+  const { ruleset, rulesetMetadata } = useJBRulesetContext();
   const { data: latestConfiguredRuleset } =
     useJbControllerLatestQueuedRulesetOf({
       args: [projectId],
     });
 
   console.log(latestConfiguredRuleset, "here");
-
-  const { data: ruleset } = useJbControllerCurrentRulesetOf({
-    args: [projectId],
-  });
-
-  const [rulesetData, rulesetMetadata] = ruleset ?? [];
-  console.log(rulesetData);
 
   const [
     latestConfiguredRulesetData,
@@ -77,8 +67,8 @@ function NetworkDashboard() {
   const tokenA = { symbol: "ETH", decimals: 18 };
 
   const { data: overflowEth } = useJbMultiTerminalCurrentSurplusOf({
-    address: primaryTerminalEthStore?.data,
-    args: [projectId, BigInt(etherUnits.wei), JB_CURRENCIES.ETH],
+    address: primaryNativeTerminalStore?.data,
+    args: [projectId, BigInt(etherUnits.wei), BigInt(NATIVE_TOKEN)],
     watch: true,
     staleTime: 10_000, // 10 seconds
   });
@@ -95,12 +85,8 @@ function NetworkDashboard() {
     (totalTokenSupply ?? 0n) + (tokensReserved ?? 0n);
 
   const { data: reservedTokenSplits } = useJbSplitsSplitsOf({
-    args: fundingCycleData?.data
-      ? [
-          projectId,
-          fundingCycleData.data?.configuration,
-          BigInt(SplitGroup.ReservedTokens),
-        ]
+    args: ruleset
+      ? [projectId, ruleset?.data?.id, RESERVED_TOKEN_SPLIT_GROUP_ID]
       : undefined,
   });
 
@@ -150,9 +136,9 @@ function NetworkDashboard() {
   const { data: projectMetadata } = useProjectMetadata(metadataUri);
   const { name: projectName, projectTagline, logoUri } = projectMetadata ?? {};
 
-  const entryTax = fundingCycleData?.data?.discountRate;
-  const exitTax = fundingCycleMetadata?.data?.redemptionRate;
-  const devTax = fundingCycleMetadata?.data?.reservedRate;
+  const entryTax = ruleset?.data?.decayRate;
+  const exitTax = rulesetMetadata?.data?.redemptionRate;
+  const devTax = rulesetMetadata?.data?.reservedRate;
 
   const totalSupplyFormatted =
     totalTokenSupply && token?.data
@@ -171,28 +157,28 @@ function NetworkDashboard() {
         : "1"
       : null;
 
-  const exitFloorPrice =
-    token?.data &&
-    typeof tokensReserved !== "undefined" &&
-    totalTokenSupply &&
-    overflowEth &&
-    exitFloorPriceUnit &&
-    fundingCycleMetadata?.data
-      ? getTokenRedemptionQuoteEth(
-          parseUnits(exitFloorPriceUnit as `${number}`, token.data.decimals),
-          {
-            overflowWei: overflowEth,
-            totalSupply: totalTokenSupply,
-            redemptionRate: fundingCycleMetadata?.data?.redemptionRate.val,
-            tokensReserved,
-          }
-        ) * 10n
-      : null;
+  // const exitFloorPrice =
+  //   token?.data &&
+  //   typeof tokensReserved !== "undefined" &&
+  //   totalTokenSupply &&
+  //   overflowEth &&
+  //   exitFloorPriceUnit &&
+  //   rulesetMetadata?.data
+  //     ? getTokenRedemptionQuoteEth(
+  //         parseUnits(exitFloorPriceUnit as `${number}`, token.data.decimals),
+  //         {
+  //           overflowWei: overflowEth,
+  //           totalSupply: totalTokenSupply,
+  //           redemptionRate: rulesetMetadata?.data?.redemptionRate.val,
+  //           tokensReserved,
+  //         }
+  //       ) * 10n
+  //     : null;
   const currentTokenBPrice =
-    fundingCycleData?.data && fundingCycleMetadata?.data
+    ruleset?.data && rulesetMetadata?.data
       ? getTokenBPrice(tokenA.decimals, {
-          weight: fundingCycleData?.data?.weight,
-          reservedRate: fundingCycleMetadata?.data?.reservedRate,
+          weight: ruleset?.data?.weight,
+          reservedRate: rulesetMetadata?.data?.reservedRate,
         })
       : null;
 
@@ -262,11 +248,9 @@ function NetworkDashboard() {
                   </span>{" "}
                   increase every{" "}
                   <span className="font-medium">
-                    {fundingCycleData?.data?.duration === 86400n
+                    {ruleset?.data?.duration === 86400n
                       ? "day"
-                      : formatSeconds(
-                          Number(fundingCycleData?.data?.duration ?? 0)
-                        )}
+                      : formatSeconds(Number(ruleset?.data?.duration ?? 0))}
                   </span>
                   , forever
                 </span>

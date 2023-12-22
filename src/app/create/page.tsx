@@ -16,11 +16,10 @@ import {
   useFormikContext,
 } from "formik";
 import {
-  DiscountRate,
   JBProjectMetadata,
   RedemptionRate,
   ReservedRate,
-} from "juice-hooks";
+} from "juice-sdk-core";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { twMerge } from "tailwind-merge";
@@ -30,6 +29,7 @@ import {
   UsePrepareContractWriteConfig,
   useWaitForTransaction,
 } from "wagmi";
+import { DecayRate } from "../net/[id]/contexts/datatypes";
 
 const DEFAULT_FORM_DATA = {
   name: "",
@@ -451,8 +451,7 @@ function parseDeployData(
       priceCeilingIncreaseFrequency:
         BigInt(formData.priceCeilingIncreaseFrequency) * 86400n, // seconds
       priceCeilingIncreasePercentage:
-        DiscountRate.parse(formData.priceCeilingIncreasePercentage, 9).val /
-        100n,
+        DecayRate.parse(formData.priceCeilingIncreasePercentage, 9).val / 100n,
       priceFloorTaxIntensity:
         RedemptionRate.parse(formData.priceFloorTaxIntensity, 4).val / 100n, //
       boostConfigs: [

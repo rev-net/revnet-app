@@ -1,5 +1,6 @@
 "use client";
-import { JBProjectProvider } from "juice-hooks";
+
+import { JBProjectProvider } from "./contexts/JBProjectProvider/JBProjectProvider";
 
 export function Providers({
   children,

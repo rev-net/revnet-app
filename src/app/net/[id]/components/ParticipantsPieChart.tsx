@@ -1,7 +1,7 @@
 import { EthereumAddress } from "@/components/EthereumAddress";
 import { ParticipantsQuery } from "@/generated/graphql";
 import { formatPortion } from "@/lib/utils";
-import { JBToken, JB_TOKEN_DECIMALS } from "juice-hooks";
+import { JBToken } from "juice-sdk-core";
 import { useMemo } from "react";
 import { Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 import { FetchTokenResult } from "wagmi/dist/actions";

@@ -1,4 +1,4 @@
-import { formatEther } from "juice-hooks";
+import { formatEther } from "juice-sdk-core";
 
 export function Ether({
   wei,
@@ -7,5 +7,5 @@ export function Ether({
   wei: bigint;
   decimals?: number;
 }) {
-  return <>{formatEther(wei, { decimals })} ETH</>;
+  return <>{formatEther(wei, { fractionDigits: decimals })} ETH</>;
 }

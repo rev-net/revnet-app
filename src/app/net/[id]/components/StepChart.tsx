@@ -1,11 +1,11 @@
 import {
+  Ether,
+  ONE_ETHER,
+  ReservedRate,
   getNextCycleWeight,
   getPrevCycleWeight,
   getTokenBtoAQuote,
-} from "juice-hooks";
-import { ONE_ETHER } from "juice-hooks";
-import { useJBFundingCycleContext } from "juice-hooks";
-import { Ether, FundingCycleWeight, ReservedRate } from "juice-hooks";
+} from "juice-sdk-core";
 import { useMemo } from "react";
 import {
   Dot,
@@ -17,6 +17,8 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { useJBRulesetContext } from "../contexts/JBRulesetContext/JBRulesetContext";
+import { RulesetWeight } from "../contexts/datatypes";
 
 function generateDateRange(startDate: Date, endDate: Date, resolution: number) {
   const dateRange = [];
@@ -92,71 +94,65 @@ const CustomizedTick = (props: {
 };
 
 const StepChart = () => {
-  const { fundingCycleData, fundingCycleMetadata } = useJBFundingCycleContext();
+  const { ruleset, rulesetMetadata } = useJBRulesetContext();
 
-  const currentFcStart = fundingCycleData?.data?.start;
-  const startBuffer =
-    currentFcStart ?? 0n - (fundingCycleData?.data?.duration ?? 0n);
+  const currentFcStart = ruleset?.data?.start;
+  const startBuffer = currentFcStart ?? 0n - (ruleset?.data?.duration ?? 0n);
   const currentFcEnd =
-    fundingCycleData?.data?.start ??
-    0n + (fundingCycleData?.data?.duration ?? 0n);
-  const nextFcEnd = currentFcEnd + (fundingCycleData?.data?.duration ?? 0n);
-  const nextNextFcEnd = nextFcEnd + (fundingCycleData?.data?.duration ?? 0n);
+    ruleset?.data?.start ?? 0n + (ruleset?.data?.duration ?? 0n);
+  const nextFcEnd = currentFcEnd + (ruleset?.data?.duration ?? 0n);
+  const nextNextFcEnd = nextFcEnd + (ruleset?.data?.duration ?? 0n);
 
-  const prevWeight = new FundingCycleWeight(
+  const prevWeight = new RulesetWeight(
     getPrevCycleWeight({
-      weight: fundingCycleData?.data?.weight.val ?? 0n,
-      discountRate: fundingCycleData?.data?.discountRate.val ?? 0n,
+      weight: ruleset?.data?.weight.val ?? 0n,
+      discountRate: ruleset?.data?.decayRate.val ?? 0n,
     })
   );
-  const nextWeight = new FundingCycleWeight(
+  const nextWeight = new RulesetWeight(
     getNextCycleWeight({
-      weight: fundingCycleData?.data?.weight.val ?? 0n,
-      discountRate: fundingCycleData?.data?.discountRate.val ?? 0n,
+      weight: ruleset?.data?.weight.val ?? 0n,
+      discountRate: ruleset?.data?.decayRate.val ?? 0n,
     })
   );
-  const nextNextWeight = new FundingCycleWeight(
+  const nextNextWeight = new RulesetWeight(
     getNextCycleWeight({
       weight: nextWeight.val ?? 0n,
-      discountRate: fundingCycleData?.data?.discountRate.val ?? 0n,
+      discountRate: ruleset?.data?.decayRate.val ?? 0n,
     })
   );
 
   const prevPrice = getTokenBtoAQuote(new Ether(ONE_ETHER), 18, {
-    weight: prevWeight ?? new FundingCycleWeight(0n),
-    reservedRate:
-      fundingCycleMetadata?.data?.reservedRate ?? new ReservedRate(0n),
+    weight: prevWeight ?? new RulesetWeight(0n),
+    reservedRate: rulesetMetadata?.data?.reservedRate ?? new ReservedRate(0n),
   });
 
   const currentPrice = getTokenBtoAQuote(new Ether(ONE_ETHER), 18, {
-    weight: fundingCycleData?.data?.weight ?? new FundingCycleWeight(0n),
-    reservedRate:
-      fundingCycleMetadata?.data?.reservedRate ?? new ReservedRate(0n),
+    weight: ruleset?.data?.weight ?? new RulesetWeight(0n),
+    reservedRate: rulesetMetadata?.data?.reservedRate ?? new ReservedRate(0n),
   });
   const nextPrice = getTokenBtoAQuote(new Ether(ONE_ETHER), 18, {
-    weight: new FundingCycleWeight(
+    weight: new RulesetWeight(
       getNextCycleWeight({
         weight: nextWeight.val,
-        discountRate: fundingCycleData?.data?.discountRate.val ?? 0n,
+        discountRate: ruleset?.data?.decayRate.val ?? 0n,
       })
     ),
-    reservedRate:
-      fundingCycleMetadata?.data?.reservedRate ?? new ReservedRate(0n),
+    reservedRate: rulesetMetadata?.data?.reservedRate ?? new ReservedRate(0n),
   });
   const nextNextPrice = getTokenBtoAQuote(new Ether(ONE_ETHER), 18, {
-    weight: new FundingCycleWeight(
+    weight: new RulesetWeight(
       getNextCycleWeight({
         weight: nextNextWeight.val,
-        discountRate: fundingCycleData?.data?.discountRate.val ?? 0n,
+        discountRate: ruleset?.data?.decayRate.val ?? 0n,
       })
     ),
-    reservedRate:
-      fundingCycleMetadata?.data?.reservedRate ?? new ReservedRate(0n),
+    reservedRate: rulesetMetadata?.data?.reservedRate ?? new ReservedRate(0n),
   });
 
   const timeElapsed = Math.abs(Date.now() - Number(currentFcStart) * 1000);
   const percentElapsed =
-    timeElapsed / (Number(fundingCycleData?.data?.duration ?? 0n) * 1000);
+    timeElapsed / (Number(ruleset?.data?.duration ?? 0n) * 1000);
 
   const datapointIndex = Math.floor(percentElapsed * steps);
 

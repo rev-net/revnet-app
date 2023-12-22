@@ -11,7 +11,7 @@ import {
 import { ParticipantsQuery } from "@/generated/graphql";
 import { formatPortion } from "@/lib/utils";
 import { ForwardIcon } from "@heroicons/react/24/solid";
-import { formatUnits } from "juice-hooks";
+import { formatUnits } from "juice-sdk-core";
 import { Address, isAddressEqual } from "viem";
 import { useAccount } from "wagmi";
 import { FetchTokenResult } from "wagmi/dist/actions";
@@ -71,11 +71,11 @@ export function ParticipantsTable({
               </div>
             </TableCell>
             <TableCell>
-              {formatUnits(participant.volume, 18, { decimals: 8 })} ETH
+              {formatUnits(participant.volume, 18, { fractionDigits: 8 })} ETH
             </TableCell>
             <TableCell>
               {formatUnits(participant.balance, token.decimals, {
-                decimals: 8,
+                fractionDigits: 8,
               })}{" "}
               {token.symbol}
             </TableCell>

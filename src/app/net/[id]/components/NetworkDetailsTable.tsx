@@ -1,6 +1,6 @@
 import { EthereumAddress } from "@/components/EthereumAddress";
-import { useJBFundingCycleContext } from "juice-hooks";
 import { Address, formatUnits } from "viem";
+import { useJBRulesetContext } from "../contexts/JBRulesetContext/JBRulesetContext";
 
 export function NetworkDetailsTable({
   boost,
@@ -12,8 +12,8 @@ export function NetworkDetailsTable({
       }
     | undefined;
 }) {
-  const { fundingCycleData, fundingCycleMetadata } = useJBFundingCycleContext();
-  if (!fundingCycleData?.data || !fundingCycleMetadata?.data) return null;
+  const { ruleset, rulesetMetadata } = useJBRulesetContext();
+  if (!ruleset?.data || !rulesetMetadata?.data) return null;
 
   return (
     <div className="grid grid-cols-2">
@@ -22,7 +22,7 @@ export function NetworkDetailsTable({
           Entry curve
         </dt>
         <dd className="text-sm leading-6 text-gray-700">
-          {fundingCycleData.data.discountRate.formatPercentage()}%
+          {ruleset.data.discountRate.formatPercentage()}%
         </dd>
       </div>
       <div className="border-t border-gray-100 px-4 py-6 sm:col-span-1 sm:px-0 grid grid-cols-2">
@@ -30,7 +30,7 @@ export function NetworkDetailsTable({
           Exit curve
         </dt>
         <dd className="text-sm leading-6 text-gray-700">
-          {fundingCycleMetadata.data.reservedRate.formatPercentage()}%
+          {rulesetMetadata.data.reservedRate.formatPercentage()}%
         </dd>
       </div>
       <div className="border-t border-gray-100 px-4 py-6 sm:col-span-1 sm:px-0 grid grid-cols-2">

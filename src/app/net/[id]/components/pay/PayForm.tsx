@@ -1,3 +1,4 @@
+import { EthereumAddress } from "@/components/EthereumAddress";
 import { Button } from "@/components/ui/button";
 import {
   ArrowDownIcon,
@@ -5,18 +6,13 @@ import {
   ForwardIcon,
 } from "@heroicons/react/24/solid";
 import { FixedInt } from "fpnum";
-import {
-  JBToken,
-  getTokenAToBQuote,
-  getTokenBtoAQuote,
-  useJBContractContext,
-  useJBFundingCycleContext,
-} from "juice-hooks";
+import { JBToken, getTokenAToBQuote, getTokenBtoAQuote } from "juice-sdk-core";
 import { useMemo, useState } from "react";
 import { Address, formatUnits, parseEther, parseUnits } from "viem";
+import { useJBContractContext } from "../../contexts/JBContractContext/JBContractContext";
+import { useJBRulesetContext } from "../../contexts/JBRulesetContext/JBRulesetContext";
 import { PayDialog } from "./PayDialog";
 import { PayInput } from "./PayInput";
-import { EthereumAddress } from "@/components/EthereumAddress";
 
 export function PayForm({
   tokenA,
@@ -32,10 +28,10 @@ export function PayForm({
 
   const {
     projectId,
-    contracts: { primaryTerminalEth },
+    contracts: { primaryNativeTerminal },
   } = useJBContractContext();
-  const { fundingCycleData, fundingCycleMetadata } = useJBFundingCycleContext();
-  const devTax = fundingCycleMetadata?.data?.reservedRate;
+  const { ruleset, rulesetMetadata } = useJBRulesetContext();
+  const devTax = rulesetMetadata?.data?.reservedRate;
   boostRecipient;
   const amountAValue = useMemo(() => {
     if (!amountA) return 0n;
@@ -51,7 +47,7 @@ export function PayForm({
     setAmountB("");
   }
 
-  if (!fundingCycleData?.data || !fundingCycleMetadata?.data) return null;
+  if (!ruleset?.data || !rulesetMetadata?.data) return null;
 
   return (
     <div className="flex flex-col p-5 rounded-xl bg-zinc-50 border border-zinc-200 w-full shadow-lg">
@@ -68,7 +64,7 @@ export function PayForm({
               return;
             }
 
-            if (!fundingCycleData?.data || !fundingCycleMetadata?.data) return;
+            if (!ruleset?.data || !rulesetMetadata?.data) return;
 
             const value = parseUnits(
               `${parseFloat(valueRaw)}` as `${number}`,
@@ -77,8 +73,8 @@ export function PayForm({
             const amountBQuote = getTokenAToBQuote(
               new FixedInt(value, tokenA.decimals),
               {
-                weight: fundingCycleData.data.weight,
-                reservedRate: fundingCycleMetadata.data.reservedRate,
+                weight: ruleset.data.weight,
+                reservedRate: rulesetMetadata.data.reservedRate,
               }
             );
 
@@ -106,11 +102,11 @@ export function PayForm({
               )
             );
 
-            if (!fundingCycleData?.data || !fundingCycleMetadata?.data) return;
+            if (!ruleset?.data || !rulesetMetadata?.data) return;
 
             const amountAQuote = getTokenBtoAQuote(value, tokenA.decimals, {
-              weight: fundingCycleData.data.weight,
-              reservedRate: fundingCycleMetadata.data.reservedRate,
+              weight: ruleset.data.weight,
+              reservedRate: rulesetMetadata.data.reservedRate,
             });
 
             setAmountA(amountAQuote.format());
@@ -136,11 +132,11 @@ export function PayForm({
  
         </div> */}
 
-      {primaryTerminalEth?.data ? (
+      {primaryNativeTerminal?.data ? (
         <PayDialog
           payAmountWei={amountAValue}
           projectId={projectId}
-          primaryTerminalEth={primaryTerminalEth?.data}
+          primaryTerminalEth={primaryNativeTerminal?.data}
           disabled={!amountA}
         >
           <Button
