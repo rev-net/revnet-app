@@ -280,9 +280,9 @@ function NetworkDashboard() {
               </div>
             </div>
 
-            {/* <div className="flex gap-10">
+            <div className="flex gap-10">
               <Stat label="Exit curve">{exitTax?.formatPercentage()}%</Stat>
-            </div> */}
+            </div>
 
             {/* {exitFloorPrice ? (
               <Stat label="Exit value">
