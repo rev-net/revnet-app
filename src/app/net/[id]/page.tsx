@@ -16,15 +16,13 @@ import {
 } from "@/lib/juicebox/hooks/contract";
 import { formatSeconds } from "@/lib/utils";
 import { LockClosedIcon } from "@heroicons/react/24/outline";
-
 import {
   SplitGroup,
-  formatEther,
   getTokenBPrice,
   getTokenRedemptionQuoteEth,
 } from "juice-sdk-core";
 import { useEffect, useState } from "react";
-import { etherUnits, formatUnits, parseUnits } from "viem";
+import { formatUnits, parseUnits } from "viem";
 import { Providers } from "./Providers";
 import StepChart from "./components/StepChart";
 import { ActivityFeed } from "./components/activity/ActivityFeed";
@@ -33,6 +31,7 @@ import { useJBContractContext } from "./contexts/JBContractContext/JBContractCon
 import { useJBRulesetContext } from "./contexts/JBRulesetContext/JBRulesetContext";
 import { useJBTokenContext } from "./contexts/JBTokenContext/JBTokenContext";
 import { NATIVE_TOKEN } from "./contexts/datatypes";
+
 const RESERVED_TOKEN_SPLIT_GROUP_ID = 1n;
 
 function NetworkDashboard() {
@@ -42,7 +41,7 @@ function NetworkDashboard() {
 
   const {
     projectId,
-    contracts: { primaryNativeTerminalStore },
+    contracts: { primaryNativeTerminal },
   } = useJBContractContext();
   const { ruleset, rulesetMetadata } = useJBRulesetContext();
   const { data: latestConfiguredRuleset } =
@@ -72,11 +71,12 @@ function NetworkDashboard() {
   const tokenA = { symbol: "ETH", decimals: 18 };
 
   const { data: overflowEth } = useJbMultiTerminalCurrentSurplusOf({
-    address: primaryNativeTerminalStore?.data,
-    args: [projectId, BigInt(etherUnits.wei), BigInt(NATIVE_TOKEN)],
+    address: primaryNativeTerminal.data,
+    args: [projectId, 18n, BigInt(NATIVE_TOKEN)],
     watch: true,
     staleTime: 10_000, // 10 seconds
   });
+
   const { data: tokensReserved } = useJbControllerPendingReservedTokenBalanceOf(
     {
       args: [projectId],
@@ -280,16 +280,16 @@ function NetworkDashboard() {
               </div>
             </div>
 
-            <div className="flex gap-10">
+            {/* <div className="flex gap-10">
               <Stat label="Exit curve">{exitTax?.formatPercentage()}%</Stat>
-            </div>
+            </div> */}
 
-            {exitFloorPrice ? (
+            {/* {exitFloorPrice ? (
               <Stat label="Exit value">
                 {formatEther(exitFloorPrice)} / {exitFloorPriceUnit}{" "}
                 {token?.data?.symbol}
               </Stat>
-            ) : null}
+            ) : null} */}
 
             {/* <HistoricalExitValueChart
             projectId={projectId}
