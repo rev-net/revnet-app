@@ -18,14 +18,12 @@ query PayEvents(
     note
     timestamp
     feeFromV2Project
-    beneficiaryTokenCount
     from
     txHash
     project {
       id
       projectId
       handle
-      pv
     }
   }
 }

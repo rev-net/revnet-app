@@ -23,7 +23,7 @@ import {
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { twMerge } from "tailwind-merge";
-import { zeroAddress } from "viem";
+import { parseUnits, zeroAddress } from "viem";
 import {
   Address,
   UsePrepareContractWriteConfig,
@@ -441,8 +441,11 @@ function parseDeployData(
 >["args"] {
   const now = Math.floor(Date.now() / 1000);
 
+  // 1 token per eth
+  const initialIssuanceRateEth = "1";
+
   const stageConfig = {
-    initialIssuanceRate: 1, // 1 token per eth
+    initialIssuanceRate: parseUnits(initialIssuanceRateEth, 18), // 1 token per eth
     priceCeilingIncreaseFrequency:
       Number(formData.priceCeilingIncreaseFrequency) * 86400, // seconds
     priceCeilingIncreasePercentage:
@@ -460,7 +463,7 @@ function parseDeployData(
     {
       baseCurrency: Number(BigInt(NATIVE_TOKEN)),
       initialBoostOperator: (formData.boostOperator as Address) ?? zeroAddress,
-      premintTokenAmount: Number(BigInt(formData.premintTokenAmount)),
+      premintTokenAmount: parseUnits(formData.premintTokenAmount, 18),
       stageConfigurations: [
         {
           ...stageConfig,

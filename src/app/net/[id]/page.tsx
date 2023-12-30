@@ -22,7 +22,7 @@ import {
   getTokenRedemptionQuoteEth,
 } from "juice-sdk-core";
 import { useEffect, useState } from "react";
-import { formatUnits, parseUnits } from "viem";
+import { formatUnits, parseUnits, zeroAddress } from "viem";
 import { Providers } from "./Providers";
 import StepChart from "./components/StepChart";
 import { ActivityFeed } from "./components/activity/ActivityFeed";
@@ -31,6 +31,13 @@ import { useJBContractContext } from "./contexts/JBContractContext/JBContractCon
 import { useJBRulesetContext } from "./contexts/JBRulesetContext/JBRulesetContext";
 import { useJBTokenContext } from "./contexts/JBTokenContext/JBTokenContext";
 import { NATIVE_TOKEN } from "./contexts/datatypes";
+import {
+  OrderDirection,
+  Participant_OrderBy,
+  useParticipantsQuery,
+} from "@/generated/graphql";
+import { ParticipantsTable } from "./components/ParticipantsTable";
+import { ParticipantsPieChart } from "./components/ParticipantsPieChart";
 
 const RESERVED_TOKEN_SPLIT_GROUP_ID = 1n;
 
@@ -119,19 +126,18 @@ function NetworkDashboard() {
   //     first: 1,
   //   },
   // });
-  // const { data: participantsData } = useParticipantsQuery({
-  //   variables: {
-  //     orderBy: Participant_OrderBy.balance,
-  //     orderDirection: OrderDirection.desc,
-  //     where: {
-  //       projectId: Number(projectId),
-  //       pv: PV2,
-  //       balance_gt: "0",
-  //       wallet_not: zeroAddress,
-  //     },
-  //   },
-  //   pollInterval: 10_000,
-  // });
+  const { data: participantsData } = useParticipantsQuery({
+    variables: {
+      // orderBy: Participant_OrderBy.balance,
+      // orderDirection: OrderDirection.desc,
+      where: {
+        projectId: Number(projectId),
+        // balance_gt: "0", // TODO is this a subgraph bug?
+        // wallet_not: zeroAddress,
+      },
+    },
+    pollInterval: 10_000,
+  });
 
   // const { metadataUri, contributorsCount, createdAt } =
   //   projects?.projects?.[0] ?? {};
@@ -322,7 +328,7 @@ function NetworkDashboard() {
             <div className="mb-10">
               <h2 className="text-2xl font-medium mb-1">Participants</h2>
 
-              {/* {token?.data &&
+              {token?.data &&
               participantsData &&
               participantsData.participants.length > 0 ? (
                 <>
@@ -340,7 +346,7 @@ function NetworkDashboard() {
                 </>
               ) : (
                 "No participants yet."
-              )} */}
+              )}
             </div>
             {/* 
         <div>
