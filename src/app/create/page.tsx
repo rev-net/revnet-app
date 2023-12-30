@@ -459,7 +459,7 @@ function parseDeployData(
     extra.metadataCid,
     {
       baseCurrency: Number(BigInt(NATIVE_TOKEN)),
-      operator: (formData.boostOperator as Address) ?? zeroAddress,
+      initialBoostOperator: (formData.boostOperator as Address) ?? zeroAddress,
       premintTokenAmount: Number(BigInt(formData.premintTokenAmount)),
       stageConfigurations: [
         {
