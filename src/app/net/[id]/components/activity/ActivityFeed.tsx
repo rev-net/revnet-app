@@ -16,7 +16,7 @@ type PayEvent = {
   id: string;
   amount: Ether;
   beneficiary: Address;
-  beneficiaryTokenCount: JBToken;
+  // beneficiaryTokenCount: JBToken;
   timestamp: number;
   txHash: string;
 };
@@ -41,7 +41,7 @@ function ActivityItem(ev: PayEvent) {
           short
         />{" "}
         <div>
-          bought {ev.beneficiaryTokenCount.format()} {token.data.symbol}
+          {/* bought {ev.beneficiaryTokenCount.format()} {token.data.symbol} */}
         </div>
       </div>
       <div className="text-xs text-zinc-500 ml-7">
@@ -62,7 +62,7 @@ function transformPayEventsRes(
       id: event.id,
       amount: new Ether(BigInt(event.amount)),
       beneficiary: event.beneficiary,
-      beneficiaryTokenCount: new JBToken(BigInt(event.beneficiaryTokenCount)),
+      // beneficiaryTokenCount: new JBToken(BigInt(event.beneficiaryTokenCount)),
       timestamp: event.timestamp,
       txHash: event.txHash,
     };
@@ -76,7 +76,7 @@ export function ActivityFeed() {
       orderBy: PayEvent_OrderBy.id,
       orderDirection: OrderDirection.desc,
       where: {
-        pv: PV2,
+        // pv: PV2,
         projectId: Number(projectId),
       },
     },
