@@ -1,6 +1,8 @@
 import { Providers } from "./Providers";
 import { NetworkDashboard } from "./components/NetworkDashboard";
 
+export const dynamicParams = true;
+
 // TODO update from subby
 export function generateStaticParams() {
   return [
