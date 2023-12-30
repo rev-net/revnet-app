@@ -1,6 +1,5 @@
 /** @type {import('next').NextConfig} */
 module.exports = {
-  output: 'export',
   reactStrictMode: true,
   webpack: (config) => {
     config.externals.push("pino-pretty", "lokijs", "encoding");
@@ -10,10 +9,10 @@ module.exports = {
   images: {
     remotePatterns: [
       {
-        protocol: 'https',
-        hostname: 'cdn.stamp.fyi',
-        port: '',
-        pathname: '/avatar/**',
+        protocol: "https",
+        hostname: "cdn.stamp.fyi",
+        port: "",
+        pathname: "/avatar/**",
       },
     ],
   },
