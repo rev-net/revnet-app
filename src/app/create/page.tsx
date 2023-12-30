@@ -3,7 +3,7 @@
 import { EthereumAddress } from "@/components/EthereumAddress";
 import EtherscanLink from "@/components/EtherscanLink";
 import { Button } from "@/components/ui/button";
-import { NATIVE_CURRENCY, NATIVE_TOKEN } from "@/lib/juicebox/constants";
+import { NATIVE_TOKEN } from "@/lib/juicebox/constants";
 import { revBasicDeployerABI } from "@/lib/revnet/hooks/contract";
 import { useDeployRevnet } from "@/lib/revnet/hooks/useDeployRevnet";
 import { cn } from "@/lib/utils";
@@ -439,36 +439,42 @@ function parseDeployData(
   typeof revBasicDeployerABI,
   "deployRevnetWith"
 >["args"] {
-  const now = BigInt(Math.floor(Date.now() / 1000));
+  const now = Math.floor(Date.now() / 1000);
+
+  const stageConfig = {
+    initialIssuanceRate: 1, // 1 token per eth
+    priceCeilingIncreaseFrequency:
+      Number(formData.priceCeilingIncreaseFrequency) * 86400, // seconds
+    priceCeilingIncreasePercentage:
+      Number(DecayRate.parse(formData.priceCeilingIncreasePercentage, 9).val) /
+      100,
+    priceFloorTaxIntensity:
+      Number(RedemptionRate.parse(formData.priceFloorTaxIntensity, 4).val) /
+      100, //
+  };
+
   return [
     formData.tokenName,
     formData.tokenSymbol,
     extra.metadataCid,
     {
-      baseCurrency: BigInt(NATIVE_TOKEN),
-      initialIssuanceRate: 1n, // 1 token per eth
-      premintTokenAmount: BigInt(formData.premintTokenAmount),
-      priceCeilingIncreaseFrequency:
-        BigInt(formData.priceCeilingIncreaseFrequency) * 86400n, // seconds
-      priceCeilingIncreasePercentage:
-        DecayRate.parse(formData.priceCeilingIncreasePercentage, 9).val / 100n,
-      priceFloorTaxIntensity:
-        RedemptionRate.parse(formData.priceFloorTaxIntensity, 4).val / 100n, //
-      boostConfigs: [
-        // Start the first boost straight away
+      baseCurrency: Number(BigInt(NATIVE_TOKEN)),
+      operator: (formData.boostOperator as Address) ?? zeroAddress,
+      premintTokenAmount: Number(BigInt(formData.premintTokenAmount)),
+      stageConfigurations: [
         {
-          rate: ReservedRate.parse(formData.boostPercentage, 4).val / 100n,
-          startsAtOrAfter: 1n, // seconds
+          ...stageConfig,
+          boostRate:
+            Number(ReservedRate.parse(formData.boostPercentage, 4).val) / 100,
+          startsAtOrAfter: 1, // seconds
         },
-        // Start a second boost with 0-rate when the user wants the first one to end.
-        // This effectively ends the first boost.
         {
-          rate: 0n,
-          startsAtOrAfter: BigInt(formData.boostDuration) * 86400n + now, // seconds
+          ...stageConfig,
+          boostRate: 0,
+          startsAtOrAfter: Number(formData.boostDuration) * 86400 + now, // seconds
         },
       ],
     },
-    (formData.boostOperator as Address) ?? zeroAddress,
     [
       {
         terminal: "0x4319cb152D46Db72857AfE368B19A4483c0Bff0D", // latest multiterminal sepolia
@@ -477,7 +483,7 @@ function parseDeployData(
     ],
     {
       hook: zeroAddress,
-      poolConfigs: [
+      poolConfigurations: [
         // {
         //   token: zeroAddress,
         //   fee: 0,
