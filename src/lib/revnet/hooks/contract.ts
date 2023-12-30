@@ -18,7 +18,7 @@ import {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x33962F08376C9B88BA28a5936D2Be6b8e688E7A3)
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0xF7962E2701EF4f78010d69507819790762DC546a)
  */
 export const revBasicDeployerABI = [
   {
@@ -54,48 +54,52 @@ export const revBasicDeployerABI = [
         internalType: 'struct REVConfig',
         type: 'tuple',
         components: [
-          { name: 'baseCurrency', internalType: 'uint256', type: 'uint256' },
-          {
-            name: 'initialIssuanceRate',
-            internalType: 'uint256',
-            type: 'uint256',
-          },
+          { name: 'baseCurrency', internalType: 'uint32', type: 'uint32' },
           {
             name: 'premintTokenAmount',
             internalType: 'uint256',
             type: 'uint256',
           },
           {
-            name: 'priceCeilingIncreaseFrequency',
-            internalType: 'uint256',
-            type: 'uint256',
+            name: 'initialBoostOperator',
+            internalType: 'address',
+            type: 'address',
           },
           {
-            name: 'priceCeilingIncreasePercentage',
-            internalType: 'uint256',
-            type: 'uint256',
-          },
-          {
-            name: 'priceFloorTaxIntensity',
-            internalType: 'uint256',
-            type: 'uint256',
-          },
-          {
-            name: 'boostConfigs',
-            internalType: 'struct REVBoostConfig[]',
+            name: 'stageConfigurations',
+            internalType: 'struct REVStageConfig[]',
             type: 'tuple[]',
             components: [
-              { name: 'rate', internalType: 'uint128', type: 'uint128' },
               {
                 name: 'startsAtOrAfter',
-                internalType: 'uint128',
-                type: 'uint128',
+                internalType: 'uint40',
+                type: 'uint40',
+              },
+              { name: 'boostRate', internalType: 'uint16', type: 'uint16' },
+              {
+                name: 'initialIssuanceRate',
+                internalType: 'uint112',
+                type: 'uint112',
+              },
+              {
+                name: 'priceCeilingIncreaseFrequency',
+                internalType: 'uint40',
+                type: 'uint40',
+              },
+              {
+                name: 'priceCeilingIncreasePercentage',
+                internalType: 'uint32',
+                type: 'uint32',
+              },
+              {
+                name: 'priceFloorTaxIntensity',
+                internalType: 'uint16',
+                type: 'uint16',
               },
             ],
           },
         ],
       },
-      { name: 'boostOperator', internalType: 'address', type: 'address' },
       {
         name: 'terminalConfigurations',
         internalType: 'struct JBTerminalConfig[]',
@@ -124,7 +128,7 @@ export const revBasicDeployerABI = [
             type: 'address',
           },
           {
-            name: 'poolConfigs',
+            name: 'poolConfigurations',
             internalType: 'struct REVBuybackPoolConfig[]',
             type: 'tuple[]',
             components: [
@@ -176,14 +180,14 @@ export const revBasicDeployerABI = [
 ] as const
 
 /**
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x33962F08376C9B88BA28a5936D2Be6b8e688E7A3)
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0xF7962E2701EF4f78010d69507819790762DC546a)
  */
 export const revBasicDeployerAddress = {
-  11155111: '0x33962F08376C9B88BA28a5936D2Be6b8e688E7A3',
+  11155111: '0xF7962E2701EF4f78010d69507819790762DC546a',
 } as const
 
 /**
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x33962F08376C9B88BA28a5936D2Be6b8e688E7A3)
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0xF7962E2701EF4f78010d69507819790762DC546a)
  */
 export const revBasicDeployerConfig = {
   address: revBasicDeployerAddress,
@@ -197,7 +201,7 @@ export const revBasicDeployerConfig = {
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link revBasicDeployerABI}__.
  *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x33962F08376C9B88BA28a5936D2Be6b8e688E7A3)
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0xF7962E2701EF4f78010d69507819790762DC546a)
  */
 export function useRevBasicDeployerRead<
   TFunctionName extends string,
@@ -229,7 +233,7 @@ export function useRevBasicDeployerRead<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link revBasicDeployerABI}__ and `functionName` set to `"CONTROLLER"`.
  *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x33962F08376C9B88BA28a5936D2Be6b8e688E7A3)
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0xF7962E2701EF4f78010d69507819790762DC546a)
  */
 export function useRevBasicDeployerController<
   TFunctionName extends 'CONTROLLER',
@@ -262,7 +266,7 @@ export function useRevBasicDeployerController<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link revBasicDeployerABI}__ and `functionName` set to `"onERC721Received"`.
  *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x33962F08376C9B88BA28a5936D2Be6b8e688E7A3)
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0xF7962E2701EF4f78010d69507819790762DC546a)
  */
 export function useRevBasicDeployerOnErc721Received<
   TFunctionName extends 'onERC721Received',
@@ -295,7 +299,7 @@ export function useRevBasicDeployerOnErc721Received<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link revBasicDeployerABI}__ and `functionName` set to `"supportsInterface"`.
  *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x33962F08376C9B88BA28a5936D2Be6b8e688E7A3)
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0xF7962E2701EF4f78010d69507819790762DC546a)
  */
 export function useRevBasicDeployerSupportsInterface<
   TFunctionName extends 'supportsInterface',
@@ -328,7 +332,7 @@ export function useRevBasicDeployerSupportsInterface<
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link revBasicDeployerABI}__.
  *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x33962F08376C9B88BA28a5936D2Be6b8e688E7A3)
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0xF7962E2701EF4f78010d69507819790762DC546a)
  */
 export function useRevBasicDeployerWrite<
   TFunctionName extends string,
@@ -364,7 +368,7 @@ export function useRevBasicDeployerWrite<
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link revBasicDeployerABI}__ and `functionName` set to `"deployRevnetWith"`.
  *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x33962F08376C9B88BA28a5936D2Be6b8e688E7A3)
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0xF7962E2701EF4f78010d69507819790762DC546a)
  */
 export function useRevBasicDeployerDeployRevnetWith<
   TMode extends WriteContractMode = undefined,
@@ -409,7 +413,7 @@ export function useRevBasicDeployerDeployRevnetWith<
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link revBasicDeployerABI}__ and `functionName` set to `"replaceBoostOperatorOf"`.
  *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x33962F08376C9B88BA28a5936D2Be6b8e688E7A3)
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0xF7962E2701EF4f78010d69507819790762DC546a)
  */
 export function useRevBasicDeployerReplaceBoostOperatorOf<
   TMode extends WriteContractMode = undefined,
@@ -454,7 +458,7 @@ export function useRevBasicDeployerReplaceBoostOperatorOf<
 /**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link revBasicDeployerABI}__.
  *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x33962F08376C9B88BA28a5936D2Be6b8e688E7A3)
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0xF7962E2701EF4f78010d69507819790762DC546a)
  */
 export function usePrepareRevBasicDeployerWrite<TFunctionName extends string>(
   config: Omit<
@@ -475,7 +479,7 @@ export function usePrepareRevBasicDeployerWrite<TFunctionName extends string>(
 /**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link revBasicDeployerABI}__ and `functionName` set to `"deployRevnetWith"`.
  *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x33962F08376C9B88BA28a5936D2Be6b8e688E7A3)
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0xF7962E2701EF4f78010d69507819790762DC546a)
  */
 export function usePrepareRevBasicDeployerDeployRevnetWith(
   config: Omit<
@@ -503,7 +507,7 @@ export function usePrepareRevBasicDeployerDeployRevnetWith(
 /**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link revBasicDeployerABI}__ and `functionName` set to `"replaceBoostOperatorOf"`.
  *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x33962F08376C9B88BA28a5936D2Be6b8e688E7A3)
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0xF7962E2701EF4f78010d69507819790762DC546a)
  */
 export function usePrepareRevBasicDeployerReplaceBoostOperatorOf(
   config: Omit<

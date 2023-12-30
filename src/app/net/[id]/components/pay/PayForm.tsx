@@ -32,8 +32,7 @@ export function PayForm({
   } = useJBContractContext();
   const { ruleset, rulesetMetadata } = useJBRulesetContext();
   const devTax = rulesetMetadata?.data?.reservedRate;
-  console.log(devTax, 'devvv')
-  boostRecipient;
+
   const amountAValue = useMemo(() => {
     if (!amountA) return 0n;
     try {
@@ -154,7 +153,7 @@ export function PayForm({
           <span className="flex items-center gap-1">
             <ForwardIcon className="h-4 w-4 inline-block" />
             <span className="font-medium">
-              {devTax.formatPercentage()}%
+              {devTax.formatPercentage().toFixed(2)}%
             </span>{" "}
             boost to{" "}
           </span>

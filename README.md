@@ -15,12 +15,7 @@ This is a [wagmi](https://wagmi.sh) + [ConnectKit](https://docs.family.co/connec
    npm run dev
    ```
 
-# Learn more
+## Resource
 
-To learn more about [Next.js](https://nextjs.org), [ConnectKit](https://docs.family.co/connectkit) or [wagmi](https://wagmi.sh), check out the following resources:
-
-- [wagmi Documentation](https://wagmi.sh) – learn about wagmi Hooks and API.
-- [wagmi Examples](https://wagmi.sh/examples/connect-wallet) – a suite of simple examples using wagmi.
-- [ConnectKit Documentation](https://docs.family.co/connectkit) – learn more about ConnectKit (configuration, theming, advanced usage, etc).
-- [Next.js Documentation](https://nextjs.org/docs) learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- Revnet deployer: https://github.com/rev-net/revnet-contracts/blob/main/broadcast/Deploy.s.sol/11155111/run-latest.json
+- JBv4 https://github.com/Bananapus/juice-contracts-v4/blob/main/broadcast/Deploy.s.sol/11155111/run-latest.json
