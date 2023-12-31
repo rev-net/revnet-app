@@ -225,7 +225,7 @@ const StepChart = () => {
   ]);
 
   return (
-    <div style={{ width: "100%", height: 300 }}>
+    <div style={{ height: 300 }}>
       <ResponsiveContainer height="100%" width="100%">
         <LineChart data={renderData}>
           <XAxis

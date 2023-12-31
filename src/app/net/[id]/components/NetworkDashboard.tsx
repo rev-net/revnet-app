@@ -191,6 +191,7 @@ export function NetworkDashboard() {
   return (
     <div>
       <div className="flex gap-20 container py-10">
+        {/* Column 1 */}
         <div className="flex-1">
           <header className="mb-10">
             <div className="flex justify-between md:items-center md:flex-row flex-col gap-5 ">
@@ -281,9 +282,9 @@ export function NetworkDashboard() {
               </div>
             </div>
 
-            <div className="flex gap-10">
+            {/* <div className="flex gap-10">
               <Stat label="Exit curve">{exitTax?.formatPercentage()}%</Stat>
-            </div>
+            </div> */}
 
             {/* {exitFloorPrice ? (
               <Stat label="Exit value">
@@ -340,7 +341,7 @@ export function NetworkDashboard() {
                   />
                 </>
               ) : (
-                "No participants yet."
+                <span className="text-gray-500">No participants yet.</span>
               )}
             </div>
             {/* 
@@ -361,7 +362,9 @@ export function NetworkDashboard() {
         </div> */}
           </div>
         </div>
-        <div className="md:w-[340px]">
+
+        {/* Column 2 */}
+        <div className="md:w-[340px] hidden md:block">
           <div className="mb-16">
             {token?.data && boostRecipient ? (
               <PayForm

@@ -80,3 +80,8 @@ export class RulesetWeight extends FixedInt<18> {
     super(value, 18);
   }
 }
+
+export interface TokenAmountType {
+  symbol: string;
+  amount: FixedInt<number>;
+}

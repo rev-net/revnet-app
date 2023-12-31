@@ -1,3 +1,4 @@
+import { useNativeTokenSymbol } from "@/hooks/useNativeTokenSymbol";
 import { formatEther } from "juice-sdk-core";
 
 export function Ether({
@@ -7,5 +8,11 @@ export function Ether({
   wei: bigint;
   decimals?: number;
 }) {
-  return <>{formatEther(wei, { fractionDigits: decimals })} ETH</>;
+  const symbol = useNativeTokenSymbol();
+
+  return (
+    <>
+      {formatEther(wei, { fractionDigits: decimals })} {symbol}
+    </>
+  );
 }

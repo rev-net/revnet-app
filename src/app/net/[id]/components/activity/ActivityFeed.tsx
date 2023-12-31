@@ -88,9 +88,13 @@ export function ActivityFeed() {
     <div>
       <div className="mb-3">Activity</div>
       <div className="flex flex-col gap-3">
-        {payEvents?.map((event) => {
-          return <ActivityItem key={event.id} {...event} />;
-        })}
+        {payEvents && payEvents.length > 0 ? (
+          payEvents?.map((event) => {
+            return <ActivityItem key={event.id} {...event} />;
+          })
+        ) : (
+          <span className="text-gray-500 text-sm">No activity yet.</span>
+        )}
       </div>
     </div>
   );

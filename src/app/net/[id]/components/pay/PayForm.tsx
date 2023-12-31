@@ -7,7 +7,7 @@ import {
 } from "@heroicons/react/24/solid";
 import { FixedInt } from "fpnum";
 import { JBToken, getTokenAToBQuote, getTokenBtoAQuote } from "juice-sdk-core";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { Address, formatUnits, parseEther, parseUnits } from "viem";
 import { useJBContractContext } from "../../contexts/JBContractContext/JBContractContext";
 import { useJBRulesetContext } from "../../contexts/JBRulesetContext/JBRulesetContext";
@@ -33,14 +33,14 @@ export function PayForm({
   const { ruleset, rulesetMetadata } = useJBRulesetContext();
   const devTax = rulesetMetadata?.data?.reservedRate;
 
-  const amountAValue = useMemo(() => {
-    if (!amountA) return 0n;
-    try {
-      return parseEther(`${parseFloat(amountA)}` as `${number}`);
-    } catch {
-      return 0n;
-    }
-  }, [amountA]);
+  const _amountA = {
+    amount: new FixedInt(parseEther(amountA), tokenA.decimals),
+    symbol: tokenA.symbol,
+  };
+  const _amountB = {
+    amount: new FixedInt(parseEther(amountB), tokenB.decimals),
+    symbol: tokenB.symbol,
+  };
 
   function resetForm() {
     setAmountA("");
@@ -134,7 +134,8 @@ export function PayForm({
 
       {primaryNativeTerminal?.data ? (
         <PayDialog
-          payAmountWei={amountAValue}
+          amountA={_amountA}
+          amountB={_amountB}
           projectId={projectId}
           primaryTerminalEth={primaryNativeTerminal?.data}
           disabled={!amountA}
