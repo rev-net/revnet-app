@@ -1,5 +1,7 @@
 import {
   Address,
+  useNetwork,
+  useChainId,
   useContractRead,
   UseContractReadConfig,
   useContractWrite,
@@ -18,7 +20,8 @@ import {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0xF7962E2701EF4f78010d69507819790762DC546a)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0xF7962E2701EF4f78010d69507819790762DC546a)
+ * - [__View Contract on Optimism Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0xcd3658c37449B41b54aB16826943d2Fa67798BC6)
  */
 export const revBasicDeployerABI = [
   {
@@ -180,14 +183,17 @@ export const revBasicDeployerABI = [
 ] as const
 
 /**
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0xF7962E2701EF4f78010d69507819790762DC546a)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0xF7962E2701EF4f78010d69507819790762DC546a)
+ * - [__View Contract on Optimism Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0xcd3658c37449B41b54aB16826943d2Fa67798BC6)
  */
 export const revBasicDeployerAddress = {
   11155111: '0xF7962E2701EF4f78010d69507819790762DC546a',
+  11155420: '0xcd3658c37449B41b54aB16826943d2Fa67798BC6',
 } as const
 
 /**
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0xF7962E2701EF4f78010d69507819790762DC546a)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0xF7962E2701EF4f78010d69507819790762DC546a)
+ * - [__View Contract on Optimism Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0xcd3658c37449B41b54aB16826943d2Fa67798BC6)
  */
 export const revBasicDeployerConfig = {
   address: revBasicDeployerAddress,
@@ -201,7 +207,8 @@ export const revBasicDeployerConfig = {
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link revBasicDeployerABI}__.
  *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0xF7962E2701EF4f78010d69507819790762DC546a)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0xF7962E2701EF4f78010d69507819790762DC546a)
+ * - [__View Contract on Optimism Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0xcd3658c37449B41b54aB16826943d2Fa67798BC6)
  */
 export function useRevBasicDeployerRead<
   TFunctionName extends string,
@@ -219,9 +226,13 @@ export function useRevBasicDeployerRead<
     address?: Address
   } = {} as any,
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractRead({
     abi: revBasicDeployerABI,
-    address: revBasicDeployerAddress[11155111],
+    address:
+      revBasicDeployerAddress[chainId as keyof typeof revBasicDeployerAddress],
     ...config,
   } as UseContractReadConfig<
     typeof revBasicDeployerABI,
@@ -233,7 +244,8 @@ export function useRevBasicDeployerRead<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link revBasicDeployerABI}__ and `functionName` set to `"CONTROLLER"`.
  *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0xF7962E2701EF4f78010d69507819790762DC546a)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0xF7962E2701EF4f78010d69507819790762DC546a)
+ * - [__View Contract on Optimism Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0xcd3658c37449B41b54aB16826943d2Fa67798BC6)
  */
 export function useRevBasicDeployerController<
   TFunctionName extends 'CONTROLLER',
@@ -251,9 +263,13 @@ export function useRevBasicDeployerController<
     address?: Address
   } = {} as any,
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractRead({
     abi: revBasicDeployerABI,
-    address: revBasicDeployerAddress[11155111],
+    address:
+      revBasicDeployerAddress[chainId as keyof typeof revBasicDeployerAddress],
     functionName: 'CONTROLLER',
     ...config,
   } as UseContractReadConfig<
@@ -266,7 +282,8 @@ export function useRevBasicDeployerController<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link revBasicDeployerABI}__ and `functionName` set to `"onERC721Received"`.
  *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0xF7962E2701EF4f78010d69507819790762DC546a)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0xF7962E2701EF4f78010d69507819790762DC546a)
+ * - [__View Contract on Optimism Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0xcd3658c37449B41b54aB16826943d2Fa67798BC6)
  */
 export function useRevBasicDeployerOnErc721Received<
   TFunctionName extends 'onERC721Received',
@@ -284,9 +301,13 @@ export function useRevBasicDeployerOnErc721Received<
     address?: Address
   } = {} as any,
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractRead({
     abi: revBasicDeployerABI,
-    address: revBasicDeployerAddress[11155111],
+    address:
+      revBasicDeployerAddress[chainId as keyof typeof revBasicDeployerAddress],
     functionName: 'onERC721Received',
     ...config,
   } as UseContractReadConfig<
@@ -299,7 +320,8 @@ export function useRevBasicDeployerOnErc721Received<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link revBasicDeployerABI}__ and `functionName` set to `"supportsInterface"`.
  *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0xF7962E2701EF4f78010d69507819790762DC546a)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0xF7962E2701EF4f78010d69507819790762DC546a)
+ * - [__View Contract on Optimism Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0xcd3658c37449B41b54aB16826943d2Fa67798BC6)
  */
 export function useRevBasicDeployerSupportsInterface<
   TFunctionName extends 'supportsInterface',
@@ -317,9 +339,13 @@ export function useRevBasicDeployerSupportsInterface<
     address?: Address
   } = {} as any,
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractRead({
     abi: revBasicDeployerABI,
-    address: revBasicDeployerAddress[11155111],
+    address:
+      revBasicDeployerAddress[chainId as keyof typeof revBasicDeployerAddress],
     functionName: 'supportsInterface',
     ...config,
   } as UseContractReadConfig<
@@ -332,7 +358,8 @@ export function useRevBasicDeployerSupportsInterface<
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link revBasicDeployerABI}__.
  *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0xF7962E2701EF4f78010d69507819790762DC546a)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0xF7962E2701EF4f78010d69507819790762DC546a)
+ * - [__View Contract on Optimism Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0xcd3658c37449B41b54aB16826943d2Fa67798BC6)
  */
 export function useRevBasicDeployerWrite<
   TFunctionName extends string,
@@ -358,9 +385,13 @@ export function useRevBasicDeployerWrite<
         chainId?: TChainId
       } = {} as any,
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractWrite<typeof revBasicDeployerABI, TFunctionName, TMode>({
     abi: revBasicDeployerABI,
-    address: revBasicDeployerAddress[11155111],
+    address:
+      revBasicDeployerAddress[chainId as keyof typeof revBasicDeployerAddress],
     ...config,
   } as any)
 }
@@ -368,7 +399,8 @@ export function useRevBasicDeployerWrite<
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link revBasicDeployerABI}__ and `functionName` set to `"deployRevnetWith"`.
  *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0xF7962E2701EF4f78010d69507819790762DC546a)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0xF7962E2701EF4f78010d69507819790762DC546a)
+ * - [__View Contract on Optimism Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0xcd3658c37449B41b54aB16826943d2Fa67798BC6)
  */
 export function useRevBasicDeployerDeployRevnetWith<
   TMode extends WriteContractMode = undefined,
@@ -398,13 +430,17 @@ export function useRevBasicDeployerDeployRevnetWith<
         functionName?: 'deployRevnetWith'
       } = {} as any,
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractWrite<
     typeof revBasicDeployerABI,
     'deployRevnetWith',
     TMode
   >({
     abi: revBasicDeployerABI,
-    address: revBasicDeployerAddress[11155111],
+    address:
+      revBasicDeployerAddress[chainId as keyof typeof revBasicDeployerAddress],
     functionName: 'deployRevnetWith',
     ...config,
   } as any)
@@ -413,7 +449,8 @@ export function useRevBasicDeployerDeployRevnetWith<
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link revBasicDeployerABI}__ and `functionName` set to `"replaceBoostOperatorOf"`.
  *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0xF7962E2701EF4f78010d69507819790762DC546a)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0xF7962E2701EF4f78010d69507819790762DC546a)
+ * - [__View Contract on Optimism Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0xcd3658c37449B41b54aB16826943d2Fa67798BC6)
  */
 export function useRevBasicDeployerReplaceBoostOperatorOf<
   TMode extends WriteContractMode = undefined,
@@ -443,13 +480,17 @@ export function useRevBasicDeployerReplaceBoostOperatorOf<
         functionName?: 'replaceBoostOperatorOf'
       } = {} as any,
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractWrite<
     typeof revBasicDeployerABI,
     'replaceBoostOperatorOf',
     TMode
   >({
     abi: revBasicDeployerABI,
-    address: revBasicDeployerAddress[11155111],
+    address:
+      revBasicDeployerAddress[chainId as keyof typeof revBasicDeployerAddress],
     functionName: 'replaceBoostOperatorOf',
     ...config,
   } as any)
@@ -458,7 +499,8 @@ export function useRevBasicDeployerReplaceBoostOperatorOf<
 /**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link revBasicDeployerABI}__.
  *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0xF7962E2701EF4f78010d69507819790762DC546a)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0xF7962E2701EF4f78010d69507819790762DC546a)
+ * - [__View Contract on Optimism Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0xcd3658c37449B41b54aB16826943d2Fa67798BC6)
  */
 export function usePrepareRevBasicDeployerWrite<TFunctionName extends string>(
   config: Omit<
@@ -469,9 +511,13 @@ export function usePrepareRevBasicDeployerWrite<TFunctionName extends string>(
     address?: Address
   } = {} as any,
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return usePrepareContractWrite({
     abi: revBasicDeployerABI,
-    address: revBasicDeployerAddress[11155111],
+    address:
+      revBasicDeployerAddress[chainId as keyof typeof revBasicDeployerAddress],
     ...config,
   } as UsePrepareContractWriteConfig<typeof revBasicDeployerABI, TFunctionName>)
 }
@@ -479,7 +525,8 @@ export function usePrepareRevBasicDeployerWrite<TFunctionName extends string>(
 /**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link revBasicDeployerABI}__ and `functionName` set to `"deployRevnetWith"`.
  *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0xF7962E2701EF4f78010d69507819790762DC546a)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0xF7962E2701EF4f78010d69507819790762DC546a)
+ * - [__View Contract on Optimism Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0xcd3658c37449B41b54aB16826943d2Fa67798BC6)
  */
 export function usePrepareRevBasicDeployerDeployRevnetWith(
   config: Omit<
@@ -493,9 +540,13 @@ export function usePrepareRevBasicDeployerDeployRevnetWith(
     address?: Address
   } = {} as any,
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return usePrepareContractWrite({
     abi: revBasicDeployerABI,
-    address: revBasicDeployerAddress[11155111],
+    address:
+      revBasicDeployerAddress[chainId as keyof typeof revBasicDeployerAddress],
     functionName: 'deployRevnetWith',
     ...config,
   } as UsePrepareContractWriteConfig<
@@ -507,7 +558,8 @@ export function usePrepareRevBasicDeployerDeployRevnetWith(
 /**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link revBasicDeployerABI}__ and `functionName` set to `"replaceBoostOperatorOf"`.
  *
- * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0xF7962E2701EF4f78010d69507819790762DC546a)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0xF7962E2701EF4f78010d69507819790762DC546a)
+ * - [__View Contract on Optimism Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0xcd3658c37449B41b54aB16826943d2Fa67798BC6)
  */
 export function usePrepareRevBasicDeployerReplaceBoostOperatorOf(
   config: Omit<
@@ -521,9 +573,13 @@ export function usePrepareRevBasicDeployerReplaceBoostOperatorOf(
     address?: Address
   } = {} as any,
 ) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return usePrepareContractWrite({
     abi: revBasicDeployerABI,
-    address: revBasicDeployerAddress[11155111],
+    address:
+      revBasicDeployerAddress[chainId as keyof typeof revBasicDeployerAddress],
     functionName: 'replaceBoostOperatorOf',
     ...config,
   } as UsePrepareContractWriteConfig<
