@@ -1,7 +1,7 @@
 import { ConnectKitButton } from "@/components/ConnectKitButton";
-import Link from "next/link";
-import { Badge } from "../ui/badge";
 import Image from "next/image";
+import Link from "next/link";
+import { ChainBadge } from "../ChainBadge";
 
 export function Nav() {
   return (
@@ -16,7 +16,7 @@ export function Nav() {
               alt="Revnet logo"
             />
           </Link>
-          <Badge variant="success">Sepolia</Badge>
+          <ChainBadge />
         </div>
 
         <ConnectKitButton />

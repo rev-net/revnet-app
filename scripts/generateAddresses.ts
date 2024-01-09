@@ -1,6 +1,7 @@
 import { addressFor, ForgeDeploy } from "forge-run-parser";
 import fs from "fs";
-import sepoliaRun from "./vendor/juice-contracts-v4/run-latest.json";
+import sepoliaRun from "./vendor/juice-contracts-v4/sepolia/run-latest.json";
+import optimismSepoliaRun from "./vendor/juice-contracts-v4/optimismSepolia/run-latest.json";
 
 export enum JBContracts {
   JBController = "JBController",
@@ -17,13 +18,21 @@ export enum JBContracts {
 async function main() {
   const contracts = await Promise.all(
     Object.values(JBContracts).map(async (contractName) => {
-      const address = addressFor(contractName, sepoliaRun as ForgeDeploy);
+      const sepoliaAddress = addressFor(
+        contractName,
+        sepoliaRun as ForgeDeploy
+      );
+      const optimismSepoliaAddress = addressFor(
+        contractName,
+        optimismSepoliaRun as ForgeDeploy
+      );
       //   const mainnet = await import(
       //     `@jbx-protocol/juice-contracts-v4/deployments/mainnet/${contractName}.json`
       //   );
 
       return {
-        sepolia: address,
+        sepolia: sepoliaAddress,
+        optimismSepolia: optimismSepoliaAddress,
         // mainnet: mainnet.address,
       };
     })

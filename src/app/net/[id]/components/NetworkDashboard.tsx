@@ -6,6 +6,7 @@ import { Html } from "@/components/ui/html";
 import { Stat } from "@/components/ui/stat";
 import { useParticipantsQuery } from "@/generated/graphql";
 import { useProjectMetadata } from "@/hooks/juicebox/useProjectMetadata";
+import { useNativeTokenSymbol } from "@/hooks/useNativeTokenSymbol";
 import { ipfsUriToGatewayUrl } from "@/lib/ipfs";
 import {
   useJbControllerLatestQueuedRulesetOf,
@@ -51,6 +52,8 @@ export function NetworkDashboard() {
       args: [projectId],
     });
 
+  const nativeTokenSymbol = useNativeTokenSymbol();
+
   console.log(latestConfiguredRuleset, "here");
 
   const [
@@ -70,7 +73,7 @@ export function NetworkDashboard() {
 
   const { token } = useJBTokenContext();
 
-  const tokenA = { symbol: "ETH", decimals: 18 };
+  const tokenA = { symbol: nativeTokenSymbol, decimals: 18 };
 
   const { data: overflowEth } = useJbMultiTerminalCurrentSurplusOf({
     address: primaryNativeTerminal.data,
