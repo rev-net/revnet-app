@@ -23,13 +23,17 @@ import {
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { twMerge } from "tailwind-merge";
-import { parseUnits, zeroAddress } from "viem";
+import { Chain, parseUnits, zeroAddress } from "viem";
 import {
   Address,
   UsePrepareContractWriteConfig,
+  sepolia,
+  useNetwork,
   useWaitForTransaction,
 } from "wagmi";
 import { DecayRate } from "../net/[id]/contexts/datatypes";
+import { jbMultiTerminalAddress } from "@/lib/juicebox/hooks/contract";
+import { optimismSepolia } from "viem/chains";
 
 const DEFAULT_FORM_DATA = {
   name: "",
@@ -434,6 +438,7 @@ function parseDeployData(
   formData: typeof DEFAULT_FORM_DATA,
   extra: {
     metadataCid: string;
+    chainId: Chain["id"] | undefined;
   }
 ): UsePrepareContractWriteConfig<
   typeof revBasicDeployerABI,
@@ -480,7 +485,10 @@ function parseDeployData(
     },
     [
       {
-        terminal: "0x4319cb152D46Db72857AfE368B19A4483c0Bff0D", // latest multiterminal sepolia
+        terminal:
+          jbMultiTerminalAddress[
+            extra.chainId as typeof sepolia.id | typeof optimismSepolia.id
+          ],
         tokensToAccept: [NATIVE_TOKEN],
       },
     ],
@@ -514,6 +522,7 @@ export default function Page() {
   const [formData, setFormData] = useState(DEFAULT_FORM_DATA);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
+  const { chain } = useNetwork();
   const { write, data } = useDeployRevnet();
   const { data: txData, isSuccess } = useWaitForTransaction({
     hash: data?.hash,
@@ -530,6 +539,7 @@ export default function Page() {
 
     const deployData = parseDeployData(formData, {
       metadataCid,
+      chainId: chain?.id,
     });
 
     console.log("deployData::", deployData);
