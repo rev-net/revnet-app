@@ -37,6 +37,8 @@ import { ParticipantsTable } from "./ParticipantsTable";
 import StepChart from "./StepChart";
 import { ActivityFeed } from "./activity/ActivityFeed";
 import { PayForm } from "./pay/PayForm";
+import { Button } from "@/components/ui/button";
+import { FixedInt } from "fpnum";
 
 const RESERVED_TOKEN_SPLIT_GROUP_ID = 1n;
 
@@ -149,10 +151,22 @@ export function NetworkDashboard() {
   const { data: creditBalance } = useJbTokensTotalBalanceOf({
     args: userAddress ? [userAddress, projectId] : undefined,
     select(data) {
-      console.log(data);
       return new JBToken(data);
     },
   });
+
+  const creditBalanceRedemptionQuote =
+    overflowEth && totalTokenSupply && tokensReserved
+      ? new FixedInt(
+          getTokenRedemptionQuoteEth(creditBalance?.val ?? 0n, {
+            overflowWei: overflowEth,
+            totalSupply: totalTokenSupply,
+            redemptionRate: rulesetMetadata?.data?.redemptionRate.val,
+            tokensReserved,
+          }),
+          tokenA.decimals
+        )
+      : null;
 
   const entryTax = ruleset?.data?.decayRate;
   const exitTax = rulesetMetadata?.data?.redemptionRate;
@@ -387,11 +401,19 @@ export function NetworkDashboard() {
             ) : null}
           </div>
 
-          <div className="mb-16 bg-zinc-50 border border-zinc-200 w-full shadow-lg rounded-xl p-4">
-            <div className="text-gray-500 mb-1">Your tokens</div>
-            <div className="text-lg">
-              {creditBalance?.format(6)} {token?.data?.symbol}
+          <div className="mb-16 bg-zinc-50 border border-zinc-200 w-full shadow-lg rounded-xl p-4 flex justify-between gap-2 flex-wrap items-center">
+            <div>
+              <div className="mb-1">Your tokens</div>
+              <div className="text-lg overflow-auto mb-1">
+                {creditBalance?.format(6)} {token?.data?.symbol}
+              </div>
+              {creditBalanceRedemptionQuote ? (
+                <div className="text-xs text-gray-500">
+                  ≈ {creditBalanceRedemptionQuote.format(8)} {tokenA.symbol}
+                </div>
+              ) : null}
             </div>
+            <Button variant="outline">Redeem</Button>
           </div>
           <ActivityFeed />
         </div>
