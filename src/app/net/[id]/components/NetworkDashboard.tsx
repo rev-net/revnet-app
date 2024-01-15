@@ -14,17 +14,20 @@ import {
   useJbControllerPendingReservedTokenBalanceOf,
   useJbMultiTerminalCurrentSurplusOf,
   useJbSplitsSplitsOf,
+  useJbTokensTotalBalanceOf,
   useJbTokensTotalSupplyOf,
 } from "@/lib/juicebox/hooks/contract";
 import { formatSeconds } from "@/lib/utils";
 import { LockClosedIcon } from "@heroicons/react/24/outline";
 import {
+  JBToken,
   SplitGroup,
   getTokenBPrice,
   getTokenRedemptionQuoteEth,
 } from "juice-sdk-core";
 import { useEffect, useState } from "react";
 import { formatUnits, parseUnits } from "viem";
+import { useAccount } from "wagmi";
 import { useJBContractContext } from "../contexts/JBContractContext/JBContractContext";
 import { useJBRulesetContext } from "../contexts/JBRulesetContext/JBRulesetContext";
 import { useJBTokenContext } from "../contexts/JBTokenContext/JBTokenContext";
@@ -46,6 +49,7 @@ export function NetworkDashboard() {
     projectId,
     contracts: { primaryNativeTerminal },
   } = useJBContractContext();
+  const { address: userAddress } = useAccount();
   const { ruleset, rulesetMetadata } = useJBRulesetContext();
   const { data: latestConfiguredRuleset } =
     useJbControllerLatestQueuedRulesetOf({
@@ -53,8 +57,6 @@ export function NetworkDashboard() {
     });
 
   const nativeTokenSymbol = useNativeTokenSymbol();
-
-  console.log(latestConfiguredRuleset, "here");
 
   const [
     latestConfiguredRulesetData,
@@ -144,6 +146,13 @@ export function NetworkDashboard() {
   });
   const { data: projectMetadata } = useProjectMetadata(metadataUri);
   const { name: projectName, projectTagline, logoUri } = projectMetadata ?? {};
+  const { data: creditBalance } = useJbTokensTotalBalanceOf({
+    args: userAddress ? [userAddress, projectId] : undefined,
+    select(data) {
+      console.log(data);
+      return new JBToken(data);
+    },
+  });
 
   const entryTax = ruleset?.data?.decayRate;
   const exitTax = rulesetMetadata?.data?.redemptionRate;
@@ -368,7 +377,7 @@ export function NetworkDashboard() {
 
         {/* Column 2 */}
         <div className="md:w-[340px] hidden md:block">
-          <div className="mb-16">
+          <div className="mb-10">
             {token?.data && boostRecipient ? (
               <PayForm
                 tokenA={tokenA}
@@ -376,6 +385,13 @@ export function NetworkDashboard() {
                 boostRecipient={boostRecipient}
               />
             ) : null}
+          </div>
+
+          <div className="mb-16 bg-zinc-50 border border-zinc-200 w-full shadow-lg rounded-xl p-4">
+            <div className="text-gray-500 mb-1">Your tokens</div>
+            <div className="text-lg">
+              {creditBalance?.format(6)} {token?.data?.symbol}
+            </div>
           </div>
           <ActivityFeed />
         </div>
