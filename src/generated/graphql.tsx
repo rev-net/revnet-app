@@ -1176,7 +1176,6 @@ export type DistributePayoutsEvent = {
   rulesetCycleNumber: Scalars['BigInt']['output'];
   rulesetId: Scalars['BigInt']['output'];
   splitDistributions: Array<DistributeToPayoutSplitEvent>;
-  terminal: Scalars['Bytes']['output'];
   timestamp: Scalars['Int']['output'];
   txHash: Scalars['Bytes']['output'];
 };
@@ -1327,16 +1326,6 @@ export type DistributePayoutsEvent_Filter = {
   rulesetId_not?: InputMaybe<Scalars['BigInt']['input']>;
   rulesetId_not_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
   splitDistributions_?: InputMaybe<DistributeToPayoutSplitEvent_Filter>;
-  terminal?: InputMaybe<Scalars['Bytes']['input']>;
-  terminal_contains?: InputMaybe<Scalars['Bytes']['input']>;
-  terminal_gt?: InputMaybe<Scalars['Bytes']['input']>;
-  terminal_gte?: InputMaybe<Scalars['Bytes']['input']>;
-  terminal_in?: InputMaybe<Array<Scalars['Bytes']['input']>>;
-  terminal_lt?: InputMaybe<Scalars['Bytes']['input']>;
-  terminal_lte?: InputMaybe<Scalars['Bytes']['input']>;
-  terminal_not?: InputMaybe<Scalars['Bytes']['input']>;
-  terminal_not_contains?: InputMaybe<Scalars['Bytes']['input']>;
-  terminal_not_in?: InputMaybe<Array<Scalars['Bytes']['input']>>;
   timestamp?: InputMaybe<Scalars['Int']['input']>;
   timestamp_gt?: InputMaybe<Scalars['Int']['input']>;
   timestamp_gte?: InputMaybe<Scalars['Int']['input']>;
@@ -1396,7 +1385,6 @@ export enum DistributePayoutsEvent_OrderBy {
   rulesetCycleNumber = 'rulesetCycleNumber',
   rulesetId = 'rulesetId',
   splitDistributions = 'splitDistributions',
-  terminal = 'terminal',
   timestamp = 'timestamp',
   txHash = 'txHash'
 }
@@ -2021,7 +2009,6 @@ export enum DistributeToPayoutSplitEvent_OrderBy {
   distributePayoutsEvent__projectId = 'distributePayoutsEvent__projectId',
   distributePayoutsEvent__rulesetCycleNumber = 'distributePayoutsEvent__rulesetCycleNumber',
   distributePayoutsEvent__rulesetId = 'distributePayoutsEvent__rulesetId',
-  distributePayoutsEvent__terminal = 'distributePayoutsEvent__terminal',
   distributePayoutsEvent__timestamp = 'distributePayoutsEvent__timestamp',
   distributePayoutsEvent__txHash = 'distributePayoutsEvent__txHash',
   from = 'from',
@@ -4476,16 +4463,15 @@ export type PayEvent = {
   amount: Scalars['BigInt']['output'];
   amountUSD: Maybe<Scalars['BigInt']['output']>;
   beneficiary: Scalars['Bytes']['output'];
+  beneficiaryTokenCount: Scalars['BigInt']['output'];
   caller: Scalars['Bytes']['output'];
   distributionFromProjectId: Maybe<Scalars['Int']['output']>;
   feeFromV2Project: Maybe<Scalars['Int']['output']>;
   from: Scalars['Bytes']['output'];
   id: Scalars['ID']['output'];
-  isDistribution: Scalars['Boolean']['output'];
   note: Scalars['String']['output'];
   project: Project;
   projectId: Scalars['Int']['output'];
-  terminal: Scalars['Bytes']['output'];
   timestamp: Scalars['Int']['output'];
   txHash: Scalars['Bytes']['output'];
 };
@@ -4511,6 +4497,14 @@ export type PayEvent_Filter = {
   amount_not_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
   and?: InputMaybe<Array<InputMaybe<PayEvent_Filter>>>;
   beneficiary?: InputMaybe<Scalars['Bytes']['input']>;
+  beneficiaryTokenCount?: InputMaybe<Scalars['BigInt']['input']>;
+  beneficiaryTokenCount_gt?: InputMaybe<Scalars['BigInt']['input']>;
+  beneficiaryTokenCount_gte?: InputMaybe<Scalars['BigInt']['input']>;
+  beneficiaryTokenCount_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
+  beneficiaryTokenCount_lt?: InputMaybe<Scalars['BigInt']['input']>;
+  beneficiaryTokenCount_lte?: InputMaybe<Scalars['BigInt']['input']>;
+  beneficiaryTokenCount_not?: InputMaybe<Scalars['BigInt']['input']>;
+  beneficiaryTokenCount_not_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
   beneficiary_contains?: InputMaybe<Scalars['Bytes']['input']>;
   beneficiary_gt?: InputMaybe<Scalars['Bytes']['input']>;
   beneficiary_gte?: InputMaybe<Scalars['Bytes']['input']>;
@@ -4564,10 +4558,6 @@ export type PayEvent_Filter = {
   id_lte?: InputMaybe<Scalars['ID']['input']>;
   id_not?: InputMaybe<Scalars['ID']['input']>;
   id_not_in?: InputMaybe<Array<Scalars['ID']['input']>>;
-  isDistribution?: InputMaybe<Scalars['Boolean']['input']>;
-  isDistribution_in?: InputMaybe<Array<Scalars['Boolean']['input']>>;
-  isDistribution_not?: InputMaybe<Scalars['Boolean']['input']>;
-  isDistribution_not_in?: InputMaybe<Array<Scalars['Boolean']['input']>>;
   note?: InputMaybe<Scalars['String']['input']>;
   note_contains?: InputMaybe<Scalars['String']['input']>;
   note_contains_nocase?: InputMaybe<Scalars['String']['input']>;
@@ -4618,16 +4608,6 @@ export type PayEvent_Filter = {
   project_not_starts_with_nocase?: InputMaybe<Scalars['String']['input']>;
   project_starts_with?: InputMaybe<Scalars['String']['input']>;
   project_starts_with_nocase?: InputMaybe<Scalars['String']['input']>;
-  terminal?: InputMaybe<Scalars['Bytes']['input']>;
-  terminal_contains?: InputMaybe<Scalars['Bytes']['input']>;
-  terminal_gt?: InputMaybe<Scalars['Bytes']['input']>;
-  terminal_gte?: InputMaybe<Scalars['Bytes']['input']>;
-  terminal_in?: InputMaybe<Array<Scalars['Bytes']['input']>>;
-  terminal_lt?: InputMaybe<Scalars['Bytes']['input']>;
-  terminal_lte?: InputMaybe<Scalars['Bytes']['input']>;
-  terminal_not?: InputMaybe<Scalars['Bytes']['input']>;
-  terminal_not_contains?: InputMaybe<Scalars['Bytes']['input']>;
-  terminal_not_in?: InputMaybe<Array<Scalars['Bytes']['input']>>;
   timestamp?: InputMaybe<Scalars['Int']['input']>;
   timestamp_gt?: InputMaybe<Scalars['Int']['input']>;
   timestamp_gte?: InputMaybe<Scalars['Int']['input']>;
@@ -4652,12 +4632,12 @@ export enum PayEvent_OrderBy {
   amount = 'amount',
   amountUSD = 'amountUSD',
   beneficiary = 'beneficiary',
+  beneficiaryTokenCount = 'beneficiaryTokenCount',
   caller = 'caller',
   distributionFromProjectId = 'distributionFromProjectId',
   feeFromV2Project = 'feeFromV2Project',
   from = 'from',
   id = 'id',
-  isDistribution = 'isDistribution',
   note = 'note',
   project = 'project',
   projectId = 'projectId',
@@ -4684,7 +4664,6 @@ export enum PayEvent_OrderBy {
   project__trendingVolume = 'project__trendingVolume',
   project__volume = 'project__volume',
   project__volumeUSD = 'project__volumeUSD',
-  terminal = 'terminal',
   timestamp = 'timestamp',
   txHash = 'txHash'
 }
@@ -5305,7 +5284,6 @@ export type ProjectEvent = {
   redeemEvent: Maybe<RedeemEvent>;
   setFundAccessConstraintsEvent: Maybe<SetFundAccessConstraintsEvent>;
   tapEvent: Maybe<TapEvent>;
-  terminal: Maybe<Scalars['Bytes']['output']>;
   timestamp: Scalars['Int']['output'];
   useAllowanceEvent: Maybe<UseAllowanceEvent>;
   v1ConfigureEvent: Maybe<V1ConfigureEvent>;
@@ -5794,16 +5772,6 @@ export type ProjectEvent_Filter = {
   tapEvent_not_starts_with_nocase?: InputMaybe<Scalars['String']['input']>;
   tapEvent_starts_with?: InputMaybe<Scalars['String']['input']>;
   tapEvent_starts_with_nocase?: InputMaybe<Scalars['String']['input']>;
-  terminal?: InputMaybe<Scalars['Bytes']['input']>;
-  terminal_contains?: InputMaybe<Scalars['Bytes']['input']>;
-  terminal_gt?: InputMaybe<Scalars['Bytes']['input']>;
-  terminal_gte?: InputMaybe<Scalars['Bytes']['input']>;
-  terminal_in?: InputMaybe<Array<Scalars['Bytes']['input']>>;
-  terminal_lt?: InputMaybe<Scalars['Bytes']['input']>;
-  terminal_lte?: InputMaybe<Scalars['Bytes']['input']>;
-  terminal_not?: InputMaybe<Scalars['Bytes']['input']>;
-  terminal_not_contains?: InputMaybe<Scalars['Bytes']['input']>;
-  terminal_not_in?: InputMaybe<Array<Scalars['Bytes']['input']>>;
   timestamp?: InputMaybe<Scalars['Int']['input']>;
   timestamp_gt?: InputMaybe<Scalars['Int']['input']>;
   timestamp_gte?: InputMaybe<Scalars['Int']['input']>;
@@ -5953,7 +5921,6 @@ export enum ProjectEvent_OrderBy {
   distributePayoutsEvent__projectId = 'distributePayoutsEvent__projectId',
   distributePayoutsEvent__rulesetCycleNumber = 'distributePayoutsEvent__rulesetCycleNumber',
   distributePayoutsEvent__rulesetId = 'distributePayoutsEvent__rulesetId',
-  distributePayoutsEvent__terminal = 'distributePayoutsEvent__terminal',
   distributePayoutsEvent__timestamp = 'distributePayoutsEvent__timestamp',
   distributePayoutsEvent__txHash = 'distributePayoutsEvent__txHash',
   distributeReservedTokensEvent = 'distributeReservedTokensEvent',
@@ -6053,15 +6020,14 @@ export enum ProjectEvent_OrderBy {
   payEvent__amount = 'payEvent__amount',
   payEvent__amountUSD = 'payEvent__amountUSD',
   payEvent__beneficiary = 'payEvent__beneficiary',
+  payEvent__beneficiaryTokenCount = 'payEvent__beneficiaryTokenCount',
   payEvent__caller = 'payEvent__caller',
   payEvent__distributionFromProjectId = 'payEvent__distributionFromProjectId',
   payEvent__feeFromV2Project = 'payEvent__feeFromV2Project',
   payEvent__from = 'payEvent__from',
   payEvent__id = 'payEvent__id',
-  payEvent__isDistribution = 'payEvent__isDistribution',
   payEvent__note = 'payEvent__note',
   payEvent__projectId = 'payEvent__projectId',
-  payEvent__terminal = 'payEvent__terminal',
   payEvent__timestamp = 'payEvent__timestamp',
   payEvent__txHash = 'payEvent__txHash',
   printReservesEvent = 'printReservesEvent',
@@ -6119,7 +6085,6 @@ export enum ProjectEvent_OrderBy {
   redeemEvent__projectId = 'redeemEvent__projectId',
   redeemEvent__returnAmount = 'redeemEvent__returnAmount',
   redeemEvent__returnAmountUSD = 'redeemEvent__returnAmountUSD',
-  redeemEvent__terminal = 'redeemEvent__terminal',
   redeemEvent__timestamp = 'redeemEvent__timestamp',
   redeemEvent__txHash = 'redeemEvent__txHash',
   setFundAccessConstraintsEvent = 'setFundAccessConstraintsEvent',
@@ -6133,7 +6098,6 @@ export enum ProjectEvent_OrderBy {
   setFundAccessConstraintsEvent__overflowAllowance = 'setFundAccessConstraintsEvent__overflowAllowance',
   setFundAccessConstraintsEvent__overflowAllowanceCurrency = 'setFundAccessConstraintsEvent__overflowAllowanceCurrency',
   setFundAccessConstraintsEvent__projectId = 'setFundAccessConstraintsEvent__projectId',
-  setFundAccessConstraintsEvent__terminal = 'setFundAccessConstraintsEvent__terminal',
   setFundAccessConstraintsEvent__timestamp = 'setFundAccessConstraintsEvent__timestamp',
   setFundAccessConstraintsEvent__token = 'setFundAccessConstraintsEvent__token',
   setFundAccessConstraintsEvent__txHash = 'setFundAccessConstraintsEvent__txHash',
@@ -6155,7 +6119,6 @@ export enum ProjectEvent_OrderBy {
   tapEvent__projectId = 'tapEvent__projectId',
   tapEvent__timestamp = 'tapEvent__timestamp',
   tapEvent__txHash = 'tapEvent__txHash',
-  terminal = 'terminal',
   timestamp = 'timestamp',
   useAllowanceEvent = 'useAllowanceEvent',
   useAllowanceEvent__amount = 'useAllowanceEvent__amount',
@@ -6634,15 +6597,14 @@ export enum ProtocolLog_OrderBy {
   oldestTrendingPayEvent__amount = 'oldestTrendingPayEvent__amount',
   oldestTrendingPayEvent__amountUSD = 'oldestTrendingPayEvent__amountUSD',
   oldestTrendingPayEvent__beneficiary = 'oldestTrendingPayEvent__beneficiary',
+  oldestTrendingPayEvent__beneficiaryTokenCount = 'oldestTrendingPayEvent__beneficiaryTokenCount',
   oldestTrendingPayEvent__caller = 'oldestTrendingPayEvent__caller',
   oldestTrendingPayEvent__distributionFromProjectId = 'oldestTrendingPayEvent__distributionFromProjectId',
   oldestTrendingPayEvent__feeFromV2Project = 'oldestTrendingPayEvent__feeFromV2Project',
   oldestTrendingPayEvent__from = 'oldestTrendingPayEvent__from',
   oldestTrendingPayEvent__id = 'oldestTrendingPayEvent__id',
-  oldestTrendingPayEvent__isDistribution = 'oldestTrendingPayEvent__isDistribution',
   oldestTrendingPayEvent__note = 'oldestTrendingPayEvent__note',
   oldestTrendingPayEvent__projectId = 'oldestTrendingPayEvent__projectId',
-  oldestTrendingPayEvent__terminal = 'oldestTrendingPayEvent__terminal',
   oldestTrendingPayEvent__timestamp = 'oldestTrendingPayEvent__timestamp',
   oldestTrendingPayEvent__txHash = 'oldestTrendingPayEvent__txHash',
   paymentsCount = 'paymentsCount',
@@ -7409,7 +7371,6 @@ export type RedeemEvent = {
   projectId: Scalars['Int']['output'];
   returnAmount: Scalars['BigInt']['output'];
   returnAmountUSD: Maybe<Scalars['BigInt']['output']>;
-  terminal: Scalars['Bytes']['output'];
   timestamp: Scalars['Int']['output'];
   txHash: Scalars['Bytes']['output'];
 };
@@ -7550,16 +7511,6 @@ export type RedeemEvent_Filter = {
   returnAmount_lte?: InputMaybe<Scalars['BigInt']['input']>;
   returnAmount_not?: InputMaybe<Scalars['BigInt']['input']>;
   returnAmount_not_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
-  terminal?: InputMaybe<Scalars['Bytes']['input']>;
-  terminal_contains?: InputMaybe<Scalars['Bytes']['input']>;
-  terminal_gt?: InputMaybe<Scalars['Bytes']['input']>;
-  terminal_gte?: InputMaybe<Scalars['Bytes']['input']>;
-  terminal_in?: InputMaybe<Array<Scalars['Bytes']['input']>>;
-  terminal_lt?: InputMaybe<Scalars['Bytes']['input']>;
-  terminal_lte?: InputMaybe<Scalars['Bytes']['input']>;
-  terminal_not?: InputMaybe<Scalars['Bytes']['input']>;
-  terminal_not_contains?: InputMaybe<Scalars['Bytes']['input']>;
-  terminal_not_in?: InputMaybe<Array<Scalars['Bytes']['input']>>;
   timestamp?: InputMaybe<Scalars['Int']['input']>;
   timestamp_gt?: InputMaybe<Scalars['Int']['input']>;
   timestamp_gte?: InputMaybe<Scalars['Int']['input']>;
@@ -7616,7 +7567,6 @@ export enum RedeemEvent_OrderBy {
   project__volumeUSD = 'project__volumeUSD',
   returnAmount = 'returnAmount',
   returnAmountUSD = 'returnAmountUSD',
-  terminal = 'terminal',
   timestamp = 'timestamp',
   txHash = 'txHash'
 }
@@ -7633,7 +7583,6 @@ export type SetFundAccessConstraintsEvent = {
   overflowAllowanceCurrency: Scalars['Int']['output'];
   project: Project;
   projectId: Scalars['Int']['output'];
-  terminal: Scalars['Bytes']['output'];
   timestamp: Scalars['Int']['output'];
   token: Maybe<Scalars['Bytes']['output']>;
   txHash: Scalars['Bytes']['output'];
@@ -7749,16 +7698,6 @@ export type SetFundAccessConstraintsEvent_Filter = {
   project_not_starts_with_nocase?: InputMaybe<Scalars['String']['input']>;
   project_starts_with?: InputMaybe<Scalars['String']['input']>;
   project_starts_with_nocase?: InputMaybe<Scalars['String']['input']>;
-  terminal?: InputMaybe<Scalars['Bytes']['input']>;
-  terminal_contains?: InputMaybe<Scalars['Bytes']['input']>;
-  terminal_gt?: InputMaybe<Scalars['Bytes']['input']>;
-  terminal_gte?: InputMaybe<Scalars['Bytes']['input']>;
-  terminal_in?: InputMaybe<Array<Scalars['Bytes']['input']>>;
-  terminal_lt?: InputMaybe<Scalars['Bytes']['input']>;
-  terminal_lte?: InputMaybe<Scalars['Bytes']['input']>;
-  terminal_not?: InputMaybe<Scalars['Bytes']['input']>;
-  terminal_not_contains?: InputMaybe<Scalars['Bytes']['input']>;
-  terminal_not_in?: InputMaybe<Array<Scalars['Bytes']['input']>>;
   timestamp?: InputMaybe<Scalars['Int']['input']>;
   timestamp_gt?: InputMaybe<Scalars['Int']['input']>;
   timestamp_gte?: InputMaybe<Scalars['Int']['input']>;
@@ -7824,7 +7763,6 @@ export enum SetFundAccessConstraintsEvent_OrderBy {
   project__trendingVolume = 'project__trendingVolume',
   project__volume = 'project__volume',
   project__volumeUSD = 'project__volumeUSD',
-  terminal = 'terminal',
   timestamp = 'timestamp',
   token = 'token',
   txHash = 'txHash'
@@ -10058,7 +9996,6 @@ export type DistributePayoutsEventResolvers<ContextType = any, ParentType extend
   rulesetCycleNumber?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   rulesetId?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   splitDistributions?: Resolver<Array<ResolversTypes['DistributeToPayoutSplitEvent']>, ParentType, ContextType, RequireFields<DistributePayoutsEventSplitDistributionsArgs, 'first' | 'skip'>>;
-  terminal?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
   timestamp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   txHash?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -10340,16 +10277,15 @@ export type PayEventResolvers<ContextType = any, ParentType extends ResolversPar
   amount?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   amountUSD?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
   beneficiary?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
+  beneficiaryTokenCount?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   caller?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
   distributionFromProjectId?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   feeFromV2Project?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   from?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  isDistribution?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   note?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   project?: Resolver<ResolversTypes['Project'], ParentType, ContextType>;
   projectId?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  terminal?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
   timestamp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   txHash?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -10461,7 +10397,6 @@ export type ProjectEventResolvers<ContextType = any, ParentType extends Resolver
   redeemEvent?: Resolver<Maybe<ResolversTypes['RedeemEvent']>, ParentType, ContextType>;
   setFundAccessConstraintsEvent?: Resolver<Maybe<ResolversTypes['SetFundAccessConstraintsEvent']>, ParentType, ContextType>;
   tapEvent?: Resolver<Maybe<ResolversTypes['TapEvent']>, ParentType, ContextType>;
-  terminal?: Resolver<Maybe<ResolversTypes['Bytes']>, ParentType, ContextType>;
   timestamp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   useAllowanceEvent?: Resolver<Maybe<ResolversTypes['UseAllowanceEvent']>, ParentType, ContextType>;
   v1ConfigureEvent?: Resolver<Maybe<ResolversTypes['V1ConfigureEvent']>, ParentType, ContextType>;
@@ -10574,7 +10509,6 @@ export type RedeemEventResolvers<ContextType = any, ParentType extends Resolvers
   projectId?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   returnAmount?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   returnAmountUSD?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  terminal?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
   timestamp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   txHash?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -10592,7 +10526,6 @@ export type SetFundAccessConstraintsEventResolvers<ContextType = any, ParentType
   overflowAllowanceCurrency?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   project?: Resolver<ResolversTypes['Project'], ParentType, ContextType>;
   projectId?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  terminal?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
   timestamp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   token?: Resolver<Maybe<ResolversTypes['Bytes']>, ParentType, ContextType>;
   txHash?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
