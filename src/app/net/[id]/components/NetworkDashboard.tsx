@@ -102,9 +102,10 @@ export function NetworkDashboard() {
     (totalTokenSupply ?? 0n) + (tokensReserved ?? 0n);
 
   const { data: reservedTokenSplits } = useJbSplitsSplitsOf({
-    args: ruleset
-      ? [projectId, ruleset?.data?.id, RESERVED_TOKEN_SPLIT_GROUP_ID]
-      : undefined,
+    args:
+      ruleset && ruleset?.data
+        ? [projectId, ruleset.data.id, RESERVED_TOKEN_SPLIT_GROUP_ID]
+        : undefined,
   });
 
   const boost = reservedTokenSplits?.[0];
@@ -159,12 +160,12 @@ export function NetworkDashboard() {
   });
 
   const creditBalanceRedemptionQuote =
-    overflowEth && totalTokenSupply && tokensReserved
+    overflowEth && totalTokenSupply && tokensReserved && rulesetMetadata?.data
       ? new FixedInt(
           getTokenRedemptionQuoteEth(creditBalance?.val ?? 0n, {
             overflowWei: overflowEth,
             totalSupply: totalTokenSupply,
-            redemptionRate: rulesetMetadata?.data?.redemptionRate.val,
+            redemptionRate: rulesetMetadata.data.redemptionRate.val,
             tokensReserved,
           }),
           tokenA.decimals
@@ -219,7 +220,9 @@ export function NetworkDashboard() {
 
   const timeLeft = useCountdownToDate(
     new Date(
-      Number((ruleset?.data?.start ?? 0n + ruleset?.data?.duration ?? 0n) * 1000n)
+      Number(
+        ((ruleset?.data?.start ?? 0n) + (ruleset?.data?.duration ?? 0n)) * 1000n
+      )
     )
   );
 

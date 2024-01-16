@@ -9,7 +9,7 @@
     "lint": "next lint",
     "export": "next export",
     "postinstall": "patch-package",
-    "tsc": "tsc",
+    "ts:compile": "tsc",
     "pregenerate": "ts-node --project=tsconfig.json scripts/generateAddresses.ts",
     "generate": "patch-package && wagmi generate",
     "gql:build": "graphql-code-generator --config codegen.yml -r dotenv/config"

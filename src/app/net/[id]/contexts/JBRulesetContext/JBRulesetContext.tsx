@@ -1,9 +1,13 @@
-import { useJbControllerCurrentRulesetOf } from "@/lib/juicebox/hooks/contract";
+import {
+  jbControllerABI,
+  useJbControllerCurrentRulesetOf,
+} from "@/lib/juicebox/hooks/contract";
 import { RedemptionRate, ReservedRate } from "juice-sdk-core";
 import { PropsWithChildren, createContext, useContext } from "react";
 import { useJBContractContext } from "../JBContractContext/JBContractContext";
 import { DecayRate, RulesetWeight } from "../datatypes";
 import { AsyncData, AsyncDataNone } from "../types";
+import { ReadContractResult } from "wagmi/dist/actions";
 
 /**
  * Context for the current ruleset of a project.
@@ -12,11 +16,27 @@ export type JBRulesetContext = {
   /**
    * The current ruleset of the project.
    */
-  ruleset: AsyncData<any>; // TODO
+  ruleset: AsyncData<
+    Omit<
+      ReadContractResult<typeof jbControllerABI, "currentRulesetOf">[0],
+      "weight" | "decayRate"
+    > & {
+      weight: RulesetWeight;
+      decayRate: DecayRate;
+    }
+  >;
   /**
    * The metadata for the current ruleset of the project.
    */
-  rulesetMetadata: AsyncData<any>; // TODO
+  rulesetMetadata: AsyncData<
+    Omit<
+      ReadContractResult<typeof jbControllerABI, "currentRulesetOf">[1],
+      "redemptionRate" | "reservedRate"
+    > & {
+      redemptionRate: RedemptionRate;
+      reservedRate: ReservedRate;
+    }
+  >;
 };
 
 /**

@@ -22,7 +22,7 @@ export function NetworkDetailsTable({
           Entry curve
         </dt>
         <dd className="text-sm leading-6 text-zinc-700">
-          {ruleset.data.discountRate.formatPercentage()}%
+          {ruleset.data.decayRate.formatPercentage()}%
         </dd>
       </div>
       <div className="border-t border-zinc-100 px-4 py-6 sm:col-span-1 sm:px-0 grid grid-cols-2">

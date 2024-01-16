@@ -240,10 +240,12 @@ const StepChart = () => {
           <XAxis
             tickLine={false}
             tick={
-              <CustomizedTick
-                renderData={renderData}
-                cycleDuration={ruleset.data.duration}
-              />
+              ruleset?.data ? (
+                <CustomizedTick
+                  renderData={renderData}
+                  cycleDuration={ruleset.data.duration}
+                />
+              ) : undefined
             }
             interval={0}
             tickCount={renderData.length}
