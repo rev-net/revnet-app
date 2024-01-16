@@ -41,6 +41,7 @@ import { ParticipantsTable } from "./ParticipantsTable";
 import StepChart from "./StepChart";
 import { ActivityFeed } from "./activity/ActivityFeed";
 import { PayForm } from "./pay/PayForm";
+import { RedeemDialog } from "./redeem/RedeemDialog";
 
 const RESERVED_TOKEN_SPLIT_GROUP_ID = 1n;
 
@@ -431,7 +432,18 @@ export function NetworkDashboard() {
                 </div>
               ) : null}
             </div>
-            <Button variant="outline">Redeem</Button>
+            {token?.data && creditBalance && primaryNativeTerminal.data ? (
+              <RedeemDialog
+                projectId={projectId}
+                creditBalance={creditBalance}
+                tokenSymbol={token.data.symbol}
+                primaryTerminalEth={primaryNativeTerminal.data}
+              >
+                <Button variant="outline" disabled={creditBalance.val === 0n}>
+                  Redeem
+                </Button>
+              </RedeemDialog>
+            ) : null}
           </div>
           <ActivityFeed />
         </div>
