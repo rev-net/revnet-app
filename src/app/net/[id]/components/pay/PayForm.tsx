@@ -142,7 +142,7 @@ export function PayForm({
         >
           <Button
             size="lg"
-            className="w-full mb-5 h-16 text-base min-w-[20%] flex items-center gap-2 hover:gap-[10px] whitespace-nowrap transition-all"
+            className="w-full mb-5 min-w-[20%] flex items-center gap-2 hover:gap-[10px] whitespace-nowrap transition-all"
           >
             Join now <ArrowRightIcon className="h-4 w-4" />
           </Button>

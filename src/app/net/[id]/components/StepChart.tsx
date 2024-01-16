@@ -260,6 +260,7 @@ const StepChart = () => {
             type="number"
             domain={[prevPrice.toFloat() * 0.99, "dataMax"]}
             fontSize={"0.75rem"}
+            fill="#71717A"
             // hide
           />
           <Tooltip />

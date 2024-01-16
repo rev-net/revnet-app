@@ -5,7 +5,6 @@ import EtherscanLink from "@/components/EtherscanLink";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Html } from "@/components/ui/html";
-import { Stat } from "@/components/ui/stat";
 import { useParticipantsQuery } from "@/generated/graphql";
 import { useProjectMetadata } from "@/hooks/juicebox/useProjectMetadata";
 import { useCountdownToDate } from "@/hooks/useCountdownToDate";
@@ -228,10 +227,10 @@ export function NetworkDashboard() {
 
   return (
     <div>
-      <div className="flex gap-20 container py-10">
+      <div className="flex gap-10 container py-10">
         {/* Column 1 */}
         <div className="flex-1">
-          <header className="mb-10">
+          <header className="mb-7 border-b border-zinc-100 pb-7">
             <div className="flex justify-between md:items-center md:flex-row flex-col gap-5 ">
               <div>
                 <div className="flex items-baseline gap-2 mb-2">
@@ -242,7 +241,7 @@ export function NetworkDashboard() {
                       alt={token?.data?.symbol}
                     />
                   )}
-                  <h1 className="text-4xl font-semibold tracking-tight">
+                  <h1 className="text-3xl font-semibold tracking-tight">
                     {projectName}
                   </h1>
                   {token?.data ? (
@@ -254,7 +253,18 @@ export function NetworkDashboard() {
                     </EtherscanLink>
                   ) : null}
                 </div>
-                <div className="text-zinc-500 text-lg">{projectTagline}</div>
+                <div className="flex gap-4">
+                  {typeof overflowEth !== "undefined" ? (
+                    <span className="text-zinc-500">
+                      <span className="font-medium">
+                        <Ether wei={overflowEth} />
+                      </span>{" "}
+                      TVL
+                    </span>
+                  ) : null}
+                </div>
+
+                {/* <div className="text-zinc-500 text-lg">{projectTagline}</div> */}
                 {/* <div className="text-zinc-500">
                   <span>{projectTagline}</span>
                 </div> */}
@@ -275,9 +285,10 @@ export function NetworkDashboard() {
               </div>
             </div>
           </header>
+
           <div className="max-w-4xl mx-auto">
             <div className="mb-6">
-              <div className="mb-3">
+              <div className="mb-2">
                 <span className="text-2xl font-medium">
                   {currentTokenBPrice?.format(4)} {tokenA.symbol}
                 </span>
@@ -313,24 +324,19 @@ export function NetworkDashboard() {
               </div>
             </div>
 
-            <div>
+            <div className="mb-12">
               <StepChart />
             </div>
 
-            <div className="my-12 border-b border-zinc-100 py-10">
-              <div className="flex gap-12">
-                {typeof overflowEth !== "undefined" ? (
-                  <Stat label="Backed by">
-                    <Ether wei={overflowEth} />
-                  </Stat>
-                ) : null}
-                {/* {typeof contributorsCount !== "undefined" ? (
+            {/* <div className="my-12 border-b border-zinc-100 py-10">
+              <div className="flex gap-12"> */}
+            {/* {typeof contributorsCount !== "undefined" ? (
                   <Stat label="Participants">
                     {contributorsCount === 0 ? 0 : contributorsCount + 1}
                   </Stat>
                 ) : null} */}
-              </div>
-            </div>
+            {/* </div>
+            </div> */}
 
             {/* <div className="flex gap-10">
               <Stat label="Exit curve">{exitTax?.formatPercentage()}%</Stat>
