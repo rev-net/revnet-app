@@ -1,3 +1,4 @@
+import { formatSeconds } from "@/lib/utils";
 import {
   Ether,
   ONE_ETHER,
@@ -10,6 +11,7 @@ import { useMemo } from "react";
 import {
   Area,
   AreaChart,
+  CartesianGrid,
   Dot,
   DotProps,
   ResponsiveContainer,
@@ -19,7 +21,6 @@ import {
 } from "recharts";
 import { useJBRulesetContext } from "../contexts/JBRulesetContext/JBRulesetContext";
 import { RulesetWeight } from "../contexts/datatypes";
-import { formatSeconds } from "@/lib/utils";
 
 function generateDateRange(startDate: Date, endDate: Date, resolution: number) {
   const dateRange = [];
@@ -238,16 +239,26 @@ const StepChart = () => {
           </defs>
           <XAxis
             tickLine={false}
-            xAxisId="0"
-            tick={<CustomizedTick renderData={renderData} cycleDuration={ruleset.data.duration} />}
+            tick={
+              <CustomizedTick
+                renderData={renderData}
+                cycleDuration={ruleset.data.duration}
+              />
+            }
             interval={0}
             tickCount={renderData.length}
             stroke="#d4d4d8"
           />
+          <CartesianGrid strokeDasharray="3 3" vertical={false} />
+
           <YAxis
+            orientation="right"
+            tickLine={false}
+            axisLine={false}
             type="number"
             domain={[prevPrice.toFloat() * 0.99, "dataMax"]}
-            hide
+            fontSize={"0.75rem"}
+            // hide
           />
           <Tooltip />
           <Area
