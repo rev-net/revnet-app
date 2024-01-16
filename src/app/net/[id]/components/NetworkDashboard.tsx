@@ -429,9 +429,9 @@ export function NetworkDashboard() {
             <div>
               <div className="mb-1">Your tokens</div>
               <div className="text-lg overflow-auto mb-1">
-                {creditBalance?.format(6)} {token?.data?.symbol}
+                {creditBalance?.format(6) ?? 0} {token?.data?.symbol}
               </div>
-              {creditBalanceRedemptionQuote ? (
+              {creditBalance && creditBalanceRedemptionQuote ? (
                 <div className="text-xs text-zinc-500">
                   ≈ {creditBalanceRedemptionQuote.format(8)} {tokenA.symbol}
                 </div>
