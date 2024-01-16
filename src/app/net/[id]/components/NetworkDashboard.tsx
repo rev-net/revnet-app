@@ -2,10 +2,13 @@
 
 import { Ether } from "@/components/Ether";
 import EtherscanLink from "@/components/EtherscanLink";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Html } from "@/components/ui/html";
 import { Stat } from "@/components/ui/stat";
 import { useParticipantsQuery } from "@/generated/graphql";
 import { useProjectMetadata } from "@/hooks/juicebox/useProjectMetadata";
+import { useCountdownToDate } from "@/hooks/useCountdownToDate";
 import { useNativeTokenSymbol } from "@/hooks/useNativeTokenSymbol";
 import { ipfsUriToGatewayUrl } from "@/lib/ipfs";
 import {
@@ -18,7 +21,8 @@ import {
   useJbTokensTotalSupplyOf,
 } from "@/lib/juicebox/hooks/contract";
 import { formatSeconds } from "@/lib/utils";
-import { LockClosedIcon } from "@heroicons/react/24/outline";
+import { ClockIcon } from "@heroicons/react/24/outline";
+import { FixedInt } from "fpnum";
 import {
   JBToken,
   SplitGroup,
@@ -37,8 +41,6 @@ import { ParticipantsTable } from "./ParticipantsTable";
 import StepChart from "./StepChart";
 import { ActivityFeed } from "./activity/ActivityFeed";
 import { PayForm } from "./pay/PayForm";
-import { Button } from "@/components/ui/button";
-import { FixedInt } from "fpnum";
 
 const RESERVED_TOKEN_SPLIT_GROUP_ID = 1n;
 
@@ -214,6 +216,10 @@ export function NetworkDashboard() {
         })
       : null;
 
+  const timeLeft = useCountdownToDate(
+    new Date(Number((ruleset.data.start + ruleset.data.duration) * 1000n))
+  );
+
   return (
     <div>
       <div className="flex gap-20 container py-10">
@@ -242,9 +248,7 @@ export function NetworkDashboard() {
                     </EtherscanLink>
                   ) : null}
                 </div>
-                <div className="text-zinc-500 text-lg">
-                  {projectTagline}
-                </div>
+                <div className="text-zinc-500 text-lg">{projectTagline}</div>
                 {/* <div className="text-zinc-500">
                   <span>{projectTagline}</span>
                 </div> */}
@@ -267,7 +271,7 @@ export function NetworkDashboard() {
           </header>
           <div className="max-w-4xl mx-auto">
             <div className="mb-6">
-              <div className="mb-2">
+              <div className="mb-3">
                 <span className="text-2xl font-medium">
                   {currentTokenBPrice?.format(4)} {tokenA.symbol}
                 </span>
@@ -276,23 +280,33 @@ export function NetworkDashboard() {
                   / {token?.data?.symbol}
                 </span>
               </div>
-              <div className="text-zinc-500 text-sm flex items-center gap-1">
-                <LockClosedIcon className="h-3 w-3" />{" "}
-                <span>
-                  <span className="font-medium">
-                    {entryTax?.formatPercentage()}%
-                  </span>{" "}
-                  increase every{" "}
-                  <span className="font-medium">
-                    {ruleset?.data?.duration === 86400n
-                      ? "day"
-                      : formatSeconds(Number(ruleset?.data?.duration ?? 0))}
+              <div className="text-zinc-500 text-sm flex items-center gap-2">
+                <div className="flex items-center gap-1">
+                  <span>
+                    +
+                    <span className="font-medium">
+                      {entryTax?.formatPercentage()}%
+                    </span>{" "}
+                    every{" "}
+                    <span className="font-medium">
+                      {ruleset?.data?.duration === 86400n
+                        ? "day"
+                        : formatSeconds(Number(ruleset?.data?.duration ?? 0))}
+                    </span>
                   </span>
-                  , forever
-                </span>
+                </div>
+                {timeLeft ? (
+                  <Badge
+                    variant="destructive"
+                    className="bg-orange-100 flex gap-1 items-center text-orange-900 hover:bg-orange-100"
+                  >
+                    <ClockIcon className="h-3 w-3" /> Price increase in{" "}
+                    {formatSeconds(timeLeft)}
+                  </Badge>
+                ) : null}
               </div>
             </div>
-            
+
             <div>
               <StepChart />
             </div>

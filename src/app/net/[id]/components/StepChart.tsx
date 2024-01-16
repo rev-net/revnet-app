@@ -19,6 +19,7 @@ import {
 } from "recharts";
 import { useJBRulesetContext } from "../contexts/JBRulesetContext/JBRulesetContext";
 import { RulesetWeight } from "../contexts/datatypes";
+import { formatSeconds } from "@/lib/utils";
 
 function generateDateRange(startDate: Date, endDate: Date, resolution: number) {
   const dateRange = [];
@@ -54,7 +55,7 @@ const CustomizedDot = (
         cx={cx}
         cy={cy}
         r={7}
-        fill="#e11d48"
+        fill="#f97316"
         stroke="#fff"
         strokeWidth={2}
         className="animate-pulse"
@@ -71,7 +72,8 @@ const CustomizedTick = (props: {
   payload?: {
     index: number;
   };
-  renderData: { groupIdx: number; fc: number }[];
+  cycleDuration: bigint;
+  renderData: { groupIdx: number; fc: number; date: Date }[];
 }) => {
   const { x, y, payload } = props;
   const d = props.renderData[payload?.index ?? 1];
@@ -83,11 +85,11 @@ const CustomizedTick = (props: {
         x={0}
         y={0}
         dy={16}
-        textAnchor="end"
+        textAnchor="middle"
         fill="#71717A"
         fontSize={"0.75rem"}
       >
-        {d.fc}
+        {formatSeconds(Number(props.cycleDuration) * d.fc)}
       </text>
     </g>
   );
@@ -237,7 +239,7 @@ const StepChart = () => {
           <XAxis
             tickLine={false}
             xAxisId="0"
-            tick={<CustomizedTick renderData={renderData} />}
+            tick={<CustomizedTick renderData={renderData} cycleDuration={ruleset.data.duration} />}
             interval={0}
             tickCount={renderData.length}
             stroke="#d4d4d8"
