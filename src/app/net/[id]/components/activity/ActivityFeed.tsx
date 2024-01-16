@@ -93,7 +93,7 @@ export function ActivityFeed() {
             return <ActivityItem key={event.id} {...event} />;
           })
         ) : (
-          <span className="text-gray-500 text-sm">No activity yet.</span>
+          <span className="text-zinc-500 text-sm">No activity yet.</span>
         )}
       </div>
     </div>

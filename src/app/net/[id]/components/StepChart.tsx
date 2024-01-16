@@ -8,10 +8,10 @@ import {
 } from "juice-sdk-core";
 import { useMemo } from "react";
 import {
+  Area,
+  AreaChart,
   Dot,
   DotProps,
-  Line,
-  LineChart,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -38,7 +38,7 @@ const CustomizedDot = (
   props: DotProps & {
     payload?: {
       groupIdx: number;
-      value: number;
+      price: number;
     };
     currentPrice: Ether;
     datapointIndex: number;
@@ -47,14 +47,14 @@ const CustomizedDot = (
   const { cx, cy, payload } = props;
   if (
     payload?.groupIdx === props.datapointIndex &&
-    `${payload?.value}` === props.currentPrice.toFloat().toFixed(2)
+    `${payload?.price}` === props.currentPrice.toFloat().toFixed(2)
   ) {
     return (
       <Dot
         cx={cx}
         cy={cy}
-        r={6}
-        fill="#4ade80"
+        r={7}
+        fill="#e11d48"
         stroke="#fff"
         strokeWidth={2}
         className="animate-pulse"
@@ -168,7 +168,7 @@ const StepChart = () => {
             fc: 1,
             groupIdx: i,
             date: d,
-            value: prevPrice.toFloat().toFixed(2),
+            price: prevPrice.toFloat().toFixed(2),
           };
         })
         .slice(steps * 0.6, steps),
@@ -182,7 +182,7 @@ const StepChart = () => {
 
           groupIdx: i,
           date: d,
-          value: currentPrice.toFloat().toFixed(2),
+          price: currentPrice.toFloat().toFixed(2),
         };
       }),
       ...generateDateRange(
@@ -195,7 +195,7 @@ const StepChart = () => {
 
           groupIdx: i,
           date: d,
-          value: nextPrice.toFloat().toFixed(2),
+          price: nextPrice.toFloat().toFixed(2),
         };
       }),
       ...generateDateRange(
@@ -208,7 +208,7 @@ const StepChart = () => {
 
           groupIdx: i,
           date: d,
-          value: nextNextPrice.toFloat().toFixed(2),
+          price: nextNextPrice.toFloat().toFixed(2),
         };
       }),
     ];
@@ -227,7 +227,13 @@ const StepChart = () => {
   return (
     <div style={{ height: 300 }}>
       <ResponsiveContainer height="100%" width="100%">
-        <LineChart data={renderData}>
+        <AreaChart data={renderData}>
+          <defs>
+            <linearGradient id="price" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="5%" stopColor="#34d399" stopOpacity={0.05} />
+              <stop offset="95%" stopColor="#34d399" stopOpacity={0} />
+            </linearGradient>
+          </defs>
           <XAxis
             tickLine={false}
             xAxisId="0"
@@ -242,12 +248,13 @@ const StepChart = () => {
             hide
           />
           <Tooltip />
-          <Line
+          <Area
             type="stepBefore"
-            dataKey="value"
+            dataKey="price"
             stroke="#34d399"
-            isAnimationActive={false}
             strokeWidth={2}
+            fillOpacity={1}
+            fill="url(#price)"
             dot={
               <CustomizedDot
                 datapointIndex={datapointIndex}
@@ -255,7 +262,7 @@ const StepChart = () => {
               />
             }
           />
-        </LineChart>
+        </AreaChart>
       </ResponsiveContainer>
     </div>
   );

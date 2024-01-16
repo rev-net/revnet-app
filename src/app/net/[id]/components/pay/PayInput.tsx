@@ -23,7 +23,7 @@ const PayInput = React.forwardRef<HTMLInputElement, PayInputProps>(
           <input
             type={type}
             className={cn(
-              "border-0 bg-transparent pl-0 pr-3 pt-1 pb-0 text-gray-900 text-2xl w-full placeholder:text-gray-400 focus:ring-0 sm:leading-6",
+              "border-0 bg-transparent pl-0 pr-3 pt-1 pb-0 text-zinc-900 text-2xl w-full placeholder:text-zinc-400 focus:ring-0 sm:leading-6",
               inputClassName
             )}
             ref={ref}

@@ -232,34 +232,34 @@ function ReviewPage() {
 
       <div className="mb-5">
         <div className="px-4 sm:px-0">
-          <h3 className="text-base font-semibold leading-7 text-gray-900">
+          <h3 className="text-base font-semibold leading-7 text-zinc-900">
             General
           </h3>
         </div>
 
-        <div className="mt-6 border-t border-gray-100">
-          <dl className="divide-y divide-gray-100">
+        <div className="mt-6 border-t border-zinc-100">
+          <dl className="divide-y divide-zinc-100">
             <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-              <dt className="text-sm font-medium leading-6 text-gray-900">
+              <dt className="text-sm font-medium leading-6 text-zinc-900">
                 Revnet name
               </dt>
-              <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
+              <dd className="mt-1 text-sm leading-6 text-zinc-700 sm:col-span-2 sm:mt-0">
                 {values.name}
               </dd>
             </div>
             <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-              <dt className="text-sm font-medium leading-6 text-gray-900">
+              <dt className="text-sm font-medium leading-6 text-zinc-900">
                 Revnet tagline
               </dt>
-              <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
+              <dd className="mt-1 text-sm leading-6 text-zinc-700 sm:col-span-2 sm:mt-0">
                 {values.tagline}
               </dd>
             </div>
             <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-              <dt className="text-sm font-medium leading-6 text-gray-900">
+              <dt className="text-sm font-medium leading-6 text-zinc-900">
                 Token
               </dt>
-              <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
+              <dd className="mt-1 text-sm leading-6 text-zinc-700 sm:col-span-2 sm:mt-0">
                 {values.tokenName} (${values.tokenSymbol})
               </dd>
             </div>
@@ -269,27 +269,27 @@ function ReviewPage() {
 
       <div className="mb-5">
         <div className="px-4 sm:px-0">
-          <h3 className="text-base font-semibold leading-7 text-gray-900">
+          <h3 className="text-base font-semibold leading-7 text-zinc-900">
             Configuration
           </h3>
         </div>
 
-        <div className="mt-6 border-t border-gray-100">
-          <dl className="divide-y divide-gray-100">
+        <div className="mt-6 border-t border-zinc-100">
+          <dl className="divide-y divide-zinc-100">
             <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-              <dt className="text-sm font-medium leading-6 text-gray-900">
+              <dt className="text-sm font-medium leading-6 text-zinc-900">
                 Raise ceiling by
               </dt>
-              <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
+              <dd className="mt-1 text-sm leading-6 text-zinc-700 sm:col-span-2 sm:mt-0">
                 {values.priceCeilingIncreasePercentage}% every{" "}
                 {values.priceCeilingIncreaseFrequency} days
               </dd>
             </div>
             <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-              <dt className="text-sm font-medium leading-6 text-gray-900">
+              <dt className="text-sm font-medium leading-6 text-zinc-900">
                 Exit tax
               </dt>
-              <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
+              <dd className="mt-1 text-sm leading-6 text-zinc-700 sm:col-span-2 sm:mt-0">
                 {values.priceFloorTaxIntensity}%
               </dd>
             </div>
@@ -299,42 +299,42 @@ function ReviewPage() {
 
       <div>
         <div className="px-4 sm:px-0">
-          <h3 className="text-base font-semibold leading-7 text-gray-900">
+          <h3 className="text-base font-semibold leading-7 text-zinc-900">
             Boost
           </h3>
         </div>
 
-        <div className="mt-6 border-t border-gray-100">
-          <dl className="divide-y divide-gray-100">
+        <div className="mt-6 border-t border-zinc-100">
+          <dl className="divide-y divide-zinc-100">
             <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-              <dt className="text-sm font-medium leading-6 text-gray-900">
+              <dt className="text-sm font-medium leading-6 text-zinc-900">
                 Boost operator
               </dt>
-              <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0 overflow-ellipsis">
+              <dd className="mt-1 text-sm leading-6 text-zinc-700 sm:col-span-2 sm:mt-0 overflow-ellipsis">
                 <EthereumAddress address={values.boostOperator} />
               </dd>
             </div>
             <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-              <dt className="text-sm font-medium leading-6 text-gray-900">
+              <dt className="text-sm font-medium leading-6 text-zinc-900">
                 Premint
               </dt>
-              <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0 overflow-ellipsis">
+              <dd className="mt-1 text-sm leading-6 text-zinc-700 sm:col-span-2 sm:mt-0 overflow-ellipsis">
                 {values.premintTokenAmount} {values.tokenSymbol}
               </dd>
             </div>
             <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-              <dt className="text-sm font-medium leading-6 text-gray-900">
+              <dt className="text-sm font-medium leading-6 text-zinc-900">
                 Boost amount
               </dt>
-              <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
+              <dd className="mt-1 text-sm leading-6 text-zinc-700 sm:col-span-2 sm:mt-0">
                 {values.boostPercentage}%
               </dd>
             </div>
             <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-              <dt className="text-sm font-medium leading-6 text-gray-900">
+              <dt className="text-sm font-medium leading-6 text-zinc-900">
                 Boost duration
               </dt>
-              <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
+              <dd className="mt-1 text-sm leading-6 text-zinc-700 sm:col-span-2 sm:mt-0">
                 {values.boostDuration} days
               </dd>
             </div>

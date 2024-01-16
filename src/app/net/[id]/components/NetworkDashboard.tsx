@@ -230,7 +230,7 @@ export function NetworkDashboard() {
                       alt={token?.data?.symbol}
                     />
                   )}
-                  <h1 className="text-3xl font-semibold tracking-tight">
+                  <h1 className="text-4xl font-semibold tracking-tight">
                     {projectName}
                   </h1>
                   {token?.data ? (
@@ -241,6 +241,9 @@ export function NetworkDashboard() {
                       ${token.data.symbol}
                     </EtherscanLink>
                   ) : null}
+                </div>
+                <div className="text-zinc-500 text-lg">
+                  {projectTagline}
                 </div>
                 {/* <div className="text-zinc-500">
                   <span>{projectTagline}</span>
@@ -263,9 +266,9 @@ export function NetworkDashboard() {
             </div>
           </header>
           <div className="max-w-4xl mx-auto">
-            <div>
-              <div className="mb-1">
-                <span className="text-3xl font-medium">
+            <div className="mb-6">
+              <div className="mb-2">
+                <span className="text-2xl font-medium">
                   {currentTokenBPrice?.format(4)} {tokenA.symbol}
                 </span>
                 <span className="text-base leading-tight">
@@ -289,6 +292,7 @@ export function NetworkDashboard() {
                 </span>
               </div>
             </div>
+            
             <div>
               <StepChart />
             </div>
@@ -367,7 +371,7 @@ export function NetworkDashboard() {
                   />
                 </>
               ) : (
-                <span className="text-gray-500">No participants yet.</span>
+                <span className="text-zinc-500">No participants yet.</span>
               )}
             </div>
             {/* 
@@ -408,7 +412,7 @@ export function NetworkDashboard() {
                 {creditBalance?.format(6)} {token?.data?.symbol}
               </div>
               {creditBalanceRedemptionQuote ? (
-                <div className="text-xs text-gray-500">
+                <div className="text-xs text-zinc-500">
                   ≈ {creditBalanceRedemptionQuote.format(8)} {tokenA.symbol}
                 </div>
               ) : null}
