@@ -218,7 +218,9 @@ export function NetworkDashboard() {
       : null;
 
   const timeLeft = useCountdownToDate(
-    new Date(Number((ruleset.data.start + ruleset.data.duration) * 1000n))
+    new Date(
+      Number((ruleset?.data.start ?? 0n + ruleset?.data.duration ?? 0n) * 1000n)
+    )
   );
 
   return (
