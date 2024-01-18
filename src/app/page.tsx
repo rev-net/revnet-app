@@ -12,7 +12,7 @@ export default function Page() {
       </p>
       <div className="mb-16">
         <span>This website is in development –</span>{" "}
-        <Link href="/net/1223" className="underline text-blue-500">
+        <Link href="/net/2" className="underline text-blue-500">
           see an example Revnet
         </Link>
         , or{" "}
