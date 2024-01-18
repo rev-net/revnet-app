@@ -2,9 +2,13 @@
 
 import { Ether } from "@/components/Ether";
 import EtherscanLink from "@/components/EtherscanLink";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Html } from "@/components/ui/html";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { useParticipantsQuery } from "@/generated/graphql";
 import { useProjectMetadata } from "@/hooks/juicebox/useProjectMetadata";
 import { useCountdownToDate } from "@/hooks/useCountdownToDate";
@@ -20,11 +24,12 @@ import {
   useJbTokensTotalSupplyOf,
 } from "@/lib/juicebox/hooks/contract";
 import { formatSeconds } from "@/lib/utils";
-import { ClockIcon } from "@heroicons/react/24/outline";
+import { QuestionMarkCircleIcon } from "@heroicons/react/24/outline";
 import { FixedInt } from "fpnum";
 import {
   JBToken,
   SplitGroup,
+  getNextCycleWeight,
   getTokenBPrice,
   getTokenRedemptionQuoteEth,
 } from "juice-sdk-core";
@@ -34,7 +39,7 @@ import { useAccount } from "wagmi";
 import { useJBContractContext } from "../contexts/JBContractContext/JBContractContext";
 import { useJBRulesetContext } from "../contexts/JBRulesetContext/JBRulesetContext";
 import { useJBTokenContext } from "../contexts/JBTokenContext/JBTokenContext";
-import { NATIVE_TOKEN } from "../contexts/datatypes";
+import { NATIVE_TOKEN, RulesetWeight } from "../contexts/datatypes";
 import { ParticipantsPieChart } from "./ParticipantsPieChart";
 import { ParticipantsTable } from "./ParticipantsTable";
 import StepChart from "./StepChart";
@@ -217,6 +222,21 @@ export function NetworkDashboard() {
         })
       : null;
 
+  const nextWeight = new RulesetWeight(
+    getNextCycleWeight({
+      weight: ruleset?.data?.weight.val ?? 0n,
+      discountRate: ruleset?.data?.decayRate.val ?? 0n,
+    })
+  );
+
+  const nextTokenBPrice =
+    ruleset?.data && rulesetMetadata?.data
+      ? getTokenBPrice(tokenA.decimals, {
+          weight: nextWeight,
+          reservedRate: rulesetMetadata?.data?.reservedRate,
+        })
+      : null;
+
   const timeLeft = useCountdownToDate(
     new Date(
       Number(
@@ -288,7 +308,8 @@ export function NetworkDashboard() {
 
           <div className="max-w-4xl mx-auto">
             <div className="mb-6">
-              <div className="mb-2">
+              <div>
+                <div className="text-sm text-zinc-500">Current price</div>
                 <span className="text-2xl font-medium">
                   {currentTokenBPrice?.format(4)} {tokenA.symbol}
                 </span>
@@ -297,31 +318,39 @@ export function NetworkDashboard() {
                   / {token?.data?.symbol}
                 </span>
               </div>
-              <div className="text-zinc-500 text-sm flex items-center gap-2">
-                <div className="flex items-center gap-1">
-                  <span>
-                    +
-                    <span className="font-medium">
-                      {entryTax?.formatPercentage()}%
-                    </span>{" "}
-                    every{" "}
-                    <span className="font-medium">
-                      {ruleset?.data?.duration === 86400n
-                        ? "day"
-                        : formatSeconds(Number(ruleset?.data?.duration ?? 0))}
-                    </span>
-                  </span>
-                </div>
+              {timeLeft ? (
+                <Tooltip>
+                  <TooltipTrigger>
+                    <div className="text-sm mt-1 text-red-600">
+                      <span>
+                        {nextTokenBPrice?.format(4)} {tokenA.symbol}
+                      </span>
+                      <span className="text-base leading-tight">
+                        {" "}
+                        / {token?.data?.symbol}
+                      </span>{" "}
+                      <span>in {formatSeconds(timeLeft)}</span>
+                      <QuestionMarkCircleIcon className="h-4 w-4 inline ml-1 mb-1" />
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent side="right">
+                    +{entryTax?.formatPercentage()}% price ceiling increase
+                    scheduled for {formatSeconds(timeLeft)}
+                  </TooltipContent>
+                </Tooltip>
+              ) : null}
+
+              {/* <div>
                 {timeLeft ? (
                   <Badge
                     variant="destructive"
                     className="bg-orange-100 flex gap-1 items-center text-orange-900 hover:bg-orange-100"
                   >
-                    <ClockIcon className="h-3 w-3" /> Price increase in{" "}
-                    {formatSeconds(timeLeft)}
+                    <ArrowTrendingUpIcon className="h-3 w-3" />+
+                    {entryTax?.formatPercentage()}% in {formatSeconds(timeLeft)}
                   </Badge>
                 ) : null}
-              </div>
+              </div> */}
             </div>
 
             <div className="mb-12">

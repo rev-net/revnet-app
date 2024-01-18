@@ -135,21 +135,11 @@ const StepChart = () => {
     reservedRate: rulesetMetadata?.data?.reservedRate ?? new ReservedRate(0n),
   });
   const nextPrice = getTokenBtoAQuote(new Ether(ONE_ETHER), 18, {
-    weight: new RulesetWeight(
-      getNextCycleWeight({
-        weight: nextWeight.val,
-        discountRate: ruleset?.data?.decayRate.val ?? 0n,
-      })
-    ),
+    weight: nextWeight,
     reservedRate: rulesetMetadata?.data?.reservedRate ?? new ReservedRate(0n),
   });
   const nextNextPrice = getTokenBtoAQuote(new Ether(ONE_ETHER), 18, {
-    weight: new RulesetWeight(
-      getNextCycleWeight({
-        weight: nextNextWeight.val,
-        discountRate: ruleset?.data?.decayRate.val ?? 0n,
-      })
-    ),
+    weight: nextNextWeight,
     reservedRate: rulesetMetadata?.data?.reservedRate ?? new ReservedRate(0n),
   });
 

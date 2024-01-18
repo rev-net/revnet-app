@@ -13,6 +13,11 @@ import { useJBContractContext } from "../../contexts/JBContractContext/JBContrac
 import { useJBRulesetContext } from "../../contexts/JBRulesetContext/JBRulesetContext";
 import { PayDialog } from "./PayDialog";
 import { PayInput } from "./PayInput";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export function PayForm({
   tokenA,
@@ -150,21 +155,35 @@ export function PayForm({
       ) : null}
 
       {devTax && boostRecipient ? (
-        <div className="text-sm flex items-center justify-between gap-1 mb-3">
-          <span className="flex items-center gap-1">
-            <ForwardIcon className="h-4 w-4 inline-block" />
-            <span className="font-medium">
-              {devTax.formatPercentage().toFixed(2)}%
-            </span>{" "}
-            boost to{" "}
-          </span>
-          <EthereumAddress
-            address={boostRecipient}
-            short
-            withEnsName
-            className="font-medium"
-          />
-        </div>
+        <Tooltip>
+          <TooltipTrigger>
+            <div className="text-sm flex items-center justify-between gap-1 mb-3">
+              <span className="flex items-center gap-1">
+                <ForwardIcon className="h-4 w-4 inline-block" />
+                <span className="font-medium">
+                  {devTax.formatPercentage().toFixed(2)}%
+                </span>{" "}
+                boost to{" "}
+              </span>
+              <EthereumAddress
+                address={boostRecipient}
+                short
+                withEnsName
+                className="font-medium"
+              />
+            </div>
+          </TooltipTrigger>
+          <TooltipContent>
+            <EthereumAddress
+              address={boostRecipient}
+              short
+              withEnsName
+              className="font-medium"
+            />{" "}
+            will receive {devTax.formatPercentage().toFixed(2)}% of new tokens
+            minted.
+          </TooltipContent>
+        </Tooltip>
       ) : null}
     </div>
   );

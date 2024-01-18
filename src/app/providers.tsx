@@ -1,5 +1,6 @@
 "use client";
 
+import { TooltipProvider } from "@/components/ui/tooltip";
 import apolloClient from "@/lib/apolloClient";
 import { wagmiConfig } from "@/lib/wagmiConfig";
 import { ApolloProvider } from "@apollo/client";
@@ -19,7 +20,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
       <ConnectKitProvider>
         <ApolloProvider client={apolloClient}>
           <QueryClientProvider client={queryClient}>
-            {mounted && children}
+            <TooltipProvider delayDuration={200} skipDelayDuration={100}>
+              {mounted && children}
+            </TooltipProvider>
           </QueryClientProvider>
         </ApolloProvider>
       </ConnectKitProvider>
