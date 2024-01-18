@@ -28,9 +28,9 @@ export default defineConfig([
           {
             name: "REVBasicDeployer",
             address: {
-              [sepolia.id]: "0xAE21bf6aD00B9E33218f0D21c89ce463449c2e4d",
+              [sepolia.id]: "0x1e6494fd54c9bdF0eFd796327582512a9C894dc6",
               [optimismSepolia.id]:
-                "0x9D4baed80284a032F6B553E6b514Dd9f32273a48",
+                "0xAB03289b007a5De4fdAa7465521D918e49A4e60d",
             },
           },
         ],
