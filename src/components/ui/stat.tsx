@@ -5,7 +5,7 @@ export function Stat({
   return (
     <div>
       <div className="text-zinc-500">{label}</div>
-      <div className="text-2xl font-medium">{children}</div>
+      <div className="text-2xl">{children}</div>
     </div>
   );
 }

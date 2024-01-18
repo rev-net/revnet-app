@@ -248,7 +248,7 @@ const StepChart = () => {
             tickLine={false}
             axisLine={false}
             type="number"
-            domain={[prevPrice.toFloat() * 0.99, "dataMax"]}
+            domain={[(prevPrice.toFloat() * 0.99).toFixed(6), "dataMax"]}
             fontSize={"0.75rem"}
             fill="#71717A"
             // hide

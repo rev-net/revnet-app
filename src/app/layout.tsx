@@ -24,7 +24,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={twMerge(ibm.variable, "bg-zinc-25 text-zinc-950 font-sans")}
+        className={twMerge(ibm.variable, "bg-zinc-25 text-zinc-950 font-sans min-h-screen")}
       >
         <Providers>
           <Nav />

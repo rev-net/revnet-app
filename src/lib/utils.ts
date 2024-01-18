@@ -12,7 +12,7 @@ export function formatSeconds(seconds: number) {
   return formatDuration(duration, {
     format:
       seconds > 86400 // if greater than a day, only show 'days'
-        ? ["days"]
+        ? ["days", "hours"]
         : seconds > 3600 // if greater than an hour, only show 'hours' and 'minutes'
         ? ["hours", "minutes"]
         : ["minutes", "seconds"],
