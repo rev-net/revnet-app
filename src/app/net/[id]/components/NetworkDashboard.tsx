@@ -248,7 +248,7 @@ export function NetworkDashboard() {
 
   return (
     <div>
-      <div className="flex gap-10 container py-10">
+      <div className="flex gap-10 container py-10 md:flex-nowrap flex-wrap">
         {/* Column 1 */}
         <div className="flex-1">
           <header className="mb-10">
@@ -453,7 +453,7 @@ export function NetworkDashboard() {
         </div>
 
         {/* Column 2 */}
-        <div className="md:w-[340px] hidden md:block">
+        <div className="md:w-[340px] md:block">
           <div className="mb-10">
             {token?.data && boostRecipient ? (
               <PayForm
