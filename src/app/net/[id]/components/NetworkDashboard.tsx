@@ -46,6 +46,7 @@ import StepChart from "./StepChart";
 import { ActivityFeed } from "./activity/ActivityFeed";
 import { PayForm } from "./pay/PayForm";
 import { RedeemDialog } from "./redeem/RedeemDialog";
+import { ForwardIcon } from "@heroicons/react/24/solid";
 
 const RESERVED_TOKEN_SPLIT_GROUP_ID = 1n;
 
@@ -250,8 +251,13 @@ export function NetworkDashboard() {
       <div className="flex gap-10 container py-10">
         {/* Column 1 */}
         <div className="flex-1">
-          <header className="mb-7 border-b border-zinc-100 pb-7">
-            <div className="flex justify-between md:items-center md:flex-row flex-col gap-5 ">
+          <header className="mb-10">
+            <div className="flex items-center gap-4">
+              {/* project logo placeholder */}
+              <div className="rounded-lg bg-zinc-100 h-20 w-20 flex items-center justify-center">
+                <ForwardIcon className="h-6 w-6 text-zinc-500" />
+              </div>
+
               <div>
                 <div className="flex items-baseline gap-2 mb-2">
                   {logoUri && (
@@ -261,7 +267,7 @@ export function NetworkDashboard() {
                       alt={token?.data?.symbol}
                     />
                   )}
-                  <h1 className="text-3xl font-semibold tracking-tight">
+                  <h1 className="text-3xl font-medium tracking-tight">
                     {projectName}
                   </h1>
                   {token?.data ? (
@@ -275,11 +281,11 @@ export function NetworkDashboard() {
                 </div>
                 <div className="flex gap-4">
                   {typeof overflowEth !== "undefined" ? (
-                    <span className="text-zinc-500">
-                      <span className="font-medium">
+                    <span className="text-sm">
+                      <span className="font-medium text-zinc-500">
                         <Ether wei={overflowEth} />
                       </span>{" "}
-                      TVL
+                      <span className="text-zinc-500">TVL</span>
                     </span>
                   ) : null}
                 </div>
@@ -309,11 +315,11 @@ export function NetworkDashboard() {
           <div className="max-w-4xl mx-auto">
             <div className="mb-6">
               <div>
-                <div className="text-sm text-zinc-500">Current price</div>
-                <span className="text-2xl font-medium">
+                {/* <div className="text-sm text-zinc-500">Current price</div> */}
+                <span className="text-2xl">
                   {currentTokenBPrice?.format(4)} {tokenA.symbol}
                 </span>
-                <span className="text-base leading-tight">
+                <span className="text-base leading-tight text-zinc-500">
                   {" "}
                   / {token?.data?.symbol}
                 </span>
@@ -386,9 +392,7 @@ export function NetworkDashboard() {
 
             <div className="mb-10">
               <div className="mb-5">
-                <h2 className="text-2xl font-medium mb-1">
-                  About {projectMetadata?.name}
-                </h2>
+                <h2 className="text-2xl mb-1">About {projectMetadata?.name}</h2>
                 {/* {createdAt && projectCreateEventTxHash ? (
                   <EtherscanLink
                     value={projectCreateEventTxHash}
@@ -407,7 +411,7 @@ export function NetworkDashboard() {
             {/* <NetworkDetailsTable boost={boost} /> */}
 
             <div className="mb-10">
-              <h2 className="text-2xl font-medium mb-1">Participants</h2>
+              <h2 className="text-2xl mb-1">Participants</h2>
 
               {token?.data &&
               participantsData &&

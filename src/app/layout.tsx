@@ -9,7 +9,7 @@ const ibm = IBM_Plex_Sans({
   subsets: ["latin"],
   display: "swap",
   variable: "--font-ibm",
-  weight: ["400", "600"],
+  weight: ["400", "500"],
 });
 
 export const metadata = {

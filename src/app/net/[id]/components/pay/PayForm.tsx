@@ -56,8 +56,8 @@ export function PayForm({
 
   return (
     <div className="flex flex-col p-5 rounded-xl bg-zinc-50 border border-zinc-200 w-full shadow-lg">
-      <h2 className="font-medium mb-4">Join network</h2>
-      <div className="flex justify-center items-center flex-col gap-2 mb-5">
+      <h2 className="mb-4">Join network</h2>
+      <div className="flex justify-center items-center flex-col gap-3 mb-5">
         <PayInput
           label="You pay"
           onChange={(e) => {
@@ -88,7 +88,7 @@ export function PayForm({
           value={amountA}
           currency={tokenA?.symbol}
         />
-        <ArrowDownIcon className="h-6 w-6" />
+        <ArrowDownIcon className="h-5 w-5 text-zinc-500" />
         <PayInput
           label="You receive"
           onChange={(e) => {
@@ -163,14 +163,9 @@ export function PayForm({
                 <span className="font-medium">
                   {devTax.formatPercentage().toFixed(2)}%
                 </span>{" "}
-                boost to{" "}
+                <span>boost to </span>
               </span>
-              <EthereumAddress
-                address={boostRecipient}
-                short
-                withEnsName
-                className="font-medium"
-              />
+              <EthereumAddress address={boostRecipient} short withEnsName />
             </div>
           </TooltipTrigger>
           <TooltipContent>
