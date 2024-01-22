@@ -36,7 +36,7 @@ const CustomTooltip = ({
   payload?: Array<{
     payload: {
       address: string;
-      balance: JBToken;
+      balance: JBProjectToken;
     };
   }>;
   totalSupply: bigint;
