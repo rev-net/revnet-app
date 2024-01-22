@@ -7,16 +7,15 @@ import {
   usePayEventsQuery,
 } from "@/generated/graphql";
 import { formatDistance } from "date-fns";
-import { Ether, JBToken, PV2 } from "juice-sdk-core";
+import { Ether, JBProjectToken } from "juice-sdk-core";
+import { useJBContractContext, useJBTokenContext } from "juice-sdk-react";
 import { Address } from "viem";
-import { useJBTokenContext } from "../../contexts/JBTokenContext/JBTokenContext";
-import { useJBContractContext } from "../../contexts/JBContractContext/JBContractContext";
 
 type PayEvent = {
   id: string;
   amount: Ether;
   beneficiary: Address;
-  // beneficiaryTokenCount: JBToken;
+  beneficiaryTokenCount: JBProjectToken;
   timestamp: number;
   txHash: string;
 };
@@ -37,11 +36,10 @@ function ActivityItem(ev: PayEvent) {
           withEnsName
           withEnsAvatar
           avatarProps={{ size: "sm" }}
-          className="font-medium"
           short
-        />{" "}
+        />
         <div>
-          {/* bought {ev.beneficiaryTokenCount.format()} {token.data.symbol} */}
+          bought {ev.beneficiaryTokenCount.format()} {token.data.symbol}
         </div>
       </div>
       <div className="text-xs text-zinc-500 ml-7">
@@ -62,7 +60,9 @@ function transformPayEventsRes(
       id: event.id,
       amount: new Ether(BigInt(event.amount)),
       beneficiary: event.beneficiary,
-      // beneficiaryTokenCount: new JBToken(BigInt(event.beneficiaryTokenCount)),
+      beneficiaryTokenCount: new JBProjectToken(
+        BigInt(event.beneficiaryTokenCount)
+      ),
       timestamp: event.timestamp,
       txHash: event.txHash,
     };

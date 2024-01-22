@@ -1,23 +1,22 @@
 import { EthereumAddress } from "@/components/EthereumAddress";
 import { Button } from "@/components/ui/button";
 import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
   ArrowDownIcon,
   ArrowRightIcon,
   ForwardIcon,
 } from "@heroicons/react/24/solid";
 import { FixedInt } from "fpnum";
-import { JBToken, getTokenAToBQuote, getTokenBtoAQuote } from "juice-sdk-core";
+import { getTokenAToBQuote, getTokenBtoAQuote } from "juice-sdk-core";
+import { useJBContractContext, useJBRulesetContext } from "juice-sdk-react";
 import { useState } from "react";
 import { Address, formatUnits, parseEther, parseUnits } from "viem";
-import { useJBContractContext } from "../../contexts/JBContractContext/JBContractContext";
-import { useJBRulesetContext } from "../../contexts/JBRulesetContext/JBRulesetContext";
 import { PayDialog } from "./PayDialog";
 import { PayInput } from "./PayInput";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 
 export function PayForm({
   tokenA,
@@ -100,12 +99,7 @@ export function PayForm({
               return;
             }
 
-            const value = new JBToken(
-              parseUnits(
-                `${parseFloat(valueRaw)}` as `${number}`,
-                tokenB.decimals
-              )
-            );
+            const value = FixedInt.parse(valueRaw, tokenB.decimals);
 
             if (!ruleset?.data || !rulesetMetadata?.data) return;
 

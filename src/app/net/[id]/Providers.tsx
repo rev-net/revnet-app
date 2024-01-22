@@ -1,6 +1,6 @@
 "use client";
 
-import { JBProjectProvider } from "./contexts/JBProjectProvider/JBProjectProvider";
+import { JBProjectProvider } from "juice-sdk-react";
 
 export function Providers({
   children,

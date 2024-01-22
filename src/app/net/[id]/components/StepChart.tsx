@@ -3,8 +3,8 @@ import {
   Ether,
   ONE_ETHER,
   ReservedRate,
-  getNextCycleWeight,
-  getPrevCycleWeight,
+  getNextRulesetWeight,
+  getPrevRulesetWeight,
   getTokenBtoAQuote,
 } from "juice-sdk-core";
 import { useMemo } from "react";
@@ -19,8 +19,9 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { useJBRulesetContext } from "../contexts/JBRulesetContext/JBRulesetContext";
-import { RulesetWeight } from "../contexts/datatypes";
+import { useJBRulesetContext } from "juice-sdk-react";
+import { RulesetWeight } from "juice-sdk-core";
+import { useNativeTokenSymbol } from "@/hooks/useNativeTokenSymbol";
 
 function generateDateRange(startDate: Date, endDate: Date, resolution: number) {
   const dateRange = [];
@@ -36,6 +37,33 @@ function generateDateRange(startDate: Date, endDate: Date, resolution: number) {
 
 const steps = 50;
 
+const CustomTooltip = ({
+  active,
+  payload,
+  label,
+}: {
+  active?: boolean;
+  payload?: Array<{
+    value: number;
+  }>;
+  label?: string;
+}) => {
+  const nativeTokenSymbol = useNativeTokenSymbol()
+  if (active) {
+    const value = payload?.[0].value ?? 0;
+
+    return (
+      <div className="rounded-md border border-zinc-200 bg-white px-3 py-1.5 text-sm text-zinc-950 shadow-md ">
+        <p>
+          {value} {nativeTokenSymbol}
+        </p>
+      </div>
+    );
+  }
+
+  return null;
+};
+
 const CustomizedDot = (
   props: DotProps & {
     payload?: {
@@ -49,7 +77,7 @@ const CustomizedDot = (
   const { cx, cy, payload } = props;
   if (
     payload?.groupIdx === props.datapointIndex &&
-    `${payload?.price}` === props.currentPrice.toFloat().toFixed(2)
+    `${payload?.price}` === props.currentPrice.toFloat().toFixed(4)
   ) {
     return (
       <Dot
@@ -67,7 +95,7 @@ const CustomizedDot = (
   return null;
 };
 
-const CustomizedTick = (props: {
+const CustomizedXTick = (props: {
   x?: number;
   y?: number;
   payload?: {
@@ -107,21 +135,21 @@ const StepChart = () => {
   const nextNextFcEnd = nextFcEnd + (ruleset?.data?.duration ?? 0n);
 
   const prevWeight = new RulesetWeight(
-    getPrevCycleWeight({
+    getPrevRulesetWeight({
       weight: ruleset?.data?.weight.val ?? 0n,
-      discountRate: ruleset?.data?.decayRate.val ?? 0n,
+      decayRate: ruleset?.data?.decayRate.val ?? 0n,
     })
   );
   const nextWeight = new RulesetWeight(
-    getNextCycleWeight({
+    getNextRulesetWeight({
       weight: ruleset?.data?.weight.val ?? 0n,
-      discountRate: ruleset?.data?.decayRate.val ?? 0n,
+      decayRate: ruleset?.data?.decayRate.val ?? 0n,
     })
   );
   const nextNextWeight = new RulesetWeight(
-    getNextCycleWeight({
+    getNextRulesetWeight({
       weight: nextWeight.val ?? 0n,
-      discountRate: ruleset?.data?.decayRate.val ?? 0n,
+      decayRate: ruleset?.data?.decayRate.val ?? 0n,
     })
   );
 
@@ -161,7 +189,7 @@ const StepChart = () => {
             fc: 1,
             groupIdx: i,
             date: d,
-            price: prevPrice.toFloat().toFixed(2),
+            price: prevPrice.toFloat().toFixed(4),
           };
         })
         .slice(steps * 0.6, steps),
@@ -175,7 +203,7 @@ const StepChart = () => {
 
           groupIdx: i,
           date: d,
-          price: currentPrice.toFloat().toFixed(2),
+          price: currentPrice.toFloat().toFixed(4),
         };
       }),
       ...generateDateRange(
@@ -188,7 +216,7 @@ const StepChart = () => {
 
           groupIdx: i,
           date: d,
-          price: nextPrice.toFloat().toFixed(2),
+          price: nextPrice.toFloat().toFixed(4),
         };
       }),
       ...generateDateRange(
@@ -201,7 +229,7 @@ const StepChart = () => {
 
           groupIdx: i,
           date: d,
-          price: nextNextPrice.toFloat().toFixed(2),
+          price: nextNextPrice.toFloat().toFixed(4),
         };
       }),
     ];
@@ -231,7 +259,7 @@ const StepChart = () => {
             tickLine={false}
             tick={
               ruleset?.data ? (
-                <CustomizedTick
+                <CustomizedXTick
                   renderData={renderData}
                   cycleDuration={ruleset.data.duration}
                 />
@@ -253,7 +281,7 @@ const StepChart = () => {
             fill="#71717A"
             // hide
           />
-          <Tooltip />
+          <Tooltip content={<CustomTooltip />} />
           <Area
             type="stepBefore"
             dataKey="price"

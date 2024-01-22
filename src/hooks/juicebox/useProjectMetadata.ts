@@ -1,21 +1,33 @@
-import { ipfsGatewayUrl } from "@/lib/ipfs";
-import { JBProjectMetadata } from "juice-sdk-core";
+import { OPEN_IPFS_GATEWAY_HOSTNAME } from "@/lib/ipfs";
+import { getProjectMetadata } from "juice-sdk-core";
 import { useQuery } from "react-query";
+import { Address } from "viem";
+import { useChainId, usePublicClient } from "wagmi";
 
-export function useProjectMetadata(metadataCid: string | undefined | null) {
-  return useQuery(
-    [metadataCid],
-    async () => {
-      if (!metadataCid) return null;
+export function useProjectMetadata({
+  projectId,
+  jbControllerAddress,
+}: {
+  projectId: bigint | undefined;
+  jbControllerAddress: Address | undefined;
+}) {
+  const chainId = useChainId();
+  const publicClient = usePublicClient({ chainId });
 
-      const response = (await fetch(ipfsGatewayUrl(metadataCid)).then((res) =>
-        res.json()
-      )) as JBProjectMetadata;
+  return useQuery([projectId?.toString(), jbControllerAddress], async () => {
+    if (!projectId || !jbControllerAddress) return null;
 
-      return response;
-    },
-    {
-      enabled: !!metadataCid,
-    }
-  );
+    const response = await getProjectMetadata(
+      publicClient,
+      {
+        projectId,
+        jbControllerAddress,
+      },
+      {
+        ipfsGatewayHostname: OPEN_IPFS_GATEWAY_HOSTNAME,
+      }
+    );
+
+    return response;
+  });
 }

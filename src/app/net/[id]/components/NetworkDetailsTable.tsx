@@ -1,6 +1,6 @@
 import { EthereumAddress } from "@/components/EthereumAddress";
 import { Address, formatUnits } from "viem";
-import { useJBRulesetContext } from "../contexts/JBRulesetContext/JBRulesetContext";
+import { useJBRulesetContext } from "juice-sdk-react";
 
 export function NetworkDetailsTable({
   boost,

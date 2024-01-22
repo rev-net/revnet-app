@@ -16,7 +16,6 @@ import { useNativeTokenSymbol } from "@/hooks/useNativeTokenSymbol";
 import { ipfsUriToGatewayUrl } from "@/lib/ipfs";
 import {
   useJbControllerLatestQueuedRulesetOf,
-  useJbControllerMetadataOf,
   useJbControllerPendingReservedTokenBalanceOf,
   useJbMultiTerminalCurrentSurplusOf,
   useJbSplitsSplitsOf,
@@ -25,28 +24,30 @@ import {
 } from "@/lib/juicebox/hooks/contract";
 import { formatSeconds } from "@/lib/utils";
 import { QuestionMarkCircleIcon } from "@heroicons/react/24/outline";
+import { ForwardIcon } from "@heroicons/react/24/solid";
 import { FixedInt } from "fpnum";
 import {
-  JBToken,
+  JBProjectToken,
   SplitGroup,
-  getNextCycleWeight,
+  getNextRulesetWeight,
   getTokenBPrice,
   getTokenRedemptionQuoteEth,
 } from "juice-sdk-core";
 import { useEffect, useState } from "react";
 import { formatUnits, parseUnits } from "viem";
 import { useAccount } from "wagmi";
-import { useJBContractContext } from "../contexts/JBContractContext/JBContractContext";
-import { useJBRulesetContext } from "../contexts/JBRulesetContext/JBRulesetContext";
-import { useJBTokenContext } from "../contexts/JBTokenContext/JBTokenContext";
-import { NATIVE_TOKEN, RulesetWeight } from "../contexts/datatypes";
+import {
+  useJBContractContext,
+  useJBRulesetContext,
+  useJBTokenContext,
+} from "juice-sdk-react";
+import { NATIVE_TOKEN, RulesetWeight } from "juice-sdk-core";
 import { ParticipantsPieChart } from "./ParticipantsPieChart";
 import { ParticipantsTable } from "./ParticipantsTable";
 import StepChart from "./StepChart";
 import { ActivityFeed } from "./activity/ActivityFeed";
 import { PayForm } from "./pay/PayForm";
 import { RedeemDialog } from "./redeem/RedeemDialog";
-import { ForwardIcon } from "@heroicons/react/24/solid";
 
 const RESERVED_TOKEN_SPLIT_GROUP_ID = 1n;
 
@@ -57,7 +58,7 @@ export function NetworkDashboard() {
 
   const {
     projectId,
-    contracts: { primaryNativeTerminal },
+    contracts: { primaryNativeTerminal, controller },
   } = useJBContractContext();
   const { address: userAddress } = useAccount();
   const { ruleset, rulesetMetadata } = useJBRulesetContext();
@@ -152,15 +153,16 @@ export function NetworkDashboard() {
 
   // const { metadataUri, contributorsCount, createdAt } =
   //   projects?.projects?.[0] ?? {};
-  const { data: metadataUri } = useJbControllerMetadataOf({
-    args: [projectId],
+  const { data: projectMetadata } = useProjectMetadata({
+    projectId,
+    jbControllerAddress: controller?.data,
   });
-  const { data: projectMetadata } = useProjectMetadata(metadataUri);
+
   const { name: projectName, projectTagline, logoUri } = projectMetadata ?? {};
   const { data: creditBalance } = useJbTokensTotalBalanceOf({
     args: userAddress ? [userAddress, projectId] : undefined,
     select(data) {
-      return new JBToken(data);
+      return new JBProjectToken(data);
     },
   });
 
@@ -224,9 +226,9 @@ export function NetworkDashboard() {
       : null;
 
   const nextWeight = new RulesetWeight(
-    getNextCycleWeight({
+    getNextRulesetWeight({
       weight: ruleset?.data?.weight.val ?? 0n,
-      discountRate: ruleset?.data?.decayRate.val ?? 0n,
+      decayRate: ruleset?.data?.decayRate.val ?? 0n,
     })
   );
 
@@ -255,7 +257,7 @@ export function NetworkDashboard() {
             <div className="flex items-center gap-4">
               {/* project logo placeholder */}
               <div className="rounded-lg bg-zinc-100 h-20 w-20 flex items-center justify-center">
-                <ForwardIcon className="h-6 w-6 text-zinc-500" />
+                <ForwardIcon className="h-5 w-5 text-zinc-700" />
               </div>
 
               <div>

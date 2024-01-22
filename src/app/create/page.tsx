@@ -4,6 +4,7 @@ import { EthereumAddress } from "@/components/EthereumAddress";
 import EtherscanLink from "@/components/EtherscanLink";
 import { Button } from "@/components/ui/button";
 import { NATIVE_TOKEN } from "@/lib/juicebox/constants";
+import { jbMultiTerminalAddress } from "@/lib/juicebox/hooks/contract";
 import { revBasicDeployerABI } from "@/lib/revnet/hooks/contract";
 import { useDeployRevnet } from "@/lib/revnet/hooks/useDeployRevnet";
 import { cn } from "@/lib/utils";
@@ -16,6 +17,7 @@ import {
   useFormikContext,
 } from "formik";
 import {
+  DecayRate,
   JBProjectMetadata,
   RedemptionRate,
   ReservedRate,
@@ -24,6 +26,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { twMerge } from "tailwind-merge";
 import { Chain, parseUnits, zeroAddress } from "viem";
+import { optimismSepolia } from "viem/chains";
 import {
   Address,
   UsePrepareContractWriteConfig,
@@ -31,9 +34,6 @@ import {
   useNetwork,
   useWaitForTransaction,
 } from "wagmi";
-import { DecayRate } from "../net/[id]/contexts/datatypes";
-import { jbMultiTerminalAddress } from "@/lib/juicebox/hooks/contract";
-import { optimismSepolia } from "viem/chains";
 
 const DEFAULT_FORM_DATA = {
   name: "",

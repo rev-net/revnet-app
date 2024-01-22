@@ -1,7 +1,7 @@
 import { EthereumAddress } from "@/components/EthereumAddress";
 import { ParticipantsQuery } from "@/generated/graphql";
 import { formatPortion } from "@/lib/utils";
-import { JBToken } from "juice-sdk-core";
+import { JBProjectToken } from "juice-sdk-core";
 import { useMemo } from "react";
 import { Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 import { FetchTokenResult } from "wagmi/dist/actions";
@@ -70,8 +70,8 @@ export function ParticipantsPieChart({
     return participants.participants.map((participant, idx) => {
       return {
         address: participant.wallet.id,
-        balanceFormatted: new JBToken(participant.balance).toFloat(),
-        balance: new JBToken(participant.balance),
+        balanceFormatted: new JBProjectToken(participant.balance).toFloat(),
+        balance: new JBProjectToken(participant.balance),
         fill: COLORS[idx % COLORS.length],
       };
     });

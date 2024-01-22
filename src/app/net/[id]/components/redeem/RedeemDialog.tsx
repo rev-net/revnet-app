@@ -13,12 +13,11 @@ import { Label } from "@/components/ui/label";
 import { Stat } from "@/components/ui/stat";
 import { useJbMultiTerminalRedeemTokensOf } from "@/lib/juicebox/hooks/contract";
 import { FixedInt } from "fpnum";
-import { JBToken } from "juice-sdk-core";
+import { JBProjectToken, NATIVE_TOKEN } from "juice-sdk-core";
+import { useJBContractContext } from "juice-sdk-react";
 import { PropsWithChildren, useState } from "react";
 import { Address, parseEther } from "viem";
 import { useAccount, useWaitForTransaction } from "wagmi";
-import { useJBContractContext } from "../../contexts/JBContractContext/JBContractContext";
-import { NATIVE_TOKEN } from "../../contexts/datatypes";
 
 export function RedeemDialog({
   projectId,
@@ -49,7 +48,7 @@ export function RedeemDialog({
    */
 
   const redeemAmountBN = redeemAmount
-    ? JBToken.parse(redeemAmount, 18).val
+    ? JBProjectToken.parse(redeemAmount, 18).val
     : 0n;
 
   const {

@@ -9547,7 +9547,7 @@ export type PayEventsQueryVariables = Exact<{
 }>;
 
 
-export type PayEventsQuery = { payEvents: Array<{ id: string, amount: any, beneficiary: any, note: string, timestamp: number, feeFromV2Project: number | null, from: any, txHash: any, project: { id: string, projectId: number, handle: string | null } }> };
+export type PayEventsQuery = { payEvents: Array<{ id: string, amount: any, beneficiary: any, note: string, timestamp: number, feeFromV2Project: number | null, beneficiaryTokenCount: any, from: any, txHash: any, project: { id: string, projectId: number, handle: string | null } }> };
 
 export type ProjectsQueryVariables = Exact<{
   where?: InputMaybe<Project_Filter>;
@@ -10838,6 +10838,7 @@ export const PayEventsDocument = gql`
     note
     timestamp
     feeFromV2Project
+    beneficiaryTokenCount
     from
     txHash
     project {

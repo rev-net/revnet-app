@@ -1,4 +1,4 @@
-import { TokenAmountType } from "@/app/net/[id]/contexts/datatypes";
+import { TokenAmountType } from "juice-sdk-core";
 
 export function TokenAmount({
   amount,

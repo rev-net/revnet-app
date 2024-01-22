@@ -1,3 +1,4 @@
+import { TokenAmount } from "@/components/TokenAmount";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -8,18 +9,13 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { useJbMultiTerminalPay } from "@/lib/juicebox/hooks/contract";
-import { PropsWithChildren } from "react";
-import { Address, formatEther, zeroAddress } from "viem";
-import { NATIVE_TOKEN, TokenAmountType } from "../../contexts/datatypes";
-import { useAccount, useWaitForTransaction } from "wagmi";
-import { useJBContractContext } from "../../contexts/JBContractContext/JBContractContext";
-import { useNativeTokenSymbol } from "@/hooks/useNativeTokenSymbol";
-import { Ether } from "@/components/Ether";
-import { FixedInt } from "fpnum";
-import { TokenAmount } from "@/components/TokenAmount";
-import { ST } from "next/dist/shared/lib/utils";
 import { Stat } from "@/components/ui/stat";
+import { useJbMultiTerminalPay } from "@/lib/juicebox/hooks/contract";
+import { NATIVE_TOKEN, TokenAmountType } from "juice-sdk-core";
+import { useJBContractContext } from "juice-sdk-react";
+import { PropsWithChildren } from "react";
+import { Address } from "viem";
+import { useAccount, useWaitForTransaction } from "wagmi";
 
 export function PayDialog({
   amountA,
