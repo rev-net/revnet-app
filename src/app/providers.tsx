@@ -6,10 +6,7 @@ import { wagmiConfig } from "@/lib/wagmiConfig";
 import { ApolloProvider } from "@apollo/client";
 import { ConnectKitProvider } from "connectkit";
 import * as React from "react";
-import { QueryClient, QueryClientProvider } from "react-query";
 import { WagmiConfig } from "wagmi";
-
-const queryClient = new QueryClient();
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [mounted, setMounted] = React.useState(false);
@@ -19,11 +16,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
     <WagmiConfig config={wagmiConfig}>
       <ConnectKitProvider>
         <ApolloProvider client={apolloClient}>
-          <QueryClientProvider client={queryClient}>
-            <TooltipProvider delayDuration={200} skipDelayDuration={100}>
-              {mounted && children}
-            </TooltipProvider>
-          </QueryClientProvider>
+          <TooltipProvider delayDuration={200} skipDelayDuration={100}>
+            {mounted && children}
+          </TooltipProvider>
         </ApolloProvider>
       </ConnectKitProvider>
     </WagmiConfig>
