@@ -1,5 +1,6 @@
 "use client";
 
+import { OPEN_IPFS_GATEWAY_HOSTNAME } from "@/lib/ipfs";
 import { JBProjectProvider } from "juice-sdk-react";
 
 export function Providers({
@@ -10,6 +11,13 @@ export function Providers({
   children: React.ReactNode;
 }) {
   return (
-    <JBProjectProvider projectId={projectId}>{children}</JBProjectProvider>
+    <JBProjectProvider
+      projectId={projectId}
+      ctxProps={{
+        metadata: { ipfsGatewayHostname: OPEN_IPFS_GATEWAY_HOSTNAME },
+      }}
+    >
+      {children}
+    </JBProjectProvider>
   );
 }

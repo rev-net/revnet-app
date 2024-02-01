@@ -10,7 +10,6 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useParticipantsQuery } from "@/generated/graphql";
-import { useProjectMetadata } from "@/hooks/juicebox/useProjectMetadata";
 import { useCountdownToDate } from "@/hooks/useCountdownToDate";
 import { useNativeTokenSymbol } from "@/hooks/useNativeTokenSymbol";
 import { ipfsUriToGatewayUrl } from "@/lib/ipfs";
@@ -28,20 +27,22 @@ import { ForwardIcon } from "@heroicons/react/24/solid";
 import { FixedInt } from "fpnum";
 import {
   JBProjectToken,
+  NATIVE_TOKEN,
+  RulesetWeight,
   SplitGroup,
   getNextRulesetWeight,
   getTokenBPrice,
   getTokenRedemptionQuoteEth,
 } from "juice-sdk-core";
-import { useEffect, useState } from "react";
-import { formatUnits, parseUnits } from "viem";
-import { useAccount } from "wagmi";
 import {
   useJBContractContext,
+  useJBProjectMetadataContext,
   useJBRulesetContext,
   useJBTokenContext,
 } from "juice-sdk-react";
-import { NATIVE_TOKEN, RulesetWeight } from "juice-sdk-core";
+import { useEffect, useState } from "react";
+import { formatUnits, parseUnits } from "viem";
+import { useAccount } from "wagmi";
 import { ParticipantsPieChart } from "./ParticipantsPieChart";
 import { ParticipantsTable } from "./ParticipantsTable";
 import StepChart from "./StepChart";
@@ -89,7 +90,7 @@ export function NetworkDashboard() {
   const tokenA = { symbol: nativeTokenSymbol, decimals: 18 };
 
   const { data: overflowEth } = useJbMultiTerminalCurrentSurplusOf({
-    address: primaryNativeTerminal.data,
+    address: primaryNativeTerminal.data ?? undefined,
     args: [projectId, 18n, BigInt(NATIVE_TOKEN)],
     watch: true,
     staleTime: 10_000, // 10 seconds
@@ -153,12 +154,14 @@ export function NetworkDashboard() {
 
   // const { metadataUri, contributorsCount, createdAt } =
   //   projects?.projects?.[0] ?? {};
-  const { data: projectMetadata } = useProjectMetadata({
-    projectId,
-    jbControllerAddress: controller?.data,
-  });
+  const { metadata } = useJBProjectMetadataContext();
+  const {
+    name: projectName,
+    projectTagline,
+    logoUri,
+    description,
+  } = metadata?.data ?? {};
 
-  const { name: projectName, projectTagline, logoUri } = projectMetadata ?? {};
   const { data: creditBalance } = useJbTokensTotalBalanceOf({
     args: userAddress ? [userAddress, projectId] : undefined,
     select(data) {
@@ -394,7 +397,7 @@ export function NetworkDashboard() {
 
             <div className="mb-10">
               <div className="mb-5">
-                <h2 className="text-2xl mb-1">About {projectMetadata?.name}</h2>
+                <h2 className="text-2xl mb-1">About {projectName}</h2>
                 {/* {createdAt && projectCreateEventTxHash ? (
                   <EtherscanLink
                     value={projectCreateEventTxHash}
@@ -405,9 +408,7 @@ export function NetworkDashboard() {
                   </EtherscanLink>
                 ) : null} */}
               </div>
-              {projectMetadata?.description ? (
-                <Html source={projectMetadata?.description} />
-              ) : null}
+              {description ? <Html source={description} /> : null}
             </div>
 
             {/* <NetworkDetailsTable boost={boost} /> */}
