@@ -1,8 +1,11 @@
+import { Button } from "@/components/ui/button";
 import { useNativeTokenSymbol } from "@/hooks/useNativeTokenSymbol";
 import { formatSeconds } from "@/lib/utils";
+import { formatDistance } from "date-fns";
 import {
   DecayRate,
   Ether,
+  JBRulesetData,
   ONE_ETHER,
   ReservedRate,
   RulesetWeight,
@@ -107,7 +110,7 @@ const CustomizedXTick = (props: {
   payload?: {
     index: number;
   };
-  cycleDuration: bigint;
+  ruleset: JBRulesetData;
   renderData: { groupIdx: number; fc: number; date: Date }[];
 }) => {
   const { x, y, payload } = props;
@@ -124,7 +127,14 @@ const CustomizedXTick = (props: {
         fill="#71717A"
         fontSize={"0.75rem"}
       >
-        {formatSeconds(Number(props.cycleDuration) * d.fc)}
+        {formatDistance(
+          Number(props.ruleset.start) * 1000 +
+            Number(props.ruleset.duration) * (d.fc - 2) * 1000,
+          new Date(),
+          {
+            addSuffix: true,
+          }
+        )}
       </text>
     </g>
   );
@@ -132,7 +142,7 @@ const CustomizedXTick = (props: {
 
 const StepChart = () => {
   const { projectId } = useJBContractContext();
-  const { ruleset, rulesetMetadata } = useJBRulesetContext();
+  const { ruleset: currentRuleset, rulesetMetadata } = useJBRulesetContext();
 
   const [selectedStage, setSelectedStage] = useState<number>(0);
 
@@ -148,6 +158,13 @@ const StepChart = () => {
       });
     },
   });
+
+  const stages: JBRulesetData[] =
+    currentRuleset?.data && queuedRulesets
+      ? [currentRuleset.data, ...queuedRulesets]
+      : [];
+
+  const ruleset = { data: stages[selectedStage] };
 
   const currentFcStart = ruleset?.data?.start;
   const startBuffer = currentFcStart ?? 0n - (ruleset?.data?.duration ?? 0n);
@@ -269,21 +286,24 @@ const StepChart = () => {
 
   return (
     <div>
-      <div className="mb-2">
-        {queuedRulesets?.map((ruleset, idx) => {
+      <div className="mb-2 flex gap-2">
+        {stages?.map((ruleset, idx) => {
           return (
-            <div
+            <Button
+              variant="ghost"
               className={twJoin(
-                "text-sm",
+                "text-sm font-normal",
                 selectedStage === idx && "font-medium underline"
               )}
               key={ruleset.id.toString()}
+              onClick={() => setSelectedStage(idx)}
             >
               Stage {idx + 1}
-            </div>
+            </Button>
           );
         })}
       </div>
+
       <div style={{ height: 300 }}>
         <ResponsiveContainer height="100%" width="100%">
           <AreaChart data={renderData}>
@@ -299,7 +319,7 @@ const StepChart = () => {
                 ruleset?.data ? (
                   <CustomizedXTick
                     renderData={renderData}
-                    cycleDuration={ruleset.data.duration}
+                    ruleset={ruleset.data}
                   />
                 ) : undefined
               }
