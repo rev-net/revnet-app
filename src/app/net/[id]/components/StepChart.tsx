@@ -1,13 +1,21 @@
+import { useNativeTokenSymbol } from "@/hooks/useNativeTokenSymbol";
 import { formatSeconds } from "@/lib/utils";
 import {
+  DecayRate,
   Ether,
   ONE_ETHER,
   ReservedRate,
+  RulesetWeight,
   getNextRulesetWeight,
   getPrevRulesetWeight,
   getTokenBtoAQuote,
 } from "juice-sdk-core";
-import { useMemo } from "react";
+import {
+  useJBContractContext,
+  useJBRulesetContext,
+  useJbRulesetsQueuedRulesetsOf,
+} from "juice-sdk-react";
+import { useMemo, useState } from "react";
 import {
   Area,
   AreaChart,
@@ -19,9 +27,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { useJBRulesetContext } from "juice-sdk-react";
-import { RulesetWeight } from "juice-sdk-core";
-import { useNativeTokenSymbol } from "@/hooks/useNativeTokenSymbol";
+import { twJoin } from "tailwind-merge";
 
 function generateDateRange(startDate: Date, endDate: Date, resolution: number) {
   const dateRange = [];
@@ -48,7 +54,7 @@ const CustomTooltip = ({
   }>;
   label?: string;
 }) => {
-  const nativeTokenSymbol = useNativeTokenSymbol()
+  const nativeTokenSymbol = useNativeTokenSymbol();
   if (active) {
     const value = payload?.[0].value ?? 0;
 
@@ -125,7 +131,23 @@ const CustomizedXTick = (props: {
 };
 
 const StepChart = () => {
+  const { projectId } = useJBContractContext();
   const { ruleset, rulesetMetadata } = useJBRulesetContext();
+
+  const [selectedStage, setSelectedStage] = useState<number>(0);
+
+  const { data: queuedRulesets } = useJbRulesetsQueuedRulesetsOf({
+    args: [projectId],
+    select(data) {
+      return data.map((ruleset) => {
+        return {
+          ...ruleset,
+          weight: new RulesetWeight(ruleset.weight),
+          decayRate: new DecayRate(ruleset.decayRate),
+        };
+      });
+    },
+  });
 
   const currentFcStart = ruleset?.data?.start;
   const startBuffer = currentFcStart ?? 0n - (ruleset?.data?.duration ?? 0n);
@@ -246,58 +268,75 @@ const StepChart = () => {
   ]);
 
   return (
-    <div style={{ height: 300 }}>
-      <ResponsiveContainer height="100%" width="100%">
-        <AreaChart data={renderData}>
-          <defs>
-            <linearGradient id="price" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor="#34d399" stopOpacity={0.05} />
-              <stop offset="95%" stopColor="#34d399" stopOpacity={0} />
-            </linearGradient>
-          </defs>
-          <XAxis
-            tickLine={false}
-            tick={
-              ruleset?.data ? (
-                <CustomizedXTick
-                  renderData={renderData}
-                  cycleDuration={ruleset.data.duration}
-                />
-              ) : undefined
-            }
-            interval={0}
-            tickCount={renderData.length}
-            stroke="#d4d4d8"
-          />
-          <CartesianGrid strokeDasharray="3 3" vertical={false} />
+    <div>
+      <div className="mb-2">
+        {queuedRulesets?.map((ruleset, idx) => {
+          return (
+            <div
+              className={twJoin(
+                "text-sm",
+                selectedStage === idx && "font-medium underline"
+              )}
+              key={ruleset.id.toString()}
+            >
+              Stage {idx + 1}
+            </div>
+          );
+        })}
+      </div>
+      <div style={{ height: 300 }}>
+        <ResponsiveContainer height="100%" width="100%">
+          <AreaChart data={renderData}>
+            <defs>
+              <linearGradient id="price" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor="#34d399" stopOpacity={0.05} />
+                <stop offset="95%" stopColor="#34d399" stopOpacity={0} />
+              </linearGradient>
+            </defs>
+            <XAxis
+              tickLine={false}
+              tick={
+                ruleset?.data ? (
+                  <CustomizedXTick
+                    renderData={renderData}
+                    cycleDuration={ruleset.data.duration}
+                  />
+                ) : undefined
+              }
+              interval={0}
+              tickCount={renderData.length}
+              stroke="#d4d4d8"
+            />
+            <CartesianGrid strokeDasharray="3 3" vertical={false} />
 
-          <YAxis
-            orientation="right"
-            tickLine={false}
-            axisLine={false}
-            type="number"
-            domain={[(prevPrice.toFloat() * 0.99).toFixed(6), "dataMax"]}
-            fontSize={"0.75rem"}
-            fill="#71717A"
-            // hide
-          />
-          <Tooltip content={<CustomTooltip />} />
-          <Area
-            type="stepBefore"
-            dataKey="price"
-            stroke="#34d399"
-            strokeWidth={2}
-            fillOpacity={1}
-            fill="url(#price)"
-            dot={
-              <CustomizedDot
-                datapointIndex={datapointIndex}
-                currentPrice={currentPrice as Ether}
-              />
-            }
-          />
-        </AreaChart>
-      </ResponsiveContainer>
+            <YAxis
+              orientation="right"
+              tickLine={false}
+              axisLine={false}
+              type="number"
+              domain={[(prevPrice.toFloat() * 0.99).toFixed(6), "dataMax"]}
+              fontSize={"0.75rem"}
+              fill="#71717A"
+              // hide
+            />
+            <Tooltip content={<CustomTooltip />} />
+            <Area
+              type="stepBefore"
+              dataKey="price"
+              stroke="#34d399"
+              strokeWidth={2}
+              fillOpacity={1}
+              fill="url(#price)"
+              dot={
+                <CustomizedDot
+                  datapointIndex={datapointIndex}
+                  currentPrice={currentPrice as Ether}
+                />
+              }
+            />
+          </AreaChart>
+        </ResponsiveContainer>
+      </div>
     </div>
   );
 };
