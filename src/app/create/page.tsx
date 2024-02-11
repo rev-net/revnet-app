@@ -18,6 +18,8 @@ import { revBasicDeployerABI } from "@/lib/revnet/hooks/contract";
 import { useDeployRevnet } from "@/lib/revnet/hooks/useDeployRevnet";
 import { ArrowLeftIcon, CheckCircleIcon } from "@heroicons/react/24/solid";
 import {
+  FieldArray,
+  FieldArrayRenderProps,
   FieldAttributes,
   Form,
   Formik,
@@ -52,7 +54,19 @@ const defaultStageData = {
   boostDuration: "",
 };
 
-const DEFAULT_FORM_DATA = {
+type RevnetFormData = {
+  name: string;
+  tagline: string;
+
+  tokenName: string;
+  tokenSymbol: string;
+
+  premintTokenAmount: string;
+  initialOperator: string;
+  stages: (typeof defaultStageData)[];
+};
+
+const DEFAULT_FORM_DATA: RevnetFormData = {
   name: "",
   tagline: "",
 
@@ -62,7 +76,7 @@ const DEFAULT_FORM_DATA = {
   premintTokenAmount: "",
   initialOperator: "",
 
-  stages: [defaultStageData],
+  stages: [],
 };
 
 function Field(props: FieldAttributes<any>) {
@@ -146,26 +160,13 @@ function TokensPage() {
   );
 }
 
-function StageForm({ stageIndex }: { stageIndex: number }) {
-  return (
-    <div className="mb-4">
-      <FieldGroup
-        id="boostDuration"
-        name={`stages.${stageIndex}.boostDuration`}
-        label="Stage duration"
-        suffix="days"
-        description="Leave blank to make stage indefinite."
-        type="number"
-      />
-    </div>
-  );
-}
-
-function AddStageDialog({ children }: { children: React.ReactNode }) {
-  const { values } = useFormikContext<typeof DEFAULT_FORM_DATA>();
-
-  const nextStageIndex = values.stages.length;
-
+function AddStageDialog({
+  children,
+  onSave,
+}: {
+  children: React.ReactNode;
+  onSave: (newStage: typeof defaultStageData) => void;
+}) {
   return (
     <Dialog>
       <DialogTrigger asChild>{children}</DialogTrigger>
@@ -174,44 +175,40 @@ function AddStageDialog({ children }: { children: React.ReactNode }) {
           <DialogTitle>Add stage</DialogTitle>
         </DialogHeader>
         <div className="my-8">
-          <StageForm stageIndex={nextStageIndex} />
+          <Formik
+            initialValues={defaultStageData}
+            onSubmit={(values, { setSubmitting }) => {
+              onSave(values);
+              setSubmitting(false);
+            }}
+          >
+            {({ isSubmitting }) => (
+              <Form>
+                <FieldGroup
+                  id="boostDuration"
+                  name="boostDuration"
+                  label="Stage duration"
+                  suffix="days"
+                  description="Leave blank to make stage indefinite."
+                  type="number"
+                />
+                <DialogFooter>
+                  <DialogClose asChild>
+                    <Button type="submit">Add stage</Button>
+                  </DialogClose>
+                </DialogFooter>
+              </Form>
+            )}
+          </Formik>
         </div>
-        <DialogFooter>
-          <DialogClose asChild>
-            <Button>Add stage</Button>
-          </DialogClose>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  );
-}
-
-function EditStageDialog({
-  children,
-  stageIndex,
-}: {
-  children: React.ReactNode;
-  stageIndex: number;
-}) {
-  return (
-    <Dialog>
-      <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="max-w-lg">
-        <DialogHeader>
-          <DialogTitle>Edit stage</DialogTitle>
-          <DialogDescription>
-            <div className="my-8">
-              <StageForm stageIndex={stageIndex} />
-            </div>
-          </DialogDescription>
-          <DialogFooter></DialogFooter>
-        </DialogHeader>
       </DialogContent>
     </Dialog>
   );
 }
 
 function ConfigPage() {
+  const { values, setFieldValue } = useFormikContext<RevnetFormData>();
+
   return (
     <div>
       <h2 className="text-2xl font-medium mb-2">Configure Stages</h2>
@@ -238,9 +235,38 @@ function ConfigPage() {
         />
       </div>
 
-      <AddStageDialog>
-        <Button>Add stage</Button>
-      </AddStageDialog>
+      {/* <div>
+        {values.stages
+          .filter((stage) => stage !== defaultStageData)
+          .map((stage, idx) => {
+            return (
+              <div key={idx}>
+                Stage {idx + 1} - {stage.boostDuration} days
+              </div>
+            );
+          })}
+      </div> */}
+
+      <FieldArray
+        name="stages"
+        render={() => (
+          <div>
+            {values.stages.map((stage, index) => (
+              <div key={index}>{stage.boostDuration} days</div>
+            ))}
+
+            <AddStageDialog
+              onSave={(newStage) => {
+                // Here you can add the new item to the Formik array
+                console.log("NEW STAGE", newStage);
+                setFieldValue("stages", [...values.stages, newStage]);
+              }}
+            >
+              <Button>Add stage</Button>
+            </AddStageDialog>
+          </div>
+        )}
+      />
 
       {/* <h3 className="text-lg font-medium mb-1 mt-7">Incentives</h3>
 
@@ -300,8 +326,8 @@ function ConfigPage() {
 }
 
 function ReviewPage() {
-  const { values } = useFormikContext<typeof DEFAULT_FORM_DATA>();
-
+  const { values } = useFormikContext<RevnetFormData>();
+  console.log(values);
   return (
     <div>
       <h2 className="text-2xl font-medium mb-7">Review and deploy</h2>
@@ -434,7 +460,7 @@ function CreatePage({
   onFormChange,
   isLoading,
 }: {
-  onFormChange: (data: typeof DEFAULT_FORM_DATA) => void;
+  onFormChange: (data: RevnetFormData) => void;
   isLoading: boolean;
 }) {
   const [page, setPage] = useState(0);
@@ -442,7 +468,7 @@ function CreatePage({
   const prevPage = pages[page - 1];
   const nextPage = pages[page + 1];
 
-  const { values } = useFormikContext<typeof DEFAULT_FORM_DATA>();
+  const { values } = useFormikContext<RevnetFormData>();
   useEffect(() => {
     onFormChange(values);
   });
@@ -489,7 +515,7 @@ function CreatePage({
 }
 
 function parseDeployData(
-  formData: typeof DEFAULT_FORM_DATA,
+  formData: RevnetFormData,
   extra: {
     metadataCid: string;
     chainId: Chain["id"] | undefined;
