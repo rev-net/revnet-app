@@ -1,13 +1,20 @@
 "use client";
 
-import { EthereumAddress } from "@/components/EthereumAddress";
 import EtherscanLink from "@/components/EtherscanLink";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { NATIVE_TOKEN } from "@/lib/juicebox/constants";
 import { jbMultiTerminalAddress } from "@/lib/juicebox/hooks/contract";
 import { revBasicDeployerABI } from "@/lib/revnet/hooks/contract";
 import { useDeployRevnet } from "@/lib/revnet/hooks/useDeployRevnet";
-import { cn } from "@/lib/utils";
 import { ArrowLeftIcon, CheckCircleIcon } from "@heroicons/react/24/solid";
 import {
   FieldAttributes,
@@ -35,6 +42,15 @@ import {
   useWaitForTransaction,
 } from "wagmi";
 
+const defaultStageData = {
+  priceCeilingIncreasePercentage: "",
+  priceCeilingIncreaseFrequency: "",
+  priceFloorTaxIntensity: "",
+
+  boostPercentage: "",
+  boostDuration: "",
+};
+
 const DEFAULT_FORM_DATA = {
   name: "",
   tagline: "",
@@ -42,14 +58,10 @@ const DEFAULT_FORM_DATA = {
   tokenName: "",
   tokenSymbol: "",
 
-  priceCeilingIncreasePercentage: "",
-  priceCeilingIncreaseFrequency: "",
-  priceFloorTaxIntensity: "",
   premintTokenAmount: "",
+  initialOperator: "",
 
-  boostOperator: "",
-  boostPercentage: "",
-  boostDuration: "",
+  stages: [defaultStageData],
 };
 
 function Field(props: FieldAttributes<any>) {
@@ -133,14 +145,62 @@ function TokensPage() {
   );
 }
 
+function StageDialog({ children }: { children: React.ReactNode }) {
+  return (
+    <Dialog>
+      <DialogTrigger asChild>{children}</DialogTrigger>
+      <DialogContent className="max-w-lg">
+        <DialogHeader>
+          <DialogTitle>Add stage</DialogTitle>
+          <DialogDescription>
+            <div className="my-8">asd</div>
+          </DialogDescription>
+          <DialogFooter></DialogFooter>
+        </DialogHeader>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 function ConfigPage() {
   return (
     <div>
-      <h2 className="text-2xl font-medium mb-2">Configure the Revnet</h2>
+      <h2 className="text-2xl font-medium mb-2">Configure Stages</h2>
       <p className="text-zinc-600 text-sm mb-7">
-        A Revnet's settings influence how it will grow and evolve. Settings are
-        locked, forever. Choose wisely!
+        Configure how your Revnet should evolve over time. Your configuration is
+        locked forever and can't be changed.
       </p>
+
+      <div className="mb-5">
+        <h3>Setup</h3>
+        <FieldGroup
+          id="boostOperator"
+          name="boostOperator"
+          label="Operator"
+          placeholder="0x"
+        />
+        <FieldGroup
+          className="flex-1"
+          id="premintTokenAmount"
+          name="premintTokenAmount"
+          label="Premint"
+          description="Premint some tokens to the Boost Operator upon deployment."
+          suffix="tokens"
+        />
+      </div>
+
+      <div className="mb-4">
+        <FieldGroup
+          id="boostDuration"
+          name="stages.0.boostDuration"
+          label="Stage duration"
+          suffix="days"
+          description="Leave blank to make stage indefinite."
+          type="number"
+        />
+      </div>
+
+      {/* <h3 className="text-lg font-medium mb-1 mt-7">Incentives</h3>
 
       <div className="mb-4">
         <div className="text-sm font-medium mb-2">Price ceiling</div>
@@ -170,55 +230,29 @@ function ConfigPage() {
       <FieldGroup
         id="priceFloorTaxIntensity"
         name="priceFloorTaxIntensity"
-        label="Exit Tax intensity"
+        label="Exit tax"
         suffix="%"
       />
-    </div>
-  );
-}
 
-function BoostPage() {
-  return (
-    <div>
-      <h2 className="text-2xl font-medium mb-2">Add a Boost</h2>
-      <p className="text-zinc-600 text-sm mb-7">
-        Send a portion of new token purchases to a Boost Operator. It could be a
-        core team, airdrop stockpile, staking rewards contract, or something
-        else. Boosts are locked, forever.
-      </p>
+      <div>
+        <h3 className="text-lg font-medium mb-1 mt-7">Token split</h3>
+        <p className="text-zinc-600 text-sm mb-7">
+          Send a portion of new token purchases to an Operator. The Operator
+          could be a core team, airdrop stockpile, staking rewards contract, or
+          something else.
+        </p>
 
-      <div className="mb-7">
-        <FieldGroup
-          id="boostOperator"
-          name="boostOperator"
-          label="Boost Operator"
-          placeholder="0x"
-        />
-        <FieldGroup
-          id="premintTokenAmount"
-          name="premintTokenAmount"
-          label="Premint amount"
-          description="Premint some tokens to the Boost Operator. This only happens once."
-          suffix="tokens"
-        />
-      </div>
-
-      <h3 className="text-lg font-medium mb-2">Boost</h3>
-
-      {/* TODO eventually, multiple boosts */}
-      <FieldGroup
-        id="boostPercentage"
-        name="boostPercentage"
-        label="Percentage"
-        suffix="%"
-      />
-      <FieldGroup
-        id="boostDuration"
-        name="boostDuration"
-        label="Duration"
-        suffix="days"
-        type="number"
-      />
+        <div className="flex gap-2 justify-between">
+          <FieldGroup
+            className="flex-1"
+            id="boostPercentage"
+            name="boostPercentage"
+            label="Split rate"
+            description="Send a percentage of new tokens to the Operator."
+            suffix="%"
+          />
+        </div>
+      </div> */}
     </div>
   );
 }
@@ -266,7 +300,7 @@ function ReviewPage() {
           </dl>
         </div>
       </div>
-
+      {/*
       <div className="mb-5">
         <div className="px-4 sm:px-0">
           <h3 className="text-base font-semibold leading-7 text-zinc-900">
@@ -342,39 +376,17 @@ function ReviewPage() {
         </div>
       </div>
     </div>
+  );*/}
+    </div>
   );
 }
 
 const pages = [
   { name: "Details", component: DetailsPage },
   { name: "Token", component: TokensPage },
-  { name: "Configure", component: ConfigPage },
-  { name: "Boost", component: BoostPage },
+  { name: "Stage", component: ConfigPage },
   { name: "Review", component: ReviewPage },
 ];
-
-function CreateNav({
-  currentPage,
-  onChange,
-}: {
-  currentPage: number;
-  onChange: (page: number) => void;
-}) {
-  return (
-    <ol className="flex gap-4">
-      {pages.map((page, i) => (
-        <li
-          key={i}
-          className={cn(currentPage === i && "font-medium", "hover:underline")}
-          role="button"
-          onClick={() => onChange(i)}
-        >
-          {page.name}
-        </li>
-      ))}
-    </ol>
-  );
-}
 
 function CreatePage({
   onFormChange,
@@ -449,17 +461,24 @@ function parseDeployData(
   // 1 token per eth
   const initialIssuanceRateEth = "1";
 
-  const stageConfig = {
-    initialIssuanceRate: parseUnits(initialIssuanceRateEth, 18), // 1 token per eth
-    priceCeilingIncreaseFrequency:
-      Number(formData.priceCeilingIncreaseFrequency) * 86400, // seconds
-    priceCeilingIncreasePercentage:
-      Number(DecayRate.parse(formData.priceCeilingIncreasePercentage, 9).val) /
-      100,
-    priceFloorTaxIntensity:
-      Number(RedemptionRate.parse(formData.priceFloorTaxIntensity, 4).val) /
-      100, //
-  };
+  const stageConfig = formData.stages.map((stage, idx) => {
+    return {
+      startsAtOrAfter:
+        idx === 0
+          ? 1
+          : Number(formData.stages[idx - 1].boostDuration) * 86400 + now, // seconds // seconds
+      operatorSplitRate:
+        Number(ReservedRate.parse(stage.boostPercentage, 4).val) / 100,
+      initialIssuanceRate: parseUnits(initialIssuanceRateEth, 18), // 1 token per eth
+      priceCeilingIncreaseFrequency:
+        Number(stage.priceCeilingIncreaseFrequency) * 86400, // seconds
+      priceCeilingIncreasePercentage:
+        Number(DecayRate.parse(stage.priceCeilingIncreasePercentage, 9).val) /
+        100,
+      priceFloorTaxIntensity:
+        Number(RedemptionRate.parse(stage.priceFloorTaxIntensity, 4).val) / 100, //
+    };
+  });
 
   return [
     formData.tokenName,
@@ -467,21 +486,9 @@ function parseDeployData(
     extra.metadataCid,
     {
       baseCurrency: Number(BigInt(NATIVE_TOKEN)),
-      initialBoostOperator: (formData.boostOperator as Address) ?? zeroAddress,
+      initialOperator: (formData.initialOperator as Address) ?? zeroAddress,
       premintTokenAmount: parseUnits(formData.premintTokenAmount, 18),
-      stageConfigurations: [
-        {
-          ...stageConfig,
-          boostRate:
-            Number(ReservedRate.parse(formData.boostPercentage, 4).val) / 100,
-          startsAtOrAfter: 1, // seconds
-        },
-        {
-          ...stageConfig,
-          boostRate: 0,
-          startsAtOrAfter: Number(formData.boostDuration) * 86400 + now, // seconds
-        },
-      ],
+      stageConfigurations: stageConfig,
     },
     [
       {

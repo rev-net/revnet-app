@@ -49,6 +49,7 @@ import StepChart from "./StepChart";
 import { ActivityFeed } from "./activity/ActivityFeed";
 import { PayForm } from "./pay/PayForm";
 import { RedeemDialog } from "./redeem/RedeemDialog";
+import { NetworkDetailsTable } from "./NetworkDetailsTable";
 
 const RESERVED_TOKEN_SPLIT_GROUP_ID = 1n;
 
@@ -411,10 +412,8 @@ export function NetworkDashboard() {
               {description ? <Html source={description} /> : null}
             </div>
 
-            {/* <NetworkDetailsTable boost={boost} /> */}
-
             <div className="mb-10">
-              <h2 className="text-2xl mb-1">Participants</h2>
+              <h3 className="text-xl mb-1">Participants</h3>
 
               {token?.data &&
               participantsData &&
@@ -436,6 +435,13 @@ export function NetworkDashboard() {
                 <span className="text-zinc-500">No participants yet.</span>
               )}
             </div>
+
+            <div className="mb-10">
+              <h3 className="text-xl mb-1">Configuration</h3>
+
+              <NetworkDetailsTable boost={boost} />
+            </div>
+
             {/* 
         <div>
           {totalTokenSupply && tokensReserved && token ? (

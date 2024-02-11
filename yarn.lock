@@ -2406,6 +2406,20 @@
     "@babel/runtime" "^7.13.10"
     "@radix-ui/react-compose-refs" "1.0.1"
 
+"@radix-ui/react-switch@^1.0.3":
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/@radix-ui/react-switch/-/react-switch-1.0.3.tgz#6119f16656a9eafb4424c600fdb36efa5ec5837e"
+  integrity sha512-mxm87F88HyHztsI7N+ZUmEoARGkC22YVW5CaC+Byc+HRpuvCrOBPTAnXgf+tZ/7i0Sg/eOePGdMhUKhPaQEqow==
+  dependencies:
+    "@babel/runtime" "^7.13.10"
+    "@radix-ui/primitive" "1.0.1"
+    "@radix-ui/react-compose-refs" "1.0.1"
+    "@radix-ui/react-context" "1.0.1"
+    "@radix-ui/react-primitive" "1.0.3"
+    "@radix-ui/react-use-controllable-state" "1.0.1"
+    "@radix-ui/react-use-previous" "1.0.1"
+    "@radix-ui/react-use-size" "1.0.1"
+
 "@radix-ui/react-tooltip@^1.0.7":
   version "1.0.7"
   resolved "https://registry.yarnpkg.com/@radix-ui/react-tooltip/-/react-tooltip-1.0.7.tgz#8f55070f852e7e7450cc1d9210b793d2e5a7686e"
@@ -2452,6 +2466,13 @@
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/@radix-ui/react-use-layout-effect/-/react-use-layout-effect-1.0.1.tgz#be8c7bc809b0c8934acf6657b577daf948a75399"
   integrity sha512-v/5RegiJWYdoCvMnITBkNNx6bCj20fiaJnWtRkU18yITptraXjffz5Qbn05uOiQnOvi+dbkznkoaMltz1GnszQ==
+  dependencies:
+    "@babel/runtime" "^7.13.10"
+
+"@radix-ui/react-use-previous@1.0.1":
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/@radix-ui/react-use-previous/-/react-use-previous-1.0.1.tgz#b595c087b07317a4f143696c6a01de43b0d0ec66"
+  integrity sha512-cV5La9DPwiQ7S0gf/0qiD6YgNqM5Fk97Kdrlc5yBcrF3jyEZQwm7vYFqMo4IfeHgJXsRaMvLABFtd0OVEmZhDw==
   dependencies:
     "@babel/runtime" "^7.13.10"
 
@@ -6542,13 +6563,22 @@ juice-sdk-core@^2.0.7-alpha:
     bs58 "^5.0.0"
     fpnum "^0.0.16"
 
-juice-sdk-react@^0.0.9-alpha:
-  version "0.0.9-alpha"
-  resolved "https://registry.yarnpkg.com/juice-sdk-react/-/juice-sdk-react-0.0.9-alpha.tgz#84ac96a45feac51be1c6d4945d004da35e5e037c"
-  integrity sha512-Z+SML6BSE90YE5l1otBBI4/lqVtt1YJQ9kiI3duzQt4rj+Xm/3Kw3oki5m919yBNksSnoCTH/j5MjCIuWtFjnA==
+juice-sdk-core@^2.0.8-alpha:
+  version "2.0.8-alpha"
+  resolved "https://registry.yarnpkg.com/juice-sdk-core/-/juice-sdk-core-2.0.8-alpha.tgz#6b42e0d1ac44fa9b18bf9348abf7796847cde88f"
+  integrity sha512-I7V1mmOI16K7uZDxKPt8EfF28eUjG/f4BBWvcxFCoHrjPgeq7eNiOqJC9BHUgGlMmdAISazvdrlrK4nI0LjfoA==
   dependencies:
+    bs58 "^5.0.0"
     fpnum "^0.0.16"
     juice-sdk-core "^2.0.7-alpha"
+
+juice-sdk-react@^0.0.10-alpha:
+  version "0.0.10-alpha"
+  resolved "https://registry.yarnpkg.com/juice-sdk-react/-/juice-sdk-react-0.0.10-alpha.tgz#bc5ed9fb05968b59b51c9817cc5ddf742f5cf1ce"
+  integrity sha512-YiPOyHMI32xaZqL/A/tm5RGT9LcPKaIWljk7c87B9S3QHYZ/lQDxuzwnQA33YloVo+GbTPmFm6dIfLfzKLd8WQ==
+  dependencies:
+    fpnum "^0.0.16"
+    juice-sdk-core "^2.0.8-alpha"
 
 keccak@^3.0.1:
   version "3.0.4"
