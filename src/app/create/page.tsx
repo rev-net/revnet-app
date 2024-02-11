@@ -10,6 +10,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogClose,
 } from "@/components/ui/dialog";
 import { NATIVE_TOKEN } from "@/lib/juicebox/constants";
 import { jbMultiTerminalAddress } from "@/lib/juicebox/hooks/contract";
@@ -145,15 +146,63 @@ function TokensPage() {
   );
 }
 
-function StageDialog({ children }: { children: React.ReactNode }) {
+function StageForm({ stageIndex }: { stageIndex: number }) {
+  return (
+    <div className="mb-4">
+      <FieldGroup
+        id="boostDuration"
+        name={`stages.${stageIndex}.boostDuration`}
+        label="Stage duration"
+        suffix="days"
+        description="Leave blank to make stage indefinite."
+        type="number"
+      />
+    </div>
+  );
+}
+
+function AddStageDialog({ children }: { children: React.ReactNode }) {
+  const { values } = useFormikContext<typeof DEFAULT_FORM_DATA>();
+
+  const nextStageIndex = values.stages.length;
+
   return (
     <Dialog>
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="max-w-lg">
         <DialogHeader>
           <DialogTitle>Add stage</DialogTitle>
+        </DialogHeader>
+        <div className="my-8">
+          <StageForm stageIndex={nextStageIndex} />
+        </div>
+        <DialogFooter>
+          <DialogClose asChild>
+            <Button>Add stage</Button>
+          </DialogClose>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function EditStageDialog({
+  children,
+  stageIndex,
+}: {
+  children: React.ReactNode;
+  stageIndex: number;
+}) {
+  return (
+    <Dialog>
+      <DialogTrigger asChild>{children}</DialogTrigger>
+      <DialogContent className="max-w-lg">
+        <DialogHeader>
+          <DialogTitle>Edit stage</DialogTitle>
           <DialogDescription>
-            <div className="my-8">asd</div>
+            <div className="my-8">
+              <StageForm stageIndex={stageIndex} />
+            </div>
           </DialogDescription>
           <DialogFooter></DialogFooter>
         </DialogHeader>
@@ -189,16 +238,9 @@ function ConfigPage() {
         />
       </div>
 
-      <div className="mb-4">
-        <FieldGroup
-          id="boostDuration"
-          name="stages.0.boostDuration"
-          label="Stage duration"
-          suffix="days"
-          description="Leave blank to make stage indefinite."
-          type="number"
-        />
-      </div>
+      <AddStageDialog>
+        <Button>Add stage</Button>
+      </AddStageDialog>
 
       {/* <h3 className="text-lg font-medium mb-1 mt-7">Incentives</h3>
 
