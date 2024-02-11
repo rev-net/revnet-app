@@ -4,22 +4,30 @@ import EtherscanLink from "@/components/EtherscanLink";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-  DialogClose,
 } from "@/components/ui/dialog";
 import { NATIVE_TOKEN } from "@/lib/juicebox/constants";
 import { jbMultiTerminalAddress } from "@/lib/juicebox/hooks/contract";
 import { revBasicDeployerABI } from "@/lib/revnet/hooks/contract";
 import { useDeployRevnet } from "@/lib/revnet/hooks/useDeployRevnet";
-import { ArrowLeftIcon, CheckCircleIcon } from "@heroicons/react/24/solid";
+import {
+  ExclamationCircleIcon,
+  PencilIcon,
+  PencilSquareIcon,
+  TrashIcon,
+} from "@heroicons/react/24/outline";
+import {
+  ArrowLeftIcon,
+  CheckCircleIcon,
+  PlusIcon,
+} from "@heroicons/react/24/solid";
 import {
   FieldArray,
-  FieldArrayRenderProps,
   FieldAttributes,
   Form,
   Formik,
@@ -163,12 +171,16 @@ function TokensPage() {
 function AddStageDialog({
   children,
   onSave,
+  initialValues,
 }: {
+  initialValues?: typeof defaultStageData;
   children: React.ReactNode;
   onSave: (newStage: typeof defaultStageData) => void;
 }) {
+  const [open, setOpen] = useState(false);
+
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="max-w-lg">
         <DialogHeader>
@@ -176,13 +188,13 @@ function AddStageDialog({
         </DialogHeader>
         <div className="my-8">
           <Formik
-            initialValues={defaultStageData}
-            onSubmit={(values, { setSubmitting }) => {
+            initialValues={initialValues ?? defaultStageData}
+            onSubmit={(values) => {
               onSave(values);
-              setSubmitting(false);
+              setOpen(false);
             }}
           >
-            {({ isSubmitting }) => (
+            {() => (
               <Form>
                 <FieldGroup
                   id="boostDuration"
@@ -192,10 +204,66 @@ function AddStageDialog({
                   description="Leave blank to make stage indefinite."
                   type="number"
                 />
+
+                <h3 className="text-lg font-medium mb-1 mt-7">Incentives</h3>
+
+                <div className="mb-4">
+                  <div className="text-sm font-medium mb-2">Price ceiling</div>
+                  <div className="flex gap-2 items-center text-sm text-zinc-600 italic">
+                    <label
+                      htmlFor="priceCeilingIncreasePercentage"
+                      className="whitespace-nowrap"
+                    >
+                      Raise ceiling by
+                    </label>
+                    <Field
+                      id="priceCeilingIncreasePercentage"
+                      name="priceCeilingIncreasePercentage"
+                      className="h-9"
+                      suffix="%"
+                      required
+                    />
+                    <label htmlFor="priceCeilingIncreaseFrequency">every</label>
+                    <Field
+                      id="priceCeilingIncreaseFrequency"
+                      name="priceCeilingIncreaseFrequency"
+                      className="h-9"
+                      type="number"
+                      required
+                    />
+                    days.
+                  </div>
+                </div>
+                <FieldGroup
+                  id="priceFloorTaxIntensity"
+                  name="priceFloorTaxIntensity"
+                  label="Exit tax"
+                  suffix="%"
+                  required
+                />
+
+                <div>
+                  <h3 className="text-lg font-medium mb-1 mt-7">Token split</h3>
+                  <p className="text-zinc-600 text-sm mb-7">
+                    Send a portion of new token purchases to an Operator. The
+                    Operator could be a core team, airdrop stockpile, staking
+                    rewards contract, or something else.
+                  </p>
+
+                  <div className="flex gap-2 justify-between">
+                    <FieldGroup
+                      className="flex-1"
+                      id="boostPercentage"
+                      name="boostPercentage"
+                      label="Split rate"
+                      description="Send a percentage of new tokens to the Operator."
+                      suffix="%"
+                    />
+                  </div>
+                </div>
+
                 <DialogFooter>
-                  <DialogClose asChild>
-                    <Button type="submit">Add stage</Button>
-                  </DialogClose>
+                  <Button type="submit">Add stage</Button>
                 </DialogFooter>
               </Form>
             )}
@@ -209,6 +277,10 @@ function AddStageDialog({
 function ConfigPage() {
   const { values, setFieldValue } = useFormikContext<RevnetFormData>();
 
+  const lastStageHasDuration = Boolean(
+    values.stages[values.stages.length - 1]?.boostDuration
+  );
+
   return (
     <div>
       <h2 className="text-2xl font-medium mb-2">Configure Stages</h2>
@@ -220,10 +292,11 @@ function ConfigPage() {
       <div className="mb-5">
         <h3>Setup</h3>
         <FieldGroup
-          id="boostOperator"
-          name="boostOperator"
+          id="initialOperator"
+          name="initialOperator"
           label="Operator"
           placeholder="0x"
+          required
         />
         <FieldGroup
           className="flex-1"
@@ -235,92 +308,76 @@ function ConfigPage() {
         />
       </div>
 
-      {/* <div>
-        {values.stages
-          .filter((stage) => stage !== defaultStageData)
-          .map((stage, idx) => {
-            return (
-              <div key={idx}>
-                Stage {idx + 1} - {stage.boostDuration} days
-              </div>
-            );
-          })}
-      </div> */}
-
       <FieldArray
         name="stages"
-        render={() => (
+        render={(arrayHelpers) => (
           <div>
-            {values.stages.map((stage, index) => (
-              <div key={index}>{stage.boostDuration} days</div>
-            ))}
+            <div className="divide-y mb-2">
+              {values.stages.map((stage, index) => (
+                <div className="py-4" key={index}>
+                  <div className="mb-1 flex justify-between items-center">
+                    <div>Stage {index + 1}</div>
+                    <div className="flex gap-">
+                      <AddStageDialog
+                        initialValues={stage}
+                        onSave={(newStage) => {
+                          arrayHelpers.replace(index, newStage);
+                        }}
+                      >
+                        <Button variant="ghost" size="sm">
+                          <PencilSquareIcon className="h-4 w-4" />
+                        </Button>
+                      </AddStageDialog>
 
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => arrayHelpers.remove(index)}
+                      >
+                        <TrashIcon className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                  <div className="text-xs text-zinc-500 flex gap-4">
+                    <div>
+                      {stage.boostDuration ? (
+                        <>{stage.boostDuration} days</>
+                      ) : (
+                        "Forever"
+                      )}{" "}
+                    </div>
+                    <div>
+                      +{stage.priceCeilingIncreasePercentage || 0}% every{" "}
+                      {stage.priceCeilingIncreasePercentage} days
+                    </div>
+                    <div>{stage.priceFloorTaxIntensity}% exit tax</div>
+                    <div>{stage.boostPercentage || 0}% operator split</div>
+                  </div>
+                </div>
+              ))}
+            </div>
             <AddStageDialog
               onSave={(newStage) => {
-                // Here you can add the new item to the Formik array
-                console.log("NEW STAGE", newStage);
-                setFieldValue("stages", [...values.stages, newStage]);
+                arrayHelpers.push(newStage);
               }}
             >
-              <Button>Add stage</Button>
+              <Button
+                className="w-full flex gap-1 border border-dashed border-zinc-400"
+                variant="secondary"
+                disabled={!lastStageHasDuration}
+              >
+                Add stage <PlusIcon className="h-3 w-3" />
+              </Button>
             </AddStageDialog>
+            {!lastStageHasDuration && (
+              <div className="text-xs text-orange-900 mt-2 flex gap-1 p-2 bg-orange-50 rounded-md">
+                <ExclamationCircleIcon className="h-4 w-4" /> Your last stage is
+                indefinite. Set a duration to add another stage.
+              </div>
+            )}
           </div>
         )}
       />
-
-      {/* <h3 className="text-lg font-medium mb-1 mt-7">Incentives</h3>
-
-      <div className="mb-4">
-        <div className="text-sm font-medium mb-2">Price ceiling</div>
-        <div className="flex gap-2 items-center text-sm text-zinc-600 italic">
-          <label
-            htmlFor="priceCeilingIncreasePercentage"
-            className="whitespace-nowrap"
-          >
-            Raise ceiling by
-          </label>
-          <Field
-            id="priceCeilingIncreasePercentage"
-            name="priceCeilingIncreasePercentage"
-            className="h-9"
-            suffix="%"
-          />
-          <label htmlFor="priceCeilingIncreaseFrequency">every</label>
-          <Field
-            id="priceCeilingIncreaseFrequency"
-            name="priceCeilingIncreaseFrequency"
-            className="h-9"
-            type="number"
-          />
-          days.
-        </div>
-      </div>
-      <FieldGroup
-        id="priceFloorTaxIntensity"
-        name="priceFloorTaxIntensity"
-        label="Exit tax"
-        suffix="%"
-      />
-
-      <div>
-        <h3 className="text-lg font-medium mb-1 mt-7">Token split</h3>
-        <p className="text-zinc-600 text-sm mb-7">
-          Send a portion of new token purchases to an Operator. The Operator
-          could be a core team, airdrop stockpile, staking rewards contract, or
-          something else.
-        </p>
-
-        <div className="flex gap-2 justify-between">
-          <FieldGroup
-            className="flex-1"
-            id="boostPercentage"
-            name="boostPercentage"
-            label="Split rate"
-            description="Send a percentage of new tokens to the Operator."
-            suffix="%"
-          />
-        </div>
-      </div> */}
     </div>
   );
 }
