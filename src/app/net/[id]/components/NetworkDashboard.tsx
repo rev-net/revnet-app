@@ -411,23 +411,25 @@ export function NetworkDashboard() {
             </div>
 
             <div className="mb-10">
-              <h3 className="text-xl mb-1">Participants</h3>
+              <h3 className="text-xl mb-5">Participants</h3>
 
               {token?.data &&
               participantsData &&
               participantsData.participants.length > 0 ? (
                 <>
-                  <ParticipantsTable
+                  <div className="max-h-96 overflow-auto p-2 bg-zinc-50 rounded-md border-zinc-100 border">
+                    <ParticipantsTable
+                      participants={participantsData}
+                      token={token?.data}
+                      totalSupply={totalOutstandingTokens}
+                      boostRecipient={boostRecipient}
+                    />
+                  </div>
+                  {/* <ParticipantsPieChart
                     participants={participantsData}
-                    token={token?.data}
-                    totalSupply={totalOutstandingTokens}
-                    boostRecipient={boostRecipient}
-                  />
-                  <ParticipantsPieChart
-                    participants={participantsData}
                     totalSupply={totalOutstandingTokens}
                     token={token?.data}
-                  />
+                  /> */}
                 </>
               ) : (
                 <span className="text-zinc-500">No participants yet.</span>

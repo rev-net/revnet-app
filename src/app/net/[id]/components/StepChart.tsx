@@ -17,6 +17,7 @@ import {
   useJBRulesetContext,
   useJbRulesetsRulesetsOf,
 } from "juice-sdk-react";
+import { DotIcon } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import {
   Area,
@@ -168,12 +169,15 @@ const StepChart = () => {
   const nextStageIdx = stages.findIndex(
     (stage) => stage.start > Date.now() / 1000
   );
+  const currentStageIdx = nextStageIdx - 1;
+
+  // set the selected stage to the currently active stage
   useEffect(() => {
     if (selectedStage === INITIAL_SELECTED_STAGE) {
-      setSelectedStage(nextStageIdx - 1);
+      setSelectedStage(currentStageIdx);
       return;
     }
-  }, [nextStageIdx, selectedStage]);
+  }, [currentStageIdx, selectedStage]);
 
   const ruleset = { data: stages[selectedStage] }; // the selected ruleset
 
@@ -309,7 +313,10 @@ const StepChart = () => {
               key={ruleset.id.toString() + idx}
               onClick={() => setSelectedStage(idx)}
             >
-              Stage {idx + 1}
+              Stage {idx + 1}{" "}
+              {idx === currentStageIdx && (
+                <span className="rounded-full h-2 w-2 bg-orange-400 border-[2px] border-orange-200 ml-1"></span>
+              )}
             </Button>
           );
         })}
