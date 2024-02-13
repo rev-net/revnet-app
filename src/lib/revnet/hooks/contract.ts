@@ -20,8 +20,8 @@ import {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0xb046ad707C2c311FbcC5B865611AEF24ddc57975)
- * - [__View Contract on Optimism Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x4B8d42107487c86CA64845d3f650e4da9583A983)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x8096A07Da9f5EC18f3b82921a2Db8fCCb5D71847)
+ * - [__View Contract on Optimism Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0xab0Cc21b3533C4F36A886493F0871Ce16Eb85c5a)
  */
 export const revBasicDeployerABI = [
   {
@@ -183,17 +183,17 @@ export const revBasicDeployerABI = [
 ] as const
 
 /**
- * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0xb046ad707C2c311FbcC5B865611AEF24ddc57975)
- * - [__View Contract on Optimism Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x4B8d42107487c86CA64845d3f650e4da9583A983)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x8096A07Da9f5EC18f3b82921a2Db8fCCb5D71847)
+ * - [__View Contract on Optimism Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0xab0Cc21b3533C4F36A886493F0871Ce16Eb85c5a)
  */
 export const revBasicDeployerAddress = {
-  11155111: '0xb046ad707C2c311FbcC5B865611AEF24ddc57975',
-  11155420: '0x4B8d42107487c86CA64845d3f650e4da9583A983',
+  11155111: '0x8096A07Da9f5EC18f3b82921a2Db8fCCb5D71847',
+  11155420: '0xab0Cc21b3533C4F36A886493F0871Ce16Eb85c5a',
 } as const
 
 /**
- * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0xb046ad707C2c311FbcC5B865611AEF24ddc57975)
- * - [__View Contract on Optimism Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x4B8d42107487c86CA64845d3f650e4da9583A983)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x8096A07Da9f5EC18f3b82921a2Db8fCCb5D71847)
+ * - [__View Contract on Optimism Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0xab0Cc21b3533C4F36A886493F0871Ce16Eb85c5a)
  */
 export const revBasicDeployerConfig = {
   address: revBasicDeployerAddress,
@@ -207,8 +207,8 @@ export const revBasicDeployerConfig = {
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link revBasicDeployerABI}__.
  *
- * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0xb046ad707C2c311FbcC5B865611AEF24ddc57975)
- * - [__View Contract on Optimism Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x4B8d42107487c86CA64845d3f650e4da9583A983)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x8096A07Da9f5EC18f3b82921a2Db8fCCb5D71847)
+ * - [__View Contract on Optimism Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0xab0Cc21b3533C4F36A886493F0871Ce16Eb85c5a)
  */
 export function useRevBasicDeployerRead<
   TFunctionName extends string,
@@ -244,8 +244,8 @@ export function useRevBasicDeployerRead<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link revBasicDeployerABI}__ and `functionName` set to `"CONTROLLER"`.
  *
- * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0xb046ad707C2c311FbcC5B865611AEF24ddc57975)
- * - [__View Contract on Optimism Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x4B8d42107487c86CA64845d3f650e4da9583A983)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x8096A07Da9f5EC18f3b82921a2Db8fCCb5D71847)
+ * - [__View Contract on Optimism Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0xab0Cc21b3533C4F36A886493F0871Ce16Eb85c5a)
  */
 export function useRevBasicDeployerController<
   TFunctionName extends 'CONTROLLER',
@@ -282,8 +282,8 @@ export function useRevBasicDeployerController<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link revBasicDeployerABI}__ and `functionName` set to `"onERC721Received"`.
  *
- * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0xb046ad707C2c311FbcC5B865611AEF24ddc57975)
- * - [__View Contract on Optimism Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x4B8d42107487c86CA64845d3f650e4da9583A983)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x8096A07Da9f5EC18f3b82921a2Db8fCCb5D71847)
+ * - [__View Contract on Optimism Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0xab0Cc21b3533C4F36A886493F0871Ce16Eb85c5a)
  */
 export function useRevBasicDeployerOnErc721Received<
   TFunctionName extends 'onERC721Received',
@@ -320,8 +320,8 @@ export function useRevBasicDeployerOnErc721Received<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link revBasicDeployerABI}__ and `functionName` set to `"supportsInterface"`.
  *
- * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0xb046ad707C2c311FbcC5B865611AEF24ddc57975)
- * - [__View Contract on Optimism Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x4B8d42107487c86CA64845d3f650e4da9583A983)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x8096A07Da9f5EC18f3b82921a2Db8fCCb5D71847)
+ * - [__View Contract on Optimism Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0xab0Cc21b3533C4F36A886493F0871Ce16Eb85c5a)
  */
 export function useRevBasicDeployerSupportsInterface<
   TFunctionName extends 'supportsInterface',
@@ -358,8 +358,8 @@ export function useRevBasicDeployerSupportsInterface<
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link revBasicDeployerABI}__.
  *
- * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0xb046ad707C2c311FbcC5B865611AEF24ddc57975)
- * - [__View Contract on Optimism Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x4B8d42107487c86CA64845d3f650e4da9583A983)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x8096A07Da9f5EC18f3b82921a2Db8fCCb5D71847)
+ * - [__View Contract on Optimism Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0xab0Cc21b3533C4F36A886493F0871Ce16Eb85c5a)
  */
 export function useRevBasicDeployerWrite<
   TFunctionName extends string,
@@ -399,8 +399,8 @@ export function useRevBasicDeployerWrite<
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link revBasicDeployerABI}__ and `functionName` set to `"deployRevnetWith"`.
  *
- * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0xb046ad707C2c311FbcC5B865611AEF24ddc57975)
- * - [__View Contract on Optimism Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x4B8d42107487c86CA64845d3f650e4da9583A983)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x8096A07Da9f5EC18f3b82921a2Db8fCCb5D71847)
+ * - [__View Contract on Optimism Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0xab0Cc21b3533C4F36A886493F0871Ce16Eb85c5a)
  */
 export function useRevBasicDeployerDeployRevnetWith<
   TMode extends WriteContractMode = undefined,
@@ -449,8 +449,8 @@ export function useRevBasicDeployerDeployRevnetWith<
 /**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link revBasicDeployerABI}__ and `functionName` set to `"replaceOperatorOf"`.
  *
- * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0xb046ad707C2c311FbcC5B865611AEF24ddc57975)
- * - [__View Contract on Optimism Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x4B8d42107487c86CA64845d3f650e4da9583A983)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x8096A07Da9f5EC18f3b82921a2Db8fCCb5D71847)
+ * - [__View Contract on Optimism Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0xab0Cc21b3533C4F36A886493F0871Ce16Eb85c5a)
  */
 export function useRevBasicDeployerReplaceOperatorOf<
   TMode extends WriteContractMode = undefined,
@@ -499,8 +499,8 @@ export function useRevBasicDeployerReplaceOperatorOf<
 /**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link revBasicDeployerABI}__.
  *
- * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0xb046ad707C2c311FbcC5B865611AEF24ddc57975)
- * - [__View Contract on Optimism Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x4B8d42107487c86CA64845d3f650e4da9583A983)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x8096A07Da9f5EC18f3b82921a2Db8fCCb5D71847)
+ * - [__View Contract on Optimism Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0xab0Cc21b3533C4F36A886493F0871Ce16Eb85c5a)
  */
 export function usePrepareRevBasicDeployerWrite<TFunctionName extends string>(
   config: Omit<
@@ -525,8 +525,8 @@ export function usePrepareRevBasicDeployerWrite<TFunctionName extends string>(
 /**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link revBasicDeployerABI}__ and `functionName` set to `"deployRevnetWith"`.
  *
- * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0xb046ad707C2c311FbcC5B865611AEF24ddc57975)
- * - [__View Contract on Optimism Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x4B8d42107487c86CA64845d3f650e4da9583A983)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x8096A07Da9f5EC18f3b82921a2Db8fCCb5D71847)
+ * - [__View Contract on Optimism Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0xab0Cc21b3533C4F36A886493F0871Ce16Eb85c5a)
  */
 export function usePrepareRevBasicDeployerDeployRevnetWith(
   config: Omit<
@@ -558,8 +558,8 @@ export function usePrepareRevBasicDeployerDeployRevnetWith(
 /**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link revBasicDeployerABI}__ and `functionName` set to `"replaceOperatorOf"`.
  *
- * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0xb046ad707C2c311FbcC5B865611AEF24ddc57975)
- * - [__View Contract on Optimism Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x4B8d42107487c86CA64845d3f650e4da9583A983)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x8096A07Da9f5EC18f3b82921a2Db8fCCb5D71847)
+ * - [__View Contract on Optimism Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0xab0Cc21b3533C4F36A886493F0871Ce16Eb85c5a)
  */
 export function usePrepareRevBasicDeployerReplaceOperatorOf(
   config: Omit<

@@ -16,7 +16,7 @@ import {
 import {
   useJBContractContext,
   useJBRulesetContext,
-  useJbRulesetsQueuedRulesetsOf,
+  useJbRulesetsRulesetsOf,
 } from "juice-sdk-react";
 import { useMemo, useState } from "react";
 import {
@@ -146,8 +146,8 @@ const StepChart = () => {
 
   const [selectedStage, setSelectedStage] = useState<number>(0);
 
-  const { data: queuedRulesets } = useJbRulesetsQueuedRulesetsOf({
-    args: [projectId],
+  const { data: queuedRulesets } = useJbRulesetsRulesetsOf({
+    args: [projectId, 0n, 3n],
     select(data) {
       return data.map((ruleset) => {
         return {

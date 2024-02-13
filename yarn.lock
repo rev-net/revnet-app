@@ -6555,6 +6555,14 @@ jsonparse@^1.2.0:
     object.assign "^4.1.4"
     object.values "^1.1.6"
 
+juice-sdk-core@^2.0.10-alpha:
+  version "2.0.10-alpha"
+  resolved "https://registry.yarnpkg.com/juice-sdk-core/-/juice-sdk-core-2.0.10-alpha.tgz#4f9e80356104acd8c23030c26b222d53b375e8a3"
+  integrity sha512-l3LhxNqijCiTRsz2ZCfObJNwsF1NYYF2bc1arucEwd5eJpCoLyrhachgCM8uruO4PA0yloCLr1wS4bSfEmsnZQ==
+  dependencies:
+    bs58 "^5.0.0"
+    fpnum "^0.0.16"
+
 juice-sdk-core@^2.0.7-alpha:
   version "2.0.7-alpha"
   resolved "https://registry.yarnpkg.com/juice-sdk-core/-/juice-sdk-core-2.0.7-alpha.tgz#59634dc7bccbc6797aa5fbc6c10989475fcb4845"
@@ -6563,22 +6571,22 @@ juice-sdk-core@^2.0.7-alpha:
     bs58 "^5.0.0"
     fpnum "^0.0.16"
 
-juice-sdk-core@^2.0.8-alpha:
-  version "2.0.8-alpha"
-  resolved "https://registry.yarnpkg.com/juice-sdk-core/-/juice-sdk-core-2.0.8-alpha.tgz#6b42e0d1ac44fa9b18bf9348abf7796847cde88f"
-  integrity sha512-I7V1mmOI16K7uZDxKPt8EfF28eUjG/f4BBWvcxFCoHrjPgeq7eNiOqJC9BHUgGlMmdAISazvdrlrK4nI0LjfoA==
+juice-sdk-core@^2.0.9-alpha:
+  version "2.0.9-alpha"
+  resolved "https://registry.yarnpkg.com/juice-sdk-core/-/juice-sdk-core-2.0.9-alpha.tgz#3c497dbf07cd4f7763a0691072e24984e3a858d6"
+  integrity sha512-19o5uoSSL6VpF9ts4vQSPuzSkaMSy12ieyNbbpeQxWgaphXSSF0l/kntoE8u6JyTk7vh1fS9Cibs0Ewssm3Nmg==
   dependencies:
     bs58 "^5.0.0"
     fpnum "^0.0.16"
     juice-sdk-core "^2.0.7-alpha"
 
-juice-sdk-react@^0.0.10-alpha:
-  version "0.0.10-alpha"
-  resolved "https://registry.yarnpkg.com/juice-sdk-react/-/juice-sdk-react-0.0.10-alpha.tgz#bc5ed9fb05968b59b51c9817cc5ddf742f5cf1ce"
-  integrity sha512-YiPOyHMI32xaZqL/A/tm5RGT9LcPKaIWljk7c87B9S3QHYZ/lQDxuzwnQA33YloVo+GbTPmFm6dIfLfzKLd8WQ==
+juice-sdk-react@^0.0.11-alpha:
+  version "0.0.11-alpha"
+  resolved "https://registry.yarnpkg.com/juice-sdk-react/-/juice-sdk-react-0.0.11-alpha.tgz#91a3df7fdf2941766a529791958700518d76ae23"
+  integrity sha512-j04T4+0CUDz/KfzIu4czEPVAb4xkiucS++dRlKm3k3d7ckhiKRyJdVqeeehYAc/x4y+Lg4MX8UyvtHqBQ0Jojg==
   dependencies:
     fpnum "^0.0.16"
-    juice-sdk-core "^2.0.8-alpha"
+    juice-sdk-core "^2.0.9-alpha"
 
 keccak@^3.0.1:
   version "3.0.4"

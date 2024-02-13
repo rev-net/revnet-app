@@ -11,10 +11,12 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Stat } from "@/components/ui/stat";
-import { useJbMultiTerminalRedeemTokensOf } from "@/lib/juicebox/hooks/contract";
 import { FixedInt } from "fpnum";
 import { JBProjectToken, NATIVE_TOKEN } from "juice-sdk-core";
-import { useJBContractContext } from "juice-sdk-react";
+import {
+  useJBContractContext,
+  useJbMultiTerminalRedeemTokensOf,
+} from "juice-sdk-react";
 import { PropsWithChildren, useState } from "react";
 import { Address, parseEther } from "viem";
 import { useAccount, useWaitForTransaction } from "wagmi";

@@ -4,20 +4,16 @@ import EtherscanLink from "@/components/EtherscanLink";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
-  DialogClose,
   DialogContent,
   DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { NATIVE_TOKEN } from "@/lib/juicebox/constants";
-import { jbMultiTerminalAddress } from "@/lib/juicebox/hooks/contract";
 import { revBasicDeployerABI } from "@/lib/revnet/hooks/contract";
 import { useDeployRevnet } from "@/lib/revnet/hooks/useDeployRevnet";
 import {
   ExclamationCircleIcon,
-  PencilIcon,
   PencilSquareIcon,
   TrashIcon,
 } from "@heroicons/react/24/outline";
@@ -37,8 +33,10 @@ import {
 import {
   DecayRate,
   JBProjectMetadata,
+  NATIVE_TOKEN,
   RedemptionRate,
   ReservedRate,
+  jbMultiTerminalAddress,
 } from "juice-sdk-core";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -277,9 +275,12 @@ function AddStageDialog({
 function ConfigPage() {
   const { values, setFieldValue } = useFormikContext<RevnetFormData>();
 
+  const hasStages = values.stages.length > 0;
   const lastStageHasDuration = Boolean(
     values.stages[values.stages.length - 1]?.boostDuration
   );
+
+  const canAddStage = !hasStages || lastStageHasDuration;
 
   return (
     <div>
@@ -364,12 +365,12 @@ function ConfigPage() {
               <Button
                 className="w-full flex gap-1 border border-dashed border-zinc-400"
                 variant="secondary"
-                disabled={!lastStageHasDuration}
+                disabled={!canAddStage}
               >
                 Add stage <PlusIcon className="h-3 w-3" />
               </Button>
             </AddStageDialog>
-            {!lastStageHasDuration && (
+            {!canAddStage && (
               <div className="text-xs text-orange-900 mt-2 flex gap-1 p-2 bg-orange-50 rounded-md">
                 <ExclamationCircleIcon className="h-4 w-4" /> Your last stage is
                 indefinite. Set a duration to add another stage.

@@ -13,14 +13,6 @@ import { useParticipantsQuery } from "@/generated/graphql";
 import { useCountdownToDate } from "@/hooks/useCountdownToDate";
 import { useNativeTokenSymbol } from "@/hooks/useNativeTokenSymbol";
 import { ipfsUriToGatewayUrl } from "@/lib/ipfs";
-import {
-  useJbControllerLatestQueuedRulesetOf,
-  useJbControllerPendingReservedTokenBalanceOf,
-  useJbMultiTerminalCurrentSurplusOf,
-  useJbSplitsSplitsOf,
-  useJbTokensTotalBalanceOf,
-  useJbTokensTotalSupplyOf,
-} from "@/lib/juicebox/hooks/contract";
 import { formatSeconds } from "@/lib/utils";
 import { QuestionMarkCircleIcon } from "@heroicons/react/24/outline";
 import { ForwardIcon } from "@heroicons/react/24/solid";
@@ -39,17 +31,23 @@ import {
   useJBProjectMetadataContext,
   useJBRulesetContext,
   useJBTokenContext,
+  useJbControllerLatestQueuedRulesetOf,
+  useJbControllerPendingReservedTokenBalanceOf,
+  useJbMultiTerminalCurrentSurplusOf,
+  useJbSplitsSplitsOf,
+  useJbTokensTotalBalanceOf,
+  useJbTokensTotalSupplyOf,
 } from "juice-sdk-react";
 import { useEffect, useState } from "react";
 import { formatUnits, parseUnits } from "viem";
 import { useAccount } from "wagmi";
+import { NetworkDetailsTable } from "./NetworkDetailsTable";
 import { ParticipantsPieChart } from "./ParticipantsPieChart";
 import { ParticipantsTable } from "./ParticipantsTable";
 import StepChart from "./StepChart";
 import { ActivityFeed } from "./activity/ActivityFeed";
 import { PayForm } from "./pay/PayForm";
 import { RedeemDialog } from "./redeem/RedeemDialog";
-import { NetworkDetailsTable } from "./NetworkDetailsTable";
 
 const RESERVED_TOKEN_SPLIT_GROUP_ID = 1n;
 
