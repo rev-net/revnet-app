@@ -1,6 +1,5 @@
 import { Button } from "@/components/ui/button";
 import { useNativeTokenSymbol } from "@/hooks/useNativeTokenSymbol";
-import { formatSeconds } from "@/lib/utils";
 import { formatDistance } from "date-fns";
 import {
   DecayRate,
@@ -18,7 +17,7 @@ import {
   useJBRulesetContext,
   useJbRulesetsRulesetsOf,
 } from "juice-sdk-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Area,
   AreaChart,
@@ -31,6 +30,8 @@ import {
   YAxis,
 } from "recharts";
 import { twJoin } from "tailwind-merge";
+
+const MAX_RULESET_COUNT = 3;
 
 function generateDateRange(startDate: Date, endDate: Date, resolution: number) {
   const dateRange = [];
@@ -140,14 +141,18 @@ const CustomizedXTick = (props: {
   );
 };
 
+const INITIAL_SELECTED_STAGE = -1;
+
 const StepChart = () => {
   const { projectId } = useJBContractContext();
   const { ruleset: currentRuleset, rulesetMetadata } = useJBRulesetContext();
 
-  const [selectedStage, setSelectedStage] = useState<number>(0);
+  const [selectedStage, setSelectedStage] = useState<number>(
+    INITIAL_SELECTED_STAGE
+  );
 
-  const { data: queuedRulesets } = useJbRulesetsRulesetsOf({
-    args: [projectId, 0n, 3n],
+  const { data: rulesets } = useJbRulesetsRulesetsOf({
+    args: [projectId, 0n, BigInt(MAX_RULESET_COUNT)],
     select(data) {
       return data.map((ruleset) => {
         return {
@@ -159,12 +164,18 @@ const StepChart = () => {
     },
   });
 
-  const stages: JBRulesetData[] =
-    currentRuleset?.data && queuedRulesets
-      ? [currentRuleset.data, ...queuedRulesets]
-      : [];
+  const stages: JBRulesetData[] = rulesets?.reverse() ?? [];
+  const nextStageIdx = stages.findIndex(
+    (stage) => stage.start > Date.now() / 1000
+  );
+  useEffect(() => {
+    if (selectedStage === INITIAL_SELECTED_STAGE) {
+      setSelectedStage(nextStageIdx - 1);
+      return;
+    }
+  }, [nextStageIdx, selectedStage]);
 
-  const ruleset = { data: stages[selectedStage] };
+  const ruleset = { data: stages[selectedStage] }; // the selected ruleset
 
   const currentFcStart = ruleset?.data?.start;
   const startBuffer = currentFcStart ?? 0n - (ruleset?.data?.duration ?? 0n);
@@ -295,7 +306,7 @@ const StepChart = () => {
                 "text-sm font-normal",
                 selectedStage === idx && "font-medium underline"
               )}
-              key={ruleset.id.toString()}
+              key={ruleset.id.toString() + idx}
               onClick={() => setSelectedStage(idx)}
             >
               Stage {idx + 1}
