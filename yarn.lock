@@ -6555,38 +6555,21 @@ jsonparse@^1.2.0:
     object.assign "^4.1.4"
     object.values "^1.1.6"
 
-juice-sdk-core@^2.0.10-alpha:
-  version "2.0.10-alpha"
-  resolved "https://registry.yarnpkg.com/juice-sdk-core/-/juice-sdk-core-2.0.10-alpha.tgz#4f9e80356104acd8c23030c26b222d53b375e8a3"
-  integrity sha512-l3LhxNqijCiTRsz2ZCfObJNwsF1NYYF2bc1arucEwd5eJpCoLyrhachgCM8uruO4PA0yloCLr1wS4bSfEmsnZQ==
+juice-sdk-core@^2.0.11-alpha:
+  version "2.0.11-alpha"
+  resolved "https://registry.yarnpkg.com/juice-sdk-core/-/juice-sdk-core-2.0.11-alpha.tgz#1934e712610588f9c751869f158156064ee98412"
+  integrity sha512-nJHhwh0nzqikWkkR9sxou29tpej+mJIkmj0srEhUAOKi857phI32ofz++SHV05Yh1BjvdGBD4nemrRRLV0PU7Q==
   dependencies:
     bs58 "^5.0.0"
     fpnum "^0.0.16"
 
-juice-sdk-core@^2.0.7-alpha:
-  version "2.0.7-alpha"
-  resolved "https://registry.yarnpkg.com/juice-sdk-core/-/juice-sdk-core-2.0.7-alpha.tgz#59634dc7bccbc6797aa5fbc6c10989475fcb4845"
-  integrity sha512-hleKHS5AdUK1uOOyt3CqPRqypmLFC/usEytZi/4VQIBzbBnz2B1IX7wpVXlkYuPGyvOdA7KmRy9JlfITUoGBaA==
-  dependencies:
-    bs58 "^5.0.0"
-    fpnum "^0.0.16"
-
-juice-sdk-core@^2.0.9-alpha:
-  version "2.0.9-alpha"
-  resolved "https://registry.yarnpkg.com/juice-sdk-core/-/juice-sdk-core-2.0.9-alpha.tgz#3c497dbf07cd4f7763a0691072e24984e3a858d6"
-  integrity sha512-19o5uoSSL6VpF9ts4vQSPuzSkaMSy12ieyNbbpeQxWgaphXSSF0l/kntoE8u6JyTk7vh1fS9Cibs0Ewssm3Nmg==
-  dependencies:
-    bs58 "^5.0.0"
-    fpnum "^0.0.16"
-    juice-sdk-core "^2.0.7-alpha"
-
-juice-sdk-react@^0.0.11-alpha:
-  version "0.0.11-alpha"
-  resolved "https://registry.yarnpkg.com/juice-sdk-react/-/juice-sdk-react-0.0.11-alpha.tgz#91a3df7fdf2941766a529791958700518d76ae23"
-  integrity sha512-j04T4+0CUDz/KfzIu4czEPVAb4xkiucS++dRlKm3k3d7ckhiKRyJdVqeeehYAc/x4y+Lg4MX8UyvtHqBQ0Jojg==
+juice-sdk-react@^0.0.12-alpha:
+  version "0.0.12-alpha"
+  resolved "https://registry.yarnpkg.com/juice-sdk-react/-/juice-sdk-react-0.0.12-alpha.tgz#033017406a0e0d50dbdce9bae804d4985255a6c7"
+  integrity sha512-nZ37/taYzXd9Uwx7k982DUMNS0SS8cOy2NM2VtrFmt7g3eqcDoFwHoz+l82lvmPGFbBQ0PCYRI6jKcs45XNwYQ==
   dependencies:
     fpnum "^0.0.16"
-    juice-sdk-core "^2.0.9-alpha"
+    juice-sdk-core "^2.0.11-alpha"
 
 keccak@^3.0.1:
   version "3.0.4"
