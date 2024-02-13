@@ -594,13 +594,15 @@ function parseDeployData(
   // 1 token per eth
   const initialIssuanceRateEth = "1"; // 1 token per eth initial weight
 
+  let cumStart = 0;
   const stageConfigurations = formData.stages.map((stage, idx) => {
+    const prevStageDuration =
+      idx === 0 ? now : Number(formData.stages[idx - 1].boostDuration) * 86400; // days to seconds
+    const startsAtOrAfter = cumStart + prevStageDuration;
+    cumStart += prevStageDuration;
+
     return {
-      startsAtOrAfter:
-        idx === 0
-          ? 1
-          : Number(formData.stages[idx - 1].boostDuration) * 86400 * (idx + 1) +
-            now, // seconds
+      startsAtOrAfter,
       operatorSplitRate:
         Number(ReservedRate.parse(stage.boostPercentage, 4).val) / 100,
       initialIssuanceRate:

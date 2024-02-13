@@ -163,7 +163,7 @@ const StepChart = () => {
     },
   });
 
-  console.log(rulesets, "rulesets")
+  console.log(rulesets, "rulesets");
 
   const stages: JBRulesetData[] = rulesets?.reverse() ?? [];
   const nextStageIdx = stages.findIndex(
