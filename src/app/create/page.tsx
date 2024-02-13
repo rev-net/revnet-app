@@ -50,6 +50,7 @@ import {
   useNetwork,
   useWaitForTransaction,
 } from "wagmi";
+import { MAX_RULESET_COUNT } from "../constants";
 
 const defaultStageData = {
   priceCeilingIncreasePercentage: "",
@@ -281,6 +282,7 @@ function ConfigPage() {
   );
 
   const canAddStage = !hasStages || lastStageHasDuration;
+  const maxStageReached = values.stages.length >= MAX_RULESET_COUNT;
 
   return (
     <div>
@@ -370,12 +372,17 @@ function ConfigPage() {
                 Add stage <PlusIcon className="h-3 w-3" />
               </Button>
             </AddStageDialog>
-            {!canAddStage && (
+            {maxStageReached ? (
+              <div className="text-xs text-orange-900 mt-2 flex gap-1 p-2 bg-orange-50 rounded-md">
+                <ExclamationCircleIcon className="h-4 w-4" /> You've added the
+                maximum number of stages.
+              </div>
+            ) : !canAddStage ? (
               <div className="text-xs text-orange-900 mt-2 flex gap-1 p-2 bg-orange-50 rounded-md">
                 <ExclamationCircleIcon className="h-4 w-4" /> Your last stage is
                 indefinite. Set a duration to add another stage.
               </div>
-            )}
+            ) : null}
           </div>
         )}
       />
@@ -585,17 +592,19 @@ function parseDeployData(
   const now = Math.floor(Date.now() / 1000);
 
   // 1 token per eth
-  const initialIssuanceRateEth = "1";
+  const initialIssuanceRateEth = "1"; // 1 token per eth initial weight
 
-  const stageConfig = formData.stages.map((stage, idx) => {
+  const stageConfigurations = formData.stages.map((stage, idx) => {
     return {
       startsAtOrAfter:
         idx === 0
           ? 1
-          : Number(formData.stages[idx - 1].boostDuration) * 86400 + now, // seconds // seconds
+          : Number(formData.stages[idx - 1].boostDuration) * 86400 * (idx + 1) +
+            now, // seconds
       operatorSplitRate:
         Number(ReservedRate.parse(stage.boostPercentage, 4).val) / 100,
-      initialIssuanceRate: parseUnits(initialIssuanceRateEth, 18), // 1 token per eth
+      initialIssuanceRate:
+        idx === 0 ? parseUnits(initialIssuanceRateEth, 18) : 0n, //  and 0 after the first stage (continuation)
       priceCeilingIncreaseFrequency:
         Number(stage.priceCeilingIncreaseFrequency) * 86400, // seconds
       priceCeilingIncreasePercentage:
@@ -614,7 +623,7 @@ function parseDeployData(
       baseCurrency: Number(BigInt(NATIVE_TOKEN)),
       initialOperator: (formData.initialOperator as Address) ?? zeroAddress,
       premintTokenAmount: parseUnits(formData.premintTokenAmount, 18),
-      stageConfigurations: stageConfig,
+      stageConfigurations,
     },
     [
       {

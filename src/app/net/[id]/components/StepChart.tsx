@@ -1,3 +1,4 @@
+import { MAX_RULESET_COUNT } from "@/app/constants";
 import { Button } from "@/components/ui/button";
 import { useNativeTokenSymbol } from "@/hooks/useNativeTokenSymbol";
 import { formatDistance } from "date-fns";
@@ -17,7 +18,6 @@ import {
   useJBRulesetContext,
   useJbRulesetsRulesetsOf,
 } from "juice-sdk-react";
-import { DotIcon } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import {
   Area,
@@ -31,8 +31,6 @@ import {
   YAxis,
 } from "recharts";
 import { twJoin } from "tailwind-merge";
-
-const MAX_RULESET_COUNT = 3;
 
 function generateDateRange(startDate: Date, endDate: Date, resolution: number) {
   const dateRange = [];
@@ -165,6 +163,8 @@ const StepChart = () => {
     },
   });
 
+  console.log(rulesets, "rulesets")
+
   const stages: JBRulesetData[] = rulesets?.reverse() ?? [];
   const nextStageIdx = stages.findIndex(
     (stage) => stage.start > Date.now() / 1000
@@ -174,7 +174,7 @@ const StepChart = () => {
   // set the selected stage to the currently active stage
   useEffect(() => {
     if (selectedStage === INITIAL_SELECTED_STAGE) {
-      setSelectedStage(currentStageIdx);
+      setSelectedStage(currentStageIdx === -1 ? 0 : currentStageIdx);
       return;
     }
   }, [currentStageIdx, selectedStage]);
