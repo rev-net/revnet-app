@@ -64,6 +64,8 @@ const defaultStageData = {
 type RevnetFormData = {
   name: string;
   tagline: string;
+  description: string;
+  logoUri?: string;
 
   tokenName: string;
   tokenSymbol: string;
@@ -76,6 +78,8 @@ type RevnetFormData = {
 const DEFAULT_FORM_DATA: RevnetFormData = {
   name: "",
   tagline: "",
+  description: "",
+  logoUri: "",
 
   tokenName: "",
   tokenSymbol: "",
@@ -147,6 +151,14 @@ function DetailsPage() {
 
       <FieldGroup id="name" name="name" label="Name" />
       <FieldGroup id="tagline" name="tagline" label="Tagline" />
+      <FieldGroup
+        id="description"
+        name="description"
+        label="Description"
+        component="textarea"
+        rows={5}
+        placeholder="Describe your revnet to participants..."
+      />
     </div>
   );
 }
@@ -424,6 +436,18 @@ function ReviewPage() {
             </div>
             <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
               <dt className="text-sm font-medium leading-6 text-zinc-900">
+                Revnet description
+              </dt>
+              <dd className="mt-1 text-sm leading-6 text-zinc-700 sm:col-span-2 sm:mt-0">
+                {values.description.split("\n").map((d, idx) => (
+                  <p className="mb-3" key={idx}>
+                    {d}
+                  </p>
+                ))}
+              </dd>
+            </div>
+            <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+              <dt className="text-sm font-medium leading-6 text-zinc-900">
                 Token
               </dt>
               <dd className="mt-1 text-sm leading-6 text-zinc-700 sm:col-span-2 sm:mt-0">
@@ -570,7 +594,9 @@ function CreatePage({
                 Next: {nextPage.name}
               </Button>
             ) : (
-              <Button type="submit">Deploy Revnet</Button>
+              <Button type="submit" loading={isLoading}>
+                Deploy Revnet
+              </Button>
             )}
           </div>
         </div>
@@ -677,8 +703,8 @@ export default function Page() {
     const metadataCid = await pinProjectMetadata({
       name: formData.name,
       projectTagline: formData.tagline,
-      description: "",
-      logoUri: "",
+      description: formData.description,
+      logoUri: formData.logoUri,
     });
 
     const deployData = parseDeployData(formData, {

@@ -347,7 +347,9 @@ export function NetworkDashboard() {
                   </EtherscanLink>
                 ) : null} */}
               </div>
-              {description ? <Html source={description} /> : null}
+              {description
+                ? description.split("\n").map((d, idx) => <p className="mb-3" key={idx}>{d}</p>)
+                : null}
             </div>
 
             <div className="mb-10">
