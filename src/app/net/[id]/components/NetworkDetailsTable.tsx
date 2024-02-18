@@ -104,8 +104,8 @@ export function NetworkDetailsTable() {
           );
         })}
       </div>
-      <div className="grid grid-cols-2 gap-x-8">
-        <div className="border-t border-zinc-100 px-4 py-6 sm:col-span-1 sm:px-0 grid grid-cols-2">
+      <div className="grid grid-cols-2 gap-x-8 pl-4">
+        <div className="border-t border-zinc-100 px-4 py-2 sm:col-span-1 sm:px-0 grid grid-cols-2">
           <dt className="text-sm font-medium leading-6 text-zinc-900">
             Starts at
           </dt>
@@ -113,7 +113,7 @@ export function NetworkDetailsTable() {
             {new Date(Number(selectedStage.start) * 1000).toISOString()}
           </dd>
         </div>
-        <div className="border-t border-zinc-100 px-4 py-6 sm:col-span-1 sm:px-0 grid grid-cols-2">
+        <div className="border-t border-zinc-100 px-4 py-2 sm:col-span-1 sm:px-0 grid grid-cols-2">
           <dt className="text-sm font-medium leading-6 text-zinc-900">
             Starting price
           </dt>
@@ -122,7 +122,7 @@ export function NetworkDetailsTable() {
             {token.data?.symbol}
           </dd>
         </div>
-        <div className="border-t border-zinc-100 px-4 py-6 sm:col-span-1 sm:px-0 grid grid-cols-2">
+        <div className="border-t border-zinc-100 px-4 py-2 sm:col-span-1 sm:px-0 grid grid-cols-2">
           <dt className="text-sm font-medium leading-6 text-zinc-900">
             Price increase
           </dt>
@@ -131,7 +131,7 @@ export function NetworkDetailsTable() {
             {(selectedStage.duration / 86400n).toString()} days
           </dd>
         </div>
-        <div className="border-t border-zinc-100 px-4 py-6 sm:col-span-1 sm:px-0 grid grid-cols-2">
+        <div className="border-t border-zinc-100 px-4 py-2 sm:col-span-1 sm:px-0 grid grid-cols-2">
           <dt className="text-sm font-medium leading-6 text-zinc-900">
             Exit tax
           </dt>
@@ -143,7 +143,7 @@ export function NetworkDetailsTable() {
             %
           </dd>
         </div>
-        <div className="border-t border-zinc-100 px-4 py-6 sm:col-span-1 sm:px-0 grid grid-cols-2">
+        <div className="border-t border-zinc-100 px-4 py-2 sm:col-span-1 sm:px-0 grid grid-cols-2">
           <dt className="text-sm font-medium leading-6 text-zinc-900">
             Operator
           </dt>
@@ -154,7 +154,7 @@ export function NetworkDetailsTable() {
             />
           </dd>
         </div>
-        <div className="border-t border-zinc-100 px-4 py-6 sm:col-span-1 sm:px-0 grid grid-cols-2">
+        <div className="border-t border-zinc-100 px-4 py-2 sm:col-span-1 sm:px-0 grid grid-cols-2">
           <dt className="text-sm font-medium leading-6 text-zinc-900">
             Operator token split
           </dt>

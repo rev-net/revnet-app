@@ -4,11 +4,15 @@ import { RESERVED_TOKEN_SPLIT_GROUP_ID } from "@/app/constants";
 import { Ether } from "@/components/Ether";
 import EtherscanLink from "@/components/EtherscanLink";
 import { Button } from "@/components/ui/button";
-import { Html } from "@/components/ui/html";
-import { useParticipantsQuery } from "@/generated/graphql";
+import {
+  useParticipantsQuery,
+  useProjectCreateEventQuery,
+  useProjectsQuery,
+} from "@/generated/graphql";
 import { useNativeTokenSymbol } from "@/hooks/useNativeTokenSymbol";
 import { ipfsUriToGatewayUrl } from "@/lib/ipfs";
 import { ForwardIcon } from "@heroicons/react/24/solid";
+import { format } from "date-fns";
 import { FixedInt } from "fpnum";
 import {
   JBProjectToken,
@@ -29,6 +33,7 @@ import {
   useJbTokensTotalBalanceOf,
   useJbTokensTotalSupplyOf,
 } from "juice-sdk-react";
+import Image from "next/image";
 import { useEffect, useState } from "react";
 import { formatUnits, parseUnits } from "viem";
 import { useAccount } from "wagmi";
@@ -39,7 +44,6 @@ import StepChart from "./StepChart";
 import { ActivityFeed } from "./activity/ActivityFeed";
 import { PayForm } from "./pay/PayForm";
 import { RedeemDialog } from "./redeem/RedeemDialog";
-import Image from "next/image";
 
 export function NetworkDashboard() {
   const [participantsView, setParticipantsView] = useState<"table" | "pie">(
@@ -103,11 +107,11 @@ export function NetworkDashboard() {
 
   const boost = reservedTokenSplits?.[0];
   const boostRecipient = boost?.beneficiary;
-  // const { data: projectCreateEvent } = useProjectCreateEventQuery({
-  //   variables: { where: { projectId: Number(projectId), pv: PV2 } },
-  // });
-  // const projectCreateEventTxHash =
-  //   projectCreateEvent?.projectEvents[0].projectCreateEvent?.txHash;
+  const { data: projectCreateEvent } = useProjectCreateEventQuery({
+    variables: { where: { projectId: Number(projectId) } },
+  });
+  const projectCreateEventTxHash =
+    projectCreateEvent?.projectEvents[0].projectCreateEvent?.txHash;
 
   // set title
   // TODO, hacky, probably eventually a next-idiomatic way to do this.
@@ -116,15 +120,14 @@ export function NetworkDashboard() {
     document.title = `$${token?.data?.symbol} | REVNET`;
   }, [token?.data?.symbol]);
 
-  // const { data: projects } = useProjectsQuery({
-  //   variables: {
-  //     where: {
-  //       projectId: Number(projectId),
-  //       pv: PV2,
-  //     },
-  //     first: 1,
-  //   },
-  // });
+  const { data: projects } = useProjectsQuery({
+    variables: {
+      where: {
+        projectId: Number(projectId),
+      },
+      first: 1,
+    },
+  });
   const { data: participantsData } = useParticipantsQuery({
     variables: {
       // orderBy: Participant_OrderBy.balance,
@@ -138,8 +141,7 @@ export function NetworkDashboard() {
     pollInterval: 10_000,
   });
 
-  // const { metadataUri, contributorsCount, createdAt } =
-  //   projects?.projects?.[0] ?? {};
+  const { contributorsCount, createdAt } = projects?.projects?.[0] ?? {};
   const { metadata } = useJBProjectMetadataContext();
   const { name: projectName, logoUri, description } = metadata?.data ?? {};
 
@@ -255,26 +257,15 @@ export function NetworkDashboard() {
                       <span className="text-zinc-500">TVL</span>
                     </span>
                   ) : null}
+                  <span className="text-sm">
+                    <span className="font-medium text-zinc-500">
+                      {contributorsCount}
+                    </span>{" "}
+                    <span className="text-zinc-500">
+                      {contributorsCount === 1 ? "participant" : "participants"}
+                    </span>
+                  </span>
                 </div>
-
-                {/* <div className="text-zinc-500 text-lg">{projectTagline}</div> */}
-                {/* <div className="text-zinc-500">
-                  <span>{projectTagline}</span>
-                </div> */}
-                {/* <div className="mb-1">
-              <span className="text-4xl font-bold mr-2">
-                <Ether wei={ethQuote} />
-              </span>
-              <span className="text-sm"> / ${token?.data?.symbol}</span>
-            </div> */}
-                {/* {exitFloorPrice ? (
-              <div className="text-sm">
-                <span className="font-medium">
-                  <Ether wei={exitFloorPrice} />
-                </span>{" "}
-                / {exitFloorPriceUnit} {token?.data?.symbol} current floor
-              </div>
-            ) : null} */}
               </div>
             </div>
           </header>
@@ -320,35 +311,20 @@ export function NetworkDashboard() {
             {/* </div>
             </div> */}
 
-            {/* <div className="flex gap-10">
-              <Stat label="Exit curve">{exitTax?.formatPercentage()}%</Stat>
-            </div> */}
-
-            {/* {exitFloorPrice ? (
-              <Stat label="Exit value">
-                {formatEther(exitFloorPrice)} / {exitFloorPriceUnit}{" "}
-                {token?.data?.symbol}
-              </Stat>
-            ) : null} */}
-
-            {/* <HistoricalExitValueChart
-            projectId={projectId}
-            redemptionRate={exitTax.val}
-            reservedRate={devTax.val}
-          /> */}
-
-            <div className="mb-10">
+            <div className="mb-16">
               <div className="mb-5">
-                <h2 className="text-2xl mb-1">About {projectName}</h2>
-                {/* {createdAt && projectCreateEventTxHash ? (
+                <h2 className="text-2xl font-medium mb-1">
+                  About {projectName}
+                </h2>
+                {createdAt && projectCreateEventTxHash ? (
                   <EtherscanLink
                     value={projectCreateEventTxHash}
                     type="tx"
                     className="text-zinc-500 text-sm block"
                   >
-                    Since {format(createdAt * 1000, "yyyy-mm-dd")}
+                    Since {format(createdAt * 1000, "yyyy-MM-dd")}
                   </EtherscanLink>
-                ) : null} */}
+                ) : null}
               </div>
               {description
                 ? description.split("\n").map((d, idx) => (
@@ -359,8 +335,8 @@ export function NetworkDashboard() {
                 : null}
             </div>
 
-            <div className="mb-10">
-              <h3 className="text-xl mb-5">Participants</h3>
+            <div className="mb-16">
+              <h3 className="text-base font-medium mb-2">Participants</h3>
 
               {token?.data &&
               participantsData &&
@@ -386,7 +362,7 @@ export function NetworkDashboard() {
             </div>
 
             <div className="mb-10">
-              <h3 className="text-xl mb-5">Configuration</h3>
+              <h3 className="text-base font-medium mb-2">Configuration</h3>
 
               <NetworkDetailsTable />
             </div>

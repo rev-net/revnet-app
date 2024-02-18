@@ -143,7 +143,7 @@ export function PayForm({
             size="lg"
             className="w-full mb-5 min-w-[20%] flex items-center gap-2 hover:gap-[10px] whitespace-nowrap transition-all"
           >
-            Join now <ArrowRightIcon className="h-4 w-4" />
+            Pay now <ArrowRightIcon className="h-4 w-4" />
           </Button>
         </PayDialog>
       ) : null}
@@ -157,7 +157,7 @@ export function PayForm({
                 <span className="font-medium">
                   {devTax.formatPercentage().toFixed(2)}%
                 </span>{" "}
-                <span>boost to </span>
+                <span>tokens to </span>
               </span>
               <EthereumAddress address={boostRecipient} short withEnsName />
             </div>

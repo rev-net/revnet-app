@@ -39,11 +39,11 @@ function ActivityItem(ev: PayEvent) {
           short
         />
         <div>
-          bought {ev.beneficiaryTokenCount.format()} {token.data.symbol}
+          bought {ev.beneficiaryTokenCount.format(6)} {token.data.symbol}
         </div>
       </div>
       <div className="text-xs text-zinc-500 ml-7">
-        Paid {ev.amount.format()} ETH •{" "}
+        Paid {ev.amount.format(6)} ETH •{" "}
         <EtherscanLink type="tx" value={ev.txHash}>
           {formattedDate}
         </EtherscanLink>
@@ -86,7 +86,7 @@ export function ActivityFeed() {
 
   return (
     <div>
-      <div className="mb-3">Activity</div>
+      <div className="mb-3 font-medium">Activity</div>
       <div className="flex flex-col gap-3">
         {payEvents && payEvents.length > 0 ? (
           payEvents?.map((event) => {

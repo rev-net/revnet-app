@@ -166,16 +166,16 @@ const StepChart = () => {
   console.log(rulesets, "rulesets");
 
   const stages: JBRulesetData[] = rulesets?.reverse() ?? [];
-  const nextStageIdx = stages.findIndex(
-    (stage) => stage.start > Date.now() / 1000
+  const nextStageIdx = Math.max(
+    stages.findIndex((stage) => stage.start > Date.now() / 1000),
+    1 // lower bound should be 1 (the minimum 'next stage' is 1)
   );
   const currentStageIdx = nextStageIdx - 1;
 
   // set the selected stage to the currently active stage
   useEffect(() => {
     if (selectedStage === INITIAL_SELECTED_STAGE) {
-      setSelectedStage(currentStageIdx === -1 ? 0 : currentStageIdx);
-      return;
+      setSelectedStage(currentStageIdx);
     }
   }, [currentStageIdx, selectedStage]);
 
