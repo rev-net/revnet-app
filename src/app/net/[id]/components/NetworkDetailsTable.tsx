@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { useNativeTokenSymbol } from "@/hooks/useNativeTokenSymbol";
 import {
   DecayRate,
+  MAX_REDEMPTION_RATE,
   RedemptionRate,
   ReservedRate,
   RulesetWeight,
@@ -135,7 +136,11 @@ export function NetworkDetailsTable() {
             Exit tax
           </dt>
           <dd className="text-sm leading-6 text-zinc-700">
-            {selectedStageMetadata?.data?.redemptionRate.formatPercentage()}%
+            {new RedemptionRate(
+              MAX_REDEMPTION_RATE -
+                (selectedStageMetadata?.data?.redemptionRate.val ?? 0n)
+            ).formatPercentage()}
+            %
           </dd>
         </div>
         <div className="border-t border-zinc-100 px-4 py-6 sm:col-span-1 sm:px-0 grid grid-cols-2">
