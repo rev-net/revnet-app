@@ -1,5 +1,6 @@
 "use client";
 
+import { RESERVED_TOKEN_SPLIT_GROUP_ID } from "@/app/constants";
 import { Ether } from "@/components/Ether";
 import EtherscanLink from "@/components/EtherscanLink";
 import { Button } from "@/components/ui/button";
@@ -14,7 +15,7 @@ import {
   NATIVE_TOKEN,
   SplitGroup,
   getTokenBPrice,
-  getTokenRedemptionQuoteEth
+  getTokenRedemptionQuoteEth,
 } from "juice-sdk-core";
 import {
   useJBContractContext,
@@ -39,8 +40,6 @@ import { ActivityFeed } from "./activity/ActivityFeed";
 import { PayForm } from "./pay/PayForm";
 import { RedeemDialog } from "./redeem/RedeemDialog";
 
-const RESERVED_TOKEN_SPLIT_GROUP_ID = 1n;
-
 export function NetworkDashboard() {
   const [participantsView, setParticipantsView] = useState<"table" | "pie">(
     "pie"
@@ -59,10 +58,7 @@ export function NetworkDashboard() {
 
   const nativeTokenSymbol = useNativeTokenSymbol();
 
-  const [
-    latestConfiguredRulesetData,
- 
-  ] = latestConfiguredRuleset ?? [];
+  const [latestConfiguredRulesetData] = latestConfiguredRuleset ?? [];
   const { data: latestConfiguredReservedTokenSplits } = useJbSplitsSplitsOf({
     args: latestConfiguredRulesetData
       ? [
@@ -96,6 +92,7 @@ export function NetworkDashboard() {
   const totalOutstandingTokens =
     (totalTokenSupply ?? 0n) + (tokensReserved ?? 0n);
 
+  // TODO move to a context
   const { data: reservedTokenSplits } = useJbSplitsSplitsOf({
     args:
       ruleset && ruleset?.data
@@ -143,11 +140,7 @@ export function NetworkDashboard() {
   // const { metadataUri, contributorsCount, createdAt } =
   //   projects?.projects?.[0] ?? {};
   const { metadata } = useJBProjectMetadataContext();
-  const {
-    name: projectName,
-    logoUri,
-    description,
-  } = metadata?.data ?? {};
+  const { name: projectName, logoUri, description } = metadata?.data ?? {};
 
   const { data: creditBalance } = useJbTokensTotalBalanceOf({
     args: userAddress ? [userAddress, projectId] : undefined,
@@ -168,8 +161,6 @@ export function NetworkDashboard() {
           tokenA.decimals
         )
       : null;
-
-
 
   const totalSupplyFormatted =
     totalTokenSupply && token?.data
@@ -213,9 +204,11 @@ export function NetworkDashboard() {
         })
       : null;
 
-
-
-
+  console.log(
+    "PARAMS!",
+    ruleset?.data?.weight,
+    rulesetMetadata?.data?.reservedRate
+  );
 
   return (
     <div>
@@ -384,9 +377,9 @@ export function NetworkDashboard() {
             </div>
 
             <div className="mb-10">
-              <h3 className="text-xl mb-1">Configuration</h3>
+              <h3 className="text-xl mb-5">Configuration</h3>
 
-              <NetworkDetailsTable boost={boost} />
+              <NetworkDetailsTable />
             </div>
 
             {/* 
