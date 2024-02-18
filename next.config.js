@@ -14,6 +14,12 @@ module.exports = {
         port: "",
         pathname: "/avatar/**",
       },
+      {
+        protocol: "https",
+        hostname: process.env.NEXT_PUBLIC_INFURA_IPFS_HOSTNAME,
+        port: "",
+        pathname: "/ipfs/**",
+      },
     ],
   },
 };

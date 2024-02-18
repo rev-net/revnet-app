@@ -10,6 +10,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { ipfsUri, ipfsUriToGatewayUrl } from "@/lib/ipfs";
 import { revBasicDeployerABI } from "@/lib/revnet/hooks/contract";
 import { useDeployRevnet } from "@/lib/revnet/hooks/useDeployRevnet";
 import {
@@ -38,6 +39,7 @@ import {
   ReservedRate,
   jbMultiTerminalAddress,
 } from "juice-sdk-core";
+import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { twMerge } from "tailwind-merge";
@@ -51,6 +53,7 @@ import {
   useWaitForTransaction,
 } from "wagmi";
 import { MAX_RULESET_COUNT } from "../constants";
+import { IpfsImageUploader } from "./IpfsFileUploader";
 
 const defaultStageData = {
   priceCeilingIncreasePercentage: "",
@@ -145,6 +148,8 @@ function FieldGroup(
 }
 
 function DetailsPage() {
+  const { setFieldValue } = useFormikContext<RevnetFormData>();
+
   return (
     <div>
       <h2 className="text-2xl font-medium mb-7">Name the Revnet</h2>
@@ -158,6 +163,17 @@ function DetailsPage() {
         component="textarea"
         rows={5}
         placeholder="Describe your revnet to participants..."
+      />
+      <label
+        className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+        htmlFor="file_input"
+      >
+        Upload logo
+      </label>
+      <IpfsImageUploader
+        onUploadSuccess={(cid) => {
+          setFieldValue("logoUri", ipfsUri(cid));
+        }}
       />
     </div>
   );
@@ -448,6 +464,24 @@ function ReviewPage() {
             </div>
             <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
               <dt className="text-sm font-medium leading-6 text-zinc-900">
+                Logo
+              </dt>
+
+              <dd className="mt-1 text-sm leading-6 text-zinc-700 sm:col-span-2 sm:mt-0">
+                {values.logoUri ? (
+                  <Image
+                    src={ipfsUriToGatewayUrl(values.logoUri)}
+                    alt="Revnet logo"
+                    width={80}
+                    height={200}
+                  />
+                ) : (
+                  "None"
+                )}
+              </dd>
+            </div>
+            <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+              <dt className="text-sm font-medium leading-6 text-zinc-900">
                 Token
               </dt>
               <dd className="mt-1 text-sm leading-6 text-zinc-700 sm:col-span-2 sm:mt-0">
@@ -457,83 +491,6 @@ function ReviewPage() {
           </dl>
         </div>
       </div>
-      {/*
-      <div className="mb-5">
-        <div className="px-4 sm:px-0">
-          <h3 className="text-base font-semibold leading-7 text-zinc-900">
-            Configuration
-          </h3>
-        </div>
-
-        <div className="mt-6 border-t border-zinc-100">
-          <dl className="divide-y divide-zinc-100">
-            <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-              <dt className="text-sm font-medium leading-6 text-zinc-900">
-                Raise ceiling by
-              </dt>
-              <dd className="mt-1 text-sm leading-6 text-zinc-700 sm:col-span-2 sm:mt-0">
-                {values.priceCeilingIncreasePercentage}% every{" "}
-                {values.priceCeilingIncreaseFrequency} days
-              </dd>
-            </div>
-            <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-              <dt className="text-sm font-medium leading-6 text-zinc-900">
-                Exit tax
-              </dt>
-              <dd className="mt-1 text-sm leading-6 text-zinc-700 sm:col-span-2 sm:mt-0">
-                {values.priceFloorTaxIntensity}%
-              </dd>
-            </div>
-          </dl>
-        </div>
-      </div>
-
-      <div>
-        <div className="px-4 sm:px-0">
-          <h3 className="text-base font-semibold leading-7 text-zinc-900">
-            Boost
-          </h3>
-        </div>
-
-        <div className="mt-6 border-t border-zinc-100">
-          <dl className="divide-y divide-zinc-100">
-            <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-              <dt className="text-sm font-medium leading-6 text-zinc-900">
-                Boost operator
-              </dt>
-              <dd className="mt-1 text-sm leading-6 text-zinc-700 sm:col-span-2 sm:mt-0 overflow-ellipsis">
-                <EthereumAddress address={values.boostOperator} />
-              </dd>
-            </div>
-            <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-              <dt className="text-sm font-medium leading-6 text-zinc-900">
-                Premint
-              </dt>
-              <dd className="mt-1 text-sm leading-6 text-zinc-700 sm:col-span-2 sm:mt-0 overflow-ellipsis">
-                {values.premintTokenAmount} {values.tokenSymbol}
-              </dd>
-            </div>
-            <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-              <dt className="text-sm font-medium leading-6 text-zinc-900">
-                Boost amount
-              </dt>
-              <dd className="mt-1 text-sm leading-6 text-zinc-700 sm:col-span-2 sm:mt-0">
-                {values.boostPercentage}%
-              </dd>
-            </div>
-            <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-              <dt className="text-sm font-medium leading-6 text-zinc-900">
-                Boost duration
-              </dt>
-              <dd className="mt-1 text-sm leading-6 text-zinc-700 sm:col-span-2 sm:mt-0">
-                {values.boostDuration} days
-              </dd>
-            </div>
-          </dl>
-        </div>
-      </div>
-    </div>
-  );*/}
     </div>
   );
 }

@@ -39,6 +39,7 @@ import StepChart from "./StepChart";
 import { ActivityFeed } from "./activity/ActivityFeed";
 import { PayForm } from "./pay/PayForm";
 import { RedeemDialog } from "./redeem/RedeemDialog";
+import Image from "next/image";
 
 export function NetworkDashboard() {
   const [participantsView, setParticipantsView] = useState<"table" | "pie">(
@@ -217,20 +218,22 @@ export function NetworkDashboard() {
         <div className="flex-1">
           <header className="mb-10">
             <div className="flex items-center gap-4">
-              {/* project logo placeholder */}
-              <div className="rounded-lg bg-zinc-100 h-20 w-20 flex items-center justify-center">
-                <ForwardIcon className="h-5 w-5 text-zinc-700" />
-              </div>
+              {logoUri ? (
+                <Image
+                  src={ipfsUriToGatewayUrl(logoUri)}
+                  className="rounded-md overflow-hidden block"
+                  alt={"revnet logo"}
+                  width={80}
+                  height={80}
+                />
+              ) : (
+                <div className="rounded-lg bg-zinc-100 h-20 w-20 flex items-center justify-center">
+                  <ForwardIcon className="h-5 w-5 text-zinc-700" />
+                </div>
+              )}
 
               <div>
                 <div className="flex items-baseline gap-2 mb-2">
-                  {logoUri && (
-                    <img
-                      src={ipfsUriToGatewayUrl(logoUri)}
-                      className="rounded-md overflow-hidden h-20 h-20 block"
-                      alt={token?.data?.symbol}
-                    />
-                  )}
                   <h1 className="text-3xl font-medium tracking-tight">
                     {projectName}
                   </h1>
@@ -348,7 +351,11 @@ export function NetworkDashboard() {
                 ) : null} */}
               </div>
               {description
-                ? description.split("\n").map((d, idx) => <p className="mb-3" key={idx}>{d}</p>)
+                ? description.split("\n").map((d, idx) => (
+                    <p className="mb-3" key={idx}>
+                      {d}
+                    </p>
+                  ))
                 : null}
             </div>
 
