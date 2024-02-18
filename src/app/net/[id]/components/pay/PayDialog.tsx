@@ -10,9 +10,8 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Stat } from "@/components/ui/stat";
-import { useJbMultiTerminalPay } from "@/lib/juicebox/hooks/contract";
 import { NATIVE_TOKEN, TokenAmountType } from "juice-sdk-core";
-import { useJBContractContext } from "juice-sdk-react";
+import { useJBContractContext, useJbMultiTerminalPay } from "juice-sdk-react";
 import { PropsWithChildren } from "react";
 import { Address } from "viem";
 import { useAccount, useWaitForTransaction } from "wagmi";

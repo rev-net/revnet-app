@@ -77,6 +77,13 @@ export function ParticipantsPieChart({
     });
   }, [participants]);
 
+  // TODO maybe can remove this when balance=0 bug fixed in subgraph
+  const totalBalance = participants.participants.reduce(
+    (acc, participant) => acc + BigInt(participant.balance),
+    BigInt(0)
+  );
+  if (totalBalance === 0n) return null;
+
   return (
     <div style={{ width: "100%", height: 500 }}>
       <ResponsiveContainer height="100%" width="100%">

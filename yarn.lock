@@ -2283,7 +2283,7 @@
   dependencies:
     "@babel/runtime" "^7.13.10"
 
-"@radix-ui/react-dialog@^1.0.4":
+"@radix-ui/react-dialog@^1.0.5":
   version "1.0.5"
   resolved "https://registry.yarnpkg.com/@radix-ui/react-dialog/-/react-dialog-1.0.5.tgz#71657b1b116de6c7a0b03242d7d43e01062c7300"
   integrity sha512-GjWJX/AUpB703eEBanuBnIWdIXg6NvJFCXcNlSZk4xdszCdhrJgBoUd1cGk67vFO+WdA2pfI/plOpqz/5GUP6Q==
@@ -2406,6 +2406,20 @@
     "@babel/runtime" "^7.13.10"
     "@radix-ui/react-compose-refs" "1.0.1"
 
+"@radix-ui/react-switch@^1.0.3":
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/@radix-ui/react-switch/-/react-switch-1.0.3.tgz#6119f16656a9eafb4424c600fdb36efa5ec5837e"
+  integrity sha512-mxm87F88HyHztsI7N+ZUmEoARGkC22YVW5CaC+Byc+HRpuvCrOBPTAnXgf+tZ/7i0Sg/eOePGdMhUKhPaQEqow==
+  dependencies:
+    "@babel/runtime" "^7.13.10"
+    "@radix-ui/primitive" "1.0.1"
+    "@radix-ui/react-compose-refs" "1.0.1"
+    "@radix-ui/react-context" "1.0.1"
+    "@radix-ui/react-primitive" "1.0.3"
+    "@radix-ui/react-use-controllable-state" "1.0.1"
+    "@radix-ui/react-use-previous" "1.0.1"
+    "@radix-ui/react-use-size" "1.0.1"
+
 "@radix-ui/react-tooltip@^1.0.7":
   version "1.0.7"
   resolved "https://registry.yarnpkg.com/@radix-ui/react-tooltip/-/react-tooltip-1.0.7.tgz#8f55070f852e7e7450cc1d9210b793d2e5a7686e"
@@ -2452,6 +2466,13 @@
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/@radix-ui/react-use-layout-effect/-/react-use-layout-effect-1.0.1.tgz#be8c7bc809b0c8934acf6657b577daf948a75399"
   integrity sha512-v/5RegiJWYdoCvMnITBkNNx6bCj20fiaJnWtRkU18yITptraXjffz5Qbn05uOiQnOvi+dbkznkoaMltz1GnszQ==
+  dependencies:
+    "@babel/runtime" "^7.13.10"
+
+"@radix-ui/react-use-previous@1.0.1":
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/@radix-ui/react-use-previous/-/react-use-previous-1.0.1.tgz#b595c087b07317a4f143696c6a01de43b0d0ec66"
+  integrity sha512-cV5La9DPwiQ7S0gf/0qiD6YgNqM5Fk97Kdrlc5yBcrF3jyEZQwm7vYFqMo4IfeHgJXsRaMvLABFtd0OVEmZhDw==
   dependencies:
     "@babel/runtime" "^7.13.10"
 
@@ -6534,21 +6555,21 @@ jsonparse@^1.2.0:
     object.assign "^4.1.4"
     object.values "^1.1.6"
 
-juice-sdk-core@^2.0.7-alpha:
-  version "2.0.7-alpha"
-  resolved "https://registry.yarnpkg.com/juice-sdk-core/-/juice-sdk-core-2.0.7-alpha.tgz#59634dc7bccbc6797aa5fbc6c10989475fcb4845"
-  integrity sha512-hleKHS5AdUK1uOOyt3CqPRqypmLFC/usEytZi/4VQIBzbBnz2B1IX7wpVXlkYuPGyvOdA7KmRy9JlfITUoGBaA==
+juice-sdk-core@^2.0.11-alpha:
+  version "2.0.11-alpha"
+  resolved "https://registry.yarnpkg.com/juice-sdk-core/-/juice-sdk-core-2.0.11-alpha.tgz#1934e712610588f9c751869f158156064ee98412"
+  integrity sha512-nJHhwh0nzqikWkkR9sxou29tpej+mJIkmj0srEhUAOKi857phI32ofz++SHV05Yh1BjvdGBD4nemrRRLV0PU7Q==
   dependencies:
     bs58 "^5.0.0"
     fpnum "^0.0.16"
 
-juice-sdk-react@^0.0.9-alpha:
-  version "0.0.9-alpha"
-  resolved "https://registry.yarnpkg.com/juice-sdk-react/-/juice-sdk-react-0.0.9-alpha.tgz#84ac96a45feac51be1c6d4945d004da35e5e037c"
-  integrity sha512-Z+SML6BSE90YE5l1otBBI4/lqVtt1YJQ9kiI3duzQt4rj+Xm/3Kw3oki5m919yBNksSnoCTH/j5MjCIuWtFjnA==
+juice-sdk-react@^0.0.12-alpha:
+  version "0.0.12-alpha"
+  resolved "https://registry.yarnpkg.com/juice-sdk-react/-/juice-sdk-react-0.0.12-alpha.tgz#033017406a0e0d50dbdce9bae804d4985255a6c7"
+  integrity sha512-nZ37/taYzXd9Uwx7k982DUMNS0SS8cOy2NM2VtrFmt7g3eqcDoFwHoz+l82lvmPGFbBQ0PCYRI6jKcs45XNwYQ==
   dependencies:
     fpnum "^0.0.16"
-    juice-sdk-core "^2.0.7-alpha"
+    juice-sdk-core "^2.0.11-alpha"
 
 keccak@^3.0.1:
   version "3.0.4"

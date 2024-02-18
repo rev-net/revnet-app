@@ -1,36 +1,19 @@
 "use client";
 
+import { RESERVED_TOKEN_SPLIT_GROUP_ID } from "@/app/constants";
 import { Ether } from "@/components/Ether";
 import EtherscanLink from "@/components/EtherscanLink";
 import { Button } from "@/components/ui/button";
 import { Html } from "@/components/ui/html";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { useParticipantsQuery } from "@/generated/graphql";
-import { useCountdownToDate } from "@/hooks/useCountdownToDate";
 import { useNativeTokenSymbol } from "@/hooks/useNativeTokenSymbol";
 import { ipfsUriToGatewayUrl } from "@/lib/ipfs";
-import {
-  useJbControllerLatestQueuedRulesetOf,
-  useJbControllerPendingReservedTokenBalanceOf,
-  useJbMultiTerminalCurrentSurplusOf,
-  useJbSplitsSplitsOf,
-  useJbTokensTotalBalanceOf,
-  useJbTokensTotalSupplyOf,
-} from "@/lib/juicebox/hooks/contract";
-import { formatSeconds } from "@/lib/utils";
-import { QuestionMarkCircleIcon } from "@heroicons/react/24/outline";
 import { ForwardIcon } from "@heroicons/react/24/solid";
 import { FixedInt } from "fpnum";
 import {
   JBProjectToken,
   NATIVE_TOKEN,
-  RulesetWeight,
   SplitGroup,
-  getNextRulesetWeight,
   getTokenBPrice,
   getTokenRedemptionQuoteEth,
 } from "juice-sdk-core";
@@ -39,18 +22,23 @@ import {
   useJBProjectMetadataContext,
   useJBRulesetContext,
   useJBTokenContext,
+  useJbControllerLatestQueuedRulesetOf,
+  useJbControllerPendingReservedTokenBalanceOf,
+  useJbMultiTerminalCurrentSurplusOf,
+  useJbSplitsSplitsOf,
+  useJbTokensTotalBalanceOf,
+  useJbTokensTotalSupplyOf,
 } from "juice-sdk-react";
 import { useEffect, useState } from "react";
 import { formatUnits, parseUnits } from "viem";
 import { useAccount } from "wagmi";
-import { ParticipantsPieChart } from "./ParticipantsPieChart";
+import { NetworkDetailsTable } from "./NetworkDetailsTable";
 import { ParticipantsTable } from "./ParticipantsTable";
+import { PriceIncreaseCountdown } from "./PriceIncreaseCountdown";
 import StepChart from "./StepChart";
 import { ActivityFeed } from "./activity/ActivityFeed";
 import { PayForm } from "./pay/PayForm";
 import { RedeemDialog } from "./redeem/RedeemDialog";
-
-const RESERVED_TOKEN_SPLIT_GROUP_ID = 1n;
 
 export function NetworkDashboard() {
   const [participantsView, setParticipantsView] = useState<"table" | "pie">(
@@ -59,7 +47,7 @@ export function NetworkDashboard() {
 
   const {
     projectId,
-    contracts: { primaryNativeTerminal, controller },
+    contracts: { primaryNativeTerminal },
   } = useJBContractContext();
   const { address: userAddress } = useAccount();
   const { ruleset, rulesetMetadata } = useJBRulesetContext();
@@ -70,11 +58,7 @@ export function NetworkDashboard() {
 
   const nativeTokenSymbol = useNativeTokenSymbol();
 
-  const [
-    latestConfiguredRulesetData,
-    latestConfiguredRulesetMetadata,
-    latestConfiguredRulesetApprovalStatus,
-  ] = latestConfiguredRuleset ?? [];
+  const [latestConfiguredRulesetData] = latestConfiguredRuleset ?? [];
   const { data: latestConfiguredReservedTokenSplits } = useJbSplitsSplitsOf({
     args: latestConfiguredRulesetData
       ? [
@@ -108,6 +92,7 @@ export function NetworkDashboard() {
   const totalOutstandingTokens =
     (totalTokenSupply ?? 0n) + (tokensReserved ?? 0n);
 
+  // TODO move to a context
   const { data: reservedTokenSplits } = useJbSplitsSplitsOf({
     args:
       ruleset && ruleset?.data
@@ -155,12 +140,7 @@ export function NetworkDashboard() {
   // const { metadataUri, contributorsCount, createdAt } =
   //   projects?.projects?.[0] ?? {};
   const { metadata } = useJBProjectMetadataContext();
-  const {
-    name: projectName,
-    projectTagline,
-    logoUri,
-    description,
-  } = metadata?.data ?? {};
+  const { name: projectName, logoUri, description } = metadata?.data ?? {};
 
   const { data: creditBalance } = useJbTokensTotalBalanceOf({
     args: userAddress ? [userAddress, projectId] : undefined,
@@ -181,10 +161,6 @@ export function NetworkDashboard() {
           tokenA.decimals
         )
       : null;
-
-  const entryTax = ruleset?.data?.decayRate;
-  const exitTax = rulesetMetadata?.data?.redemptionRate;
-  const devTax = rulesetMetadata?.data?.reservedRate;
 
   const totalSupplyFormatted =
     totalTokenSupply && token?.data
@@ -228,27 +204,10 @@ export function NetworkDashboard() {
         })
       : null;
 
-  const nextWeight = new RulesetWeight(
-    getNextRulesetWeight({
-      weight: ruleset?.data?.weight.val ?? 0n,
-      decayRate: ruleset?.data?.decayRate.val ?? 0n,
-    })
-  );
-
-  const nextTokenBPrice =
-    ruleset?.data && rulesetMetadata?.data
-      ? getTokenBPrice(tokenA.decimals, {
-          weight: nextWeight,
-          reservedRate: rulesetMetadata?.data?.reservedRate,
-        })
-      : null;
-
-  const timeLeft = useCountdownToDate(
-    new Date(
-      Number(
-        ((ruleset?.data?.start ?? 0n) + (ruleset?.data?.duration ?? 0n)) * 1000n
-      )
-    )
+  console.log(
+    "PARAMS!",
+    ruleset?.data?.weight,
+    rulesetMetadata?.data?.reservedRate
   );
 
   return (
@@ -329,27 +288,7 @@ export function NetworkDashboard() {
                   / {token?.data?.symbol}
                 </span>
               </div>
-              {timeLeft ? (
-                <Tooltip>
-                  <TooltipTrigger>
-                    <div className="text-sm mt-1 text-red-600">
-                      <span>
-                        {nextTokenBPrice?.format(4)} {tokenA.symbol}
-                      </span>
-                      <span className="text-base leading-tight">
-                        {" "}
-                        / {token?.data?.symbol}
-                      </span>{" "}
-                      <span>in {formatSeconds(timeLeft)}</span>
-                      <QuestionMarkCircleIcon className="h-4 w-4 inline ml-1 mb-1" />
-                    </div>
-                  </TooltipTrigger>
-                  <TooltipContent side="right">
-                    +{entryTax?.formatPercentage()}% price ceiling increase
-                    scheduled for {formatSeconds(timeLeft)}
-                  </TooltipContent>
-                </Tooltip>
-              ) : null}
+              <PriceIncreaseCountdown />
 
               {/* <div>
                 {timeLeft ? (
@@ -411,31 +350,38 @@ export function NetworkDashboard() {
               {description ? <Html source={description} /> : null}
             </div>
 
-            {/* <NetworkDetailsTable boost={boost} /> */}
-
             <div className="mb-10">
-              <h2 className="text-2xl mb-1">Participants</h2>
+              <h3 className="text-xl mb-5">Participants</h3>
 
               {token?.data &&
               participantsData &&
               participantsData.participants.length > 0 ? (
                 <>
-                  <ParticipantsTable
+                  <div className="max-h-96 overflow-auto p-2 bg-zinc-50 rounded-md border-zinc-100 border">
+                    <ParticipantsTable
+                      participants={participantsData}
+                      token={token?.data}
+                      totalSupply={totalOutstandingTokens}
+                      boostRecipient={boostRecipient}
+                    />
+                  </div>
+                  {/* <ParticipantsPieChart
                     participants={participantsData}
-                    token={token?.data}
-                    totalSupply={totalOutstandingTokens}
-                    boostRecipient={boostRecipient}
-                  />
-                  <ParticipantsPieChart
-                    participants={participantsData}
                     totalSupply={totalOutstandingTokens}
                     token={token?.data}
-                  />
+                  /> */}
                 </>
               ) : (
                 <span className="text-zinc-500">No participants yet.</span>
               )}
             </div>
+
+            <div className="mb-10">
+              <h3 className="text-xl mb-5">Configuration</h3>
+
+              <NetworkDetailsTable />
+            </div>
+
             {/* 
         <div>
           {totalTokenSupply && tokensReserved && token ? (

@@ -1,15 +1,29 @@
 "use client";
 
-import { EthereumAddress } from "@/components/EthereumAddress";
 import EtherscanLink from "@/components/EtherscanLink";
 import { Button } from "@/components/ui/button";
-import { NATIVE_TOKEN } from "@/lib/juicebox/constants";
-import { jbMultiTerminalAddress } from "@/lib/juicebox/hooks/contract";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { revBasicDeployerABI } from "@/lib/revnet/hooks/contract";
 import { useDeployRevnet } from "@/lib/revnet/hooks/useDeployRevnet";
-import { cn } from "@/lib/utils";
-import { ArrowLeftIcon, CheckCircleIcon } from "@heroicons/react/24/solid";
 import {
+  ExclamationCircleIcon,
+  PencilSquareIcon,
+  TrashIcon,
+} from "@heroicons/react/24/outline";
+import {
+  ArrowLeftIcon,
+  CheckCircleIcon,
+  PlusIcon,
+} from "@heroicons/react/24/solid";
+import {
+  FieldArray,
   FieldAttributes,
   Form,
   Formik,
@@ -19,8 +33,10 @@ import {
 import {
   DecayRate,
   JBProjectMetadata,
+  NATIVE_TOKEN,
   RedemptionRate,
   ReservedRate,
+  jbMultiTerminalAddress,
 } from "juice-sdk-core";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -34,22 +50,40 @@ import {
   useNetwork,
   useWaitForTransaction,
 } from "wagmi";
+import { MAX_RULESET_COUNT } from "../constants";
 
-const DEFAULT_FORM_DATA = {
+const defaultStageData = {
+  priceCeilingIncreasePercentage: "",
+  priceCeilingIncreaseFrequency: "",
+  priceFloorTaxIntensity: "",
+
+  boostPercentage: "",
+  boostDuration: "",
+};
+
+type RevnetFormData = {
+  name: string;
+  tagline: string;
+
+  tokenName: string;
+  tokenSymbol: string;
+
+  premintTokenAmount: string;
+  initialOperator: string;
+  stages: (typeof defaultStageData)[];
+};
+
+const DEFAULT_FORM_DATA: RevnetFormData = {
   name: "",
   tagline: "",
 
   tokenName: "",
   tokenSymbol: "",
 
-  priceCeilingIncreasePercentage: "",
-  priceCeilingIncreaseFrequency: "",
-  priceFloorTaxIntensity: "",
   premintTokenAmount: "",
+  initialOperator: "",
 
-  boostOperator: "",
-  boostPercentage: "",
-  boostDuration: "",
+  stages: [],
 };
 
 function Field(props: FieldAttributes<any>) {
@@ -133,99 +167,232 @@ function TokensPage() {
   );
 }
 
-function ConfigPage() {
-  return (
-    <div>
-      <h2 className="text-2xl font-medium mb-2">Configure the Revnet</h2>
-      <p className="text-zinc-600 text-sm mb-7">
-        A Revnet's settings influence how it will grow and evolve. Settings are
-        locked, forever. Choose wisely!
-      </p>
+function AddStageDialog({
+  children,
+  onSave,
+  initialValues,
+}: {
+  initialValues?: typeof defaultStageData;
+  children: React.ReactNode;
+  onSave: (newStage: typeof defaultStageData) => void;
+}) {
+  const [open, setOpen] = useState(false);
 
-      <div className="mb-4">
-        <div className="text-sm font-medium mb-2">Price ceiling</div>
-        <div className="flex gap-2 items-center text-sm text-zinc-600 italic">
-          <label
-            htmlFor="priceCeilingIncreasePercentage"
-            className="whitespace-nowrap"
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>{children}</DialogTrigger>
+      <DialogContent className="max-w-lg">
+        <DialogHeader>
+          <DialogTitle>Add stage</DialogTitle>
+        </DialogHeader>
+        <div className="my-8">
+          <Formik
+            initialValues={initialValues ?? defaultStageData}
+            onSubmit={(values) => {
+              onSave(values);
+              setOpen(false);
+            }}
           >
-            Raise ceiling by
-          </label>
-          <Field
-            id="priceCeilingIncreasePercentage"
-            name="priceCeilingIncreasePercentage"
-            className="h-9"
-            suffix="%"
-          />
-          <label htmlFor="priceCeilingIncreaseFrequency">every</label>
-          <Field
-            id="priceCeilingIncreaseFrequency"
-            name="priceCeilingIncreaseFrequency"
-            className="h-9"
-            type="number"
-          />
-          days.
+            {() => (
+              <Form>
+                <FieldGroup
+                  id="boostDuration"
+                  name="boostDuration"
+                  label="Stage duration"
+                  suffix="days"
+                  description="Leave blank to make stage indefinite."
+                  type="number"
+                />
+
+                <h3 className="text-lg font-medium mb-1 mt-7">Incentives</h3>
+
+                <div className="mb-4">
+                  <div className="text-sm font-medium mb-2">Price ceiling</div>
+                  <div className="flex gap-2 items-center text-sm text-zinc-600 italic">
+                    <label
+                      htmlFor="priceCeilingIncreasePercentage"
+                      className="whitespace-nowrap"
+                    >
+                      Raise ceiling by
+                    </label>
+                    <Field
+                      id="priceCeilingIncreasePercentage"
+                      name="priceCeilingIncreasePercentage"
+                      className="h-9"
+                      suffix="%"
+                      required
+                    />
+                    <label htmlFor="priceCeilingIncreaseFrequency">every</label>
+                    <Field
+                      id="priceCeilingIncreaseFrequency"
+                      name="priceCeilingIncreaseFrequency"
+                      className="h-9"
+                      type="number"
+                      required
+                    />
+                    days.
+                  </div>
+                </div>
+                <FieldGroup
+                  id="priceFloorTaxIntensity"
+                  name="priceFloorTaxIntensity"
+                  label="Exit tax"
+                  suffix="%"
+                  required
+                />
+
+                <div>
+                  <h3 className="text-lg font-medium mb-1 mt-7">Token split</h3>
+                  <p className="text-zinc-600 text-sm mb-7">
+                    Send a portion of new token purchases to an Operator. The
+                    Operator could be a core team, airdrop stockpile, staking
+                    rewards contract, or something else.
+                  </p>
+
+                  <div className="flex gap-2 justify-between">
+                    <FieldGroup
+                      className="flex-1"
+                      id="boostPercentage"
+                      name="boostPercentage"
+                      label="Split rate"
+                      description="Send a percentage of new tokens to the Operator."
+                      suffix="%"
+                    />
+                  </div>
+                </div>
+
+                <DialogFooter>
+                  <Button type="submit">Add stage</Button>
+                </DialogFooter>
+              </Form>
+            )}
+          </Formik>
         </div>
-      </div>
-      <FieldGroup
-        id="priceFloorTaxIntensity"
-        name="priceFloorTaxIntensity"
-        label="Exit Tax intensity"
-        suffix="%"
-      />
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 }
 
-function BoostPage() {
+function ConfigPage() {
+  const { values, setFieldValue } = useFormikContext<RevnetFormData>();
+
+  const hasStages = values.stages.length > 0;
+  const lastStageHasDuration = Boolean(
+    values.stages[values.stages.length - 1]?.boostDuration
+  );
+
+  const canAddStage = !hasStages || lastStageHasDuration;
+  const maxStageReached = values.stages.length >= MAX_RULESET_COUNT;
+
   return (
     <div>
-      <h2 className="text-2xl font-medium mb-2">Add a Boost</h2>
+      <h2 className="text-2xl font-medium mb-2">Configure Stages</h2>
       <p className="text-zinc-600 text-sm mb-7">
-        Send a portion of new token purchases to a Boost Operator. It could be a
-        core team, airdrop stockpile, staking rewards contract, or something
-        else. Boosts are locked, forever.
+        Configure how your Revnet should evolve over time. Your configuration is
+        locked forever and can't be changed.
       </p>
 
-      <div className="mb-7">
+      <div className="mb-5">
+        <h3>Setup</h3>
         <FieldGroup
-          id="boostOperator"
-          name="boostOperator"
-          label="Boost Operator"
+          id="initialOperator"
+          name="initialOperator"
+          label="Operator"
           placeholder="0x"
+          required
         />
         <FieldGroup
+          className="flex-1"
           id="premintTokenAmount"
           name="premintTokenAmount"
-          label="Premint amount"
-          description="Premint some tokens to the Boost Operator. This only happens once."
+          label="Premint"
+          description="Premint some tokens to the Boost Operator upon deployment."
           suffix="tokens"
         />
       </div>
 
-      <h3 className="text-lg font-medium mb-2">Boost</h3>
+      <FieldArray
+        name="stages"
+        render={(arrayHelpers) => (
+          <div>
+            <div className="divide-y mb-2">
+              {values.stages.map((stage, index) => (
+                <div className="py-4" key={index}>
+                  <div className="mb-1 flex justify-between items-center">
+                    <div>Stage {index + 1}</div>
+                    <div className="flex gap-">
+                      <AddStageDialog
+                        initialValues={stage}
+                        onSave={(newStage) => {
+                          arrayHelpers.replace(index, newStage);
+                        }}
+                      >
+                        <Button variant="ghost" size="sm">
+                          <PencilSquareIcon className="h-4 w-4" />
+                        </Button>
+                      </AddStageDialog>
 
-      {/* TODO eventually, multiple boosts */}
-      <FieldGroup
-        id="boostPercentage"
-        name="boostPercentage"
-        label="Percentage"
-        suffix="%"
-      />
-      <FieldGroup
-        id="boostDuration"
-        name="boostDuration"
-        label="Duration"
-        suffix="days"
-        type="number"
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => arrayHelpers.remove(index)}
+                      >
+                        <TrashIcon className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                  <div className="text-xs text-zinc-500 flex gap-4">
+                    <div>
+                      {stage.boostDuration ? (
+                        <>{stage.boostDuration} days</>
+                      ) : (
+                        "Forever"
+                      )}{" "}
+                    </div>
+                    <div>
+                      +{stage.priceCeilingIncreasePercentage || 0}% every{" "}
+                      {stage.priceCeilingIncreasePercentage} days
+                    </div>
+                    <div>{stage.priceFloorTaxIntensity}% exit tax</div>
+                    <div>{stage.boostPercentage || 0}% operator split</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <AddStageDialog
+              onSave={(newStage) => {
+                arrayHelpers.push(newStage);
+              }}
+            >
+              <Button
+                className="w-full flex gap-1 border border-dashed border-zinc-400"
+                variant="secondary"
+                disabled={!canAddStage}
+              >
+                Add stage <PlusIcon className="h-3 w-3" />
+              </Button>
+            </AddStageDialog>
+            {maxStageReached ? (
+              <div className="text-xs text-orange-900 mt-2 flex gap-1 p-2 bg-orange-50 rounded-md">
+                <ExclamationCircleIcon className="h-4 w-4" /> You've added the
+                maximum number of stages.
+              </div>
+            ) : !canAddStage ? (
+              <div className="text-xs text-orange-900 mt-2 flex gap-1 p-2 bg-orange-50 rounded-md">
+                <ExclamationCircleIcon className="h-4 w-4" /> Your last stage is
+                indefinite. Set a duration to add another stage.
+              </div>
+            ) : null}
+          </div>
+        )}
       />
     </div>
   );
 }
 
 function ReviewPage() {
-  const { values } = useFormikContext<typeof DEFAULT_FORM_DATA>();
-
+  const { values } = useFormikContext<RevnetFormData>();
+  console.log(values);
   return (
     <div>
       <h2 className="text-2xl font-medium mb-7">Review and deploy</h2>
@@ -266,7 +433,7 @@ function ReviewPage() {
           </dl>
         </div>
       </div>
-
+      {/*
       <div className="mb-5">
         <div className="px-4 sm:px-0">
           <h3 className="text-base font-semibold leading-7 text-zinc-900">
@@ -342,45 +509,23 @@ function ReviewPage() {
         </div>
       </div>
     </div>
+  );*/}
+    </div>
   );
 }
 
 const pages = [
   { name: "Details", component: DetailsPage },
   { name: "Token", component: TokensPage },
-  { name: "Configure", component: ConfigPage },
-  { name: "Boost", component: BoostPage },
+  { name: "Stage", component: ConfigPage },
   { name: "Review", component: ReviewPage },
 ];
-
-function CreateNav({
-  currentPage,
-  onChange,
-}: {
-  currentPage: number;
-  onChange: (page: number) => void;
-}) {
-  return (
-    <ol className="flex gap-4">
-      {pages.map((page, i) => (
-        <li
-          key={i}
-          className={cn(currentPage === i && "font-medium", "hover:underline")}
-          role="button"
-          onClick={() => onChange(i)}
-        >
-          {page.name}
-        </li>
-      ))}
-    </ol>
-  );
-}
 
 function CreatePage({
   onFormChange,
   isLoading,
 }: {
-  onFormChange: (data: typeof DEFAULT_FORM_DATA) => void;
+  onFormChange: (data: RevnetFormData) => void;
   isLoading: boolean;
 }) {
   const [page, setPage] = useState(0);
@@ -388,7 +533,7 @@ function CreatePage({
   const prevPage = pages[page - 1];
   const nextPage = pages[page + 1];
 
-  const { values } = useFormikContext<typeof DEFAULT_FORM_DATA>();
+  const { values } = useFormikContext<RevnetFormData>();
   useEffect(() => {
     onFormChange(values);
   });
@@ -435,7 +580,7 @@ function CreatePage({
 }
 
 function parseDeployData(
-  formData: typeof DEFAULT_FORM_DATA,
+  formData: RevnetFormData,
   extra: {
     metadataCid: string;
     chainId: Chain["id"] | undefined;
@@ -447,19 +592,30 @@ function parseDeployData(
   const now = Math.floor(Date.now() / 1000);
 
   // 1 token per eth
-  const initialIssuanceRateEth = "1";
+  const initialIssuanceRateEth = "1"; // 1 token per eth initial weight
 
-  const stageConfig = {
-    initialIssuanceRate: parseUnits(initialIssuanceRateEth, 18), // 1 token per eth
-    priceCeilingIncreaseFrequency:
-      Number(formData.priceCeilingIncreaseFrequency) * 86400, // seconds
-    priceCeilingIncreasePercentage:
-      Number(DecayRate.parse(formData.priceCeilingIncreasePercentage, 9).val) /
-      100,
-    priceFloorTaxIntensity:
-      Number(RedemptionRate.parse(formData.priceFloorTaxIntensity, 4).val) /
-      100, //
-  };
+  let cumStart = 0;
+  const stageConfigurations = formData.stages.map((stage, idx) => {
+    const prevStageDuration =
+      idx === 0 ? now : Number(formData.stages[idx - 1].boostDuration) * 86400; // days to seconds
+    const startsAtOrAfter = cumStart + prevStageDuration;
+    cumStart += prevStageDuration;
+
+    return {
+      startsAtOrAfter,
+      operatorSplitRate:
+        Number(ReservedRate.parse(stage.boostPercentage, 4).val) / 100,
+      initialIssuanceRate:
+        idx === 0 ? parseUnits(initialIssuanceRateEth, 18) : 0n, //  and 0 after the first stage (continuation)
+      priceCeilingIncreaseFrequency:
+        Number(stage.priceCeilingIncreaseFrequency) * 86400, // seconds
+      priceCeilingIncreasePercentage:
+        Number(DecayRate.parse(stage.priceCeilingIncreasePercentage, 9).val) /
+        100,
+      priceFloorTaxIntensity:
+        Number(RedemptionRate.parse(stage.priceFloorTaxIntensity, 4).val) / 100, //
+    };
+  });
 
   return [
     formData.tokenName,
@@ -467,21 +623,9 @@ function parseDeployData(
     extra.metadataCid,
     {
       baseCurrency: Number(BigInt(NATIVE_TOKEN)),
-      initialBoostOperator: (formData.boostOperator as Address) ?? zeroAddress,
+      initialOperator: (formData.initialOperator as Address) ?? zeroAddress,
       premintTokenAmount: parseUnits(formData.premintTokenAmount, 18),
-      stageConfigurations: [
-        {
-          ...stageConfig,
-          boostRate:
-            Number(ReservedRate.parse(formData.boostPercentage, 4).val) / 100,
-          startsAtOrAfter: 1, // seconds
-        },
-        {
-          ...stageConfig,
-          boostRate: 0,
-          startsAtOrAfter: Number(formData.boostDuration) * 86400 + now, // seconds
-        },
-      ],
+      stageConfigurations,
     },
     [
       {
