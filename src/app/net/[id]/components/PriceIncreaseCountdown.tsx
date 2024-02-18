@@ -1,12 +1,12 @@
-import { useCountdownToDate } from "@/hooks/useCountdownToDate";
-import { useNativeTokenSymbol } from "@/hooks/useNativeTokenSymbol";
-import { formatSeconds } from "@/lib/utils";
-import { QuestionMarkCircleIcon } from "@heroicons/react/24/outline";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-} from "@radix-ui/react-tooltip";
+} from "@/components/ui/tooltip";
+import { useCountdownToDate } from "@/hooks/useCountdownToDate";
+import { useNativeTokenSymbol } from "@/hooks/useNativeTokenSymbol";
+import { formatSeconds } from "@/lib/utils";
+import { QuestionMarkCircleIcon } from "@heroicons/react/24/outline";
 import {
   RulesetWeight,
   getNextRulesetWeight,
