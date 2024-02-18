@@ -5,7 +5,6 @@ import {
 import { EthereumAddress } from "@/components/EthereumAddress";
 import { Button } from "@/components/ui/button";
 import { useNativeTokenSymbol } from "@/hooks/useNativeTokenSymbol";
-import { formatDate } from "date-fns";
 import {
   DecayRate,
   RedemptionRate,
@@ -15,7 +14,6 @@ import {
 } from "juice-sdk-core";
 import {
   useJBContractContext,
-  useJBRulesetContext,
   useJBTokenContext,
   useJbControllerGetRulesetOf,
   useJbRulesetsRulesetsOf,
@@ -137,7 +135,7 @@ export function NetworkDetailsTable() {
             Exit tax
           </dt>
           <dd className="text-sm leading-6 text-zinc-700">
-            {selectedStageMetadata?.data?.reservedRate.formatPercentage()}%
+            {selectedStageMetadata?.data?.redemptionRate.formatPercentage()}%
           </dd>
         </div>
         <div className="border-t border-zinc-100 px-4 py-6 sm:col-span-1 sm:px-0 grid grid-cols-2">
