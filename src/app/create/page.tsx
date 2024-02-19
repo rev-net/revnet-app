@@ -223,56 +223,66 @@ function AddStageDialog({
           >
             {() => (
               <Form>
-                <FieldGroup
-                  id="boostDuration"
-                  name="boostDuration"
-                  label="Stage duration"
-                  suffix="days"
-                  description="Leave blank to make stage indefinite."
-                  type="number"
-                />
-
-                <h3 className="text-lg font-medium mb-1 mt-7">Incentives</h3>
-
-                <div className="mb-4">
-                  <div className="text-sm font-medium mb-2">Price ceiling</div>
-                  <div className="flex gap-2 items-center text-sm text-zinc-600 italic">
-                    <label
-                      htmlFor="priceCeilingIncreasePercentage"
-                      className="whitespace-nowrap"
-                    >
-                      Raise ceiling by
-                    </label>
-                    <Field
-                      id="priceCeilingIncreasePercentage"
-                      name="priceCeilingIncreasePercentage"
-                      className="h-9"
-                      suffix="%"
-                      required
-                    />
-                    <label htmlFor="priceCeilingIncreaseFrequency">every</label>
-                    <Field
-                      id="priceCeilingIncreaseFrequency"
-                      name="priceCeilingIncreaseFrequency"
-                      className="h-9"
-                      type="number"
-                      required
-                    />
-                    days.
-                  </div>
+                <div className="mb-7">
+                  <FieldGroup
+                    id="boostDuration"
+                    name="boostDuration"
+                    label="Stage duration"
+                    suffix="days"
+                    description="Leave blank to make stage indefinite."
+                    type="number"
+                  />
                 </div>
-                <FieldGroup
-                  id="priceFloorTaxIntensity"
-                  name="priceFloorTaxIntensity"
-                  label="Exit tax"
-                  suffix="%"
-                  required
-                />
+
+                <div className="mb-7">
+                  <h3 className="mb-1">Incentives</h3>
+                  <div className="mb-4">
+                    <div className="text-sm font-medium mb-2">
+                      Price ceiling
+                    </div>
+                    <div className="flex gap-2 items-center text-sm text-zinc-600 italic">
+                      <label
+                        htmlFor="priceCeilingIncreasePercentage"
+                        className="whitespace-nowrap"
+                      >
+                        Raise ceiling by
+                      </label>
+                      <Field
+                        id="priceCeilingIncreasePercentage"
+                        name="priceCeilingIncreasePercentage"
+                        className="h-9"
+                        suffix="%"
+                        required
+                      />
+                      <label htmlFor="priceCeilingIncreaseFrequency">
+                        every
+                      </label>
+                      <Field
+                        id="priceCeilingIncreaseFrequency"
+                        name="priceCeilingIncreaseFrequency"
+                        className="h-9"
+                        type="number"
+                        required
+                      />
+                      days.
+                    </div>
+                    <div className="text-zinc-500 text-sm mt-2">
+                      Days must be less than your stage's duration.
+                    </div>
+                  </div>
+                  <FieldGroup
+                    id="priceFloorTaxIntensity"
+                    name="priceFloorTaxIntensity"
+                    label="Exit tax"
+                    suffix="%"
+                    required
+                  />
+                </div>
 
                 <div>
-                  <h3 className="text-lg font-medium mb-1 mt-7">Token split</h3>
-                  <p className="text-zinc-600 text-sm mb-7">
-                    Send a portion of new token purchases to an Operator. The
+                  <h3 className="mb-1">Token split</h3>
+                  <p className="text-zinc-600 text-sm mb-3">
+                    Send a portion of new token purchases to the Operator. The
                     Operator could be a core team, airdrop stockpile, staking
                     rewards contract, or something else.
                   </p>
@@ -290,7 +300,7 @@ function AddStageDialog({
                 </div>
 
                 <DialogFooter>
-                  <Button type="submit">Add stage</Button>
+                  <Button type="submit">Save stage</Button>
                 </DialogFooter>
               </Form>
             )}
@@ -321,12 +331,13 @@ function ConfigPage() {
       </p>
 
       <div className="mb-5">
-        <h3>Setup</h3>
+        <h3 className="mb-1">Setup</h3>
         <FieldGroup
           id="initialOperator"
           name="initialOperator"
-          label="Operator"
+          label="Operator address"
           placeholder="0x"
+          description="The person, group or contract that can receive a portion of new tokens."
           required
         />
         <FieldGroup
@@ -334,10 +345,12 @@ function ConfigPage() {
           id="premintTokenAmount"
           name="premintTokenAmount"
           label="Premint"
-          description="Premint some tokens to the Boost Operator upon deployment."
+          description="Premint tokens for the Operator. Only happens once."
           suffix="tokens"
         />
       </div>
+
+      <h3 className="mb-1">Stages</h3>
 
       <FieldArray
         name="stages"
@@ -420,16 +433,14 @@ function ConfigPage() {
 
 function ReviewPage() {
   const { values } = useFormikContext<RevnetFormData>();
-  console.log(values);
+
   return (
     <div>
       <h2 className="text-2xl font-medium mb-7">Review and deploy</h2>
 
       <div className="mb-5">
         <div className="px-4 sm:px-0">
-          <h3 className="text-base font-semibold leading-7 text-zinc-900">
-            General
-          </h3>
+          <h3 className="font-medium">General</h3>
         </div>
 
         <div className="mt-6 border-t border-zinc-100">
@@ -456,7 +467,12 @@ function ReviewPage() {
               </dt>
               <dd className="mt-1 text-sm leading-6 text-zinc-700 sm:col-span-2 sm:mt-0">
                 {values.description.split("\n").map((d, idx) => (
-                  <p className="mb-3" key={idx}>
+                  <p
+                    className={
+                      idx < values.description.length - 1 ? "" : "mb-3"
+                    }
+                    key={idx}
+                  >
                     {d}
                   </p>
                 ))}
@@ -488,6 +504,63 @@ function ReviewPage() {
                 {values.tokenName} (${values.tokenSymbol})
               </dd>
             </div>
+          </dl>
+        </div>
+        <div className="pt-5">
+          <h3 className="mb-1 font-medium">Stages</h3>
+
+          <dl>
+            {values.stages.map((stage, idx) => {
+              return (
+                <div key={idx} className="py-6">
+                  <div className="text-sm font-medium mb-3 uppercase flex gap-3 items-center">
+                    <span className="flex-shrink-0">Stage {idx + 1}</span>
+                    <span className="h-[1px] w-full bg-zinc-100"></span>
+                  </div>
+
+                  <div className="px-4 py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+                    <dt className="text-sm font-medium leading-6 text-zinc-900">
+                      Duration
+                    </dt>
+                    <dd className="mt-1 text-sm leading-6 text-zinc-700 sm:col-span-2 sm:mt-0">
+                      {stage.boostDuration ? (
+                        <>{stage.boostDuration} days</>
+                      ) : (
+                        "Forever"
+                      )}
+                    </dd>
+                  </div>
+
+                  <div className="px-4 py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+                    <dt className="text-sm font-medium leading-6 text-zinc-900">
+                      Token price ceiling
+                    </dt>
+                    <dd className="mt-1 text-sm leading-6 text-zinc-700 sm:col-span-2 sm:mt-0">
+                      +{stage.priceCeilingIncreasePercentage || 0}% every{" "}
+                      {stage.priceCeilingIncreasePercentage} days
+                    </dd>
+                  </div>
+
+                  <div className="px-4 py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+                    <dt className="text-sm font-medium leading-6 text-zinc-900">
+                      Exit tax
+                    </dt>
+                    <dd className="mt-1 text-sm leading-6 text-zinc-700 sm:col-span-2 sm:mt-0">
+                      {stage.priceFloorTaxIntensity}%
+                    </dd>
+                  </div>
+
+                  <div className="px-4 py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+                    <dt className="text-sm font-medium leading-6 text-zinc-900">
+                      Operator split
+                    </dt>
+                    <dd className="mt-1 text-sm leading-6 text-zinc-700 sm:col-span-2 sm:mt-0">
+                      {stage.boostPercentage || 0}%{" "}
+                    </dd>
+                  </div>
+                </div>
+              );
+            })}
           </dl>
         </div>
       </div>

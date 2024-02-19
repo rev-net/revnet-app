@@ -207,12 +207,6 @@ export function NetworkDashboard() {
         })
       : null;
 
-  console.log(
-    "PARAMS!",
-    ruleset?.data?.weight,
-    rulesetMetadata?.data?.reservedRate
-  );
-
   return (
     <div>
       <div className="flex gap-10 container py-10 md:flex-nowrap flex-wrap">
