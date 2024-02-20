@@ -32,6 +32,9 @@ import {
 } from "recharts";
 import { twJoin } from "tailwind-merge";
 
+const INITIAL_SELECTED_STAGE = -1;
+const steps = 50;
+
 function generateDateRange(startDate: Date, endDate: Date, resolution: number) {
   const dateRange = [];
   const interval = (endDate.getTime() - startDate.getTime()) / (resolution - 1);
@@ -43,8 +46,6 @@ function generateDateRange(startDate: Date, endDate: Date, resolution: number) {
 
   return dateRange;
 }
-
-const steps = 50;
 
 const CustomTooltip = ({
   active,
@@ -140,15 +141,13 @@ const CustomizedXTick = (props: {
   );
 };
 
-const INITIAL_SELECTED_STAGE = -1;
-
 const StepChart = () => {
-  const { projectId } = useJBContractContext();
-  const { ruleset: currentRuleset, rulesetMetadata } = useJBRulesetContext();
-
   const [selectedStage, setSelectedStage] = useState<number>(
     INITIAL_SELECTED_STAGE
   );
+
+  const { projectId } = useJBContractContext();
+  const { rulesetMetadata } = useJBRulesetContext();
 
   const { data: rulesets } = useJbRulesetsRulesetsOf({
     args: [projectId, 0n, BigInt(MAX_RULESET_COUNT)],
@@ -162,8 +161,6 @@ const StepChart = () => {
       });
     },
   });
-
-  console.log(rulesets, "rulesets");
 
   const stages: JBRulesetData[] = rulesets?.reverse() ?? [];
   const nextStageIdx = Math.max(
