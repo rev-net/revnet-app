@@ -57,7 +57,7 @@ export function ParticipantsTable({
                 ) ? (
                   <Badge variant="secondary" className="ml-2">
                     <ForwardIcon className="w-4 h-4 mr-1 inline-block" />
-                    Boost
+                    Operator
                   </Badge>
                 ) : accountAddress &&
                   isAddressEqual(

@@ -44,6 +44,7 @@ import StepChart from "./StepChart";
 import { ActivityFeed } from "./activity/ActivityFeed";
 import { PayForm } from "./pay/PayForm";
 import { RedeemDialog } from "./redeem/RedeemDialog";
+import { DistributeReservedTokensButton } from "./DistributeReservedTokensButton";
 
 export function NetworkDashboard() {
   const [participantsView, setParticipantsView] = useState<"table" | "pie">(
@@ -359,6 +360,10 @@ export function NetworkDashboard() {
               <h3 className="text-base font-medium mb-2">Configuration</h3>
 
               <NetworkDetailsTable />
+            </div>
+
+            <div>
+              <DistributeReservedTokensButton />
             </div>
 
             {/* 

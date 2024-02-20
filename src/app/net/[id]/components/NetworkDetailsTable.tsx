@@ -74,6 +74,7 @@ export function NetworkDetailsTable() {
         : undefined,
   });
   const selectedStageBoost = selectedStateReservedTokenSplits?.[0];
+  const reservedRate = selectedStageMetadata?.data?.reservedRate;
 
   const currentTokenBPrice =
     selectedStage && selectedStageMetadata?.data
@@ -160,7 +161,7 @@ export function NetworkDetailsTable() {
           </dt>
           {selectedStageBoost ? (
             <dd className="text-sm leading-6 text-zinc-700">
-              {formatUnits(selectedStageBoost?.percent * 100n, 10)}%
+              {reservedRate?.formatPercentage()}%
             </dd>
           ) : null}
         </div>

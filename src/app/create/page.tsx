@@ -392,7 +392,7 @@ function ConfigPage() {
                     </div>
                     <div>
                       +{stage.priceCeilingIncreasePercentage || 0}% every{" "}
-                      {stage.priceCeilingIncreasePercentage} days
+                      {stage.priceCeilingIncreaseFrequency} days
                     </div>
                     <div>{stage.priceFloorTaxIntensity}% exit tax</div>
                     <div>{stage.boostPercentage || 0}% operator split</div>
@@ -537,7 +537,7 @@ function ReviewPage() {
                     </dt>
                     <dd className="mt-1 text-sm leading-6 text-zinc-700 sm:col-span-2 sm:mt-0">
                       +{stage.priceCeilingIncreasePercentage || 0}% every{" "}
-                      {stage.priceCeilingIncreasePercentage} days
+                      {stage.priceCeilingIncreaseFrequency} days
                     </dd>
                   </div>
 
