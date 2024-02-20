@@ -1,5 +1,6 @@
 import { Footer } from "@/components/layout/Footer";
 import { Nav } from "@/components/layout/Nav";
+import { Toaster } from "@/components/ui/toaster";
 import { IBM_Plex_Sans } from "next/font/google";
 import { twMerge } from "tailwind-merge";
 import "./globals.css";
@@ -24,7 +25,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={twMerge(ibm.variable, "bg-zinc-25 text-zinc-950 font-sans min-h-screen")}
+        className={twMerge(
+          ibm.variable,
+          "bg-zinc-25 text-zinc-950 font-sans min-h-screen"
+        )}
       >
         <Providers>
           <Nav />
@@ -32,6 +36,7 @@ export default function RootLayout({
 
           <Footer />
         </Providers>
+        <Toaster />
       </body>
     </html>
   );

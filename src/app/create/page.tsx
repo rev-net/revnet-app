@@ -720,22 +720,24 @@ async function pinProjectMetadata(metadata: JBProjectMetadata) {
 
 export default function Page() {
   const [formData, setFormData] = useState(DEFAULT_FORM_DATA);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isLoadingIpfs, setIsLoadingIpfs] = useState<boolean>(false);
 
   const { chain } = useNetwork();
-  const { write, data } = useDeployRevnet();
+  const { write, data, isLoading } = useDeployRevnet();
   const { data: txData, isSuccess } = useWaitForTransaction({
     hash: data?.hash,
   });
 
   async function deployProject() {
     // Upload metadata
+    setIsLoadingIpfs(true);
     const metadataCid = await pinProjectMetadata({
       name: formData.name,
       projectTagline: formData.tagline,
       description: formData.description,
       logoUri: formData.logoUri,
     });
+    setIsLoadingIpfs(false);
 
     const deployData = parseDeployData(formData, {
       metadataCid,
@@ -791,16 +793,18 @@ export default function Page() {
       initialValues={DEFAULT_FORM_DATA}
       onSubmit={() => {
         console.log("submitting");
-        setIsLoading(true);
         try {
           deployProject?.();
         } catch (e) {
-          setIsLoading(false);
+          setIsLoadingIpfs(false);
           console.error(e);
         }
       }}
     >
-      <CreatePage onFormChange={setFormData} isLoading={isLoading} />
+      <CreatePage
+        onFormChange={setFormData}
+        isLoading={isLoading || isLoadingIpfs}
+      />
     </Formik>
   );
 }

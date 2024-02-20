@@ -4,9 +4,19 @@ import {
   useRevBasicDeployerDeployRevnetWith,
 } from "./contract";
 import { useCallback } from "react";
+import { useToast } from "@/components/ui/use-toast";
 
 export function useDeployRevnet() {
-  const { write, data } = useRevBasicDeployerDeployRevnetWith();
+  const { toast } = useToast();
+  const { write, data, isError, isLoading } =
+    useRevBasicDeployerDeployRevnetWith({
+      onError(e) {
+        toast({
+          title: "Failed to deploy revnet",
+          description: e?.message,
+        });
+      },
+    });
 
   /**
     address _boostOperator,
@@ -32,5 +42,5 @@ export function useDeployRevnet() {
     [write]
   );
 
-  return { write: deployRevnet, data };
+  return { write: deployRevnet, data, isError, isLoading };
 }
