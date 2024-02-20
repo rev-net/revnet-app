@@ -54,8 +54,11 @@ import {
 } from "wagmi";
 import { MAX_RULESET_COUNT } from "../constants";
 import { IpfsImageUploader } from "./IpfsFileUploader";
+import { useNativeTokenSymbol } from "@/hooks/useNativeTokenSymbol";
 
 const defaultStageData = {
+  initialIssuance: "",
+
   priceCeilingIncreasePercentage: "",
   priceCeilingIncreaseFrequency: "",
   priceFloorTaxIntensity: "",
@@ -205,6 +208,7 @@ function AddStageDialog({
   onSave: (newStage: typeof defaultStageData) => void;
 }) {
   const [open, setOpen] = useState(false);
+  const nativeTokenSymbol = useNativeTokenSymbol();
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -230,6 +234,14 @@ function AddStageDialog({
                     label="Stage duration"
                     suffix="days"
                     description="Leave blank to make stage indefinite."
+                    type="number"
+                  />
+                  <FieldGroup
+                    id="initialIssuance"
+                    name="initialIssuance"
+                    label="Starting issuance rate"
+                    suffix={`tokens / ${nativeTokenSymbol}`}
+                    description="How many tokens to mint when the revnet receives 1 ETH. This will decrease as the price ceiling increases over time."
                     type="number"
                   />
                 </div>
@@ -267,7 +279,8 @@ function AddStageDialog({
                       days.
                     </div>
                     <div className="text-zinc-500 text-sm mt-2">
-                      Days must be less than your stage's duration.
+                      <span className="italic">Days</span> must be less than
+                      this stage's duration.
                     </div>
                   </div>
                   <FieldGroup
@@ -312,7 +325,8 @@ function AddStageDialog({
 }
 
 function ConfigPage() {
-  const { values, setFieldValue } = useFormikContext<RevnetFormData>();
+  const { values } = useFormikContext<RevnetFormData>();
+  const nativeTokenSymbol = useNativeTokenSymbol();
 
   const hasStages = values.stages.length > 0;
   const lastStageHasDuration = Boolean(
@@ -361,7 +375,7 @@ function ConfigPage() {
                 <div className="py-4" key={index}>
                   <div className="mb-1 flex justify-between items-center">
                     <div>Stage {index + 1}</div>
-                    <div className="flex gap-">
+                    <div className="flex">
                       <AddStageDialog
                         initialValues={stage}
                         onSave={(newStage) => {
@@ -382,7 +396,7 @@ function ConfigPage() {
                       </Button>
                     </div>
                   </div>
-                  <div className="text-xs text-zinc-500 flex gap-4">
+                  <div className="text-xs text-zinc-500 flex gap-2 flex-wrap">
                     <div>
                       {stage.boostDuration ? (
                         <>{stage.boostDuration} days</>
@@ -390,12 +404,14 @@ function ConfigPage() {
                         "Forever"
                       )}{" "}
                     </div>
+                    •
                     <div>
-                      +{stage.priceCeilingIncreasePercentage || 0}% every{" "}
+                      {stage.initialIssuance} tokens / {nativeTokenSymbol}
+                      {", "}+{stage.priceCeilingIncreasePercentage || 0}% every{" "}
                       {stage.priceCeilingIncreaseFrequency} days
                     </div>
-                    <div>{stage.priceFloorTaxIntensity}% exit tax</div>
-                    <div>{stage.boostPercentage || 0}% operator split</div>
+                    •<div>{stage.priceFloorTaxIntensity}% exit tax</div>
+                    <div>• {stage.boostPercentage || 0}% operator split</div>
                   </div>
                 </div>
               ))}
@@ -647,9 +663,6 @@ function parseDeployData(
 >["args"] {
   const now = Math.floor(Date.now() / 1000);
 
-  // 1 token per eth
-  const initialIssuanceRateEth = "1"; // 1 token per eth initial weight
-
   let cumStart = 0;
   const stageConfigurations = formData.stages.map((stage, idx) => {
     const prevStageDuration =
@@ -657,12 +670,16 @@ function parseDeployData(
     const startsAtOrAfter = cumStart + prevStageDuration;
     cumStart += prevStageDuration;
 
+    console.log(stage);
+
     return {
       startsAtOrAfter,
       operatorSplitRate:
         Number(ReservedRate.parse(stage.boostPercentage, 4).val) / 100,
       initialIssuanceRate:
-        idx === 0 ? parseUnits(initialIssuanceRateEth, 18) : 0n, //  and 0 after the first stage (continuation)
+        stage.initialIssuance && stage.initialIssuance !== ""
+          ? parseUnits(`${stage.initialIssuance}`, 18)
+          : 0n,
       priceCeilingIncreaseFrequency:
         Number(stage.priceCeilingIncreaseFrequency) * 86400, // seconds
       priceCeilingIncreasePercentage:
