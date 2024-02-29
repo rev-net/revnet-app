@@ -55,6 +55,7 @@ import {
 import { MAX_RULESET_COUNT } from "../constants";
 import { IpfsImageUploader } from "./IpfsFileUploader";
 import { useNativeTokenSymbol } from "@/hooks/useNativeTokenSymbol";
+import { Nav } from "@/components/layout/Nav";
 
 const defaultStageData = {
   initialIssuance: "",
@@ -791,37 +792,44 @@ export default function Page() {
     console.warn("useDeployRevnet::success::project id", projectId);
 
     return (
-      <div className="container">
-        <div className="max-w-lg rounded-lg shadow-lg my-24 p-10 mx-auto border border-zinc-100 flex flex-col items-center">
-          <CheckCircleIcon className="h-9 w-9 text-green-600 mb-4" />
-          <h1 className="text-4xl mb-10">Your Revnet is Live</h1>
-          <p>
-            <Link href={`/net/${projectId}`}>
-              <Button size="lg">Go to Revnet</Button>
-            </Link>
-          </p>
+      <>
+        <Nav />
+        <div className="container">
+          <div className="max-w-lg rounded-lg shadow-lg my-24 p-10 mx-auto border border-zinc-100 flex flex-col items-center">
+            <CheckCircleIcon className="h-9 w-9 text-green-600 mb-4" />
+            <h1 className="text-4xl mb-10">Your Revnet is Live</h1>
+            <p>
+              <Link href={`/net/${projectId}`}>
+                <Button size="lg">Go to Revnet</Button>
+              </Link>
+            </p>
+          </div>
         </div>
-      </div>
+      </>
     );
   }
 
   return (
-    <Formik
-      initialValues={DEFAULT_FORM_DATA}
-      onSubmit={() => {
-        console.log("submitting");
-        try {
-          deployProject?.();
-        } catch (e) {
-          setIsLoadingIpfs(false);
-          console.error(e);
-        }
-      }}
-    >
-      <CreatePage
-        onFormChange={setFormData}
-        isLoading={isLoading || isLoadingIpfs}
-      />
-    </Formik>
+    <>
+      <Nav />
+
+      <Formik
+        initialValues={DEFAULT_FORM_DATA}
+        onSubmit={() => {
+          console.log("submitting");
+          try {
+            deployProject?.();
+          } catch (e) {
+            setIsLoadingIpfs(false);
+            console.error(e);
+          }
+        }}
+      >
+        <CreatePage
+          onFormChange={setFormData}
+          isLoading={isLoading || isLoadingIpfs}
+        />
+      </Formik>
+    </>
   );
 }

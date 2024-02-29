@@ -31,7 +31,6 @@ export default function RootLayout({
         )}
       >
         <Providers>
-          <Nav />
           <main>{children}</main>
 
           <Footer />

@@ -1,3 +1,4 @@
+import { Nav } from "@/components/layout/Nav";
 import { Providers } from "./Providers";
 import { NetworkDashboard } from "./components/NetworkDashboard";
 
@@ -6,6 +7,8 @@ export default function Page({ params }: { params: { id: string } }) {
 
   return (
     <Providers projectId={projectId}>
+      <Nav />
+
       <NetworkDashboard />
     </Providers>
   );
