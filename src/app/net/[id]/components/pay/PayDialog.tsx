@@ -40,7 +40,7 @@ export function PayDialog({
     isLoading: isWriteLoading,
     data,
   } = useJbMultiTerminalPay({
-    // address: primaryNativeTerminal?.data, // TODO fix wagmi typegen for txs
+    address: primaryNativeTerminal?.data ?? undefined,
     args: address
       ? [
           projectId,
