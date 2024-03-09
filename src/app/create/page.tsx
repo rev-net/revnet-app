@@ -208,6 +208,8 @@ function AddStageDialog({
   children: React.ReactNode;
   onSave: (newStage: typeof defaultStageData) => void;
 }) {
+  const { values } = useFormikContext<RevnetFormData>();
+
   const [open, setOpen] = useState(false);
   const nativeTokenSymbol = useNativeTokenSymbol();
 
@@ -221,8 +223,8 @@ function AddStageDialog({
         <div className="my-8">
           <Formik
             initialValues={initialValues ?? defaultStageData}
-            onSubmit={(values) => {
-              onSave(values);
+            onSubmit={(newValues) => {
+              onSave(newValues);
               setOpen(false);
             }}
           >
@@ -241,7 +243,7 @@ function AddStageDialog({
                     id="initialIssuance"
                     name="initialIssuance"
                     label="Starting issuance rate"
-                    suffix={`tokens / ${nativeTokenSymbol}`}
+                    suffix={`$${values.tokenSymbol} / ${nativeTokenSymbol}`}
                     description="How many tokens to mint when the revnet receives 1 ETH. This will decrease as the price ceiling increases over time."
                     type="number"
                   />
@@ -289,6 +291,7 @@ function AddStageDialog({
                     name="priceFloorTaxIntensity"
                     label="Exit tax"
                     suffix="%"
+                    description={`How much revenue can be redeemed with $${values.tokenSymbol}.`}
                     required
                   />
                 </div>
@@ -350,7 +353,7 @@ function ConfigPage() {
         <FieldGroup
           id="initialOperator"
           name="initialOperator"
-          label="Operator address"
+          label="Split Operator"
           placeholder="0x"
           description="The person, group or contract that can receive a portion of new tokens."
           required
@@ -361,7 +364,7 @@ function ConfigPage() {
           name="premintTokenAmount"
           label="Premint"
           description="Premint tokens for the Operator. Only happens once."
-          suffix="tokens"
+          suffix={"$" + values.tokenSymbol}
         />
       </div>
 
