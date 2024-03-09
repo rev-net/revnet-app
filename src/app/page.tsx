@@ -9,9 +9,6 @@ export default function Page() {
           <span className="text-[10rem] md:text-[18rem] xl:text-[24rem] font-bold uppercase leading-[0.8] tracking-wide">
             REV
           </span>
-          <span className="uppercase text-orange-400 tracking-[0.1rem] md:tracking-[0.5rem] xl:tracking-[0.8rem] text-xs md:text-sm pl-2 md:pl-6 leading-none z-10">
-            Open Source Outcompetes Everything
-          </span>
           <span className="text-[10rem] md:text-[18rem] xl:text-[24rem] font-bold uppercase leading-[0.7] tracking-wide">
             NET
           </span>
