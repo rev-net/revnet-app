@@ -19,7 +19,8 @@ module.exports = {
     },
     extend: {
       fontFamily: {
-        sans: ["var(--font-ibm)", ...defaultTheme.fontFamily.sans],
+        sans: ["var(--font-simplon-norm)", ...defaultTheme.fontFamily.sans],
+        mono: ["var(--font-simplon-mono)", ...defaultTheme.fontFamily.mono],
       },
       keyframes: {
         "accordion-down": {

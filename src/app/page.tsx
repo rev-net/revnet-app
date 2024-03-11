@@ -5,7 +5,7 @@ export default function Page() {
   return (
     <div className="h-screen bg-black text-zinc-50 flex items-center justify-center md:pb-24">
       <div className="max-w-7xl px-3 md:px-4 mx-auto flex gap-2 justify-between flex-wrap items-center">
-        <h1 className="flex flex-col gap-4" title="REVNET">
+        <h1 className="flex flex-col gap-4 font-mono" title="REVNET">
           <span className="text-[10rem] md:text-[18rem] xl:text-[24rem] font-bold uppercase leading-[0.8] tracking-wide">
             REV
           </span>

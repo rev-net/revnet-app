@@ -70,7 +70,7 @@ const defaultStageData = {
 
 type RevnetFormData = {
   name: string;
-  tagline: string;
+  // tagline: string;
   description: string;
   logoUri?: string;
 
@@ -84,7 +84,7 @@ type RevnetFormData = {
 
 const DEFAULT_FORM_DATA: RevnetFormData = {
   name: "",
-  tagline: "",
+  // tagline: "",
   description: "",
   logoUri: "",
 
@@ -110,11 +110,17 @@ function Field(props: FieldAttributes<any>) {
           {...props}
           className={twMerge(
             "flex w-full rounded-md border border-zinc-200 bg-white px-3 py-1.5 text-sm ring-offset-white file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-zinc-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-950 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:border-zinc-800 dark:bg-zinc-950 dark:ring-offset-zinc-950 dark:placeholder:text-zinc-400 dark:focus-visible:ring-zinc-300",
+            props.prefix ? "pl-6" : "",
             props.className
           )}
         />
         {props.suffix ? (
-          <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+          <div
+            className={twMerge(
+              "pointer-events-none absolute inset-y-0 right-0 flex items-center",
+              props.type === "number" ? "pr-9" : "pr-3"
+            )}
+          >
             <span className="text-zinc-500 sm:text-sm">{props.suffix}</span>
           </div>
         ) : null}
@@ -156,17 +162,23 @@ function DetailsPage() {
 
   return (
     <div>
-      <h2 className="text-2xl font-medium mb-7">Name the Revnet</h2>
+      <h2 className="text-2xl font-medium mb-7">1. Revnet Details</h2>
 
       <FieldGroup id="name" name="name" label="Name" />
-      <FieldGroup id="tagline" name="tagline" label="Tagline" />
+      <FieldGroup
+        id="tokenSymbol"
+        name="tokenSymbol"
+        label="Ticker"
+        placeholder="MOON"
+        prefix="$"
+      />
       <FieldGroup
         id="description"
         name="description"
         label="Description"
         component="textarea"
         rows={5}
-        placeholder="Describe your revnet to participants..."
+        placeholder="What's your Revnet for?"
       />
       <label
         className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
@@ -342,7 +354,7 @@ function ConfigPage() {
 
   return (
     <div>
-      <h2 className="text-2xl font-medium mb-2">Configure Stages</h2>
+      <h2 className="text-2xl font-medium mb-2">2. Revnet Stages</h2>
       <p className="text-zinc-600 text-sm mb-7">
         Configure how your Revnet should evolve over time. Your configuration is
         locked forever and can't be changed.
@@ -456,7 +468,7 @@ function ReviewPage() {
 
   return (
     <div>
-      <h2 className="text-2xl font-medium mb-7">Review and deploy</h2>
+      <h2 className="text-2xl font-medium mb-7">3. Review and deploy</h2>
 
       <div className="mb-5">
         <div className="px-4 sm:px-0">
@@ -473,14 +485,14 @@ function ReviewPage() {
                 {values.name}
               </dd>
             </div>
-            <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+            {/* <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
               <dt className="text-sm font-medium leading-6 text-zinc-900">
                 Revnet tagline
               </dt>
               <dd className="mt-1 text-sm leading-6 text-zinc-700 sm:col-span-2 sm:mt-0">
                 {values.tagline}
               </dd>
-            </div>
+            </div> */}
             <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
               <dt className="text-sm font-medium leading-6 text-zinc-900">
                 Revnet description
@@ -590,7 +602,7 @@ function ReviewPage() {
 
 const pages = [
   { name: "Details", component: DetailsPage },
-  { name: "Token", component: TokensPage },
+  // { name: "Token", component: TokensPage },
   { name: "Stage", component: ConfigPage },
   { name: "Review", component: ReviewPage },
 ];
@@ -695,12 +707,13 @@ function parseDeployData(
   });
 
   return [
-    formData.tokenName,
+    formData.tokenSymbol, // token name, same as token symbol
     formData.tokenSymbol,
     extra.metadataCid,
     {
       baseCurrency: Number(BigInt(NATIVE_TOKEN)),
-      initialOperator: (formData.initialOperator as Address) ?? zeroAddress,
+      initialOperator:
+        (formData.initialOperator.trim() as Address) ?? zeroAddress,
       premintTokenAmount: parseUnits(formData.premintTokenAmount, 18),
       stageConfigurations,
     },
@@ -754,7 +767,7 @@ export default function Page() {
     setIsLoadingIpfs(true);
     const metadataCid = await pinProjectMetadata({
       name: formData.name,
-      projectTagline: formData.tagline,
+      // projectTagline: formData.tagline,
       description: formData.description,
       logoUri: formData.logoUri,
     });

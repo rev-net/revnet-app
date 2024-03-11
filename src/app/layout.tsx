@@ -1,16 +1,27 @@
 import { Footer } from "@/components/layout/Footer";
-import { Nav } from "@/components/layout/Nav";
 import { Toaster } from "@/components/ui/toaster";
 import { IBM_Plex_Sans } from "next/font/google";
 import { twMerge } from "tailwind-merge";
 import "./globals.css";
 import { Providers } from "./providers";
 
-const ibm = IBM_Plex_Sans({
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-ibm",
-  weight: ["400", "500"],
+import localFont from "next/font/local";
+
+const simplonNorm = localFont({
+  src: [
+    { path: "../../public/fonts/SimplonNorm-Light.otf", weight: "400" },
+    { path: "../../public/fonts/SimplonNorm-Regular.otf", weight: "500" },
+    { path: "../../public/fonts/SimplonNorm-Bold.otf", weight: "700" },
+  ],
+  variable: "--font-simplon-norm",
+});
+const simplonMono = localFont({
+  src: [
+    { path: "../../public/fonts/SimplonMono-Light.otf", weight: "400" },
+    { path: "../../public/fonts/SimplonMono-Regular.otf", weight: "500" },
+    { path: "../../public/fonts/SimplonMono-Bold.otf", weight: "700" },
+  ],
+  variable: "--font-simplon-mono",
 });
 
 export const metadata = {
@@ -26,7 +37,8 @@ export default function RootLayout({
     <html lang="en">
       <body
         className={twMerge(
-          ibm.variable,
+          simplonNorm.variable,
+          simplonMono.variable,
           "bg-zinc-25 text-zinc-950 font-sans min-h-screen"
         )}
       >

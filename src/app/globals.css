@@ -10,3 +10,7 @@
       padding: 0 theme('spacing.7')
     }
   }
+
+::selection {
+  background: theme('colors.orange.200');
+}
