@@ -1,6 +1,5 @@
 import { Footer } from "@/components/layout/Footer";
 import { Toaster } from "@/components/ui/toaster";
-import { IBM_Plex_Sans } from "next/font/google";
 import { twMerge } from "tailwind-merge";
 import "./globals.css";
 import { Providers } from "./providers";

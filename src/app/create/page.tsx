@@ -353,8 +353,8 @@ function ConfigPage() {
     values.stages[values.stages.length - 1]?.boostDuration
   );
 
-  const canAddStage = !hasStages || lastStageHasDuration;
   const maxStageReached = values.stages.length >= MAX_RULESET_COUNT;
+  const canAddStage = !hasStages || (lastStageHasDuration && !maxStageReached);
 
   return (
     <div>
