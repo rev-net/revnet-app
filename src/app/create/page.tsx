@@ -255,7 +255,11 @@ function AddStageDialog({
                     id="initialIssuance"
                     name="initialIssuance"
                     label="Starting issuance rate"
-                    suffix={`$${values.tokenSymbol} / ${nativeTokenSymbol}`}
+                    suffix={`${
+                      values.tokenSymbol?.length > 0
+                        ? `$${values.tokenSymbol}`
+                        : "tokens"
+                    } / ${nativeTokenSymbol}`}
                     description="How many tokens to mint when the revnet receives 1 ETH. This will decrease as the price ceiling increases over time."
                     type="number"
                   />
