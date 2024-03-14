@@ -166,13 +166,6 @@ function DetailsPage() {
 
       <FieldGroup id="name" name="name" label="Name" />
       <FieldGroup
-        id="tokenSymbol"
-        name="tokenSymbol"
-        label="Ticker"
-        placeholder="MOON"
-        prefix="$"
-      />
-      <FieldGroup
         id="description"
         name="description"
         label="Description"
@@ -204,9 +197,14 @@ function TokensPage() {
         <span className="whitespace-nowrap">ERC-20</span> token and can be
         traded on any exchange.
       </p>
-
       <FieldGroup id="tokenName" name="tokenName" label="Token name" />
-      <FieldGroup id="tokenSymbol" name="tokenSymbol" label="Token symbol" />
+      <FieldGroup
+        id="tokenSymbol"
+        name="tokenSymbol"
+        label="Ticker"
+        placeholder="MOON"
+        prefix="$"
+      />
     </div>
   );
 }
@@ -606,7 +604,7 @@ function ReviewPage() {
 
 const pages = [
   { name: "Details", component: DetailsPage },
-  // { name: "Token", component: TokensPage },
+  { name: "Token", component: TokensPage },
   { name: "Stage", component: ConfigPage },
   { name: "Review", component: ReviewPage },
 ];
