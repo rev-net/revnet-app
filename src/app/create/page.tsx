@@ -627,7 +627,7 @@ function CreatePage({
   });
 
   return (
-    <div className="container">
+    <div className="container min-h-screen">
       <Form>
         <div className="max-w-lg rounded-lg shadow-lg my-24 p-10 mx-auto border border-zinc-100">
           <CurrentPage />
@@ -812,7 +812,7 @@ export default function Page() {
     return (
       <>
         <Nav />
-        <div className="container">
+        <div className="container min-h-screen">
           <div className="max-w-lg rounded-lg shadow-lg my-24 p-10 mx-auto border border-zinc-100 flex flex-col items-center">
             <CheckCircleIcon className="h-9 w-9 text-green-600 mb-4" />
             <h1 className="text-4xl mb-10">Your Revnet is Live</h1>
