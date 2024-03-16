@@ -1,6 +1,7 @@
 "use client";
 
 import EtherscanLink from "@/components/EtherscanLink";
+import { Nav } from "@/components/layout/Nav";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -10,19 +11,17 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { useNativeTokenSymbol } from "@/hooks/useNativeTokenSymbol";
 import { ipfsUri, ipfsUriToGatewayUrl } from "@/lib/ipfs";
 import { revBasicDeployerABI } from "@/lib/revnet/hooks/contract";
 import { useDeployRevnet } from "@/lib/revnet/hooks/useDeployRevnet";
 import {
   ExclamationCircleIcon,
   PencilSquareIcon,
+  QuestionMarkCircleIcon,
   TrashIcon,
 } from "@heroicons/react/24/outline";
-import {
-  ArrowLeftIcon,
-  CheckCircleIcon,
-  PlusIcon,
-} from "@heroicons/react/24/solid";
+import { CheckCircleIcon, PlusIcon } from "@heroicons/react/24/solid";
 import {
   FieldArray,
   FieldAttributes,
@@ -39,9 +38,10 @@ import {
   ReservedRate,
   jbMultiTerminalAddress,
 } from "juice-sdk-core";
+import { FastForwardIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { ReactNode, useState } from "react";
 import { twMerge } from "tailwind-merge";
 import { Chain, parseUnits, zeroAddress } from "viem";
 import { optimismSepolia } from "viem/chains";
@@ -54,8 +54,6 @@ import {
 } from "wagmi";
 import { MAX_RULESET_COUNT } from "../constants";
 import { IpfsImageUploader } from "./IpfsFileUploader";
-import { useNativeTokenSymbol } from "@/hooks/useNativeTokenSymbol";
-import { Nav } from "@/components/layout/Nav";
 
 const defaultStageData = {
   initialIssuance: "",
@@ -139,10 +137,13 @@ function Field(props: FieldAttributes<any>) {
 }
 
 function FieldGroup(
-  props: FieldAttributes<any> & { label: string; description?: string }
+  props: FieldAttributes<any> & {
+    label: string;
+    description?: string | ReactNode;
+  }
 ) {
   return (
-    <div className="mb-3">
+    <div className="mb-5">
       <label
         htmlFor={props.name}
         className="block text-sm font-medium leading-6 mb-1"
@@ -161,10 +162,15 @@ function DetailsPage() {
   const { setFieldValue } = useFormikContext<RevnetFormData>();
 
   return (
-    <div>
-      <h2 className="text-2xl font-medium mb-7">1. Revnet Details</h2>
-
+    <>
       <FieldGroup id="name" name="name" label="Name" />
+      <FieldGroup
+        id="tokenSymbol"
+        name="tokenSymbol"
+        label="Ticker"
+        placeholder="MOON"
+        prefix="$"
+      />
       <FieldGroup
         id="description"
         name="description"
@@ -184,7 +190,7 @@ function DetailsPage() {
           setFieldValue("logoUri", ipfsUri(cid));
         }}
       />
-    </div>
+    </>
   );
 }
 
@@ -210,10 +216,12 @@ function TokensPage() {
 }
 
 function AddStageDialog({
+  stageIdx,
   children,
   onSave,
   initialValues,
 }: {
+  stageIdx: number;
   initialValues?: typeof defaultStageData;
   children: React.ReactNode;
   onSave: (newStage: typeof defaultStageData) => void;
@@ -240,7 +248,7 @@ function AddStageDialog({
           >
             {() => (
               <Form>
-                <div className="mb-7">
+                <div className="pb-5 border-b border-zinc-200">
                   <FieldGroup
                     id="boostDuration"
                     name="boostDuration"
@@ -263,7 +271,7 @@ function AddStageDialog({
                   />
                 </div>
 
-                <div className="mb-7">
+                <div className="py-5 border-b border-zinc-200">
                   <h3 className="mb-1">Incentives</h3>
                   <div className="mb-4">
                     <div className="text-sm font-medium mb-2">
@@ -310,13 +318,32 @@ function AddStageDialog({
                   />
                 </div>
 
-                <div>
+                <div className="pt-5">
                   <h3 className="mb-1">Token split</h3>
                   <p className="text-zinc-600 text-sm mb-3">
                     Send a portion of new token purchases to the Operator. The
                     Operator could be a core team, airdrop stockpile, staking
                     rewards contract, or something else.
                   </p>
+
+                  <FieldGroup
+                    id="initialOperator"
+                    name="initialOperator"
+                    label="Split Operator"
+                    placeholder="0x"
+                    description={
+                      stageIdx === 0 ? (
+                        "The person, group or contract that can receive a portion of new tokens."
+                      ) : (
+                        <div className="text-xs text-blue-900 mb-2 flex gap-1 p-2 bg-blue-50 rounded-md">
+                          <QuestionMarkCircleIcon className="h-4 w-4" /> Set the
+                          operator in the first stage.
+                        </div>
+                      )
+                    }
+                    disabled={stageIdx > 0}
+                    required
+                  />
 
                   <div className="flex gap-2 justify-between">
                     <FieldGroup
@@ -328,6 +355,17 @@ function AddStageDialog({
                       suffix="%"
                     />
                   </div>
+
+                  {stageIdx === 0 ? (
+                    <FieldGroup
+                      className="flex-1"
+                      id="premintTokenAmount"
+                      name="premintTokenAmount"
+                      label="Premint"
+                      description="Premint tokens for the Operator. Only happens once."
+                      suffix={"$" + values.tokenSymbol || "tokens"}
+                    />
+                  ) : null}
                 </div>
 
                 <DialogFooter>
@@ -355,86 +393,67 @@ function ConfigPage() {
   const canAddStage = !hasStages || (lastStageHasDuration && !maxStageReached);
 
   return (
-    <div>
-      <h2 className="text-2xl font-medium mb-2">2. Revnet Stages</h2>
-      <p className="text-zinc-600 text-sm mb-7">
-        Configure how your Revnet should evolve over time. Your configuration is
-        locked forever and can't be changed.
-      </p>
-
-      <div className="mb-5">
-        <h3 className="mb-1">Setup</h3>
-        <FieldGroup
-          id="initialOperator"
-          name="initialOperator"
-          label="Split Operator"
-          placeholder="0x"
-          description="The person, group or contract that can receive a portion of new tokens."
-          required
-        />
-        <FieldGroup
-          className="flex-1"
-          id="premintTokenAmount"
-          name="premintTokenAmount"
-          label="Premint"
-          description="Premint tokens for the Operator. Only happens once."
-          suffix={"$" + values.tokenSymbol}
-        />
-      </div>
-
-      <h3 className="mb-1">Stages</h3>
-
+    <>
       <FieldArray
         name="stages"
         render={(arrayHelpers) => (
           <div>
-            <div className="divide-y mb-2">
-              {values.stages.map((stage, index) => (
-                <div className="py-4" key={index}>
-                  <div className="mb-1 flex justify-between items-center">
-                    <div>Stage {index + 1}</div>
-                    <div className="flex">
-                      <AddStageDialog
-                        initialValues={stage}
-                        onSave={(newStage) => {
-                          arrayHelpers.replace(index, newStage);
-                        }}
-                      >
-                        <Button variant="ghost" size="sm">
-                          <PencilSquareIcon className="h-4 w-4" />
-                        </Button>
-                      </AddStageDialog>
+            {values.stages.length > 0 ? (
+              <div className="divide-y mb-2">
+                {values.stages.map((stage, index) => (
+                  <div className="py-4" key={index}>
+                    <div className="mb-1 flex justify-between items-center">
+                      <div>Stage {index + 1}</div>
+                      <div className="flex">
+                        <AddStageDialog
+                          stageIdx={index}
+                          initialValues={stage}
+                          onSave={(newStage) => {
+                            arrayHelpers.replace(index, newStage);
+                          }}
+                        >
+                          <Button variant="ghost" size="sm">
+                            <PencilSquareIcon className="h-4 w-4" />
+                          </Button>
+                        </AddStageDialog>
 
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => arrayHelpers.remove(index)}
-                      >
-                        <TrashIcon className="h-4 w-4" />
-                      </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => arrayHelpers.remove(index)}
+                        >
+                          <TrashIcon className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                    <div className="text-xs text-zinc-500 flex gap-2 flex-wrap">
+                      <div>
+                        {stage.boostDuration ? (
+                          <>{stage.boostDuration} days</>
+                        ) : (
+                          "Forever"
+                        )}{" "}
+                      </div>
+                      •
+                      <div>
+                        {stage.initialIssuance} tokens / {nativeTokenSymbol}
+                        {", "}+{stage.priceCeilingIncreasePercentage || 0}%
+                        every {stage.priceCeilingIncreaseFrequency} days
+                      </div>
+                      •<div>{stage.priceFloorTaxIntensity}% exit tax</div>
+                      <div>• {stage.boostPercentage || 0}% operator split</div>
                     </div>
                   </div>
-                  <div className="text-xs text-zinc-500 flex gap-2 flex-wrap">
-                    <div>
-                      {stage.boostDuration ? (
-                        <>{stage.boostDuration} days</>
-                      ) : (
-                        "Forever"
-                      )}{" "}
-                    </div>
-                    •
-                    <div>
-                      {stage.initialIssuance} tokens / {nativeTokenSymbol}
-                      {", "}+{stage.priceCeilingIncreasePercentage || 0}% every{" "}
-                      {stage.priceCeilingIncreaseFrequency} days
-                    </div>
-                    •<div>{stage.priceFloorTaxIntensity}% exit tax</div>
-                    <div>• {stage.boostPercentage || 0}% operator split</div>
-                  </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center text-zinc-500 mb-4">
+                Add a stage to get started
+              </div>
+            )}
+
             <AddStageDialog
+              stageIdx={values.stages.length}
               onSave={(newStage) => {
                 arrayHelpers.push(newStage);
               }}
@@ -461,7 +480,7 @@ function ConfigPage() {
           </div>
         )}
       />
-    </div>
+    </>
   );
 }
 
@@ -604,7 +623,7 @@ function ReviewPage() {
 
 const pages = [
   { name: "Details", component: DetailsPage },
-  { name: "Token", component: TokensPage },
+  // { name: "Token", component: TokensPage },
   { name: "Stage", component: ConfigPage },
   { name: "Review", component: ReviewPage },
 ];
@@ -616,55 +635,43 @@ function CreatePage({
   onFormChange: (data: RevnetFormData) => void;
   isLoading: boolean;
 }) {
-  const [page, setPage] = useState(0);
-  const CurrentPage = pages[page].component;
-  const prevPage = pages[page - 1];
-  const nextPage = pages[page + 1];
-
-  const { values } = useFormikContext<RevnetFormData>();
-  useEffect(() => {
-    onFormChange(values);
-  });
-
   return (
-    <div className="container min-h-screen">
-      <Form>
-        <div className="max-w-lg rounded-lg shadow-lg my-24 p-10 mx-auto border border-zinc-100">
-          <CurrentPage />
-          <div className="flex justify-between mt-7">
-            {prevPage ? (
-              <Button
-                variant="link"
-                onClick={(ev) => {
-                  ev.stopPropagation();
-                  ev.preventDefault();
-                  setPage(page - 1);
-                }}
-              >
-                <ArrowLeftIcon className="h-3 w-3 mr-1" />
-                Back
-              </Button>
-            ) : (
-              <div />
-            )}
-            {nextPage ? (
-              <Button
-                onClick={(ev) => {
-                  ev.stopPropagation();
-                  ev.preventDefault();
-                  setPage(page + 1);
-                }}
-              >
-                Next: {nextPage.name}
-              </Button>
-            ) : (
-              <Button type="submit" loading={isLoading}>
-                Deploy Revnet
-              </Button>
-            )}
-          </div>
-        </div>
-      </Form>
+    <div className="grid md:grid-cols-3 max-w-6xl mx-auto my-20 gap-x-6 gap-y-6 md:gap-y-0 md:px-0 px-10">
+      <h1 className="mb-16 text-2xl md:col-span-3 font-medium">
+        Deploy new Revnet
+      </h1>
+      <div className="md:col-span-1">
+        <h2 className="font-medium text-lg">Details</h2>
+        <p className="text-zinc-500 text-sm">
+          Add basic information about the Revnet.
+        </p>
+      </div>
+      <div className="md:col-span-2">
+        <DetailsPage />
+      </div>
+
+      <div className="h-[1px] bg-zinc-200 md:col-span-3 my-10"></div>
+
+      <div className="md:col-span-1">
+        <h2 className="font-medium text-lg">Stages</h2>
+        <p className="text-zinc-500 text-sm">
+          <p className="text-zinc-600 text-sm mb-7">
+            Configure how your Revnet should evolve over time. Your
+            configuration is locked forever and can't be changed.
+          </p>
+        </p>
+      </div>
+      <div className="md:col-span-2">
+        <ConfigPage />
+      </div>
+
+      <div className="h-[1px] bg-zinc-200 md:col-span-3 my-10"></div>
+
+      <div className="flex justify-end md:col-span-3">
+        <Button type="submit" loading={isLoading} size="lg">
+          Deploy Revnet <FastForwardIcon className="h-4 w-4 fill-white ml-2" />
+        </Button>
+      </div>
     </div>
   );
 }
@@ -797,7 +804,6 @@ export default function Page() {
           <div className="max-w-lg rounded-lg shadow-lg my-24 p-10 mx-auto border border-zinc-100">
             Something went wrong.{" "}
             <EtherscanLink type="tx" value={data?.hash}>
-              {" "}
               Check the transaction on Etherscan
             </EtherscanLink>
             .

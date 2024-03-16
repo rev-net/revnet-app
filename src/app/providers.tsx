@@ -14,7 +14,12 @@ export function Providers({ children }: { children: React.ReactNode }) {
 
   return (
     <WagmiConfig config={wagmiConfig}>
-      <ConnectKitProvider>
+      <ConnectKitProvider
+        customTheme={{
+          "--ck-border-radius": '8px',
+          "--ck-font-family": "var(--font-simplon-norm)",
+        }}
+      >
         <ApolloProvider client={apolloClient}>
           <TooltipProvider delayDuration={200} skipDelayDuration={100}>
             {mounted && children}
