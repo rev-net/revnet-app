@@ -700,7 +700,7 @@ function parseDeployData(
     return {
       startsAtOrAfter,
       operatorSplitRate:
-        Number(ReservedRate.parse(stage.boostPercentage, 4).val) / 100,
+        Number(ReservedRate.parse(stage.boostPercentage, 4).value) / 100,
       initialIssuanceRate:
         stage.initialIssuance && stage.initialIssuance !== ""
           ? parseUnits(`${stage.initialIssuance}`, 18)
@@ -708,10 +708,10 @@ function parseDeployData(
       priceCeilingIncreaseFrequency:
         Number(stage.priceCeilingIncreaseFrequency) * 86400, // seconds
       priceCeilingIncreasePercentage:
-        Number(DecayRate.parse(stage.priceCeilingIncreasePercentage, 9).val) /
+        Number(DecayRate.parse(stage.priceCeilingIncreasePercentage, 9).value) /
         100,
       priceFloorTaxIntensity:
-        Number(RedemptionRate.parse(stage.priceFloorTaxIntensity, 4).val) / 100, //
+        Number(RedemptionRate.parse(stage.priceFloorTaxIntensity, 4).value) / 100, //
     };
   });
 

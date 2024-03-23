@@ -34,7 +34,7 @@ export function PayDialog({
     contracts: { primaryNativeTerminal },
   } = useJBContractContext();
   const { address } = useAccount();
-  const value = amountA.amount.val;
+  const value = amountA.amount.value;
   const {
     write,
     isLoading: isWriteLoading,

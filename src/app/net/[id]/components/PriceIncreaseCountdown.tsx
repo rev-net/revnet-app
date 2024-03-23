@@ -29,8 +29,8 @@ export function PriceIncreaseCountdown() {
   const tokenA = { symbol: nativeTokenSymbol, decimals: 18 };
   const nextWeight = new RulesetWeight(
     getNextRulesetWeight({
-      weight: ruleset?.data?.weight.val ?? 0n,
-      decayRate: ruleset?.data?.decayRate.val ?? 0n,
+      weight: ruleset?.data?.weight.value ?? 0n,
+      decayRate: ruleset?.data?.decayRate.value ?? 0n,
     })
   );
 

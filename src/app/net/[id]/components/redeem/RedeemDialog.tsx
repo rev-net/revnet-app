@@ -50,7 +50,7 @@ export function RedeemDialog({
    */
 
   const redeemAmountBN = redeemAmount
-    ? JBProjectToken.parse(redeemAmount, 18).val
+    ? JBProjectToken.parse(redeemAmount, 18).value
     : 0n;
 
   const {

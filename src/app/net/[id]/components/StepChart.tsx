@@ -187,20 +187,20 @@ const StepChart = () => {
 
   const prevWeight = new RulesetWeight(
     getPrevRulesetWeight({
-      weight: ruleset?.data?.weight.val ?? 0n,
-      decayRate: ruleset?.data?.decayRate.val ?? 0n,
+      weight: ruleset?.data?.weight.value ?? 0n,
+      decayRate: ruleset?.data?.decayRate.value ?? 0n,
     })
   );
   const nextWeight = new RulesetWeight(
     getNextRulesetWeight({
-      weight: ruleset?.data?.weight.val ?? 0n,
-      decayRate: ruleset?.data?.decayRate.val ?? 0n,
+      weight: ruleset?.data?.weight.value ?? 0n,
+      decayRate: ruleset?.data?.decayRate.value ?? 0n,
     })
   );
   const nextNextWeight = new RulesetWeight(
     getNextRulesetWeight({
-      weight: nextWeight.val ?? 0n,
-      decayRate: ruleset?.data?.decayRate.val ?? 0n,
+      weight: nextWeight.value ?? 0n,
+      decayRate: ruleset?.data?.decayRate.value ?? 0n,
     })
   );
 

@@ -156,10 +156,10 @@ export function NetworkDashboard() {
   const creditBalanceRedemptionQuote =
     overflowEth && totalTokenSupply && tokensReserved && rulesetMetadata?.data
       ? new FixedInt(
-          getTokenRedemptionQuoteEth(creditBalance?.val ?? 0n, {
+          getTokenRedemptionQuoteEth(creditBalance?.value ?? 0n, {
             overflowWei: overflowEth,
             totalSupply: totalTokenSupply,
-            redemptionRate: rulesetMetadata.data.redemptionRate.val,
+            redemptionRate: rulesetMetadata.data.redemptionRate.value,
             tokensReserved,
           }),
           tokenA.decimals
@@ -195,7 +195,7 @@ export function NetworkDashboard() {
           {
             overflowWei: overflowEth,
             totalSupply: totalTokenSupply,
-            redemptionRate: rulesetMetadata?.data?.redemptionRate.val,
+            redemptionRate: rulesetMetadata?.data?.redemptionRate.value,
             tokensReserved,
           }
         ) * 10n
@@ -416,7 +416,7 @@ export function NetworkDashboard() {
                 tokenSymbol={token.data.symbol}
                 primaryTerminalEth={primaryNativeTerminal.data}
               >
-                <Button variant="outline" disabled={creditBalance.val === 0n}>
+                <Button variant="outline" disabled={creditBalance.value === 0n}>
                   Redeem
                 </Button>
               </RedeemDialog>

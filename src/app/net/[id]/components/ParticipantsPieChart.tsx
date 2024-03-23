@@ -45,7 +45,7 @@ const CustomTooltip = ({
 
   const item = payload[0].payload;
 
-  const portion = formatPortion(BigInt(item.balance.val), totalSupply);
+  const portion = formatPortion(item.balance.value, totalSupply);
 
   return (
     <div className="bg-white px-5 py-3 text-sm rounded-md border border-zinc-100 shadow-md">

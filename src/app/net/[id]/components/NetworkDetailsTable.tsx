@@ -139,7 +139,7 @@ export function NetworkDetailsTable() {
           <dd className="text-sm leading-6 text-zinc-700">
             {new RedemptionRate(
               MAX_REDEMPTION_RATE -
-                (selectedStageMetadata?.data?.redemptionRate.val ?? 0n)
+                (selectedStageMetadata?.data?.redemptionRate.value ?? 0n)
             ).formatPercentage()}
             %
           </dd>
