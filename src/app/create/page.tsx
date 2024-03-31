@@ -335,10 +335,10 @@ function AddStageDialog({
                       stageIdx === 0 ? (
                         "The person, group or contract that can receive a portion of new tokens."
                       ) : (
-                        <div className="text-xs text-blue-900 mb-2 flex gap-1 p-2 bg-blue-50 rounded-md">
+                        <span className="text-xs text-blue-900 mb-2 flex gap-1 p-2 bg-blue-50 rounded-md">
                           <QuestionMarkCircleIcon className="h-4 w-4" /> Set the
                           operator in the first stage.
-                        </div>
+                        </span>
                       )
                     }
                     disabled={stageIdx > 0}
@@ -654,11 +654,9 @@ function CreatePage({
 
       <div className="md:col-span-1">
         <h2 className="font-medium text-lg">Stages</h2>
-        <p className="text-zinc-500 text-sm">
-          <p className="text-zinc-600 text-sm mb-7">
-            Configure how your Revnet should evolve over time. Your
-            configuration is locked forever and can't be changed.
-          </p>
+        <p className="text-zinc-600 text-sm">
+          Configure how your Revnet should evolve over time. Your configuration
+          is locked forever and can't be changed.
         </p>
       </div>
       <div className="md:col-span-2">
@@ -711,7 +709,8 @@ function parseDeployData(
         Number(DecayRate.parse(stage.priceCeilingIncreasePercentage, 9).value) /
         100,
       priceFloorTaxIntensity:
-        Number(RedemptionRate.parse(stage.priceFloorTaxIntensity, 4).value) / 100, //
+        Number(RedemptionRate.parse(stage.priceFloorTaxIntensity, 4).value) /
+        100, //
     };
   });
 
