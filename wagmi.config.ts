@@ -1,5 +1,5 @@
 import { defineConfig } from "@wagmi/cli";
-import { etherscan, react } from "@wagmi/cli/plugins";
+import { blockscout, react } from "@wagmi/cli/plugins";
 import dotenv from "dotenv";
 import { optimismSepolia, sepolia } from "wagmi/chains";
 
@@ -9,16 +9,18 @@ export default defineConfig([
   {
     out: "src/lib/revnet/hooks/contract.ts",
     plugins: [
-      etherscan({
+      blockscout({
         apiKey: process.env.ETHERSCAN_API_KEY!,
         chainId: sepolia.id,
         contracts: [
           {
             name: "REVBasicDeployer",
             address: {
-              [sepolia.id]: "0x8096A07Da9f5EC18f3b82921a2Db8fCCb5D71847",
+              // https://github.com/rev-net/revnet-core/blob/main/deployments/revnet-core/sepolia/REVBasicDeployer.json
+              [sepolia.id]: "0x1685250188491Fd677cC5A7A40B3d8252cB1C917",
+              // https://github.com/rev-net/revnet-core/blob/main/deployments/revnet-core/optimism_sepolia/REVBasicDeployer.json
               [optimismSepolia.id]:
-                "0xab0Cc21b3533C4F36A886493F0871Ce16Eb85c5a",
+                "0x1685250188491Fd677cC5A7A40B3d8252cB1C917",
             },
           },
         ],

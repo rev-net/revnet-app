@@ -159,7 +159,9 @@ function FieldGroup(
 }
 
 function DetailsPage() {
-  const { setFieldValue } = useFormikContext<RevnetFormData>();
+  const { setFieldValue, isSubmitting, isValid, initialErrors } =
+    useFormikContext<RevnetFormData>();
+  console.log("initialErrors::", initialErrors, isValid, isSubmitting);
 
   return (
     <>
@@ -635,6 +637,7 @@ function CreatePage({
   onFormChange: (data: RevnetFormData) => void;
   isLoading: boolean;
 }) {
+  const { submitForm } = useFormikContext();
   return (
     <div className="grid md:grid-cols-3 max-w-6xl mx-auto my-20 gap-x-6 gap-y-6 md:gap-y-0 md:px-0 px-10">
       <h1 className="mb-16 text-2xl md:col-span-3 font-medium">
@@ -666,7 +669,13 @@ function CreatePage({
       <div className="h-[1px] bg-zinc-200 md:col-span-3 my-10"></div>
 
       <div className="flex justify-end md:col-span-3">
-        <Button type="submit" loading={isLoading} size="lg">
+        <Button
+          type="submit"
+          size="lg"
+          onClick={() => {
+            submitForm();
+          }}
+        >
           Deploy Revnet <FastForwardIcon className="h-4 w-4 fill-white ml-2" />
         </Button>
       </div>
@@ -715,6 +724,7 @@ function parseDeployData(
   });
 
   return [
+    
     formData.tokenSymbol, // token name, same as token symbol
     formData.tokenSymbol,
     extra.metadataCid,
@@ -848,10 +858,13 @@ export default function Page() {
           }
         }}
       >
-        <CreatePage
-          onFormChange={setFormData}
-          isLoading={isLoading || isLoadingIpfs}
-        />
+        <div>
+          <CreatePage
+            onFormChange={setFormData}
+            isLoading={isLoading || isLoadingIpfs}
+          />
+          <button type="submit"> poo</button>
+        </div>
       </Formik>
     </>
   );
