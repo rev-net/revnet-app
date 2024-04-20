@@ -43,7 +43,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ReactNode, useState } from "react";
 import { twMerge } from "tailwind-merge";
-import { Chain, parseUnits, zeroAddress } from "viem";
+import { Chain, parseUnits, toBytes, toHex, zeroAddress } from "viem";
 import { optimismSepolia } from "viem/chains";
 import {
   Address,
@@ -56,6 +56,7 @@ import { MAX_RULESET_COUNT } from "../constants";
 import { IpfsImageUploader } from "./IpfsFileUploader";
 
 const defaultStageData = {
+  initialOperator: "", // only the first stage has this
   initialIssuance: "",
 
   priceCeilingIncreasePercentage: "",
@@ -76,7 +77,6 @@ type RevnetFormData = {
   tokenSymbol: string;
 
   premintTokenAmount: string;
-  initialOperator: string;
   stages: (typeof defaultStageData)[];
 };
 
@@ -90,7 +90,6 @@ const DEFAULT_FORM_DATA: RevnetFormData = {
   tokenSymbol: "",
 
   premintTokenAmount: "",
-  initialOperator: "",
 
   stages: [],
 };
@@ -161,7 +160,6 @@ function FieldGroup(
 function DetailsPage() {
   const { setFieldValue, isSubmitting, isValid, initialErrors } =
     useFormikContext<RevnetFormData>();
-  console.log("initialErrors::", initialErrors, isValid, isSubmitting);
 
   return (
     <>
@@ -193,27 +191,6 @@ function DetailsPage() {
         }}
       />
     </>
-  );
-}
-
-function TokensPage() {
-  return (
-    <div>
-      <h2 className="text-2xl font-medium mb-2">Name the Revnet's token</h2>
-      <p className="text-zinc-600 text-sm mb-7">
-        The Revnet's token represents a member's ownership. It's an{" "}
-        <span className="whitespace-nowrap">ERC-20</span> token and can be
-        traded on any exchange.
-      </p>
-      <FieldGroup id="tokenName" name="tokenName" label="Token name" />
-      <FieldGroup
-        id="tokenSymbol"
-        name="tokenSymbol"
-        label="Ticker"
-        placeholder="MOON"
-        prefix="$"
-      />
-    </div>
   );
 }
 
@@ -457,6 +434,7 @@ function ConfigPage() {
             <AddStageDialog
               stageIdx={values.stages.length}
               onSave={(newStage) => {
+                console.log("here", newStage);
                 arrayHelpers.push(newStage);
               }}
             >
@@ -623,21 +601,8 @@ function ReviewPage() {
   );
 }
 
-const pages = [
-  { name: "Details", component: DetailsPage },
-  // { name: "Token", component: TokensPage },
-  { name: "Stage", component: ConfigPage },
-  { name: "Review", component: ReviewPage },
-];
-
-function CreatePage({
-  onFormChange,
-  isLoading,
-}: {
-  onFormChange: (data: RevnetFormData) => void;
-  isLoading: boolean;
-}) {
-  const { submitForm } = useFormikContext();
+function DeployRevnetForm() {
+  const { submitForm, values } = useFormikContext();
   return (
     <div className="grid md:grid-cols-3 max-w-6xl mx-auto my-20 gap-x-6 gap-y-6 md:gap-y-0 md:px-0 px-10">
       <h1 className="mb-16 text-2xl md:col-span-3 font-medium">
@@ -673,6 +638,7 @@ function CreatePage({
           type="submit"
           size="lg"
           onClick={() => {
+            console.log("submit click", values);
             submitForm();
           }}
         >
@@ -694,6 +660,8 @@ function parseDeployData(
   "deployRevnetWith"
 >["args"] {
   const now = Math.floor(Date.now() / 1000);
+
+  console.log("parsing", formData);
 
   let cumStart = 0;
   const stageConfigurations = formData.stages.map((stage, idx) => {
@@ -723,15 +691,19 @@ function parseDeployData(
     };
   });
 
+  const salt = toHex(toBytes("Hello world", { size: 32 }));
+
   return [
-    
-    formData.tokenSymbol, // token name, same as token symbol
-    formData.tokenSymbol,
-    extra.metadataCid,
     {
+      description: {
+        name: formData.tokenName,
+        symbol: formData.tokenSymbol,
+        uri: extra.metadataCid,
+        salt,
+      },
       baseCurrency: Number(BigInt(NATIVE_TOKEN)),
       initialOperator:
-        (formData.initialOperator.trim() as Address) ?? zeroAddress,
+        (formData.stages[0]?.initialOperator.trim() as Address) ?? zeroAddress,
       premintTokenAmount: parseUnits(formData.premintTokenAmount, 18),
       stageConfigurations,
     },
@@ -755,6 +727,10 @@ function parseDeployData(
         // },
       ],
     },
+    {
+      deployerConfigurations: [],
+      salt,
+    },
   ];
 }
 
@@ -771,7 +747,6 @@ async function pinProjectMetadata(metadata: JBProjectMetadata) {
 }
 
 export default function Page() {
-  const [formData, setFormData] = useState(DEFAULT_FORM_DATA);
   const [isLoadingIpfs, setIsLoadingIpfs] = useState<boolean>(false);
 
   const { chain } = useNetwork();
@@ -780,7 +755,7 @@ export default function Page() {
     hash: data?.hash,
   });
 
-  async function deployProject() {
+  async function deployProject(formData: RevnetFormData) {
     // Upload metadata
     setIsLoadingIpfs(true);
     const metadataCid = await pinProjectMetadata({
@@ -790,6 +765,8 @@ export default function Page() {
       logoUri: formData.logoUri,
     });
     setIsLoadingIpfs(false);
+
+    console.log;
 
     const deployData = parseDeployData(formData, {
       metadataCid,
@@ -848,23 +825,16 @@ export default function Page() {
 
       <Formik
         initialValues={DEFAULT_FORM_DATA}
-        onSubmit={() => {
-          console.log("submitting");
+        onSubmit={(formData: RevnetFormData) => {
           try {
-            deployProject?.();
+            deployProject?.(formData);
           } catch (e) {
             setIsLoadingIpfs(false);
             console.error(e);
           }
         }}
       >
-        <div>
-          <CreatePage
-            onFormChange={setFormData}
-            isLoading={isLoading || isLoadingIpfs}
-          />
-          <button type="submit"> poo</button>
-        </div>
+        <DeployRevnetForm />
       </Formik>
     </>
   );

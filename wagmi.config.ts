@@ -10,7 +10,7 @@ export default defineConfig([
     out: "src/lib/revnet/hooks/contract.ts",
     plugins: [
       blockscout({
-        apiKey: process.env.ETHERSCAN_API_KEY!,
+        apiKey: process.env.BLOCKSCOUT_API_KEY!,
         chainId: sepolia.id,
         contracts: [
           {
