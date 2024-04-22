@@ -1,15 +1,15 @@
 import { UsePrepareContractWriteConfig } from "wagmi";
 import {
   revBasicDeployerABI,
-  useRevBasicDeployerDeployRevnetWith,
+  useRevBasicDeployerLaunchRevnetFor,
 } from "./contract";
 import { useCallback } from "react";
 import { useToast } from "@/components/ui/use-toast";
 
 export function useDeployRevnet() {
   const { toast } = useToast();
-  const { write, data, isError, isLoading } =
-    useRevBasicDeployerDeployRevnetWith({
+  const { write, data, isError, isLoading} =
+    useRevBasicDeployerLaunchRevnetFor({
       onError(e) {
         toast({
           title: "Failed to deploy revnet",
@@ -32,7 +32,7 @@ export function useDeployRevnet() {
     (
       args: UsePrepareContractWriteConfig<
         typeof revBasicDeployerABI,
-        "deployRevnetWith"
+        "launchRevnetFor"
       >["args"]
     ) => {
       write?.({

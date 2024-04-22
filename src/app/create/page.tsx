@@ -44,7 +44,7 @@ import Link from "next/link";
 import { ReactNode, useState } from "react";
 import { twMerge } from "tailwind-merge";
 import { Chain, parseUnits, toBytes, toHex, zeroAddress } from "viem";
-import { optimismSepolia } from "viem/chains";
+import { mainnet, optimismSepolia } from "viem/chains";
 import {
   Address,
   UsePrepareContractWriteConfig,
@@ -63,7 +63,7 @@ const defaultStageData = {
   priceCeilingIncreaseFrequency: "",
   priceFloorTaxIntensity: "",
 
-  boostPercentage: "",
+  splitRate: "",
   boostDuration: "",
 };
 
@@ -327,8 +327,8 @@ function AddStageDialog({
                   <div className="flex gap-2 justify-between">
                     <FieldGroup
                       className="flex-1"
-                      id="boostPercentage"
-                      name="boostPercentage"
+                      id="splitRate"
+                      name="splitRate"
                       label="Split rate"
                       description="Send a percentage of new tokens to the Operator."
                       suffix="%"
@@ -420,7 +420,7 @@ function ConfigPage() {
                         every {stage.priceCeilingIncreaseFrequency} days
                       </div>
                       •<div>{stage.priceFloorTaxIntensity}% exit tax</div>
-                      <div>• {stage.boostPercentage || 0}% operator split</div>
+                      <div>• {stage.splitRate || 0}% operator split</div>
                     </div>
                   </div>
                 ))}
@@ -588,7 +588,7 @@ function ReviewPage() {
                       Operator split
                     </dt>
                     <dd className="mt-1 text-sm leading-6 text-zinc-700 sm:col-span-2 sm:mt-0">
-                      {stage.boostPercentage || 0}%{" "}
+                      {stage.splitRate || 0}%{" "}
                     </dd>
                   </div>
                 </div>
@@ -657,7 +657,7 @@ function parseDeployData(
   }
 ): UsePrepareContractWriteConfig<
   typeof revBasicDeployerABI,
-  "deployRevnetWith"
+  "launchRevnetFor"
 >["args"] {
   const now = Math.floor(Date.now() / 1000);
 
@@ -674,8 +674,7 @@ function parseDeployData(
 
     return {
       startsAtOrAfter,
-      operatorSplitRate:
-        Number(ReservedRate.parse(stage.boostPercentage, 4).value) / 100,
+      splitRate: Number(ReservedRate.parse(stage.splitRate, 4).value) / 100,
       initialIssuanceRate:
         stage.initialIssuance && stage.initialIssuance !== ""
           ? parseUnits(`${stage.initialIssuance}`, 18)
@@ -694,15 +693,17 @@ function parseDeployData(
   const salt = toHex(toBytes("Hello world", { size: 32 }));
 
   return [
+    0n, // 0 for a new revnet
     {
       description: {
-        name: formData.tokenName,
-        symbol: formData.tokenSymbol,
+        name: formData.name,
+        ticker: formData.tokenSymbol,
         uri: extra.metadataCid,
         salt,
       },
+      premintChainId: BigInt(extra.chainId ?? mainnet.id),
       baseCurrency: Number(BigInt(NATIVE_TOKEN)),
-      initialOperator:
+      initialSplitOperator:
         (formData.stages[0]?.initialOperator.trim() as Address) ?? zeroAddress,
       premintTokenAmount: parseUnits(formData.premintTokenAmount, 18),
       stageConfigurations,

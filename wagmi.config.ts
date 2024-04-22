@@ -17,10 +17,10 @@ export default defineConfig([
             name: "REVBasicDeployer",
             address: {
               // https://github.com/rev-net/revnet-core/blob/main/deployments/revnet-core/sepolia/REVBasicDeployer.json
-              [sepolia.id]: "0x1685250188491Fd677cC5A7A40B3d8252cB1C917",
+              [sepolia.id]: "0x586431a0CF041d868034E7446Cb6cbDe43566088",
               // https://github.com/rev-net/revnet-core/blob/main/deployments/revnet-core/optimism_sepolia/REVBasicDeployer.json
               [optimismSepolia.id]:
-                "0x1685250188491Fd677cC5A7A40B3d8252cB1C917",
+                "0x586431a0CF041d868034E7446Cb6cbDe43566088",
             },
           },
         ],

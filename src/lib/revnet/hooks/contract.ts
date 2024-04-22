@@ -8,6 +8,8 @@ import {
   UseContractWriteConfig,
   usePrepareContractWrite,
   UsePrepareContractWriteConfig,
+  useContractEvent,
+  UseContractEventConfig,
 } from 'wagmi'
 import {
   ReadContractResult,
@@ -20,8 +22,8 @@ import {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1685250188491Fd677cC5A7A40B3d8252cB1C917)
- * - [__View Contract on Optimism Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x1685250188491Fd677cC5A7A40B3d8252cB1C917)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x586431a0CF041d868034E7446Cb6cbDe43566088)
+ * - [__View Contract on Optimism Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x586431a0CF041d868034E7446Cb6cbDe43566088)
  */
 export const revBasicDeployerABI = [
   {
@@ -38,10 +40,447 @@ export const revBasicDeployerABI = [
         internalType: 'contract IBPSuckerRegistry',
         type: 'address',
       },
+      { name: 'trustedForwarder', internalType: 'address', type: 'address' },
     ],
   },
   { type: 'error', inputs: [], name: 'REVBasicDeployer_ExitDelayInEffect' },
   { type: 'error', inputs: [], name: 'REVBasicDeployer_Unauthorized' },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'revnetId',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: true,
+      },
+      {
+        name: 'configuration',
+        internalType: 'struct REVConfig',
+        type: 'tuple',
+        components: [
+          {
+            name: 'description',
+            internalType: 'struct REVDescription',
+            type: 'tuple',
+            components: [
+              { name: 'name', internalType: 'string', type: 'string' },
+              { name: 'ticker', internalType: 'string', type: 'string' },
+              { name: 'uri', internalType: 'string', type: 'string' },
+              { name: 'salt', internalType: 'bytes32', type: 'bytes32' },
+            ],
+          },
+          { name: 'baseCurrency', internalType: 'uint32', type: 'uint32' },
+          {
+            name: 'premintTokenAmount',
+            internalType: 'uint256',
+            type: 'uint256',
+          },
+          { name: 'premintChainId', internalType: 'uint256', type: 'uint256' },
+          {
+            name: 'initialSplitOperator',
+            internalType: 'address',
+            type: 'address',
+          },
+          {
+            name: 'stageConfigurations',
+            internalType: 'struct REVStageConfig[]',
+            type: 'tuple[]',
+            components: [
+              {
+                name: 'startsAtOrAfter',
+                internalType: 'uint40',
+                type: 'uint40',
+              },
+              { name: 'splitRate', internalType: 'uint16', type: 'uint16' },
+              {
+                name: 'initialIssuanceRate',
+                internalType: 'uint112',
+                type: 'uint112',
+              },
+              {
+                name: 'priceCeilingIncreaseFrequency',
+                internalType: 'uint40',
+                type: 'uint40',
+              },
+              {
+                name: 'priceCeilingIncreasePercentage',
+                internalType: 'uint32',
+                type: 'uint32',
+              },
+              {
+                name: 'priceFloorTaxIntensity',
+                internalType: 'uint16',
+                type: 'uint16',
+              },
+            ],
+          },
+        ],
+        indexed: false,
+      },
+      {
+        name: 'terminalConfigurations',
+        internalType: 'struct JBTerminalConfig[]',
+        type: 'tuple[]',
+        components: [
+          {
+            name: 'terminal',
+            internalType: 'contract IJBTerminal',
+            type: 'address',
+          },
+          {
+            name: 'tokensToAccept',
+            internalType: 'address[]',
+            type: 'address[]',
+          },
+        ],
+        indexed: false,
+      },
+      {
+        name: 'buybackHookConfiguration',
+        internalType: 'struct REVBuybackHookConfig',
+        type: 'tuple',
+        components: [
+          {
+            name: 'hook',
+            internalType: 'contract IJBBuybackHook',
+            type: 'address',
+          },
+          {
+            name: 'poolConfigurations',
+            internalType: 'struct REVBuybackPoolConfig[]',
+            type: 'tuple[]',
+            components: [
+              { name: 'token', internalType: 'address', type: 'address' },
+              { name: 'fee', internalType: 'uint24', type: 'uint24' },
+              { name: 'twapWindow', internalType: 'uint32', type: 'uint32' },
+              {
+                name: 'twapSlippageTolerance',
+                internalType: 'uint32',
+                type: 'uint32',
+              },
+            ],
+          },
+        ],
+        indexed: false,
+      },
+      {
+        name: 'suckerDeploymentConfiguration',
+        internalType: 'struct REVSuckerDeploymentConfig',
+        type: 'tuple',
+        components: [
+          {
+            name: 'deployerConfigurations',
+            internalType: 'struct BPSuckerDeployerConfig[]',
+            type: 'tuple[]',
+            components: [
+              {
+                name: 'deployer',
+                internalType: 'contract IBPSuckerDeployer',
+                type: 'address',
+              },
+              {
+                name: 'mappings',
+                internalType: 'struct BPTokenMapping[]',
+                type: 'tuple[]',
+                components: [
+                  {
+                    name: 'localToken',
+                    internalType: 'address',
+                    type: 'address',
+                  },
+                  { name: 'minGas', internalType: 'uint32', type: 'uint32' },
+                  {
+                    name: 'remoteToken',
+                    internalType: 'address',
+                    type: 'address',
+                  },
+                  {
+                    name: 'minBridgeAmount',
+                    internalType: 'uint256',
+                    type: 'uint256',
+                  },
+                ],
+              },
+            ],
+          },
+          { name: 'salt', internalType: 'bytes32', type: 'bytes32' },
+        ],
+        indexed: false,
+      },
+      {
+        name: 'rulesetConfigurations',
+        internalType: 'struct JBRulesetConfig[]',
+        type: 'tuple[]',
+        components: [
+          {
+            name: 'mustStartAtOrAfter',
+            internalType: 'uint256',
+            type: 'uint256',
+          },
+          { name: 'duration', internalType: 'uint256', type: 'uint256' },
+          { name: 'weight', internalType: 'uint256', type: 'uint256' },
+          { name: 'decayRate', internalType: 'uint256', type: 'uint256' },
+          {
+            name: 'approvalHook',
+            internalType: 'contract IJBRulesetApprovalHook',
+            type: 'address',
+          },
+          {
+            name: 'metadata',
+            internalType: 'struct JBRulesetMetadata',
+            type: 'tuple',
+            components: [
+              {
+                name: 'reservedRate',
+                internalType: 'uint256',
+                type: 'uint256',
+              },
+              {
+                name: 'redemptionRate',
+                internalType: 'uint256',
+                type: 'uint256',
+              },
+              {
+                name: 'baseCurrency',
+                internalType: 'uint256',
+                type: 'uint256',
+              },
+              { name: 'pausePay', internalType: 'bool', type: 'bool' },
+              {
+                name: 'pauseCreditTransfers',
+                internalType: 'bool',
+                type: 'bool',
+              },
+              { name: 'allowOwnerMinting', internalType: 'bool', type: 'bool' },
+              {
+                name: 'allowTerminalMigration',
+                internalType: 'bool',
+                type: 'bool',
+              },
+              { name: 'allowSetTerminals', internalType: 'bool', type: 'bool' },
+              {
+                name: 'allowControllerMigration',
+                internalType: 'bool',
+                type: 'bool',
+              },
+              {
+                name: 'allowSetController',
+                internalType: 'bool',
+                type: 'bool',
+              },
+              { name: 'holdFees', internalType: 'bool', type: 'bool' },
+              {
+                name: 'useTotalSurplusForRedemptions',
+                internalType: 'bool',
+                type: 'bool',
+              },
+              { name: 'useDataHookForPay', internalType: 'bool', type: 'bool' },
+              {
+                name: 'useDataHookForRedeem',
+                internalType: 'bool',
+                type: 'bool',
+              },
+              { name: 'dataHook', internalType: 'address', type: 'address' },
+              { name: 'metadata', internalType: 'uint256', type: 'uint256' },
+            ],
+          },
+          {
+            name: 'splitGroups',
+            internalType: 'struct JBSplitGroup[]',
+            type: 'tuple[]',
+            components: [
+              { name: 'groupId', internalType: 'uint256', type: 'uint256' },
+              {
+                name: 'splits',
+                internalType: 'struct JBSplit[]',
+                type: 'tuple[]',
+                components: [
+                  {
+                    name: 'preferAddToBalance',
+                    internalType: 'bool',
+                    type: 'bool',
+                  },
+                  { name: 'percent', internalType: 'uint256', type: 'uint256' },
+                  {
+                    name: 'projectId',
+                    internalType: 'uint256',
+                    type: 'uint256',
+                  },
+                  {
+                    name: 'beneficiary',
+                    internalType: 'address payable',
+                    type: 'address',
+                  },
+                  {
+                    name: 'lockedUntil',
+                    internalType: 'uint256',
+                    type: 'uint256',
+                  },
+                  {
+                    name: 'hook',
+                    internalType: 'contract IJBSplitHook',
+                    type: 'address',
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            name: 'fundAccessLimitGroups',
+            internalType: 'struct JBFundAccessLimitGroup[]',
+            type: 'tuple[]',
+            components: [
+              { name: 'terminal', internalType: 'address', type: 'address' },
+              { name: 'token', internalType: 'address', type: 'address' },
+              {
+                name: 'payoutLimits',
+                internalType: 'struct JBCurrencyAmount[]',
+                type: 'tuple[]',
+                components: [
+                  { name: 'amount', internalType: 'uint256', type: 'uint256' },
+                  {
+                    name: 'currency',
+                    internalType: 'uint256',
+                    type: 'uint256',
+                  },
+                ],
+              },
+              {
+                name: 'surplusAllowances',
+                internalType: 'struct JBCurrencyAmount[]',
+                type: 'tuple[]',
+                components: [
+                  { name: 'amount', internalType: 'uint256', type: 'uint256' },
+                  {
+                    name: 'currency',
+                    internalType: 'uint256',
+                    type: 'uint256',
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+        indexed: false,
+      },
+      {
+        name: 'encodedConfiguration',
+        internalType: 'bytes',
+        type: 'bytes',
+        indexed: false,
+      },
+      {
+        name: 'isInProgress',
+        internalType: 'bool',
+        type: 'bool',
+        indexed: false,
+      },
+      {
+        name: 'caller',
+        internalType: 'address',
+        type: 'address',
+        indexed: false,
+      },
+    ],
+    name: 'DeployRevnet',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'revnetId',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: true,
+      },
+      { name: 'salt', internalType: 'bytes32', type: 'bytes32', indexed: true },
+      {
+        name: 'encodedConfiguration',
+        internalType: 'bytes',
+        type: 'bytes',
+        indexed: false,
+      },
+      {
+        name: 'suckerDeploymentConfiguration',
+        internalType: 'struct REVSuckerDeploymentConfig',
+        type: 'tuple',
+        components: [
+          {
+            name: 'deployerConfigurations',
+            internalType: 'struct BPSuckerDeployerConfig[]',
+            type: 'tuple[]',
+            components: [
+              {
+                name: 'deployer',
+                internalType: 'contract IBPSuckerDeployer',
+                type: 'address',
+              },
+              {
+                name: 'mappings',
+                internalType: 'struct BPTokenMapping[]',
+                type: 'tuple[]',
+                components: [
+                  {
+                    name: 'localToken',
+                    internalType: 'address',
+                    type: 'address',
+                  },
+                  { name: 'minGas', internalType: 'uint32', type: 'uint32' },
+                  {
+                    name: 'remoteToken',
+                    internalType: 'address',
+                    type: 'address',
+                  },
+                  {
+                    name: 'minBridgeAmount',
+                    internalType: 'uint256',
+                    type: 'uint256',
+                  },
+                ],
+              },
+            ],
+          },
+          { name: 'salt', internalType: 'bytes32', type: 'bytes32' },
+        ],
+        indexed: false,
+      },
+      {
+        name: 'caller',
+        internalType: 'address',
+        type: 'address',
+        indexed: false,
+      },
+    ],
+    name: 'DeploySuckers',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'revnetId',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: true,
+      },
+      {
+        name: 'newSplitOperator',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+      {
+        name: 'caller',
+        internalType: 'address',
+        type: 'address',
+        indexed: false,
+      },
+    ],
+    name: 'ReplaceSplitOperator',
+  },
   {
     stateMutability: 'view',
     type: 'function',
@@ -187,6 +626,84 @@ export const revBasicDeployerABI = [
     stateMutability: 'nonpayable',
     type: 'function',
     inputs: [
+      { name: 'revnetId', internalType: 'uint256', type: 'uint256' },
+      { name: 'encodedConfiguration', internalType: 'bytes', type: 'bytes' },
+      {
+        name: 'suckerDeploymentConfiguration',
+        internalType: 'struct REVSuckerDeploymentConfig',
+        type: 'tuple',
+        components: [
+          {
+            name: 'deployerConfigurations',
+            internalType: 'struct BPSuckerDeployerConfig[]',
+            type: 'tuple[]',
+            components: [
+              {
+                name: 'deployer',
+                internalType: 'contract IBPSuckerDeployer',
+                type: 'address',
+              },
+              {
+                name: 'mappings',
+                internalType: 'struct BPTokenMapping[]',
+                type: 'tuple[]',
+                components: [
+                  {
+                    name: 'localToken',
+                    internalType: 'address',
+                    type: 'address',
+                  },
+                  { name: 'minGas', internalType: 'uint32', type: 'uint32' },
+                  {
+                    name: 'remoteToken',
+                    internalType: 'address',
+                    type: 'address',
+                  },
+                  {
+                    name: 'minBridgeAmount',
+                    internalType: 'uint256',
+                    type: 'uint256',
+                  },
+                ],
+              },
+            ],
+          },
+          { name: 'salt', internalType: 'bytes32', type: 'bytes32' },
+        ],
+      },
+    ],
+    name: 'deploySuckersFor',
+    outputs: [],
+  },
+  {
+    stateMutability: 'view',
+    type: 'function',
+    inputs: [{ name: 'revnetId', internalType: 'uint256', type: 'uint256' }],
+    name: 'exitDelayOf',
+    outputs: [{ name: 'exitDelay', internalType: 'uint256', type: 'uint256' }],
+  },
+  {
+    stateMutability: 'view',
+    type: 'function',
+    inputs: [
+      { name: 'revnetId', internalType: 'uint256', type: 'uint256' },
+      { name: 'addr', internalType: 'address', type: 'address' },
+    ],
+    name: 'hasMintPermissionFor',
+    outputs: [{ name: '', internalType: 'bool', type: 'bool' }],
+  },
+  {
+    stateMutability: 'view',
+    type: 'function',
+    inputs: [{ name: 'forwarder', internalType: 'address', type: 'address' }],
+    name: 'isTrustedForwarder',
+    outputs: [{ name: '', internalType: 'bool', type: 'bool' }],
+  },
+  {
+    stateMutability: 'nonpayable',
+    type: 'function',
+    inputs: [
+      { name: 'revnetId', internalType: 'uint256', type: 'uint256' },
       {
         name: 'configuration',
         internalType: 'struct REVConfig',
@@ -198,7 +715,7 @@ export const revBasicDeployerABI = [
             type: 'tuple',
             components: [
               { name: 'name', internalType: 'string', type: 'string' },
-              { name: 'symbol', internalType: 'string', type: 'string' },
+              { name: 'ticker', internalType: 'string', type: 'string' },
               { name: 'uri', internalType: 'string', type: 'string' },
               { name: 'salt', internalType: 'bytes32', type: 'bytes32' },
             ],
@@ -209,7 +726,12 @@ export const revBasicDeployerABI = [
             internalType: 'uint256',
             type: 'uint256',
           },
-          { name: 'initialOperator', internalType: 'address', type: 'address' },
+          { name: 'premintChainId', internalType: 'uint256', type: 'uint256' },
+          {
+            name: 'initialSplitOperator',
+            internalType: 'address',
+            type: 'address',
+          },
           {
             name: 'stageConfigurations',
             internalType: 'struct REVStageConfig[]',
@@ -220,11 +742,7 @@ export const revBasicDeployerABI = [
                 internalType: 'uint40',
                 type: 'uint40',
               },
-              {
-                name: 'operatorSplitRate',
-                internalType: 'uint16',
-                type: 'uint16',
-              },
+              { name: 'splitRate', internalType: 'uint16', type: 'uint16' },
               {
                 name: 'initialIssuanceRate',
                 internalType: 'uint112',
@@ -337,85 +855,15 @@ export const revBasicDeployerABI = [
         ],
       },
     ],
-    name: 'deployRevnetWith',
-    outputs: [{ name: 'revnetId', internalType: 'uint256', type: 'uint256' }],
-  },
-  {
-    stateMutability: 'nonpayable',
-    type: 'function',
-    inputs: [
-      { name: 'revnetId', internalType: 'uint256', type: 'uint256' },
-      { name: 'encodedConfiguration', internalType: 'bytes', type: 'bytes' },
-      {
-        name: 'suckerDeploymentConfiguration',
-        internalType: 'struct REVSuckerDeploymentConfig',
-        type: 'tuple',
-        components: [
-          {
-            name: 'deployerConfigurations',
-            internalType: 'struct BPSuckerDeployerConfig[]',
-            type: 'tuple[]',
-            components: [
-              {
-                name: 'deployer',
-                internalType: 'contract IBPSuckerDeployer',
-                type: 'address',
-              },
-              {
-                name: 'mappings',
-                internalType: 'struct BPTokenMapping[]',
-                type: 'tuple[]',
-                components: [
-                  {
-                    name: 'localToken',
-                    internalType: 'address',
-                    type: 'address',
-                  },
-                  { name: 'minGas', internalType: 'uint32', type: 'uint32' },
-                  {
-                    name: 'remoteToken',
-                    internalType: 'address',
-                    type: 'address',
-                  },
-                  {
-                    name: 'minBridgeAmount',
-                    internalType: 'uint256',
-                    type: 'uint256',
-                  },
-                ],
-              },
-            ],
-          },
-          { name: 'salt', internalType: 'bytes32', type: 'bytes32' },
-        ],
-      },
-    ],
-    name: 'deploySuckersFor',
-    outputs: [],
-  },
-  {
-    stateMutability: 'view',
-    type: 'function',
-    inputs: [{ name: 'revnetId', internalType: 'uint256', type: 'uint256' }],
-    name: 'exitDelayOf',
-    outputs: [{ name: 'exitDelay', internalType: 'uint256', type: 'uint256' }],
-  },
-  {
-    stateMutability: 'view',
-    type: 'function',
-    inputs: [
-      { name: 'revnetId', internalType: 'uint256', type: 'uint256' },
-      { name: 'addr', internalType: 'address', type: 'address' },
-    ],
-    name: 'hasMintPermissionFor',
-    outputs: [{ name: '', internalType: 'bool', type: 'bool' }],
+    name: 'launchRevnetFor',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
   },
   {
     stateMutability: 'view',
     type: 'function',
     inputs: [
       { name: 'operator', internalType: 'address', type: 'address' },
-      { name: 'from', internalType: 'address', type: 'address' },
+      { name: '', internalType: 'address', type: 'address' },
       { name: 'tokenId', internalType: 'uint256', type: 'uint256' },
       { name: 'data', internalType: 'bytes', type: 'bytes' },
     ],
@@ -449,9 +897,9 @@ export const revBasicDeployerABI = [
     type: 'function',
     inputs: [
       { name: 'revnetId', internalType: 'uint256', type: 'uint256' },
-      { name: 'newOperator', internalType: 'address', type: 'address' },
+      { name: 'newSplitOperator', internalType: 'address', type: 'address' },
     ],
-    name: 'replaceOperatorOf',
+    name: 'replaceSplitOperatorOf',
     outputs: [],
   },
   {
@@ -461,20 +909,27 @@ export const revBasicDeployerABI = [
     name: 'supportsInterface',
     outputs: [{ name: '', internalType: 'bool', type: 'bool' }],
   },
+  {
+    stateMutability: 'view',
+    type: 'function',
+    inputs: [],
+    name: 'trustedForwarder',
+    outputs: [{ name: '', internalType: 'address', type: 'address' }],
+  },
 ] as const
 
 /**
- * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1685250188491Fd677cC5A7A40B3d8252cB1C917)
- * - [__View Contract on Optimism Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x1685250188491Fd677cC5A7A40B3d8252cB1C917)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x586431a0CF041d868034E7446Cb6cbDe43566088)
+ * - [__View Contract on Optimism Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x586431a0CF041d868034E7446Cb6cbDe43566088)
  */
 export const revBasicDeployerAddress = {
-  11155111: '0x1685250188491Fd677cC5A7A40B3d8252cB1C917',
-  11155420: '0x1685250188491Fd677cC5A7A40B3d8252cB1C917',
+  11155111: '0x586431a0CF041d868034E7446Cb6cbDe43566088',
+  11155420: '0x586431a0CF041d868034E7446Cb6cbDe43566088',
 } as const
 
 /**
- * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1685250188491Fd677cC5A7A40B3d8252cB1C917)
- * - [__View Contract on Optimism Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x1685250188491Fd677cC5A7A40B3d8252cB1C917)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x586431a0CF041d868034E7446Cb6cbDe43566088)
+ * - [__View Contract on Optimism Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x586431a0CF041d868034E7446Cb6cbDe43566088)
  */
 export const revBasicDeployerConfig = {
   address: revBasicDeployerAddress,
@@ -488,8 +943,8 @@ export const revBasicDeployerConfig = {
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link revBasicDeployerABI}__.
  *
- * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1685250188491Fd677cC5A7A40B3d8252cB1C917)
- * - [__View Contract on Optimism Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x1685250188491Fd677cC5A7A40B3d8252cB1C917)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x586431a0CF041d868034E7446Cb6cbDe43566088)
+ * - [__View Contract on Optimism Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x586431a0CF041d868034E7446Cb6cbDe43566088)
  */
 export function useRevBasicDeployerRead<
   TFunctionName extends string,
@@ -525,8 +980,8 @@ export function useRevBasicDeployerRead<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link revBasicDeployerABI}__ and `functionName` set to `"CONTROLLER"`.
  *
- * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1685250188491Fd677cC5A7A40B3d8252cB1C917)
- * - [__View Contract on Optimism Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x1685250188491Fd677cC5A7A40B3d8252cB1C917)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x586431a0CF041d868034E7446Cb6cbDe43566088)
+ * - [__View Contract on Optimism Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x586431a0CF041d868034E7446Cb6cbDe43566088)
  */
 export function useRevBasicDeployerController<
   TFunctionName extends 'CONTROLLER',
@@ -563,8 +1018,8 @@ export function useRevBasicDeployerController<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link revBasicDeployerABI}__ and `functionName` set to `"EXIT_DELAY"`.
  *
- * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1685250188491Fd677cC5A7A40B3d8252cB1C917)
- * - [__View Contract on Optimism Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x1685250188491Fd677cC5A7A40B3d8252cB1C917)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x586431a0CF041d868034E7446Cb6cbDe43566088)
+ * - [__View Contract on Optimism Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x586431a0CF041d868034E7446Cb6cbDe43566088)
  */
 export function useRevBasicDeployerExitDelay<
   TFunctionName extends 'EXIT_DELAY',
@@ -601,8 +1056,8 @@ export function useRevBasicDeployerExitDelay<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link revBasicDeployerABI}__ and `functionName` set to `"SUCKER_REGISTRY"`.
  *
- * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1685250188491Fd677cC5A7A40B3d8252cB1C917)
- * - [__View Contract on Optimism Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x1685250188491Fd677cC5A7A40B3d8252cB1C917)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x586431a0CF041d868034E7446Cb6cbDe43566088)
+ * - [__View Contract on Optimism Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x586431a0CF041d868034E7446Cb6cbDe43566088)
  */
 export function useRevBasicDeployerSuckerRegistry<
   TFunctionName extends 'SUCKER_REGISTRY',
@@ -639,8 +1094,8 @@ export function useRevBasicDeployerSuckerRegistry<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link revBasicDeployerABI}__ and `functionName` set to `"beforePayRecordedWith"`.
  *
- * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1685250188491Fd677cC5A7A40B3d8252cB1C917)
- * - [__View Contract on Optimism Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x1685250188491Fd677cC5A7A40B3d8252cB1C917)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x586431a0CF041d868034E7446Cb6cbDe43566088)
+ * - [__View Contract on Optimism Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x586431a0CF041d868034E7446Cb6cbDe43566088)
  */
 export function useRevBasicDeployerBeforePayRecordedWith<
   TFunctionName extends 'beforePayRecordedWith',
@@ -677,8 +1132,8 @@ export function useRevBasicDeployerBeforePayRecordedWith<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link revBasicDeployerABI}__ and `functionName` set to `"beforeRedeemRecordedWith"`.
  *
- * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1685250188491Fd677cC5A7A40B3d8252cB1C917)
- * - [__View Contract on Optimism Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x1685250188491Fd677cC5A7A40B3d8252cB1C917)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x586431a0CF041d868034E7446Cb6cbDe43566088)
+ * - [__View Contract on Optimism Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x586431a0CF041d868034E7446Cb6cbDe43566088)
  */
 export function useRevBasicDeployerBeforeRedeemRecordedWith<
   TFunctionName extends 'beforeRedeemRecordedWith',
@@ -715,8 +1170,8 @@ export function useRevBasicDeployerBeforeRedeemRecordedWith<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link revBasicDeployerABI}__ and `functionName` set to `"buybackHookOf"`.
  *
- * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1685250188491Fd677cC5A7A40B3d8252cB1C917)
- * - [__View Contract on Optimism Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x1685250188491Fd677cC5A7A40B3d8252cB1C917)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x586431a0CF041d868034E7446Cb6cbDe43566088)
+ * - [__View Contract on Optimism Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x586431a0CF041d868034E7446Cb6cbDe43566088)
  */
 export function useRevBasicDeployerBuybackHookOf<
   TFunctionName extends 'buybackHookOf',
@@ -753,8 +1208,8 @@ export function useRevBasicDeployerBuybackHookOf<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link revBasicDeployerABI}__ and `functionName` set to `"exitDelayOf"`.
  *
- * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1685250188491Fd677cC5A7A40B3d8252cB1C917)
- * - [__View Contract on Optimism Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x1685250188491Fd677cC5A7A40B3d8252cB1C917)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x586431a0CF041d868034E7446Cb6cbDe43566088)
+ * - [__View Contract on Optimism Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x586431a0CF041d868034E7446Cb6cbDe43566088)
  */
 export function useRevBasicDeployerExitDelayOf<
   TFunctionName extends 'exitDelayOf',
@@ -791,8 +1246,8 @@ export function useRevBasicDeployerExitDelayOf<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link revBasicDeployerABI}__ and `functionName` set to `"hasMintPermissionFor"`.
  *
- * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1685250188491Fd677cC5A7A40B3d8252cB1C917)
- * - [__View Contract on Optimism Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x1685250188491Fd677cC5A7A40B3d8252cB1C917)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x586431a0CF041d868034E7446Cb6cbDe43566088)
+ * - [__View Contract on Optimism Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x586431a0CF041d868034E7446Cb6cbDe43566088)
  */
 export function useRevBasicDeployerHasMintPermissionFor<
   TFunctionName extends 'hasMintPermissionFor',
@@ -827,10 +1282,48 @@ export function useRevBasicDeployerHasMintPermissionFor<
 }
 
 /**
+ * Wraps __{@link useContractRead}__ with `abi` set to __{@link revBasicDeployerABI}__ and `functionName` set to `"isTrustedForwarder"`.
+ *
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x586431a0CF041d868034E7446Cb6cbDe43566088)
+ * - [__View Contract on Optimism Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x586431a0CF041d868034E7446Cb6cbDe43566088)
+ */
+export function useRevBasicDeployerIsTrustedForwarder<
+  TFunctionName extends 'isTrustedForwarder',
+  TSelectData = ReadContractResult<typeof revBasicDeployerABI, TFunctionName>,
+>(
+  config: Omit<
+    UseContractReadConfig<
+      typeof revBasicDeployerABI,
+      TFunctionName,
+      TSelectData
+    >,
+    'abi' | 'address' | 'functionName'
+  > & {
+    chainId?: keyof typeof revBasicDeployerAddress
+    address?: Address
+  } = {} as any,
+) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
+  return useContractRead({
+    abi: revBasicDeployerABI,
+    address:
+      revBasicDeployerAddress[chainId as keyof typeof revBasicDeployerAddress],
+    functionName: 'isTrustedForwarder',
+    ...config,
+  } as UseContractReadConfig<
+    typeof revBasicDeployerABI,
+    TFunctionName,
+    TSelectData
+  >)
+}
+
+/**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link revBasicDeployerABI}__ and `functionName` set to `"onERC721Received"`.
  *
- * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1685250188491Fd677cC5A7A40B3d8252cB1C917)
- * - [__View Contract on Optimism Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x1685250188491Fd677cC5A7A40B3d8252cB1C917)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x586431a0CF041d868034E7446Cb6cbDe43566088)
+ * - [__View Contract on Optimism Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x586431a0CF041d868034E7446Cb6cbDe43566088)
  */
 export function useRevBasicDeployerOnErc721Received<
   TFunctionName extends 'onERC721Received',
@@ -867,8 +1360,8 @@ export function useRevBasicDeployerOnErc721Received<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link revBasicDeployerABI}__ and `functionName` set to `"payHookSpecificationsOf"`.
  *
- * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1685250188491Fd677cC5A7A40B3d8252cB1C917)
- * - [__View Contract on Optimism Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x1685250188491Fd677cC5A7A40B3d8252cB1C917)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x586431a0CF041d868034E7446Cb6cbDe43566088)
+ * - [__View Contract on Optimism Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x586431a0CF041d868034E7446Cb6cbDe43566088)
  */
 export function useRevBasicDeployerPayHookSpecificationsOf<
   TFunctionName extends 'payHookSpecificationsOf',
@@ -905,8 +1398,8 @@ export function useRevBasicDeployerPayHookSpecificationsOf<
 /**
  * Wraps __{@link useContractRead}__ with `abi` set to __{@link revBasicDeployerABI}__ and `functionName` set to `"supportsInterface"`.
  *
- * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1685250188491Fd677cC5A7A40B3d8252cB1C917)
- * - [__View Contract on Optimism Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x1685250188491Fd677cC5A7A40B3d8252cB1C917)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x586431a0CF041d868034E7446Cb6cbDe43566088)
+ * - [__View Contract on Optimism Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x586431a0CF041d868034E7446Cb6cbDe43566088)
  */
 export function useRevBasicDeployerSupportsInterface<
   TFunctionName extends 'supportsInterface',
@@ -941,10 +1434,48 @@ export function useRevBasicDeployerSupportsInterface<
 }
 
 /**
+ * Wraps __{@link useContractRead}__ with `abi` set to __{@link revBasicDeployerABI}__ and `functionName` set to `"trustedForwarder"`.
+ *
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x586431a0CF041d868034E7446Cb6cbDe43566088)
+ * - [__View Contract on Optimism Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x586431a0CF041d868034E7446Cb6cbDe43566088)
+ */
+export function useRevBasicDeployerTrustedForwarder<
+  TFunctionName extends 'trustedForwarder',
+  TSelectData = ReadContractResult<typeof revBasicDeployerABI, TFunctionName>,
+>(
+  config: Omit<
+    UseContractReadConfig<
+      typeof revBasicDeployerABI,
+      TFunctionName,
+      TSelectData
+    >,
+    'abi' | 'address' | 'functionName'
+  > & {
+    chainId?: keyof typeof revBasicDeployerAddress
+    address?: Address
+  } = {} as any,
+) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
+  return useContractRead({
+    abi: revBasicDeployerABI,
+    address:
+      revBasicDeployerAddress[chainId as keyof typeof revBasicDeployerAddress],
+    functionName: 'trustedForwarder',
+    ...config,
+  } as UseContractReadConfig<
+    typeof revBasicDeployerABI,
+    TFunctionName,
+    TSelectData
+  >)
+}
+
+/**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link revBasicDeployerABI}__.
  *
- * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1685250188491Fd677cC5A7A40B3d8252cB1C917)
- * - [__View Contract on Optimism Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x1685250188491Fd677cC5A7A40B3d8252cB1C917)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x586431a0CF041d868034E7446Cb6cbDe43566088)
+ * - [__View Contract on Optimism Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x586431a0CF041d868034E7446Cb6cbDe43566088)
  */
 export function useRevBasicDeployerWrite<
   TFunctionName extends string,
@@ -982,60 +1513,10 @@ export function useRevBasicDeployerWrite<
 }
 
 /**
- * Wraps __{@link useContractWrite}__ with `abi` set to __{@link revBasicDeployerABI}__ and `functionName` set to `"deployRevnetWith"`.
- *
- * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1685250188491Fd677cC5A7A40B3d8252cB1C917)
- * - [__View Contract on Optimism Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x1685250188491Fd677cC5A7A40B3d8252cB1C917)
- */
-export function useRevBasicDeployerDeployRevnetWith<
-  TMode extends WriteContractMode = undefined,
-  TChainId extends number = keyof typeof revBasicDeployerAddress,
->(
-  config: TMode extends 'prepared'
-    ? UseContractWriteConfig<
-        PrepareWriteContractResult<
-          typeof revBasicDeployerABI,
-          'deployRevnetWith'
-        >['request']['abi'],
-        'deployRevnetWith',
-        TMode
-      > & {
-        address?: Address
-        chainId?: TChainId
-        functionName?: 'deployRevnetWith'
-      }
-    : UseContractWriteConfig<
-        typeof revBasicDeployerABI,
-        'deployRevnetWith',
-        TMode
-      > & {
-        abi?: never
-        address?: never
-        chainId?: TChainId
-        functionName?: 'deployRevnetWith'
-      } = {} as any,
-) {
-  const { chain } = useNetwork()
-  const defaultChainId = useChainId()
-  const chainId = config.chainId ?? chain?.id ?? defaultChainId
-  return useContractWrite<
-    typeof revBasicDeployerABI,
-    'deployRevnetWith',
-    TMode
-  >({
-    abi: revBasicDeployerABI,
-    address:
-      revBasicDeployerAddress[chainId as keyof typeof revBasicDeployerAddress],
-    functionName: 'deployRevnetWith',
-    ...config,
-  } as any)
-}
-
-/**
  * Wraps __{@link useContractWrite}__ with `abi` set to __{@link revBasicDeployerABI}__ and `functionName` set to `"deploySuckersFor"`.
  *
- * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1685250188491Fd677cC5A7A40B3d8252cB1C917)
- * - [__View Contract on Optimism Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x1685250188491Fd677cC5A7A40B3d8252cB1C917)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x586431a0CF041d868034E7446Cb6cbDe43566088)
+ * - [__View Contract on Optimism Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x586431a0CF041d868034E7446Cb6cbDe43566088)
  */
 export function useRevBasicDeployerDeploySuckersFor<
   TMode extends WriteContractMode = undefined,
@@ -1082,12 +1563,12 @@ export function useRevBasicDeployerDeploySuckersFor<
 }
 
 /**
- * Wraps __{@link useContractWrite}__ with `abi` set to __{@link revBasicDeployerABI}__ and `functionName` set to `"replaceOperatorOf"`.
+ * Wraps __{@link useContractWrite}__ with `abi` set to __{@link revBasicDeployerABI}__ and `functionName` set to `"launchRevnetFor"`.
  *
- * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1685250188491Fd677cC5A7A40B3d8252cB1C917)
- * - [__View Contract on Optimism Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x1685250188491Fd677cC5A7A40B3d8252cB1C917)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x586431a0CF041d868034E7446Cb6cbDe43566088)
+ * - [__View Contract on Optimism Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x586431a0CF041d868034E7446Cb6cbDe43566088)
  */
-export function useRevBasicDeployerReplaceOperatorOf<
+export function useRevBasicDeployerLaunchRevnetFor<
   TMode extends WriteContractMode = undefined,
   TChainId extends number = keyof typeof revBasicDeployerAddress,
 >(
@@ -1095,24 +1576,74 @@ export function useRevBasicDeployerReplaceOperatorOf<
     ? UseContractWriteConfig<
         PrepareWriteContractResult<
           typeof revBasicDeployerABI,
-          'replaceOperatorOf'
+          'launchRevnetFor'
         >['request']['abi'],
-        'replaceOperatorOf',
+        'launchRevnetFor',
         TMode
       > & {
         address?: Address
         chainId?: TChainId
-        functionName?: 'replaceOperatorOf'
+        functionName?: 'launchRevnetFor'
       }
     : UseContractWriteConfig<
         typeof revBasicDeployerABI,
-        'replaceOperatorOf',
+        'launchRevnetFor',
         TMode
       > & {
         abi?: never
         address?: never
         chainId?: TChainId
-        functionName?: 'replaceOperatorOf'
+        functionName?: 'launchRevnetFor'
+      } = {} as any,
+) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
+  return useContractWrite<typeof revBasicDeployerABI, 'launchRevnetFor', TMode>(
+    {
+      abi: revBasicDeployerABI,
+      address:
+        revBasicDeployerAddress[
+          chainId as keyof typeof revBasicDeployerAddress
+        ],
+      functionName: 'launchRevnetFor',
+      ...config,
+    } as any,
+  )
+}
+
+/**
+ * Wraps __{@link useContractWrite}__ with `abi` set to __{@link revBasicDeployerABI}__ and `functionName` set to `"replaceSplitOperatorOf"`.
+ *
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x586431a0CF041d868034E7446Cb6cbDe43566088)
+ * - [__View Contract on Optimism Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x586431a0CF041d868034E7446Cb6cbDe43566088)
+ */
+export function useRevBasicDeployerReplaceSplitOperatorOf<
+  TMode extends WriteContractMode = undefined,
+  TChainId extends number = keyof typeof revBasicDeployerAddress,
+>(
+  config: TMode extends 'prepared'
+    ? UseContractWriteConfig<
+        PrepareWriteContractResult<
+          typeof revBasicDeployerABI,
+          'replaceSplitOperatorOf'
+        >['request']['abi'],
+        'replaceSplitOperatorOf',
+        TMode
+      > & {
+        address?: Address
+        chainId?: TChainId
+        functionName?: 'replaceSplitOperatorOf'
+      }
+    : UseContractWriteConfig<
+        typeof revBasicDeployerABI,
+        'replaceSplitOperatorOf',
+        TMode
+      > & {
+        abi?: never
+        address?: never
+        chainId?: TChainId
+        functionName?: 'replaceSplitOperatorOf'
       } = {} as any,
 ) {
   const { chain } = useNetwork()
@@ -1120,13 +1651,13 @@ export function useRevBasicDeployerReplaceOperatorOf<
   const chainId = config.chainId ?? chain?.id ?? defaultChainId
   return useContractWrite<
     typeof revBasicDeployerABI,
-    'replaceOperatorOf',
+    'replaceSplitOperatorOf',
     TMode
   >({
     abi: revBasicDeployerABI,
     address:
       revBasicDeployerAddress[chainId as keyof typeof revBasicDeployerAddress],
-    functionName: 'replaceOperatorOf',
+    functionName: 'replaceSplitOperatorOf',
     ...config,
   } as any)
 }
@@ -1134,8 +1665,8 @@ export function useRevBasicDeployerReplaceOperatorOf<
 /**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link revBasicDeployerABI}__.
  *
- * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1685250188491Fd677cC5A7A40B3d8252cB1C917)
- * - [__View Contract on Optimism Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x1685250188491Fd677cC5A7A40B3d8252cB1C917)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x586431a0CF041d868034E7446Cb6cbDe43566088)
+ * - [__View Contract on Optimism Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x586431a0CF041d868034E7446Cb6cbDe43566088)
  */
 export function usePrepareRevBasicDeployerWrite<TFunctionName extends string>(
   config: Omit<
@@ -1158,43 +1689,10 @@ export function usePrepareRevBasicDeployerWrite<TFunctionName extends string>(
 }
 
 /**
- * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link revBasicDeployerABI}__ and `functionName` set to `"deployRevnetWith"`.
- *
- * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1685250188491Fd677cC5A7A40B3d8252cB1C917)
- * - [__View Contract on Optimism Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x1685250188491Fd677cC5A7A40B3d8252cB1C917)
- */
-export function usePrepareRevBasicDeployerDeployRevnetWith(
-  config: Omit<
-    UsePrepareContractWriteConfig<
-      typeof revBasicDeployerABI,
-      'deployRevnetWith'
-    >,
-    'abi' | 'address' | 'functionName'
-  > & {
-    chainId?: keyof typeof revBasicDeployerAddress
-    address?: Address
-  } = {} as any,
-) {
-  const { chain } = useNetwork()
-  const defaultChainId = useChainId()
-  const chainId = config.chainId ?? chain?.id ?? defaultChainId
-  return usePrepareContractWrite({
-    abi: revBasicDeployerABI,
-    address:
-      revBasicDeployerAddress[chainId as keyof typeof revBasicDeployerAddress],
-    functionName: 'deployRevnetWith',
-    ...config,
-  } as UsePrepareContractWriteConfig<
-    typeof revBasicDeployerABI,
-    'deployRevnetWith'
-  >)
-}
-
-/**
  * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link revBasicDeployerABI}__ and `functionName` set to `"deploySuckersFor"`.
  *
- * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1685250188491Fd677cC5A7A40B3d8252cB1C917)
- * - [__View Contract on Optimism Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x1685250188491Fd677cC5A7A40B3d8252cB1C917)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x586431a0CF041d868034E7446Cb6cbDe43566088)
+ * - [__View Contract on Optimism Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x586431a0CF041d868034E7446Cb6cbDe43566088)
  */
 export function usePrepareRevBasicDeployerDeploySuckersFor(
   config: Omit<
@@ -1224,16 +1722,16 @@ export function usePrepareRevBasicDeployerDeploySuckersFor(
 }
 
 /**
- * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link revBasicDeployerABI}__ and `functionName` set to `"replaceOperatorOf"`.
+ * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link revBasicDeployerABI}__ and `functionName` set to `"launchRevnetFor"`.
  *
- * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1685250188491Fd677cC5A7A40B3d8252cB1C917)
- * - [__View Contract on Optimism Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x1685250188491Fd677cC5A7A40B3d8252cB1C917)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x586431a0CF041d868034E7446Cb6cbDe43566088)
+ * - [__View Contract on Optimism Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x586431a0CF041d868034E7446Cb6cbDe43566088)
  */
-export function usePrepareRevBasicDeployerReplaceOperatorOf(
+export function usePrepareRevBasicDeployerLaunchRevnetFor(
   config: Omit<
     UsePrepareContractWriteConfig<
       typeof revBasicDeployerABI,
-      'replaceOperatorOf'
+      'launchRevnetFor'
     >,
     'abi' | 'address' | 'functionName'
   > & {
@@ -1248,10 +1746,153 @@ export function usePrepareRevBasicDeployerReplaceOperatorOf(
     abi: revBasicDeployerABI,
     address:
       revBasicDeployerAddress[chainId as keyof typeof revBasicDeployerAddress],
-    functionName: 'replaceOperatorOf',
+    functionName: 'launchRevnetFor',
     ...config,
   } as UsePrepareContractWriteConfig<
     typeof revBasicDeployerABI,
-    'replaceOperatorOf'
+    'launchRevnetFor'
+  >)
+}
+
+/**
+ * Wraps __{@link usePrepareContractWrite}__ with `abi` set to __{@link revBasicDeployerABI}__ and `functionName` set to `"replaceSplitOperatorOf"`.
+ *
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x586431a0CF041d868034E7446Cb6cbDe43566088)
+ * - [__View Contract on Optimism Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x586431a0CF041d868034E7446Cb6cbDe43566088)
+ */
+export function usePrepareRevBasicDeployerReplaceSplitOperatorOf(
+  config: Omit<
+    UsePrepareContractWriteConfig<
+      typeof revBasicDeployerABI,
+      'replaceSplitOperatorOf'
+    >,
+    'abi' | 'address' | 'functionName'
+  > & {
+    chainId?: keyof typeof revBasicDeployerAddress
+    address?: Address
+  } = {} as any,
+) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
+  return usePrepareContractWrite({
+    abi: revBasicDeployerABI,
+    address:
+      revBasicDeployerAddress[chainId as keyof typeof revBasicDeployerAddress],
+    functionName: 'replaceSplitOperatorOf',
+    ...config,
+  } as UsePrepareContractWriteConfig<
+    typeof revBasicDeployerABI,
+    'replaceSplitOperatorOf'
+  >)
+}
+
+/**
+ * Wraps __{@link useContractEvent}__ with `abi` set to __{@link revBasicDeployerABI}__.
+ *
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x586431a0CF041d868034E7446Cb6cbDe43566088)
+ * - [__View Contract on Optimism Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x586431a0CF041d868034E7446Cb6cbDe43566088)
+ */
+export function useRevBasicDeployerEvent<TEventName extends string>(
+  config: Omit<
+    UseContractEventConfig<typeof revBasicDeployerABI, TEventName>,
+    'abi' | 'address'
+  > & {
+    chainId?: keyof typeof revBasicDeployerAddress
+    address?: Address
+  } = {} as any,
+) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
+  return useContractEvent({
+    abi: revBasicDeployerABI,
+    address:
+      revBasicDeployerAddress[chainId as keyof typeof revBasicDeployerAddress],
+    ...config,
+  } as UseContractEventConfig<typeof revBasicDeployerABI, TEventName>)
+}
+
+/**
+ * Wraps __{@link useContractEvent}__ with `abi` set to __{@link revBasicDeployerABI}__ and `eventName` set to `"DeployRevnet"`.
+ *
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x586431a0CF041d868034E7446Cb6cbDe43566088)
+ * - [__View Contract on Optimism Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x586431a0CF041d868034E7446Cb6cbDe43566088)
+ */
+export function useRevBasicDeployerDeployRevnetEvent(
+  config: Omit<
+    UseContractEventConfig<typeof revBasicDeployerABI, 'DeployRevnet'>,
+    'abi' | 'address' | 'eventName'
+  > & {
+    chainId?: keyof typeof revBasicDeployerAddress
+    address?: Address
+  } = {} as any,
+) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
+  return useContractEvent({
+    abi: revBasicDeployerABI,
+    address:
+      revBasicDeployerAddress[chainId as keyof typeof revBasicDeployerAddress],
+    eventName: 'DeployRevnet',
+    ...config,
+  } as UseContractEventConfig<typeof revBasicDeployerABI, 'DeployRevnet'>)
+}
+
+/**
+ * Wraps __{@link useContractEvent}__ with `abi` set to __{@link revBasicDeployerABI}__ and `eventName` set to `"DeploySuckers"`.
+ *
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x586431a0CF041d868034E7446Cb6cbDe43566088)
+ * - [__View Contract on Optimism Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x586431a0CF041d868034E7446Cb6cbDe43566088)
+ */
+export function useRevBasicDeployerDeploySuckersEvent(
+  config: Omit<
+    UseContractEventConfig<typeof revBasicDeployerABI, 'DeploySuckers'>,
+    'abi' | 'address' | 'eventName'
+  > & {
+    chainId?: keyof typeof revBasicDeployerAddress
+    address?: Address
+  } = {} as any,
+) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
+  return useContractEvent({
+    abi: revBasicDeployerABI,
+    address:
+      revBasicDeployerAddress[chainId as keyof typeof revBasicDeployerAddress],
+    eventName: 'DeploySuckers',
+    ...config,
+  } as UseContractEventConfig<typeof revBasicDeployerABI, 'DeploySuckers'>)
+}
+
+/**
+ * Wraps __{@link useContractEvent}__ with `abi` set to __{@link revBasicDeployerABI}__ and `eventName` set to `"ReplaceSplitOperator"`.
+ *
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x586431a0CF041d868034E7446Cb6cbDe43566088)
+ * - [__View Contract on Optimism Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x586431a0CF041d868034E7446Cb6cbDe43566088)
+ */
+export function useRevBasicDeployerReplaceSplitOperatorEvent(
+  config: Omit<
+    UseContractEventConfig<typeof revBasicDeployerABI, 'ReplaceSplitOperator'>,
+    'abi' | 'address' | 'eventName'
+  > & {
+    chainId?: keyof typeof revBasicDeployerAddress
+    address?: Address
+  } = {} as any,
+) {
+  const { chain } = useNetwork()
+  const defaultChainId = useChainId()
+  const chainId = config.chainId ?? chain?.id ?? defaultChainId
+  return useContractEvent({
+    abi: revBasicDeployerABI,
+    address:
+      revBasicDeployerAddress[chainId as keyof typeof revBasicDeployerAddress],
+    eventName: 'ReplaceSplitOperator',
+    ...config,
+  } as UseContractEventConfig<
+    typeof revBasicDeployerABI,
+    'ReplaceSplitOperator'
   >)
 }
