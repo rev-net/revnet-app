@@ -37,6 +37,7 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import { formatUnits, parseUnits } from "viem";
 import { useAccount } from "wagmi";
+import { DistributeReservedTokensButton } from "./DistributeReservedTokensButton";
 import { NetworkDetailsTable } from "./NetworkDetailsTable";
 import { ParticipantsTable } from "./ParticipantsTable";
 import { PriceIncreaseCountdown } from "./PriceIncreaseCountdown";
@@ -44,7 +45,6 @@ import StepChart from "./StepChart";
 import { ActivityFeed } from "./activity/ActivityFeed";
 import { PayForm } from "./pay/PayForm";
 import { RedeemDialog } from "./redeem/RedeemDialog";
-import { DistributeReservedTokensButton } from "./DistributeReservedTokensButton";
 
 export function NetworkDashboard() {
   const [participantsView, setParticipantsView] = useState<"table" | "pie">(
@@ -239,7 +239,7 @@ export function NetworkDashboard() {
                       value={token.data.address}
                       className="text-zinc-500"
                     >
-                      ${token.data.symbol}
+                      {token.data.symbol}
                     </EtherscanLink>
                   ) : null}
                 </div>
@@ -254,10 +254,10 @@ export function NetworkDashboard() {
                   ) : null}
                   <span className="text-sm">
                     <span className="font-medium text-zinc-500">
-                      {contributorsCount}
+                      {contributorsCount ?? 0}
                     </span>{" "}
                     <span className="text-zinc-500">
-                      {contributorsCount === 1 ? "participant" : "participants"}
+                      {contributorsCount === 1 ? "holder" : "holders"}
                     </span>
                   </span>
                 </div>
@@ -331,7 +331,7 @@ export function NetworkDashboard() {
             </div>
 
             <div className="mb-16">
-              <h3 className="text-base font-medium mb-2">Participants</h3>
+              <h3 className="text-base font-medium mb-2">Holders</h3>
 
               {token?.data &&
               participantsData &&
@@ -352,7 +352,7 @@ export function NetworkDashboard() {
                   /> */}
                 </>
               ) : (
-                <span className="text-zinc-500">No participants yet.</span>
+                <span className="text-zinc-500">No holders yet.</span>
               )}
             </div>
 

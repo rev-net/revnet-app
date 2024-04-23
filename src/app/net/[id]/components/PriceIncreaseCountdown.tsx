@@ -51,7 +51,7 @@ export function PriceIncreaseCountdown() {
           <span>
             {nextTokenBPrice?.format(4)} {tokenA.symbol}
           </span>
-          <span className="text-base leading-tight">
+          <span>
             {" "}
             / {token?.data?.symbol}
           </span>{" "}

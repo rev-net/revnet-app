@@ -63,5 +63,6 @@ export function formatEthAddress(
  * Return percentage of numerator / denominator (e.g. 69 for 69%)
  */
 export function formatPortion(numerator: bigint, denominator: bigint) {
+  if (numerator === 0n || denominator === 0n) return 0;
   return parseFloat(((numerator * 1000n) / denominator).toString()) / 10;
 }

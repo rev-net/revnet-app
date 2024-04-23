@@ -148,9 +148,10 @@ export function NetworkDetailsTable() {
           <dt className="text-sm font-medium leading-6 text-zinc-900">
             Operator
           </dt>
-          <dd className="text-sm leading-6 text-zinc-700">
+          <dd className="text-sm leading-6 text-zinc-700 overflow-hidden text-ellipsis">
             <EthereumAddress
               withEnsName
+              short
               address={selectedStageBoost?.beneficiary as Address}
             />
           </dd>
