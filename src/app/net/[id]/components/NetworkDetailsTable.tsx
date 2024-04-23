@@ -149,11 +149,15 @@ export function NetworkDetailsTable() {
             Operator
           </dt>
           <dd className="text-sm leading-6 text-zinc-700 overflow-hidden text-ellipsis">
-            <EthereumAddress
-              withEnsName
-              short
-              address={selectedStageBoost?.beneficiary as Address}
-            />
+            {selectedStageBoost?.beneficiary ? (
+              <EthereumAddress
+                withEnsName
+                short
+                address={selectedStageBoost.beneficiary}
+              />
+            ) : (
+              "Not set"
+            )}
           </dd>
         </div>
         <div className="border-t border-zinc-100 px-4 py-2 sm:col-span-1 sm:px-0 grid grid-cols-2">
