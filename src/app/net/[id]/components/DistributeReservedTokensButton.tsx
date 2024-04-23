@@ -15,9 +15,7 @@ export function DistributeReservedTokensButton() {
   const { write, isLoading, data } =
     useJbControllerSendReservedTokensToSplitsOf({
       address: controller.data ?? undefined,
-      args: projectId
-        ? [projectId, "[revnet.app] Released operator tokens"]
-        : undefined,
+      args: projectId ? [projectId] : undefined,
       onSuccess() {
         toast({
           title: "Transaction submitted.",
