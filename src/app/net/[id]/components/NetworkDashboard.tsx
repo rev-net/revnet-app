@@ -112,7 +112,7 @@ export function NetworkDashboard() {
     variables: { where: { projectId: Number(projectId) } },
   });
   const projectCreateEventTxHash =
-    projectCreateEvent?.projectEvents[0].projectCreateEvent?.txHash;
+    projectCreateEvent?.projectEvents?.[0]?.projectCreateEvent?.txHash;
 
   // set title
   // TODO, hacky, probably eventually a next-idiomatic way to do this.

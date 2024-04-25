@@ -54,6 +54,7 @@ import {
 } from "wagmi";
 import { MAX_RULESET_COUNT } from "../constants";
 import { IpfsImageUploader } from "./IpfsFileUploader";
+import { createSalt } from "@/lib/number";
 
 const defaultStageData = {
   initialOperator: "", // only the first stage has this
@@ -690,8 +691,6 @@ function parseDeployData(
     };
   });
 
-  const salt = toHex(toBytes("Hello world", { size: 32 }));
-
   return [
     0n, // 0 for a new revnet
     {
@@ -699,7 +698,7 @@ function parseDeployData(
         name: formData.name,
         ticker: formData.tokenSymbol,
         uri: extra.metadataCid,
-        salt,
+        salt: createSalt(),
       },
       premintChainId: BigInt(extra.chainId ?? mainnet.id),
       baseCurrency: Number(BigInt(NATIVE_TOKEN)),
@@ -720,17 +719,17 @@ function parseDeployData(
     {
       hook: zeroAddress,
       poolConfigurations: [
-        // {
-        //   token: zeroAddress,
-        //   fee: 0,
-        //   twapSlippageTolerance: 0,
-        //   twapWindow: 0,
-        // },
+        {
+          token: NATIVE_TOKEN,
+          fee: 0,
+          twapSlippageTolerance: 0,
+          twapWindow: 0,
+        },
       ],
     },
     {
       deployerConfigurations: [],
-      salt,
+      salt: createSalt(),
     },
   ];
 }
