@@ -2,7 +2,7 @@ import { useJBTokenContext } from "juice-sdk-react";
 import { useTokenA } from "../../../../../../../hooks/useTokenA";
 import { useTokenBPrice } from "../../../../../../../hooks/useTokenBPrice";
 import { PriceIncreaseCountdown } from "../../../PriceIncreaseCountdown";
-import StepChart from "../../../StepChart";
+import StepChart from "./StepChart";
 
 export function ChartSection() {
   const { token } = useJBTokenContext();
