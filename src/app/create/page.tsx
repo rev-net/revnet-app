@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/dialog";
 import { useNativeTokenSymbol } from "@/hooks/useNativeTokenSymbol";
 import { ipfsUri, ipfsUriToGatewayUrl } from "@/lib/ipfs";
+import { createSalt } from "@/lib/number";
 import { revBasicDeployerABI } from "@/lib/revnet/hooks/contract";
 import { useDeployRevnet } from "@/lib/revnet/hooks/useDeployRevnet";
 import {
@@ -43,7 +44,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ReactNode, useState } from "react";
 import { twMerge } from "tailwind-merge";
-import { Chain, parseUnits, toBytes, toHex, zeroAddress } from "viem";
+import { Chain, parseUnits, zeroAddress } from "viem";
 import { mainnet, optimismSepolia } from "viem/chains";
 import {
   Address,
@@ -52,9 +53,8 @@ import {
   useNetwork,
   useWaitForTransaction,
 } from "wagmi";
+import { IpfsImageUploader } from "../../components/IpfsFileUploader";
 import { MAX_RULESET_COUNT } from "../constants";
-import { IpfsImageUploader } from "./IpfsFileUploader";
-import { createSalt } from "@/lib/number";
 
 const defaultStageData = {
   initialOperator: "", // only the first stage has this

@@ -1,8 +1,8 @@
 import { useEnsName } from "@/hooks/ens/useEnsName";
 import { formatEthAddress } from "@/lib/utils";
 import Image from "next/image";
-import EtherscanLink from "./EtherscanLink";
 import { twMerge } from "tailwind-merge";
+import EtherscanLink from "./EtherscanLink";
 
 const STAMP_FYI_BASE_URL = "https://cdn.stamp.fyi";
 

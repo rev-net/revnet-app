@@ -1,7 +1,8 @@
 query ProjectCreateEvent($where: ProjectEvent_filter) {
-  projectEvents(where: $where, first: 1, orderBy: projectCreateEvent__txHash) {
+  projectEvents(where: $where, first: 1) {
     projectCreateEvent {
       txHash
+      timestamp
     }
   }
 }

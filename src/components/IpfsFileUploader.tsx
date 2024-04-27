@@ -1,6 +1,5 @@
 import { ipfsGatewayUrl } from "@/lib/ipfs";
 import axios from "axios";
-import { Field } from "formik";
 import Image from "next/image";
 import { useMutation } from "wagmi";
 

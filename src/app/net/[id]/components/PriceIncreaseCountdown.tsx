@@ -51,10 +51,7 @@ export function PriceIncreaseCountdown() {
           <span>
             {nextTokenBPrice?.format(4)} {tokenA.symbol}
           </span>
-          <span>
-            {" "}
-            / {token?.data?.symbol}
-          </span>{" "}
+          <span> / {token?.data?.symbol}</span>{" "}
           <span>in {formatSeconds(timeLeft)}</span>
           <QuestionMarkCircleIcon className="h-4 w-4 inline ml-1 mb-1" />
         </div>

@@ -6614,10 +6614,10 @@ jsonparse@^1.2.0:
     object.assign "^4.1.4"
     object.values "^1.1.6"
 
-juice-sdk-core@^6.0.0-alpha:
-  version "6.0.0-alpha"
-  resolved "https://registry.yarnpkg.com/juice-sdk-core/-/juice-sdk-core-6.0.0-alpha.tgz#e6a7ee1e11888b8a02bba7eb0492b913b386f8e5"
-  integrity sha512-v4kaScwZVyz3Cp/QokJL+iIK2ds6kEqZkxALmOElAaAsPSpPVYThbbWlWKIRUvHWP6zVP6cSBlboyJiTHRiC2A==
+juice-sdk-core@^7.1.0-alpha:
+  version "7.1.0-alpha"
+  resolved "https://registry.yarnpkg.com/juice-sdk-core/-/juice-sdk-core-7.1.0-alpha.tgz#75023fcbecb558ed550819f96f5bd32faa583014"
+  integrity sha512-rzseP4mKalM2cQT94g073BETr4/PJc8pukY+la/qqkUI44xUpR1G19jnXuR6XHhHD2qOTXz0t7nvt57iW/XOqA==
   dependencies:
     bs58 "^5.0.0"
     fpnum "^1.0.0"

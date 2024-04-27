@@ -5,6 +5,8 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useBoostRecipient } from "@/hooks/useBoostRecipient";
+import { useTokenA } from "@/hooks/useTokenA";
 import {
   ArrowDownIcon,
   ArrowRightIcon,
@@ -12,21 +14,21 @@ import {
 } from "@heroicons/react/24/solid";
 import { FixedInt } from "fpnum";
 import { getTokenAToBQuote, getTokenBtoAQuote } from "juice-sdk-core";
-import { useJBContractContext, useJBRulesetContext } from "juice-sdk-react";
+import {
+  useJBContractContext,
+  useJBRulesetContext,
+  useJBTokenContext,
+} from "juice-sdk-react";
 import { useState } from "react";
-import { Address, formatUnits, parseEther, parseUnits } from "viem";
+import { formatUnits, parseEther, parseUnits } from "viem";
 import { PayDialog } from "./PayDialog";
 import { PayInput } from "./PayInput";
 
-export function PayForm({
-  tokenA,
-  tokenB,
-  boostRecipient,
-}: {
-  tokenA: { symbol: string; decimals: number };
-  tokenB: { symbol: string; decimals: number };
-  boostRecipient: Address;
-}) {
+export function PayForm() {
+  const tokenA = useTokenA();
+  const { token } = useJBTokenContext();
+  const boostRecipient = useBoostRecipient();
+
   const [amountA, setAmountA] = useState<string>("");
   const [amountB, setAmountB] = useState<string>("");
 
@@ -35,6 +37,13 @@ export function PayForm({
     contracts: { primaryNativeTerminal },
   } = useJBContractContext();
   const { ruleset, rulesetMetadata } = useJBRulesetContext();
+
+  const tokenB = token?.data;
+
+  if (!ruleset?.data || !rulesetMetadata?.data || !tokenB) {
+    return null;
+  }
+
   const devTax = rulesetMetadata?.data?.reservedRate;
 
   const _amountA = {
@@ -51,11 +60,8 @@ export function PayForm({
     setAmountB("");
   }
 
-  if (!ruleset?.data || !rulesetMetadata?.data) return null;
-
   return (
-    <div className="flex flex-col p-5 rounded-xl bg-zinc-50 border border-zinc-200 w-full shadow-lg">
-      <h2 className="mb-4">Join network</h2>
+    <div>
       <div className="flex justify-center items-center flex-col gap-3 mb-5">
         <PayInput
           label="You pay"
@@ -131,23 +137,6 @@ export function PayForm({
  
         </div> */}
 
-      {primaryNativeTerminal?.data ? (
-        <PayDialog
-          amountA={_amountA}
-          amountB={_amountB}
-          projectId={projectId}
-          primaryTerminalEth={primaryNativeTerminal?.data}
-          disabled={!amountA}
-        >
-          <Button
-            size="lg"
-            className="w-full mb-5 min-w-[20%] flex items-center gap-2 hover:gap-[10px] whitespace-nowrap transition-all"
-          >
-            Pay now <ArrowRightIcon className="h-4 w-4" />
-          </Button>
-        </PayDialog>
-      ) : null}
-
       {devTax && boostRecipient ? (
         <Tooltip>
           <TooltipTrigger>
@@ -173,6 +162,23 @@ export function PayForm({
             minted.
           </TooltipContent>
         </Tooltip>
+      ) : null}
+
+      {primaryNativeTerminal?.data ? (
+        <PayDialog
+          amountA={_amountA}
+          amountB={_amountB}
+          projectId={projectId}
+          primaryTerminalEth={primaryNativeTerminal?.data}
+          disabled={!amountA}
+        >
+          <Button
+            size="lg"
+            className="w-full mb-5 min-w-[20%] flex items-center gap-2 hover:gap-[10px] whitespace-nowrap transition-all"
+          >
+            Pay now <ArrowRightIcon className="h-4 w-4" />
+          </Button>
+        </PayDialog>
       ) : null}
     </div>
   );
