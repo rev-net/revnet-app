@@ -18,7 +18,7 @@ query PayEvents(
     note
     timestamp
     feeFromV2Project
-    beneficiaryTokenCount
+    # beneficiaryTokenCount
     from
     txHash
     project {
