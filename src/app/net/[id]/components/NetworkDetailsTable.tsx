@@ -118,7 +118,7 @@ export function NetworkDetailsTable() {
             Starting price
           </dt>
           <dd className="text-sm leading-6 text-zinc-700">
-            {currentTokenBPrice?.format(4)} {tokenA.symbol} /{" "}
+            {currentTokenBPrice?.format()} {tokenA.symbol} /{" "}
             {token.data?.symbol}
           </dd>
         </div>

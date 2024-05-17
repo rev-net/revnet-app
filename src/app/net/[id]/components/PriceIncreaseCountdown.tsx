@@ -49,7 +49,7 @@ export function PriceIncreaseCountdown() {
       <TooltipTrigger>
         <div className="text-sm mt-1 text-red-600">
           <span>
-            {nextTokenBPrice?.format(4)} {tokenA.symbol}
+            {nextTokenBPrice?.format(8)} {tokenA.symbol}
           </span>
           <span> / {token?.data?.symbol}</span>{" "}
           <span>in {formatSeconds(timeLeft)}</span>

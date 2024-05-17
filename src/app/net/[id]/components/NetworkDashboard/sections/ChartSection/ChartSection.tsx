@@ -1,6 +1,6 @@
 import { useJBTokenContext } from "juice-sdk-react";
-import { useTokenA } from "../../../../../../../hooks/useTokenA";
-import { useTokenBPrice } from "../../../../../../../hooks/useTokenBPrice";
+import { useTokenA } from "@/hooks/useTokenA";
+import { useTokenBPrice } from "@/hooks/useTokenBPrice";
 import { PriceIncreaseCountdown } from "../../../PriceIncreaseCountdown";
 import StepChart from "./StepChart";
 
@@ -16,7 +16,7 @@ export function ChartSection() {
         <div>
           {/* <div className="text-sm text-zinc-500">Current price</div> */}
           <span className="text-2xl">
-            {currentTokenBPrice?.format(4)} {tokenA.symbol}
+            {currentTokenBPrice?.format(8)} {tokenA.symbol}
           </span>
           <span className="text-base leading-tight text-zinc-500">
             {" "}

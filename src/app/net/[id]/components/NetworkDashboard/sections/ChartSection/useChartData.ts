@@ -92,7 +92,7 @@ export function useChartData({
             fc: 1,
             groupIdx: i,
             date: d,
-            price: prevPrice.toFloat().toFixed(4),
+            price: prevPrice.toFloat().toFixed(8),
           };
         })
         .slice(steps * 0.6, steps),
@@ -106,7 +106,7 @@ export function useChartData({
 
           groupIdx: i,
           date: d,
-          price: currentPrice.toFloat().toFixed(4),
+          price: currentPrice.toFloat().toFixed(8),
         };
       }),
       ...generateDateRange(
@@ -119,7 +119,7 @@ export function useChartData({
 
           groupIdx: i,
           date: d,
-          price: nextPrice.toFloat().toFixed(4),
+          price: nextPrice.toFloat().toFixed(8),
         };
       }),
       ...generateDateRange(
@@ -132,7 +132,7 @@ export function useChartData({
 
           groupIdx: i,
           date: d,
-          price: nextNextPrice.toFloat().toFixed(4),
+          price: nextNextPrice.toFloat().toFixed(8),
         };
       }),
     ];
@@ -148,6 +148,8 @@ export function useChartData({
     nextNextFcEnd,
     startBuffer,
   ]);
+
+  console.log({ chartData, currentPrice, prevPrice, datapointIndex })
 
   return { chartData, currentPrice, prevPrice, datapointIndex };
 }
