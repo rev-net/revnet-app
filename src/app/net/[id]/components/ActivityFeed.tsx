@@ -61,8 +61,8 @@ function transformPayEventsRes(
       amount: new Ether(BigInt(event.amount)),
       beneficiary: event.beneficiary,
       beneficiaryTokenCount: new JBProjectToken(
-        BigInt(0)
-        // BigInt(event.beneficiaryTokenCount)
+        // BigInt(0)
+        BigInt(event.beneficiaryTokenCount)
       ),
       timestamp: event.timestamp,
       txHash: event.txHash,

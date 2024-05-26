@@ -32,7 +32,6 @@ export type AddToBalanceEvent = {
   note: Maybe<Scalars['String']['output']>;
   project: Project;
   projectId: Scalars['Int']['output'];
-  pv: Scalars['String']['output'];
   terminal: Scalars['Bytes']['output'];
   timestamp: Scalars['Int']['output'];
   txHash: Scalars['Bytes']['output'];
@@ -136,26 +135,6 @@ export type AddToBalanceEvent_Filter = {
   project_not_starts_with_nocase?: InputMaybe<Scalars['String']['input']>;
   project_starts_with?: InputMaybe<Scalars['String']['input']>;
   project_starts_with_nocase?: InputMaybe<Scalars['String']['input']>;
-  pv?: InputMaybe<Scalars['String']['input']>;
-  pv_contains?: InputMaybe<Scalars['String']['input']>;
-  pv_contains_nocase?: InputMaybe<Scalars['String']['input']>;
-  pv_ends_with?: InputMaybe<Scalars['String']['input']>;
-  pv_ends_with_nocase?: InputMaybe<Scalars['String']['input']>;
-  pv_gt?: InputMaybe<Scalars['String']['input']>;
-  pv_gte?: InputMaybe<Scalars['String']['input']>;
-  pv_in?: InputMaybe<Array<Scalars['String']['input']>>;
-  pv_lt?: InputMaybe<Scalars['String']['input']>;
-  pv_lte?: InputMaybe<Scalars['String']['input']>;
-  pv_not?: InputMaybe<Scalars['String']['input']>;
-  pv_not_contains?: InputMaybe<Scalars['String']['input']>;
-  pv_not_contains_nocase?: InputMaybe<Scalars['String']['input']>;
-  pv_not_ends_with?: InputMaybe<Scalars['String']['input']>;
-  pv_not_ends_with_nocase?: InputMaybe<Scalars['String']['input']>;
-  pv_not_in?: InputMaybe<Array<Scalars['String']['input']>>;
-  pv_not_starts_with?: InputMaybe<Scalars['String']['input']>;
-  pv_not_starts_with_nocase?: InputMaybe<Scalars['String']['input']>;
-  pv_starts_with?: InputMaybe<Scalars['String']['input']>;
-  pv_starts_with_nocase?: InputMaybe<Scalars['String']['input']>;
   terminal?: InputMaybe<Scalars['Bytes']['input']>;
   terminal_contains?: InputMaybe<Scalars['Bytes']['input']>;
   terminal_gt?: InputMaybe<Scalars['Bytes']['input']>;
@@ -204,24 +183,20 @@ export enum AddToBalanceEvent_OrderBy {
   project__handle = 'project__handle',
   project__id = 'project__id',
   project__latestFundingCycle = 'project__latestFundingCycle',
-  project__metadataDomain = 'project__metadataDomain',
-  project__metadataUri = 'project__metadataUri',
+  project__metadata = 'project__metadata',
   project__nftsMintedCount = 'project__nftsMintedCount',
   project__owner = 'project__owner',
   project__paymentsCount = 'project__paymentsCount',
   project__projectId = 'project__projectId',
-  project__pv = 'project__pv',
   project__redeemCount = 'project__redeemCount',
   project__redeemVolume = 'project__redeemVolume',
   project__redeemVolumeUSD = 'project__redeemVolumeUSD',
-  project__terminal = 'project__terminal',
   project__tokenSupply = 'project__tokenSupply',
   project__trendingPaymentsCount = 'project__trendingPaymentsCount',
   project__trendingScore = 'project__trendingScore',
   project__trendingVolume = 'project__trendingVolume',
   project__volume = 'project__volume',
   project__volumeUSD = 'project__volumeUSD',
-  pv = 'pv',
   terminal = 'terminal',
   timestamp = 'timestamp',
   txHash = 'txHash'
@@ -246,7 +221,6 @@ export type BurnEvent = {
   id: Scalars['ID']['output'];
   project: Project;
   projectId: Scalars['Int']['output'];
-  pv: Scalars['String']['output'];
   stakedAmount: Scalars['BigInt']['output'];
   timestamp: Scalars['Int']['output'];
   txHash: Scalars['Bytes']['output'];
@@ -340,26 +314,6 @@ export type BurnEvent_Filter = {
   project_not_starts_with_nocase?: InputMaybe<Scalars['String']['input']>;
   project_starts_with?: InputMaybe<Scalars['String']['input']>;
   project_starts_with_nocase?: InputMaybe<Scalars['String']['input']>;
-  pv?: InputMaybe<Scalars['String']['input']>;
-  pv_contains?: InputMaybe<Scalars['String']['input']>;
-  pv_contains_nocase?: InputMaybe<Scalars['String']['input']>;
-  pv_ends_with?: InputMaybe<Scalars['String']['input']>;
-  pv_ends_with_nocase?: InputMaybe<Scalars['String']['input']>;
-  pv_gt?: InputMaybe<Scalars['String']['input']>;
-  pv_gte?: InputMaybe<Scalars['String']['input']>;
-  pv_in?: InputMaybe<Array<Scalars['String']['input']>>;
-  pv_lt?: InputMaybe<Scalars['String']['input']>;
-  pv_lte?: InputMaybe<Scalars['String']['input']>;
-  pv_not?: InputMaybe<Scalars['String']['input']>;
-  pv_not_contains?: InputMaybe<Scalars['String']['input']>;
-  pv_not_contains_nocase?: InputMaybe<Scalars['String']['input']>;
-  pv_not_ends_with?: InputMaybe<Scalars['String']['input']>;
-  pv_not_ends_with_nocase?: InputMaybe<Scalars['String']['input']>;
-  pv_not_in?: InputMaybe<Array<Scalars['String']['input']>>;
-  pv_not_starts_with?: InputMaybe<Scalars['String']['input']>;
-  pv_not_starts_with_nocase?: InputMaybe<Scalars['String']['input']>;
-  pv_starts_with?: InputMaybe<Scalars['String']['input']>;
-  pv_starts_with_nocase?: InputMaybe<Scalars['String']['input']>;
   stakedAmount?: InputMaybe<Scalars['BigInt']['input']>;
   stakedAmount_gt?: InputMaybe<Scalars['BigInt']['input']>;
   stakedAmount_gte?: InputMaybe<Scalars['BigInt']['input']>;
@@ -406,24 +360,20 @@ export enum BurnEvent_OrderBy {
   project__handle = 'project__handle',
   project__id = 'project__id',
   project__latestFundingCycle = 'project__latestFundingCycle',
-  project__metadataDomain = 'project__metadataDomain',
-  project__metadataUri = 'project__metadataUri',
+  project__metadata = 'project__metadata',
   project__nftsMintedCount = 'project__nftsMintedCount',
   project__owner = 'project__owner',
   project__paymentsCount = 'project__paymentsCount',
   project__projectId = 'project__projectId',
-  project__pv = 'project__pv',
   project__redeemCount = 'project__redeemCount',
   project__redeemVolume = 'project__redeemVolume',
   project__redeemVolumeUSD = 'project__redeemVolumeUSD',
-  project__terminal = 'project__terminal',
   project__tokenSupply = 'project__tokenSupply',
   project__trendingPaymentsCount = 'project__trendingPaymentsCount',
   project__trendingScore = 'project__trendingScore',
   project__trendingVolume = 'project__trendingVolume',
   project__volume = 'project__volume',
   project__volumeUSD = 'project__volumeUSD',
-  pv = 'pv',
   stakedAmount = 'stakedAmount',
   timestamp = 'timestamp',
   txHash = 'txHash'
@@ -656,17 +606,14 @@ export enum ConfigureEvent_OrderBy {
   project__handle = 'project__handle',
   project__id = 'project__id',
   project__latestFundingCycle = 'project__latestFundingCycle',
-  project__metadataDomain = 'project__metadataDomain',
-  project__metadataUri = 'project__metadataUri',
+  project__metadata = 'project__metadata',
   project__nftsMintedCount = 'project__nftsMintedCount',
   project__owner = 'project__owner',
   project__paymentsCount = 'project__paymentsCount',
   project__projectId = 'project__projectId',
-  project__pv = 'project__pv',
   project__redeemCount = 'project__redeemCount',
   project__redeemVolume = 'project__redeemVolume',
   project__redeemVolumeUSD = 'project__redeemVolumeUSD',
-  project__terminal = 'project__terminal',
   project__tokenSupply = 'project__tokenSupply',
   project__trendingPaymentsCount = 'project__trendingPaymentsCount',
   project__trendingScore = 'project__trendingScore',
@@ -676,6 +623,197 @@ export enum ConfigureEvent_OrderBy {
   timestamp = 'timestamp',
   txHash = 'txHash',
   weight = 'weight'
+}
+
+export type DecoratedBanny = {
+  backside: Maybe<Scalars['BigInt']['output']>;
+  fist: Maybe<Scalars['BigInt']['output']>;
+  glasses: Maybe<Scalars['BigInt']['output']>;
+  head: Maybe<Scalars['BigInt']['output']>;
+  headTop: Maybe<Scalars['BigInt']['output']>;
+  id: Scalars['ID']['output'];
+  legs: Maybe<Scalars['BigInt']['output']>;
+  mouth: Maybe<Scalars['BigInt']['output']>;
+  naked: Maybe<Scalars['BigInt']['output']>;
+  necklace: Maybe<Scalars['BigInt']['output']>;
+  nft: Nft;
+  suit: Maybe<Scalars['BigInt']['output']>;
+  suitBottom: Maybe<Scalars['BigInt']['output']>;
+  suitTop: Maybe<Scalars['BigInt']['output']>;
+  topping: Maybe<Scalars['BigInt']['output']>;
+  world: Maybe<Scalars['BigInt']['output']>;
+};
+
+export type DecoratedBanny_Filter = {
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<DecoratedBanny_Filter>>>;
+  backside?: InputMaybe<Scalars['BigInt']['input']>;
+  backside_gt?: InputMaybe<Scalars['BigInt']['input']>;
+  backside_gte?: InputMaybe<Scalars['BigInt']['input']>;
+  backside_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
+  backside_lt?: InputMaybe<Scalars['BigInt']['input']>;
+  backside_lte?: InputMaybe<Scalars['BigInt']['input']>;
+  backside_not?: InputMaybe<Scalars['BigInt']['input']>;
+  backside_not_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
+  fist?: InputMaybe<Scalars['BigInt']['input']>;
+  fist_gt?: InputMaybe<Scalars['BigInt']['input']>;
+  fist_gte?: InputMaybe<Scalars['BigInt']['input']>;
+  fist_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
+  fist_lt?: InputMaybe<Scalars['BigInt']['input']>;
+  fist_lte?: InputMaybe<Scalars['BigInt']['input']>;
+  fist_not?: InputMaybe<Scalars['BigInt']['input']>;
+  fist_not_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
+  glasses?: InputMaybe<Scalars['BigInt']['input']>;
+  glasses_gt?: InputMaybe<Scalars['BigInt']['input']>;
+  glasses_gte?: InputMaybe<Scalars['BigInt']['input']>;
+  glasses_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
+  glasses_lt?: InputMaybe<Scalars['BigInt']['input']>;
+  glasses_lte?: InputMaybe<Scalars['BigInt']['input']>;
+  glasses_not?: InputMaybe<Scalars['BigInt']['input']>;
+  glasses_not_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
+  head?: InputMaybe<Scalars['BigInt']['input']>;
+  headTop?: InputMaybe<Scalars['BigInt']['input']>;
+  headTop_gt?: InputMaybe<Scalars['BigInt']['input']>;
+  headTop_gte?: InputMaybe<Scalars['BigInt']['input']>;
+  headTop_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
+  headTop_lt?: InputMaybe<Scalars['BigInt']['input']>;
+  headTop_lte?: InputMaybe<Scalars['BigInt']['input']>;
+  headTop_not?: InputMaybe<Scalars['BigInt']['input']>;
+  headTop_not_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
+  head_gt?: InputMaybe<Scalars['BigInt']['input']>;
+  head_gte?: InputMaybe<Scalars['BigInt']['input']>;
+  head_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
+  head_lt?: InputMaybe<Scalars['BigInt']['input']>;
+  head_lte?: InputMaybe<Scalars['BigInt']['input']>;
+  head_not?: InputMaybe<Scalars['BigInt']['input']>;
+  head_not_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
+  id?: InputMaybe<Scalars['ID']['input']>;
+  id_gt?: InputMaybe<Scalars['ID']['input']>;
+  id_gte?: InputMaybe<Scalars['ID']['input']>;
+  id_in?: InputMaybe<Array<Scalars['ID']['input']>>;
+  id_lt?: InputMaybe<Scalars['ID']['input']>;
+  id_lte?: InputMaybe<Scalars['ID']['input']>;
+  id_not?: InputMaybe<Scalars['ID']['input']>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']['input']>>;
+  legs?: InputMaybe<Scalars['BigInt']['input']>;
+  legs_gt?: InputMaybe<Scalars['BigInt']['input']>;
+  legs_gte?: InputMaybe<Scalars['BigInt']['input']>;
+  legs_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
+  legs_lt?: InputMaybe<Scalars['BigInt']['input']>;
+  legs_lte?: InputMaybe<Scalars['BigInt']['input']>;
+  legs_not?: InputMaybe<Scalars['BigInt']['input']>;
+  legs_not_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
+  mouth?: InputMaybe<Scalars['BigInt']['input']>;
+  mouth_gt?: InputMaybe<Scalars['BigInt']['input']>;
+  mouth_gte?: InputMaybe<Scalars['BigInt']['input']>;
+  mouth_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
+  mouth_lt?: InputMaybe<Scalars['BigInt']['input']>;
+  mouth_lte?: InputMaybe<Scalars['BigInt']['input']>;
+  mouth_not?: InputMaybe<Scalars['BigInt']['input']>;
+  mouth_not_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
+  naked?: InputMaybe<Scalars['BigInt']['input']>;
+  naked_gt?: InputMaybe<Scalars['BigInt']['input']>;
+  naked_gte?: InputMaybe<Scalars['BigInt']['input']>;
+  naked_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
+  naked_lt?: InputMaybe<Scalars['BigInt']['input']>;
+  naked_lte?: InputMaybe<Scalars['BigInt']['input']>;
+  naked_not?: InputMaybe<Scalars['BigInt']['input']>;
+  naked_not_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
+  necklace?: InputMaybe<Scalars['BigInt']['input']>;
+  necklace_gt?: InputMaybe<Scalars['BigInt']['input']>;
+  necklace_gte?: InputMaybe<Scalars['BigInt']['input']>;
+  necklace_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
+  necklace_lt?: InputMaybe<Scalars['BigInt']['input']>;
+  necklace_lte?: InputMaybe<Scalars['BigInt']['input']>;
+  necklace_not?: InputMaybe<Scalars['BigInt']['input']>;
+  necklace_not_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
+  nft?: InputMaybe<Scalars['String']['input']>;
+  nft_?: InputMaybe<Nft_Filter>;
+  nft_contains?: InputMaybe<Scalars['String']['input']>;
+  nft_contains_nocase?: InputMaybe<Scalars['String']['input']>;
+  nft_ends_with?: InputMaybe<Scalars['String']['input']>;
+  nft_ends_with_nocase?: InputMaybe<Scalars['String']['input']>;
+  nft_gt?: InputMaybe<Scalars['String']['input']>;
+  nft_gte?: InputMaybe<Scalars['String']['input']>;
+  nft_in?: InputMaybe<Array<Scalars['String']['input']>>;
+  nft_lt?: InputMaybe<Scalars['String']['input']>;
+  nft_lte?: InputMaybe<Scalars['String']['input']>;
+  nft_not?: InputMaybe<Scalars['String']['input']>;
+  nft_not_contains?: InputMaybe<Scalars['String']['input']>;
+  nft_not_contains_nocase?: InputMaybe<Scalars['String']['input']>;
+  nft_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  nft_not_ends_with_nocase?: InputMaybe<Scalars['String']['input']>;
+  nft_not_in?: InputMaybe<Array<Scalars['String']['input']>>;
+  nft_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  nft_not_starts_with_nocase?: InputMaybe<Scalars['String']['input']>;
+  nft_starts_with?: InputMaybe<Scalars['String']['input']>;
+  nft_starts_with_nocase?: InputMaybe<Scalars['String']['input']>;
+  or?: InputMaybe<Array<InputMaybe<DecoratedBanny_Filter>>>;
+  suit?: InputMaybe<Scalars['BigInt']['input']>;
+  suitBottom?: InputMaybe<Scalars['BigInt']['input']>;
+  suitBottom_gt?: InputMaybe<Scalars['BigInt']['input']>;
+  suitBottom_gte?: InputMaybe<Scalars['BigInt']['input']>;
+  suitBottom_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
+  suitBottom_lt?: InputMaybe<Scalars['BigInt']['input']>;
+  suitBottom_lte?: InputMaybe<Scalars['BigInt']['input']>;
+  suitBottom_not?: InputMaybe<Scalars['BigInt']['input']>;
+  suitBottom_not_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
+  suitTop?: InputMaybe<Scalars['BigInt']['input']>;
+  suitTop_gt?: InputMaybe<Scalars['BigInt']['input']>;
+  suitTop_gte?: InputMaybe<Scalars['BigInt']['input']>;
+  suitTop_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
+  suitTop_lt?: InputMaybe<Scalars['BigInt']['input']>;
+  suitTop_lte?: InputMaybe<Scalars['BigInt']['input']>;
+  suitTop_not?: InputMaybe<Scalars['BigInt']['input']>;
+  suitTop_not_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
+  suit_gt?: InputMaybe<Scalars['BigInt']['input']>;
+  suit_gte?: InputMaybe<Scalars['BigInt']['input']>;
+  suit_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
+  suit_lt?: InputMaybe<Scalars['BigInt']['input']>;
+  suit_lte?: InputMaybe<Scalars['BigInt']['input']>;
+  suit_not?: InputMaybe<Scalars['BigInt']['input']>;
+  suit_not_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
+  topping?: InputMaybe<Scalars['BigInt']['input']>;
+  topping_gt?: InputMaybe<Scalars['BigInt']['input']>;
+  topping_gte?: InputMaybe<Scalars['BigInt']['input']>;
+  topping_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
+  topping_lt?: InputMaybe<Scalars['BigInt']['input']>;
+  topping_lte?: InputMaybe<Scalars['BigInt']['input']>;
+  topping_not?: InputMaybe<Scalars['BigInt']['input']>;
+  topping_not_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
+  world?: InputMaybe<Scalars['BigInt']['input']>;
+  world_gt?: InputMaybe<Scalars['BigInt']['input']>;
+  world_gte?: InputMaybe<Scalars['BigInt']['input']>;
+  world_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
+  world_lt?: InputMaybe<Scalars['BigInt']['input']>;
+  world_lte?: InputMaybe<Scalars['BigInt']['input']>;
+  world_not?: InputMaybe<Scalars['BigInt']['input']>;
+  world_not_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
+};
+
+export enum DecoratedBanny_OrderBy {
+  backside = 'backside',
+  fist = 'fist',
+  glasses = 'glasses',
+  head = 'head',
+  headTop = 'headTop',
+  id = 'id',
+  legs = 'legs',
+  mouth = 'mouth',
+  naked = 'naked',
+  necklace = 'necklace',
+  nft = 'nft',
+  nft__category = 'nft__category',
+  nft__id = 'nft__id',
+  nft__projectId = 'nft__projectId',
+  nft__tokenId = 'nft__tokenId',
+  nft__tokenUri = 'nft__tokenUri',
+  suit = 'suit',
+  suitBottom = 'suitBottom',
+  suitTop = 'suitTop',
+  topping = 'topping',
+  world = 'world'
 }
 
 export type DeployEtherc20ProjectPayerEvent = {
@@ -879,17 +1017,14 @@ export enum DeployEtherc20ProjectPayerEvent_OrderBy {
   project__handle = 'project__handle',
   project__id = 'project__id',
   project__latestFundingCycle = 'project__latestFundingCycle',
-  project__metadataDomain = 'project__metadataDomain',
-  project__metadataUri = 'project__metadataUri',
+  project__metadata = 'project__metadata',
   project__nftsMintedCount = 'project__nftsMintedCount',
   project__owner = 'project__owner',
   project__paymentsCount = 'project__paymentsCount',
   project__projectId = 'project__projectId',
-  project__pv = 'project__pv',
   project__redeemCount = 'project__redeemCount',
   project__redeemVolume = 'project__redeemVolume',
   project__redeemVolumeUSD = 'project__redeemVolumeUSD',
-  project__terminal = 'project__terminal',
   project__tokenSupply = 'project__tokenSupply',
   project__trendingPaymentsCount = 'project__trendingPaymentsCount',
   project__trendingScore = 'project__trendingScore',
@@ -1058,13 +1193,12 @@ export enum DeployEtherc20SplitsPayerEvent_OrderBy {
 }
 
 export type DeployedErc20Event = {
-  address: Maybe<Scalars['Bytes']['output']>;
+  address: Scalars['Bytes']['output'];
   caller: Scalars['Bytes']['output'];
   from: Scalars['Bytes']['output'];
   id: Scalars['ID']['output'];
   project: Project;
   projectId: Scalars['Int']['output'];
-  pv: Scalars['String']['output'];
   symbol: Scalars['String']['output'];
   timestamp: Scalars['Int']['output'];
   txHash: Scalars['Bytes']['output'];
@@ -1142,26 +1276,6 @@ export type DeployedErc20Event_Filter = {
   project_not_starts_with_nocase?: InputMaybe<Scalars['String']['input']>;
   project_starts_with?: InputMaybe<Scalars['String']['input']>;
   project_starts_with_nocase?: InputMaybe<Scalars['String']['input']>;
-  pv?: InputMaybe<Scalars['String']['input']>;
-  pv_contains?: InputMaybe<Scalars['String']['input']>;
-  pv_contains_nocase?: InputMaybe<Scalars['String']['input']>;
-  pv_ends_with?: InputMaybe<Scalars['String']['input']>;
-  pv_ends_with_nocase?: InputMaybe<Scalars['String']['input']>;
-  pv_gt?: InputMaybe<Scalars['String']['input']>;
-  pv_gte?: InputMaybe<Scalars['String']['input']>;
-  pv_in?: InputMaybe<Array<Scalars['String']['input']>>;
-  pv_lt?: InputMaybe<Scalars['String']['input']>;
-  pv_lte?: InputMaybe<Scalars['String']['input']>;
-  pv_not?: InputMaybe<Scalars['String']['input']>;
-  pv_not_contains?: InputMaybe<Scalars['String']['input']>;
-  pv_not_contains_nocase?: InputMaybe<Scalars['String']['input']>;
-  pv_not_ends_with?: InputMaybe<Scalars['String']['input']>;
-  pv_not_ends_with_nocase?: InputMaybe<Scalars['String']['input']>;
-  pv_not_in?: InputMaybe<Array<Scalars['String']['input']>>;
-  pv_not_starts_with?: InputMaybe<Scalars['String']['input']>;
-  pv_not_starts_with_nocase?: InputMaybe<Scalars['String']['input']>;
-  pv_starts_with?: InputMaybe<Scalars['String']['input']>;
-  pv_starts_with_nocase?: InputMaybe<Scalars['String']['input']>;
   symbol?: InputMaybe<Scalars['String']['input']>;
   symbol_contains?: InputMaybe<Scalars['String']['input']>;
   symbol_contains_nocase?: InputMaybe<Scalars['String']['input']>;
@@ -1218,24 +1332,20 @@ export enum DeployedErc20Event_OrderBy {
   project__handle = 'project__handle',
   project__id = 'project__id',
   project__latestFundingCycle = 'project__latestFundingCycle',
-  project__metadataDomain = 'project__metadataDomain',
-  project__metadataUri = 'project__metadataUri',
+  project__metadata = 'project__metadata',
   project__nftsMintedCount = 'project__nftsMintedCount',
   project__owner = 'project__owner',
   project__paymentsCount = 'project__paymentsCount',
   project__projectId = 'project__projectId',
-  project__pv = 'project__pv',
   project__redeemCount = 'project__redeemCount',
   project__redeemVolume = 'project__redeemVolume',
   project__redeemVolumeUSD = 'project__redeemVolumeUSD',
-  project__terminal = 'project__terminal',
   project__tokenSupply = 'project__tokenSupply',
   project__trendingPaymentsCount = 'project__trendingPaymentsCount',
   project__trendingScore = 'project__trendingScore',
   project__trendingVolume = 'project__trendingVolume',
   project__volume = 'project__volume',
   project__volumeUSD = 'project__volumeUSD',
-  pv = 'pv',
   symbol = 'symbol',
   timestamp = 'timestamp',
   txHash = 'txHash'
@@ -1243,24 +1353,20 @@ export enum DeployedErc20Event_OrderBy {
 
 export type DistributePayoutsEvent = {
   amount: Scalars['BigInt']['output'];
-  amountUSD: Maybe<Scalars['BigInt']['output']>;
+  amountPaidOut: Scalars['BigInt']['output'];
   beneficiary: Scalars['Bytes']['output'];
   beneficiaryDistributionAmount: Scalars['BigInt']['output'];
   beneficiaryDistributionAmountUSD: Maybe<Scalars['BigInt']['output']>;
   caller: Scalars['Bytes']['output'];
-  distributedAmount: Scalars['BigInt']['output'];
-  distributedAmountUSD: Maybe<Scalars['BigInt']['output']>;
   fee: Scalars['BigInt']['output'];
   feeUSD: Maybe<Scalars['BigInt']['output']>;
   from: Scalars['Bytes']['output'];
-  fundingCycleConfiguration: Scalars['BigInt']['output'];
-  fundingCycleNumber: Scalars['Int']['output'];
   id: Scalars['ID']['output'];
-  memo: Maybe<Scalars['String']['output']>;
   project: Project;
   projectId: Scalars['Int']['output'];
+  rulesetCycleNumber: Scalars['BigInt']['output'];
+  rulesetId: Scalars['BigInt']['output'];
   splitDistributions: Array<DistributeToPayoutSplitEvent>;
-  terminal: Scalars['Bytes']['output'];
   timestamp: Scalars['Int']['output'];
   txHash: Scalars['Bytes']['output'];
 };
@@ -1278,14 +1384,14 @@ export type DistributePayoutsEvent_Filter = {
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
   amount?: InputMaybe<Scalars['BigInt']['input']>;
-  amountUSD?: InputMaybe<Scalars['BigInt']['input']>;
-  amountUSD_gt?: InputMaybe<Scalars['BigInt']['input']>;
-  amountUSD_gte?: InputMaybe<Scalars['BigInt']['input']>;
-  amountUSD_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
-  amountUSD_lt?: InputMaybe<Scalars['BigInt']['input']>;
-  amountUSD_lte?: InputMaybe<Scalars['BigInt']['input']>;
-  amountUSD_not?: InputMaybe<Scalars['BigInt']['input']>;
-  amountUSD_not_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
+  amountPaidOut?: InputMaybe<Scalars['BigInt']['input']>;
+  amountPaidOut_gt?: InputMaybe<Scalars['BigInt']['input']>;
+  amountPaidOut_gte?: InputMaybe<Scalars['BigInt']['input']>;
+  amountPaidOut_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
+  amountPaidOut_lt?: InputMaybe<Scalars['BigInt']['input']>;
+  amountPaidOut_lte?: InputMaybe<Scalars['BigInt']['input']>;
+  amountPaidOut_not?: InputMaybe<Scalars['BigInt']['input']>;
+  amountPaidOut_not_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
   amount_gt?: InputMaybe<Scalars['BigInt']['input']>;
   amount_gte?: InputMaybe<Scalars['BigInt']['input']>;
   amount_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
@@ -1330,22 +1436,6 @@ export type DistributePayoutsEvent_Filter = {
   caller_not?: InputMaybe<Scalars['Bytes']['input']>;
   caller_not_contains?: InputMaybe<Scalars['Bytes']['input']>;
   caller_not_in?: InputMaybe<Array<Scalars['Bytes']['input']>>;
-  distributedAmount?: InputMaybe<Scalars['BigInt']['input']>;
-  distributedAmountUSD?: InputMaybe<Scalars['BigInt']['input']>;
-  distributedAmountUSD_gt?: InputMaybe<Scalars['BigInt']['input']>;
-  distributedAmountUSD_gte?: InputMaybe<Scalars['BigInt']['input']>;
-  distributedAmountUSD_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
-  distributedAmountUSD_lt?: InputMaybe<Scalars['BigInt']['input']>;
-  distributedAmountUSD_lte?: InputMaybe<Scalars['BigInt']['input']>;
-  distributedAmountUSD_not?: InputMaybe<Scalars['BigInt']['input']>;
-  distributedAmountUSD_not_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
-  distributedAmount_gt?: InputMaybe<Scalars['BigInt']['input']>;
-  distributedAmount_gte?: InputMaybe<Scalars['BigInt']['input']>;
-  distributedAmount_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
-  distributedAmount_lt?: InputMaybe<Scalars['BigInt']['input']>;
-  distributedAmount_lte?: InputMaybe<Scalars['BigInt']['input']>;
-  distributedAmount_not?: InputMaybe<Scalars['BigInt']['input']>;
-  distributedAmount_not_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
   fee?: InputMaybe<Scalars['BigInt']['input']>;
   feeUSD?: InputMaybe<Scalars['BigInt']['input']>;
   feeUSD_gt?: InputMaybe<Scalars['BigInt']['input']>;
@@ -1372,22 +1462,6 @@ export type DistributePayoutsEvent_Filter = {
   from_not?: InputMaybe<Scalars['Bytes']['input']>;
   from_not_contains?: InputMaybe<Scalars['Bytes']['input']>;
   from_not_in?: InputMaybe<Array<Scalars['Bytes']['input']>>;
-  fundingCycleConfiguration?: InputMaybe<Scalars['BigInt']['input']>;
-  fundingCycleConfiguration_gt?: InputMaybe<Scalars['BigInt']['input']>;
-  fundingCycleConfiguration_gte?: InputMaybe<Scalars['BigInt']['input']>;
-  fundingCycleConfiguration_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
-  fundingCycleConfiguration_lt?: InputMaybe<Scalars['BigInt']['input']>;
-  fundingCycleConfiguration_lte?: InputMaybe<Scalars['BigInt']['input']>;
-  fundingCycleConfiguration_not?: InputMaybe<Scalars['BigInt']['input']>;
-  fundingCycleConfiguration_not_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
-  fundingCycleNumber?: InputMaybe<Scalars['Int']['input']>;
-  fundingCycleNumber_gt?: InputMaybe<Scalars['Int']['input']>;
-  fundingCycleNumber_gte?: InputMaybe<Scalars['Int']['input']>;
-  fundingCycleNumber_in?: InputMaybe<Array<Scalars['Int']['input']>>;
-  fundingCycleNumber_lt?: InputMaybe<Scalars['Int']['input']>;
-  fundingCycleNumber_lte?: InputMaybe<Scalars['Int']['input']>;
-  fundingCycleNumber_not?: InputMaybe<Scalars['Int']['input']>;
-  fundingCycleNumber_not_in?: InputMaybe<Array<Scalars['Int']['input']>>;
   id?: InputMaybe<Scalars['ID']['input']>;
   id_gt?: InputMaybe<Scalars['ID']['input']>;
   id_gte?: InputMaybe<Scalars['ID']['input']>;
@@ -1396,26 +1470,6 @@ export type DistributePayoutsEvent_Filter = {
   id_lte?: InputMaybe<Scalars['ID']['input']>;
   id_not?: InputMaybe<Scalars['ID']['input']>;
   id_not_in?: InputMaybe<Array<Scalars['ID']['input']>>;
-  memo?: InputMaybe<Scalars['String']['input']>;
-  memo_contains?: InputMaybe<Scalars['String']['input']>;
-  memo_contains_nocase?: InputMaybe<Scalars['String']['input']>;
-  memo_ends_with?: InputMaybe<Scalars['String']['input']>;
-  memo_ends_with_nocase?: InputMaybe<Scalars['String']['input']>;
-  memo_gt?: InputMaybe<Scalars['String']['input']>;
-  memo_gte?: InputMaybe<Scalars['String']['input']>;
-  memo_in?: InputMaybe<Array<Scalars['String']['input']>>;
-  memo_lt?: InputMaybe<Scalars['String']['input']>;
-  memo_lte?: InputMaybe<Scalars['String']['input']>;
-  memo_not?: InputMaybe<Scalars['String']['input']>;
-  memo_not_contains?: InputMaybe<Scalars['String']['input']>;
-  memo_not_contains_nocase?: InputMaybe<Scalars['String']['input']>;
-  memo_not_ends_with?: InputMaybe<Scalars['String']['input']>;
-  memo_not_ends_with_nocase?: InputMaybe<Scalars['String']['input']>;
-  memo_not_in?: InputMaybe<Array<Scalars['String']['input']>>;
-  memo_not_starts_with?: InputMaybe<Scalars['String']['input']>;
-  memo_not_starts_with_nocase?: InputMaybe<Scalars['String']['input']>;
-  memo_starts_with?: InputMaybe<Scalars['String']['input']>;
-  memo_starts_with_nocase?: InputMaybe<Scalars['String']['input']>;
   or?: InputMaybe<Array<InputMaybe<DistributePayoutsEvent_Filter>>>;
   project?: InputMaybe<Scalars['String']['input']>;
   projectId?: InputMaybe<Scalars['Int']['input']>;
@@ -1446,17 +1500,23 @@ export type DistributePayoutsEvent_Filter = {
   project_not_starts_with_nocase?: InputMaybe<Scalars['String']['input']>;
   project_starts_with?: InputMaybe<Scalars['String']['input']>;
   project_starts_with_nocase?: InputMaybe<Scalars['String']['input']>;
+  rulesetCycleNumber?: InputMaybe<Scalars['BigInt']['input']>;
+  rulesetCycleNumber_gt?: InputMaybe<Scalars['BigInt']['input']>;
+  rulesetCycleNumber_gte?: InputMaybe<Scalars['BigInt']['input']>;
+  rulesetCycleNumber_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
+  rulesetCycleNumber_lt?: InputMaybe<Scalars['BigInt']['input']>;
+  rulesetCycleNumber_lte?: InputMaybe<Scalars['BigInt']['input']>;
+  rulesetCycleNumber_not?: InputMaybe<Scalars['BigInt']['input']>;
+  rulesetCycleNumber_not_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
+  rulesetId?: InputMaybe<Scalars['BigInt']['input']>;
+  rulesetId_gt?: InputMaybe<Scalars['BigInt']['input']>;
+  rulesetId_gte?: InputMaybe<Scalars['BigInt']['input']>;
+  rulesetId_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
+  rulesetId_lt?: InputMaybe<Scalars['BigInt']['input']>;
+  rulesetId_lte?: InputMaybe<Scalars['BigInt']['input']>;
+  rulesetId_not?: InputMaybe<Scalars['BigInt']['input']>;
+  rulesetId_not_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
   splitDistributions_?: InputMaybe<DistributeToPayoutSplitEvent_Filter>;
-  terminal?: InputMaybe<Scalars['Bytes']['input']>;
-  terminal_contains?: InputMaybe<Scalars['Bytes']['input']>;
-  terminal_gt?: InputMaybe<Scalars['Bytes']['input']>;
-  terminal_gte?: InputMaybe<Scalars['Bytes']['input']>;
-  terminal_in?: InputMaybe<Array<Scalars['Bytes']['input']>>;
-  terminal_lt?: InputMaybe<Scalars['Bytes']['input']>;
-  terminal_lte?: InputMaybe<Scalars['Bytes']['input']>;
-  terminal_not?: InputMaybe<Scalars['Bytes']['input']>;
-  terminal_not_contains?: InputMaybe<Scalars['Bytes']['input']>;
-  terminal_not_in?: InputMaybe<Array<Scalars['Bytes']['input']>>;
   timestamp?: InputMaybe<Scalars['Int']['input']>;
   timestamp_gt?: InputMaybe<Scalars['Int']['input']>;
   timestamp_gte?: InputMaybe<Scalars['Int']['input']>;
@@ -1479,20 +1539,15 @@ export type DistributePayoutsEvent_Filter = {
 
 export enum DistributePayoutsEvent_OrderBy {
   amount = 'amount',
-  amountUSD = 'amountUSD',
+  amountPaidOut = 'amountPaidOut',
   beneficiary = 'beneficiary',
   beneficiaryDistributionAmount = 'beneficiaryDistributionAmount',
   beneficiaryDistributionAmountUSD = 'beneficiaryDistributionAmountUSD',
   caller = 'caller',
-  distributedAmount = 'distributedAmount',
-  distributedAmountUSD = 'distributedAmountUSD',
   fee = 'fee',
   feeUSD = 'feeUSD',
   from = 'from',
-  fundingCycleConfiguration = 'fundingCycleConfiguration',
-  fundingCycleNumber = 'fundingCycleNumber',
   id = 'id',
-  memo = 'memo',
   project = 'project',
   projectId = 'projectId',
   project__contributorsCount = 'project__contributorsCount',
@@ -1504,25 +1559,23 @@ export enum DistributePayoutsEvent_OrderBy {
   project__handle = 'project__handle',
   project__id = 'project__id',
   project__latestFundingCycle = 'project__latestFundingCycle',
-  project__metadataDomain = 'project__metadataDomain',
-  project__metadataUri = 'project__metadataUri',
+  project__metadata = 'project__metadata',
   project__nftsMintedCount = 'project__nftsMintedCount',
   project__owner = 'project__owner',
   project__paymentsCount = 'project__paymentsCount',
   project__projectId = 'project__projectId',
-  project__pv = 'project__pv',
   project__redeemCount = 'project__redeemCount',
   project__redeemVolume = 'project__redeemVolume',
   project__redeemVolumeUSD = 'project__redeemVolumeUSD',
-  project__terminal = 'project__terminal',
   project__tokenSupply = 'project__tokenSupply',
   project__trendingPaymentsCount = 'project__trendingPaymentsCount',
   project__trendingScore = 'project__trendingScore',
   project__trendingVolume = 'project__trendingVolume',
   project__volume = 'project__volume',
   project__volumeUSD = 'project__volumeUSD',
+  rulesetCycleNumber = 'rulesetCycleNumber',
+  rulesetId = 'rulesetId',
   splitDistributions = 'splitDistributions',
-  terminal = 'terminal',
   timestamp = 'timestamp',
   txHash = 'txHash'
 }
@@ -1534,7 +1587,6 @@ export type DistributeReservedTokensEvent = {
   from: Scalars['Bytes']['output'];
   fundingCycleNumber: Scalars['Int']['output'];
   id: Scalars['ID']['output'];
-  memo: Scalars['String']['output'];
   project: Project;
   projectId: Scalars['Int']['output'];
   splitDistributions: Array<DistributeToReservedTokenSplitEvent>;
@@ -1610,26 +1662,6 @@ export type DistributeReservedTokensEvent_Filter = {
   id_lte?: InputMaybe<Scalars['ID']['input']>;
   id_not?: InputMaybe<Scalars['ID']['input']>;
   id_not_in?: InputMaybe<Array<Scalars['ID']['input']>>;
-  memo?: InputMaybe<Scalars['String']['input']>;
-  memo_contains?: InputMaybe<Scalars['String']['input']>;
-  memo_contains_nocase?: InputMaybe<Scalars['String']['input']>;
-  memo_ends_with?: InputMaybe<Scalars['String']['input']>;
-  memo_ends_with_nocase?: InputMaybe<Scalars['String']['input']>;
-  memo_gt?: InputMaybe<Scalars['String']['input']>;
-  memo_gte?: InputMaybe<Scalars['String']['input']>;
-  memo_in?: InputMaybe<Array<Scalars['String']['input']>>;
-  memo_lt?: InputMaybe<Scalars['String']['input']>;
-  memo_lte?: InputMaybe<Scalars['String']['input']>;
-  memo_not?: InputMaybe<Scalars['String']['input']>;
-  memo_not_contains?: InputMaybe<Scalars['String']['input']>;
-  memo_not_contains_nocase?: InputMaybe<Scalars['String']['input']>;
-  memo_not_ends_with?: InputMaybe<Scalars['String']['input']>;
-  memo_not_ends_with_nocase?: InputMaybe<Scalars['String']['input']>;
-  memo_not_in?: InputMaybe<Array<Scalars['String']['input']>>;
-  memo_not_starts_with?: InputMaybe<Scalars['String']['input']>;
-  memo_not_starts_with_nocase?: InputMaybe<Scalars['String']['input']>;
-  memo_starts_with?: InputMaybe<Scalars['String']['input']>;
-  memo_starts_with_nocase?: InputMaybe<Scalars['String']['input']>;
   or?: InputMaybe<Array<InputMaybe<DistributeReservedTokensEvent_Filter>>>;
   project?: InputMaybe<Scalars['String']['input']>;
   projectId?: InputMaybe<Scalars['Int']['input']>;
@@ -1696,7 +1728,6 @@ export enum DistributeReservedTokensEvent_OrderBy {
   from = 'from',
   fundingCycleNumber = 'fundingCycleNumber',
   id = 'id',
-  memo = 'memo',
   project = 'project',
   projectId = 'projectId',
   project__contributorsCount = 'project__contributorsCount',
@@ -1708,17 +1739,14 @@ export enum DistributeReservedTokensEvent_OrderBy {
   project__handle = 'project__handle',
   project__id = 'project__id',
   project__latestFundingCycle = 'project__latestFundingCycle',
-  project__metadataDomain = 'project__metadataDomain',
-  project__metadataUri = 'project__metadataUri',
+  project__metadata = 'project__metadata',
   project__nftsMintedCount = 'project__nftsMintedCount',
   project__owner = 'project__owner',
   project__paymentsCount = 'project__paymentsCount',
   project__projectId = 'project__projectId',
-  project__pv = 'project__pv',
   project__redeemCount = 'project__redeemCount',
   project__redeemVolume = 'project__redeemVolume',
   project__redeemVolumeUSD = 'project__redeemVolumeUSD',
-  project__terminal = 'project__terminal',
   project__tokenSupply = 'project__tokenSupply',
   project__trendingPaymentsCount = 'project__trendingPaymentsCount',
   project__trendingScore = 'project__trendingScore',
@@ -1930,17 +1958,14 @@ export enum DistributeToPayoutModEvent_OrderBy {
   project__handle = 'project__handle',
   project__id = 'project__id',
   project__latestFundingCycle = 'project__latestFundingCycle',
-  project__metadataDomain = 'project__metadataDomain',
-  project__metadataUri = 'project__metadataUri',
+  project__metadata = 'project__metadata',
   project__nftsMintedCount = 'project__nftsMintedCount',
   project__owner = 'project__owner',
   project__paymentsCount = 'project__paymentsCount',
   project__projectId = 'project__projectId',
-  project__pv = 'project__pv',
   project__redeemCount = 'project__redeemCount',
   project__redeemVolume = 'project__redeemVolume',
   project__redeemVolumeUSD = 'project__redeemVolumeUSD',
-  project__terminal = 'project__terminal',
   project__tokenSupply = 'project__tokenSupply',
   project__trendingPaymentsCount = 'project__trendingPaymentsCount',
   project__trendingScore = 'project__trendingScore',
@@ -1970,24 +1995,18 @@ export enum DistributeToPayoutModEvent_OrderBy {
 }
 
 export type DistributeToPayoutSplitEvent = {
-  allocator: Scalars['Bytes']['output'];
   amount: Scalars['BigInt']['output'];
-  amountUSD: Maybe<Scalars['BigInt']['output']>;
   beneficiary: Scalars['Bytes']['output'];
   caller: Scalars['Bytes']['output'];
   distributePayoutsEvent: DistributePayoutsEvent;
-  domain: Scalars['BigInt']['output'];
   from: Scalars['Bytes']['output'];
-  group: Scalars['BigInt']['output'];
   id: Scalars['ID']['output'];
   lockedUntil: Scalars['Int']['output'];
   percent: Scalars['Int']['output'];
   preferAddToBalance: Scalars['Boolean']['output'];
-  preferClaimed: Scalars['Boolean']['output'];
   project: Project;
   projectId: Scalars['Int']['output'];
   splitProjectId: Scalars['Int']['output'];
-  terminal: Scalars['Bytes']['output'];
   timestamp: Scalars['Int']['output'];
   txHash: Scalars['Bytes']['output'];
 };
@@ -1995,25 +2014,7 @@ export type DistributeToPayoutSplitEvent = {
 export type DistributeToPayoutSplitEvent_Filter = {
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
-  allocator?: InputMaybe<Scalars['Bytes']['input']>;
-  allocator_contains?: InputMaybe<Scalars['Bytes']['input']>;
-  allocator_gt?: InputMaybe<Scalars['Bytes']['input']>;
-  allocator_gte?: InputMaybe<Scalars['Bytes']['input']>;
-  allocator_in?: InputMaybe<Array<Scalars['Bytes']['input']>>;
-  allocator_lt?: InputMaybe<Scalars['Bytes']['input']>;
-  allocator_lte?: InputMaybe<Scalars['Bytes']['input']>;
-  allocator_not?: InputMaybe<Scalars['Bytes']['input']>;
-  allocator_not_contains?: InputMaybe<Scalars['Bytes']['input']>;
-  allocator_not_in?: InputMaybe<Array<Scalars['Bytes']['input']>>;
   amount?: InputMaybe<Scalars['BigInt']['input']>;
-  amountUSD?: InputMaybe<Scalars['BigInt']['input']>;
-  amountUSD_gt?: InputMaybe<Scalars['BigInt']['input']>;
-  amountUSD_gte?: InputMaybe<Scalars['BigInt']['input']>;
-  amountUSD_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
-  amountUSD_lt?: InputMaybe<Scalars['BigInt']['input']>;
-  amountUSD_lte?: InputMaybe<Scalars['BigInt']['input']>;
-  amountUSD_not?: InputMaybe<Scalars['BigInt']['input']>;
-  amountUSD_not_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
   amount_gt?: InputMaybe<Scalars['BigInt']['input']>;
   amount_gte?: InputMaybe<Scalars['BigInt']['input']>;
   amount_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
@@ -2063,14 +2064,6 @@ export type DistributeToPayoutSplitEvent_Filter = {
   distributePayoutsEvent_not_starts_with_nocase?: InputMaybe<Scalars['String']['input']>;
   distributePayoutsEvent_starts_with?: InputMaybe<Scalars['String']['input']>;
   distributePayoutsEvent_starts_with_nocase?: InputMaybe<Scalars['String']['input']>;
-  domain?: InputMaybe<Scalars['BigInt']['input']>;
-  domain_gt?: InputMaybe<Scalars['BigInt']['input']>;
-  domain_gte?: InputMaybe<Scalars['BigInt']['input']>;
-  domain_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
-  domain_lt?: InputMaybe<Scalars['BigInt']['input']>;
-  domain_lte?: InputMaybe<Scalars['BigInt']['input']>;
-  domain_not?: InputMaybe<Scalars['BigInt']['input']>;
-  domain_not_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
   from?: InputMaybe<Scalars['Bytes']['input']>;
   from_contains?: InputMaybe<Scalars['Bytes']['input']>;
   from_gt?: InputMaybe<Scalars['Bytes']['input']>;
@@ -2081,14 +2074,6 @@ export type DistributeToPayoutSplitEvent_Filter = {
   from_not?: InputMaybe<Scalars['Bytes']['input']>;
   from_not_contains?: InputMaybe<Scalars['Bytes']['input']>;
   from_not_in?: InputMaybe<Array<Scalars['Bytes']['input']>>;
-  group?: InputMaybe<Scalars['BigInt']['input']>;
-  group_gt?: InputMaybe<Scalars['BigInt']['input']>;
-  group_gte?: InputMaybe<Scalars['BigInt']['input']>;
-  group_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
-  group_lt?: InputMaybe<Scalars['BigInt']['input']>;
-  group_lte?: InputMaybe<Scalars['BigInt']['input']>;
-  group_not?: InputMaybe<Scalars['BigInt']['input']>;
-  group_not_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
   id?: InputMaybe<Scalars['ID']['input']>;
   id_gt?: InputMaybe<Scalars['ID']['input']>;
   id_gte?: InputMaybe<Scalars['ID']['input']>;
@@ -2118,10 +2103,6 @@ export type DistributeToPayoutSplitEvent_Filter = {
   preferAddToBalance_in?: InputMaybe<Array<Scalars['Boolean']['input']>>;
   preferAddToBalance_not?: InputMaybe<Scalars['Boolean']['input']>;
   preferAddToBalance_not_in?: InputMaybe<Array<Scalars['Boolean']['input']>>;
-  preferClaimed?: InputMaybe<Scalars['Boolean']['input']>;
-  preferClaimed_in?: InputMaybe<Array<Scalars['Boolean']['input']>>;
-  preferClaimed_not?: InputMaybe<Scalars['Boolean']['input']>;
-  preferClaimed_not_in?: InputMaybe<Array<Scalars['Boolean']['input']>>;
   project?: InputMaybe<Scalars['String']['input']>;
   projectId?: InputMaybe<Scalars['Int']['input']>;
   projectId_gt?: InputMaybe<Scalars['Int']['input']>;
@@ -2159,16 +2140,6 @@ export type DistributeToPayoutSplitEvent_Filter = {
   splitProjectId_lte?: InputMaybe<Scalars['Int']['input']>;
   splitProjectId_not?: InputMaybe<Scalars['Int']['input']>;
   splitProjectId_not_in?: InputMaybe<Array<Scalars['Int']['input']>>;
-  terminal?: InputMaybe<Scalars['Bytes']['input']>;
-  terminal_contains?: InputMaybe<Scalars['Bytes']['input']>;
-  terminal_gt?: InputMaybe<Scalars['Bytes']['input']>;
-  terminal_gte?: InputMaybe<Scalars['Bytes']['input']>;
-  terminal_in?: InputMaybe<Array<Scalars['Bytes']['input']>>;
-  terminal_lt?: InputMaybe<Scalars['Bytes']['input']>;
-  terminal_lte?: InputMaybe<Scalars['Bytes']['input']>;
-  terminal_not?: InputMaybe<Scalars['Bytes']['input']>;
-  terminal_not_contains?: InputMaybe<Scalars['Bytes']['input']>;
-  terminal_not_in?: InputMaybe<Array<Scalars['Bytes']['input']>>;
   timestamp?: InputMaybe<Scalars['Int']['input']>;
   timestamp_gt?: InputMaybe<Scalars['Int']['input']>;
   timestamp_gte?: InputMaybe<Scalars['Int']['input']>;
@@ -2190,39 +2161,30 @@ export type DistributeToPayoutSplitEvent_Filter = {
 };
 
 export enum DistributeToPayoutSplitEvent_OrderBy {
-  allocator = 'allocator',
   amount = 'amount',
-  amountUSD = 'amountUSD',
   beneficiary = 'beneficiary',
   caller = 'caller',
   distributePayoutsEvent = 'distributePayoutsEvent',
   distributePayoutsEvent__amount = 'distributePayoutsEvent__amount',
-  distributePayoutsEvent__amountUSD = 'distributePayoutsEvent__amountUSD',
+  distributePayoutsEvent__amountPaidOut = 'distributePayoutsEvent__amountPaidOut',
   distributePayoutsEvent__beneficiary = 'distributePayoutsEvent__beneficiary',
   distributePayoutsEvent__beneficiaryDistributionAmount = 'distributePayoutsEvent__beneficiaryDistributionAmount',
   distributePayoutsEvent__beneficiaryDistributionAmountUSD = 'distributePayoutsEvent__beneficiaryDistributionAmountUSD',
   distributePayoutsEvent__caller = 'distributePayoutsEvent__caller',
-  distributePayoutsEvent__distributedAmount = 'distributePayoutsEvent__distributedAmount',
-  distributePayoutsEvent__distributedAmountUSD = 'distributePayoutsEvent__distributedAmountUSD',
   distributePayoutsEvent__fee = 'distributePayoutsEvent__fee',
   distributePayoutsEvent__feeUSD = 'distributePayoutsEvent__feeUSD',
   distributePayoutsEvent__from = 'distributePayoutsEvent__from',
-  distributePayoutsEvent__fundingCycleConfiguration = 'distributePayoutsEvent__fundingCycleConfiguration',
-  distributePayoutsEvent__fundingCycleNumber = 'distributePayoutsEvent__fundingCycleNumber',
   distributePayoutsEvent__id = 'distributePayoutsEvent__id',
-  distributePayoutsEvent__memo = 'distributePayoutsEvent__memo',
   distributePayoutsEvent__projectId = 'distributePayoutsEvent__projectId',
-  distributePayoutsEvent__terminal = 'distributePayoutsEvent__terminal',
+  distributePayoutsEvent__rulesetCycleNumber = 'distributePayoutsEvent__rulesetCycleNumber',
+  distributePayoutsEvent__rulesetId = 'distributePayoutsEvent__rulesetId',
   distributePayoutsEvent__timestamp = 'distributePayoutsEvent__timestamp',
   distributePayoutsEvent__txHash = 'distributePayoutsEvent__txHash',
-  domain = 'domain',
   from = 'from',
-  group = 'group',
   id = 'id',
   lockedUntil = 'lockedUntil',
   percent = 'percent',
   preferAddToBalance = 'preferAddToBalance',
-  preferClaimed = 'preferClaimed',
   project = 'project',
   projectId = 'projectId',
   project__contributorsCount = 'project__contributorsCount',
@@ -2234,17 +2196,14 @@ export enum DistributeToPayoutSplitEvent_OrderBy {
   project__handle = 'project__handle',
   project__id = 'project__id',
   project__latestFundingCycle = 'project__latestFundingCycle',
-  project__metadataDomain = 'project__metadataDomain',
-  project__metadataUri = 'project__metadataUri',
+  project__metadata = 'project__metadata',
   project__nftsMintedCount = 'project__nftsMintedCount',
   project__owner = 'project__owner',
   project__paymentsCount = 'project__paymentsCount',
   project__projectId = 'project__projectId',
-  project__pv = 'project__pv',
   project__redeemCount = 'project__redeemCount',
   project__redeemVolume = 'project__redeemVolume',
   project__redeemVolumeUSD = 'project__redeemVolumeUSD',
-  project__terminal = 'project__terminal',
   project__tokenSupply = 'project__tokenSupply',
   project__trendingPaymentsCount = 'project__trendingPaymentsCount',
   project__trendingScore = 'project__trendingScore',
@@ -2252,13 +2211,11 @@ export enum DistributeToPayoutSplitEvent_OrderBy {
   project__volume = 'project__volume',
   project__volumeUSD = 'project__volumeUSD',
   splitProjectId = 'splitProjectId',
-  terminal = 'terminal',
   timestamp = 'timestamp',
   txHash = 'txHash'
 }
 
 export type DistributeToReservedTokenSplitEvent = {
-  allocator: Scalars['Bytes']['output'];
   beneficiary: Scalars['Bytes']['output'];
   caller: Scalars['Bytes']['output'];
   distributeReservedTokensEvent: DistributeReservedTokensEvent;
@@ -2266,7 +2223,7 @@ export type DistributeToReservedTokenSplitEvent = {
   id: Scalars['ID']['output'];
   lockedUntil: Scalars['Int']['output'];
   percent: Scalars['Int']['output'];
-  preferClaimed: Scalars['Boolean']['output'];
+  preferAddToBalance: Scalars['Boolean']['output'];
   project: Project;
   projectId: Scalars['Int']['output'];
   splitProjectId: Scalars['Int']['output'];
@@ -2278,16 +2235,6 @@ export type DistributeToReservedTokenSplitEvent = {
 export type DistributeToReservedTokenSplitEvent_Filter = {
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
-  allocator?: InputMaybe<Scalars['Bytes']['input']>;
-  allocator_contains?: InputMaybe<Scalars['Bytes']['input']>;
-  allocator_gt?: InputMaybe<Scalars['Bytes']['input']>;
-  allocator_gte?: InputMaybe<Scalars['Bytes']['input']>;
-  allocator_in?: InputMaybe<Array<Scalars['Bytes']['input']>>;
-  allocator_lt?: InputMaybe<Scalars['Bytes']['input']>;
-  allocator_lte?: InputMaybe<Scalars['Bytes']['input']>;
-  allocator_not?: InputMaybe<Scalars['Bytes']['input']>;
-  allocator_not_contains?: InputMaybe<Scalars['Bytes']['input']>;
-  allocator_not_in?: InputMaybe<Array<Scalars['Bytes']['input']>>;
   and?: InputMaybe<Array<InputMaybe<DistributeToReservedTokenSplitEvent_Filter>>>;
   beneficiary?: InputMaybe<Scalars['Bytes']['input']>;
   beneficiary_contains?: InputMaybe<Scalars['Bytes']['input']>;
@@ -2365,10 +2312,10 @@ export type DistributeToReservedTokenSplitEvent_Filter = {
   percent_lte?: InputMaybe<Scalars['Int']['input']>;
   percent_not?: InputMaybe<Scalars['Int']['input']>;
   percent_not_in?: InputMaybe<Array<Scalars['Int']['input']>>;
-  preferClaimed?: InputMaybe<Scalars['Boolean']['input']>;
-  preferClaimed_in?: InputMaybe<Array<Scalars['Boolean']['input']>>;
-  preferClaimed_not?: InputMaybe<Scalars['Boolean']['input']>;
-  preferClaimed_not_in?: InputMaybe<Array<Scalars['Boolean']['input']>>;
+  preferAddToBalance?: InputMaybe<Scalars['Boolean']['input']>;
+  preferAddToBalance_in?: InputMaybe<Array<Scalars['Boolean']['input']>>;
+  preferAddToBalance_not?: InputMaybe<Scalars['Boolean']['input']>;
+  preferAddToBalance_not_in?: InputMaybe<Array<Scalars['Boolean']['input']>>;
   project?: InputMaybe<Scalars['String']['input']>;
   projectId?: InputMaybe<Scalars['Int']['input']>;
   projectId_gt?: InputMaybe<Scalars['Int']['input']>;
@@ -2435,7 +2382,6 @@ export type DistributeToReservedTokenSplitEvent_Filter = {
 };
 
 export enum DistributeToReservedTokenSplitEvent_OrderBy {
-  allocator = 'allocator',
   beneficiary = 'beneficiary',
   caller = 'caller',
   distributeReservedTokensEvent = 'distributeReservedTokensEvent',
@@ -2445,7 +2391,6 @@ export enum DistributeToReservedTokenSplitEvent_OrderBy {
   distributeReservedTokensEvent__from = 'distributeReservedTokensEvent__from',
   distributeReservedTokensEvent__fundingCycleNumber = 'distributeReservedTokensEvent__fundingCycleNumber',
   distributeReservedTokensEvent__id = 'distributeReservedTokensEvent__id',
-  distributeReservedTokensEvent__memo = 'distributeReservedTokensEvent__memo',
   distributeReservedTokensEvent__projectId = 'distributeReservedTokensEvent__projectId',
   distributeReservedTokensEvent__timestamp = 'distributeReservedTokensEvent__timestamp',
   distributeReservedTokensEvent__tokenCount = 'distributeReservedTokensEvent__tokenCount',
@@ -2454,7 +2399,7 @@ export enum DistributeToReservedTokenSplitEvent_OrderBy {
   id = 'id',
   lockedUntil = 'lockedUntil',
   percent = 'percent',
-  preferClaimed = 'preferClaimed',
+  preferAddToBalance = 'preferAddToBalance',
   project = 'project',
   projectId = 'projectId',
   project__contributorsCount = 'project__contributorsCount',
@@ -2466,17 +2411,14 @@ export enum DistributeToReservedTokenSplitEvent_OrderBy {
   project__handle = 'project__handle',
   project__id = 'project__id',
   project__latestFundingCycle = 'project__latestFundingCycle',
-  project__metadataDomain = 'project__metadataDomain',
-  project__metadataUri = 'project__metadataUri',
+  project__metadata = 'project__metadata',
   project__nftsMintedCount = 'project__nftsMintedCount',
   project__owner = 'project__owner',
   project__paymentsCount = 'project__paymentsCount',
   project__projectId = 'project__projectId',
-  project__pv = 'project__pv',
   project__redeemCount = 'project__redeemCount',
   project__redeemVolume = 'project__redeemVolume',
   project__redeemVolumeUSD = 'project__redeemVolumeUSD',
-  project__terminal = 'project__terminal',
   project__tokenSupply = 'project__tokenSupply',
   project__trendingPaymentsCount = 'project__trendingPaymentsCount',
   project__trendingScore = 'project__trendingScore',
@@ -2667,17 +2609,14 @@ export enum DistributeToTicketModEvent_OrderBy {
   project__handle = 'project__handle',
   project__id = 'project__id',
   project__latestFundingCycle = 'project__latestFundingCycle',
-  project__metadataDomain = 'project__metadataDomain',
-  project__metadataUri = 'project__metadataUri',
+  project__metadata = 'project__metadata',
   project__nftsMintedCount = 'project__nftsMintedCount',
   project__owner = 'project__owner',
   project__paymentsCount = 'project__paymentsCount',
   project__projectId = 'project__projectId',
-  project__pv = 'project__pv',
   project__redeemCount = 'project__redeemCount',
   project__redeemVolume = 'project__redeemVolume',
   project__redeemVolumeUSD = 'project__redeemVolumeUSD',
-  project__terminal = 'project__terminal',
   project__tokenSupply = 'project__tokenSupply',
   project__trendingPaymentsCount = 'project__trendingPaymentsCount',
   project__trendingScore = 'project__trendingScore',
@@ -2878,17 +2817,14 @@ export enum Etherc20ProjectPayer_OrderBy {
   project__handle = 'project__handle',
   project__id = 'project__id',
   project__latestFundingCycle = 'project__latestFundingCycle',
-  project__metadataDomain = 'project__metadataDomain',
-  project__metadataUri = 'project__metadataUri',
+  project__metadata = 'project__metadata',
   project__nftsMintedCount = 'project__nftsMintedCount',
   project__owner = 'project__owner',
   project__paymentsCount = 'project__paymentsCount',
   project__projectId = 'project__projectId',
-  project__pv = 'project__pv',
   project__redeemCount = 'project__redeemCount',
   project__redeemVolume = 'project__redeemVolume',
   project__redeemVolumeUSD = 'project__redeemVolumeUSD',
-  project__terminal = 'project__terminal',
   project__tokenSupply = 'project__tokenSupply',
   project__trendingPaymentsCount = 'project__trendingPaymentsCount',
   project__trendingScore = 'project__trendingScore',
@@ -3391,17 +3327,14 @@ export enum FundingCycle_OrderBy {
   project__handle = 'project__handle',
   project__id = 'project__id',
   project__latestFundingCycle = 'project__latestFundingCycle',
-  project__metadataDomain = 'project__metadataDomain',
-  project__metadataUri = 'project__metadataUri',
+  project__metadata = 'project__metadata',
   project__nftsMintedCount = 'project__nftsMintedCount',
   project__owner = 'project__owner',
   project__paymentsCount = 'project__paymentsCount',
   project__projectId = 'project__projectId',
-  project__pv = 'project__pv',
   project__redeemCount = 'project__redeemCount',
   project__redeemVolume = 'project__redeemVolume',
   project__redeemVolumeUSD = 'project__redeemVolumeUSD',
-  project__terminal = 'project__terminal',
   project__tokenSupply = 'project__tokenSupply',
   project__trendingPaymentsCount = 'project__trendingPaymentsCount',
   project__trendingScore = 'project__trendingScore',
@@ -3539,17 +3472,14 @@ export enum InitEvent_OrderBy {
   project__handle = 'project__handle',
   project__id = 'project__id',
   project__latestFundingCycle = 'project__latestFundingCycle',
-  project__metadataDomain = 'project__metadataDomain',
-  project__metadataUri = 'project__metadataUri',
+  project__metadata = 'project__metadata',
   project__nftsMintedCount = 'project__nftsMintedCount',
   project__owner = 'project__owner',
   project__paymentsCount = 'project__paymentsCount',
   project__projectId = 'project__projectId',
-  project__pv = 'project__pv',
   project__redeemCount = 'project__redeemCount',
   project__redeemVolume = 'project__redeemVolume',
   project__redeemVolumeUSD = 'project__redeemVolumeUSD',
-  project__terminal = 'project__terminal',
   project__tokenSupply = 'project__tokenSupply',
   project__trendingPaymentsCount = 'project__trendingPaymentsCount',
   project__trendingScore = 'project__trendingScore',
@@ -3688,17 +3618,14 @@ export enum MigrateEvent_OrderBy {
   project__handle = 'project__handle',
   project__id = 'project__id',
   project__latestFundingCycle = 'project__latestFundingCycle',
-  project__metadataDomain = 'project__metadataDomain',
-  project__metadataUri = 'project__metadataUri',
+  project__metadata = 'project__metadata',
   project__nftsMintedCount = 'project__nftsMintedCount',
   project__owner = 'project__owner',
   project__paymentsCount = 'project__paymentsCount',
   project__projectId = 'project__projectId',
-  project__pv = 'project__pv',
   project__redeemCount = 'project__redeemCount',
   project__redeemVolume = 'project__redeemVolume',
   project__redeemVolumeUSD = 'project__redeemVolumeUSD',
-  project__terminal = 'project__terminal',
   project__tokenSupply = 'project__tokenSupply',
   project__trendingPaymentsCount = 'project__trendingPaymentsCount',
   project__trendingScore = 'project__trendingScore',
@@ -3719,7 +3646,6 @@ export type MintTokensEvent = {
   memo: Scalars['String']['output'];
   project: Project;
   projectId: Scalars['Int']['output'];
-  pv: Scalars['String']['output'];
   timestamp: Scalars['Int']['output'];
   txHash: Scalars['Bytes']['output'];
 };
@@ -3824,26 +3750,6 @@ export type MintTokensEvent_Filter = {
   project_not_starts_with_nocase?: InputMaybe<Scalars['String']['input']>;
   project_starts_with?: InputMaybe<Scalars['String']['input']>;
   project_starts_with_nocase?: InputMaybe<Scalars['String']['input']>;
-  pv?: InputMaybe<Scalars['String']['input']>;
-  pv_contains?: InputMaybe<Scalars['String']['input']>;
-  pv_contains_nocase?: InputMaybe<Scalars['String']['input']>;
-  pv_ends_with?: InputMaybe<Scalars['String']['input']>;
-  pv_ends_with_nocase?: InputMaybe<Scalars['String']['input']>;
-  pv_gt?: InputMaybe<Scalars['String']['input']>;
-  pv_gte?: InputMaybe<Scalars['String']['input']>;
-  pv_in?: InputMaybe<Array<Scalars['String']['input']>>;
-  pv_lt?: InputMaybe<Scalars['String']['input']>;
-  pv_lte?: InputMaybe<Scalars['String']['input']>;
-  pv_not?: InputMaybe<Scalars['String']['input']>;
-  pv_not_contains?: InputMaybe<Scalars['String']['input']>;
-  pv_not_contains_nocase?: InputMaybe<Scalars['String']['input']>;
-  pv_not_ends_with?: InputMaybe<Scalars['String']['input']>;
-  pv_not_ends_with_nocase?: InputMaybe<Scalars['String']['input']>;
-  pv_not_in?: InputMaybe<Array<Scalars['String']['input']>>;
-  pv_not_starts_with?: InputMaybe<Scalars['String']['input']>;
-  pv_not_starts_with_nocase?: InputMaybe<Scalars['String']['input']>;
-  pv_starts_with?: InputMaybe<Scalars['String']['input']>;
-  pv_starts_with_nocase?: InputMaybe<Scalars['String']['input']>;
   timestamp?: InputMaybe<Scalars['Int']['input']>;
   timestamp_gt?: InputMaybe<Scalars['Int']['input']>;
   timestamp_gte?: InputMaybe<Scalars['Int']['input']>;
@@ -3882,29 +3788,26 @@ export enum MintTokensEvent_OrderBy {
   project__handle = 'project__handle',
   project__id = 'project__id',
   project__latestFundingCycle = 'project__latestFundingCycle',
-  project__metadataDomain = 'project__metadataDomain',
-  project__metadataUri = 'project__metadataUri',
+  project__metadata = 'project__metadata',
   project__nftsMintedCount = 'project__nftsMintedCount',
   project__owner = 'project__owner',
   project__paymentsCount = 'project__paymentsCount',
   project__projectId = 'project__projectId',
-  project__pv = 'project__pv',
   project__redeemCount = 'project__redeemCount',
   project__redeemVolume = 'project__redeemVolume',
   project__redeemVolumeUSD = 'project__redeemVolumeUSD',
-  project__terminal = 'project__terminal',
   project__tokenSupply = 'project__tokenSupply',
   project__trendingPaymentsCount = 'project__trendingPaymentsCount',
   project__trendingScore = 'project__trendingScore',
   project__trendingVolume = 'project__trendingVolume',
   project__volume = 'project__volume',
   project__volumeUSD = 'project__volumeUSD',
-  pv = 'pv',
   timestamp = 'timestamp',
   txHash = 'txHash'
 }
 
 export type Nft = {
+  category: Scalars['BigInt']['output'];
   collection: NftCollection;
   id: Scalars['ID']['output'];
   owner: Participant;
@@ -3918,7 +3821,6 @@ export type Nft = {
 export type NftCollection = {
   address: Scalars['Bytes']['output'];
   createdAt: Scalars['Int']['output'];
-  governanceType: Scalars['Int']['output'];
   id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
   nfts: Array<Nft>;
@@ -3968,14 +3870,6 @@ export type NftCollection_Filter = {
   createdAt_lte?: InputMaybe<Scalars['Int']['input']>;
   createdAt_not?: InputMaybe<Scalars['Int']['input']>;
   createdAt_not_in?: InputMaybe<Array<Scalars['Int']['input']>>;
-  governanceType?: InputMaybe<Scalars['Int']['input']>;
-  governanceType_gt?: InputMaybe<Scalars['Int']['input']>;
-  governanceType_gte?: InputMaybe<Scalars['Int']['input']>;
-  governanceType_in?: InputMaybe<Array<Scalars['Int']['input']>>;
-  governanceType_lt?: InputMaybe<Scalars['Int']['input']>;
-  governanceType_lte?: InputMaybe<Scalars['Int']['input']>;
-  governanceType_not?: InputMaybe<Scalars['Int']['input']>;
-  governanceType_not_in?: InputMaybe<Array<Scalars['Int']['input']>>;
   id?: InputMaybe<Scalars['ID']['input']>;
   id_gt?: InputMaybe<Scalars['ID']['input']>;
   id_gte?: InputMaybe<Scalars['ID']['input']>;
@@ -4061,7 +3955,6 @@ export type NftCollection_Filter = {
 export enum NftCollection_OrderBy {
   address = 'address',
   createdAt = 'createdAt',
-  governanceType = 'governanceType',
   id = 'id',
   name = 'name',
   nfts = 'nfts',
@@ -4076,17 +3969,14 @@ export enum NftCollection_OrderBy {
   project__handle = 'project__handle',
   project__id = 'project__id',
   project__latestFundingCycle = 'project__latestFundingCycle',
-  project__metadataDomain = 'project__metadataDomain',
-  project__metadataUri = 'project__metadataUri',
+  project__metadata = 'project__metadata',
   project__nftsMintedCount = 'project__nftsMintedCount',
   project__owner = 'project__owner',
   project__paymentsCount = 'project__paymentsCount',
   project__projectId = 'project__projectId',
-  project__pv = 'project__pv',
   project__redeemCount = 'project__redeemCount',
   project__redeemVolume = 'project__redeemVolume',
   project__redeemVolumeUSD = 'project__redeemVolumeUSD',
-  project__terminal = 'project__terminal',
   project__tokenSupply = 'project__tokenSupply',
   project__trendingPaymentsCount = 'project__trendingPaymentsCount',
   project__trendingScore = 'project__trendingScore',
@@ -4098,19 +3988,21 @@ export enum NftCollection_OrderBy {
 }
 
 export type NftTier = {
-  allowManualMint: Scalars['Boolean']['output'];
-  category: Maybe<Scalars['Int']['output']>;
+  allowOwnerMint: Scalars['Boolean']['output'];
+  cannotBeRemoved: Scalars['Boolean']['output'];
+  category: Scalars['Int']['output'];
   collection: NftCollection;
   createdAt: Scalars['Int']['output'];
-  encodedIpfsUri: Maybe<Scalars['String']['output']>;
+  encodedIpfsUri: Maybe<Scalars['Bytes']['output']>;
   id: Scalars['ID']['output'];
-  initialQuantity: Scalars['BigInt']['output'];
+  initialSupply: Scalars['BigInt']['output'];
   nfts: Array<Nft>;
   price: Scalars['BigInt']['output'];
-  remainingQuantity: Scalars['BigInt']['output'];
-  reservedRate: Maybe<Scalars['BigInt']['output']>;
-  reservedTokenBeneficiary: Maybe<Scalars['Bytes']['output']>;
+  remainingSupply: Scalars['BigInt']['output'];
+  reserveBeneficiary: Scalars['Bytes']['output'];
+  reserveFrequency: Scalars['Int']['output'];
   resolvedUri: Maybe<Scalars['String']['output']>;
+  svg: Maybe<Scalars['String']['output']>;
   tierId: Scalars['Int']['output'];
   transfersPausable: Scalars['Boolean']['output'];
   votingUnits: Scalars['BigInt']['output'];
@@ -4128,11 +4020,15 @@ export type NftTierNftsArgs = {
 export type NftTier_Filter = {
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
-  allowManualMint?: InputMaybe<Scalars['Boolean']['input']>;
-  allowManualMint_in?: InputMaybe<Array<Scalars['Boolean']['input']>>;
-  allowManualMint_not?: InputMaybe<Scalars['Boolean']['input']>;
-  allowManualMint_not_in?: InputMaybe<Array<Scalars['Boolean']['input']>>;
+  allowOwnerMint?: InputMaybe<Scalars['Boolean']['input']>;
+  allowOwnerMint_in?: InputMaybe<Array<Scalars['Boolean']['input']>>;
+  allowOwnerMint_not?: InputMaybe<Scalars['Boolean']['input']>;
+  allowOwnerMint_not_in?: InputMaybe<Array<Scalars['Boolean']['input']>>;
   and?: InputMaybe<Array<InputMaybe<NftTier_Filter>>>;
+  cannotBeRemoved?: InputMaybe<Scalars['Boolean']['input']>;
+  cannotBeRemoved_in?: InputMaybe<Array<Scalars['Boolean']['input']>>;
+  cannotBeRemoved_not?: InputMaybe<Scalars['Boolean']['input']>;
+  cannotBeRemoved_not_in?: InputMaybe<Array<Scalars['Boolean']['input']>>;
   category?: InputMaybe<Scalars['Int']['input']>;
   category_gt?: InputMaybe<Scalars['Int']['input']>;
   category_gte?: InputMaybe<Scalars['Int']['input']>;
@@ -4170,26 +4066,16 @@ export type NftTier_Filter = {
   createdAt_lte?: InputMaybe<Scalars['Int']['input']>;
   createdAt_not?: InputMaybe<Scalars['Int']['input']>;
   createdAt_not_in?: InputMaybe<Array<Scalars['Int']['input']>>;
-  encodedIpfsUri?: InputMaybe<Scalars['String']['input']>;
-  encodedIpfsUri_contains?: InputMaybe<Scalars['String']['input']>;
-  encodedIpfsUri_contains_nocase?: InputMaybe<Scalars['String']['input']>;
-  encodedIpfsUri_ends_with?: InputMaybe<Scalars['String']['input']>;
-  encodedIpfsUri_ends_with_nocase?: InputMaybe<Scalars['String']['input']>;
-  encodedIpfsUri_gt?: InputMaybe<Scalars['String']['input']>;
-  encodedIpfsUri_gte?: InputMaybe<Scalars['String']['input']>;
-  encodedIpfsUri_in?: InputMaybe<Array<Scalars['String']['input']>>;
-  encodedIpfsUri_lt?: InputMaybe<Scalars['String']['input']>;
-  encodedIpfsUri_lte?: InputMaybe<Scalars['String']['input']>;
-  encodedIpfsUri_not?: InputMaybe<Scalars['String']['input']>;
-  encodedIpfsUri_not_contains?: InputMaybe<Scalars['String']['input']>;
-  encodedIpfsUri_not_contains_nocase?: InputMaybe<Scalars['String']['input']>;
-  encodedIpfsUri_not_ends_with?: InputMaybe<Scalars['String']['input']>;
-  encodedIpfsUri_not_ends_with_nocase?: InputMaybe<Scalars['String']['input']>;
-  encodedIpfsUri_not_in?: InputMaybe<Array<Scalars['String']['input']>>;
-  encodedIpfsUri_not_starts_with?: InputMaybe<Scalars['String']['input']>;
-  encodedIpfsUri_not_starts_with_nocase?: InputMaybe<Scalars['String']['input']>;
-  encodedIpfsUri_starts_with?: InputMaybe<Scalars['String']['input']>;
-  encodedIpfsUri_starts_with_nocase?: InputMaybe<Scalars['String']['input']>;
+  encodedIpfsUri?: InputMaybe<Scalars['Bytes']['input']>;
+  encodedIpfsUri_contains?: InputMaybe<Scalars['Bytes']['input']>;
+  encodedIpfsUri_gt?: InputMaybe<Scalars['Bytes']['input']>;
+  encodedIpfsUri_gte?: InputMaybe<Scalars['Bytes']['input']>;
+  encodedIpfsUri_in?: InputMaybe<Array<Scalars['Bytes']['input']>>;
+  encodedIpfsUri_lt?: InputMaybe<Scalars['Bytes']['input']>;
+  encodedIpfsUri_lte?: InputMaybe<Scalars['Bytes']['input']>;
+  encodedIpfsUri_not?: InputMaybe<Scalars['Bytes']['input']>;
+  encodedIpfsUri_not_contains?: InputMaybe<Scalars['Bytes']['input']>;
+  encodedIpfsUri_not_in?: InputMaybe<Array<Scalars['Bytes']['input']>>;
   id?: InputMaybe<Scalars['ID']['input']>;
   id_gt?: InputMaybe<Scalars['ID']['input']>;
   id_gte?: InputMaybe<Scalars['ID']['input']>;
@@ -4198,14 +4084,14 @@ export type NftTier_Filter = {
   id_lte?: InputMaybe<Scalars['ID']['input']>;
   id_not?: InputMaybe<Scalars['ID']['input']>;
   id_not_in?: InputMaybe<Array<Scalars['ID']['input']>>;
-  initialQuantity?: InputMaybe<Scalars['BigInt']['input']>;
-  initialQuantity_gt?: InputMaybe<Scalars['BigInt']['input']>;
-  initialQuantity_gte?: InputMaybe<Scalars['BigInt']['input']>;
-  initialQuantity_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
-  initialQuantity_lt?: InputMaybe<Scalars['BigInt']['input']>;
-  initialQuantity_lte?: InputMaybe<Scalars['BigInt']['input']>;
-  initialQuantity_not?: InputMaybe<Scalars['BigInt']['input']>;
-  initialQuantity_not_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
+  initialSupply?: InputMaybe<Scalars['BigInt']['input']>;
+  initialSupply_gt?: InputMaybe<Scalars['BigInt']['input']>;
+  initialSupply_gte?: InputMaybe<Scalars['BigInt']['input']>;
+  initialSupply_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
+  initialSupply_lt?: InputMaybe<Scalars['BigInt']['input']>;
+  initialSupply_lte?: InputMaybe<Scalars['BigInt']['input']>;
+  initialSupply_not?: InputMaybe<Scalars['BigInt']['input']>;
+  initialSupply_not_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
   nfts_?: InputMaybe<Nft_Filter>;
   or?: InputMaybe<Array<InputMaybe<NftTier_Filter>>>;
   price?: InputMaybe<Scalars['BigInt']['input']>;
@@ -4216,32 +4102,32 @@ export type NftTier_Filter = {
   price_lte?: InputMaybe<Scalars['BigInt']['input']>;
   price_not?: InputMaybe<Scalars['BigInt']['input']>;
   price_not_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
-  remainingQuantity?: InputMaybe<Scalars['BigInt']['input']>;
-  remainingQuantity_gt?: InputMaybe<Scalars['BigInt']['input']>;
-  remainingQuantity_gte?: InputMaybe<Scalars['BigInt']['input']>;
-  remainingQuantity_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
-  remainingQuantity_lt?: InputMaybe<Scalars['BigInt']['input']>;
-  remainingQuantity_lte?: InputMaybe<Scalars['BigInt']['input']>;
-  remainingQuantity_not?: InputMaybe<Scalars['BigInt']['input']>;
-  remainingQuantity_not_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
-  reservedRate?: InputMaybe<Scalars['BigInt']['input']>;
-  reservedRate_gt?: InputMaybe<Scalars['BigInt']['input']>;
-  reservedRate_gte?: InputMaybe<Scalars['BigInt']['input']>;
-  reservedRate_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
-  reservedRate_lt?: InputMaybe<Scalars['BigInt']['input']>;
-  reservedRate_lte?: InputMaybe<Scalars['BigInt']['input']>;
-  reservedRate_not?: InputMaybe<Scalars['BigInt']['input']>;
-  reservedRate_not_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
-  reservedTokenBeneficiary?: InputMaybe<Scalars['Bytes']['input']>;
-  reservedTokenBeneficiary_contains?: InputMaybe<Scalars['Bytes']['input']>;
-  reservedTokenBeneficiary_gt?: InputMaybe<Scalars['Bytes']['input']>;
-  reservedTokenBeneficiary_gte?: InputMaybe<Scalars['Bytes']['input']>;
-  reservedTokenBeneficiary_in?: InputMaybe<Array<Scalars['Bytes']['input']>>;
-  reservedTokenBeneficiary_lt?: InputMaybe<Scalars['Bytes']['input']>;
-  reservedTokenBeneficiary_lte?: InputMaybe<Scalars['Bytes']['input']>;
-  reservedTokenBeneficiary_not?: InputMaybe<Scalars['Bytes']['input']>;
-  reservedTokenBeneficiary_not_contains?: InputMaybe<Scalars['Bytes']['input']>;
-  reservedTokenBeneficiary_not_in?: InputMaybe<Array<Scalars['Bytes']['input']>>;
+  remainingSupply?: InputMaybe<Scalars['BigInt']['input']>;
+  remainingSupply_gt?: InputMaybe<Scalars['BigInt']['input']>;
+  remainingSupply_gte?: InputMaybe<Scalars['BigInt']['input']>;
+  remainingSupply_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
+  remainingSupply_lt?: InputMaybe<Scalars['BigInt']['input']>;
+  remainingSupply_lte?: InputMaybe<Scalars['BigInt']['input']>;
+  remainingSupply_not?: InputMaybe<Scalars['BigInt']['input']>;
+  remainingSupply_not_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
+  reserveBeneficiary?: InputMaybe<Scalars['Bytes']['input']>;
+  reserveBeneficiary_contains?: InputMaybe<Scalars['Bytes']['input']>;
+  reserveBeneficiary_gt?: InputMaybe<Scalars['Bytes']['input']>;
+  reserveBeneficiary_gte?: InputMaybe<Scalars['Bytes']['input']>;
+  reserveBeneficiary_in?: InputMaybe<Array<Scalars['Bytes']['input']>>;
+  reserveBeneficiary_lt?: InputMaybe<Scalars['Bytes']['input']>;
+  reserveBeneficiary_lte?: InputMaybe<Scalars['Bytes']['input']>;
+  reserveBeneficiary_not?: InputMaybe<Scalars['Bytes']['input']>;
+  reserveBeneficiary_not_contains?: InputMaybe<Scalars['Bytes']['input']>;
+  reserveBeneficiary_not_in?: InputMaybe<Array<Scalars['Bytes']['input']>>;
+  reserveFrequency?: InputMaybe<Scalars['Int']['input']>;
+  reserveFrequency_gt?: InputMaybe<Scalars['Int']['input']>;
+  reserveFrequency_gte?: InputMaybe<Scalars['Int']['input']>;
+  reserveFrequency_in?: InputMaybe<Array<Scalars['Int']['input']>>;
+  reserveFrequency_lt?: InputMaybe<Scalars['Int']['input']>;
+  reserveFrequency_lte?: InputMaybe<Scalars['Int']['input']>;
+  reserveFrequency_not?: InputMaybe<Scalars['Int']['input']>;
+  reserveFrequency_not_in?: InputMaybe<Array<Scalars['Int']['input']>>;
   resolvedUri?: InputMaybe<Scalars['String']['input']>;
   resolvedUri_contains?: InputMaybe<Scalars['String']['input']>;
   resolvedUri_contains_nocase?: InputMaybe<Scalars['String']['input']>;
@@ -4262,6 +4148,26 @@ export type NftTier_Filter = {
   resolvedUri_not_starts_with_nocase?: InputMaybe<Scalars['String']['input']>;
   resolvedUri_starts_with?: InputMaybe<Scalars['String']['input']>;
   resolvedUri_starts_with_nocase?: InputMaybe<Scalars['String']['input']>;
+  svg?: InputMaybe<Scalars['String']['input']>;
+  svg_contains?: InputMaybe<Scalars['String']['input']>;
+  svg_contains_nocase?: InputMaybe<Scalars['String']['input']>;
+  svg_ends_with?: InputMaybe<Scalars['String']['input']>;
+  svg_ends_with_nocase?: InputMaybe<Scalars['String']['input']>;
+  svg_gt?: InputMaybe<Scalars['String']['input']>;
+  svg_gte?: InputMaybe<Scalars['String']['input']>;
+  svg_in?: InputMaybe<Array<Scalars['String']['input']>>;
+  svg_lt?: InputMaybe<Scalars['String']['input']>;
+  svg_lte?: InputMaybe<Scalars['String']['input']>;
+  svg_not?: InputMaybe<Scalars['String']['input']>;
+  svg_not_contains?: InputMaybe<Scalars['String']['input']>;
+  svg_not_contains_nocase?: InputMaybe<Scalars['String']['input']>;
+  svg_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  svg_not_ends_with_nocase?: InputMaybe<Scalars['String']['input']>;
+  svg_not_in?: InputMaybe<Array<Scalars['String']['input']>>;
+  svg_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  svg_not_starts_with_nocase?: InputMaybe<Scalars['String']['input']>;
+  svg_starts_with?: InputMaybe<Scalars['String']['input']>;
+  svg_starts_with_nocase?: InputMaybe<Scalars['String']['input']>;
   tierId?: InputMaybe<Scalars['Int']['input']>;
   tierId_gt?: InputMaybe<Scalars['Int']['input']>;
   tierId_gte?: InputMaybe<Scalars['Int']['input']>;
@@ -4285,12 +4191,12 @@ export type NftTier_Filter = {
 };
 
 export enum NftTier_OrderBy {
-  allowManualMint = 'allowManualMint',
+  allowOwnerMint = 'allowOwnerMint',
+  cannotBeRemoved = 'cannotBeRemoved',
   category = 'category',
   collection = 'collection',
   collection__address = 'collection__address',
   collection__createdAt = 'collection__createdAt',
-  collection__governanceType = 'collection__governanceType',
   collection__id = 'collection__id',
   collection__name = 'collection__name',
   collection__projectId = 'collection__projectId',
@@ -4298,13 +4204,14 @@ export enum NftTier_OrderBy {
   createdAt = 'createdAt',
   encodedIpfsUri = 'encodedIpfsUri',
   id = 'id',
-  initialQuantity = 'initialQuantity',
+  initialSupply = 'initialSupply',
   nfts = 'nfts',
   price = 'price',
-  remainingQuantity = 'remainingQuantity',
-  reservedRate = 'reservedRate',
-  reservedTokenBeneficiary = 'reservedTokenBeneficiary',
+  remainingSupply = 'remainingSupply',
+  reserveBeneficiary = 'reserveBeneficiary',
+  reserveFrequency = 'reserveFrequency',
   resolvedUri = 'resolvedUri',
+  svg = 'svg',
   tierId = 'tierId',
   transfersPausable = 'transfersPausable',
   votingUnits = 'votingUnits'
@@ -4314,6 +4221,14 @@ export type Nft_Filter = {
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
   and?: InputMaybe<Array<InputMaybe<Nft_Filter>>>;
+  category?: InputMaybe<Scalars['BigInt']['input']>;
+  category_gt?: InputMaybe<Scalars['BigInt']['input']>;
+  category_gte?: InputMaybe<Scalars['BigInt']['input']>;
+  category_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
+  category_lt?: InputMaybe<Scalars['BigInt']['input']>;
+  category_lte?: InputMaybe<Scalars['BigInt']['input']>;
+  category_not?: InputMaybe<Scalars['BigInt']['input']>;
+  category_not_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
   collection?: InputMaybe<Scalars['String']['input']>;
   collection_?: InputMaybe<NftCollection_Filter>;
   collection_contains?: InputMaybe<Scalars['String']['input']>;
@@ -4446,10 +4361,10 @@ export type Nft_Filter = {
 };
 
 export enum Nft_OrderBy {
+  category = 'category',
   collection = 'collection',
   collection__address = 'collection__address',
   collection__createdAt = 'collection__createdAt',
-  collection__governanceType = 'collection__governanceType',
   collection__id = 'collection__id',
   collection__name = 'collection__name',
   collection__projectId = 'collection__projectId',
@@ -4463,7 +4378,6 @@ export enum Nft_OrderBy {
   owner__lastPaidTimestamp = 'owner__lastPaidTimestamp',
   owner__paymentsCount = 'owner__paymentsCount',
   owner__projectId = 'owner__projectId',
-  owner__pv = 'owner__pv',
   owner__stakedBalance = 'owner__stakedBalance',
   owner__volume = 'owner__volume',
   owner__volumeUSD = 'owner__volumeUSD',
@@ -4478,17 +4392,14 @@ export enum Nft_OrderBy {
   project__handle = 'project__handle',
   project__id = 'project__id',
   project__latestFundingCycle = 'project__latestFundingCycle',
-  project__metadataDomain = 'project__metadataDomain',
-  project__metadataUri = 'project__metadataUri',
+  project__metadata = 'project__metadata',
   project__nftsMintedCount = 'project__nftsMintedCount',
   project__owner = 'project__owner',
   project__paymentsCount = 'project__paymentsCount',
   project__projectId = 'project__projectId',
-  project__pv = 'project__pv',
   project__redeemCount = 'project__redeemCount',
   project__redeemVolume = 'project__redeemVolume',
   project__redeemVolumeUSD = 'project__redeemVolumeUSD',
-  project__terminal = 'project__terminal',
   project__tokenSupply = 'project__tokenSupply',
   project__trendingPaymentsCount = 'project__trendingPaymentsCount',
   project__trendingScore = 'project__trendingScore',
@@ -4496,17 +4407,19 @@ export enum Nft_OrderBy {
   project__volume = 'project__volume',
   project__volumeUSD = 'project__volumeUSD',
   tier = 'tier',
-  tier__allowManualMint = 'tier__allowManualMint',
+  tier__allowOwnerMint = 'tier__allowOwnerMint',
+  tier__cannotBeRemoved = 'tier__cannotBeRemoved',
   tier__category = 'tier__category',
   tier__createdAt = 'tier__createdAt',
   tier__encodedIpfsUri = 'tier__encodedIpfsUri',
   tier__id = 'tier__id',
-  tier__initialQuantity = 'tier__initialQuantity',
+  tier__initialSupply = 'tier__initialSupply',
   tier__price = 'tier__price',
-  tier__remainingQuantity = 'tier__remainingQuantity',
-  tier__reservedRate = 'tier__reservedRate',
-  tier__reservedTokenBeneficiary = 'tier__reservedTokenBeneficiary',
+  tier__remainingSupply = 'tier__remainingSupply',
+  tier__reserveBeneficiary = 'tier__reserveBeneficiary',
+  tier__reserveFrequency = 'tier__reserveFrequency',
   tier__resolvedUri = 'tier__resolvedUri',
+  tier__svg = 'tier__svg',
   tier__tierId = 'tier__tierId',
   tier__transfersPausable = 'tier__transfersPausable',
   tier__votingUnits = 'tier__votingUnits',
@@ -4530,7 +4443,6 @@ export type Participant = {
   paymentsCount: Scalars['Int']['output'];
   project: Project;
   projectId: Scalars['Int']['output'];
-  pv: Scalars['String']['output'];
   stakedBalance: Scalars['BigInt']['output'];
   volume: Scalars['BigInt']['output'];
   volumeUSD: Scalars['BigInt']['output'];
@@ -4631,26 +4543,6 @@ export type Participant_Filter = {
   project_not_starts_with_nocase?: InputMaybe<Scalars['String']['input']>;
   project_starts_with?: InputMaybe<Scalars['String']['input']>;
   project_starts_with_nocase?: InputMaybe<Scalars['String']['input']>;
-  pv?: InputMaybe<Scalars['String']['input']>;
-  pv_contains?: InputMaybe<Scalars['String']['input']>;
-  pv_contains_nocase?: InputMaybe<Scalars['String']['input']>;
-  pv_ends_with?: InputMaybe<Scalars['String']['input']>;
-  pv_ends_with_nocase?: InputMaybe<Scalars['String']['input']>;
-  pv_gt?: InputMaybe<Scalars['String']['input']>;
-  pv_gte?: InputMaybe<Scalars['String']['input']>;
-  pv_in?: InputMaybe<Array<Scalars['String']['input']>>;
-  pv_lt?: InputMaybe<Scalars['String']['input']>;
-  pv_lte?: InputMaybe<Scalars['String']['input']>;
-  pv_not?: InputMaybe<Scalars['String']['input']>;
-  pv_not_contains?: InputMaybe<Scalars['String']['input']>;
-  pv_not_contains_nocase?: InputMaybe<Scalars['String']['input']>;
-  pv_not_ends_with?: InputMaybe<Scalars['String']['input']>;
-  pv_not_ends_with_nocase?: InputMaybe<Scalars['String']['input']>;
-  pv_not_in?: InputMaybe<Array<Scalars['String']['input']>>;
-  pv_not_starts_with?: InputMaybe<Scalars['String']['input']>;
-  pv_not_starts_with_nocase?: InputMaybe<Scalars['String']['input']>;
-  pv_starts_with?: InputMaybe<Scalars['String']['input']>;
-  pv_starts_with_nocase?: InputMaybe<Scalars['String']['input']>;
   stakedBalance?: InputMaybe<Scalars['BigInt']['input']>;
   stakedBalance_gt?: InputMaybe<Scalars['BigInt']['input']>;
   stakedBalance_gte?: InputMaybe<Scalars['BigInt']['input']>;
@@ -4717,24 +4609,20 @@ export enum Participant_OrderBy {
   project__handle = 'project__handle',
   project__id = 'project__id',
   project__latestFundingCycle = 'project__latestFundingCycle',
-  project__metadataDomain = 'project__metadataDomain',
-  project__metadataUri = 'project__metadataUri',
+  project__metadata = 'project__metadata',
   project__nftsMintedCount = 'project__nftsMintedCount',
   project__owner = 'project__owner',
   project__paymentsCount = 'project__paymentsCount',
   project__projectId = 'project__projectId',
-  project__pv = 'project__pv',
   project__redeemCount = 'project__redeemCount',
   project__redeemVolume = 'project__redeemVolume',
   project__redeemVolumeUSD = 'project__redeemVolumeUSD',
-  project__terminal = 'project__terminal',
   project__tokenSupply = 'project__tokenSupply',
   project__trendingPaymentsCount = 'project__trendingPaymentsCount',
   project__trendingScore = 'project__trendingScore',
   project__trendingVolume = 'project__trendingVolume',
   project__volume = 'project__volume',
   project__volumeUSD = 'project__volumeUSD',
-  pv = 'pv',
   stakedBalance = 'stakedBalance',
   volume = 'volume',
   volumeUSD = 'volumeUSD',
@@ -4749,17 +4637,15 @@ export type PayEvent = {
   amount: Scalars['BigInt']['output'];
   amountUSD: Maybe<Scalars['BigInt']['output']>;
   beneficiary: Scalars['Bytes']['output'];
+  beneficiaryTokenCount: Scalars['BigInt']['output'];
   caller: Scalars['Bytes']['output'];
   distributionFromProjectId: Maybe<Scalars['Int']['output']>;
   feeFromV2Project: Maybe<Scalars['Int']['output']>;
   from: Scalars['Bytes']['output'];
   id: Scalars['ID']['output'];
-  isDistribution: Scalars['Boolean']['output'];
   note: Scalars['String']['output'];
   project: Project;
   projectId: Scalars['Int']['output'];
-  pv: Scalars['String']['output'];
-  terminal: Scalars['Bytes']['output'];
   timestamp: Scalars['Int']['output'];
   txHash: Scalars['Bytes']['output'];
 };
@@ -4785,6 +4671,14 @@ export type PayEvent_Filter = {
   amount_not_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
   and?: InputMaybe<Array<InputMaybe<PayEvent_Filter>>>;
   beneficiary?: InputMaybe<Scalars['Bytes']['input']>;
+  beneficiaryTokenCount?: InputMaybe<Scalars['BigInt']['input']>;
+  beneficiaryTokenCount_gt?: InputMaybe<Scalars['BigInt']['input']>;
+  beneficiaryTokenCount_gte?: InputMaybe<Scalars['BigInt']['input']>;
+  beneficiaryTokenCount_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
+  beneficiaryTokenCount_lt?: InputMaybe<Scalars['BigInt']['input']>;
+  beneficiaryTokenCount_lte?: InputMaybe<Scalars['BigInt']['input']>;
+  beneficiaryTokenCount_not?: InputMaybe<Scalars['BigInt']['input']>;
+  beneficiaryTokenCount_not_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
   beneficiary_contains?: InputMaybe<Scalars['Bytes']['input']>;
   beneficiary_gt?: InputMaybe<Scalars['Bytes']['input']>;
   beneficiary_gte?: InputMaybe<Scalars['Bytes']['input']>;
@@ -4838,10 +4732,6 @@ export type PayEvent_Filter = {
   id_lte?: InputMaybe<Scalars['ID']['input']>;
   id_not?: InputMaybe<Scalars['ID']['input']>;
   id_not_in?: InputMaybe<Array<Scalars['ID']['input']>>;
-  isDistribution?: InputMaybe<Scalars['Boolean']['input']>;
-  isDistribution_in?: InputMaybe<Array<Scalars['Boolean']['input']>>;
-  isDistribution_not?: InputMaybe<Scalars['Boolean']['input']>;
-  isDistribution_not_in?: InputMaybe<Array<Scalars['Boolean']['input']>>;
   note?: InputMaybe<Scalars['String']['input']>;
   note_contains?: InputMaybe<Scalars['String']['input']>;
   note_contains_nocase?: InputMaybe<Scalars['String']['input']>;
@@ -4892,36 +4782,6 @@ export type PayEvent_Filter = {
   project_not_starts_with_nocase?: InputMaybe<Scalars['String']['input']>;
   project_starts_with?: InputMaybe<Scalars['String']['input']>;
   project_starts_with_nocase?: InputMaybe<Scalars['String']['input']>;
-  pv?: InputMaybe<Scalars['String']['input']>;
-  pv_contains?: InputMaybe<Scalars['String']['input']>;
-  pv_contains_nocase?: InputMaybe<Scalars['String']['input']>;
-  pv_ends_with?: InputMaybe<Scalars['String']['input']>;
-  pv_ends_with_nocase?: InputMaybe<Scalars['String']['input']>;
-  pv_gt?: InputMaybe<Scalars['String']['input']>;
-  pv_gte?: InputMaybe<Scalars['String']['input']>;
-  pv_in?: InputMaybe<Array<Scalars['String']['input']>>;
-  pv_lt?: InputMaybe<Scalars['String']['input']>;
-  pv_lte?: InputMaybe<Scalars['String']['input']>;
-  pv_not?: InputMaybe<Scalars['String']['input']>;
-  pv_not_contains?: InputMaybe<Scalars['String']['input']>;
-  pv_not_contains_nocase?: InputMaybe<Scalars['String']['input']>;
-  pv_not_ends_with?: InputMaybe<Scalars['String']['input']>;
-  pv_not_ends_with_nocase?: InputMaybe<Scalars['String']['input']>;
-  pv_not_in?: InputMaybe<Array<Scalars['String']['input']>>;
-  pv_not_starts_with?: InputMaybe<Scalars['String']['input']>;
-  pv_not_starts_with_nocase?: InputMaybe<Scalars['String']['input']>;
-  pv_starts_with?: InputMaybe<Scalars['String']['input']>;
-  pv_starts_with_nocase?: InputMaybe<Scalars['String']['input']>;
-  terminal?: InputMaybe<Scalars['Bytes']['input']>;
-  terminal_contains?: InputMaybe<Scalars['Bytes']['input']>;
-  terminal_gt?: InputMaybe<Scalars['Bytes']['input']>;
-  terminal_gte?: InputMaybe<Scalars['Bytes']['input']>;
-  terminal_in?: InputMaybe<Array<Scalars['Bytes']['input']>>;
-  terminal_lt?: InputMaybe<Scalars['Bytes']['input']>;
-  terminal_lte?: InputMaybe<Scalars['Bytes']['input']>;
-  terminal_not?: InputMaybe<Scalars['Bytes']['input']>;
-  terminal_not_contains?: InputMaybe<Scalars['Bytes']['input']>;
-  terminal_not_in?: InputMaybe<Array<Scalars['Bytes']['input']>>;
   timestamp?: InputMaybe<Scalars['Int']['input']>;
   timestamp_gt?: InputMaybe<Scalars['Int']['input']>;
   timestamp_gte?: InputMaybe<Scalars['Int']['input']>;
@@ -4946,12 +4806,12 @@ export enum PayEvent_OrderBy {
   amount = 'amount',
   amountUSD = 'amountUSD',
   beneficiary = 'beneficiary',
+  beneficiaryTokenCount = 'beneficiaryTokenCount',
   caller = 'caller',
   distributionFromProjectId = 'distributionFromProjectId',
   feeFromV2Project = 'feeFromV2Project',
   from = 'from',
   id = 'id',
-  isDistribution = 'isDistribution',
   note = 'note',
   project = 'project',
   projectId = 'projectId',
@@ -4964,27 +4824,133 @@ export enum PayEvent_OrderBy {
   project__handle = 'project__handle',
   project__id = 'project__id',
   project__latestFundingCycle = 'project__latestFundingCycle',
-  project__metadataDomain = 'project__metadataDomain',
-  project__metadataUri = 'project__metadataUri',
+  project__metadata = 'project__metadata',
   project__nftsMintedCount = 'project__nftsMintedCount',
   project__owner = 'project__owner',
   project__paymentsCount = 'project__paymentsCount',
   project__projectId = 'project__projectId',
-  project__pv = 'project__pv',
   project__redeemCount = 'project__redeemCount',
   project__redeemVolume = 'project__redeemVolume',
   project__redeemVolumeUSD = 'project__redeemVolumeUSD',
-  project__terminal = 'project__terminal',
   project__tokenSupply = 'project__tokenSupply',
   project__trendingPaymentsCount = 'project__trendingPaymentsCount',
   project__trendingScore = 'project__trendingScore',
   project__trendingVolume = 'project__trendingVolume',
   project__volume = 'project__volume',
   project__volumeUSD = 'project__volumeUSD',
-  pv = 'pv',
-  terminal = 'terminal',
   timestamp = 'timestamp',
   txHash = 'txHash'
+}
+
+export type PermissionsHolder = {
+  account: Scalars['Bytes']['output'];
+  id: Scalars['ID']['output'];
+  operator: Scalars['Bytes']['output'];
+  permissions: Array<Scalars['BigInt']['output']>;
+  project: Project;
+  projectId: Scalars['Int']['output'];
+};
+
+export type PermissionsHolder_Filter = {
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<BlockChangedFilter>;
+  account?: InputMaybe<Scalars['Bytes']['input']>;
+  account_contains?: InputMaybe<Scalars['Bytes']['input']>;
+  account_gt?: InputMaybe<Scalars['Bytes']['input']>;
+  account_gte?: InputMaybe<Scalars['Bytes']['input']>;
+  account_in?: InputMaybe<Array<Scalars['Bytes']['input']>>;
+  account_lt?: InputMaybe<Scalars['Bytes']['input']>;
+  account_lte?: InputMaybe<Scalars['Bytes']['input']>;
+  account_not?: InputMaybe<Scalars['Bytes']['input']>;
+  account_not_contains?: InputMaybe<Scalars['Bytes']['input']>;
+  account_not_in?: InputMaybe<Array<Scalars['Bytes']['input']>>;
+  and?: InputMaybe<Array<InputMaybe<PermissionsHolder_Filter>>>;
+  id?: InputMaybe<Scalars['ID']['input']>;
+  id_gt?: InputMaybe<Scalars['ID']['input']>;
+  id_gte?: InputMaybe<Scalars['ID']['input']>;
+  id_in?: InputMaybe<Array<Scalars['ID']['input']>>;
+  id_lt?: InputMaybe<Scalars['ID']['input']>;
+  id_lte?: InputMaybe<Scalars['ID']['input']>;
+  id_not?: InputMaybe<Scalars['ID']['input']>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']['input']>>;
+  operator?: InputMaybe<Scalars['Bytes']['input']>;
+  operator_contains?: InputMaybe<Scalars['Bytes']['input']>;
+  operator_gt?: InputMaybe<Scalars['Bytes']['input']>;
+  operator_gte?: InputMaybe<Scalars['Bytes']['input']>;
+  operator_in?: InputMaybe<Array<Scalars['Bytes']['input']>>;
+  operator_lt?: InputMaybe<Scalars['Bytes']['input']>;
+  operator_lte?: InputMaybe<Scalars['Bytes']['input']>;
+  operator_not?: InputMaybe<Scalars['Bytes']['input']>;
+  operator_not_contains?: InputMaybe<Scalars['Bytes']['input']>;
+  operator_not_in?: InputMaybe<Array<Scalars['Bytes']['input']>>;
+  or?: InputMaybe<Array<InputMaybe<PermissionsHolder_Filter>>>;
+  permissions?: InputMaybe<Array<Scalars['BigInt']['input']>>;
+  permissions_contains?: InputMaybe<Array<Scalars['BigInt']['input']>>;
+  permissions_contains_nocase?: InputMaybe<Array<Scalars['BigInt']['input']>>;
+  permissions_not?: InputMaybe<Array<Scalars['BigInt']['input']>>;
+  permissions_not_contains?: InputMaybe<Array<Scalars['BigInt']['input']>>;
+  permissions_not_contains_nocase?: InputMaybe<Array<Scalars['BigInt']['input']>>;
+  project?: InputMaybe<Scalars['String']['input']>;
+  projectId?: InputMaybe<Scalars['Int']['input']>;
+  projectId_gt?: InputMaybe<Scalars['Int']['input']>;
+  projectId_gte?: InputMaybe<Scalars['Int']['input']>;
+  projectId_in?: InputMaybe<Array<Scalars['Int']['input']>>;
+  projectId_lt?: InputMaybe<Scalars['Int']['input']>;
+  projectId_lte?: InputMaybe<Scalars['Int']['input']>;
+  projectId_not?: InputMaybe<Scalars['Int']['input']>;
+  projectId_not_in?: InputMaybe<Array<Scalars['Int']['input']>>;
+  project_?: InputMaybe<Project_Filter>;
+  project_contains?: InputMaybe<Scalars['String']['input']>;
+  project_contains_nocase?: InputMaybe<Scalars['String']['input']>;
+  project_ends_with?: InputMaybe<Scalars['String']['input']>;
+  project_ends_with_nocase?: InputMaybe<Scalars['String']['input']>;
+  project_gt?: InputMaybe<Scalars['String']['input']>;
+  project_gte?: InputMaybe<Scalars['String']['input']>;
+  project_in?: InputMaybe<Array<Scalars['String']['input']>>;
+  project_lt?: InputMaybe<Scalars['String']['input']>;
+  project_lte?: InputMaybe<Scalars['String']['input']>;
+  project_not?: InputMaybe<Scalars['String']['input']>;
+  project_not_contains?: InputMaybe<Scalars['String']['input']>;
+  project_not_contains_nocase?: InputMaybe<Scalars['String']['input']>;
+  project_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  project_not_ends_with_nocase?: InputMaybe<Scalars['String']['input']>;
+  project_not_in?: InputMaybe<Array<Scalars['String']['input']>>;
+  project_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  project_not_starts_with_nocase?: InputMaybe<Scalars['String']['input']>;
+  project_starts_with?: InputMaybe<Scalars['String']['input']>;
+  project_starts_with_nocase?: InputMaybe<Scalars['String']['input']>;
+};
+
+export enum PermissionsHolder_OrderBy {
+  account = 'account',
+  id = 'id',
+  operator = 'operator',
+  permissions = 'permissions',
+  project = 'project',
+  projectId = 'projectId',
+  project__contributorsCount = 'project__contributorsCount',
+  project__createdAt = 'project__createdAt',
+  project__createdWithinTrendingWindow = 'project__createdWithinTrendingWindow',
+  project__creator = 'project__creator',
+  project__currentBalance = 'project__currentBalance',
+  project__deployer = 'project__deployer',
+  project__handle = 'project__handle',
+  project__id = 'project__id',
+  project__latestFundingCycle = 'project__latestFundingCycle',
+  project__metadata = 'project__metadata',
+  project__nftsMintedCount = 'project__nftsMintedCount',
+  project__owner = 'project__owner',
+  project__paymentsCount = 'project__paymentsCount',
+  project__projectId = 'project__projectId',
+  project__redeemCount = 'project__redeemCount',
+  project__redeemVolume = 'project__redeemVolume',
+  project__redeemVolumeUSD = 'project__redeemVolumeUSD',
+  project__tokenSupply = 'project__tokenSupply',
+  project__trendingPaymentsCount = 'project__trendingPaymentsCount',
+  project__trendingScore = 'project__trendingScore',
+  project__trendingVolume = 'project__trendingVolume',
+  project__volume = 'project__volume',
+  project__volumeUSD = 'project__volumeUSD'
 }
 
 export type PrintReservesEvent = {
@@ -5148,17 +5114,14 @@ export enum PrintReservesEvent_OrderBy {
   project__handle = 'project__handle',
   project__id = 'project__id',
   project__latestFundingCycle = 'project__latestFundingCycle',
-  project__metadataDomain = 'project__metadataDomain',
-  project__metadataUri = 'project__metadataUri',
+  project__metadata = 'project__metadata',
   project__nftsMintedCount = 'project__nftsMintedCount',
   project__owner = 'project__owner',
   project__paymentsCount = 'project__paymentsCount',
   project__projectId = 'project__projectId',
-  project__pv = 'project__pv',
   project__redeemCount = 'project__redeemCount',
   project__redeemVolume = 'project__redeemVolume',
   project__redeemVolumeUSD = 'project__redeemVolumeUSD',
-  project__terminal = 'project__terminal',
   project__tokenSupply = 'project__tokenSupply',
   project__trendingPaymentsCount = 'project__trendingPaymentsCount',
   project__trendingScore = 'project__trendingScore',
@@ -5192,8 +5155,7 @@ export type Project = {
   initEvents: Array<InitEvent>;
   jb721DelegateTokens: Array<Nft>;
   latestFundingCycle: Scalars['Int']['output'];
-  metadataDomain: Maybe<Scalars['BigInt']['output']>;
-  metadataUri: Maybe<Scalars['String']['output']>;
+  metadata: Maybe<Scalars['String']['output']>;
   migrateEvents: Array<MigrateEvent>;
   mintTokensEvents: Array<MintTokensEvent>;
   nftCollections: Array<NftCollection>;
@@ -5202,17 +5164,16 @@ export type Project = {
   participants: Array<Participant>;
   payEvents: Array<PayEvent>;
   paymentsCount: Scalars['Int']['output'];
+  permissionsHolders: Array<PermissionsHolder>;
   printReservesEvents: Array<PrintReservesEvent>;
   projectEvents: Array<ProjectEvent>;
   projectId: Scalars['Int']['output'];
-  pv: Scalars['String']['output'];
   redeemCount: Scalars['Int']['output'];
   redeemEvents: Array<RedeemEvent>;
   redeemVolume: Scalars['BigInt']['output'];
   redeemVolumeUSD: Scalars['BigInt']['output'];
   setFundAccessConstraintsEvents: Array<SetFundAccessConstraintsEvent>;
   tapEvents: Array<TapEvent>;
-  terminal: Maybe<Scalars['Bytes']['output']>;
   tokenSupply: Scalars['BigInt']['output'];
   trendingPaymentsCount: Scalars['Int']['output'];
   trendingScore: Scalars['BigInt']['output'];
@@ -5387,6 +5348,15 @@ export type ProjectPayEventsArgs = {
 };
 
 
+export type ProjectPermissionsHoldersArgs = {
+  first?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<PermissionsHolder_OrderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
+  where?: InputMaybe<PermissionsHolder_Filter>;
+};
+
+
 export type ProjectPrintReservesEventsArgs = {
   first?: InputMaybe<Scalars['Int']['input']>;
   orderBy?: InputMaybe<PrintReservesEvent_OrderBy>;
@@ -5464,7 +5434,6 @@ export type ProjectCreateEvent = {
   id: Scalars['ID']['output'];
   project: Project;
   projectId: Scalars['Int']['output'];
-  pv: Scalars['String']['output'];
   timestamp: Scalars['Int']['output'];
   txHash: Scalars['Bytes']['output'];
 };
@@ -5531,26 +5500,6 @@ export type ProjectCreateEvent_Filter = {
   project_not_starts_with_nocase?: InputMaybe<Scalars['String']['input']>;
   project_starts_with?: InputMaybe<Scalars['String']['input']>;
   project_starts_with_nocase?: InputMaybe<Scalars['String']['input']>;
-  pv?: InputMaybe<Scalars['String']['input']>;
-  pv_contains?: InputMaybe<Scalars['String']['input']>;
-  pv_contains_nocase?: InputMaybe<Scalars['String']['input']>;
-  pv_ends_with?: InputMaybe<Scalars['String']['input']>;
-  pv_ends_with_nocase?: InputMaybe<Scalars['String']['input']>;
-  pv_gt?: InputMaybe<Scalars['String']['input']>;
-  pv_gte?: InputMaybe<Scalars['String']['input']>;
-  pv_in?: InputMaybe<Array<Scalars['String']['input']>>;
-  pv_lt?: InputMaybe<Scalars['String']['input']>;
-  pv_lte?: InputMaybe<Scalars['String']['input']>;
-  pv_not?: InputMaybe<Scalars['String']['input']>;
-  pv_not_contains?: InputMaybe<Scalars['String']['input']>;
-  pv_not_contains_nocase?: InputMaybe<Scalars['String']['input']>;
-  pv_not_ends_with?: InputMaybe<Scalars['String']['input']>;
-  pv_not_ends_with_nocase?: InputMaybe<Scalars['String']['input']>;
-  pv_not_in?: InputMaybe<Array<Scalars['String']['input']>>;
-  pv_not_starts_with?: InputMaybe<Scalars['String']['input']>;
-  pv_not_starts_with_nocase?: InputMaybe<Scalars['String']['input']>;
-  pv_starts_with?: InputMaybe<Scalars['String']['input']>;
-  pv_starts_with_nocase?: InputMaybe<Scalars['String']['input']>;
   timestamp?: InputMaybe<Scalars['Int']['input']>;
   timestamp_gt?: InputMaybe<Scalars['Int']['input']>;
   timestamp_gte?: InputMaybe<Scalars['Int']['input']>;
@@ -5586,24 +5535,20 @@ export enum ProjectCreateEvent_OrderBy {
   project__handle = 'project__handle',
   project__id = 'project__id',
   project__latestFundingCycle = 'project__latestFundingCycle',
-  project__metadataDomain = 'project__metadataDomain',
-  project__metadataUri = 'project__metadataUri',
+  project__metadata = 'project__metadata',
   project__nftsMintedCount = 'project__nftsMintedCount',
   project__owner = 'project__owner',
   project__paymentsCount = 'project__paymentsCount',
   project__projectId = 'project__projectId',
-  project__pv = 'project__pv',
   project__redeemCount = 'project__redeemCount',
   project__redeemVolume = 'project__redeemVolume',
   project__redeemVolumeUSD = 'project__redeemVolumeUSD',
-  project__terminal = 'project__terminal',
   project__tokenSupply = 'project__tokenSupply',
   project__trendingPaymentsCount = 'project__trendingPaymentsCount',
   project__trendingScore = 'project__trendingScore',
   project__trendingVolume = 'project__trendingVolume',
   project__volume = 'project__volume',
   project__volumeUSD = 'project__volumeUSD',
-  pv = 'pv',
   timestamp = 'timestamp',
   txHash = 'txHash'
 }
@@ -5631,11 +5576,9 @@ export type ProjectEvent = {
   project: Project;
   projectCreateEvent: Maybe<ProjectCreateEvent>;
   projectId: Scalars['Int']['output'];
-  pv: Scalars['String']['output'];
   redeemEvent: Maybe<RedeemEvent>;
   setFundAccessConstraintsEvent: Maybe<SetFundAccessConstraintsEvent>;
   tapEvent: Maybe<TapEvent>;
-  terminal: Maybe<Scalars['Bytes']['output']>;
   timestamp: Scalars['Int']['output'];
   useAllowanceEvent: Maybe<UseAllowanceEvent>;
   v1ConfigureEvent: Maybe<V1ConfigureEvent>;
@@ -6061,26 +6004,6 @@ export type ProjectEvent_Filter = {
   project_not_starts_with_nocase?: InputMaybe<Scalars['String']['input']>;
   project_starts_with?: InputMaybe<Scalars['String']['input']>;
   project_starts_with_nocase?: InputMaybe<Scalars['String']['input']>;
-  pv?: InputMaybe<Scalars['String']['input']>;
-  pv_contains?: InputMaybe<Scalars['String']['input']>;
-  pv_contains_nocase?: InputMaybe<Scalars['String']['input']>;
-  pv_ends_with?: InputMaybe<Scalars['String']['input']>;
-  pv_ends_with_nocase?: InputMaybe<Scalars['String']['input']>;
-  pv_gt?: InputMaybe<Scalars['String']['input']>;
-  pv_gte?: InputMaybe<Scalars['String']['input']>;
-  pv_in?: InputMaybe<Array<Scalars['String']['input']>>;
-  pv_lt?: InputMaybe<Scalars['String']['input']>;
-  pv_lte?: InputMaybe<Scalars['String']['input']>;
-  pv_not?: InputMaybe<Scalars['String']['input']>;
-  pv_not_contains?: InputMaybe<Scalars['String']['input']>;
-  pv_not_contains_nocase?: InputMaybe<Scalars['String']['input']>;
-  pv_not_ends_with?: InputMaybe<Scalars['String']['input']>;
-  pv_not_ends_with_nocase?: InputMaybe<Scalars['String']['input']>;
-  pv_not_in?: InputMaybe<Array<Scalars['String']['input']>>;
-  pv_not_starts_with?: InputMaybe<Scalars['String']['input']>;
-  pv_not_starts_with_nocase?: InputMaybe<Scalars['String']['input']>;
-  pv_starts_with?: InputMaybe<Scalars['String']['input']>;
-  pv_starts_with_nocase?: InputMaybe<Scalars['String']['input']>;
   redeemEvent?: InputMaybe<Scalars['String']['input']>;
   redeemEvent_?: InputMaybe<RedeemEvent_Filter>;
   redeemEvent_contains?: InputMaybe<Scalars['String']['input']>;
@@ -6144,16 +6067,6 @@ export type ProjectEvent_Filter = {
   tapEvent_not_starts_with_nocase?: InputMaybe<Scalars['String']['input']>;
   tapEvent_starts_with?: InputMaybe<Scalars['String']['input']>;
   tapEvent_starts_with_nocase?: InputMaybe<Scalars['String']['input']>;
-  terminal?: InputMaybe<Scalars['Bytes']['input']>;
-  terminal_contains?: InputMaybe<Scalars['Bytes']['input']>;
-  terminal_gt?: InputMaybe<Scalars['Bytes']['input']>;
-  terminal_gte?: InputMaybe<Scalars['Bytes']['input']>;
-  terminal_in?: InputMaybe<Array<Scalars['Bytes']['input']>>;
-  terminal_lt?: InputMaybe<Scalars['Bytes']['input']>;
-  terminal_lte?: InputMaybe<Scalars['Bytes']['input']>;
-  terminal_not?: InputMaybe<Scalars['Bytes']['input']>;
-  terminal_not_contains?: InputMaybe<Scalars['Bytes']['input']>;
-  terminal_not_in?: InputMaybe<Array<Scalars['Bytes']['input']>>;
   timestamp?: InputMaybe<Scalars['Int']['input']>;
   timestamp_gt?: InputMaybe<Scalars['Int']['input']>;
   timestamp_gte?: InputMaybe<Scalars['Int']['input']>;
@@ -6236,7 +6149,6 @@ export enum ProjectEvent_OrderBy {
   addToBalanceEvent__id = 'addToBalanceEvent__id',
   addToBalanceEvent__note = 'addToBalanceEvent__note',
   addToBalanceEvent__projectId = 'addToBalanceEvent__projectId',
-  addToBalanceEvent__pv = 'addToBalanceEvent__pv',
   addToBalanceEvent__terminal = 'addToBalanceEvent__terminal',
   addToBalanceEvent__timestamp = 'addToBalanceEvent__timestamp',
   addToBalanceEvent__txHash = 'addToBalanceEvent__txHash',
@@ -6248,7 +6160,6 @@ export enum ProjectEvent_OrderBy {
   burnEvent__holder = 'burnEvent__holder',
   burnEvent__id = 'burnEvent__id',
   burnEvent__projectId = 'burnEvent__projectId',
-  burnEvent__pv = 'burnEvent__pv',
   burnEvent__stakedAmount = 'burnEvent__stakedAmount',
   burnEvent__timestamp = 'burnEvent__timestamp',
   burnEvent__txHash = 'burnEvent__txHash',
@@ -6288,28 +6199,23 @@ export enum ProjectEvent_OrderBy {
   deployedERC20Event__from = 'deployedERC20Event__from',
   deployedERC20Event__id = 'deployedERC20Event__id',
   deployedERC20Event__projectId = 'deployedERC20Event__projectId',
-  deployedERC20Event__pv = 'deployedERC20Event__pv',
   deployedERC20Event__symbol = 'deployedERC20Event__symbol',
   deployedERC20Event__timestamp = 'deployedERC20Event__timestamp',
   deployedERC20Event__txHash = 'deployedERC20Event__txHash',
   distributePayoutsEvent = 'distributePayoutsEvent',
   distributePayoutsEvent__amount = 'distributePayoutsEvent__amount',
-  distributePayoutsEvent__amountUSD = 'distributePayoutsEvent__amountUSD',
+  distributePayoutsEvent__amountPaidOut = 'distributePayoutsEvent__amountPaidOut',
   distributePayoutsEvent__beneficiary = 'distributePayoutsEvent__beneficiary',
   distributePayoutsEvent__beneficiaryDistributionAmount = 'distributePayoutsEvent__beneficiaryDistributionAmount',
   distributePayoutsEvent__beneficiaryDistributionAmountUSD = 'distributePayoutsEvent__beneficiaryDistributionAmountUSD',
   distributePayoutsEvent__caller = 'distributePayoutsEvent__caller',
-  distributePayoutsEvent__distributedAmount = 'distributePayoutsEvent__distributedAmount',
-  distributePayoutsEvent__distributedAmountUSD = 'distributePayoutsEvent__distributedAmountUSD',
   distributePayoutsEvent__fee = 'distributePayoutsEvent__fee',
   distributePayoutsEvent__feeUSD = 'distributePayoutsEvent__feeUSD',
   distributePayoutsEvent__from = 'distributePayoutsEvent__from',
-  distributePayoutsEvent__fundingCycleConfiguration = 'distributePayoutsEvent__fundingCycleConfiguration',
-  distributePayoutsEvent__fundingCycleNumber = 'distributePayoutsEvent__fundingCycleNumber',
   distributePayoutsEvent__id = 'distributePayoutsEvent__id',
-  distributePayoutsEvent__memo = 'distributePayoutsEvent__memo',
   distributePayoutsEvent__projectId = 'distributePayoutsEvent__projectId',
-  distributePayoutsEvent__terminal = 'distributePayoutsEvent__terminal',
+  distributePayoutsEvent__rulesetCycleNumber = 'distributePayoutsEvent__rulesetCycleNumber',
+  distributePayoutsEvent__rulesetId = 'distributePayoutsEvent__rulesetId',
   distributePayoutsEvent__timestamp = 'distributePayoutsEvent__timestamp',
   distributePayoutsEvent__txHash = 'distributePayoutsEvent__txHash',
   distributeReservedTokensEvent = 'distributeReservedTokensEvent',
@@ -6319,7 +6225,6 @@ export enum ProjectEvent_OrderBy {
   distributeReservedTokensEvent__from = 'distributeReservedTokensEvent__from',
   distributeReservedTokensEvent__fundingCycleNumber = 'distributeReservedTokensEvent__fundingCycleNumber',
   distributeReservedTokensEvent__id = 'distributeReservedTokensEvent__id',
-  distributeReservedTokensEvent__memo = 'distributeReservedTokensEvent__memo',
   distributeReservedTokensEvent__projectId = 'distributeReservedTokensEvent__projectId',
   distributeReservedTokensEvent__timestamp = 'distributeReservedTokensEvent__timestamp',
   distributeReservedTokensEvent__tokenCount = 'distributeReservedTokensEvent__tokenCount',
@@ -6339,33 +6244,26 @@ export enum ProjectEvent_OrderBy {
   distributeToPayoutModEvent__timestamp = 'distributeToPayoutModEvent__timestamp',
   distributeToPayoutModEvent__txHash = 'distributeToPayoutModEvent__txHash',
   distributeToPayoutSplitEvent = 'distributeToPayoutSplitEvent',
-  distributeToPayoutSplitEvent__allocator = 'distributeToPayoutSplitEvent__allocator',
   distributeToPayoutSplitEvent__amount = 'distributeToPayoutSplitEvent__amount',
-  distributeToPayoutSplitEvent__amountUSD = 'distributeToPayoutSplitEvent__amountUSD',
   distributeToPayoutSplitEvent__beneficiary = 'distributeToPayoutSplitEvent__beneficiary',
   distributeToPayoutSplitEvent__caller = 'distributeToPayoutSplitEvent__caller',
-  distributeToPayoutSplitEvent__domain = 'distributeToPayoutSplitEvent__domain',
   distributeToPayoutSplitEvent__from = 'distributeToPayoutSplitEvent__from',
-  distributeToPayoutSplitEvent__group = 'distributeToPayoutSplitEvent__group',
   distributeToPayoutSplitEvent__id = 'distributeToPayoutSplitEvent__id',
   distributeToPayoutSplitEvent__lockedUntil = 'distributeToPayoutSplitEvent__lockedUntil',
   distributeToPayoutSplitEvent__percent = 'distributeToPayoutSplitEvent__percent',
   distributeToPayoutSplitEvent__preferAddToBalance = 'distributeToPayoutSplitEvent__preferAddToBalance',
-  distributeToPayoutSplitEvent__preferClaimed = 'distributeToPayoutSplitEvent__preferClaimed',
   distributeToPayoutSplitEvent__projectId = 'distributeToPayoutSplitEvent__projectId',
   distributeToPayoutSplitEvent__splitProjectId = 'distributeToPayoutSplitEvent__splitProjectId',
-  distributeToPayoutSplitEvent__terminal = 'distributeToPayoutSplitEvent__terminal',
   distributeToPayoutSplitEvent__timestamp = 'distributeToPayoutSplitEvent__timestamp',
   distributeToPayoutSplitEvent__txHash = 'distributeToPayoutSplitEvent__txHash',
   distributeToReservedTokenSplitEvent = 'distributeToReservedTokenSplitEvent',
-  distributeToReservedTokenSplitEvent__allocator = 'distributeToReservedTokenSplitEvent__allocator',
   distributeToReservedTokenSplitEvent__beneficiary = 'distributeToReservedTokenSplitEvent__beneficiary',
   distributeToReservedTokenSplitEvent__caller = 'distributeToReservedTokenSplitEvent__caller',
   distributeToReservedTokenSplitEvent__from = 'distributeToReservedTokenSplitEvent__from',
   distributeToReservedTokenSplitEvent__id = 'distributeToReservedTokenSplitEvent__id',
   distributeToReservedTokenSplitEvent__lockedUntil = 'distributeToReservedTokenSplitEvent__lockedUntil',
   distributeToReservedTokenSplitEvent__percent = 'distributeToReservedTokenSplitEvent__percent',
-  distributeToReservedTokenSplitEvent__preferClaimed = 'distributeToReservedTokenSplitEvent__preferClaimed',
+  distributeToReservedTokenSplitEvent__preferAddToBalance = 'distributeToReservedTokenSplitEvent__preferAddToBalance',
   distributeToReservedTokenSplitEvent__projectId = 'distributeToReservedTokenSplitEvent__projectId',
   distributeToReservedTokenSplitEvent__splitProjectId = 'distributeToReservedTokenSplitEvent__splitProjectId',
   distributeToReservedTokenSplitEvent__timestamp = 'distributeToReservedTokenSplitEvent__timestamp',
@@ -6409,23 +6307,20 @@ export enum ProjectEvent_OrderBy {
   mintTokensEvent__id = 'mintTokensEvent__id',
   mintTokensEvent__memo = 'mintTokensEvent__memo',
   mintTokensEvent__projectId = 'mintTokensEvent__projectId',
-  mintTokensEvent__pv = 'mintTokensEvent__pv',
   mintTokensEvent__timestamp = 'mintTokensEvent__timestamp',
   mintTokensEvent__txHash = 'mintTokensEvent__txHash',
   payEvent = 'payEvent',
   payEvent__amount = 'payEvent__amount',
   payEvent__amountUSD = 'payEvent__amountUSD',
   payEvent__beneficiary = 'payEvent__beneficiary',
+  payEvent__beneficiaryTokenCount = 'payEvent__beneficiaryTokenCount',
   payEvent__caller = 'payEvent__caller',
   payEvent__distributionFromProjectId = 'payEvent__distributionFromProjectId',
   payEvent__feeFromV2Project = 'payEvent__feeFromV2Project',
   payEvent__from = 'payEvent__from',
   payEvent__id = 'payEvent__id',
-  payEvent__isDistribution = 'payEvent__isDistribution',
   payEvent__note = 'payEvent__note',
   payEvent__projectId = 'payEvent__projectId',
-  payEvent__pv = 'payEvent__pv',
-  payEvent__terminal = 'payEvent__terminal',
   payEvent__timestamp = 'payEvent__timestamp',
   payEvent__txHash = 'payEvent__txHash',
   printReservesEvent = 'printReservesEvent',
@@ -6445,7 +6340,6 @@ export enum ProjectEvent_OrderBy {
   projectCreateEvent__from = 'projectCreateEvent__from',
   projectCreateEvent__id = 'projectCreateEvent__id',
   projectCreateEvent__projectId = 'projectCreateEvent__projectId',
-  projectCreateEvent__pv = 'projectCreateEvent__pv',
   projectCreateEvent__timestamp = 'projectCreateEvent__timestamp',
   projectCreateEvent__txHash = 'projectCreateEvent__txHash',
   projectId = 'projectId',
@@ -6458,24 +6352,20 @@ export enum ProjectEvent_OrderBy {
   project__handle = 'project__handle',
   project__id = 'project__id',
   project__latestFundingCycle = 'project__latestFundingCycle',
-  project__metadataDomain = 'project__metadataDomain',
-  project__metadataUri = 'project__metadataUri',
+  project__metadata = 'project__metadata',
   project__nftsMintedCount = 'project__nftsMintedCount',
   project__owner = 'project__owner',
   project__paymentsCount = 'project__paymentsCount',
   project__projectId = 'project__projectId',
-  project__pv = 'project__pv',
   project__redeemCount = 'project__redeemCount',
   project__redeemVolume = 'project__redeemVolume',
   project__redeemVolumeUSD = 'project__redeemVolumeUSD',
-  project__terminal = 'project__terminal',
   project__tokenSupply = 'project__tokenSupply',
   project__trendingPaymentsCount = 'project__trendingPaymentsCount',
   project__trendingScore = 'project__trendingScore',
   project__trendingVolume = 'project__trendingVolume',
   project__volume = 'project__volume',
   project__volumeUSD = 'project__volumeUSD',
-  pv = 'pv',
   redeemEvent = 'redeemEvent',
   redeemEvent__amount = 'redeemEvent__amount',
   redeemEvent__beneficiary = 'redeemEvent__beneficiary',
@@ -6483,13 +6373,10 @@ export enum ProjectEvent_OrderBy {
   redeemEvent__from = 'redeemEvent__from',
   redeemEvent__holder = 'redeemEvent__holder',
   redeemEvent__id = 'redeemEvent__id',
-  redeemEvent__memo = 'redeemEvent__memo',
   redeemEvent__metadata = 'redeemEvent__metadata',
   redeemEvent__projectId = 'redeemEvent__projectId',
-  redeemEvent__pv = 'redeemEvent__pv',
   redeemEvent__returnAmount = 'redeemEvent__returnAmount',
   redeemEvent__returnAmountUSD = 'redeemEvent__returnAmountUSD',
-  redeemEvent__terminal = 'redeemEvent__terminal',
   redeemEvent__timestamp = 'redeemEvent__timestamp',
   redeemEvent__txHash = 'redeemEvent__txHash',
   setFundAccessConstraintsEvent = 'setFundAccessConstraintsEvent',
@@ -6503,7 +6390,6 @@ export enum ProjectEvent_OrderBy {
   setFundAccessConstraintsEvent__overflowAllowance = 'setFundAccessConstraintsEvent__overflowAllowance',
   setFundAccessConstraintsEvent__overflowAllowanceCurrency = 'setFundAccessConstraintsEvent__overflowAllowanceCurrency',
   setFundAccessConstraintsEvent__projectId = 'setFundAccessConstraintsEvent__projectId',
-  setFundAccessConstraintsEvent__terminal = 'setFundAccessConstraintsEvent__terminal',
   setFundAccessConstraintsEvent__timestamp = 'setFundAccessConstraintsEvent__timestamp',
   setFundAccessConstraintsEvent__token = 'setFundAccessConstraintsEvent__token',
   setFundAccessConstraintsEvent__txHash = 'setFundAccessConstraintsEvent__txHash',
@@ -6525,7 +6411,6 @@ export enum ProjectEvent_OrderBy {
   tapEvent__projectId = 'tapEvent__projectId',
   tapEvent__timestamp = 'tapEvent__timestamp',
   tapEvent__txHash = 'tapEvent__txHash',
-  terminal = 'terminal',
   timestamp = 'timestamp',
   useAllowanceEvent = 'useAllowanceEvent',
   useAllowanceEvent__amount = 'useAllowanceEvent__amount',
@@ -6535,13 +6420,13 @@ export enum ProjectEvent_OrderBy {
   useAllowanceEvent__distributedAmount = 'useAllowanceEvent__distributedAmount',
   useAllowanceEvent__distributedAmountUSD = 'useAllowanceEvent__distributedAmountUSD',
   useAllowanceEvent__from = 'useAllowanceEvent__from',
-  useAllowanceEvent__fundingCycleConfiguration = 'useAllowanceEvent__fundingCycleConfiguration',
-  useAllowanceEvent__fundingCycleNumber = 'useAllowanceEvent__fundingCycleNumber',
   useAllowanceEvent__id = 'useAllowanceEvent__id',
   useAllowanceEvent__memo = 'useAllowanceEvent__memo',
   useAllowanceEvent__netDistributedamount = 'useAllowanceEvent__netDistributedamount',
   useAllowanceEvent__netDistributedamountUSD = 'useAllowanceEvent__netDistributedamountUSD',
   useAllowanceEvent__projectId = 'useAllowanceEvent__projectId',
+  useAllowanceEvent__rulesetCycleNumber = 'useAllowanceEvent__rulesetCycleNumber',
+  useAllowanceEvent__rulesetId = 'useAllowanceEvent__rulesetId',
   useAllowanceEvent__timestamp = 'useAllowanceEvent__timestamp',
   useAllowanceEvent__txHash = 'useAllowanceEvent__txHash',
   v1ConfigureEvent = 'v1ConfigureEvent',
@@ -6681,34 +6566,26 @@ export type Project_Filter = {
   latestFundingCycle_lte?: InputMaybe<Scalars['Int']['input']>;
   latestFundingCycle_not?: InputMaybe<Scalars['Int']['input']>;
   latestFundingCycle_not_in?: InputMaybe<Array<Scalars['Int']['input']>>;
-  metadataDomain?: InputMaybe<Scalars['BigInt']['input']>;
-  metadataDomain_gt?: InputMaybe<Scalars['BigInt']['input']>;
-  metadataDomain_gte?: InputMaybe<Scalars['BigInt']['input']>;
-  metadataDomain_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
-  metadataDomain_lt?: InputMaybe<Scalars['BigInt']['input']>;
-  metadataDomain_lte?: InputMaybe<Scalars['BigInt']['input']>;
-  metadataDomain_not?: InputMaybe<Scalars['BigInt']['input']>;
-  metadataDomain_not_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
-  metadataUri?: InputMaybe<Scalars['String']['input']>;
-  metadataUri_contains?: InputMaybe<Scalars['String']['input']>;
-  metadataUri_contains_nocase?: InputMaybe<Scalars['String']['input']>;
-  metadataUri_ends_with?: InputMaybe<Scalars['String']['input']>;
-  metadataUri_ends_with_nocase?: InputMaybe<Scalars['String']['input']>;
-  metadataUri_gt?: InputMaybe<Scalars['String']['input']>;
-  metadataUri_gte?: InputMaybe<Scalars['String']['input']>;
-  metadataUri_in?: InputMaybe<Array<Scalars['String']['input']>>;
-  metadataUri_lt?: InputMaybe<Scalars['String']['input']>;
-  metadataUri_lte?: InputMaybe<Scalars['String']['input']>;
-  metadataUri_not?: InputMaybe<Scalars['String']['input']>;
-  metadataUri_not_contains?: InputMaybe<Scalars['String']['input']>;
-  metadataUri_not_contains_nocase?: InputMaybe<Scalars['String']['input']>;
-  metadataUri_not_ends_with?: InputMaybe<Scalars['String']['input']>;
-  metadataUri_not_ends_with_nocase?: InputMaybe<Scalars['String']['input']>;
-  metadataUri_not_in?: InputMaybe<Array<Scalars['String']['input']>>;
-  metadataUri_not_starts_with?: InputMaybe<Scalars['String']['input']>;
-  metadataUri_not_starts_with_nocase?: InputMaybe<Scalars['String']['input']>;
-  metadataUri_starts_with?: InputMaybe<Scalars['String']['input']>;
-  metadataUri_starts_with_nocase?: InputMaybe<Scalars['String']['input']>;
+  metadata?: InputMaybe<Scalars['String']['input']>;
+  metadata_contains?: InputMaybe<Scalars['String']['input']>;
+  metadata_contains_nocase?: InputMaybe<Scalars['String']['input']>;
+  metadata_ends_with?: InputMaybe<Scalars['String']['input']>;
+  metadata_ends_with_nocase?: InputMaybe<Scalars['String']['input']>;
+  metadata_gt?: InputMaybe<Scalars['String']['input']>;
+  metadata_gte?: InputMaybe<Scalars['String']['input']>;
+  metadata_in?: InputMaybe<Array<Scalars['String']['input']>>;
+  metadata_lt?: InputMaybe<Scalars['String']['input']>;
+  metadata_lte?: InputMaybe<Scalars['String']['input']>;
+  metadata_not?: InputMaybe<Scalars['String']['input']>;
+  metadata_not_contains?: InputMaybe<Scalars['String']['input']>;
+  metadata_not_contains_nocase?: InputMaybe<Scalars['String']['input']>;
+  metadata_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  metadata_not_ends_with_nocase?: InputMaybe<Scalars['String']['input']>;
+  metadata_not_in?: InputMaybe<Array<Scalars['String']['input']>>;
+  metadata_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  metadata_not_starts_with_nocase?: InputMaybe<Scalars['String']['input']>;
+  metadata_starts_with?: InputMaybe<Scalars['String']['input']>;
+  metadata_starts_with_nocase?: InputMaybe<Scalars['String']['input']>;
   migrateEvents_?: InputMaybe<MigrateEvent_Filter>;
   mintTokensEvents_?: InputMaybe<MintTokensEvent_Filter>;
   nftCollections_?: InputMaybe<NftCollection_Filter>;
@@ -6741,6 +6618,7 @@ export type Project_Filter = {
   paymentsCount_lte?: InputMaybe<Scalars['Int']['input']>;
   paymentsCount_not?: InputMaybe<Scalars['Int']['input']>;
   paymentsCount_not_in?: InputMaybe<Array<Scalars['Int']['input']>>;
+  permissionsHolders_?: InputMaybe<PermissionsHolder_Filter>;
   printReservesEvents_?: InputMaybe<PrintReservesEvent_Filter>;
   projectEvents_?: InputMaybe<ProjectEvent_Filter>;
   projectId?: InputMaybe<Scalars['Int']['input']>;
@@ -6751,26 +6629,6 @@ export type Project_Filter = {
   projectId_lte?: InputMaybe<Scalars['Int']['input']>;
   projectId_not?: InputMaybe<Scalars['Int']['input']>;
   projectId_not_in?: InputMaybe<Array<Scalars['Int']['input']>>;
-  pv?: InputMaybe<Scalars['String']['input']>;
-  pv_contains?: InputMaybe<Scalars['String']['input']>;
-  pv_contains_nocase?: InputMaybe<Scalars['String']['input']>;
-  pv_ends_with?: InputMaybe<Scalars['String']['input']>;
-  pv_ends_with_nocase?: InputMaybe<Scalars['String']['input']>;
-  pv_gt?: InputMaybe<Scalars['String']['input']>;
-  pv_gte?: InputMaybe<Scalars['String']['input']>;
-  pv_in?: InputMaybe<Array<Scalars['String']['input']>>;
-  pv_lt?: InputMaybe<Scalars['String']['input']>;
-  pv_lte?: InputMaybe<Scalars['String']['input']>;
-  pv_not?: InputMaybe<Scalars['String']['input']>;
-  pv_not_contains?: InputMaybe<Scalars['String']['input']>;
-  pv_not_contains_nocase?: InputMaybe<Scalars['String']['input']>;
-  pv_not_ends_with?: InputMaybe<Scalars['String']['input']>;
-  pv_not_ends_with_nocase?: InputMaybe<Scalars['String']['input']>;
-  pv_not_in?: InputMaybe<Array<Scalars['String']['input']>>;
-  pv_not_starts_with?: InputMaybe<Scalars['String']['input']>;
-  pv_not_starts_with_nocase?: InputMaybe<Scalars['String']['input']>;
-  pv_starts_with?: InputMaybe<Scalars['String']['input']>;
-  pv_starts_with_nocase?: InputMaybe<Scalars['String']['input']>;
   redeemCount?: InputMaybe<Scalars['Int']['input']>;
   redeemCount_gt?: InputMaybe<Scalars['Int']['input']>;
   redeemCount_gte?: InputMaybe<Scalars['Int']['input']>;
@@ -6798,16 +6656,6 @@ export type Project_Filter = {
   redeemVolume_not_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
   setFundAccessConstraintsEvents_?: InputMaybe<SetFundAccessConstraintsEvent_Filter>;
   tapEvents_?: InputMaybe<TapEvent_Filter>;
-  terminal?: InputMaybe<Scalars['Bytes']['input']>;
-  terminal_contains?: InputMaybe<Scalars['Bytes']['input']>;
-  terminal_gt?: InputMaybe<Scalars['Bytes']['input']>;
-  terminal_gte?: InputMaybe<Scalars['Bytes']['input']>;
-  terminal_in?: InputMaybe<Array<Scalars['Bytes']['input']>>;
-  terminal_lt?: InputMaybe<Scalars['Bytes']['input']>;
-  terminal_lte?: InputMaybe<Scalars['Bytes']['input']>;
-  terminal_not?: InputMaybe<Scalars['Bytes']['input']>;
-  terminal_not_contains?: InputMaybe<Scalars['Bytes']['input']>;
-  terminal_not_in?: InputMaybe<Array<Scalars['Bytes']['input']>>;
   tokenSupply?: InputMaybe<Scalars['BigInt']['input']>;
   tokenSupply_gt?: InputMaybe<Scalars['BigInt']['input']>;
   tokenSupply_gte?: InputMaybe<Scalars['BigInt']['input']>;
@@ -6884,8 +6732,7 @@ export enum Project_OrderBy {
   initEvents = 'initEvents',
   jb721DelegateTokens = 'jb721DelegateTokens',
   latestFundingCycle = 'latestFundingCycle',
-  metadataDomain = 'metadataDomain',
-  metadataUri = 'metadataUri',
+  metadata = 'metadata',
   migrateEvents = 'migrateEvents',
   mintTokensEvents = 'mintTokensEvents',
   nftCollections = 'nftCollections',
@@ -6894,17 +6741,16 @@ export enum Project_OrderBy {
   participants = 'participants',
   payEvents = 'payEvents',
   paymentsCount = 'paymentsCount',
+  permissionsHolders = 'permissionsHolders',
   printReservesEvents = 'printReservesEvents',
   projectEvents = 'projectEvents',
   projectId = 'projectId',
-  pv = 'pv',
   redeemCount = 'redeemCount',
   redeemEvents = 'redeemEvents',
   redeemVolume = 'redeemVolume',
   redeemVolumeUSD = 'redeemVolumeUSD',
   setFundAccessConstraintsEvents = 'setFundAccessConstraintsEvents',
   tapEvents = 'tapEvents',
-  terminal = 'terminal',
   tokenSupply = 'tokenSupply',
   trendingPaymentsCount = 'trendingPaymentsCount',
   trendingScore = 'trendingScore',
@@ -6919,14 +6765,11 @@ export enum Project_OrderBy {
 export type ProtocolLog = {
   erc20Count: Scalars['Int']['output'];
   id: Scalars['ID']['output'];
-  latestInvalidTrendingPayEvent: Maybe<PayEvent>;
+  oldestTrendingPayEvent: Maybe<PayEvent>;
   paymentsCount: Scalars['Int']['output'];
   projectsCount: Scalars['Int']['output'];
   redeemCount: Scalars['Int']['output'];
   trendingLastUpdatedTimestamp: Scalars['Int']['output'];
-  v1: Maybe<ProtocolV1Log>;
-  v2: Maybe<ProtocolV2Log>;
-  v3: Maybe<ProtocolV3Log>;
   volume: Scalars['BigInt']['output'];
   volumeRedeemed: Scalars['BigInt']['output'];
   volumeRedeemedUSD: Scalars['BigInt']['output'];
@@ -6953,27 +6796,27 @@ export type ProtocolLog_Filter = {
   id_lte?: InputMaybe<Scalars['ID']['input']>;
   id_not?: InputMaybe<Scalars['ID']['input']>;
   id_not_in?: InputMaybe<Array<Scalars['ID']['input']>>;
-  latestInvalidTrendingPayEvent?: InputMaybe<Scalars['String']['input']>;
-  latestInvalidTrendingPayEvent_?: InputMaybe<PayEvent_Filter>;
-  latestInvalidTrendingPayEvent_contains?: InputMaybe<Scalars['String']['input']>;
-  latestInvalidTrendingPayEvent_contains_nocase?: InputMaybe<Scalars['String']['input']>;
-  latestInvalidTrendingPayEvent_ends_with?: InputMaybe<Scalars['String']['input']>;
-  latestInvalidTrendingPayEvent_ends_with_nocase?: InputMaybe<Scalars['String']['input']>;
-  latestInvalidTrendingPayEvent_gt?: InputMaybe<Scalars['String']['input']>;
-  latestInvalidTrendingPayEvent_gte?: InputMaybe<Scalars['String']['input']>;
-  latestInvalidTrendingPayEvent_in?: InputMaybe<Array<Scalars['String']['input']>>;
-  latestInvalidTrendingPayEvent_lt?: InputMaybe<Scalars['String']['input']>;
-  latestInvalidTrendingPayEvent_lte?: InputMaybe<Scalars['String']['input']>;
-  latestInvalidTrendingPayEvent_not?: InputMaybe<Scalars['String']['input']>;
-  latestInvalidTrendingPayEvent_not_contains?: InputMaybe<Scalars['String']['input']>;
-  latestInvalidTrendingPayEvent_not_contains_nocase?: InputMaybe<Scalars['String']['input']>;
-  latestInvalidTrendingPayEvent_not_ends_with?: InputMaybe<Scalars['String']['input']>;
-  latestInvalidTrendingPayEvent_not_ends_with_nocase?: InputMaybe<Scalars['String']['input']>;
-  latestInvalidTrendingPayEvent_not_in?: InputMaybe<Array<Scalars['String']['input']>>;
-  latestInvalidTrendingPayEvent_not_starts_with?: InputMaybe<Scalars['String']['input']>;
-  latestInvalidTrendingPayEvent_not_starts_with_nocase?: InputMaybe<Scalars['String']['input']>;
-  latestInvalidTrendingPayEvent_starts_with?: InputMaybe<Scalars['String']['input']>;
-  latestInvalidTrendingPayEvent_starts_with_nocase?: InputMaybe<Scalars['String']['input']>;
+  oldestTrendingPayEvent?: InputMaybe<Scalars['String']['input']>;
+  oldestTrendingPayEvent_?: InputMaybe<PayEvent_Filter>;
+  oldestTrendingPayEvent_contains?: InputMaybe<Scalars['String']['input']>;
+  oldestTrendingPayEvent_contains_nocase?: InputMaybe<Scalars['String']['input']>;
+  oldestTrendingPayEvent_ends_with?: InputMaybe<Scalars['String']['input']>;
+  oldestTrendingPayEvent_ends_with_nocase?: InputMaybe<Scalars['String']['input']>;
+  oldestTrendingPayEvent_gt?: InputMaybe<Scalars['String']['input']>;
+  oldestTrendingPayEvent_gte?: InputMaybe<Scalars['String']['input']>;
+  oldestTrendingPayEvent_in?: InputMaybe<Array<Scalars['String']['input']>>;
+  oldestTrendingPayEvent_lt?: InputMaybe<Scalars['String']['input']>;
+  oldestTrendingPayEvent_lte?: InputMaybe<Scalars['String']['input']>;
+  oldestTrendingPayEvent_not?: InputMaybe<Scalars['String']['input']>;
+  oldestTrendingPayEvent_not_contains?: InputMaybe<Scalars['String']['input']>;
+  oldestTrendingPayEvent_not_contains_nocase?: InputMaybe<Scalars['String']['input']>;
+  oldestTrendingPayEvent_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  oldestTrendingPayEvent_not_ends_with_nocase?: InputMaybe<Scalars['String']['input']>;
+  oldestTrendingPayEvent_not_in?: InputMaybe<Array<Scalars['String']['input']>>;
+  oldestTrendingPayEvent_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  oldestTrendingPayEvent_not_starts_with_nocase?: InputMaybe<Scalars['String']['input']>;
+  oldestTrendingPayEvent_starts_with?: InputMaybe<Scalars['String']['input']>;
+  oldestTrendingPayEvent_starts_with_nocase?: InputMaybe<Scalars['String']['input']>;
   or?: InputMaybe<Array<InputMaybe<ProtocolLog_Filter>>>;
   paymentsCount?: InputMaybe<Scalars['Int']['input']>;
   paymentsCount_gt?: InputMaybe<Scalars['Int']['input']>;
@@ -7007,9 +6850,6 @@ export type ProtocolLog_Filter = {
   trendingLastUpdatedTimestamp_lte?: InputMaybe<Scalars['Int']['input']>;
   trendingLastUpdatedTimestamp_not?: InputMaybe<Scalars['Int']['input']>;
   trendingLastUpdatedTimestamp_not_in?: InputMaybe<Array<Scalars['Int']['input']>>;
-  v1_?: InputMaybe<ProtocolV1Log_Filter>;
-  v2_?: InputMaybe<ProtocolV2Log_Filter>;
-  v3_?: InputMaybe<ProtocolV3Log_Filter>;
   volume?: InputMaybe<Scalars['BigInt']['input']>;
   volumeRedeemed?: InputMaybe<Scalars['BigInt']['input']>;
   volumeRedeemedUSD?: InputMaybe<Scalars['BigInt']['input']>;
@@ -7047,464 +6887,24 @@ export type ProtocolLog_Filter = {
 export enum ProtocolLog_OrderBy {
   erc20Count = 'erc20Count',
   id = 'id',
-  latestInvalidTrendingPayEvent = 'latestInvalidTrendingPayEvent',
-  latestInvalidTrendingPayEvent__amount = 'latestInvalidTrendingPayEvent__amount',
-  latestInvalidTrendingPayEvent__amountUSD = 'latestInvalidTrendingPayEvent__amountUSD',
-  latestInvalidTrendingPayEvent__beneficiary = 'latestInvalidTrendingPayEvent__beneficiary',
-  latestInvalidTrendingPayEvent__caller = 'latestInvalidTrendingPayEvent__caller',
-  latestInvalidTrendingPayEvent__distributionFromProjectId = 'latestInvalidTrendingPayEvent__distributionFromProjectId',
-  latestInvalidTrendingPayEvent__feeFromV2Project = 'latestInvalidTrendingPayEvent__feeFromV2Project',
-  latestInvalidTrendingPayEvent__from = 'latestInvalidTrendingPayEvent__from',
-  latestInvalidTrendingPayEvent__id = 'latestInvalidTrendingPayEvent__id',
-  latestInvalidTrendingPayEvent__isDistribution = 'latestInvalidTrendingPayEvent__isDistribution',
-  latestInvalidTrendingPayEvent__note = 'latestInvalidTrendingPayEvent__note',
-  latestInvalidTrendingPayEvent__projectId = 'latestInvalidTrendingPayEvent__projectId',
-  latestInvalidTrendingPayEvent__pv = 'latestInvalidTrendingPayEvent__pv',
-  latestInvalidTrendingPayEvent__terminal = 'latestInvalidTrendingPayEvent__terminal',
-  latestInvalidTrendingPayEvent__timestamp = 'latestInvalidTrendingPayEvent__timestamp',
-  latestInvalidTrendingPayEvent__txHash = 'latestInvalidTrendingPayEvent__txHash',
+  oldestTrendingPayEvent = 'oldestTrendingPayEvent',
+  oldestTrendingPayEvent__amount = 'oldestTrendingPayEvent__amount',
+  oldestTrendingPayEvent__amountUSD = 'oldestTrendingPayEvent__amountUSD',
+  oldestTrendingPayEvent__beneficiary = 'oldestTrendingPayEvent__beneficiary',
+  oldestTrendingPayEvent__beneficiaryTokenCount = 'oldestTrendingPayEvent__beneficiaryTokenCount',
+  oldestTrendingPayEvent__caller = 'oldestTrendingPayEvent__caller',
+  oldestTrendingPayEvent__distributionFromProjectId = 'oldestTrendingPayEvent__distributionFromProjectId',
+  oldestTrendingPayEvent__feeFromV2Project = 'oldestTrendingPayEvent__feeFromV2Project',
+  oldestTrendingPayEvent__from = 'oldestTrendingPayEvent__from',
+  oldestTrendingPayEvent__id = 'oldestTrendingPayEvent__id',
+  oldestTrendingPayEvent__note = 'oldestTrendingPayEvent__note',
+  oldestTrendingPayEvent__projectId = 'oldestTrendingPayEvent__projectId',
+  oldestTrendingPayEvent__timestamp = 'oldestTrendingPayEvent__timestamp',
+  oldestTrendingPayEvent__txHash = 'oldestTrendingPayEvent__txHash',
   paymentsCount = 'paymentsCount',
   projectsCount = 'projectsCount',
   redeemCount = 'redeemCount',
   trendingLastUpdatedTimestamp = 'trendingLastUpdatedTimestamp',
-  v1 = 'v1',
-  v1__erc20Count = 'v1__erc20Count',
-  v1__id = 'v1__id',
-  v1__paymentsCount = 'v1__paymentsCount',
-  v1__projectsCount = 'v1__projectsCount',
-  v1__redeemCount = 'v1__redeemCount',
-  v1__volume = 'v1__volume',
-  v1__volumeRedeemed = 'v1__volumeRedeemed',
-  v1__volumeRedeemedUSD = 'v1__volumeRedeemedUSD',
-  v1__volumeUSD = 'v1__volumeUSD',
-  v2 = 'v2',
-  v2__erc20Count = 'v2__erc20Count',
-  v2__id = 'v2__id',
-  v2__paymentsCount = 'v2__paymentsCount',
-  v2__projectsCount = 'v2__projectsCount',
-  v2__redeemCount = 'v2__redeemCount',
-  v2__volume = 'v2__volume',
-  v2__volumeRedeemed = 'v2__volumeRedeemed',
-  v2__volumeRedeemedUSD = 'v2__volumeRedeemedUSD',
-  v2__volumeUSD = 'v2__volumeUSD',
-  v3 = 'v3',
-  v3__erc20Count = 'v3__erc20Count',
-  v3__id = 'v3__id',
-  v3__paymentsCount = 'v3__paymentsCount',
-  v3__projectsCount = 'v3__projectsCount',
-  v3__redeemCount = 'v3__redeemCount',
-  v3__volume = 'v3__volume',
-  v3__volumeRedeemed = 'v3__volumeRedeemed',
-  v3__volumeRedeemedUSD = 'v3__volumeRedeemedUSD',
-  v3__volumeUSD = 'v3__volumeUSD',
-  volume = 'volume',
-  volumeRedeemed = 'volumeRedeemed',
-  volumeRedeemedUSD = 'volumeRedeemedUSD',
-  volumeUSD = 'volumeUSD'
-}
-
-export type ProtocolV1Log = {
-  erc20Count: Scalars['Int']['output'];
-  id: Scalars['ID']['output'];
-  log: ProtocolLog;
-  paymentsCount: Scalars['Int']['output'];
-  projectsCount: Scalars['Int']['output'];
-  redeemCount: Scalars['Int']['output'];
-  volume: Scalars['BigInt']['output'];
-  volumeRedeemed: Scalars['BigInt']['output'];
-  volumeRedeemedUSD: Scalars['BigInt']['output'];
-  volumeUSD: Scalars['BigInt']['output'];
-};
-
-export type ProtocolV1Log_Filter = {
-  /** Filter for the block changed event. */
-  _change_block?: InputMaybe<BlockChangedFilter>;
-  and?: InputMaybe<Array<InputMaybe<ProtocolV1Log_Filter>>>;
-  erc20Count?: InputMaybe<Scalars['Int']['input']>;
-  erc20Count_gt?: InputMaybe<Scalars['Int']['input']>;
-  erc20Count_gte?: InputMaybe<Scalars['Int']['input']>;
-  erc20Count_in?: InputMaybe<Array<Scalars['Int']['input']>>;
-  erc20Count_lt?: InputMaybe<Scalars['Int']['input']>;
-  erc20Count_lte?: InputMaybe<Scalars['Int']['input']>;
-  erc20Count_not?: InputMaybe<Scalars['Int']['input']>;
-  erc20Count_not_in?: InputMaybe<Array<Scalars['Int']['input']>>;
-  id?: InputMaybe<Scalars['ID']['input']>;
-  id_gt?: InputMaybe<Scalars['ID']['input']>;
-  id_gte?: InputMaybe<Scalars['ID']['input']>;
-  id_in?: InputMaybe<Array<Scalars['ID']['input']>>;
-  id_lt?: InputMaybe<Scalars['ID']['input']>;
-  id_lte?: InputMaybe<Scalars['ID']['input']>;
-  id_not?: InputMaybe<Scalars['ID']['input']>;
-  id_not_in?: InputMaybe<Array<Scalars['ID']['input']>>;
-  log?: InputMaybe<Scalars['String']['input']>;
-  log_?: InputMaybe<ProtocolLog_Filter>;
-  log_contains?: InputMaybe<Scalars['String']['input']>;
-  log_contains_nocase?: InputMaybe<Scalars['String']['input']>;
-  log_ends_with?: InputMaybe<Scalars['String']['input']>;
-  log_ends_with_nocase?: InputMaybe<Scalars['String']['input']>;
-  log_gt?: InputMaybe<Scalars['String']['input']>;
-  log_gte?: InputMaybe<Scalars['String']['input']>;
-  log_in?: InputMaybe<Array<Scalars['String']['input']>>;
-  log_lt?: InputMaybe<Scalars['String']['input']>;
-  log_lte?: InputMaybe<Scalars['String']['input']>;
-  log_not?: InputMaybe<Scalars['String']['input']>;
-  log_not_contains?: InputMaybe<Scalars['String']['input']>;
-  log_not_contains_nocase?: InputMaybe<Scalars['String']['input']>;
-  log_not_ends_with?: InputMaybe<Scalars['String']['input']>;
-  log_not_ends_with_nocase?: InputMaybe<Scalars['String']['input']>;
-  log_not_in?: InputMaybe<Array<Scalars['String']['input']>>;
-  log_not_starts_with?: InputMaybe<Scalars['String']['input']>;
-  log_not_starts_with_nocase?: InputMaybe<Scalars['String']['input']>;
-  log_starts_with?: InputMaybe<Scalars['String']['input']>;
-  log_starts_with_nocase?: InputMaybe<Scalars['String']['input']>;
-  or?: InputMaybe<Array<InputMaybe<ProtocolV1Log_Filter>>>;
-  paymentsCount?: InputMaybe<Scalars['Int']['input']>;
-  paymentsCount_gt?: InputMaybe<Scalars['Int']['input']>;
-  paymentsCount_gte?: InputMaybe<Scalars['Int']['input']>;
-  paymentsCount_in?: InputMaybe<Array<Scalars['Int']['input']>>;
-  paymentsCount_lt?: InputMaybe<Scalars['Int']['input']>;
-  paymentsCount_lte?: InputMaybe<Scalars['Int']['input']>;
-  paymentsCount_not?: InputMaybe<Scalars['Int']['input']>;
-  paymentsCount_not_in?: InputMaybe<Array<Scalars['Int']['input']>>;
-  projectsCount?: InputMaybe<Scalars['Int']['input']>;
-  projectsCount_gt?: InputMaybe<Scalars['Int']['input']>;
-  projectsCount_gte?: InputMaybe<Scalars['Int']['input']>;
-  projectsCount_in?: InputMaybe<Array<Scalars['Int']['input']>>;
-  projectsCount_lt?: InputMaybe<Scalars['Int']['input']>;
-  projectsCount_lte?: InputMaybe<Scalars['Int']['input']>;
-  projectsCount_not?: InputMaybe<Scalars['Int']['input']>;
-  projectsCount_not_in?: InputMaybe<Array<Scalars['Int']['input']>>;
-  redeemCount?: InputMaybe<Scalars['Int']['input']>;
-  redeemCount_gt?: InputMaybe<Scalars['Int']['input']>;
-  redeemCount_gte?: InputMaybe<Scalars['Int']['input']>;
-  redeemCount_in?: InputMaybe<Array<Scalars['Int']['input']>>;
-  redeemCount_lt?: InputMaybe<Scalars['Int']['input']>;
-  redeemCount_lte?: InputMaybe<Scalars['Int']['input']>;
-  redeemCount_not?: InputMaybe<Scalars['Int']['input']>;
-  redeemCount_not_in?: InputMaybe<Array<Scalars['Int']['input']>>;
-  volume?: InputMaybe<Scalars['BigInt']['input']>;
-  volumeRedeemed?: InputMaybe<Scalars['BigInt']['input']>;
-  volumeRedeemedUSD?: InputMaybe<Scalars['BigInt']['input']>;
-  volumeRedeemedUSD_gt?: InputMaybe<Scalars['BigInt']['input']>;
-  volumeRedeemedUSD_gte?: InputMaybe<Scalars['BigInt']['input']>;
-  volumeRedeemedUSD_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
-  volumeRedeemedUSD_lt?: InputMaybe<Scalars['BigInt']['input']>;
-  volumeRedeemedUSD_lte?: InputMaybe<Scalars['BigInt']['input']>;
-  volumeRedeemedUSD_not?: InputMaybe<Scalars['BigInt']['input']>;
-  volumeRedeemedUSD_not_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
-  volumeRedeemed_gt?: InputMaybe<Scalars['BigInt']['input']>;
-  volumeRedeemed_gte?: InputMaybe<Scalars['BigInt']['input']>;
-  volumeRedeemed_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
-  volumeRedeemed_lt?: InputMaybe<Scalars['BigInt']['input']>;
-  volumeRedeemed_lte?: InputMaybe<Scalars['BigInt']['input']>;
-  volumeRedeemed_not?: InputMaybe<Scalars['BigInt']['input']>;
-  volumeRedeemed_not_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
-  volumeUSD?: InputMaybe<Scalars['BigInt']['input']>;
-  volumeUSD_gt?: InputMaybe<Scalars['BigInt']['input']>;
-  volumeUSD_gte?: InputMaybe<Scalars['BigInt']['input']>;
-  volumeUSD_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
-  volumeUSD_lt?: InputMaybe<Scalars['BigInt']['input']>;
-  volumeUSD_lte?: InputMaybe<Scalars['BigInt']['input']>;
-  volumeUSD_not?: InputMaybe<Scalars['BigInt']['input']>;
-  volumeUSD_not_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
-  volume_gt?: InputMaybe<Scalars['BigInt']['input']>;
-  volume_gte?: InputMaybe<Scalars['BigInt']['input']>;
-  volume_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
-  volume_lt?: InputMaybe<Scalars['BigInt']['input']>;
-  volume_lte?: InputMaybe<Scalars['BigInt']['input']>;
-  volume_not?: InputMaybe<Scalars['BigInt']['input']>;
-  volume_not_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
-};
-
-export enum ProtocolV1Log_OrderBy {
-  erc20Count = 'erc20Count',
-  id = 'id',
-  log = 'log',
-  log__erc20Count = 'log__erc20Count',
-  log__id = 'log__id',
-  log__paymentsCount = 'log__paymentsCount',
-  log__projectsCount = 'log__projectsCount',
-  log__redeemCount = 'log__redeemCount',
-  log__trendingLastUpdatedTimestamp = 'log__trendingLastUpdatedTimestamp',
-  log__volume = 'log__volume',
-  log__volumeRedeemed = 'log__volumeRedeemed',
-  log__volumeRedeemedUSD = 'log__volumeRedeemedUSD',
-  log__volumeUSD = 'log__volumeUSD',
-  paymentsCount = 'paymentsCount',
-  projectsCount = 'projectsCount',
-  redeemCount = 'redeemCount',
-  volume = 'volume',
-  volumeRedeemed = 'volumeRedeemed',
-  volumeRedeemedUSD = 'volumeRedeemedUSD',
-  volumeUSD = 'volumeUSD'
-}
-
-export type ProtocolV2Log = {
-  erc20Count: Scalars['Int']['output'];
-  id: Scalars['ID']['output'];
-  log: ProtocolLog;
-  paymentsCount: Scalars['Int']['output'];
-  projectsCount: Scalars['Int']['output'];
-  redeemCount: Scalars['Int']['output'];
-  volume: Scalars['BigInt']['output'];
-  volumeRedeemed: Scalars['BigInt']['output'];
-  volumeRedeemedUSD: Scalars['BigInt']['output'];
-  volumeUSD: Scalars['BigInt']['output'];
-};
-
-export type ProtocolV2Log_Filter = {
-  /** Filter for the block changed event. */
-  _change_block?: InputMaybe<BlockChangedFilter>;
-  and?: InputMaybe<Array<InputMaybe<ProtocolV2Log_Filter>>>;
-  erc20Count?: InputMaybe<Scalars['Int']['input']>;
-  erc20Count_gt?: InputMaybe<Scalars['Int']['input']>;
-  erc20Count_gte?: InputMaybe<Scalars['Int']['input']>;
-  erc20Count_in?: InputMaybe<Array<Scalars['Int']['input']>>;
-  erc20Count_lt?: InputMaybe<Scalars['Int']['input']>;
-  erc20Count_lte?: InputMaybe<Scalars['Int']['input']>;
-  erc20Count_not?: InputMaybe<Scalars['Int']['input']>;
-  erc20Count_not_in?: InputMaybe<Array<Scalars['Int']['input']>>;
-  id?: InputMaybe<Scalars['ID']['input']>;
-  id_gt?: InputMaybe<Scalars['ID']['input']>;
-  id_gte?: InputMaybe<Scalars['ID']['input']>;
-  id_in?: InputMaybe<Array<Scalars['ID']['input']>>;
-  id_lt?: InputMaybe<Scalars['ID']['input']>;
-  id_lte?: InputMaybe<Scalars['ID']['input']>;
-  id_not?: InputMaybe<Scalars['ID']['input']>;
-  id_not_in?: InputMaybe<Array<Scalars['ID']['input']>>;
-  log?: InputMaybe<Scalars['String']['input']>;
-  log_?: InputMaybe<ProtocolLog_Filter>;
-  log_contains?: InputMaybe<Scalars['String']['input']>;
-  log_contains_nocase?: InputMaybe<Scalars['String']['input']>;
-  log_ends_with?: InputMaybe<Scalars['String']['input']>;
-  log_ends_with_nocase?: InputMaybe<Scalars['String']['input']>;
-  log_gt?: InputMaybe<Scalars['String']['input']>;
-  log_gte?: InputMaybe<Scalars['String']['input']>;
-  log_in?: InputMaybe<Array<Scalars['String']['input']>>;
-  log_lt?: InputMaybe<Scalars['String']['input']>;
-  log_lte?: InputMaybe<Scalars['String']['input']>;
-  log_not?: InputMaybe<Scalars['String']['input']>;
-  log_not_contains?: InputMaybe<Scalars['String']['input']>;
-  log_not_contains_nocase?: InputMaybe<Scalars['String']['input']>;
-  log_not_ends_with?: InputMaybe<Scalars['String']['input']>;
-  log_not_ends_with_nocase?: InputMaybe<Scalars['String']['input']>;
-  log_not_in?: InputMaybe<Array<Scalars['String']['input']>>;
-  log_not_starts_with?: InputMaybe<Scalars['String']['input']>;
-  log_not_starts_with_nocase?: InputMaybe<Scalars['String']['input']>;
-  log_starts_with?: InputMaybe<Scalars['String']['input']>;
-  log_starts_with_nocase?: InputMaybe<Scalars['String']['input']>;
-  or?: InputMaybe<Array<InputMaybe<ProtocolV2Log_Filter>>>;
-  paymentsCount?: InputMaybe<Scalars['Int']['input']>;
-  paymentsCount_gt?: InputMaybe<Scalars['Int']['input']>;
-  paymentsCount_gte?: InputMaybe<Scalars['Int']['input']>;
-  paymentsCount_in?: InputMaybe<Array<Scalars['Int']['input']>>;
-  paymentsCount_lt?: InputMaybe<Scalars['Int']['input']>;
-  paymentsCount_lte?: InputMaybe<Scalars['Int']['input']>;
-  paymentsCount_not?: InputMaybe<Scalars['Int']['input']>;
-  paymentsCount_not_in?: InputMaybe<Array<Scalars['Int']['input']>>;
-  projectsCount?: InputMaybe<Scalars['Int']['input']>;
-  projectsCount_gt?: InputMaybe<Scalars['Int']['input']>;
-  projectsCount_gte?: InputMaybe<Scalars['Int']['input']>;
-  projectsCount_in?: InputMaybe<Array<Scalars['Int']['input']>>;
-  projectsCount_lt?: InputMaybe<Scalars['Int']['input']>;
-  projectsCount_lte?: InputMaybe<Scalars['Int']['input']>;
-  projectsCount_not?: InputMaybe<Scalars['Int']['input']>;
-  projectsCount_not_in?: InputMaybe<Array<Scalars['Int']['input']>>;
-  redeemCount?: InputMaybe<Scalars['Int']['input']>;
-  redeemCount_gt?: InputMaybe<Scalars['Int']['input']>;
-  redeemCount_gte?: InputMaybe<Scalars['Int']['input']>;
-  redeemCount_in?: InputMaybe<Array<Scalars['Int']['input']>>;
-  redeemCount_lt?: InputMaybe<Scalars['Int']['input']>;
-  redeemCount_lte?: InputMaybe<Scalars['Int']['input']>;
-  redeemCount_not?: InputMaybe<Scalars['Int']['input']>;
-  redeemCount_not_in?: InputMaybe<Array<Scalars['Int']['input']>>;
-  volume?: InputMaybe<Scalars['BigInt']['input']>;
-  volumeRedeemed?: InputMaybe<Scalars['BigInt']['input']>;
-  volumeRedeemedUSD?: InputMaybe<Scalars['BigInt']['input']>;
-  volumeRedeemedUSD_gt?: InputMaybe<Scalars['BigInt']['input']>;
-  volumeRedeemedUSD_gte?: InputMaybe<Scalars['BigInt']['input']>;
-  volumeRedeemedUSD_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
-  volumeRedeemedUSD_lt?: InputMaybe<Scalars['BigInt']['input']>;
-  volumeRedeemedUSD_lte?: InputMaybe<Scalars['BigInt']['input']>;
-  volumeRedeemedUSD_not?: InputMaybe<Scalars['BigInt']['input']>;
-  volumeRedeemedUSD_not_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
-  volumeRedeemed_gt?: InputMaybe<Scalars['BigInt']['input']>;
-  volumeRedeemed_gte?: InputMaybe<Scalars['BigInt']['input']>;
-  volumeRedeemed_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
-  volumeRedeemed_lt?: InputMaybe<Scalars['BigInt']['input']>;
-  volumeRedeemed_lte?: InputMaybe<Scalars['BigInt']['input']>;
-  volumeRedeemed_not?: InputMaybe<Scalars['BigInt']['input']>;
-  volumeRedeemed_not_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
-  volumeUSD?: InputMaybe<Scalars['BigInt']['input']>;
-  volumeUSD_gt?: InputMaybe<Scalars['BigInt']['input']>;
-  volumeUSD_gte?: InputMaybe<Scalars['BigInt']['input']>;
-  volumeUSD_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
-  volumeUSD_lt?: InputMaybe<Scalars['BigInt']['input']>;
-  volumeUSD_lte?: InputMaybe<Scalars['BigInt']['input']>;
-  volumeUSD_not?: InputMaybe<Scalars['BigInt']['input']>;
-  volumeUSD_not_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
-  volume_gt?: InputMaybe<Scalars['BigInt']['input']>;
-  volume_gte?: InputMaybe<Scalars['BigInt']['input']>;
-  volume_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
-  volume_lt?: InputMaybe<Scalars['BigInt']['input']>;
-  volume_lte?: InputMaybe<Scalars['BigInt']['input']>;
-  volume_not?: InputMaybe<Scalars['BigInt']['input']>;
-  volume_not_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
-};
-
-export enum ProtocolV2Log_OrderBy {
-  erc20Count = 'erc20Count',
-  id = 'id',
-  log = 'log',
-  log__erc20Count = 'log__erc20Count',
-  log__id = 'log__id',
-  log__paymentsCount = 'log__paymentsCount',
-  log__projectsCount = 'log__projectsCount',
-  log__redeemCount = 'log__redeemCount',
-  log__trendingLastUpdatedTimestamp = 'log__trendingLastUpdatedTimestamp',
-  log__volume = 'log__volume',
-  log__volumeRedeemed = 'log__volumeRedeemed',
-  log__volumeRedeemedUSD = 'log__volumeRedeemedUSD',
-  log__volumeUSD = 'log__volumeUSD',
-  paymentsCount = 'paymentsCount',
-  projectsCount = 'projectsCount',
-  redeemCount = 'redeemCount',
-  volume = 'volume',
-  volumeRedeemed = 'volumeRedeemed',
-  volumeRedeemedUSD = 'volumeRedeemedUSD',
-  volumeUSD = 'volumeUSD'
-}
-
-export type ProtocolV3Log = {
-  erc20Count: Scalars['Int']['output'];
-  id: Scalars['ID']['output'];
-  log: ProtocolLog;
-  paymentsCount: Scalars['Int']['output'];
-  projectsCount: Scalars['Int']['output'];
-  redeemCount: Scalars['Int']['output'];
-  volume: Scalars['BigInt']['output'];
-  volumeRedeemed: Scalars['BigInt']['output'];
-  volumeRedeemedUSD: Scalars['BigInt']['output'];
-  volumeUSD: Scalars['BigInt']['output'];
-};
-
-export type ProtocolV3Log_Filter = {
-  /** Filter for the block changed event. */
-  _change_block?: InputMaybe<BlockChangedFilter>;
-  and?: InputMaybe<Array<InputMaybe<ProtocolV3Log_Filter>>>;
-  erc20Count?: InputMaybe<Scalars['Int']['input']>;
-  erc20Count_gt?: InputMaybe<Scalars['Int']['input']>;
-  erc20Count_gte?: InputMaybe<Scalars['Int']['input']>;
-  erc20Count_in?: InputMaybe<Array<Scalars['Int']['input']>>;
-  erc20Count_lt?: InputMaybe<Scalars['Int']['input']>;
-  erc20Count_lte?: InputMaybe<Scalars['Int']['input']>;
-  erc20Count_not?: InputMaybe<Scalars['Int']['input']>;
-  erc20Count_not_in?: InputMaybe<Array<Scalars['Int']['input']>>;
-  id?: InputMaybe<Scalars['ID']['input']>;
-  id_gt?: InputMaybe<Scalars['ID']['input']>;
-  id_gte?: InputMaybe<Scalars['ID']['input']>;
-  id_in?: InputMaybe<Array<Scalars['ID']['input']>>;
-  id_lt?: InputMaybe<Scalars['ID']['input']>;
-  id_lte?: InputMaybe<Scalars['ID']['input']>;
-  id_not?: InputMaybe<Scalars['ID']['input']>;
-  id_not_in?: InputMaybe<Array<Scalars['ID']['input']>>;
-  log?: InputMaybe<Scalars['String']['input']>;
-  log_?: InputMaybe<ProtocolLog_Filter>;
-  log_contains?: InputMaybe<Scalars['String']['input']>;
-  log_contains_nocase?: InputMaybe<Scalars['String']['input']>;
-  log_ends_with?: InputMaybe<Scalars['String']['input']>;
-  log_ends_with_nocase?: InputMaybe<Scalars['String']['input']>;
-  log_gt?: InputMaybe<Scalars['String']['input']>;
-  log_gte?: InputMaybe<Scalars['String']['input']>;
-  log_in?: InputMaybe<Array<Scalars['String']['input']>>;
-  log_lt?: InputMaybe<Scalars['String']['input']>;
-  log_lte?: InputMaybe<Scalars['String']['input']>;
-  log_not?: InputMaybe<Scalars['String']['input']>;
-  log_not_contains?: InputMaybe<Scalars['String']['input']>;
-  log_not_contains_nocase?: InputMaybe<Scalars['String']['input']>;
-  log_not_ends_with?: InputMaybe<Scalars['String']['input']>;
-  log_not_ends_with_nocase?: InputMaybe<Scalars['String']['input']>;
-  log_not_in?: InputMaybe<Array<Scalars['String']['input']>>;
-  log_not_starts_with?: InputMaybe<Scalars['String']['input']>;
-  log_not_starts_with_nocase?: InputMaybe<Scalars['String']['input']>;
-  log_starts_with?: InputMaybe<Scalars['String']['input']>;
-  log_starts_with_nocase?: InputMaybe<Scalars['String']['input']>;
-  or?: InputMaybe<Array<InputMaybe<ProtocolV3Log_Filter>>>;
-  paymentsCount?: InputMaybe<Scalars['Int']['input']>;
-  paymentsCount_gt?: InputMaybe<Scalars['Int']['input']>;
-  paymentsCount_gte?: InputMaybe<Scalars['Int']['input']>;
-  paymentsCount_in?: InputMaybe<Array<Scalars['Int']['input']>>;
-  paymentsCount_lt?: InputMaybe<Scalars['Int']['input']>;
-  paymentsCount_lte?: InputMaybe<Scalars['Int']['input']>;
-  paymentsCount_not?: InputMaybe<Scalars['Int']['input']>;
-  paymentsCount_not_in?: InputMaybe<Array<Scalars['Int']['input']>>;
-  projectsCount?: InputMaybe<Scalars['Int']['input']>;
-  projectsCount_gt?: InputMaybe<Scalars['Int']['input']>;
-  projectsCount_gte?: InputMaybe<Scalars['Int']['input']>;
-  projectsCount_in?: InputMaybe<Array<Scalars['Int']['input']>>;
-  projectsCount_lt?: InputMaybe<Scalars['Int']['input']>;
-  projectsCount_lte?: InputMaybe<Scalars['Int']['input']>;
-  projectsCount_not?: InputMaybe<Scalars['Int']['input']>;
-  projectsCount_not_in?: InputMaybe<Array<Scalars['Int']['input']>>;
-  redeemCount?: InputMaybe<Scalars['Int']['input']>;
-  redeemCount_gt?: InputMaybe<Scalars['Int']['input']>;
-  redeemCount_gte?: InputMaybe<Scalars['Int']['input']>;
-  redeemCount_in?: InputMaybe<Array<Scalars['Int']['input']>>;
-  redeemCount_lt?: InputMaybe<Scalars['Int']['input']>;
-  redeemCount_lte?: InputMaybe<Scalars['Int']['input']>;
-  redeemCount_not?: InputMaybe<Scalars['Int']['input']>;
-  redeemCount_not_in?: InputMaybe<Array<Scalars['Int']['input']>>;
-  volume?: InputMaybe<Scalars['BigInt']['input']>;
-  volumeRedeemed?: InputMaybe<Scalars['BigInt']['input']>;
-  volumeRedeemedUSD?: InputMaybe<Scalars['BigInt']['input']>;
-  volumeRedeemedUSD_gt?: InputMaybe<Scalars['BigInt']['input']>;
-  volumeRedeemedUSD_gte?: InputMaybe<Scalars['BigInt']['input']>;
-  volumeRedeemedUSD_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
-  volumeRedeemedUSD_lt?: InputMaybe<Scalars['BigInt']['input']>;
-  volumeRedeemedUSD_lte?: InputMaybe<Scalars['BigInt']['input']>;
-  volumeRedeemedUSD_not?: InputMaybe<Scalars['BigInt']['input']>;
-  volumeRedeemedUSD_not_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
-  volumeRedeemed_gt?: InputMaybe<Scalars['BigInt']['input']>;
-  volumeRedeemed_gte?: InputMaybe<Scalars['BigInt']['input']>;
-  volumeRedeemed_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
-  volumeRedeemed_lt?: InputMaybe<Scalars['BigInt']['input']>;
-  volumeRedeemed_lte?: InputMaybe<Scalars['BigInt']['input']>;
-  volumeRedeemed_not?: InputMaybe<Scalars['BigInt']['input']>;
-  volumeRedeemed_not_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
-  volumeUSD?: InputMaybe<Scalars['BigInt']['input']>;
-  volumeUSD_gt?: InputMaybe<Scalars['BigInt']['input']>;
-  volumeUSD_gte?: InputMaybe<Scalars['BigInt']['input']>;
-  volumeUSD_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
-  volumeUSD_lt?: InputMaybe<Scalars['BigInt']['input']>;
-  volumeUSD_lte?: InputMaybe<Scalars['BigInt']['input']>;
-  volumeUSD_not?: InputMaybe<Scalars['BigInt']['input']>;
-  volumeUSD_not_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
-  volume_gt?: InputMaybe<Scalars['BigInt']['input']>;
-  volume_gte?: InputMaybe<Scalars['BigInt']['input']>;
-  volume_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
-  volume_lt?: InputMaybe<Scalars['BigInt']['input']>;
-  volume_lte?: InputMaybe<Scalars['BigInt']['input']>;
-  volume_not?: InputMaybe<Scalars['BigInt']['input']>;
-  volume_not_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
-};
-
-export enum ProtocolV3Log_OrderBy {
-  erc20Count = 'erc20Count',
-  id = 'id',
-  log = 'log',
-  log__erc20Count = 'log__erc20Count',
-  log__id = 'log__id',
-  log__paymentsCount = 'log__paymentsCount',
-  log__projectsCount = 'log__projectsCount',
-  log__redeemCount = 'log__redeemCount',
-  log__trendingLastUpdatedTimestamp = 'log__trendingLastUpdatedTimestamp',
-  log__volume = 'log__volume',
-  log__volumeRedeemed = 'log__volumeRedeemed',
-  log__volumeRedeemedUSD = 'log__volumeRedeemedUSD',
-  log__volumeUSD = 'log__volumeUSD',
-  paymentsCount = 'paymentsCount',
-  projectsCount = 'projectsCount',
-  redeemCount = 'redeemCount',
   volume = 'volume',
   volumeRedeemed = 'volumeRedeemed',
   volumeRedeemedUSD = 'volumeRedeemedUSD',
@@ -7520,6 +6920,8 @@ export type Query = {
   burnEvents: Array<BurnEvent>;
   configureEvent: Maybe<ConfigureEvent>;
   configureEvents: Array<ConfigureEvent>;
+  decoratedBannies: Array<DecoratedBanny>;
+  decoratedBanny: Maybe<DecoratedBanny>;
   deployETHERC20ProjectPayerEvent: Maybe<DeployEtherc20ProjectPayerEvent>;
   deployETHERC20ProjectPayerEvents: Array<DeployEtherc20ProjectPayerEvent>;
   deployETHERC20SplitsPayerEvent: Maybe<DeployEtherc20SplitsPayerEvent>;
@@ -7562,6 +6964,8 @@ export type Query = {
   participants: Array<Participant>;
   payEvent: Maybe<PayEvent>;
   payEvents: Array<PayEvent>;
+  permissionsHolder: Maybe<PermissionsHolder>;
+  permissionsHolders: Array<PermissionsHolder>;
   printReservesEvent: Maybe<PrintReservesEvent>;
   printReservesEvents: Array<PrintReservesEvent>;
   project: Maybe<Project>;
@@ -7573,12 +6977,6 @@ export type Query = {
   projects: Array<Project>;
   protocolLog: Maybe<ProtocolLog>;
   protocolLogs: Array<ProtocolLog>;
-  protocolV1Log: Maybe<ProtocolV1Log>;
-  protocolV1Logs: Array<ProtocolV1Log>;
-  protocolV2Log: Maybe<ProtocolV2Log>;
-  protocolV2Logs: Array<ProtocolV2Log>;
-  protocolV3Log: Maybe<ProtocolV3Log>;
-  protocolV3Logs: Array<ProtocolV3Log>;
   redeemEvent: Maybe<RedeemEvent>;
   redeemEvents: Array<RedeemEvent>;
   setFundAccessConstraintsEvent: Maybe<SetFundAccessConstraintsEvent>;
@@ -7652,6 +7050,24 @@ export type QueryConfigureEventsArgs = {
   skip?: InputMaybe<Scalars['Int']['input']>;
   subgraphError?: _SubgraphErrorPolicy_;
   where?: InputMaybe<ConfigureEvent_Filter>;
+};
+
+
+export type QueryDecoratedBanniesArgs = {
+  block?: InputMaybe<Block_Height>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<DecoratedBanny_OrderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
+  subgraphError?: _SubgraphErrorPolicy_;
+  where?: InputMaybe<DecoratedBanny_Filter>;
+};
+
+
+export type QueryDecoratedBannyArgs = {
+  block?: InputMaybe<Block_Height>;
+  id: Scalars['ID']['input'];
+  subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
@@ -8033,6 +7449,24 @@ export type QueryPayEventsArgs = {
 };
 
 
+export type QueryPermissionsHolderArgs = {
+  block?: InputMaybe<Block_Height>;
+  id: Scalars['ID']['input'];
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type QueryPermissionsHoldersArgs = {
+  block?: InputMaybe<Block_Height>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<PermissionsHolder_OrderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
+  subgraphError?: _SubgraphErrorPolicy_;
+  where?: InputMaybe<PermissionsHolder_Filter>;
+};
+
+
 export type QueryPrintReservesEventArgs = {
   block?: InputMaybe<Block_Height>;
   id: Scalars['ID']['input'];
@@ -8130,60 +7564,6 @@ export type QueryProtocolLogsArgs = {
   skip?: InputMaybe<Scalars['Int']['input']>;
   subgraphError?: _SubgraphErrorPolicy_;
   where?: InputMaybe<ProtocolLog_Filter>;
-};
-
-
-export type QueryProtocolV1LogArgs = {
-  block?: InputMaybe<Block_Height>;
-  id: Scalars['ID']['input'];
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type QueryProtocolV1LogsArgs = {
-  block?: InputMaybe<Block_Height>;
-  first?: InputMaybe<Scalars['Int']['input']>;
-  orderBy?: InputMaybe<ProtocolV1Log_OrderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  skip?: InputMaybe<Scalars['Int']['input']>;
-  subgraphError?: _SubgraphErrorPolicy_;
-  where?: InputMaybe<ProtocolV1Log_Filter>;
-};
-
-
-export type QueryProtocolV2LogArgs = {
-  block?: InputMaybe<Block_Height>;
-  id: Scalars['ID']['input'];
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type QueryProtocolV2LogsArgs = {
-  block?: InputMaybe<Block_Height>;
-  first?: InputMaybe<Scalars['Int']['input']>;
-  orderBy?: InputMaybe<ProtocolV2Log_OrderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  skip?: InputMaybe<Scalars['Int']['input']>;
-  subgraphError?: _SubgraphErrorPolicy_;
-  where?: InputMaybe<ProtocolV2Log_Filter>;
-};
-
-
-export type QueryProtocolV3LogArgs = {
-  block?: InputMaybe<Block_Height>;
-  id: Scalars['ID']['input'];
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type QueryProtocolV3LogsArgs = {
-  block?: InputMaybe<Block_Height>;
-  first?: InputMaybe<Scalars['Int']['input']>;
-  orderBy?: InputMaybe<ProtocolV3Log_OrderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  skip?: InputMaybe<Scalars['Int']['input']>;
-  subgraphError?: _SubgraphErrorPolicy_;
-  where?: InputMaybe<ProtocolV3Log_Filter>;
 };
 
 
@@ -8319,14 +7699,11 @@ export type RedeemEvent = {
   from: Scalars['Bytes']['output'];
   holder: Scalars['Bytes']['output'];
   id: Scalars['ID']['output'];
-  memo: Maybe<Scalars['String']['output']>;
   metadata: Maybe<Scalars['Bytes']['output']>;
   project: Project;
   projectId: Scalars['Int']['output'];
-  pv: Scalars['String']['output'];
   returnAmount: Scalars['BigInt']['output'];
   returnAmountUSD: Maybe<Scalars['BigInt']['output']>;
-  terminal: Scalars['Bytes']['output'];
   timestamp: Scalars['Int']['output'];
   txHash: Scalars['Bytes']['output'];
 };
@@ -8391,26 +7768,6 @@ export type RedeemEvent_Filter = {
   id_lte?: InputMaybe<Scalars['ID']['input']>;
   id_not?: InputMaybe<Scalars['ID']['input']>;
   id_not_in?: InputMaybe<Array<Scalars['ID']['input']>>;
-  memo?: InputMaybe<Scalars['String']['input']>;
-  memo_contains?: InputMaybe<Scalars['String']['input']>;
-  memo_contains_nocase?: InputMaybe<Scalars['String']['input']>;
-  memo_ends_with?: InputMaybe<Scalars['String']['input']>;
-  memo_ends_with_nocase?: InputMaybe<Scalars['String']['input']>;
-  memo_gt?: InputMaybe<Scalars['String']['input']>;
-  memo_gte?: InputMaybe<Scalars['String']['input']>;
-  memo_in?: InputMaybe<Array<Scalars['String']['input']>>;
-  memo_lt?: InputMaybe<Scalars['String']['input']>;
-  memo_lte?: InputMaybe<Scalars['String']['input']>;
-  memo_not?: InputMaybe<Scalars['String']['input']>;
-  memo_not_contains?: InputMaybe<Scalars['String']['input']>;
-  memo_not_contains_nocase?: InputMaybe<Scalars['String']['input']>;
-  memo_not_ends_with?: InputMaybe<Scalars['String']['input']>;
-  memo_not_ends_with_nocase?: InputMaybe<Scalars['String']['input']>;
-  memo_not_in?: InputMaybe<Array<Scalars['String']['input']>>;
-  memo_not_starts_with?: InputMaybe<Scalars['String']['input']>;
-  memo_not_starts_with_nocase?: InputMaybe<Scalars['String']['input']>;
-  memo_starts_with?: InputMaybe<Scalars['String']['input']>;
-  memo_starts_with_nocase?: InputMaybe<Scalars['String']['input']>;
   metadata?: InputMaybe<Scalars['Bytes']['input']>;
   metadata_contains?: InputMaybe<Scalars['Bytes']['input']>;
   metadata_gt?: InputMaybe<Scalars['Bytes']['input']>;
@@ -8451,26 +7808,6 @@ export type RedeemEvent_Filter = {
   project_not_starts_with_nocase?: InputMaybe<Scalars['String']['input']>;
   project_starts_with?: InputMaybe<Scalars['String']['input']>;
   project_starts_with_nocase?: InputMaybe<Scalars['String']['input']>;
-  pv?: InputMaybe<Scalars['String']['input']>;
-  pv_contains?: InputMaybe<Scalars['String']['input']>;
-  pv_contains_nocase?: InputMaybe<Scalars['String']['input']>;
-  pv_ends_with?: InputMaybe<Scalars['String']['input']>;
-  pv_ends_with_nocase?: InputMaybe<Scalars['String']['input']>;
-  pv_gt?: InputMaybe<Scalars['String']['input']>;
-  pv_gte?: InputMaybe<Scalars['String']['input']>;
-  pv_in?: InputMaybe<Array<Scalars['String']['input']>>;
-  pv_lt?: InputMaybe<Scalars['String']['input']>;
-  pv_lte?: InputMaybe<Scalars['String']['input']>;
-  pv_not?: InputMaybe<Scalars['String']['input']>;
-  pv_not_contains?: InputMaybe<Scalars['String']['input']>;
-  pv_not_contains_nocase?: InputMaybe<Scalars['String']['input']>;
-  pv_not_ends_with?: InputMaybe<Scalars['String']['input']>;
-  pv_not_ends_with_nocase?: InputMaybe<Scalars['String']['input']>;
-  pv_not_in?: InputMaybe<Array<Scalars['String']['input']>>;
-  pv_not_starts_with?: InputMaybe<Scalars['String']['input']>;
-  pv_not_starts_with_nocase?: InputMaybe<Scalars['String']['input']>;
-  pv_starts_with?: InputMaybe<Scalars['String']['input']>;
-  pv_starts_with_nocase?: InputMaybe<Scalars['String']['input']>;
   returnAmount?: InputMaybe<Scalars['BigInt']['input']>;
   returnAmountUSD?: InputMaybe<Scalars['BigInt']['input']>;
   returnAmountUSD_gt?: InputMaybe<Scalars['BigInt']['input']>;
@@ -8487,16 +7824,6 @@ export type RedeemEvent_Filter = {
   returnAmount_lte?: InputMaybe<Scalars['BigInt']['input']>;
   returnAmount_not?: InputMaybe<Scalars['BigInt']['input']>;
   returnAmount_not_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
-  terminal?: InputMaybe<Scalars['Bytes']['input']>;
-  terminal_contains?: InputMaybe<Scalars['Bytes']['input']>;
-  terminal_gt?: InputMaybe<Scalars['Bytes']['input']>;
-  terminal_gte?: InputMaybe<Scalars['Bytes']['input']>;
-  terminal_in?: InputMaybe<Array<Scalars['Bytes']['input']>>;
-  terminal_lt?: InputMaybe<Scalars['Bytes']['input']>;
-  terminal_lte?: InputMaybe<Scalars['Bytes']['input']>;
-  terminal_not?: InputMaybe<Scalars['Bytes']['input']>;
-  terminal_not_contains?: InputMaybe<Scalars['Bytes']['input']>;
-  terminal_not_in?: InputMaybe<Array<Scalars['Bytes']['input']>>;
   timestamp?: InputMaybe<Scalars['Int']['input']>;
   timestamp_gt?: InputMaybe<Scalars['Int']['input']>;
   timestamp_gte?: InputMaybe<Scalars['Int']['input']>;
@@ -8524,7 +7851,6 @@ export enum RedeemEvent_OrderBy {
   from = 'from',
   holder = 'holder',
   id = 'id',
-  memo = 'memo',
   metadata = 'metadata',
   project = 'project',
   projectId = 'projectId',
@@ -8537,27 +7863,22 @@ export enum RedeemEvent_OrderBy {
   project__handle = 'project__handle',
   project__id = 'project__id',
   project__latestFundingCycle = 'project__latestFundingCycle',
-  project__metadataDomain = 'project__metadataDomain',
-  project__metadataUri = 'project__metadataUri',
+  project__metadata = 'project__metadata',
   project__nftsMintedCount = 'project__nftsMintedCount',
   project__owner = 'project__owner',
   project__paymentsCount = 'project__paymentsCount',
   project__projectId = 'project__projectId',
-  project__pv = 'project__pv',
   project__redeemCount = 'project__redeemCount',
   project__redeemVolume = 'project__redeemVolume',
   project__redeemVolumeUSD = 'project__redeemVolumeUSD',
-  project__terminal = 'project__terminal',
   project__tokenSupply = 'project__tokenSupply',
   project__trendingPaymentsCount = 'project__trendingPaymentsCount',
   project__trendingScore = 'project__trendingScore',
   project__trendingVolume = 'project__trendingVolume',
   project__volume = 'project__volume',
   project__volumeUSD = 'project__volumeUSD',
-  pv = 'pv',
   returnAmount = 'returnAmount',
   returnAmountUSD = 'returnAmountUSD',
-  terminal = 'terminal',
   timestamp = 'timestamp',
   txHash = 'txHash'
 }
@@ -8574,7 +7895,6 @@ export type SetFundAccessConstraintsEvent = {
   overflowAllowanceCurrency: Scalars['Int']['output'];
   project: Project;
   projectId: Scalars['Int']['output'];
-  terminal: Scalars['Bytes']['output'];
   timestamp: Scalars['Int']['output'];
   token: Maybe<Scalars['Bytes']['output']>;
   txHash: Scalars['Bytes']['output'];
@@ -8690,16 +8010,6 @@ export type SetFundAccessConstraintsEvent_Filter = {
   project_not_starts_with_nocase?: InputMaybe<Scalars['String']['input']>;
   project_starts_with?: InputMaybe<Scalars['String']['input']>;
   project_starts_with_nocase?: InputMaybe<Scalars['String']['input']>;
-  terminal?: InputMaybe<Scalars['Bytes']['input']>;
-  terminal_contains?: InputMaybe<Scalars['Bytes']['input']>;
-  terminal_gt?: InputMaybe<Scalars['Bytes']['input']>;
-  terminal_gte?: InputMaybe<Scalars['Bytes']['input']>;
-  terminal_in?: InputMaybe<Array<Scalars['Bytes']['input']>>;
-  terminal_lt?: InputMaybe<Scalars['Bytes']['input']>;
-  terminal_lte?: InputMaybe<Scalars['Bytes']['input']>;
-  terminal_not?: InputMaybe<Scalars['Bytes']['input']>;
-  terminal_not_contains?: InputMaybe<Scalars['Bytes']['input']>;
-  terminal_not_in?: InputMaybe<Array<Scalars['Bytes']['input']>>;
   timestamp?: InputMaybe<Scalars['Int']['input']>;
   timestamp_gt?: InputMaybe<Scalars['Int']['input']>;
   timestamp_gte?: InputMaybe<Scalars['Int']['input']>;
@@ -8751,24 +8061,20 @@ export enum SetFundAccessConstraintsEvent_OrderBy {
   project__handle = 'project__handle',
   project__id = 'project__id',
   project__latestFundingCycle = 'project__latestFundingCycle',
-  project__metadataDomain = 'project__metadataDomain',
-  project__metadataUri = 'project__metadataUri',
+  project__metadata = 'project__metadata',
   project__nftsMintedCount = 'project__nftsMintedCount',
   project__owner = 'project__owner',
   project__paymentsCount = 'project__paymentsCount',
   project__projectId = 'project__projectId',
-  project__pv = 'project__pv',
   project__redeemCount = 'project__redeemCount',
   project__redeemVolume = 'project__redeemVolume',
   project__redeemVolumeUSD = 'project__redeemVolumeUSD',
-  project__terminal = 'project__terminal',
   project__tokenSupply = 'project__tokenSupply',
   project__trendingPaymentsCount = 'project__trendingPaymentsCount',
   project__trendingScore = 'project__trendingScore',
   project__trendingVolume = 'project__trendingVolume',
   project__volume = 'project__volume',
   project__volumeUSD = 'project__volumeUSD',
-  terminal = 'terminal',
   timestamp = 'timestamp',
   token = 'token',
   txHash = 'txHash'
@@ -8783,6 +8089,8 @@ export type Subscription = {
   burnEvents: Array<BurnEvent>;
   configureEvent: Maybe<ConfigureEvent>;
   configureEvents: Array<ConfigureEvent>;
+  decoratedBannies: Array<DecoratedBanny>;
+  decoratedBanny: Maybe<DecoratedBanny>;
   deployETHERC20ProjectPayerEvent: Maybe<DeployEtherc20ProjectPayerEvent>;
   deployETHERC20ProjectPayerEvents: Array<DeployEtherc20ProjectPayerEvent>;
   deployETHERC20SplitsPayerEvent: Maybe<DeployEtherc20SplitsPayerEvent>;
@@ -8825,6 +8133,8 @@ export type Subscription = {
   participants: Array<Participant>;
   payEvent: Maybe<PayEvent>;
   payEvents: Array<PayEvent>;
+  permissionsHolder: Maybe<PermissionsHolder>;
+  permissionsHolders: Array<PermissionsHolder>;
   printReservesEvent: Maybe<PrintReservesEvent>;
   printReservesEvents: Array<PrintReservesEvent>;
   project: Maybe<Project>;
@@ -8835,12 +8145,6 @@ export type Subscription = {
   projects: Array<Project>;
   protocolLog: Maybe<ProtocolLog>;
   protocolLogs: Array<ProtocolLog>;
-  protocolV1Log: Maybe<ProtocolV1Log>;
-  protocolV1Logs: Array<ProtocolV1Log>;
-  protocolV2Log: Maybe<ProtocolV2Log>;
-  protocolV2Logs: Array<ProtocolV2Log>;
-  protocolV3Log: Maybe<ProtocolV3Log>;
-  protocolV3Logs: Array<ProtocolV3Log>;
   redeemEvent: Maybe<RedeemEvent>;
   redeemEvents: Array<RedeemEvent>;
   setFundAccessConstraintsEvent: Maybe<SetFundAccessConstraintsEvent>;
@@ -8914,6 +8218,24 @@ export type SubscriptionConfigureEventsArgs = {
   skip?: InputMaybe<Scalars['Int']['input']>;
   subgraphError?: _SubgraphErrorPolicy_;
   where?: InputMaybe<ConfigureEvent_Filter>;
+};
+
+
+export type SubscriptionDecoratedBanniesArgs = {
+  block?: InputMaybe<Block_Height>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<DecoratedBanny_OrderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
+  subgraphError?: _SubgraphErrorPolicy_;
+  where?: InputMaybe<DecoratedBanny_Filter>;
+};
+
+
+export type SubscriptionDecoratedBannyArgs = {
+  block?: InputMaybe<Block_Height>;
+  id: Scalars['ID']['input'];
+  subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
@@ -9295,6 +8617,24 @@ export type SubscriptionPayEventsArgs = {
 };
 
 
+export type SubscriptionPermissionsHolderArgs = {
+  block?: InputMaybe<Block_Height>;
+  id: Scalars['ID']['input'];
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type SubscriptionPermissionsHoldersArgs = {
+  block?: InputMaybe<Block_Height>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<PermissionsHolder_OrderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
+  subgraphError?: _SubgraphErrorPolicy_;
+  where?: InputMaybe<PermissionsHolder_Filter>;
+};
+
+
 export type SubscriptionPrintReservesEventArgs = {
   block?: InputMaybe<Block_Height>;
   id: Scalars['ID']['input'];
@@ -9382,60 +8722,6 @@ export type SubscriptionProtocolLogsArgs = {
   skip?: InputMaybe<Scalars['Int']['input']>;
   subgraphError?: _SubgraphErrorPolicy_;
   where?: InputMaybe<ProtocolLog_Filter>;
-};
-
-
-export type SubscriptionProtocolV1LogArgs = {
-  block?: InputMaybe<Block_Height>;
-  id: Scalars['ID']['input'];
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type SubscriptionProtocolV1LogsArgs = {
-  block?: InputMaybe<Block_Height>;
-  first?: InputMaybe<Scalars['Int']['input']>;
-  orderBy?: InputMaybe<ProtocolV1Log_OrderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  skip?: InputMaybe<Scalars['Int']['input']>;
-  subgraphError?: _SubgraphErrorPolicy_;
-  where?: InputMaybe<ProtocolV1Log_Filter>;
-};
-
-
-export type SubscriptionProtocolV2LogArgs = {
-  block?: InputMaybe<Block_Height>;
-  id: Scalars['ID']['input'];
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type SubscriptionProtocolV2LogsArgs = {
-  block?: InputMaybe<Block_Height>;
-  first?: InputMaybe<Scalars['Int']['input']>;
-  orderBy?: InputMaybe<ProtocolV2Log_OrderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  skip?: InputMaybe<Scalars['Int']['input']>;
-  subgraphError?: _SubgraphErrorPolicy_;
-  where?: InputMaybe<ProtocolV2Log_Filter>;
-};
-
-
-export type SubscriptionProtocolV3LogArgs = {
-  block?: InputMaybe<Block_Height>;
-  id: Scalars['ID']['input'];
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type SubscriptionProtocolV3LogsArgs = {
-  block?: InputMaybe<Block_Height>;
-  first?: InputMaybe<Scalars['Int']['input']>;
-  orderBy?: InputMaybe<ProtocolV3Log_OrderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  skip?: InputMaybe<Scalars['Int']['input']>;
-  subgraphError?: _SubgraphErrorPolicy_;
-  where?: InputMaybe<ProtocolV3Log_Filter>;
 };
 
 
@@ -9795,17 +9081,14 @@ export enum TapEvent_OrderBy {
   project__handle = 'project__handle',
   project__id = 'project__id',
   project__latestFundingCycle = 'project__latestFundingCycle',
-  project__metadataDomain = 'project__metadataDomain',
-  project__metadataUri = 'project__metadataUri',
+  project__metadata = 'project__metadata',
   project__nftsMintedCount = 'project__nftsMintedCount',
   project__owner = 'project__owner',
   project__paymentsCount = 'project__paymentsCount',
   project__projectId = 'project__projectId',
-  project__pv = 'project__pv',
   project__redeemCount = 'project__redeemCount',
   project__redeemVolume = 'project__redeemVolume',
   project__redeemVolumeUSD = 'project__redeemVolumeUSD',
-  project__terminal = 'project__terminal',
   project__tokenSupply = 'project__tokenSupply',
   project__trendingPaymentsCount = 'project__trendingPaymentsCount',
   project__trendingScore = 'project__trendingScore',
@@ -9824,14 +9107,14 @@ export type UseAllowanceEvent = {
   distributedAmount: Scalars['BigInt']['output'];
   distributedAmountUSD: Maybe<Scalars['BigInt']['output']>;
   from: Scalars['Bytes']['output'];
-  fundingCycleConfiguration: Scalars['BigInt']['output'];
-  fundingCycleNumber: Scalars['Int']['output'];
   id: Scalars['ID']['output'];
   memo: Scalars['String']['output'];
   netDistributedamount: Scalars['BigInt']['output'];
   netDistributedamountUSD: Maybe<Scalars['BigInt']['output']>;
   project: Project;
   projectId: Scalars['Int']['output'];
+  rulesetCycleNumber: Scalars['Int']['output'];
+  rulesetId: Scalars['BigInt']['output'];
   timestamp: Scalars['Int']['output'];
   txHash: Scalars['Bytes']['output'];
 };
@@ -9902,22 +9185,6 @@ export type UseAllowanceEvent_Filter = {
   from_not?: InputMaybe<Scalars['Bytes']['input']>;
   from_not_contains?: InputMaybe<Scalars['Bytes']['input']>;
   from_not_in?: InputMaybe<Array<Scalars['Bytes']['input']>>;
-  fundingCycleConfiguration?: InputMaybe<Scalars['BigInt']['input']>;
-  fundingCycleConfiguration_gt?: InputMaybe<Scalars['BigInt']['input']>;
-  fundingCycleConfiguration_gte?: InputMaybe<Scalars['BigInt']['input']>;
-  fundingCycleConfiguration_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
-  fundingCycleConfiguration_lt?: InputMaybe<Scalars['BigInt']['input']>;
-  fundingCycleConfiguration_lte?: InputMaybe<Scalars['BigInt']['input']>;
-  fundingCycleConfiguration_not?: InputMaybe<Scalars['BigInt']['input']>;
-  fundingCycleConfiguration_not_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
-  fundingCycleNumber?: InputMaybe<Scalars['Int']['input']>;
-  fundingCycleNumber_gt?: InputMaybe<Scalars['Int']['input']>;
-  fundingCycleNumber_gte?: InputMaybe<Scalars['Int']['input']>;
-  fundingCycleNumber_in?: InputMaybe<Array<Scalars['Int']['input']>>;
-  fundingCycleNumber_lt?: InputMaybe<Scalars['Int']['input']>;
-  fundingCycleNumber_lte?: InputMaybe<Scalars['Int']['input']>;
-  fundingCycleNumber_not?: InputMaybe<Scalars['Int']['input']>;
-  fundingCycleNumber_not_in?: InputMaybe<Array<Scalars['Int']['input']>>;
   id?: InputMaybe<Scalars['ID']['input']>;
   id_gt?: InputMaybe<Scalars['ID']['input']>;
   id_gte?: InputMaybe<Scalars['ID']['input']>;
@@ -9992,6 +9259,22 @@ export type UseAllowanceEvent_Filter = {
   project_not_starts_with_nocase?: InputMaybe<Scalars['String']['input']>;
   project_starts_with?: InputMaybe<Scalars['String']['input']>;
   project_starts_with_nocase?: InputMaybe<Scalars['String']['input']>;
+  rulesetCycleNumber?: InputMaybe<Scalars['Int']['input']>;
+  rulesetCycleNumber_gt?: InputMaybe<Scalars['Int']['input']>;
+  rulesetCycleNumber_gte?: InputMaybe<Scalars['Int']['input']>;
+  rulesetCycleNumber_in?: InputMaybe<Array<Scalars['Int']['input']>>;
+  rulesetCycleNumber_lt?: InputMaybe<Scalars['Int']['input']>;
+  rulesetCycleNumber_lte?: InputMaybe<Scalars['Int']['input']>;
+  rulesetCycleNumber_not?: InputMaybe<Scalars['Int']['input']>;
+  rulesetCycleNumber_not_in?: InputMaybe<Array<Scalars['Int']['input']>>;
+  rulesetId?: InputMaybe<Scalars['BigInt']['input']>;
+  rulesetId_gt?: InputMaybe<Scalars['BigInt']['input']>;
+  rulesetId_gte?: InputMaybe<Scalars['BigInt']['input']>;
+  rulesetId_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
+  rulesetId_lt?: InputMaybe<Scalars['BigInt']['input']>;
+  rulesetId_lte?: InputMaybe<Scalars['BigInt']['input']>;
+  rulesetId_not?: InputMaybe<Scalars['BigInt']['input']>;
+  rulesetId_not_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
   timestamp?: InputMaybe<Scalars['Int']['input']>;
   timestamp_gt?: InputMaybe<Scalars['Int']['input']>;
   timestamp_gte?: InputMaybe<Scalars['Int']['input']>;
@@ -10020,8 +9303,6 @@ export enum UseAllowanceEvent_OrderBy {
   distributedAmount = 'distributedAmount',
   distributedAmountUSD = 'distributedAmountUSD',
   from = 'from',
-  fundingCycleConfiguration = 'fundingCycleConfiguration',
-  fundingCycleNumber = 'fundingCycleNumber',
   id = 'id',
   memo = 'memo',
   netDistributedamount = 'netDistributedamount',
@@ -10037,23 +9318,22 @@ export enum UseAllowanceEvent_OrderBy {
   project__handle = 'project__handle',
   project__id = 'project__id',
   project__latestFundingCycle = 'project__latestFundingCycle',
-  project__metadataDomain = 'project__metadataDomain',
-  project__metadataUri = 'project__metadataUri',
+  project__metadata = 'project__metadata',
   project__nftsMintedCount = 'project__nftsMintedCount',
   project__owner = 'project__owner',
   project__paymentsCount = 'project__paymentsCount',
   project__projectId = 'project__projectId',
-  project__pv = 'project__pv',
   project__redeemCount = 'project__redeemCount',
   project__redeemVolume = 'project__redeemVolume',
   project__redeemVolumeUSD = 'project__redeemVolumeUSD',
-  project__terminal = 'project__terminal',
   project__tokenSupply = 'project__tokenSupply',
   project__trendingPaymentsCount = 'project__trendingPaymentsCount',
   project__trendingScore = 'project__trendingScore',
   project__trendingVolume = 'project__trendingVolume',
   project__volume = 'project__volume',
   project__volumeUSD = 'project__volumeUSD',
+  rulesetCycleNumber = 'rulesetCycleNumber',
+  rulesetId = 'rulesetId',
   timestamp = 'timestamp',
   txHash = 'txHash'
 }
@@ -10315,17 +9595,14 @@ export enum V1ConfigureEvent_OrderBy {
   project__handle = 'project__handle',
   project__id = 'project__id',
   project__latestFundingCycle = 'project__latestFundingCycle',
-  project__metadataDomain = 'project__metadataDomain',
-  project__metadataUri = 'project__metadataUri',
+  project__metadata = 'project__metadata',
   project__nftsMintedCount = 'project__nftsMintedCount',
   project__owner = 'project__owner',
   project__paymentsCount = 'project__paymentsCount',
   project__projectId = 'project__projectId',
-  project__pv = 'project__pv',
   project__redeemCount = 'project__redeemCount',
   project__redeemVolume = 'project__redeemVolume',
   project__redeemVolumeUSD = 'project__redeemVolumeUSD',
-  project__terminal = 'project__terminal',
   project__tokenSupply = 'project__tokenSupply',
   project__trendingPaymentsCount = 'project__trendingPaymentsCount',
   project__trendingScore = 'project__trendingScore',
@@ -10485,17 +9762,14 @@ export enum V1InitEvent_OrderBy {
   project__handle = 'project__handle',
   project__id = 'project__id',
   project__latestFundingCycle = 'project__latestFundingCycle',
-  project__metadataDomain = 'project__metadataDomain',
-  project__metadataUri = 'project__metadataUri',
+  project__metadata = 'project__metadata',
   project__nftsMintedCount = 'project__nftsMintedCount',
   project__owner = 'project__owner',
   project__paymentsCount = 'project__paymentsCount',
   project__projectId = 'project__projectId',
-  project__pv = 'project__pv',
   project__redeemCount = 'project__redeemCount',
   project__redeemVolume = 'project__redeemVolume',
   project__redeemVolumeUSD = 'project__redeemVolumeUSD',
-  project__terminal = 'project__terminal',
   project__tokenSupply = 'project__tokenSupply',
   project__trendingPaymentsCount = 'project__trendingPaymentsCount',
   project__trendingScore = 'project__trendingScore',
@@ -10625,7 +9899,7 @@ export type PayEventsQueryVariables = Exact<{
 }>;
 
 
-export type PayEventsQuery = { payEvents: Array<{ id: string, amount: any, beneficiary: any, note: string, timestamp: number, feeFromV2Project: number | null, from: any, txHash: any, project: { id: string, projectId: number, handle: string | null } }> };
+export type PayEventsQuery = { payEvents: Array<{ id: string, amount: any, beneficiary: any, note: string, timestamp: number, feeFromV2Project: number | null, beneficiaryTokenCount: any, from: any, txHash: any, project: { id: string, projectId: number, handle: string | null } }> };
 
 export type ProjectsQueryVariables = Exact<{
   where?: InputMaybe<Project_Filter>;
@@ -10634,7 +9908,7 @@ export type ProjectsQueryVariables = Exact<{
 }>;
 
 
-export type ProjectsQuery = { projects: Array<{ projectId: number, metadataUri: string | null, handle: string | null, contributorsCount: number, createdAt: number }> };
+export type ProjectsQuery = { projects: Array<{ projectId: number, metadata: string | null, handle: string | null, contributorsCount: number, createdAt: number }> };
 
 export type ProjectCreateEventQueryVariables = Exact<{
   where?: InputMaybe<ProjectEvent_Filter>;
@@ -10729,6 +10003,9 @@ export type ResolversTypes = {
   ConfigureEvent: ResolverTypeWrapper<ConfigureEvent>;
   ConfigureEvent_filter: ConfigureEvent_Filter;
   ConfigureEvent_orderBy: ConfigureEvent_OrderBy;
+  DecoratedBanny: ResolverTypeWrapper<DecoratedBanny>;
+  DecoratedBanny_filter: DecoratedBanny_Filter;
+  DecoratedBanny_orderBy: DecoratedBanny_OrderBy;
   DeployETHERC20ProjectPayerEvent: ResolverTypeWrapper<DeployEtherc20ProjectPayerEvent>;
   DeployETHERC20ProjectPayerEvent_filter: DeployEtherc20ProjectPayerEvent_Filter;
   DeployETHERC20ProjectPayerEvent_orderBy: DeployEtherc20ProjectPayerEvent_OrderBy;
@@ -10797,6 +10074,9 @@ export type ResolversTypes = {
   PayEvent: ResolverTypeWrapper<PayEvent>;
   PayEvent_filter: PayEvent_Filter;
   PayEvent_orderBy: PayEvent_OrderBy;
+  PermissionsHolder: ResolverTypeWrapper<PermissionsHolder>;
+  PermissionsHolder_filter: PermissionsHolder_Filter;
+  PermissionsHolder_orderBy: PermissionsHolder_OrderBy;
   PrintReservesEvent: ResolverTypeWrapper<PrintReservesEvent>;
   PrintReservesEvent_filter: PrintReservesEvent_Filter;
   PrintReservesEvent_orderBy: PrintReservesEvent_OrderBy;
@@ -10812,15 +10092,6 @@ export type ResolversTypes = {
   ProtocolLog: ResolverTypeWrapper<ProtocolLog>;
   ProtocolLog_filter: ProtocolLog_Filter;
   ProtocolLog_orderBy: ProtocolLog_OrderBy;
-  ProtocolV1Log: ResolverTypeWrapper<ProtocolV1Log>;
-  ProtocolV1Log_filter: ProtocolV1Log_Filter;
-  ProtocolV1Log_orderBy: ProtocolV1Log_OrderBy;
-  ProtocolV2Log: ResolverTypeWrapper<ProtocolV2Log>;
-  ProtocolV2Log_filter: ProtocolV2Log_Filter;
-  ProtocolV2Log_orderBy: ProtocolV2Log_OrderBy;
-  ProtocolV3Log: ResolverTypeWrapper<ProtocolV3Log>;
-  ProtocolV3Log_filter: ProtocolV3Log_Filter;
-  ProtocolV3Log_orderBy: ProtocolV3Log_OrderBy;
   Query: ResolverTypeWrapper<{}>;
   RedeemEvent: ResolverTypeWrapper<RedeemEvent>;
   RedeemEvent_filter: RedeemEvent_Filter;
@@ -10864,6 +10135,8 @@ export type ResolversParentTypes = {
   Bytes: Scalars['Bytes']['output'];
   ConfigureEvent: ConfigureEvent;
   ConfigureEvent_filter: ConfigureEvent_Filter;
+  DecoratedBanny: DecoratedBanny;
+  DecoratedBanny_filter: DecoratedBanny_Filter;
   DeployETHERC20ProjectPayerEvent: DeployEtherc20ProjectPayerEvent;
   DeployETHERC20ProjectPayerEvent_filter: DeployEtherc20ProjectPayerEvent_Filter;
   DeployETHERC20SplitsPayerEvent: DeployEtherc20SplitsPayerEvent;
@@ -10910,6 +10183,8 @@ export type ResolversParentTypes = {
   Participant_filter: Participant_Filter;
   PayEvent: PayEvent;
   PayEvent_filter: PayEvent_Filter;
+  PermissionsHolder: PermissionsHolder;
+  PermissionsHolder_filter: PermissionsHolder_Filter;
   PrintReservesEvent: PrintReservesEvent;
   PrintReservesEvent_filter: PrintReservesEvent_Filter;
   Project: Project;
@@ -10920,12 +10195,6 @@ export type ResolversParentTypes = {
   Project_filter: Project_Filter;
   ProtocolLog: ProtocolLog;
   ProtocolLog_filter: ProtocolLog_Filter;
-  ProtocolV1Log: ProtocolV1Log;
-  ProtocolV1Log_filter: ProtocolV1Log_Filter;
-  ProtocolV2Log: ProtocolV2Log;
-  ProtocolV2Log_filter: ProtocolV2Log_Filter;
-  ProtocolV3Log: ProtocolV3Log;
-  ProtocolV3Log_filter: ProtocolV3Log_Filter;
   Query: {};
   RedeemEvent: RedeemEvent;
   RedeemEvent_filter: RedeemEvent_Filter;
@@ -10972,7 +10241,6 @@ export type AddToBalanceEventResolvers<ContextType = any, ParentType extends Res
   note?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   project?: Resolver<ResolversTypes['Project'], ParentType, ContextType>;
   projectId?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  pv?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   terminal?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
   timestamp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   txHash?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
@@ -10996,7 +10264,6 @@ export type BurnEventResolvers<ContextType = any, ParentType extends ResolversPa
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   project?: Resolver<ResolversTypes['Project'], ParentType, ContextType>;
   projectId?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  pv?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   stakedAmount?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   timestamp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   txHash?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
@@ -11023,6 +10290,26 @@ export type ConfigureEventResolvers<ContextType = any, ParentType extends Resolv
   timestamp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   txHash?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
   weight?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type DecoratedBannyResolvers<ContextType = any, ParentType extends ResolversParentTypes['DecoratedBanny'] = ResolversParentTypes['DecoratedBanny']> = {
+  backside?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  fist?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  glasses?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  head?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  headTop?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  legs?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  mouth?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  naked?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  necklace?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  nft?: Resolver<ResolversTypes['NFT'], ParentType, ContextType>;
+  suit?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  suitBottom?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  suitTop?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  topping?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  world?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -11063,13 +10350,12 @@ export type DeployEtherc20SplitsPayerEventResolvers<ContextType = any, ParentTyp
 };
 
 export type DeployedErc20EventResolvers<ContextType = any, ParentType extends ResolversParentTypes['DeployedERC20Event'] = ResolversParentTypes['DeployedERC20Event']> = {
-  address?: Resolver<Maybe<ResolversTypes['Bytes']>, ParentType, ContextType>;
+  address?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
   caller?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
   from?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   project?: Resolver<ResolversTypes['Project'], ParentType, ContextType>;
   projectId?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  pv?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   symbol?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   timestamp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   txHash?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
@@ -11078,24 +10364,20 @@ export type DeployedErc20EventResolvers<ContextType = any, ParentType extends Re
 
 export type DistributePayoutsEventResolvers<ContextType = any, ParentType extends ResolversParentTypes['DistributePayoutsEvent'] = ResolversParentTypes['DistributePayoutsEvent']> = {
   amount?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
-  amountUSD?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  amountPaidOut?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   beneficiary?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
   beneficiaryDistributionAmount?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   beneficiaryDistributionAmountUSD?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
   caller?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
-  distributedAmount?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
-  distributedAmountUSD?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
   fee?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   feeUSD?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
   from?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
-  fundingCycleConfiguration?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
-  fundingCycleNumber?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  memo?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   project?: Resolver<ResolversTypes['Project'], ParentType, ContextType>;
   projectId?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  rulesetCycleNumber?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
+  rulesetId?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   splitDistributions?: Resolver<Array<ResolversTypes['DistributeToPayoutSplitEvent']>, ParentType, ContextType, RequireFields<DistributePayoutsEventSplitDistributionsArgs, 'first' | 'skip'>>;
-  terminal?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
   timestamp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   txHash?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -11108,7 +10390,6 @@ export type DistributeReservedTokensEventResolvers<ContextType = any, ParentType
   from?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
   fundingCycleNumber?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  memo?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   project?: Resolver<ResolversTypes['Project'], ParentType, ContextType>;
   projectId?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   splitDistributions?: Resolver<Array<ResolversTypes['DistributeToReservedTokenSplitEvent']>, ParentType, ContextType, RequireFields<DistributeReservedTokensEventSplitDistributionsArgs, 'first' | 'skip'>>;
@@ -11138,31 +10419,24 @@ export type DistributeToPayoutModEventResolvers<ContextType = any, ParentType ex
 };
 
 export type DistributeToPayoutSplitEventResolvers<ContextType = any, ParentType extends ResolversParentTypes['DistributeToPayoutSplitEvent'] = ResolversParentTypes['DistributeToPayoutSplitEvent']> = {
-  allocator?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
   amount?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
-  amountUSD?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
   beneficiary?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
   caller?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
   distributePayoutsEvent?: Resolver<ResolversTypes['DistributePayoutsEvent'], ParentType, ContextType>;
-  domain?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   from?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
-  group?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   lockedUntil?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   percent?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   preferAddToBalance?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
-  preferClaimed?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   project?: Resolver<ResolversTypes['Project'], ParentType, ContextType>;
   projectId?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   splitProjectId?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  terminal?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
   timestamp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   txHash?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type DistributeToReservedTokenSplitEventResolvers<ContextType = any, ParentType extends ResolversParentTypes['DistributeToReservedTokenSplitEvent'] = ResolversParentTypes['DistributeToReservedTokenSplitEvent']> = {
-  allocator?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
   beneficiary?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
   caller?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
   distributeReservedTokensEvent?: Resolver<ResolversTypes['DistributeReservedTokensEvent'], ParentType, ContextType>;
@@ -11170,7 +10444,7 @@ export type DistributeToReservedTokenSplitEventResolvers<ContextType = any, Pare
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   lockedUntil?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   percent?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  preferClaimed?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  preferAddToBalance?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   project?: Resolver<ResolversTypes['Project'], ParentType, ContextType>;
   projectId?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   splitProjectId?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
@@ -11311,13 +10585,13 @@ export type MintTokensEventResolvers<ContextType = any, ParentType extends Resol
   memo?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   project?: Resolver<ResolversTypes['Project'], ParentType, ContextType>;
   projectId?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  pv?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   timestamp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   txHash?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type NftResolvers<ContextType = any, ParentType extends ResolversParentTypes['NFT'] = ResolversParentTypes['NFT']> = {
+  category?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   collection?: Resolver<ResolversTypes['NFTCollection'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   owner?: Resolver<ResolversTypes['Participant'], ParentType, ContextType>;
@@ -11332,7 +10606,6 @@ export type NftResolvers<ContextType = any, ParentType extends ResolversParentTy
 export type NftCollectionResolvers<ContextType = any, ParentType extends ResolversParentTypes['NFTCollection'] = ResolversParentTypes['NFTCollection']> = {
   address?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  governanceType?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   nfts?: Resolver<Array<ResolversTypes['NFT']>, ParentType, ContextType, RequireFields<NftCollectionNftsArgs, 'first' | 'skip'>>;
@@ -11344,19 +10617,21 @@ export type NftCollectionResolvers<ContextType = any, ParentType extends Resolve
 };
 
 export type NftTierResolvers<ContextType = any, ParentType extends ResolversParentTypes['NFTTier'] = ResolversParentTypes['NFTTier']> = {
-  allowManualMint?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
-  category?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  allowOwnerMint?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  cannotBeRemoved?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  category?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   collection?: Resolver<ResolversTypes['NFTCollection'], ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  encodedIpfsUri?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  encodedIpfsUri?: Resolver<Maybe<ResolversTypes['Bytes']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  initialQuantity?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
+  initialSupply?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   nfts?: Resolver<Array<ResolversTypes['NFT']>, ParentType, ContextType, RequireFields<NftTierNftsArgs, 'first' | 'skip'>>;
   price?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
-  remainingQuantity?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
-  reservedRate?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  reservedTokenBeneficiary?: Resolver<Maybe<ResolversTypes['Bytes']>, ParentType, ContextType>;
+  remainingSupply?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
+  reserveBeneficiary?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
+  reserveFrequency?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   resolvedUri?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  svg?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   tierId?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   transfersPausable?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   votingUnits?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
@@ -11373,7 +10648,6 @@ export type ParticipantResolvers<ContextType = any, ParentType extends Resolvers
   paymentsCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   project?: Resolver<ResolversTypes['Project'], ParentType, ContextType>;
   projectId?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  pv?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   stakedBalance?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   volume?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   volumeUSD?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
@@ -11385,19 +10659,27 @@ export type PayEventResolvers<ContextType = any, ParentType extends ResolversPar
   amount?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   amountUSD?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
   beneficiary?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
+  beneficiaryTokenCount?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   caller?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
   distributionFromProjectId?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   feeFromV2Project?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   from?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  isDistribution?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   note?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   project?: Resolver<ResolversTypes['Project'], ParentType, ContextType>;
   projectId?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  pv?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  terminal?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
   timestamp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   txHash?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type PermissionsHolderResolvers<ContextType = any, ParentType extends ResolversParentTypes['PermissionsHolder'] = ResolversParentTypes['PermissionsHolder']> = {
+  account?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  operator?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
+  permissions?: Resolver<Array<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  project?: Resolver<ResolversTypes['Project'], ParentType, ContextType>;
+  projectId?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -11440,8 +10722,7 @@ export type ProjectResolvers<ContextType = any, ParentType extends ResolversPare
   initEvents?: Resolver<Array<ResolversTypes['InitEvent']>, ParentType, ContextType, RequireFields<ProjectInitEventsArgs, 'first' | 'skip'>>;
   jb721DelegateTokens?: Resolver<Array<ResolversTypes['NFT']>, ParentType, ContextType, RequireFields<ProjectJb721DelegateTokensArgs, 'first' | 'skip'>>;
   latestFundingCycle?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  metadataDomain?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  metadataUri?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  metadata?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   migrateEvents?: Resolver<Array<ResolversTypes['MigrateEvent']>, ParentType, ContextType, RequireFields<ProjectMigrateEventsArgs, 'first' | 'skip'>>;
   mintTokensEvents?: Resolver<Array<ResolversTypes['MintTokensEvent']>, ParentType, ContextType, RequireFields<ProjectMintTokensEventsArgs, 'first' | 'skip'>>;
   nftCollections?: Resolver<Array<ResolversTypes['NFTCollection']>, ParentType, ContextType, RequireFields<ProjectNftCollectionsArgs, 'first' | 'skip'>>;
@@ -11450,17 +10731,16 @@ export type ProjectResolvers<ContextType = any, ParentType extends ResolversPare
   participants?: Resolver<Array<ResolversTypes['Participant']>, ParentType, ContextType, RequireFields<ProjectParticipantsArgs, 'first' | 'skip'>>;
   payEvents?: Resolver<Array<ResolversTypes['PayEvent']>, ParentType, ContextType, RequireFields<ProjectPayEventsArgs, 'first' | 'skip'>>;
   paymentsCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  permissionsHolders?: Resolver<Array<ResolversTypes['PermissionsHolder']>, ParentType, ContextType, RequireFields<ProjectPermissionsHoldersArgs, 'first' | 'skip'>>;
   printReservesEvents?: Resolver<Array<ResolversTypes['PrintReservesEvent']>, ParentType, ContextType, RequireFields<ProjectPrintReservesEventsArgs, 'first' | 'skip'>>;
   projectEvents?: Resolver<Array<ResolversTypes['ProjectEvent']>, ParentType, ContextType, RequireFields<ProjectProjectEventsArgs, 'first' | 'skip'>>;
   projectId?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  pv?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   redeemCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   redeemEvents?: Resolver<Array<ResolversTypes['RedeemEvent']>, ParentType, ContextType, RequireFields<ProjectRedeemEventsArgs, 'first' | 'skip'>>;
   redeemVolume?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   redeemVolumeUSD?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   setFundAccessConstraintsEvents?: Resolver<Array<ResolversTypes['SetFundAccessConstraintsEvent']>, ParentType, ContextType, RequireFields<ProjectSetFundAccessConstraintsEventsArgs, 'first' | 'skip'>>;
   tapEvents?: Resolver<Array<ResolversTypes['TapEvent']>, ParentType, ContextType, RequireFields<ProjectTapEventsArgs, 'first' | 'skip'>>;
-  terminal?: Resolver<Maybe<ResolversTypes['Bytes']>, ParentType, ContextType>;
   tokenSupply?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   trendingPaymentsCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   trendingScore?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
@@ -11479,7 +10759,6 @@ export type ProjectCreateEventResolvers<ContextType = any, ParentType extends Re
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   project?: Resolver<ResolversTypes['Project'], ParentType, ContextType>;
   projectId?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  pv?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   timestamp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   txHash?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -11508,11 +10787,9 @@ export type ProjectEventResolvers<ContextType = any, ParentType extends Resolver
   project?: Resolver<ResolversTypes['Project'], ParentType, ContextType>;
   projectCreateEvent?: Resolver<Maybe<ResolversTypes['ProjectCreateEvent']>, ParentType, ContextType>;
   projectId?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  pv?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   redeemEvent?: Resolver<Maybe<ResolversTypes['RedeemEvent']>, ParentType, ContextType>;
   setFundAccessConstraintsEvent?: Resolver<Maybe<ResolversTypes['SetFundAccessConstraintsEvent']>, ParentType, ContextType>;
   tapEvent?: Resolver<Maybe<ResolversTypes['TapEvent']>, ParentType, ContextType>;
-  terminal?: Resolver<Maybe<ResolversTypes['Bytes']>, ParentType, ContextType>;
   timestamp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   useAllowanceEvent?: Resolver<Maybe<ResolversTypes['UseAllowanceEvent']>, ParentType, ContextType>;
   v1ConfigureEvent?: Resolver<Maybe<ResolversTypes['V1ConfigureEvent']>, ParentType, ContextType>;
@@ -11523,56 +10800,11 @@ export type ProjectEventResolvers<ContextType = any, ParentType extends Resolver
 export type ProtocolLogResolvers<ContextType = any, ParentType extends ResolversParentTypes['ProtocolLog'] = ResolversParentTypes['ProtocolLog']> = {
   erc20Count?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  latestInvalidTrendingPayEvent?: Resolver<Maybe<ResolversTypes['PayEvent']>, ParentType, ContextType>;
+  oldestTrendingPayEvent?: Resolver<Maybe<ResolversTypes['PayEvent']>, ParentType, ContextType>;
   paymentsCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   projectsCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   redeemCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   trendingLastUpdatedTimestamp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  v1?: Resolver<Maybe<ResolversTypes['ProtocolV1Log']>, ParentType, ContextType>;
-  v2?: Resolver<Maybe<ResolversTypes['ProtocolV2Log']>, ParentType, ContextType>;
-  v3?: Resolver<Maybe<ResolversTypes['ProtocolV3Log']>, ParentType, ContextType>;
-  volume?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
-  volumeRedeemed?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
-  volumeRedeemedUSD?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
-  volumeUSD?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-};
-
-export type ProtocolV1LogResolvers<ContextType = any, ParentType extends ResolversParentTypes['ProtocolV1Log'] = ResolversParentTypes['ProtocolV1Log']> = {
-  erc20Count?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  log?: Resolver<ResolversTypes['ProtocolLog'], ParentType, ContextType>;
-  paymentsCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  projectsCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  redeemCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  volume?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
-  volumeRedeemed?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
-  volumeRedeemedUSD?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
-  volumeUSD?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-};
-
-export type ProtocolV2LogResolvers<ContextType = any, ParentType extends ResolversParentTypes['ProtocolV2Log'] = ResolversParentTypes['ProtocolV2Log']> = {
-  erc20Count?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  log?: Resolver<ResolversTypes['ProtocolLog'], ParentType, ContextType>;
-  paymentsCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  projectsCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  redeemCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  volume?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
-  volumeRedeemed?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
-  volumeRedeemedUSD?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
-  volumeUSD?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-};
-
-export type ProtocolV3LogResolvers<ContextType = any, ParentType extends ResolversParentTypes['ProtocolV3Log'] = ResolversParentTypes['ProtocolV3Log']> = {
-  erc20Count?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  log?: Resolver<ResolversTypes['ProtocolLog'], ParentType, ContextType>;
-  paymentsCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  projectsCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  redeemCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   volume?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   volumeRedeemed?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   volumeRedeemedUSD?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
@@ -11588,6 +10820,8 @@ export type QueryResolvers<ContextType = any, ParentType extends ResolversParent
   burnEvents?: Resolver<Array<ResolversTypes['BurnEvent']>, ParentType, ContextType, RequireFields<QueryBurnEventsArgs, 'first' | 'skip' | 'subgraphError'>>;
   configureEvent?: Resolver<Maybe<ResolversTypes['ConfigureEvent']>, ParentType, ContextType, RequireFields<QueryConfigureEventArgs, 'id' | 'subgraphError'>>;
   configureEvents?: Resolver<Array<ResolversTypes['ConfigureEvent']>, ParentType, ContextType, RequireFields<QueryConfigureEventsArgs, 'first' | 'skip' | 'subgraphError'>>;
+  decoratedBannies?: Resolver<Array<ResolversTypes['DecoratedBanny']>, ParentType, ContextType, RequireFields<QueryDecoratedBanniesArgs, 'first' | 'skip' | 'subgraphError'>>;
+  decoratedBanny?: Resolver<Maybe<ResolversTypes['DecoratedBanny']>, ParentType, ContextType, RequireFields<QueryDecoratedBannyArgs, 'id' | 'subgraphError'>>;
   deployETHERC20ProjectPayerEvent?: Resolver<Maybe<ResolversTypes['DeployETHERC20ProjectPayerEvent']>, ParentType, ContextType, RequireFields<QueryDeployEtherc20ProjectPayerEventArgs, 'id' | 'subgraphError'>>;
   deployETHERC20ProjectPayerEvents?: Resolver<Array<ResolversTypes['DeployETHERC20ProjectPayerEvent']>, ParentType, ContextType, RequireFields<QueryDeployEtherc20ProjectPayerEventsArgs, 'first' | 'skip' | 'subgraphError'>>;
   deployETHERC20SplitsPayerEvent?: Resolver<Maybe<ResolversTypes['DeployETHERC20SplitsPayerEvent']>, ParentType, ContextType, RequireFields<QueryDeployEtherc20SplitsPayerEventArgs, 'id' | 'subgraphError'>>;
@@ -11630,6 +10864,8 @@ export type QueryResolvers<ContextType = any, ParentType extends ResolversParent
   participants?: Resolver<Array<ResolversTypes['Participant']>, ParentType, ContextType, RequireFields<QueryParticipantsArgs, 'first' | 'skip' | 'subgraphError'>>;
   payEvent?: Resolver<Maybe<ResolversTypes['PayEvent']>, ParentType, ContextType, RequireFields<QueryPayEventArgs, 'id' | 'subgraphError'>>;
   payEvents?: Resolver<Array<ResolversTypes['PayEvent']>, ParentType, ContextType, RequireFields<QueryPayEventsArgs, 'first' | 'skip' | 'subgraphError'>>;
+  permissionsHolder?: Resolver<Maybe<ResolversTypes['PermissionsHolder']>, ParentType, ContextType, RequireFields<QueryPermissionsHolderArgs, 'id' | 'subgraphError'>>;
+  permissionsHolders?: Resolver<Array<ResolversTypes['PermissionsHolder']>, ParentType, ContextType, RequireFields<QueryPermissionsHoldersArgs, 'first' | 'skip' | 'subgraphError'>>;
   printReservesEvent?: Resolver<Maybe<ResolversTypes['PrintReservesEvent']>, ParentType, ContextType, RequireFields<QueryPrintReservesEventArgs, 'id' | 'subgraphError'>>;
   printReservesEvents?: Resolver<Array<ResolversTypes['PrintReservesEvent']>, ParentType, ContextType, RequireFields<QueryPrintReservesEventsArgs, 'first' | 'skip' | 'subgraphError'>>;
   project?: Resolver<Maybe<ResolversTypes['Project']>, ParentType, ContextType, RequireFields<QueryProjectArgs, 'id' | 'subgraphError'>>;
@@ -11641,12 +10877,6 @@ export type QueryResolvers<ContextType = any, ParentType extends ResolversParent
   projects?: Resolver<Array<ResolversTypes['Project']>, ParentType, ContextType, RequireFields<QueryProjectsArgs, 'first' | 'skip' | 'subgraphError'>>;
   protocolLog?: Resolver<Maybe<ResolversTypes['ProtocolLog']>, ParentType, ContextType, RequireFields<QueryProtocolLogArgs, 'id' | 'subgraphError'>>;
   protocolLogs?: Resolver<Array<ResolversTypes['ProtocolLog']>, ParentType, ContextType, RequireFields<QueryProtocolLogsArgs, 'first' | 'skip' | 'subgraphError'>>;
-  protocolV1Log?: Resolver<Maybe<ResolversTypes['ProtocolV1Log']>, ParentType, ContextType, RequireFields<QueryProtocolV1LogArgs, 'id' | 'subgraphError'>>;
-  protocolV1Logs?: Resolver<Array<ResolversTypes['ProtocolV1Log']>, ParentType, ContextType, RequireFields<QueryProtocolV1LogsArgs, 'first' | 'skip' | 'subgraphError'>>;
-  protocolV2Log?: Resolver<Maybe<ResolversTypes['ProtocolV2Log']>, ParentType, ContextType, RequireFields<QueryProtocolV2LogArgs, 'id' | 'subgraphError'>>;
-  protocolV2Logs?: Resolver<Array<ResolversTypes['ProtocolV2Log']>, ParentType, ContextType, RequireFields<QueryProtocolV2LogsArgs, 'first' | 'skip' | 'subgraphError'>>;
-  protocolV3Log?: Resolver<Maybe<ResolversTypes['ProtocolV3Log']>, ParentType, ContextType, RequireFields<QueryProtocolV3LogArgs, 'id' | 'subgraphError'>>;
-  protocolV3Logs?: Resolver<Array<ResolversTypes['ProtocolV3Log']>, ParentType, ContextType, RequireFields<QueryProtocolV3LogsArgs, 'first' | 'skip' | 'subgraphError'>>;
   redeemEvent?: Resolver<Maybe<ResolversTypes['RedeemEvent']>, ParentType, ContextType, RequireFields<QueryRedeemEventArgs, 'id' | 'subgraphError'>>;
   redeemEvents?: Resolver<Array<ResolversTypes['RedeemEvent']>, ParentType, ContextType, RequireFields<QueryRedeemEventsArgs, 'first' | 'skip' | 'subgraphError'>>;
   setFundAccessConstraintsEvent?: Resolver<Maybe<ResolversTypes['SetFundAccessConstraintsEvent']>, ParentType, ContextType, RequireFields<QuerySetFundAccessConstraintsEventArgs, 'id' | 'subgraphError'>>;
@@ -11670,14 +10900,11 @@ export type RedeemEventResolvers<ContextType = any, ParentType extends Resolvers
   from?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
   holder?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  memo?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   metadata?: Resolver<Maybe<ResolversTypes['Bytes']>, ParentType, ContextType>;
   project?: Resolver<ResolversTypes['Project'], ParentType, ContextType>;
   projectId?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  pv?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   returnAmount?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   returnAmountUSD?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  terminal?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
   timestamp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   txHash?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -11695,7 +10922,6 @@ export type SetFundAccessConstraintsEventResolvers<ContextType = any, ParentType
   overflowAllowanceCurrency?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   project?: Resolver<ResolversTypes['Project'], ParentType, ContextType>;
   projectId?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  terminal?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
   timestamp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   token?: Resolver<Maybe<ResolversTypes['Bytes']>, ParentType, ContextType>;
   txHash?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
@@ -11710,6 +10936,8 @@ export type SubscriptionResolvers<ContextType = any, ParentType extends Resolver
   burnEvents?: SubscriptionResolver<Array<ResolversTypes['BurnEvent']>, "burnEvents", ParentType, ContextType, RequireFields<SubscriptionBurnEventsArgs, 'first' | 'skip' | 'subgraphError'>>;
   configureEvent?: SubscriptionResolver<Maybe<ResolversTypes['ConfigureEvent']>, "configureEvent", ParentType, ContextType, RequireFields<SubscriptionConfigureEventArgs, 'id' | 'subgraphError'>>;
   configureEvents?: SubscriptionResolver<Array<ResolversTypes['ConfigureEvent']>, "configureEvents", ParentType, ContextType, RequireFields<SubscriptionConfigureEventsArgs, 'first' | 'skip' | 'subgraphError'>>;
+  decoratedBannies?: SubscriptionResolver<Array<ResolversTypes['DecoratedBanny']>, "decoratedBannies", ParentType, ContextType, RequireFields<SubscriptionDecoratedBanniesArgs, 'first' | 'skip' | 'subgraphError'>>;
+  decoratedBanny?: SubscriptionResolver<Maybe<ResolversTypes['DecoratedBanny']>, "decoratedBanny", ParentType, ContextType, RequireFields<SubscriptionDecoratedBannyArgs, 'id' | 'subgraphError'>>;
   deployETHERC20ProjectPayerEvent?: SubscriptionResolver<Maybe<ResolversTypes['DeployETHERC20ProjectPayerEvent']>, "deployETHERC20ProjectPayerEvent", ParentType, ContextType, RequireFields<SubscriptionDeployEtherc20ProjectPayerEventArgs, 'id' | 'subgraphError'>>;
   deployETHERC20ProjectPayerEvents?: SubscriptionResolver<Array<ResolversTypes['DeployETHERC20ProjectPayerEvent']>, "deployETHERC20ProjectPayerEvents", ParentType, ContextType, RequireFields<SubscriptionDeployEtherc20ProjectPayerEventsArgs, 'first' | 'skip' | 'subgraphError'>>;
   deployETHERC20SplitsPayerEvent?: SubscriptionResolver<Maybe<ResolversTypes['DeployETHERC20SplitsPayerEvent']>, "deployETHERC20SplitsPayerEvent", ParentType, ContextType, RequireFields<SubscriptionDeployEtherc20SplitsPayerEventArgs, 'id' | 'subgraphError'>>;
@@ -11752,6 +10980,8 @@ export type SubscriptionResolvers<ContextType = any, ParentType extends Resolver
   participants?: SubscriptionResolver<Array<ResolversTypes['Participant']>, "participants", ParentType, ContextType, RequireFields<SubscriptionParticipantsArgs, 'first' | 'skip' | 'subgraphError'>>;
   payEvent?: SubscriptionResolver<Maybe<ResolversTypes['PayEvent']>, "payEvent", ParentType, ContextType, RequireFields<SubscriptionPayEventArgs, 'id' | 'subgraphError'>>;
   payEvents?: SubscriptionResolver<Array<ResolversTypes['PayEvent']>, "payEvents", ParentType, ContextType, RequireFields<SubscriptionPayEventsArgs, 'first' | 'skip' | 'subgraphError'>>;
+  permissionsHolder?: SubscriptionResolver<Maybe<ResolversTypes['PermissionsHolder']>, "permissionsHolder", ParentType, ContextType, RequireFields<SubscriptionPermissionsHolderArgs, 'id' | 'subgraphError'>>;
+  permissionsHolders?: SubscriptionResolver<Array<ResolversTypes['PermissionsHolder']>, "permissionsHolders", ParentType, ContextType, RequireFields<SubscriptionPermissionsHoldersArgs, 'first' | 'skip' | 'subgraphError'>>;
   printReservesEvent?: SubscriptionResolver<Maybe<ResolversTypes['PrintReservesEvent']>, "printReservesEvent", ParentType, ContextType, RequireFields<SubscriptionPrintReservesEventArgs, 'id' | 'subgraphError'>>;
   printReservesEvents?: SubscriptionResolver<Array<ResolversTypes['PrintReservesEvent']>, "printReservesEvents", ParentType, ContextType, RequireFields<SubscriptionPrintReservesEventsArgs, 'first' | 'skip' | 'subgraphError'>>;
   project?: SubscriptionResolver<Maybe<ResolversTypes['Project']>, "project", ParentType, ContextType, RequireFields<SubscriptionProjectArgs, 'id' | 'subgraphError'>>;
@@ -11762,12 +10992,6 @@ export type SubscriptionResolvers<ContextType = any, ParentType extends Resolver
   projects?: SubscriptionResolver<Array<ResolversTypes['Project']>, "projects", ParentType, ContextType, RequireFields<SubscriptionProjectsArgs, 'first' | 'skip' | 'subgraphError'>>;
   protocolLog?: SubscriptionResolver<Maybe<ResolversTypes['ProtocolLog']>, "protocolLog", ParentType, ContextType, RequireFields<SubscriptionProtocolLogArgs, 'id' | 'subgraphError'>>;
   protocolLogs?: SubscriptionResolver<Array<ResolversTypes['ProtocolLog']>, "protocolLogs", ParentType, ContextType, RequireFields<SubscriptionProtocolLogsArgs, 'first' | 'skip' | 'subgraphError'>>;
-  protocolV1Log?: SubscriptionResolver<Maybe<ResolversTypes['ProtocolV1Log']>, "protocolV1Log", ParentType, ContextType, RequireFields<SubscriptionProtocolV1LogArgs, 'id' | 'subgraphError'>>;
-  protocolV1Logs?: SubscriptionResolver<Array<ResolversTypes['ProtocolV1Log']>, "protocolV1Logs", ParentType, ContextType, RequireFields<SubscriptionProtocolV1LogsArgs, 'first' | 'skip' | 'subgraphError'>>;
-  protocolV2Log?: SubscriptionResolver<Maybe<ResolversTypes['ProtocolV2Log']>, "protocolV2Log", ParentType, ContextType, RequireFields<SubscriptionProtocolV2LogArgs, 'id' | 'subgraphError'>>;
-  protocolV2Logs?: SubscriptionResolver<Array<ResolversTypes['ProtocolV2Log']>, "protocolV2Logs", ParentType, ContextType, RequireFields<SubscriptionProtocolV2LogsArgs, 'first' | 'skip' | 'subgraphError'>>;
-  protocolV3Log?: SubscriptionResolver<Maybe<ResolversTypes['ProtocolV3Log']>, "protocolV3Log", ParentType, ContextType, RequireFields<SubscriptionProtocolV3LogArgs, 'id' | 'subgraphError'>>;
-  protocolV3Logs?: SubscriptionResolver<Array<ResolversTypes['ProtocolV3Log']>, "protocolV3Logs", ParentType, ContextType, RequireFields<SubscriptionProtocolV3LogsArgs, 'first' | 'skip' | 'subgraphError'>>;
   redeemEvent?: SubscriptionResolver<Maybe<ResolversTypes['RedeemEvent']>, "redeemEvent", ParentType, ContextType, RequireFields<SubscriptionRedeemEventArgs, 'id' | 'subgraphError'>>;
   redeemEvents?: SubscriptionResolver<Array<ResolversTypes['RedeemEvent']>, "redeemEvents", ParentType, ContextType, RequireFields<SubscriptionRedeemEventsArgs, 'first' | 'skip' | 'subgraphError'>>;
   setFundAccessConstraintsEvent?: SubscriptionResolver<Maybe<ResolversTypes['SetFundAccessConstraintsEvent']>, "setFundAccessConstraintsEvent", ParentType, ContextType, RequireFields<SubscriptionSetFundAccessConstraintsEventArgs, 'id' | 'subgraphError'>>;
@@ -11815,14 +11039,14 @@ export type UseAllowanceEventResolvers<ContextType = any, ParentType extends Res
   distributedAmount?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   distributedAmountUSD?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
   from?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
-  fundingCycleConfiguration?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
-  fundingCycleNumber?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   memo?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   netDistributedamount?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   netDistributedamountUSD?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
   project?: Resolver<ResolversTypes['Project'], ParentType, ContextType>;
   projectId?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  rulesetCycleNumber?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  rulesetId?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   timestamp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   txHash?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -11900,6 +11124,7 @@ export type Resolvers<ContextType = any> = {
   BurnEvent?: BurnEventResolvers<ContextType>;
   Bytes?: GraphQLScalarType;
   ConfigureEvent?: ConfigureEventResolvers<ContextType>;
+  DecoratedBanny?: DecoratedBannyResolvers<ContextType>;
   DeployETHERC20ProjectPayerEvent?: DeployEtherc20ProjectPayerEventResolvers<ContextType>;
   DeployETHERC20SplitsPayerEvent?: DeployEtherc20SplitsPayerEventResolvers<ContextType>;
   DeployedERC20Event?: DeployedErc20EventResolvers<ContextType>;
@@ -11922,14 +11147,12 @@ export type Resolvers<ContextType = any> = {
   NFTTier?: NftTierResolvers<ContextType>;
   Participant?: ParticipantResolvers<ContextType>;
   PayEvent?: PayEventResolvers<ContextType>;
+  PermissionsHolder?: PermissionsHolderResolvers<ContextType>;
   PrintReservesEvent?: PrintReservesEventResolvers<ContextType>;
   Project?: ProjectResolvers<ContextType>;
   ProjectCreateEvent?: ProjectCreateEventResolvers<ContextType>;
   ProjectEvent?: ProjectEventResolvers<ContextType>;
   ProtocolLog?: ProtocolLogResolvers<ContextType>;
-  ProtocolV1Log?: ProtocolV1LogResolvers<ContextType>;
-  ProtocolV2Log?: ProtocolV2LogResolvers<ContextType>;
-  ProtocolV3Log?: ProtocolV3LogResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
   RedeemEvent?: RedeemEventResolvers<ContextType>;
   SetFundAccessConstraintsEvent?: SetFundAccessConstraintsEventResolvers<ContextType>;
@@ -12017,6 +11240,7 @@ export const PayEventsDocument = gql`
     note
     timestamp
     feeFromV2Project
+    beneficiaryTokenCount
     from
     txHash
     project {
@@ -12063,7 +11287,7 @@ export const ProjectsDocument = gql`
     query Projects($where: Project_filter, $first: Int, $skip: Int) {
   projects(where: $where, first: $first, skip: $skip) {
     projectId
-    metadataUri
+    metadata
     handle
     contributorsCount
     createdAt
