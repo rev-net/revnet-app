@@ -247,7 +247,7 @@ function AddStageDialog({
                   <FieldGroup
                     id="initialIssuance"
                     name="initialIssuance"
-                    label="Starting issuance rate"
+                    label="Starting issuance price"
                     suffix={`${revnetTokenSymbol} / ${nativeTokenSymbol}`}
                     description="How many tokens to mint when the revnet receives 1 ETH."
                     type="number"
@@ -259,7 +259,7 @@ function AddStageDialog({
                         htmlFor="priceCeilingIncreasePercentage"
                         className="whitespace-nowrap"
                       >
-                        Decrease issuance by
+                        Increase price by
                       </label>
                       <Field
                         id="priceCeilingIncreasePercentage"
@@ -282,8 +282,8 @@ function AddStageDialog({
                     </div>
                     <div className="text-zinc-500 text-sm mt-2">
                       <span className="italic">Days</span> must be a multiple of
-                      this stage's duration. Decreasing 100% means to halve
-                      issuance, resembling a halvening effect.
+                      this stage's duration. Increasing 100% means to double
+                      the price, resembling a halvening effect. If there’s a Uniswap pool for ETH/$TOKEN offering a better price, all ETH paid in will be used to buyback instead of feeding the revnet.
                     </div>
                   </div>
                 </div>

@@ -11,7 +11,7 @@ export function useDeployRevnet() {
   const { write, data, isError, isLoading } =
     useRevBasicDeployerLaunchRevnetFor({
       onError(e) {
-        console.error(e.message);
+        console.error(e?.message);
         toast({
           title: "Failed to deploy revnet",
           description: e?.message,
