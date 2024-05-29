@@ -95,6 +95,10 @@ const DEFAULT_FORM_DATA: RevnetFormData = {
   stages: [],
 };
 
+const EXIT_TAX_HIGH = "90";
+const EXIT_TAX_MID = "50";
+const EXIT_TAX_LOW = "20";
+
 function Field(props: FieldAttributes<any>) {
   if (props.suffix || props.prefix) {
     return (
@@ -211,6 +215,9 @@ function AddStageDialog({
   const [open, setOpen] = useState(false);
   const nativeTokenSymbol = useNativeTokenSymbol();
 
+  const revnetTokenSymbol =
+    values.tokenSymbol?.length > 0 ? `$${values.tokenSymbol}` : "tokens";
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{children}</DialogTrigger>
@@ -234,35 +241,25 @@ function AddStageDialog({
                     name="boostDuration"
                     label="Stage duration"
                     suffix="days"
-                    description="Leave blank to make stage indefinite."
+                    description="How long will this stage last? Leave blank to make it last forever."
                     type="number"
                   />
                   <FieldGroup
                     id="initialIssuance"
                     name="initialIssuance"
                     label="Starting issuance rate"
-                    suffix={`${
-                      values.tokenSymbol?.length > 0
-                        ? `$${values.tokenSymbol}`
-                        : "tokens"
-                    } / ${nativeTokenSymbol}`}
-                    description="How many tokens to mint when the revnet receives 1 ETH. This will decrease as the price ceiling increases over time."
+                    suffix={`${revnetTokenSymbol} / ${nativeTokenSymbol}`}
+                    description="How many tokens to mint when the revnet receives 1 ETH."
                     type="number"
                   />
-                </div>
 
-                <div className="py-5 border-b border-zinc-200">
-                  <h3 className="mb-1">Incentives</h3>
                   <div className="mb-4">
-                    <div className="text-sm font-medium mb-2">
-                      Price ceiling
-                    </div>
                     <div className="flex gap-2 items-center text-sm text-zinc-600 italic">
                       <label
                         htmlFor="priceCeilingIncreasePercentage"
                         className="whitespace-nowrap"
                       >
-                        Raise ceiling by
+                        Decrease issuance by
                       </label>
                       <Field
                         id="priceCeilingIncreasePercentage"
@@ -284,32 +281,26 @@ function AddStageDialog({
                       days.
                     </div>
                     <div className="text-zinc-500 text-sm mt-2">
-                      <span className="italic">Days</span> must be less than
-                      this stage's duration.
+                      <span className="italic">Days</span> must be a multiple of
+                      this stage's duration. Decreasing 100% means to halve
+                      issuance, resembling a halvening effect.
                     </div>
                   </div>
-                  <FieldGroup
-                    id="priceFloorTaxIntensity"
-                    name="priceFloorTaxIntensity"
-                    label="Exit tax"
-                    suffix="%"
-                    description={`How much revenue can be redeemed with $${values.tokenSymbol}.`}
-                    required
-                  />
                 </div>
 
-                <div className="pt-5">
-                  <h3 className="mb-1">Token split</h3>
+                <div className="pt-5 border-b border-zinc-200">
+                  <h3 className="mb-1">Split</h3>
                   <p className="text-zinc-600 text-sm mb-3">
-                    Send a portion of new token purchases to the Operator. The
-                    Operator could be a core team, airdrop stockpile, staking
-                    rewards contract, or something else.
+                    Split a portion of new token purchases a core team, airdrop
+                    stockpile, staking rewards contract, or some other address.
+                    The split is managed by an Operator who can change the
+                    splits or relinquish power at any time.
                   </p>
 
                   <FieldGroup
                     id="initialOperator"
                     name="initialOperator"
-                    label="Split Operator"
+                    label="Operator"
                     placeholder="0x"
                     description={
                       stageIdx === 0 ? (
@@ -332,8 +323,65 @@ function AddStageDialog({
                       name="splitRate"
                       label="Split rate"
                       description="Send a percentage of new tokens to the Operator."
-                      suffix="%"
+                      suffix={`% of new ${revnetTokenSymbol}`}
                     />
+                  </div>
+                </div>
+
+                <div className="py-5">
+                  {/* <FieldGroup
+                    id="priceFloorTaxIntensity"
+                    name="priceFloorTaxIntensity"
+                    label="Exit tax"
+                    suffix="%"
+                    description={`How much revenue can be redeemed with $${values.tokenSymbol}.`}
+                    required
+                  /> */}
+                  <div className="mb-5">
+                    <div
+                      id="priceFloorTaxIntensity-group"
+                      className="block text-sm font-medium leading-6 mb-1"
+                    >
+                      Cash out
+                    </div>
+                    <div
+                      role="group"
+                      aria-labelledby="priceFloorTaxIntensity-group"
+                      className="flex gap-3 text-sm"
+                    >
+                      <label>
+                        <FormikField
+                          type="radio"
+                          name="priceFloorTaxIntensity"
+                          value={EXIT_TAX_LOW}
+                          className="mr-1"
+                        />
+                        Low
+                      </label>
+                      <label>
+                        <FormikField
+                          type="radio"
+                          name="priceFloorTaxIntensity"
+                          value={EXIT_TAX_MID}
+                          className="mr-1"
+                        />
+                        Mid
+                      </label>
+                      <label>
+                        <FormikField
+                          type="radio"
+                          name="priceFloorTaxIntensity"
+                          value={EXIT_TAX_HIGH}
+                          className="mr-1"
+                        />
+                        High
+                      </label>
+                    </div>
+                    <p className="text-sm text-zinc-500 mt-1">
+                      Tokenholders access revenue by cashing out their tokens. A
+                      tax is charged, benefiting remaining token holders
+                      equally.
+                    </p>
                   </div>
 
                   {stageIdx === 0 ? (
@@ -765,8 +813,6 @@ export default function Page() {
       logoUri: formData.logoUri,
     });
     setIsLoadingIpfs(false);
-
-    console.log;
 
     const deployData = parseDeployData(formData, {
       metadataCid,

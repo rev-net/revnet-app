@@ -8,9 +8,10 @@ import { useToast } from "@/components/ui/use-toast";
 
 export function useDeployRevnet() {
   const { toast } = useToast();
-  const { write, data, isError, isLoading} =
+  const { write, data, isError, isLoading } =
     useRevBasicDeployerLaunchRevnetFor({
       onError(e) {
+        console.error(e.message);
         toast({
           title: "Failed to deploy revnet",
           description: e?.message,
