@@ -74,7 +74,7 @@ export function ActivityFeed() {
   const { projectId } = useJBContractContext();
   const { data } = usePayEventsQuery({
     variables: {
-      orderBy: PayEvent_OrderBy.id,
+      orderBy: PayEvent_OrderBy.timestamp,
       orderDirection: OrderDirection.desc,
       where: {
         // pv: PV2,
