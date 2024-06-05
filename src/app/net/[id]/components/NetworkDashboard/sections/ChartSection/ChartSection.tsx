@@ -20,7 +20,7 @@ export function ChartSection() {
           </span>
           <span className="text-base leading-tight text-zinc-500">
             {" "}
-            (buys 1 {token?.data?.symbol})
+            (buys 1 ${token?.data?.symbol})
           </span>
         </div>
 
