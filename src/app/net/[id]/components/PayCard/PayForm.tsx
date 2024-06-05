@@ -23,6 +23,7 @@ import { useState } from "react";
 import { formatUnits, parseEther, parseUnits } from "viem";
 import { PayDialog } from "./PayDialog";
 import { PayInput } from "./PayInput";
+import { ButtonWithWallet } from "@/components/ButtonWithWallet";
 
 export function PayForm() {
   const tokenA = useTokenA();
@@ -172,12 +173,13 @@ export function PayForm() {
           primaryTerminalEth={primaryNativeTerminal?.data}
           disabled={!amountA}
         >
-          <Button
+          <ButtonWithWallet
             size="lg"
             className="w-full mb-5 min-w-[20%] flex items-center gap-2 hover:gap-[10px] whitespace-nowrap transition-all"
+            connectWalletText="Connect wallet to pay"
           >
-            Pay now <ArrowRightIcon className="h-4 w-4" />
-          </Button>
+            Pay and join <ArrowRightIcon className="h-4 w-4" />
+          </ButtonWithWallet>
         </PayDialog>
       ) : null}
     </div>

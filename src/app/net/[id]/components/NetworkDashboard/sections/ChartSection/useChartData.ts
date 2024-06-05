@@ -149,7 +149,5 @@ export function useChartData({
     startBuffer,
   ]);
 
-  console.log({ chartData, currentPrice, prevPrice, datapointIndex })
-
   return { chartData, currentPrice, prevPrice, datapointIndex };
 }

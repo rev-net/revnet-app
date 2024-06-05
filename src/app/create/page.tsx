@@ -329,14 +329,6 @@ function AddStageDialog({
                 </div>
 
                 <div className="py-5">
-                  {/* <FieldGroup
-                    id="priceFloorTaxIntensity"
-                    name="priceFloorTaxIntensity"
-                    label="Exit tax"
-                    suffix="%"
-                    description={`How much revenue can be redeemed with $${values.tokenSymbol}.`}
-                    required
-                  /> */}
                   <div className="mb-5">
                     <div
                       id="priceFloorTaxIntensity-group"
@@ -483,7 +475,6 @@ function ConfigPage() {
             <AddStageDialog
               stageIdx={values.stages.length}
               onSave={(newStage) => {
-                console.log("here", newStage);
                 arrayHelpers.push(newStage);
               }}
             >
@@ -687,7 +678,6 @@ function DeployRevnetForm() {
           type="submit"
           size="lg"
           onClick={() => {
-            console.log("submit click", values);
             submitForm();
           }}
         >
@@ -710,16 +700,12 @@ function parseDeployData(
 >["args"] {
   const now = Math.floor(Date.now() / 1000);
 
-  console.log("parsing", formData);
-
   let cumStart = 0;
   const stageConfigurations = formData.stages.map((stage, idx) => {
     const prevStageDuration =
       idx === 0 ? now : Number(formData.stages[idx - 1].boostDuration) * 86400; // days to seconds
     const startsAtOrAfter = cumStart + prevStageDuration;
     cumStart += prevStageDuration;
-
-    console.log(stage);
 
     return {
       startsAtOrAfter,

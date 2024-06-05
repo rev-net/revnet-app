@@ -67,12 +67,12 @@ export default function Page() {
         <p className="mb-10">
           Learn more at{" "}
           <Link
-            href="https://revnet.eth.limo"
+            href="https://revnet.eth.sucks"
             target="_blank"
             rel="noopener norefererr"
             className="underline"
           >
-            revnet.eth.limo
+            revnet.eth.sucks
           </Link>
         </p>
       </div>

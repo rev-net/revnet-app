@@ -44,7 +44,6 @@ const CustomTooltip = ({
   if (!payload?.length) return null;
 
   const item = payload[0].payload;
-
   const portion = formatPortion(item.balance.value, totalSupply);
 
   return (
@@ -70,8 +69,8 @@ export function ParticipantsPieChart({
     return participants.participants.map((participant, idx) => {
       return {
         address: participant.wallet.id,
-        balanceFormatted: new JBProjectToken(participant.balance).toFloat(),
-        balance: new JBProjectToken(participant.balance),
+        balanceFormatted: new JBProjectToken(BigInt(participant.balance)).toFloat(),
+        balance: new JBProjectToken(BigInt(participant.balance)),
         fill: COLORS[idx % COLORS.length],
       };
     });

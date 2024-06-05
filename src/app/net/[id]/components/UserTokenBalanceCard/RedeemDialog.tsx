@@ -85,7 +85,7 @@ export function RedeemDialog({
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="max-w-lg">
         <DialogHeader>
-          <DialogTitle>Redeem to exit</DialogTitle>
+          <DialogTitle>Cash out</DialogTitle>
           <DialogDescription>
             <div className="my-8">
               {isSuccess ? (
@@ -99,12 +99,11 @@ export function RedeemDialog({
                   </div>
                   <div className="grid w-full gap-1.5">
                     <Label htmlFor="amount" className="text-zinc-900">
-                      Tokens to redeem
+                      Tokens to cash out
                     </Label>
                     <Input
                       id="amount"
                       name="amount"
-                      placeholder="Enter amount to redeem"
                       value={redeemAmount}
                       onChange={(e) => setRedeemAmount(e.target.value)}
                     />
@@ -124,7 +123,7 @@ export function RedeemDialog({
                   write?.();
                 }}
               >
-                Redeem and exit
+                Cash out
               </Button>
             ) : null}
           </DialogFooter>

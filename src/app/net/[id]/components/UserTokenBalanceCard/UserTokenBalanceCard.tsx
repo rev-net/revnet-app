@@ -78,7 +78,7 @@ export function UserTokenBalanceCard() {
           primaryTerminalEth={primaryNativeTerminal.data}
         >
           <Button variant="outline" disabled={creditBalance.value === 0n}>
-            Redeem
+            Cash out
           </Button>
         </RedeemDialog>
       ) : null}
