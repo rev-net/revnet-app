@@ -14,7 +14,7 @@ import { NATIVE_TOKEN, TokenAmountType } from "juice-sdk-core";
 import { useJBContractContext, useWriteJbMultiTerminalPay } from "juice-sdk-react";
 import { PropsWithChildren } from "react";
 import { Address } from "viem";
-import { useAccount, useWaitForTransaction } from "wagmi";
+import { useAccount, useWaitForTransactionReceipt } from "wagmi";
 
 export function PayDialog({
   amountA,
@@ -56,7 +56,7 @@ export function PayDialog({
   });
 
   const txHash = data?.hash;
-  const { isLoading: isTxLoading, isSuccess } = useWaitForTransaction({
+  const { isLoading: isTxLoading, isSuccess } = useWaitForTransactionReceipt({
     hash: txHash,
   });
 

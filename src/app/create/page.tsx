@@ -46,7 +46,7 @@ import { ReactNode, useState } from "react";
 import { twMerge } from "tailwind-merge";
 import { Address, Chain, parseUnits, zeroAddress } from "viem";
 import { mainnet, optimismSepolia, sepolia } from "viem/chains";
-import { UsePrepareContractWriteConfig, useWaitForTransaction } from "wagmi";
+import { UsePrepareContractWriteConfig, useWaitForTransactionReceipt } from "wagmi";
 import { IpfsImageUploader } from "../../components/IpfsFileUploader";
 import { MAX_RULESET_COUNT } from "../constants";
 
@@ -778,7 +778,7 @@ export default function Page() {
 
   const chain = useChain();
   const { write, data, isLoading } = useDeployRevnet();
-  const { data: txData, isSuccess } = useWaitForTransaction({
+  const { data: txData, isSuccess } = useWaitForTransactionReceipt({
     hash: data?.hash,
   });
 

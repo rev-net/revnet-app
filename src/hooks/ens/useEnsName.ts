@@ -1,6 +1,7 @@
-import { Address, isAddress } from "viem";
+import { Address, isAddress, PublicClient } from "viem";
 import { sepolia } from "viem/chains";
-import { PublicClient, useChainId, usePublicClient, useQuery } from "wagmi";
+import { useChainId, usePublicClient } from "wagmi";
+import { useQuery } from "wagmi/query";
 
 const ENS_IDEAS_BASE_URL = "https://api.ensideas.com";
 
@@ -50,17 +51,18 @@ export function useEnsName(
   const chainId = useChainId();
   const publicClient = usePublicClient({ chainId });
 
-  return useQuery(
-    ["ensName", address],
-    async () => {
+  return useQuery({
+    queryKey: ["ensName", address],
+    queryFn: async () => {
       if (!address || !isAddress(address)) return null;
+      if (!publicClient) {
+        throw new Error("Public client not available");
+      }
 
       const data = await resolveAddress(address, { chainId, publicClient });
 
       return data.name;
     },
-    {
-      enabled,
-    }
-  );
+    enabled,
+  });
 }

@@ -19,7 +19,7 @@ import {
 } from "juice-sdk-react";
 import { PropsWithChildren, useState } from "react";
 import { Address, parseEther } from "viem";
-import { useAccount, useWaitForTransaction } from "wagmi";
+import { useAccount, useWaitForTransactionReceipt } from "wagmi";
 
 export function RedeemDialog({
   projectId,
@@ -74,7 +74,7 @@ export function RedeemDialog({
   });
 
   const txHash = data?.hash;
-  const { isLoading: isTxLoading, isSuccess } = useWaitForTransaction({
+  const { isLoading: isTxLoading, isSuccess } = useWaitForTransactionReceipt({
     hash: txHash,
   });
 
