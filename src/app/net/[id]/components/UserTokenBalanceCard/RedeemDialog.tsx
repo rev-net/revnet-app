@@ -15,7 +15,7 @@ import { FixedInt } from "fpnum";
 import { JBProjectToken, NATIVE_TOKEN } from "juice-sdk-core";
 import {
   useJBContractContext,
-  useJbMultiTerminalRedeemTokensOf,
+  useWriteJbMultiTerminalRedeemTokensOf,
 } from "juice-sdk-react";
 import { PropsWithChildren, useState } from "react";
 import { Address, parseEther } from "viem";
@@ -57,7 +57,7 @@ export function RedeemDialog({
     write,
     isLoading: isWriteLoading,
     data,
-  } = useJbMultiTerminalRedeemTokensOf({
+  } = useWriteJbMultiTerminalRedeemTokensOf({
     // address: primaryNativeTerminal?.data, // TODO fix wagmi typegen for txs
     args:
       address && redeemAmountBN

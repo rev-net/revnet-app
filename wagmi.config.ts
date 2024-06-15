@@ -1,31 +1,67 @@
-import { defineConfig } from "@wagmi/cli";
-import { blockscout, react } from "@wagmi/cli/plugins";
-import dotenv from "dotenv";
-import { optimismSepolia, sepolia } from "wagmi/chains";
+import { Chain } from "viem";
+import { optimismSepolia, sepolia } from "viem/chains";
+import { react } from "@wagmi/cli/plugins";
 
-dotenv.config();
+enum RevnetCoreContracts {
+  REVBasicDeployer = "REVBasicDeployer",
+}
 
-export default defineConfig([
-  {
-    out: "src/lib/revnet/hooks/contract.ts",
-    plugins: [
-      blockscout({
-        apiKey: process.env.BLOCKSCOUT_API_KEY!,
-        chainId: sepolia.id,
-        contracts: [
-          {
-            name: "REVBasicDeployer",
-            address: {
-              // https://github.com/rev-net/revnet-core/blob/main/deployments/revnet-core/sepolia/REVBasicDeployer.json
-              [sepolia.id]: "0x586431a0CF041d868034E7446Cb6cbDe43566088",
-              // https://github.com/rev-net/revnet-core/blob/main/deployments/revnet-core/optimism_sepolia/REVBasicDeployer.json
-              [optimismSepolia.id]:
-                "0x586431a0CF041d868034E7446Cb6cbDe43566088",
-            },
-          },
-        ],
-      }),
-      react(),
-    ],
-  },
-]);
+/**
+ * Name of chains, according to the nannypus deployment directory names
+ */
+const CHAIN_NAME = {
+  [sepolia.id]: "sepolia",
+  [optimismSepolia.id]: "optimism_sepolia",
+} as Record<number, string>;
+
+function revnetCorePath(
+  chain: Chain,
+  contractName: keyof typeof RevnetCoreContracts
+) {
+  const chainName = CHAIN_NAME[chain.id];
+  return `@rev-net/core/deployments/revnet-core-testnet/${chainName}/${contractName}.json`;
+}
+
+async function importDeployment(importPath: string) {
+  const { default: deployment } = await import(importPath, {
+    assert: { type: "json" },
+  });
+  return deployment as unknown as {
+    address: string;
+    abi: unknown[];
+  };
+}
+
+async function buildRevnetCoreContractConfig() {
+  const chainToContractAddress = await Promise.all(
+    Object.values(RevnetCoreContracts).map(async (contractName) => {
+      const deployment = await importDeployment(
+        revnetCorePath(sepolia, contractName)
+      );
+      const deploymentOp = await importDeployment(
+        revnetCorePath(optimismSepolia, contractName)
+      );
+
+      return {
+        name: contractName,
+        abi: deployment.abi,
+        address: {
+          [sepolia.id]: deployment.address,
+          [optimismSepolia.id]: deploymentOp.address,
+        },
+      };
+    })
+  );
+
+  return chainToContractAddress;
+}
+
+const contracts = await buildRevnetCoreContractConfig();
+
+const config = {
+  out: "src/lib/revnet/hooks/contract.ts",
+  contracts,
+  plugins: [react()],
+};
+
+export default config;

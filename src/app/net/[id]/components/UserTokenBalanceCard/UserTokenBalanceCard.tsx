@@ -7,9 +7,9 @@ import {
   useJBContractContext,
   useJBRulesetContext,
   useJBTokenContext,
-  useJbControllerPendingReservedTokenBalanceOf,
-  useJbTokensTotalBalanceOf,
-  useJbTokensTotalSupplyOf,
+  useReadJbControllerPendingReservedTokenBalanceOf,
+  useReadJbTokensTotalBalanceOf,
+  useReadJbTokensTotalSupplyOf,
 } from "juice-sdk-react";
 import { useAccount } from "wagmi";
 import { RedeemDialog } from "./RedeemDialog";
@@ -24,20 +24,20 @@ export function UserTokenBalanceCard() {
   const tokenA = useTokenA();
   const { token } = useJBTokenContext();
 
-  const { data: creditBalance } = useJbTokensTotalBalanceOf({
+  const { data: creditBalance } = useReadJbTokensTotalBalanceOf({
     args: userAddress ? [userAddress, projectId] : undefined,
     select(data) {
       return new JBProjectToken(data);
     },
   });
-  const { data: tokensReserved } = useJbControllerPendingReservedTokenBalanceOf(
+  const { data: tokensReserved } = useReadJbControllerPendingReservedTokenBalanceOf(
     {
       args: [projectId],
     }
   );
   const { data: nativeTokenSurplus } = useNativeTokenSurplus();
 
-  const { data: totalTokenSupply } = useJbTokensTotalSupplyOf({
+  const { data: totalTokenSupply } = useReadJbTokensTotalSupplyOf({
     args: [projectId],
   });
 

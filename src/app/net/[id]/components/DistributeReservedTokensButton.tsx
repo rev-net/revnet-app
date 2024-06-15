@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import {
   useJBContractContext,
-  useJbControllerSendReservedTokensToSplitsOf,
+  useReadJbControllerSendReservedTokensToSplitsOf,
 } from "juice-sdk-react";
 import { useWaitForTransaction } from "wagmi";
 
@@ -13,7 +13,7 @@ export function DistributeReservedTokensButton() {
     contracts: { controller },
   } = useJBContractContext();
   const { write, isLoading, data } =
-    useJbControllerSendReservedTokensToSplitsOf({
+    useReadJbControllerSendReservedTokensToSplitsOf({
       address: controller.data ?? undefined,
       args: projectId ? [projectId] : undefined,
       onSuccess() {

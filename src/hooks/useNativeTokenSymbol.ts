@@ -1,5 +1,6 @@
+import { useChain } from "juice-sdk-react";
 import { optimismSepolia } from "viem/chains";
-import { sepolia, useNetwork } from "wagmi";
+import { sepolia } from "viem/chains";
 
 export function useNativeTokenSymbol() {
   const symbols: { [k: number]: string } = {
@@ -7,6 +8,6 @@ export function useNativeTokenSymbol() {
     [optimismSepolia.id]: "OPSepETH",
   };
 
-  const { chain } = useNetwork();
+  const chain = useChain();
   return symbols[chain?.id ?? 0] ?? "ETH";
 }

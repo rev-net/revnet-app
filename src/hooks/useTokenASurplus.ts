@@ -1,7 +1,7 @@
 import { NATIVE_TOKEN } from "juice-sdk-core";
 import {
   useJBContractContext,
-  useJbMultiTerminalCurrentSurplusOf,
+  useReadJbMultiTerminalCurrentSurplusOf,
 } from "juice-sdk-react";
 
 export function useNativeTokenSurplus() {
@@ -10,7 +10,7 @@ export function useNativeTokenSurplus() {
     contracts: { primaryNativeTerminal },
   } = useJBContractContext();
 
-  return useJbMultiTerminalCurrentSurplusOf({
+  return useReadJbMultiTerminalCurrentSurplusOf({
     address: primaryNativeTerminal.data ?? undefined,
     args: [projectId, 18n, BigInt(NATIVE_TOKEN)],
     watch: true,

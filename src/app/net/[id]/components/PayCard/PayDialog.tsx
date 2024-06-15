@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/dialog";
 import { Stat } from "@/components/ui/stat";
 import { NATIVE_TOKEN, TokenAmountType } from "juice-sdk-core";
-import { useJBContractContext, useJbMultiTerminalPay } from "juice-sdk-react";
+import { useJBContractContext, useWriteJbMultiTerminalPay } from "juice-sdk-react";
 import { PropsWithChildren } from "react";
 import { Address } from "viem";
 import { useAccount, useWaitForTransaction } from "wagmi";
@@ -39,7 +39,7 @@ export function PayDialog({
     write,
     isLoading: isWriteLoading,
     data,
-  } = useJbMultiTerminalPay({
+  } = useWriteJbMultiTerminalPay({
     address: primaryNativeTerminal?.data ?? undefined,
     args: address
       ? [

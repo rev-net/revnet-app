@@ -14,7 +14,7 @@ import {
 import { useNativeTokenSymbol } from "@/hooks/useNativeTokenSymbol";
 import { ipfsUri, ipfsUriToGatewayUrl } from "@/lib/ipfs";
 import { createSalt } from "@/lib/number";
-import { revBasicDeployerABI } from "@/lib/revnet/hooks/contract";
+import { revBasicDeployerAbi } from "@/lib/revnet/hooks/contract";
 import { useDeployRevnet } from "@/lib/revnet/hooks/useDeployRevnet";
 import {
   ExclamationCircleIcon,
@@ -37,22 +37,16 @@ import {
   NATIVE_TOKEN,
   RedemptionRate,
   ReservedRate,
-  jbMultiTerminalAddress,
 } from "juice-sdk-core";
+import { useChain } from "juice-sdk-react";
 import { FastForwardIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { ReactNode, useState } from "react";
 import { twMerge } from "tailwind-merge";
-import { Chain, parseUnits, zeroAddress } from "viem";
-import { mainnet, optimismSepolia } from "viem/chains";
-import {
-  Address,
-  UsePrepareContractWriteConfig,
-  sepolia,
-  useNetwork,
-  useWaitForTransaction,
-} from "wagmi";
+import { Address, Chain, parseUnits, zeroAddress } from "viem";
+import { mainnet, optimismSepolia, sepolia } from "viem/chains";
+import { UsePrepareContractWriteConfig, useWaitForTransaction } from "wagmi";
 import { IpfsImageUploader } from "../../components/IpfsFileUploader";
 import { MAX_RULESET_COUNT } from "../constants";
 
@@ -282,8 +276,10 @@ function AddStageDialog({
                     </div>
                     <div className="text-zinc-500 text-sm mt-2">
                       <span className="italic">Days</span> must be a multiple of
-                      this stage's duration. Increasing 100% means to double
-                      the price, resembling a halvening effect. If there’s a Uniswap pool for ETH/$TOKEN offering a better price, all ETH paid in will be used to buyback instead of feeding the revnet.
+                      this stage's duration. Increasing 100% means to double the
+                      price, resembling a halvening effect. If there’s a Uniswap
+                      pool for ETH/$TOKEN offering a better price, all ETH paid
+                      in will be used to buyback instead of feeding the revnet.
                     </div>
                   </div>
                 </div>
@@ -695,7 +691,7 @@ function parseDeployData(
     chainId: Chain["id"] | undefined;
   }
 ): UsePrepareContractWriteConfig<
-  typeof revBasicDeployerABI,
+  typeof revBasicDeployerAbi,
   "launchRevnetFor"
 >["args"] {
   const now = Math.floor(Date.now() / 1000);
@@ -743,10 +739,7 @@ function parseDeployData(
     },
     [
       {
-        terminal:
-          jbMultiTerminalAddress[
-            extra.chainId as typeof sepolia.id | typeof optimismSepolia.id
-          ],
+        terminal: "TODO",
         tokensToAccept: [NATIVE_TOKEN],
       },
     ],
@@ -783,7 +776,7 @@ async function pinProjectMetadata(metadata: JBProjectMetadata) {
 export default function Page() {
   const [isLoadingIpfs, setIsLoadingIpfs] = useState<boolean>(false);
 
-  const { chain } = useNetwork();
+  const chain = useChain();
   const { write, data, isLoading } = useDeployRevnet();
   const { data: txData, isSuccess } = useWaitForTransaction({
     hash: data?.hash,

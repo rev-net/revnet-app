@@ -3,8 +3,8 @@ import {
   useJBContractContext,
   useJBRulesetContext,
   useJBTokenContext,
-  useJbControllerPendingReservedTokenBalanceOf,
-  useJbTokensTotalSupplyOf,
+  useReadJbControllerPendingReservedTokenBalanceOf,
+  useReadJbTokensTotalSupplyOf,
 } from "juice-sdk-react";
 import { parseUnits } from "viem";
 import { useNativeTokenSurplus } from "./useTokenASurplus";
@@ -17,10 +17,10 @@ export function useExitFloorPrice() {
   const { token } = useJBTokenContext();
   const { rulesetMetadata } = useJBRulesetContext();
   const { data: nativeTokenSurplus } = useNativeTokenSurplus();
-  const { data: totalTokenSupply } = useJbTokensTotalSupplyOf({
+  const { data: totalTokenSupply } = useReadJbTokensTotalSupplyOf({
     args: [projectId],
   });
-  const { data: tokensReserved } = useJbControllerPendingReservedTokenBalanceOf(
+  const { data: tokensReserved } = useReadJbControllerPendingReservedTokenBalanceOf(
     {
       args: [projectId],
     }
