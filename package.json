@@ -59,7 +59,7 @@
     "@graphql-codegen/typescript-operations": "^4.0.1",
     "@graphql-codegen/typescript-react-apollo": "^3.3.7",
     "@graphql-codegen/typescript-resolvers": "^4.0.1",
-    "@rev-net/core": "0.0.19",
+    "@rev-net/core": "^0.0.23",
     "@types/dompurify": "^3.0.2",
     "@types/node": "^17.0.31",
     "@types/react": "^18.0.9",
