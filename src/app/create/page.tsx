@@ -14,7 +14,7 @@ import {
 import { useNativeTokenSymbol } from "@/hooks/useNativeTokenSymbol";
 import { ipfsUri, ipfsUriToGatewayUrl } from "@/lib/ipfs";
 import { createSalt } from "@/lib/number";
-import { revBasicDeployerABI } from "@/lib/revnet/hooks/contract";
+import { revBasicDeployerAbi } from "@/lib/revnet/hooks/contract";
 import { useDeployRevnet } from "@/lib/revnet/hooks/useDeployRevnet";
 import {
   ExclamationCircleIcon,
@@ -37,22 +37,22 @@ import {
   NATIVE_TOKEN,
   RedemptionRate,
   ReservedRate,
-  jbMultiTerminalAddress,
 } from "juice-sdk-core";
+import { useChain } from "juice-sdk-react";
 import { FastForwardIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { ReactNode, useState } from "react";
 import { twMerge } from "tailwind-merge";
-import { Chain, parseUnits, zeroAddress } from "viem";
-import { mainnet, optimismSepolia } from "viem/chains";
 import {
   Address,
-  UsePrepareContractWriteConfig,
-  sepolia,
-  useNetwork,
-  useWaitForTransaction,
-} from "wagmi";
+  Chain,
+  ContractFunctionParameters,
+  parseUnits,
+  zeroAddress,
+} from "viem";
+import { mainnet } from "viem/chains";
+import { useWaitForTransactionReceipt } from "wagmi";
 import { IpfsImageUploader } from "../../components/IpfsFileUploader";
 import { MAX_RULESET_COUNT } from "../constants";
 
@@ -282,8 +282,10 @@ function AddStageDialog({
                     </div>
                     <div className="text-zinc-500 text-sm mt-2">
                       <span className="italic">Days</span> must be a multiple of
-                      this stage's duration. Increasing 100% means to double
-                      the price, resembling a halvening effect. If there’s a Uniswap pool for ETH/$TOKEN offering a better price, all ETH paid in will be used to buyback instead of feeding the revnet.
+                      this stage's duration. Increasing 100% means to double the
+                      price, resembling a halvening effect. If there’s a Uniswap
+                      pool for ETH/$TOKEN offering a better price, all ETH paid
+                      in will be used to buyback instead of feeding the revnet.
                     </div>
                   </div>
                 </div>
@@ -694,8 +696,9 @@ function parseDeployData(
     metadataCid: string;
     chainId: Chain["id"] | undefined;
   }
-): UsePrepareContractWriteConfig<
-  typeof revBasicDeployerABI,
+): ContractFunctionParameters<
+  typeof revBasicDeployerAbi,
+  "nonpayable",
   "launchRevnetFor"
 >["args"] {
   const now = Math.floor(Date.now() / 1000);
@@ -708,6 +711,13 @@ function parseDeployData(
     cumStart += prevStageDuration;
 
     return {
+      mintConfigs: [
+        {
+          chainId: BigInt(extra.chainId ?? mainnet.id),
+          count: parseUnits(formData.premintTokenAmount, 18),
+          beneficiary: stage.initialOperator.trim() as Address,
+        },
+      ],
       startsAtOrAfter,
       splitRate: Number(ReservedRate.parse(stage.splitRate, 4).value) / 100,
       initialIssuanceRate:
@@ -734,19 +744,14 @@ function parseDeployData(
         uri: extra.metadataCid,
         salt: createSalt(),
       },
-      premintChainId: BigInt(extra.chainId ?? mainnet.id),
       baseCurrency: Number(BigInt(NATIVE_TOKEN)),
       initialSplitOperator:
         (formData.stages[0]?.initialOperator.trim() as Address) ?? zeroAddress,
-      premintTokenAmount: parseUnits(formData.premintTokenAmount, 18),
       stageConfigurations,
     },
     [
       {
-        terminal:
-          jbMultiTerminalAddress[
-            extra.chainId as typeof sepolia.id | typeof optimismSepolia.id
-          ],
+        terminal: "0x0", // TODO
         tokensToAccept: [NATIVE_TOKEN],
       },
     ],
@@ -783,10 +788,10 @@ async function pinProjectMetadata(metadata: JBProjectMetadata) {
 export default function Page() {
   const [isLoadingIpfs, setIsLoadingIpfs] = useState<boolean>(false);
 
-  const { chain } = useNetwork();
-  const { write, data, isLoading } = useDeployRevnet();
-  const { data: txData, isSuccess } = useWaitForTransaction({
-    hash: data?.hash,
+  const chain = useChain();
+  const { write, data, isPending } = useDeployRevnet();
+  const { data: txData, isSuccess } = useWaitForTransactionReceipt({
+    hash: data,
   });
 
   async function deployProject(formData: RevnetFormData) {
@@ -821,7 +826,7 @@ export default function Page() {
         <div className="container">
           <div className="max-w-lg rounded-lg shadow-lg my-24 p-10 mx-auto border border-zinc-100">
             Something went wrong.{" "}
-            <EtherscanLink type="tx" value={data?.hash}>
+            <EtherscanLink type="tx" value={data}>
               Check the transaction on Etherscan
             </EtherscanLink>
             .

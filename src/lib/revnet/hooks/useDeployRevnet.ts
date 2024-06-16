@@ -1,21 +1,23 @@
-import { UsePrepareContractWriteConfig } from "wagmi";
-import {
-  revBasicDeployerABI,
-  useRevBasicDeployerLaunchRevnetFor,
-} from "./contract";
-import { useCallback } from "react";
 import { useToast } from "@/components/ui/use-toast";
+import { useCallback } from "react";
+import { ContractFunctionParameters } from "viem";
+import {
+  revBasicDeployerAbi,
+  useWriteRevBasicDeployerLaunchRevnetFor,
+} from "./contract";
 
 export function useDeployRevnet() {
   const { toast } = useToast();
-  const { write, data, isError, isLoading } =
-    useRevBasicDeployerLaunchRevnetFor({
-      onError(e) {
-        console.error(e?.message);
-        toast({
-          title: "Failed to deploy revnet",
-          description: e?.message,
-        });
+  const { writeContract, data, isError, isPending } =
+    useWriteRevBasicDeployerLaunchRevnetFor({
+      mutation: {
+        onError(e) {
+          console.error(e?.message);
+          toast({
+            title: "Failed to deploy revnet",
+            description: e?.message,
+          });
+        },
       },
     });
 
@@ -31,17 +33,18 @@ export function useDeployRevnet() {
   */
   const deployRevnet = useCallback(
     (
-      args: UsePrepareContractWriteConfig<
-        typeof revBasicDeployerABI,
+      args: ContractFunctionParameters<
+        typeof revBasicDeployerAbi,
+        "nonpayable",
         "launchRevnetFor"
       >["args"]
     ) => {
-      write?.({
+      writeContract?.({
         args,
       });
     },
-    [write]
+    [writeContract]
   );
 
-  return { write: deployRevnet, data, isError, isLoading };
+  return { write: deployRevnet, data, isError, isPending };
 }

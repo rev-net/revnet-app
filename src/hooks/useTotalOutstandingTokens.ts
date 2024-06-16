@@ -1,18 +1,18 @@
 import {
   useJBContractContext,
-  useJbControllerPendingReservedTokenBalanceOf,
-  useJbTokensTotalSupplyOf,
+  useReadJbControllerPendingReservedTokenBalanceOf,
+  useReadJbTokensTotalSupplyOf,
 } from "juice-sdk-react";
 
 export function useTotalOutstandingTokens() {
-  const { projectId } = useJBContractContext();
+  const { projectId, contracts } = useJBContractContext();
 
-  const { data: tokensReserved } = useJbControllerPendingReservedTokenBalanceOf(
-    {
+  const { data: tokensReserved } =
+    useReadJbControllerPendingReservedTokenBalanceOf({
+      address: contracts.controller.data ?? undefined,
       args: [projectId],
-    }
-  );
-  const { data: totalTokenSupply } = useJbTokensTotalSupplyOf({
+    });
+  const { data: totalTokenSupply } = useReadJbTokensTotalSupplyOf({
     args: [projectId],
   });
   const totalOutstandingTokens =

@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  useJBContractContext,
   useJBProjectMetadataContext,
   useJBTokenContext,
 } from "juice-sdk-react";
@@ -14,8 +15,11 @@ import { Header } from "./Header/Header";
 import { ChartSection } from "./sections/ChartSection/ChartSection";
 import { DescriptionSection } from "./sections/DescriptionSection/DescriptionSection";
 import { HoldersSection } from "./sections/HoldersSection/HoldersSection";
+import { notFound } from "next/navigation";
+import { zeroAddress } from "viem";
 
 export function NetworkDashboard() {
+  const { contracts } = useJBContractContext();
   const { token } = useJBTokenContext();
   const { metadata } = useJBProjectMetadataContext();
   const { name } = metadata?.data ?? {};
@@ -26,6 +30,15 @@ export function NetworkDashboard() {
     if (!token?.data?.symbol) return;
     document.title = `$${token?.data?.symbol} | REVNET`;
   }, [token?.data?.symbol]);
+
+  const pageLoading = metadata.isLoading && contracts.controller.isLoading;
+  if (pageLoading) {
+    return null;
+  }
+
+  if (contracts.controller.data === zeroAddress) {
+    notFound();
+  }
 
   return (
     <div className="flex gap-10 container py-10 md:flex-nowrap flex-wrap mb-10">

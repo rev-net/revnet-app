@@ -1,7 +1,8 @@
 import { clsx, type ClassValue } from "clsx";
 import { formatDuration, intervalToDuration } from "date-fns";
 import { twMerge } from "tailwind-merge";
-import { Chain, mainnet } from "wagmi";
+import { Chain } from "viem";
+import { mainnet } from "viem/chains";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));

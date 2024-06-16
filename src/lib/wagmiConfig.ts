@@ -1,13 +1,16 @@
 import { getDefaultConfig } from "connectkit";
-import { sepolia, optimismSepolia } from "viem/chains";
-import { createConfig } from "wagmi";
+import { sepolia } from "viem/chains";
+import { createConfig, http } from "wagmi";
 
 export const wagmiConfig = createConfig(
   getDefaultConfig({
-    autoConnect: true,
+    chains: [sepolia],
     appName: "Revnet",
     walletConnectProjectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID!,
-    infuraId: process.env.NEXT_PUBLIC_INFURA_ID!,
-    chains: [sepolia, optimismSepolia],
+    transports: {
+      [sepolia.id]: http(
+        `https://sepolia.infura.io/v3/${process.env.NEXT_PUBLIC_INFURA_ID}`
+      ),
+    },
   })
 );

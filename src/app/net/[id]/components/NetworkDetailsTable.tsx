@@ -16,9 +16,9 @@ import {
 import {
   useJBContractContext,
   useJBTokenContext,
-  useJbControllerGetRulesetOf,
-  useJbRulesetsRulesetsOf,
-  useJbSplitsSplitsOf,
+  useReadJbControllerGetRulesetOf,
+  useReadJbRulesetsRulesetsOf,
+  useReadJbSplitsSplitsOf,
 } from "juice-sdk-react";
 import { useState } from "react";
 import { twJoin } from "tailwind-merge";
@@ -34,18 +34,20 @@ export function NetworkDetailsTable() {
   } = useJBContractContext();
 
   // TODO(perf) duplicate call, move to a new context
-  const { data: rulesets } = useJbRulesetsRulesetsOf({
+  const { data: rulesets } = useReadJbRulesetsRulesetsOf({
     args: [projectId, 0n, BigInt(MAX_RULESET_COUNT)],
-    select(data) {
-      return data
-        .map((ruleset) => {
-          return {
-            ...ruleset,
-            weight: new RulesetWeight(ruleset.weight),
-            decayRate: new DecayRate(ruleset.decayRate),
-          };
-        })
-        .reverse();
+    query: {
+      select(data) {
+        return data
+          .map((ruleset) => {
+            return {
+              ...ruleset,
+              weight: new RulesetWeight(ruleset.weight),
+              decayRate: new DecayRate(ruleset.decayRate),
+            };
+          })
+          .reverse();
+      },
     },
   });
 
@@ -54,19 +56,21 @@ export function NetworkDetailsTable() {
   const tokenA = { symbol: nativeTokenSymbol, decimals: 18 };
   const { token } = useJBTokenContext();
 
-  const selectedStageMetadata = useJbControllerGetRulesetOf({
+  const selectedStageMetadata = useReadJbControllerGetRulesetOf({
     address: controller.data ?? undefined,
     args: selectedStage?.id ? [projectId, selectedStage.id] : undefined,
-    select([, rulesetMetadata]) {
-      return {
-        ...rulesetMetadata,
-        redemptionRate: new RedemptionRate(rulesetMetadata.redemptionRate),
-        reservedRate: new ReservedRate(rulesetMetadata.reservedRate),
-      };
+    query: {
+      select([, rulesetMetadata]) {
+        return {
+          ...rulesetMetadata,
+          redemptionRate: new RedemptionRate(rulesetMetadata.redemptionRate),
+          reservedRate: new ReservedRate(rulesetMetadata.reservedRate),
+        };
+      },
     },
   });
 
-  const { data: selectedStateReservedTokenSplits } = useJbSplitsSplitsOf({
+  const { data: selectedStateReservedTokenSplits } = useReadJbSplitsSplitsOf({
     args:
       selectedStage && selectedStage
         ? [projectId, selectedStage.id, RESERVED_TOKEN_SPLIT_GROUP_ID]

@@ -1,31 +1,31 @@
 "use client";
 
 import { TooltipProvider } from "@/components/ui/tooltip";
-import apolloClient from "@/lib/apolloClient";
 import { wagmiConfig } from "@/lib/wagmiConfig";
-import { ApolloProvider } from "@apollo/client";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ConnectKitProvider } from "connectkit";
 import * as React from "react";
-import { WagmiConfig } from "wagmi";
+import { WagmiProvider } from "wagmi";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [mounted, setMounted] = React.useState(false);
   React.useEffect(() => setMounted(true), []);
+  const queryClient = new QueryClient();
 
   return (
-    <WagmiConfig config={wagmiConfig}>
-      <ConnectKitProvider
-        customTheme={{
-          "--ck-border-radius": '8px',
-          "--ck-font-family": "var(--font-simplon-norm)",
-        }}
-      >
-        <ApolloProvider client={apolloClient}>
+    <WagmiProvider config={wagmiConfig}>
+      <QueryClientProvider client={queryClient}>
+        <ConnectKitProvider
+          customTheme={{
+            "--ck-border-radius": "8px",
+            "--ck-font-family": "var(--font-simplon-norm)",
+          }}
+        >
           <TooltipProvider delayDuration={200} skipDelayDuration={100}>
             {mounted && children}
           </TooltipProvider>
-        </ApolloProvider>
-      </ConnectKitProvider>
-    </WagmiConfig>
+        </ConnectKitProvider>
+      </QueryClientProvider>
+    </WagmiProvider>
   );
 }

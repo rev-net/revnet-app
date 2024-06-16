@@ -1,7 +1,7 @@
 import {
   OrderDirection,
   Participant_OrderBy,
-  useParticipantsQuery,
+  ParticipantsDocument,
 } from "@/generated/graphql";
 import { ParticipantsTable } from "../../../ParticipantsTable";
 import { useJBContractContext, useJBTokenContext } from "juice-sdk-react";
@@ -12,6 +12,7 @@ import { ParticipantsPieChart } from "../../../ParticipantsPieChart";
 import { zeroAddress } from "viem";
 import { Button } from "@/components/ui/button";
 import { twJoin } from "tailwind-merge";
+import { useSubgraphQuery } from "@/graphql/useSubgraphQuery";
 
 export function HoldersSection() {
   const [participantsView, setParticipantsView] = useState<"table" | "pie">(
@@ -22,17 +23,14 @@ export function HoldersSection() {
   const boostRecipient = useBoostRecipient();
   const totalOutstandingTokens = useTotalOutstandingTokens();
 
-  const { data: participantsData } = useParticipantsQuery({
-    variables: {
-      orderBy: Participant_OrderBy.balance,
-      orderDirection: OrderDirection.desc,
-      where: {
-        projectId: Number(projectId),
-        balance_gt: "0", // TODO is this a subgraph bug?
-        wallet_not: zeroAddress,
-      },
+  const { data: participantsData } = useSubgraphQuery(ParticipantsDocument, {
+    orderBy: Participant_OrderBy.balance,
+    orderDirection: OrderDirection.desc,
+    where: {
+      projectId: Number(projectId),
+      balance_gt: "0", // TODO is this a subgraph bug?
+      wallet_not: zeroAddress,
     },
-    pollInterval: 10_000,
   });
 
   return (

@@ -1,7 +1,7 @@
 import { ipfsGatewayUrl } from "@/lib/ipfs";
 import axios from "axios";
 import Image from "next/image";
-import { useMutation } from "wagmi";
+import { useMutation } from "wagmi/query";
 
 export type InfuraPinResponse = {
   Hash: string;
@@ -34,11 +34,13 @@ export function IpfsImageUploader({
 }: {
   onUploadSuccess: (cid: string) => void;
 }) {
-  const uploadFile = useMutation(async (file: File) => {
-    const ipfsCid = await pinFile(file);
-    onUploadSuccess(ipfsCid.Hash);
+  const uploadFile = useMutation({
+    mutationFn: async (file: File) => {
+      const ipfsCid = await pinFile(file);
+      onUploadSuccess(ipfsCid.Hash);
 
-    return ipfsCid;
+      return ipfsCid;
+    },
   });
 
   const handleFileChange = async (
@@ -57,7 +59,7 @@ export function IpfsImageUploader({
         type="file"
         onChange={handleFileChange}
       />
-      {uploadFile.isLoading && (
+      {uploadFile.isPending && (
         <div className="text-sm text-gray-500">Uploading...</div>
       )}
       {uploadFile.error && (

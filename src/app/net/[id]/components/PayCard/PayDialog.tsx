@@ -11,10 +11,13 @@ import {
 } from "@/components/ui/dialog";
 import { Stat } from "@/components/ui/stat";
 import { NATIVE_TOKEN, TokenAmountType } from "juice-sdk-core";
-import { useJBContractContext, useJbMultiTerminalPay } from "juice-sdk-react";
+import {
+  useJBContractContext,
+  useWriteJbMultiTerminalPay,
+} from "juice-sdk-react";
 import { PropsWithChildren } from "react";
 import { Address } from "viem";
-import { useAccount, useWaitForTransaction } from "wagmi";
+import { useAccount, useWaitForTransactionReceipt } from "wagmi";
 
 export function PayDialog({
   amountA,
@@ -36,27 +39,13 @@ export function PayDialog({
   const { address } = useAccount();
   const value = amountA.amount.value;
   const {
-    write,
-    isLoading: isWriteLoading,
+    writeContract,
+    isPending: isWriteLoading,
     data,
-  } = useJbMultiTerminalPay({
-    address: primaryNativeTerminal?.data ?? undefined,
-    args: address
-      ? [
-          projectId,
-          NATIVE_TOKEN,
-          value,
-          address,
-          0n,
-          `Joined REVNET ${projectId}`,
-          "0x0",
-        ]
-      : undefined,
-    value,
-  });
+  } = useWriteJbMultiTerminalPay();
 
-  const txHash = data?.hash;
-  const { isLoading: isTxLoading, isSuccess } = useWaitForTransaction({
+  const txHash = data;
+  const { isLoading: isTxLoading, isSuccess } = useWaitForTransactionReceipt({
     hash: txHash,
   });
 
@@ -94,7 +83,26 @@ export function PayDialog({
               <Button
                 loading={loading}
                 onClick={() => {
-                  write?.();
+                  if (!primaryNativeTerminal?.data) {
+                    return;
+                  }
+                  if (!address) {
+                    return;
+                  }
+
+                  writeContract?.({
+                    address: primaryNativeTerminal?.data ?? undefined,
+                    args: [
+                      projectId,
+                      NATIVE_TOKEN,
+                      value,
+                      address,
+                      0n,
+                      `Joined REVNET ${projectId}`,
+                      "0x0",
+                    ],
+                    value,
+                  });
                 }}
               >
                 Buy and Join

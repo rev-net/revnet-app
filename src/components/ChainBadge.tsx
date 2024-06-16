@@ -1,7 +1,8 @@
 "use client";
 import { Badge } from "@/components/ui/badge";
 import { optimismSepolia } from "viem/chains";
-import { sepolia, useNetwork } from "wagmi";
+import { sepolia } from "viem/chains";
+import { useChain } from "juice-sdk-react";
 
 const NAMES: {
   [chainId: number]: string;
@@ -11,7 +12,7 @@ const NAMES: {
 };
 
 export function ChainBadge() {
-  const { chain } = useNetwork();
+  const chain = useChain();
   const chainName = chain ? NAMES[chain.id] : undefined;
   if (!chainName) return null;
 

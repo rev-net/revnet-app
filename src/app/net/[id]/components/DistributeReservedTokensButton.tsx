@@ -2,9 +2,9 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import {
   useJBContractContext,
-  useJbControllerSendReservedTokensToSplitsOf,
+  useWriteJbControllerSendReservedTokensToSplitsOf,
 } from "juice-sdk-react";
-import { useWaitForTransaction } from "wagmi";
+import { useWaitForTransactionReceipt } from "wagmi";
 
 export function DistributeReservedTokensButton() {
   const { toast } = useToast();
@@ -12,14 +12,14 @@ export function DistributeReservedTokensButton() {
     projectId,
     contracts: { controller },
   } = useJBContractContext();
-  const { write, isLoading, data } =
-    useJbControllerSendReservedTokensToSplitsOf({
-      address: controller.data ?? undefined,
-      args: projectId ? [projectId] : undefined,
-      onSuccess() {
-        toast({
-          title: "Transaction submitted.",
-        });
+  const { writeContract, isPending, data } =
+    useWriteJbControllerSendReservedTokensToSplitsOf({
+      mutation: {
+        onSuccess() {
+          toast({
+            title: "Transaction submitted.",
+          });
+        },
       },
     });
 
@@ -27,15 +27,28 @@ export function DistributeReservedTokensButton() {
     data: txData,
     isSuccess,
     isLoading: isTxLoading,
-  } = useWaitForTransaction({
-    hash: data?.hash,
+  } = useWaitForTransactionReceipt({
+    hash: data,
   });
 
   return (
     <Button
       variant="outline"
-      loading={isLoading || isTxLoading}
-      onClick={() => write?.()}
+      loading={isPending || isTxLoading}
+      onClick={() => {
+        if (!controller.data) {
+          return;
+        }
+
+        if (!projectId) {
+          return;
+        }
+
+        writeContract?.({
+          address: controller.data,
+          args: [projectId],
+        });
+      }}
     >
       Release operator tokens
     </Button>

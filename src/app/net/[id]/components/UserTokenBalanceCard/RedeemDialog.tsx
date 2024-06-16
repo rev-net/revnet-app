@@ -15,11 +15,11 @@ import { FixedInt } from "fpnum";
 import { JBProjectToken, NATIVE_TOKEN } from "juice-sdk-core";
 import {
   useJBContractContext,
-  useJbMultiTerminalRedeemTokensOf,
+  useWriteJbMultiTerminalRedeemTokensOf,
 } from "juice-sdk-react";
 import { PropsWithChildren, useState } from "react";
-import { Address, parseEther } from "viem";
-import { useAccount, useWaitForTransaction } from "wagmi";
+import { Address, Hash, parseEther } from "viem";
+import { useAccount, useWaitForTransactionReceipt } from "wagmi";
 
 export function RedeemDialog({
   projectId,
@@ -54,27 +54,13 @@ export function RedeemDialog({
     : 0n;
 
   const {
-    write,
-    isLoading: isWriteLoading,
+    writeContract,
+    isPending: isWriteLoading,
     data,
-  } = useJbMultiTerminalRedeemTokensOf({
-    // address: primaryNativeTerminal?.data, // TODO fix wagmi typegen for txs
-    args:
-      address && redeemAmountBN
-        ? [
-            address,
-            projectId,
-            NATIVE_TOKEN,
-            redeemAmount ? parseEther(redeemAmount) : 0n,
-            0n,
-            address,
-            "0x0",
-          ]
-        : undefined,
-  });
+  } = useWriteJbMultiTerminalRedeemTokensOf();
 
-  const txHash = data?.hash;
-  const { isLoading: isTxLoading, isSuccess } = useWaitForTransaction({
+  const txHash = data;
+  const { isLoading: isTxLoading, isSuccess } = useWaitForTransactionReceipt({
     hash: txHash,
   });
 
@@ -120,7 +106,28 @@ export function RedeemDialog({
               <Button
                 loading={loading}
                 onClick={() => {
-                  write?.();
+                  if (!primaryNativeTerminal?.data) {
+                    console.error("no terminal");
+                    return;
+                  }
+
+                  if (!(address && redeemAmountBN)) {
+                    console.error("incomplete args");
+                    return;
+                  }
+
+                  writeContract?.({
+                    args: [
+                      address,
+                      projectId,
+                      NATIVE_TOKEN,
+                      redeemAmount ? parseEther(redeemAmount) : 0n,
+                      0n,
+                      address,
+                      "0x0",
+                    ],
+                    address: primaryNativeTerminal?.data, // TODO fix wagmi typegen for txs
+                  });
                 }}
               >
                 Cash out

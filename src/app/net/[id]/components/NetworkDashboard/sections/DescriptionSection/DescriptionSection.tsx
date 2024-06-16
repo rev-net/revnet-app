@@ -1,5 +1,6 @@
 import EtherscanLink from "@/components/EtherscanLink";
-import { useProjectCreateEventQuery } from "@/generated/graphql";
+import { ProjectCreateEventDocument } from "@/generated/graphql";
+import { useSubgraphQuery } from "@/graphql/useSubgraphQuery";
 import { format } from "date-fns";
 import {
   useJBContractContext,
@@ -12,9 +13,12 @@ export function DescriptionSection() {
 
   const { description } = metadata?.data ?? {};
 
-  const { data: projectCreateEvent } = useProjectCreateEventQuery({
-    variables: { where: { projectId: Number(projectId) } },
-  });
+  const { data: projectCreateEvent } = useSubgraphQuery(
+    ProjectCreateEventDocument,
+    {
+      where: { projectId: Number(projectId) },
+    }
+  );
   const { txHash, timestamp } =
     projectCreateEvent?.projectEvents?.[0]?.projectCreateEvent ?? {};
 
