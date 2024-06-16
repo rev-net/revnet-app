@@ -4,7 +4,7 @@ import { ContractFunctionParameters } from "viem";
 import {
   revBasicDeployerAbi,
   useWriteRevBasicDeployerLaunchRevnetFor,
-} from "./contract";
+} from "revnet-sdk";
 
 export function useDeployRevnet() {
   const { toast } = useToast();

@@ -14,6 +14,8 @@ import {
 import { useNativeTokenSymbol } from "@/hooks/useNativeTokenSymbol";
 import { ipfsUri, ipfsUriToGatewayUrl } from "@/lib/ipfs";
 import { createSalt } from "@/lib/number";
+import { revBasicDeployerAbi } from "revnet-sdk";
+import { useDeployRevnet } from "@/lib/revnet/hooks/useDeployRevnet";
 import {
   ExclamationCircleIcon,
   PencilSquareIcon,
@@ -41,7 +43,6 @@ import { FastForwardIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { ReactNode, useState } from "react";
-import { revBasicDeployerAbi, useDeployRevnet } from "revnet-sdk";
 import { twMerge } from "tailwind-merge";
 import {
   Address,
