@@ -44,9 +44,16 @@ import Image from "next/image";
 import Link from "next/link";
 import { ReactNode, useState } from "react";
 import { twMerge } from "tailwind-merge";
-import { Address, Chain, parseUnits, zeroAddress } from "viem";
-import { mainnet, optimismSepolia, sepolia } from "viem/chains";
-import { UsePrepareContractWriteConfig, useWaitForTransactionReceipt } from "wagmi";
+import {
+  Address,
+  Chain,
+  ContractFunctionParameters,
+  ContractFunctionReturnType,
+  parseUnits,
+  zeroAddress,
+} from "viem";
+import { mainnet } from "viem/chains";
+import { useWaitForTransactionReceipt } from "wagmi";
 import { IpfsImageUploader } from "../../components/IpfsFileUploader";
 import { MAX_RULESET_COUNT } from "../constants";
 
@@ -690,8 +697,9 @@ function parseDeployData(
     metadataCid: string;
     chainId: Chain["id"] | undefined;
   }
-): UsePrepareContractWriteConfig<
+): ContractFunctionParameters<
   typeof revBasicDeployerAbi,
+  "nonpayable",
   "launchRevnetFor"
 >["args"] {
   const now = Math.floor(Date.now() / 1000);
@@ -777,9 +785,9 @@ export default function Page() {
   const [isLoadingIpfs, setIsLoadingIpfs] = useState<boolean>(false);
 
   const chain = useChain();
-  const { write, data, isLoading } = useDeployRevnet();
+  const { write, data, isPending } = useDeployRevnet();
   const { data: txData, isSuccess } = useWaitForTransactionReceipt({
-    hash: data?.hash,
+    hash: data,
   });
 
   async function deployProject(formData: RevnetFormData) {
@@ -814,7 +822,7 @@ export default function Page() {
         <div className="container">
           <div className="max-w-lg rounded-lg shadow-lg my-24 p-10 mx-auto border border-zinc-100">
             Something went wrong.{" "}
-            <EtherscanLink type="tx" value={data?.hash}>
+            <EtherscanLink type="tx" value={data}>
               Check the transaction on Etherscan
             </EtherscanLink>
             .

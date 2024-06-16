@@ -13,7 +13,5 @@ export function useNativeTokenSurplus() {
   return useReadJbMultiTerminalCurrentSurplusOf({
     address: primaryNativeTerminal.data ?? undefined,
     args: [projectId, 18n, BigInt(NATIVE_TOKEN)],
-    watch: true,
-    staleTime: 10_000, // 10 seconds
   });
 }

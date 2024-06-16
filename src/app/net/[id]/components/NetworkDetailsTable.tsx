@@ -36,16 +36,18 @@ export function NetworkDetailsTable() {
   // TODO(perf) duplicate call, move to a new context
   const { data: rulesets } = useReadJbRulesetsRulesetsOf({
     args: [projectId, 0n, BigInt(MAX_RULESET_COUNT)],
-    select(data) {
-      return data
-        .map((ruleset) => {
-          return {
-            ...ruleset,
-            weight: new RulesetWeight(ruleset.weight),
-            decayRate: new DecayRate(ruleset.decayRate),
-          };
-        })
-        .reverse();
+    query: {
+      select(data) {
+        return data
+          .map((ruleset) => {
+            return {
+              ...ruleset,
+              weight: new RulesetWeight(ruleset.weight),
+              decayRate: new DecayRate(ruleset.decayRate),
+            };
+          })
+          .reverse();
+      },
     },
   });
 
@@ -57,12 +59,14 @@ export function NetworkDetailsTable() {
   const selectedStageMetadata = useReadJbControllerGetRulesetOf({
     address: controller.data ?? undefined,
     args: selectedStage?.id ? [projectId, selectedStage.id] : undefined,
-    select([, rulesetMetadata]) {
-      return {
-        ...rulesetMetadata,
-        redemptionRate: new RedemptionRate(rulesetMetadata.redemptionRate),
-        reservedRate: new ReservedRate(rulesetMetadata.reservedRate),
-      };
+    query: {
+      select([, rulesetMetadata]) {
+        return {
+          ...rulesetMetadata,
+          redemptionRate: new RedemptionRate(rulesetMetadata.redemptionRate),
+          reservedRate: new ReservedRate(rulesetMetadata.reservedRate),
+        };
+      },
     },
   });
 

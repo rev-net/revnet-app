@@ -26,15 +26,16 @@ export function UserTokenBalanceCard() {
 
   const { data: creditBalance } = useReadJbTokensTotalBalanceOf({
     args: userAddress ? [userAddress, projectId] : undefined,
-    select(data) {
-      return new JBProjectToken(data);
+    query: {
+      select(data) {
+        return new JBProjectToken(data);
+      },
     },
   });
-  const { data: tokensReserved } = useReadJbControllerPendingReservedTokenBalanceOf(
-    {
+  const { data: tokensReserved } =
+    useReadJbControllerPendingReservedTokenBalanceOf({
       args: [projectId],
-    }
-  );
+    });
   const { data: nativeTokenSurplus } = useNativeTokenSurplus();
 
   const { data: totalTokenSupply } = useReadJbTokensTotalSupplyOf({
@@ -70,7 +71,7 @@ export function UserTokenBalanceCard() {
           </div>
         ) : null}
       </div>
-      {token?.data && creditBalance && primaryNativeTerminal.data ? (
+      {token?.data?.symbol && creditBalance && primaryNativeTerminal.data ? (
         <RedeemDialog
           projectId={projectId}
           creditBalance={creditBalance}

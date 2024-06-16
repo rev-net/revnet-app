@@ -36,14 +36,16 @@ const StepChart = () => {
 
   const { data: rulesets } = useReadJbRulesetsRulesetsOf({
     args: [projectId, 0n, BigInt(MAX_RULESET_COUNT)],
-    select(data) {
-      return data.map((ruleset) => {
-        return {
-          ...ruleset,
-          weight: new RulesetWeight(ruleset.weight),
-          decayRate: new DecayRate(ruleset.decayRate),
-        };
-      });
+    query: {
+      select(data) {
+        return data.map((ruleset) => {
+          return {
+            ...ruleset,
+            weight: new RulesetWeight(ruleset.weight),
+            decayRate: new DecayRate(ruleset.decayRate),
+          };
+        });
+      },
     },
   });
 

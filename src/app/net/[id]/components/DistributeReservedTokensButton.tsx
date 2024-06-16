@@ -12,14 +12,14 @@ export function DistributeReservedTokensButton() {
     projectId,
     contracts: { controller },
   } = useJBContractContext();
-  const { write, isLoading, data } =
+  const { writeContract, isPending, data } =
     useWriteJbControllerSendReservedTokensToSplitsOf({
-      address: controller.data ?? undefined,
-      args: projectId ? [projectId] : undefined,
-      onSuccess() {
-        toast({
-          title: "Transaction submitted.",
-        });
+      mutation: {
+        onSuccess() {
+          toast({
+            title: "Transaction submitted.",
+          });
+        },
       },
     });
 
@@ -28,14 +28,27 @@ export function DistributeReservedTokensButton() {
     isSuccess,
     isLoading: isTxLoading,
   } = useWaitForTransactionReceipt({
-    hash: data?.hash,
+    hash: data,
   });
 
   return (
     <Button
       variant="outline"
-      loading={isLoading || isTxLoading}
-      onClick={() => write?.()}
+      loading={isPending || isTxLoading}
+      onClick={() => {
+        if (!controller.data) {
+          return;
+        }
+
+        if (!projectId) {
+          return;
+        }
+
+        writeContract?.({
+          address: controller.data,
+          args: [projectId],
+        });
+      }}
     >
       Release operator tokens
     </Button>

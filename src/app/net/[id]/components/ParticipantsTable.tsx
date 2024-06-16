@@ -13,8 +13,7 @@ import { formatPortion } from "@/lib/utils";
 import { ForwardIcon } from "@heroicons/react/24/solid";
 import { formatUnits } from "juice-sdk-core";
 import { Address, isAddressEqual } from "viem";
-import { useAccount } from "wagmi";
-import { FetchTokenResult } from "wagmi/dist/actions";
+import { UseTokenReturnType, useAccount } from "wagmi";
 
 export function ParticipantsTable({
   participants,
@@ -23,7 +22,7 @@ export function ParticipantsTable({
   boostRecipient,
 }: {
   participants: ParticipantsQuery;
-  token: FetchTokenResult;
+  token: UseTokenReturnType["data"];
   totalSupply: bigint;
   boostRecipient?: Address;
 }) {
@@ -45,7 +44,7 @@ export function ParticipantsTable({
             <TableCell>
               <div className="flex items-center">
                 <EthereumAddress
-                  address={participant.wallet.id}
+                  address={participant.wallet.id as Address}
                   short
                   withEnsAvatar
                   withEnsName
@@ -73,12 +72,14 @@ export function ParticipantsTable({
             <TableCell>
               {formatUnits(participant.volume, 18, { fractionDigits: 8 })} ETH
             </TableCell>
-            <TableCell>
-              {formatUnits(participant.balance, token.decimals, {
-                fractionDigits: 8,
-              })}{" "}
-              {token.symbol}
-            </TableCell>
+            {token ? (
+              <TableCell>
+                {formatUnits(participant.balance, token.decimals, {
+                  fractionDigits: 8,
+                })}{" "}
+                {token.symbol}
+              </TableCell>
+            ) : null}
             <TableCell>
               {participant.balance
                 ? formatPortion(BigInt(participant.balance), totalSupply)

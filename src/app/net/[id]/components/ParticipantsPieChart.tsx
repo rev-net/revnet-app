@@ -4,7 +4,8 @@ import { formatPortion } from "@/lib/utils";
 import { JBProjectToken } from "juice-sdk-core";
 import { useMemo } from "react";
 import { Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
-import { FetchTokenResult } from "wagmi/dist/actions";
+import { Address } from "viem";
+import { UseTokenReturnType } from "wagmi";
 
 const COLORS = [
   "#1f77b4",
@@ -35,7 +36,7 @@ const CustomTooltip = ({
 }: {
   payload?: Array<{
     payload: {
-      address: string;
+      address: Address;
       balance: JBProjectToken;
     };
   }>;
@@ -61,7 +62,7 @@ export function ParticipantsPieChart({
   totalSupply,
   participants,
 }: {
-  token: FetchTokenResult;
+  token: UseTokenReturnType["data"];
   totalSupply: bigint;
   participants: ParticipantsQuery;
 }) {
@@ -69,7 +70,9 @@ export function ParticipantsPieChart({
     return participants.participants.map((participant, idx) => {
       return {
         address: participant.wallet.id,
-        balanceFormatted: new JBProjectToken(BigInt(participant.balance)).toFloat(),
+        balanceFormatted: new JBProjectToken(
+          BigInt(participant.balance)
+        ).toFloat(),
         balance: new JBProjectToken(BigInt(participant.balance)),
         fill: COLORS[idx % COLORS.length],
       };
