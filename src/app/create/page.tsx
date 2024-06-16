@@ -747,7 +747,7 @@ function parseDeployData(
     },
     [
       {
-        terminal: "TODO",
+        terminal: "0x0", // TODO
         tokensToAccept: [NATIVE_TOKEN],
       },
     ],
