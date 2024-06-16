@@ -2,6 +2,9 @@
   "name": "revnet-app",
   "version": "0.0.1",
   "private": true,
+  "engines": {
+    "node": "20.x"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -63,7 +66,7 @@
     "@types/react-dom": "^18.0.3",
     "@types/recharts": "^1.8.24",
     "@wagmi/cli": "^2.1.10",
-    "autoprefixer": "^10.4.15",
+    "autoprefixer": "^10.4.19",
     "dotenv": "^16.3.1",
     "eslint": "^8",
     "eslint-config-next": "^14.2.4",
