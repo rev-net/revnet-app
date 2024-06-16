@@ -1,6 +1,5 @@
 import EtherscanLink from "@/components/EtherscanLink";
 import { NativeTokenValue } from "@/components/NativeTokenValue";
-import { useProjectsQuery } from "@/generated/graphql";
 import { ipfsUriToGatewayUrl } from "@/lib/ipfs";
 import { ForwardIcon } from "@heroicons/react/24/solid";
 import {
@@ -9,20 +8,20 @@ import {
   useJBTokenContext,
 } from "juice-sdk-react";
 import Image from "next/image";
-import { useNativeTokenSurplus } from "../../../../../../hooks/useTokenASurplus";
+import { useNativeTokenSurplus } from "@/hooks/useTokenASurplus";
+import { ProjectsDocument } from "@/generated/graphql";
+import { useSubgraphQuery } from "@/graphql/useSubgraphQuery";
 
 export function Header() {
   const { projectId } = useJBContractContext();
   const { metadata } = useJBProjectMetadataContext();
   const { token } = useJBTokenContext();
 
-  const { data: projects } = useProjectsQuery({
-    variables: {
-      where: {
-        projectId: Number(projectId),
-      },
-      first: 1,
+  const { data: projects } = useSubgraphQuery(ProjectsDocument, {
+    where: {
+      projectId: Number(projectId),
     },
+    first: 1,
   });
   const { data: nativeTokenSurplus } = useNativeTokenSurplus();
 

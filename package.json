@@ -13,7 +13,6 @@
     "generate:gql": "graphql-code-generator --config codegen.yml -r dotenv/config"
   },
   "dependencies": {
-    "@apollo/client": "^3.8.1",
     "@heroicons/react": "^2.0.18",
     "@radix-ui/react-accordion": "^1.1.2",
     "@radix-ui/react-dialog": "^1.0.5",
@@ -54,11 +53,10 @@
     "@babel/preset-env": "^7.22.15",
     "@babel/preset-typescript": "^7.22.15",
     "@graphql-codegen/cli": "^5.0.0",
+    "@graphql-codegen/client-preset": "^4.3.0",
     "@graphql-codegen/introspection": "^4.0.0",
     "@graphql-codegen/typescript": "^4.0.1",
     "@graphql-codegen/typescript-operations": "^4.0.1",
-    "@graphql-codegen/typescript-react-apollo": "^3.3.7",
-    "@graphql-codegen/typescript-resolvers": "^4.0.1",
     "@rev-net/core": "^0.0.23",
     "@types/dompurify": "^3.0.2",
     "@types/node": "^17.0.31",

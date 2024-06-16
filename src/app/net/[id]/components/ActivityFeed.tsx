@@ -3,9 +3,10 @@ import EtherscanLink from "@/components/EtherscanLink";
 import {
   OrderDirection,
   PayEvent_OrderBy,
+  PayEventsDocument,
   PayEventsQuery,
-  usePayEventsQuery,
 } from "@/generated/graphql";
+import { useSubgraphQuery } from "@/graphql/useSubgraphQuery";
 import { formatDistance } from "date-fns";
 import { Ether, JBProjectToken } from "juice-sdk-core";
 import { useJBContractContext, useJBTokenContext } from "juice-sdk-react";
@@ -72,14 +73,12 @@ function transformPayEventsRes(
 
 export function ActivityFeed() {
   const { projectId } = useJBContractContext();
-  const { data } = usePayEventsQuery({
-    variables: {
-      orderBy: PayEvent_OrderBy.timestamp,
-      orderDirection: OrderDirection.desc,
-      where: {
-        // pv: PV2,
-        projectId: Number(projectId),
-      },
+  const { data } = useSubgraphQuery(PayEventsDocument, {
+    orderBy: PayEvent_OrderBy.timestamp,
+    orderDirection: OrderDirection.desc,
+    where: {
+      // pv: PV2,
+      projectId: Number(projectId),
     },
   });
 
