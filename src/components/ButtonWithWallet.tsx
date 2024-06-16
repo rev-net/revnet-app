@@ -1,11 +1,11 @@
 import { ConnectKitButton } from "connectkit";
 import React from "react";
 import { useAccount } from "wagmi";
-import { Button } from "./ui/button";
+import { Button, ButtonProps } from "./ui/button";
 
 const ButtonWithWallet = React.forwardRef<
   HTMLInputElement,
-  { connectWalletText: "string"; children: React.ReactNode }
+  { connectWalletText: string; children: React.ReactNode } & ButtonProps
 >(({ children, connectWalletText, ...props }, ref) => {
   const { isConnected } = useAccount();
   if (!isConnected) {

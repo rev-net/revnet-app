@@ -48,7 +48,6 @@ import {
   Address,
   Chain,
   ContractFunctionParameters,
-  ContractFunctionReturnType,
   parseUnits,
   zeroAddress,
 } from "viem";
@@ -712,6 +711,13 @@ function parseDeployData(
     cumStart += prevStageDuration;
 
     return {
+      mintConfigs: [
+        {
+          chainId: BigInt(extra.chainId ?? mainnet.id),
+          count: parseUnits(formData.premintTokenAmount, 18),
+          beneficiary: stage.initialOperator.trim() as Address,
+        },
+      ],
       startsAtOrAfter,
       splitRate: Number(ReservedRate.parse(stage.splitRate, 4).value) / 100,
       initialIssuanceRate:
@@ -738,11 +744,9 @@ function parseDeployData(
         uri: extra.metadataCid,
         salt: createSalt(),
       },
-      premintChainId: BigInt(extra.chainId ?? mainnet.id),
       baseCurrency: Number(BigInt(NATIVE_TOKEN)),
       initialSplitOperator:
         (formData.stages[0]?.initialOperator.trim() as Address) ?? zeroAddress,
-      premintTokenAmount: parseUnits(formData.premintTokenAmount, 18),
       stageConfigurations,
     },
     [
