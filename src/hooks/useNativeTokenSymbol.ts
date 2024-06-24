@@ -1,4 +1,4 @@
-import { useChain } from "juice-sdk-react";
+import { useChain, useJBChainId } from "juice-sdk-react";
 import { optimismSepolia } from "viem/chains";
 import { sepolia } from "viem/chains";
 
@@ -8,6 +8,6 @@ export function useNativeTokenSymbol() {
     [optimismSepolia.id]: "OPSepETH",
   };
 
-  const chain = useChain();
-  return symbols[chain?.id ?? 0] ?? "ETH";
+  const chainId = useJBChainId();
+  return symbols[chainId ?? 0] ?? "ETH";
 }

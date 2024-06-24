@@ -6,7 +6,7 @@ import { NetworkDashboard } from "./components/NetworkDashboard/NetworkDashboard
 
 const chainNameMap: Record<string, JBChainId> = {
   sepolia: sepolia.id,
-  opSepolia: optimismSepolia.id,
+  opsepolia: optimismSepolia.id,
 };
 
 export default function Page({
@@ -16,6 +16,10 @@ export default function Page({
 }) {
   const projectId = BigInt(params.id);
   const chainId = chainNameMap[params.chain.toLowerCase()];
+
+  if (!chainId) {
+    return <div>JB not deployed on this chain, sorry.</div>;
+  }
 
   return (
     <Providers chainId={chainId} projectId={projectId}>
