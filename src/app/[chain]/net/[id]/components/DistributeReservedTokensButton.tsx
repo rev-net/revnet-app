@@ -4,7 +4,7 @@ import {
   useJBContractContext,
   useWriteJbControllerSendReservedTokensToSplitsOf,
 } from "juice-sdk-react";
-import { useWaitForTransactionReceipt } from "wagmi";
+import { useChainId, useWaitForTransactionReceipt } from "wagmi";
 
 export function DistributeReservedTokensButton() {
   const { toast } = useToast();
@@ -12,6 +12,8 @@ export function DistributeReservedTokensButton() {
     projectId,
     contracts: { controller },
   } = useJBContractContext();
+  const chainId = useChainId();
+
   const { writeContract, isPending, data } =
     useWriteJbControllerSendReservedTokensToSplitsOf({
       mutation: {
@@ -45,6 +47,7 @@ export function DistributeReservedTokensButton() {
         }
 
         writeContract?.({
+          chainId,
           address: controller.data,
           args: [projectId],
         });

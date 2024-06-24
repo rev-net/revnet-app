@@ -1,3 +1,4 @@
+import { TokenAmount } from "@/components/TokenAmount";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -8,56 +9,41 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Stat } from "@/components/ui/stat";
-import { FixedInt } from "fpnum";
-import { JBProjectToken, NATIVE_TOKEN } from "juice-sdk-core";
+import { NATIVE_TOKEN, TokenAmountType } from "juice-sdk-core";
 import {
   useJBContractContext,
-  useWriteJbMultiTerminalRedeemTokensOf,
+  useWriteJbMultiTerminalPay,
 } from "juice-sdk-react";
-import { PropsWithChildren, useState } from "react";
-import { Address, Hash, parseEther } from "viem";
-import { useAccount, useWaitForTransactionReceipt } from "wagmi";
+import { PropsWithChildren } from "react";
+import { Address } from "viem";
+import { useAccount, useChainId, useWaitForTransactionReceipt } from "wagmi";
 
-export function RedeemDialog({
+export function PayDialog({
+  amountA,
+  amountB,
   projectId,
-  creditBalance,
-  tokenSymbol,
   primaryTerminalEth,
   disabled,
   children,
 }: PropsWithChildren<{
-  creditBalance: FixedInt<number>;
-  tokenSymbol: string;
+  amountA: TokenAmountType;
+  amountB: TokenAmountType;
   projectId: bigint;
   primaryTerminalEth: Address;
   disabled?: boolean;
 }>) {
-  const [redeemAmount, setRedeemAmount] = useState<string>();
+  const chainId = useChainId();
   const {
     contracts: { primaryNativeTerminal },
   } = useJBContractContext();
   const { address } = useAccount();
-  /**
-   *       address holder,
-        uint256 projectId,
-        address tokenToReclaim,
-        uint256 redeemCount,
-        uint256 minTokensReclaimed,
-        address payable beneficiary,
-   */
-
-  const redeemAmountBN = redeemAmount
-    ? JBProjectToken.parse(redeemAmount, 18).value
-    : 0n;
-
+  const value = amountA.amount.value;
   const {
     writeContract,
     isPending: isWriteLoading,
     data,
-  } = useWriteJbMultiTerminalRedeemTokensOf();
+  } = useWriteJbMultiTerminalPay();
 
   const txHash = data;
   const { isLoading: isTxLoading, isSuccess } = useWaitForTransactionReceipt({
@@ -71,28 +57,20 @@ export function RedeemDialog({
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="max-w-lg">
         <DialogHeader>
-          <DialogTitle>Cash out</DialogTitle>
+          <DialogTitle>Join network</DialogTitle>
           <DialogDescription>
             <div className="my-8">
               {isSuccess ? (
                 <div>Success! You can close this window.</div>
               ) : (
                 <>
-                  <div className="mb-5">
-                    <Stat label="Total tokens">
-                      {creditBalance.format()} {tokenSymbol}
+                  <div className="flex flex-col gap-6">
+                    <Stat label="You pay">
+                      <TokenAmount amount={amountA} />
                     </Stat>
-                  </div>
-                  <div className="grid w-full gap-1.5">
-                    <Label htmlFor="amount" className="text-zinc-900">
-                      Tokens to cash out
-                    </Label>
-                    <Input
-                      id="amount"
-                      name="amount"
-                      value={redeemAmount}
-                      onChange={(e) => setRedeemAmount(e.target.value)}
-                    />
+                    <Stat label="You receive">
+                      <TokenAmount amount={amountB} />
+                    </Stat>
                   </div>
                   {isTxLoading ? (
                     <div>Transaction submitted, awaiting confirmation...</div>
@@ -107,30 +85,29 @@ export function RedeemDialog({
                 loading={loading}
                 onClick={() => {
                   if (!primaryNativeTerminal?.data) {
-                    console.error("no terminal");
                     return;
                   }
-
-                  if (!(address && redeemAmountBN)) {
-                    console.error("incomplete args");
+                  if (!address) {
                     return;
                   }
 
                   writeContract?.({
+                    chainId,
+                    address: primaryNativeTerminal?.data ?? undefined,
                     args: [
-                      address,
                       projectId,
                       NATIVE_TOKEN,
-                      redeemAmount ? parseEther(redeemAmount) : 0n,
-                      0n,
+                      value,
                       address,
+                      0n,
+                      `Joined REVNET ${projectId}`,
                       "0x0",
                     ],
-                    address: primaryNativeTerminal?.data, // TODO fix wagmi typegen for txs
+                    value,
                   });
                 }}
               >
-                Cash out
+                Buy and Join
               </Button>
             ) : null}
           </DialogFooter>

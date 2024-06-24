@@ -1,13 +1,17 @@
 import { useToast } from "@/components/ui/use-toast";
+import { JBChainId } from "juice-sdk-react";
 import { useCallback } from "react";
-import { ContractFunctionParameters } from "viem";
 import {
   revBasicDeployerAbi,
   useWriteRevBasicDeployerLaunchRevnetFor,
 } from "revnet-sdk";
+import { ContractFunctionParameters } from "viem";
+import { useChainId } from "wagmi";
 
 export function useDeployRevnet() {
   const { toast } = useToast();
+  const chainId = useChainId() as JBChainId; // TODO check first
+
   const { writeContract, data, isError, isPending } =
     useWriteRevBasicDeployerLaunchRevnetFor({
       mutation: {
@@ -40,10 +44,11 @@ export function useDeployRevnet() {
       >["args"]
     ) => {
       writeContract?.({
+        chainId,
         args,
       });
     },
-    [writeContract]
+    [writeContract, chainId]
   );
 
   return { write: deployRevnet, data, isError, isPending };
