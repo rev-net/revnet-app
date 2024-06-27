@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getSuckerPairs } from "juice-sdk-core";
 import {
   JBChainId,
+  useJBChainId,
   useJBContractContext,
   useJBProjectMetadataContext,
   useJBTokenContext,
@@ -49,10 +50,11 @@ export function NetworkDashboard() {
   const { metadata } = useJBProjectMetadataContext();
   const { name } = metadata?.data ?? {};
   const config = useConfig();
-  const chainId = useChainId();
+  const chainId = useJBChainId();
   const suckerPairs = useQuery({
-    queryKey: ["suckerPairs", projectId.toString(), chainId.toString()],
+    queryKey: ["suckerPairs", projectId.toString(), chainId?.toString()],
     queryFn: async () => {
+      if (!chainId) return;
       const data = await getSuckerPairs({
         projectId,
         chainId,
