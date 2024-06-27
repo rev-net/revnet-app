@@ -1,12 +1,19 @@
 import { Nav } from "@/components/layout/Nav";
 import { JBChainId } from "juice-sdk-react/dist/contexts/JBChainContext/JBChainContext";
-import { optimismSepolia, sepolia } from "viem/chains";
+import {
+  arbitrumSepolia,
+  baseSepolia,
+  optimismSepolia,
+  sepolia,
+} from "viem/chains";
 import { Providers } from "./Providers";
 import { NetworkDashboard } from "./components/NetworkDashboard/NetworkDashboard";
 
 const chainNameMap: Record<string, JBChainId> = {
   sepolia: sepolia.id,
   opsepolia: optimismSepolia.id,
+  basesepolia: baseSepolia.id,
+  arbsepolia: arbitrumSepolia.id,
 };
 
 export default function Page({

@@ -1,11 +1,24 @@
 "use client";
 
+import { useQuery } from "@tanstack/react-query";
+import { getSuckerPairs } from "juice-sdk-core";
 import {
+  JBChainId,
   useJBContractContext,
   useJBProjectMetadataContext,
   useJBTokenContext,
 } from "juice-sdk-react";
+import Link from "next/link";
+import { notFound } from "next/navigation";
 import { useEffect } from "react";
+import { zeroAddress } from "viem";
+import {
+  arbitrumSepolia,
+  baseSepolia,
+  optimismSepolia,
+  sepolia,
+} from "viem/chains";
+import { useChainId, useConfig } from "wagmi";
 import { ActivityFeed } from "../ActivityFeed";
 import { DistributeReservedTokensButton } from "../DistributeReservedTokensButton";
 import { NetworkDetailsTable } from "../NetworkDetailsTable";
@@ -15,14 +28,40 @@ import { Header } from "./Header/Header";
 import { ChartSection } from "./sections/ChartSection/ChartSection";
 import { DescriptionSection } from "./sections/DescriptionSection/DescriptionSection";
 import { HoldersSection } from "./sections/HoldersSection/HoldersSection";
-import { notFound } from "next/navigation";
-import { zeroAddress } from "viem";
+
+const chainNameMap: Record<JBChainId, string> = {
+  [sepolia.id]: "sepolia",
+  [optimismSepolia.id]: "opsepolia",
+  [baseSepolia.id]: "basesepolia",
+  [arbitrumSepolia.id]: "arbsepolia",
+};
+
+const chainNames: Record<JBChainId, string> = {
+  [sepolia.id]: "Sepolia",
+  [optimismSepolia.id]: "Optimism (Sepolia)",
+  [baseSepolia.id]: "Base (Sepolia)",
+  [arbitrumSepolia.id]: "Arbitrum (Sepolia)",
+};
 
 export function NetworkDashboard() {
-  const { contracts } = useJBContractContext();
+  const { contracts, projectId } = useJBContractContext();
   const { token } = useJBTokenContext();
   const { metadata } = useJBProjectMetadataContext();
   const { name } = metadata?.data ?? {};
+  const config = useConfig();
+  const chainId = useChainId();
+  const suckerPairs = useQuery({
+    queryKey: ["suckerPairs", projectId.toString(), chainId.toString()],
+    queryFn: async () => {
+      const data = await getSuckerPairs({
+        projectId,
+        chainId,
+        config,
+      });
+
+      return data;
+    },
+  });
 
   // set title
   // TODO, hacky, probably eventually a next-idiomatic way to do this.
@@ -53,6 +92,21 @@ export function NetworkDashboard() {
 
           <section className="mb-8">
             <h2 className="text-2xl font-medium mb-1">About {name}</h2>
+            <div className="flex gap-3">
+              {suckerPairs.data?.map((pair) => {
+                const networkName =
+                  chainNameMap[pair?.peerChainId as JBChainId];
+                return (
+                  <Link
+                    className="underline"
+                    key={networkName}
+                    href={`/${networkName}/net/${pair?.projectId}`}
+                  >
+                    {chainNames[pair?.peerChainId as JBChainId]}
+                  </Link>
+                );
+              })}
+            </div>
             <DescriptionSection />
           </section>
 
