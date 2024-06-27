@@ -6259,18 +6259,18 @@ json5@^2.2.3:
     object.assign "^4.1.4"
     object.values "^1.1.6"
 
-juice-sdk-core@^9.0.5-alpha:
-  version "9.0.5-alpha"
-  resolved "https://registry.yarnpkg.com/juice-sdk-core/-/juice-sdk-core-9.0.5-alpha.tgz#7ca812bbfc633c2642e050589e0a25977f1e5781"
-  integrity sha512-+HK5Sv8EVoSAo8HgbkpZj597qokQ3AxNIXZfkGI9bXmb4h9mLChCCyhNxHSzsy1tOGWHFGanxC4S+bm0H8TjWg==
+juice-sdk-core@^9.1.1-alpha:
+  version "9.1.1-alpha"
+  resolved "https://registry.yarnpkg.com/juice-sdk-core/-/juice-sdk-core-9.1.1-alpha.tgz#a8f638c2be32cfe498f42da1b1400b08dd7f1ae1"
+  integrity sha512-gf9t/un8f331mXSR1s3Q6CCDCDbNyM9yFWFQjIAT2VMmY8XfGbKiU1RSevNAuLSGp63Nw14gnSP1Uty5IE80Xg==
   dependencies:
     bs58 "^5.0.0"
     fpnum "^1.0.0"
 
-juice-sdk-react@^9.1.1-alpha:
-  version "9.1.1-alpha"
-  resolved "https://registry.yarnpkg.com/juice-sdk-react/-/juice-sdk-react-9.1.1-alpha.tgz#3fd9e9c791e894c3701898484c293c11d7f6526c"
-  integrity sha512-O4W6m2Sd/3DRqCEgtjypQURX9TVDSi6GxZdxoyGoygQGEN4y7AnuvPQTCn2gOW+n1nEJahYuTIqVi2IOxIWgXA==
+juice-sdk-react@^9.2.0-alpha:
+  version "9.2.0-alpha"
+  resolved "https://registry.yarnpkg.com/juice-sdk-react/-/juice-sdk-react-9.2.0-alpha.tgz#7da8b19c7f1b19bc2d7fdd9a752a1c062952e383"
+  integrity sha512-y7yrPcRRYZm/RcigB8h4aUJL9v/d5sySwHDbvKdV3CmD1vKVTMJMAa3IrxV5Xi9YKVASK0oGN9ekU/UuDh8ZkA==
 
 keccak@^3.0.3:
   version "3.0.4"
@@ -7710,10 +7710,10 @@ reusify@^1.0.4:
   resolved "https://registry.yarnpkg.com/reusify/-/reusify-1.0.4.tgz#90da382b1e126efc02146e90845a88db12925d76"
   integrity sha512-U9nH88a3fc/ekCF1l0/UP1IosiuIjyTh7hBvXVMHYgVcfGvt897Xguj2UOLDeI5BG2m7/uwyaLVT6fbtCwTyzw==
 
-revnet-sdk@0.0.5-alpha:
-  version "0.0.5-alpha"
-  resolved "https://registry.yarnpkg.com/revnet-sdk/-/revnet-sdk-0.0.5-alpha.tgz#1bb25d060b85f71d3aca80cb2263dec6e881e361"
-  integrity sha512-2agTk5KhU0V6XzOWlxto6QWtXD58HZjpgyE/Ht+b65YBbuehmpKxafKzWgTo5iwktySWJnMlsM0pMntn7LMb8w==
+revnet-sdk@^0.0.6-alpha:
+  version "0.0.6-alpha"
+  resolved "https://registry.yarnpkg.com/revnet-sdk/-/revnet-sdk-0.0.6-alpha.tgz#82ae105b2f38b8b24bcb2dccbcdcf36e76a31ca1"
+  integrity sha512-yOx/a+2uxaDlJGTome1NMoGi/WR+rcU3sJjfKd0XT4pley2wRZ/1/fBlFwHt4u9tF3vK9R22fgp8wgKFZXhPIw==
 
 rfdc@^1.3.0:
   version "1.4.1"
