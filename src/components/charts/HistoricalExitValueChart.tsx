@@ -13,11 +13,11 @@
 
 // export function HistoricalExitValueChart({
 //   projectId,
-//   reservedRate,
+//   reservedPercent,
 //   redemptionRate,
 // }: {
 //   projectId: bigint;
-//   reservedRate: bigint;
+//   reservedPercent: bigint;
 //   redemptionRate: bigint;
 // }) {
 //   const { data: payEvents } = usePayEventsQuery({

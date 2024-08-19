@@ -6,12 +6,12 @@ import { EthereumAddress } from "@/components/EthereumAddress";
 import { Button } from "@/components/ui/button";
 import { useNativeTokenSymbol } from "@/hooks/useNativeTokenSymbol";
 import {
-  DecayRate,
+  ReservedPercent,
+  getTokenBPrice,
   MAX_REDEMPTION_RATE,
   RedemptionRate,
-  ReservedRate,
   RulesetWeight,
-  getTokenBPrice,
+  DecayPercent,
 } from "juice-sdk-core";
 import {
   useJBContractContext,
@@ -43,7 +43,7 @@ export function NetworkDetailsTable() {
             return {
               ...ruleset,
               weight: new RulesetWeight(ruleset.weight),
-              decayRate: new DecayRate(ruleset.decayRate),
+              decayPercent: new DecayPercent(ruleset.decayPercent),
             };
           })
           .reverse();
@@ -58,13 +58,13 @@ export function NetworkDetailsTable() {
 
   const selectedStageMetadata = useReadJbControllerGetRulesetOf({
     address: controller.data ?? undefined,
-    args: selectedStage?.id ? [projectId, selectedStage.id] : undefined,
+    args: selectedStage?.id ? [projectId, BigInt(selectedStage.id)] : undefined,
     query: {
       select([, rulesetMetadata]) {
         return {
           ...rulesetMetadata,
           redemptionRate: new RedemptionRate(rulesetMetadata.redemptionRate),
-          reservedRate: new ReservedRate(rulesetMetadata.reservedRate),
+          reservedPercent: new ReservedPercent(rulesetMetadata.reservedPercent),
         };
       },
     },
@@ -73,17 +73,17 @@ export function NetworkDetailsTable() {
   const { data: selectedStateReservedTokenSplits } = useReadJbSplitsSplitsOf({
     args:
       selectedStage && selectedStage
-        ? [projectId, selectedStage.id, RESERVED_TOKEN_SPLIT_GROUP_ID]
+        ? [projectId, BigInt(selectedStage.id), RESERVED_TOKEN_SPLIT_GROUP_ID]
         : undefined,
   });
   const selectedStageBoost = selectedStateReservedTokenSplits?.[0];
-  const reservedRate = selectedStageMetadata?.data?.reservedRate;
+  const reservedPercent = selectedStageMetadata?.data?.reservedPercent;
 
   const currentTokenBPrice =
     selectedStage && selectedStageMetadata?.data
       ? getTokenBPrice(tokenA.decimals, {
           weight: selectedStage?.weight,
-          reservedRate: selectedStageMetadata?.data?.reservedRate,
+          reservedPercent: selectedStageMetadata?.data?.reservedPercent,
         })
       : null;
 
@@ -131,8 +131,8 @@ export function NetworkDetailsTable() {
             Price increase
           </dt>
           <dd className="text-sm leading-6 text-zinc-700">
-            {selectedStage.decayRate.formatPercentage()}% every{" "}
-            {(selectedStage.duration / 86400n).toString()} days
+            {selectedStage.decayPercent.formatPercentage()}% every{" "}
+            {(selectedStage.duration / 86400).toString()} days
           </dd>
         </div>
         <div className="border-t border-zinc-100 px-4 py-2 sm:col-span-1 sm:px-0 grid grid-cols-2">
@@ -142,7 +142,7 @@ export function NetworkDetailsTable() {
           <dd className="text-sm leading-6 text-zinc-700">
             {new RedemptionRate(
               MAX_REDEMPTION_RATE -
-                (selectedStageMetadata?.data?.redemptionRate.value ?? 0n)
+                Number(selectedStageMetadata?.data?.redemptionRate.value ?? 0n)
             ).formatPercentage()}
             %
           </dd>
@@ -169,7 +169,7 @@ export function NetworkDetailsTable() {
           </dt>
           {selectedStageBoost ? (
             <dd className="text-sm leading-6 text-zinc-700">
-              {reservedRate?.formatPercentage()}%
+              {reservedPercent?.formatPercentage()}%
             </dd>
           ) : null}
         </div>

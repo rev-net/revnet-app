@@ -14,7 +14,6 @@ import {
 import { useNativeTokenSymbol } from "@/hooks/useNativeTokenSymbol";
 import { ipfsUri, ipfsUriToGatewayUrl } from "@/lib/ipfs";
 import { createSalt } from "@/lib/number";
-import { revBasicDeployerAbi } from "revnet-sdk";
 import { useDeployRevnet } from "@/lib/revnet/hooks/useDeployRevnet";
 import {
   ExclamationCircleIcon,
@@ -32,17 +31,18 @@ import {
   useFormikContext,
 } from "formik";
 import {
-  DecayRate,
+  DecayPercent,
   JBProjectMetadata,
   NATIVE_TOKEN,
   RedemptionRate,
-  ReservedRate,
+  ReservedPercent,
 } from "juice-sdk-core";
 import { useChain } from "juice-sdk-react";
 import { FastForwardIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { ReactNode, useState } from "react";
+import { revBasicDeployerAbi } from "revnet-sdk";
 import { twMerge } from "tailwind-merge";
 import {
   Address,
@@ -699,7 +699,7 @@ function parseDeployData(
 ): ContractFunctionParameters<
   typeof revBasicDeployerAbi,
   "nonpayable",
-  "launchRevnetFor"
+  "deployFor"
 >["args"] {
   const now = Math.floor(Date.now() / 1000);
 
@@ -719,17 +719,19 @@ function parseDeployData(
         },
       ],
       startsAtOrAfter,
-      splitRate: Number(ReservedRate.parse(stage.splitRate, 4).value) / 100,
-      initialIssuanceRate:
+      splitPercent:
+        Number(ReservedPercent.parse(stage.splitRate, 4).value) / 100,
+      initialIssuance:
         stage.initialIssuance && stage.initialIssuance !== ""
           ? parseUnits(`${stage.initialIssuance}`, 18)
           : 0n,
-      priceCeilingIncreaseFrequency:
+      issuanceDecayFrequency:
         Number(stage.priceCeilingIncreaseFrequency) * 86400, // seconds
-      priceCeilingIncreasePercentage:
-        Number(DecayRate.parse(stage.priceCeilingIncreasePercentage, 9).value) /
-        100,
-      priceFloorTaxIntensity:
+      issuanceDecayPercentage:
+        Number(
+          DecayPercent.parse(stage.priceCeilingIncreasePercentage, 9).value
+        ) / 100,
+      cashOutTaxIntensity:
         Number(RedemptionRate.parse(stage.priceFloorTaxIntensity, 4).value) /
         100, //
     };
@@ -745,14 +747,21 @@ function parseDeployData(
         salt: createSalt(),
       },
       baseCurrency: Number(BigInt(NATIVE_TOKEN)),
-      initialSplitOperator:
+      splitOperator:
         (formData.stages[0]?.initialOperator.trim() as Address) ?? zeroAddress,
-      stageConfigurations,
+      // stageConfigurations,
+      stageConfigurations: [], // TODO
     },
     [
       {
-        terminal: "0x0", // TODO
-        tokensToAccept: [NATIVE_TOKEN],
+        terminal: "0x0",
+        accountingContextsToAccept: [
+          {
+            token: NATIVE_TOKEN,
+            decimals: 18,
+            currency: 0, // ETH
+          },
+        ],
       },
     ],
     {

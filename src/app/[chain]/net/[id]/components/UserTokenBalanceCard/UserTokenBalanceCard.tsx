@@ -51,7 +51,7 @@ export function UserTokenBalanceCard() {
           getTokenRedemptionQuoteEth(creditBalance?.value ?? 0n, {
             overflowWei: nativeTokenSurplus,
             totalSupply: totalTokenSupply,
-            redemptionRate: rulesetMetadata.data.redemptionRate.value,
+            redemptionRate: Number(rulesetMetadata.data.redemptionRate.value),
             tokensReserved,
           }),
           tokenA.decimals

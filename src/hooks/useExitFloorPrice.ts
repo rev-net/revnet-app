@@ -55,7 +55,9 @@ export function useExitFloorPrice() {
           {
             overflowWei: nativeTokenSurplus,
             totalSupply: totalTokenSupply,
-            redemptionRate: rulesetMetadata?.data?.redemptionRate.value,
+            redemptionRate: Number(
+              rulesetMetadata?.data?.redemptionRate.value ?? 0n
+            ),
             tokensReserved,
           }
         ) * 10n

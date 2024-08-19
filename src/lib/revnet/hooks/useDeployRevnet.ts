@@ -3,7 +3,7 @@ import { JBChainId } from "juice-sdk-react";
 import { useCallback } from "react";
 import {
   revBasicDeployerAbi,
-  useWriteRevBasicDeployerLaunchRevnetFor,
+  useWriteRevBasicDeployerDeployFor,
 } from "revnet-sdk";
 import { ContractFunctionParameters } from "viem";
 import { useChainId } from "wagmi";
@@ -13,7 +13,7 @@ export function useDeployRevnet() {
   const chainId = useChainId() as JBChainId; // TODO check first
 
   const { writeContract, data, isError, isPending } =
-    useWriteRevBasicDeployerLaunchRevnetFor({
+    useWriteRevBasicDeployerDeployFor({
       mutation: {
         onError(e) {
           console.error(e?.message);
@@ -40,7 +40,7 @@ export function useDeployRevnet() {
       args: ContractFunctionParameters<
         typeof revBasicDeployerAbi,
         "nonpayable",
-        "launchRevnetFor"
+        "deployFor"
       >["args"]
     ) => {
       writeContract?.({

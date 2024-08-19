@@ -1,5 +1,5 @@
+import { ButtonWithWallet } from "@/components/ButtonWithWallet";
 import { EthereumAddress } from "@/components/EthereumAddress";
-import { Button } from "@/components/ui/button";
 import {
   Tooltip,
   TooltipContent,
@@ -23,7 +23,6 @@ import { useState } from "react";
 import { formatUnits, parseEther, parseUnits } from "viem";
 import { PayDialog } from "./PayDialog";
 import { PayInput } from "./PayInput";
-import { ButtonWithWallet } from "@/components/ButtonWithWallet";
 
 export function PayForm() {
   const tokenA = useTokenA();
@@ -45,7 +44,7 @@ export function PayForm() {
     return null;
   }
 
-  const devTax = rulesetMetadata?.data?.reservedRate;
+  const devTax = rulesetMetadata?.data?.reservedPercent;
 
   const _amountA = {
     amount: new FixedInt(parseEther(amountA), tokenA.decimals),
@@ -85,7 +84,7 @@ export function PayForm() {
               new FixedInt(value, tokenA.decimals),
               {
                 weight: ruleset.data.weight,
-                reservedRate: rulesetMetadata.data.reservedRate,
+                reservedPercent: rulesetMetadata.data.reservedPercent,
               }
             );
 
@@ -112,7 +111,7 @@ export function PayForm() {
 
             const amountAQuote = getTokenBtoAQuote(value, tokenA.decimals, {
               weight: ruleset.data.weight,
-              reservedRate: rulesetMetadata.data.reservedRate,
+              reservedPercent: rulesetMetadata.data.reservedPercent,
             });
 
             setAmountA(amountAQuote.format());

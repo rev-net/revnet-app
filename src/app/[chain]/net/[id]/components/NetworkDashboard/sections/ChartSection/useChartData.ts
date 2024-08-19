@@ -1,13 +1,13 @@
 import {
   Ether,
-  JBRulesetData,
-  JBRulesetMetadata,
-  ONE_ETHER,
-  ReservedRate,
-  RulesetWeight,
   getNextRulesetWeight,
   getPrevRulesetWeight,
   getTokenBtoAQuote,
+  JBRulesetData,
+  JBRulesetMetadata,
+  ONE_ETHER,
+  ReservedPercent,
+  RulesetWeight,
 } from "juice-sdk-core";
 import { useMemo } from "react";
 
@@ -33,46 +33,46 @@ export function useChartData({
   steps: number;
 }) {
   const currentFcStart = ruleset?.start;
-  const startBuffer = currentFcStart ?? 0n - (ruleset?.duration ?? 0n);
-  const currentFcEnd = ruleset?.start ?? 0n + (ruleset?.duration ?? 0n);
-  const nextFcEnd = currentFcEnd + (ruleset?.duration ?? 0n);
-  const nextNextFcEnd = nextFcEnd + (ruleset?.duration ?? 0n);
+  const startBuffer = (currentFcStart ?? 0) - (ruleset?.duration ?? 0);
+  const currentFcEnd = (ruleset?.start ?? 0) + (ruleset?.duration ?? 0);
+  const nextFcEnd = currentFcEnd + (ruleset?.duration ?? 0);
+  const nextNextFcEnd = nextFcEnd + (ruleset?.duration ?? 0);
 
   const prevWeight = new RulesetWeight(
     getPrevRulesetWeight({
       weight: ruleset?.weight.value ?? 0n,
-      decayRate: ruleset?.decayRate.value ?? 0n,
+      decayPercent: Number(ruleset?.decayPercent.value ?? 0n),
     })
   );
   const nextWeight = new RulesetWeight(
     getNextRulesetWeight({
       weight: ruleset?.weight.value ?? 0n,
-      decayRate: ruleset?.decayRate.value ?? 0n,
+      decayPercent: Number(ruleset?.decayPercent.value ?? 0n),
     })
   );
   const nextNextWeight = new RulesetWeight(
     getNextRulesetWeight({
       weight: nextWeight.value ?? 0n,
-      decayRate: ruleset?.decayRate.value ?? 0n,
+      decayPercent: Number(ruleset?.decayPercent.value ?? 0n),
     })
   );
 
   const prevPrice = getTokenBtoAQuote(new Ether(ONE_ETHER), 18, {
     weight: prevWeight ?? new RulesetWeight(0n),
-    reservedRate: rulesetMetadata?.reservedRate ?? new ReservedRate(0n),
+    reservedPercent: rulesetMetadata?.reservedPercent ?? new ReservedPercent(0),
   });
 
   const currentPrice = getTokenBtoAQuote(new Ether(ONE_ETHER), 18, {
     weight: ruleset?.weight ?? new RulesetWeight(0n),
-    reservedRate: rulesetMetadata?.reservedRate ?? new ReservedRate(0n),
+    reservedPercent: rulesetMetadata?.reservedPercent ?? new ReservedPercent(0),
   });
   const nextPrice = getTokenBtoAQuote(new Ether(ONE_ETHER), 18, {
     weight: nextWeight,
-    reservedRate: rulesetMetadata?.reservedRate ?? new ReservedRate(0n),
+    reservedPercent: rulesetMetadata?.reservedPercent ?? new ReservedPercent(0),
   });
   const nextNextPrice = getTokenBtoAQuote(new Ether(ONE_ETHER), 18, {
     weight: nextNextWeight,
-    reservedRate: rulesetMetadata?.reservedRate ?? new ReservedRate(0n),
+    reservedPercent: rulesetMetadata?.reservedPercent ?? new ReservedPercent(0),
   });
 
   const timeElapsed = Math.abs(Date.now() - Number(currentFcStart) * 1000);

@@ -17,6 +17,6 @@ export function useTokenBPrice() {
 
   return getTokenBPrice(tokenA.decimals, {
     weight: ruleset?.data?.weight,
-    reservedRate: rulesetMetadata?.data?.reservedRate,
+    reservedPercent: rulesetMetadata?.data?.reservedPercent,
   });
 }

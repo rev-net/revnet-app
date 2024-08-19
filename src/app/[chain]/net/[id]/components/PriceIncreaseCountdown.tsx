@@ -20,17 +20,15 @@ export function PriceIncreaseCountdown() {
   const nativeTokenSymbol = useNativeTokenSymbol();
   const timeLeft = useCountdownToDate(
     new Date(
-      Number(
-        ((ruleset?.data?.start ?? 0n) + (ruleset?.data?.duration ?? 0n)) * 1000n
-      )
+      ((ruleset?.data?.start ?? 0) + (ruleset?.data?.duration ?? 0)) * 1000
     )
   );
-  const entryTax = ruleset?.data?.decayRate;
+  const entryTax = ruleset?.data?.decayPercent;
   const tokenA = { symbol: nativeTokenSymbol, decimals: 18 };
   const nextWeight = new RulesetWeight(
     getNextRulesetWeight({
       weight: ruleset?.data?.weight.value ?? 0n,
-      decayRate: ruleset?.data?.decayRate.value ?? 0n,
+      decayPercent: Number(ruleset?.data?.decayPercent.value ?? 0n),
     })
   );
 
@@ -38,7 +36,7 @@ export function PriceIncreaseCountdown() {
     ruleset?.data && rulesetMetadata?.data
       ? getTokenBPrice(tokenA.decimals, {
           weight: nextWeight,
-          reservedRate: rulesetMetadata?.data?.reservedRate,
+          reservedPercent: rulesetMetadata?.data?.reservedPercent,
         })
       : null;
 

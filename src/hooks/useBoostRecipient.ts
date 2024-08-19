@@ -12,7 +12,7 @@ export function useBoostRecipient() {
   const { data: reservedTokenSplits } = useReadJbSplitsSplitsOf({
     args:
       ruleset && ruleset?.data
-        ? [projectId, ruleset.data.id, RESERVED_TOKEN_SPLIT_GROUP_ID]
+        ? [projectId, BigInt(ruleset.data.id), RESERVED_TOKEN_SPLIT_GROUP_ID]
         : undefined,
   });
 
