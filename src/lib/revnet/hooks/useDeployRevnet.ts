@@ -1,10 +1,7 @@
 import { useToast } from "@/components/ui/use-toast";
 import { JBChainId } from "juice-sdk-react";
 import { useCallback } from "react";
-import {
-  revBasicDeployerAbi,
-  useWriteRevBasicDeployerDeployFor,
-} from "revnet-sdk";
+import { revDeployerAbi, useWriteRevDeployerDeployFor } from "revnet-sdk";
 import { ContractFunctionParameters } from "viem";
 import { useChainId } from "wagmi";
 
@@ -13,7 +10,7 @@ export function useDeployRevnet() {
   const chainId = useChainId() as JBChainId; // TODO check first
 
   const { writeContract, data, isError, isPending } =
-    useWriteRevBasicDeployerDeployFor({
+    useWriteRevDeployerDeployFor({
       mutation: {
         onError(e) {
           console.error(e?.message);
@@ -38,7 +35,7 @@ export function useDeployRevnet() {
   const deployRevnet = useCallback(
     (
       args: ContractFunctionParameters<
-        typeof revBasicDeployerAbi,
+        typeof revDeployerAbi,
         "nonpayable",
         "deployFor"
       >["args"]

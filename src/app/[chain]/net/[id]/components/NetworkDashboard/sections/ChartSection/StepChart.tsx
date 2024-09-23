@@ -4,7 +4,7 @@ import { DecayPercent, Ether, RulesetWeight } from "juice-sdk-core";
 import {
   useJBContractContext,
   useJBRulesetContext,
-  useReadJbRulesetsRulesetsOf,
+  useReadJbRulesetsAllOf,
 } from "juice-sdk-react";
 import { useEffect, useState } from "react";
 import {
@@ -34,7 +34,7 @@ const StepChart = () => {
   const { projectId } = useJBContractContext();
   const { rulesetMetadata } = useJBRulesetContext();
 
-  const { data: rulesets } = useReadJbRulesetsRulesetsOf({
+  const { data: rulesets } = useReadJbRulesetsAllOf({
     args: [projectId, 0n, BigInt(MAX_RULESET_COUNT)],
     query: {
       select(data) {

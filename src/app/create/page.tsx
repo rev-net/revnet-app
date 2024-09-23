@@ -42,7 +42,7 @@ import { FastForwardIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { ReactNode, useState } from "react";
-import { revBasicDeployerAbi } from "revnet-sdk";
+import { revDeployerAbi } from "revnet-sdk";
 import { twMerge } from "tailwind-merge";
 import {
   Address,
@@ -697,7 +697,7 @@ function parseDeployData(
     chainId: Chain["id"] | undefined;
   }
 ): ContractFunctionParameters<
-  typeof revBasicDeployerAbi,
+  typeof revDeployerAbi,
   "nonpayable",
   "deployFor"
 >["args"] {
@@ -751,6 +751,9 @@ function parseDeployData(
         (formData.stages[0]?.initialOperator.trim() as Address) ?? zeroAddress,
       // stageConfigurations,
       stageConfigurations: [], // TODO
+      allowCrosschainSuckerExtension: false,
+      loans: zeroAddress,
+      loanSources: []
     },
     [
       {

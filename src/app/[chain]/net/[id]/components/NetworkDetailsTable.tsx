@@ -17,7 +17,7 @@ import {
   useJBContractContext,
   useJBTokenContext,
   useReadJbControllerGetRulesetOf,
-  useReadJbRulesetsRulesetsOf,
+  useReadJbRulesetsAllOf,
   useReadJbSplitsSplitsOf,
 } from "juice-sdk-react";
 import { useState } from "react";
@@ -34,7 +34,7 @@ export function NetworkDetailsTable() {
   } = useJBContractContext();
 
   // TODO(perf) duplicate call, move to a new context
-  const { data: rulesets } = useReadJbRulesetsRulesetsOf({
+  const { data: rulesets } = useReadJbRulesetsAllOf({
     args: [projectId, 0n, BigInt(MAX_RULESET_COUNT)],
     query: {
       select(data) {
