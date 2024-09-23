@@ -762,7 +762,7 @@ function parseDeployData(
           {
             token: NATIVE_TOKEN,
             decimals: 18,
-            currency: 0, // ETH
+            currency: Number(BigInt(NATIVE_TOKEN)), // ETH
           },
         ],
       },
