@@ -29,20 +29,7 @@ import { Header } from "./Header/Header";
 import { ChartSection } from "./sections/ChartSection/ChartSection";
 import { DescriptionSection } from "./sections/DescriptionSection/DescriptionSection";
 import { HoldersSection } from "./sections/HoldersSection/HoldersSection";
-
-const chainNameMap: Record<JBChainId, string> = {
-  [sepolia.id]: "sepolia",
-  [optimismSepolia.id]: "opsepolia",
-  [baseSepolia.id]: "basesepolia",
-  [arbitrumSepolia.id]: "arbsepolia",
-};
-
-const chainNames: Record<JBChainId, string> = {
-  [sepolia.id]: "Sepolia",
-  [optimismSepolia.id]: "Optimism (Sepolia)",
-  [baseSepolia.id]: "Base (Sepolia)",
-  [arbitrumSepolia.id]: "Arbitrum (Sepolia)",
-};
+import { chainNameMap, chainNames } from "@/app/constants";
 
 export function NetworkDashboard() {
   const { contracts, projectId } = useJBContractContext();

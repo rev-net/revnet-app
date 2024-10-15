@@ -56,8 +56,7 @@ import {
 import { mainnet, sepolia } from "viem/chains";
 import { useWaitForTransactionReceipt } from "wagmi";
 import { IpfsImageUploader } from "../../components/IpfsFileUploader";
-import { chainIdMap } from "../[chain]/net/[id]/page";
-import { MAX_RULESET_COUNT } from "../constants";
+import { chainIdMap, MAX_RULESET_COUNT } from "../constants";
 
 const defaultStageData = {
   initialOperator: "", // only the first stage has this
