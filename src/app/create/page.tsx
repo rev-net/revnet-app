@@ -34,6 +34,7 @@ import {
   DecayPercent,
   JBProjectMetadata,
   NATIVE_TOKEN,
+  NATIVE_TOKEN_DECIMALS,
   RedemptionRate,
   ReservedPercent,
 } from "juice-sdk-core";
@@ -48,13 +49,15 @@ import {
   Address,
   Chain,
   ContractFunctionParameters,
+  encodeFunctionData,
   parseUnits,
   zeroAddress,
 } from "viem";
-import { mainnet } from "viem/chains";
+import { mainnet, sepolia } from "viem/chains";
 import { useWaitForTransactionReceipt } from "wagmi";
 import { IpfsImageUploader } from "../../components/IpfsFileUploader";
 import { MAX_RULESET_COUNT } from "../constants";
+import { set } from "date-fns";
 
 const defaultStageData = {
   initialOperator: "", // only the first stage has this
@@ -63,6 +66,8 @@ const defaultStageData = {
   priceCeilingIncreasePercentage: "",
   priceCeilingIncreaseFrequency: "",
   priceFloorTaxIntensity: "",
+
+  premintTokenAmount: "", // only the first stage has this
 
   splitRate: "",
   boostDuration: "",
@@ -98,6 +103,24 @@ const DEFAULT_FORM_DATA: RevnetFormData = {
 const EXIT_TAX_HIGH = "90";
 const EXIT_TAX_MID = "50";
 const EXIT_TAX_LOW = "20";
+
+/**
+ * The contract addresses to use for deployment
+ * @todo not ideal to hardcode these addresses
+ */
+const SUPPORTED_JB_MULTITERMINAL_ADDRESS = {
+  "84532": "0x4DeF0AA5B9CA095d11705284221b2878731ab4EF" as Address,
+  "421614": "0x4DeF0AA5B9CA095d11705284221b2878731ab4EF" as Address,
+  "11155111": "0x4DeF0AA5B9CA095d11705284221b2878731ab4EF" as Address,
+  "11155420": "0x4DeF0AA5B9CA095d11705284221b2878731ab4EF" as Address,
+};
+
+const SUPPORTED_JB_CONTROLLER_ADDRESS = {
+  "84532": "0x219A5cE6d1c512D5b050ad2E3d380b8746BE0Cb8" as Address,
+  "421614": "0x219A5cE6d1c512D5b050ad2E3d380b8746BE0Cb8" as Address,
+  "11155111": "0x219A5cE6d1c512D5b050ad2E3d380b8746BE0Cb8" as Address,
+  "11155420": "0x219A5cE6d1c512D5b050ad2E3d380b8746BE0Cb8" as Address,
+};
 
 function Field(props: FieldAttributes<any>) {
   if (props.suffix || props.prefix) {
@@ -403,7 +426,7 @@ function AddStageDialog({
 }
 
 function ConfigPage() {
-  const { values } = useFormikContext<RevnetFormData>();
+  const { values, setFieldValue } = useFormikContext<RevnetFormData>();
   const nativeTokenSymbol = useNativeTokenSymbol();
 
   const hasStages = values.stages.length > 0;
@@ -432,6 +455,12 @@ function ConfigPage() {
                           initialValues={stage}
                           onSave={(newStage) => {
                             arrayHelpers.replace(index, newStage);
+                            if (index === 0) {
+                              setFieldValue(
+                                "premintTokenAmount",
+                                newStage.premintTokenAmount
+                              );
+                            }
                           }}
                         >
                           <Button variant="ghost" size="sm">
@@ -478,6 +507,12 @@ function ConfigPage() {
               stageIdx={values.stages.length}
               onSave={(newStage) => {
                 arrayHelpers.push(newStage);
+                if (values.stages.length === 0) {
+                  setFieldValue(
+                    "premintTokenAmount",
+                    newStage.premintTokenAmount
+                  );
+                }
               }}
             >
               <Button
@@ -711,14 +746,20 @@ function parseDeployData(
     cumStart += prevStageDuration;
 
     return {
-      mintConfigs: [
+      startsAtOrAfter,
+      /**
+       * REVAutoMint[]
+       *
+       * @see https://github.com/rev-net/revnet-core/blob/main/src/structs/REVAutoMint.sol
+       */
+      autoMints: [
         {
-          chainId: BigInt(extra.chainId ?? mainnet.id),
+          chainId: extra.chainId ?? mainnet.id,
+          // premint is only set once, in the first stage
           count: parseUnits(formData.premintTokenAmount, 18),
           beneficiary: stage.initialOperator.trim() as Address,
         },
       ],
-      startsAtOrAfter,
       splitPercent:
         Number(ReservedPercent.parse(stage.splitRate, 4).value) / 100,
       initialIssuance:
@@ -727,13 +768,14 @@ function parseDeployData(
           : 0n,
       issuanceDecayFrequency:
         Number(stage.priceCeilingIncreaseFrequency) * 86400, // seconds
-      issuanceDecayPercentage:
+      issuanceDecayPercent:
         Number(
           DecayPercent.parse(stage.priceCeilingIncreasePercentage, 9).value
         ) / 100,
-      cashOutTaxIntensity:
+      cashOutTaxRate:
         Number(RedemptionRate.parse(stage.priceFloorTaxIntensity, 4).value) /
         100, //
+      extraMetadata: 0, // ??
     };
   });
 
@@ -749,19 +791,18 @@ function parseDeployData(
       baseCurrency: Number(BigInt(NATIVE_TOKEN)),
       splitOperator:
         (formData.stages[0]?.initialOperator.trim() as Address) ?? zeroAddress,
-      // stageConfigurations,
-      stageConfigurations: [], // TODO
+      stageConfigurations,
       allowCrosschainSuckerExtension: false,
       loans: zeroAddress,
-      loanSources: []
+      loanSources: [],
     },
     [
       {
-        terminal: "0x0",
+        terminal: SUPPORTED_JB_MULTITERMINAL_ADDRESS[sepolia.id],
         accountingContextsToAccept: [
           {
             token: NATIVE_TOKEN,
-            decimals: 18,
+            decimals: NATIVE_TOKEN_DECIMALS,
             currency: Number(BigInt(NATIVE_TOKEN)), // ETH
           },
         ],
@@ -822,7 +863,13 @@ export default function Page() {
       chainId: chain?.id,
     });
 
-    console.log("deployData::", deployData);
+    const encodedData = encodeFunctionData({
+      abi: revDeployerAbi, // ABI of the contract
+      functionName: "deployFor",
+      args: deployData,
+    });
+
+    console.log("deployData::", deployData, encodedData);
 
     // Deploy onchain
     write?.(deployData);
