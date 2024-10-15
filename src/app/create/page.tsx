@@ -56,8 +56,8 @@ import {
 import { mainnet, sepolia } from "viem/chains";
 import { useWaitForTransactionReceipt } from "wagmi";
 import { IpfsImageUploader } from "../../components/IpfsFileUploader";
+import { chainIdMap } from "../[chain]/net/[id]/page";
 import { MAX_RULESET_COUNT } from "../constants";
-import { set } from "date-fns";
 
 const defaultStageData = {
   initialOperator: "", // only the first stage has this
@@ -792,7 +792,7 @@ function parseDeployData(
       splitOperator:
         (formData.stages[0]?.initialOperator.trim() as Address) ?? zeroAddress,
       stageConfigurations,
-      allowCrosschainSuckerExtension: false,
+      allowCrosschainSuckerExtension: true,
       loans: zeroAddress,
       loanSources: [],
     },
@@ -877,7 +877,7 @@ export default function Page() {
 
   if (isSuccess && txData) {
     console.log("useDeployRevnet::tx success", txData.logs);
-    const projectIdHex = txData.logs[0].topics[3];
+    const projectIdHex = txData.logs[0].topics[1];
     if (!projectIdHex) {
       console.warn("useDeployRevnet::fail::no project id");
 
@@ -897,6 +897,8 @@ export default function Page() {
     const projectId = BigInt(projectIdHex).toString(10);
     console.warn("useDeployRevnet::success::project id", projectId);
 
+    const chainId = chain?.id ?? sepolia.id;
+
     return (
       <>
         <Nav />
@@ -905,7 +907,7 @@ export default function Page() {
             <CheckCircleIcon className="h-9 w-9 text-green-600 mb-4" />
             <h1 className="text-4xl mb-10">Your Revnet is Live</h1>
             <p>
-              <Link href={`/net/${projectId}`}>
+              <Link href={`${chainIdMap[chainId]}/net/${projectId}`}>
                 <Button size="lg">Go to Revnet</Button>
               </Link>
             </p>

@@ -9,12 +9,17 @@ import {
 import { Providers } from "./Providers";
 import { NetworkDashboard } from "./components/NetworkDashboard/NetworkDashboard";
 
-const chainNameMap: Record<string, JBChainId> = {
+export const chainNameMap: Record<string, JBChainId> = {
   sepolia: sepolia.id,
   opsepolia: optimismSepolia.id,
   basesepolia: baseSepolia.id,
   arbsepolia: arbitrumSepolia.id,
 };
+
+// reverse of chainNameMap
+export const chainIdMap = Object.fromEntries(
+  Object.entries(chainNameMap).map(([k, v]) => [v, k])
+);
 
 export default function Page({
   params,
