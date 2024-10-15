@@ -137,7 +137,7 @@ export function NetworkDetailsTable() {
         </div>
         <div className="border-t border-zinc-100 px-4 py-2 sm:col-span-1 sm:px-0 grid grid-cols-2">
           <dt className="text-sm font-medium leading-6 text-zinc-900">
-            Exit tax
+            Cash out tax
           </dt>
           <dd className="text-sm leading-6 text-zinc-700">
             {new RedemptionRate(

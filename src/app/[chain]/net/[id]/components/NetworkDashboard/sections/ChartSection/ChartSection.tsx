@@ -18,10 +18,6 @@ export function ChartSection() {
           <span className="text-2xl">
             {currentTokenBPrice?.format(8)} {tokenA.symbol}
           </span>
-          <span className="text-base leading-tight text-zinc-500">
-            {" "}
-            (buys 1 ${token?.data?.symbol})
-          </span>
         </div>
 
         <PriceIncreaseCountdown />

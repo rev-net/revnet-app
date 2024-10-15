@@ -315,10 +315,10 @@ function AddStageDialog({
                 <div className="pt-5 border-b border-zinc-200">
                   <h3 className="mb-1">Split</h3>
                   <p className="text-zinc-600 text-sm mb-3">
-                    Split a portion of new token purchases a core team, airdrop
-                    stockpile, staking rewards contract, or some other address.
-                    The split is managed by an Operator who can change the
-                    splits or relinquish power at any time.
+                    Split a portion of new token purchases to a core team,
+                    airdrop stockpile, staking rewards contract, or some other
+                    address. The split is managed by an Operator who can change
+                    the splits or relinquish power at any time.
                   </p>
 
                   <FieldGroup
@@ -358,7 +358,7 @@ function AddStageDialog({
                       id="priceFloorTaxIntensity-group"
                       className="block text-sm font-medium leading-6 mb-1"
                     >
-                      Cash out
+                      Cash out tax
                     </div>
                     <div
                       role="group"
@@ -405,8 +405,8 @@ function AddStageDialog({
                       className="flex-1"
                       id="premintTokenAmount"
                       name="premintTokenAmount"
-                      label="Premint"
-                      description="Premint tokens for the Operator. Only happens once."
+                      label="Automint"
+                      description="Automatically tokens for the Operator. Only happens once."
                       suffix={"$" + values.tokenSymbol || "tokens"}
                     />
                   ) : null}
@@ -486,11 +486,12 @@ function ConfigPage() {
                       </div>
                       •
                       <div>
-                        {stage.initialIssuance} tokens / {nativeTokenSymbol}
+                        {stage.initialIssuance} {values.tokenSymbol ?? "tokens"}{" "}
+                        / {nativeTokenSymbol}
                         {", "}+{stage.priceCeilingIncreasePercentage || 0}%
                         every {stage.priceCeilingIncreaseFrequency} days
                       </div>
-                      •<div>{stage.priceFloorTaxIntensity}% exit tax</div>
+                      •<div>{stage.priceFloorTaxIntensity}% cash out tax</div>
                       <div>• {stage.splitRate || 0}% operator split</div>
                     </div>
                   </div>
@@ -652,7 +653,7 @@ function ReviewPage() {
 
                   <div className="px-4 py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
                     <dt className="text-sm font-medium leading-6 text-zinc-900">
-                      Exit tax
+                      Cash out tax
                     </dt>
                     <dd className="mt-1 text-sm leading-6 text-zinc-700 sm:col-span-2 sm:mt-0">
                       {stage.priceFloorTaxIntensity}%
