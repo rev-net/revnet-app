@@ -48,7 +48,7 @@ export function HoldersSection() {
             )}
             onClick={() => setParticipantsView("table")}
           >
-            List
+            Holders
           </Button>
           <Button
             variant="ghost"
