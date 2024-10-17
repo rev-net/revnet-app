@@ -5,6 +5,7 @@ import {
 import { EthereumAddress } from "@/components/EthereumAddress";
 import { Button } from "@/components/ui/button";
 import { useNativeTokenSymbol } from "@/hooks/useNativeTokenSymbol";
+import { formatDate } from "date-fns";
 import {
   ReservedPercent,
   getTokenBPrice,
@@ -114,7 +115,7 @@ export function NetworkDetailsTable() {
             Starts at
           </dt>
           <dd className="text-sm leading-6 text-zinc-700">
-            {new Date(Number(selectedStage.start) * 1000).toISOString()}
+            {formatDate(new Date(Number(selectedStage.start) * 1000), 'yyyy-mm-dd h:mm a')}
           </dd>
         </div>
         <div className="border-t border-zinc-100 px-4 py-2 sm:col-span-1 sm:px-0 grid grid-cols-2">
@@ -122,7 +123,7 @@ export function NetworkDetailsTable() {
             Starting price
           </dt>
           <dd className="text-sm leading-6 text-zinc-700">
-            {currentTokenBPrice?.format()} {tokenA.symbol} /{" "}
+            {currentTokenBPrice?.format(8)} {tokenA.symbol} /{" "}
             {token.data?.symbol}
           </dd>
         </div>
