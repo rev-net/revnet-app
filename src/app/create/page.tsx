@@ -394,7 +394,7 @@ function AddStageDialog({
                       </label>
                     </div>
                     <p className="text-sm text-zinc-500 mt-1">
-                      Tokenholders access revenue by cashing out their tokens. A
+                      ${values.tokenSymbol} tokenholders access revenue by cashing out their ${values.tokenSymbol}. A
                       tax is charged, benefiting remaining token holders
                       equally.
                     </p>
