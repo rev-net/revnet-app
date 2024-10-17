@@ -88,6 +88,13 @@ export function NetworkDetailsTable() {
         })
       : null;
 
+  const stages = rulesets?.reverse();
+  const nextStageIdx = Math.max(
+    stages?.findIndex((stage) => stage.start > Date.now() / 1000) ?? -1,
+    1 // lower bound should be 1 (the minimum 'next stage' is 1)
+  );
+  const currentStageIdx = nextStageIdx - 1;
+
   if (!selectedStage) return null;
 
   return (
@@ -105,6 +112,9 @@ export function NetworkDetailsTable() {
               onClick={() => setSelectedStageIdx(idx)}
             >
               Stage {idx + 1}
+              {idx === currentStageIdx && (
+                <span className="rounded-full h-2 w-2 bg-orange-400 border-[2px] border-orange-200 ml-1"></span>
+              )}
             </Button>
           );
         })}
@@ -115,7 +125,10 @@ export function NetworkDetailsTable() {
             Starts at
           </dt>
           <dd className="text-sm leading-6 text-zinc-700">
-            {formatDate(new Date(Number(selectedStage.start) * 1000), 'yyyy-mm-dd h:mm a')}
+            {formatDate(
+              new Date(Number(selectedStage.start) * 1000),
+              "yyyy-mm-dd h:mm a"
+            )}
           </dd>
         </div>
         <div className="border-t border-zinc-100 px-4 py-2 sm:col-span-1 sm:px-0 grid grid-cols-2">

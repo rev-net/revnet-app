@@ -3,6 +3,7 @@ import { useTokenA } from "@/hooks/useTokenA";
 import { useTokenBPrice } from "@/hooks/useTokenBPrice";
 import { PriceIncreaseCountdown } from "../../../PriceIncreaseCountdown";
 import StepChart from "./StepChart";
+import { HoldersSection } from "../HoldersSection/HoldersSection";
 
 export function ChartSection() {
   const { token } = useJBTokenContext();
@@ -23,7 +24,9 @@ export function ChartSection() {
         <PriceIncreaseCountdown />
       </div>
 
-      <StepChart />
+      <HoldersSection />
+
+      {/* <StepChart /> */}
     </>
   );
 }

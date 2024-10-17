@@ -75,7 +75,7 @@ export function NetworkDashboard() {
         <Header />
 
         <div className="max-w-4xl mx-auto">
-          <section className="mb-14">
+          <section className="mb-10">
             <ChartSection />
           </section>
 
@@ -99,15 +99,7 @@ export function NetworkDashboard() {
             <DescriptionSection />
           </section>
 
-          <section className="mb-8">
-            <h3 className="text-base font-medium mb-2">Holders</h3>
-
-            <HoldersSection />
-          </section>
-
           <section>
-            <h3 className="text-base font-medium mb-2">Configuration</h3>
-
             <NetworkDetailsTable />
             <div className="mt-4">
               <DistributeReservedTokensButton />

@@ -33,34 +33,37 @@ export function HoldersSection() {
     },
   });
 
+  const hasHolders =
+    participantsData && participantsData.participants.length > 0;
+
   return (
     <div>
-      <div className="mb-2">
-        <Button
-          variant="ghost"
-          className={twJoin(
-            "text-sm font-normal",
-            participantsView === "table" && "font-medium underline"
-          )}
-          onClick={() => setParticipantsView("table")}
-        >
-          List
-        </Button>
-        <Button
-          variant="ghost"
-          className={twJoin(
-            "text-sm font-normal",
-            participantsView === "pie" && "font-medium underline"
-          )}
-          onClick={() => setParticipantsView("pie")}
-        >
-          Chart
-        </Button>
-      </div>
+      {hasHolders ? (
+        <div className="mb-2">
+          <Button
+            variant="ghost"
+            className={twJoin(
+              "text-sm font-normal",
+              participantsView === "table" && "font-medium underline"
+            )}
+            onClick={() => setParticipantsView("table")}
+          >
+            List
+          </Button>
+          <Button
+            variant="ghost"
+            className={twJoin(
+              "text-sm font-normal",
+              participantsView === "pie" && "font-medium underline"
+            )}
+            onClick={() => setParticipantsView("pie")}
+          >
+            Chart
+          </Button>
+        </div>
+      ) : null}
 
-      {token?.data &&
-      participantsData &&
-      participantsData.participants.length > 0 ? (
+      {hasHolders && token?.data ? (
         <>
           <div
             className={twJoin(
@@ -70,7 +73,7 @@ export function HoldersSection() {
           >
             <ParticipantsTable
               participants={participantsData}
-              token={token?.data}
+              token={token.data}
               totalSupply={totalOutstandingTokens}
               boostRecipient={boostRecipient}
             />
