@@ -1,12 +1,8 @@
-import { useJBTokenContext } from "juice-sdk-react";
 import { useTokenA } from "@/hooks/useTokenA";
 import { useTokenBPrice } from "@/hooks/useTokenBPrice";
-import { PriceIncreaseCountdown } from "../../../PriceIncreaseCountdown";
-import StepChart from "./StepChart";
-import { HoldersSection } from "../HoldersSection/HoldersSection";
+import { PriceIncreaseCountdown } from "../../PriceIncreaseCountdown";
 
-export function ChartSection() {
-  const { token } = useJBTokenContext();
+export function PriceSection() {
   const tokenA = useTokenA();
 
   const currentTokenBPrice = useTokenBPrice();
@@ -23,10 +19,6 @@ export function ChartSection() {
 
         <PriceIncreaseCountdown />
       </div>
-
-      <HoldersSection />
-
-      {/* <StepChart /> */}
     </>
   );
 }

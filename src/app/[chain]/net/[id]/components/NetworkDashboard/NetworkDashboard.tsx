@@ -1,5 +1,6 @@
 "use client";
 
+import { chainNameMap, chainNames } from "@/app/constants";
 import { useQuery } from "@tanstack/react-query";
 import { getSuckerPairs } from "juice-sdk-core";
 import {
@@ -13,23 +14,16 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { useEffect } from "react";
 import { zeroAddress } from "viem";
-import {
-  arbitrumSepolia,
-  baseSepolia,
-  optimismSepolia,
-  sepolia,
-} from "viem/chains";
-import { useChainId, useConfig } from "wagmi";
+import { useConfig } from "wagmi";
 import { ActivityFeed } from "../ActivityFeed";
 import { DistributeReservedTokensButton } from "../DistributeReservedTokensButton";
 import { NetworkDetailsTable } from "../NetworkDetailsTable";
 import { PayCard } from "../PayCard/PayCard";
 import { UserTokenBalanceCard } from "../UserTokenBalanceCard/UserTokenBalanceCard";
 import { Header } from "./Header/Header";
-import { ChartSection } from "./sections/ChartSection/ChartSection";
 import { DescriptionSection } from "./sections/DescriptionSection/DescriptionSection";
+import { PriceSection } from "./sections/PriceSection";
 import { HoldersSection } from "./sections/HoldersSection/HoldersSection";
-import { chainNameMap, chainNames } from "@/app/constants";
 
 export function NetworkDashboard() {
   const { contracts, projectId } = useJBContractContext();
@@ -75,8 +69,20 @@ export function NetworkDashboard() {
         <Header />
 
         <div className="max-w-4xl mx-auto">
+          <section>
+            <PriceSection />
+          </section>
+
           <section className="mb-10">
-            <ChartSection />
+            <div className="mb-8">
+              <NetworkDetailsTable />
+            </div>
+
+            <div className="mb-4">
+              <HoldersSection />
+            </div>
+
+            <DistributeReservedTokensButton />
           </section>
 
           <section className="mb-8">
@@ -97,13 +103,6 @@ export function NetworkDashboard() {
               })}
             </div>
             <DescriptionSection />
-          </section>
-
-          <section>
-            <NetworkDetailsTable />
-            <div className="mt-4">
-              <DistributeReservedTokensButton />
-            </div>
           </section>
 
           {/* 

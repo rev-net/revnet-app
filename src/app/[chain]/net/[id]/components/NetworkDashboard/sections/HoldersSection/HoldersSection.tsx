@@ -44,9 +44,9 @@ export function HoldersSection() {
             variant="ghost"
             className={twJoin(
               "text-sm font-normal",
-              participantsView === "table" && "font-medium underline"
+              participantsView === "pie" && "font-medium underline"
             )}
-            onClick={() => setParticipantsView("table")}
+            onClick={() => setParticipantsView("pie")}
           >
             Holders
           </Button>
@@ -54,11 +54,11 @@ export function HoldersSection() {
             variant="ghost"
             className={twJoin(
               "text-sm font-normal",
-              participantsView === "pie" && "font-medium underline"
+              participantsView === "table" && "font-medium underline"
             )}
-            onClick={() => setParticipantsView("pie")}
+            onClick={() => setParticipantsView("table")}
           >
-            Chart
+            List
           </Button>
         </div>
       ) : null}
