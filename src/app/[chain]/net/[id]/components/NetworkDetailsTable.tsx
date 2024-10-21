@@ -23,6 +23,7 @@ import {
 } from "juice-sdk-react";
 import { useState } from "react";
 import { twJoin } from "tailwind-merge";
+import { formatTokenSymbol } from "@/lib/utils";
 
 export function NetworkDetailsTable() {
   const [selectedStageIdx, setSelectedStageIdx] = useState<number>(0);
@@ -127,7 +128,7 @@ export function NetworkDetailsTable() {
           <dd className="text-sm leading-6 text-zinc-700">
             {formatDate(
               new Date(Number(selectedStage.start) * 1000),
-              "yyyy-mm-dd h:mm a"
+              "yyyy-MM-dd h:mm a"
             )}
           </dd>
         </div>
@@ -137,7 +138,7 @@ export function NetworkDetailsTable() {
           </dt>
           <dd className="text-sm leading-6 text-zinc-700">
             {currentTokenBPrice?.format(8)} {tokenA.symbol} /{" "}
-            {token.data?.symbol}
+            {formatTokenSymbol(token)}
           </dd>
         </div>
         <div className="border-t border-zinc-100 px-4 py-2 sm:col-span-1 sm:px-0 grid grid-cols-2">
@@ -157,8 +158,7 @@ export function NetworkDetailsTable() {
             {new RedemptionRate(
               MAX_REDEMPTION_RATE -
                 Number(selectedStageMetadata?.data?.redemptionRate.value ?? 0n)
-            ).formatPercentage()}
-            %
+            ).format()}
           </dd>
         </div>
         <div className="border-t border-zinc-100 px-4 py-2 sm:col-span-1 sm:px-0 grid grid-cols-2">

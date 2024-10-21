@@ -24,6 +24,7 @@ import { Header } from "./Header/Header";
 import { DescriptionSection } from "./sections/DescriptionSection/DescriptionSection";
 import { PriceSection } from "./sections/PriceSection";
 import { HoldersSection } from "./sections/HoldersSection/HoldersSection";
+import { formatTokenSymbol } from "@/lib/utils";
 
 export function NetworkDashboard() {
   const { contracts, projectId } = useJBContractContext();
@@ -50,8 +51,8 @@ export function NetworkDashboard() {
   // TODO, hacky, probably eventually a next-idiomatic way to do this.
   useEffect(() => {
     if (!token?.data?.symbol) return;
-    document.title = `$${token?.data?.symbol} | REVNET`;
-  }, [token?.data?.symbol]);
+    document.title = `${formatTokenSymbol(token)} | REVNET`;
+  }, [token]);
 
   const pageLoading = metadata.isLoading && contracts.controller.isLoading;
   if (pageLoading) {
@@ -105,7 +106,7 @@ export function NetworkDashboard() {
             <DescriptionSection />
           </section>
 
-          {/* 
+          {/*
         <div>
           {totalTokenSupply && tokensReserved && token ? (
             <div>
