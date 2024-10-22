@@ -92,14 +92,14 @@ export function NetworkDetailsTable() {
   return (
     <div>
       <SectionTooltip name="Rules" info="These are how we play the game"/>
-      <div className="flex gap-2 mb-2">
+      <div className="flex gap-4 mb-2">
         {rulesets?.map((ruleset, idx) => {
           return (
             <Button
-              variant="ghost"
+              variant={selectedStageIdx === idx ? "tab-selected" : "bottomline"}
               className={twJoin(
                 "text-sm font-normal",
-                selectedStageIdx === idx && "font-medium underline"
+                selectedStageIdx === idx && "font-medium"
               )}
               key={ruleset.id.toString() + idx}
               onClick={() => setSelectedStageIdx(idx)}
@@ -112,8 +112,8 @@ export function NetworkDetailsTable() {
           );
         })}
       </div>
-      <div className="grid grid-cols-2 gap-x-8 pl-4">
-        <div className="border-t border-zinc-100 px-4 py-2 sm:col-span-1 sm:px-0 grid grid-cols-2">
+      <div className="grid grid-cols-2 gap-x-8 border-b border-zinc-100">
+        <div className="px-4 py-2 sm:col-span-1 sm:px-0 grid grid-cols-2">
           <dt className="text-sm font-medium leading-6 text-zinc-900">
             Starts at
           </dt>
@@ -124,7 +124,7 @@ export function NetworkDetailsTable() {
             )}
           </dd>
         </div>
-        <div className="border-t border-zinc-100 px-4 py-2 sm:col-span-1 sm:px-0 grid grid-cols-2">
+        <div className="px-4 py-2 sm:col-span-1 sm:px-0 grid grid-cols-2">
           <dt className="text-sm font-medium leading-6 text-zinc-900">
             Starting price
           </dt>

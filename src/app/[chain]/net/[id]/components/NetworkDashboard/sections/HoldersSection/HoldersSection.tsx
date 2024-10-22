@@ -43,20 +43,20 @@ export function HoldersSection() {
         <div className="mb-2">
           <SectionTooltip name="Holders" info="HOOOOLDOOOORS" />
           <Button
-            variant="ghost"
+            variant={participantsView === "table" ? "tab-selected" : "bottomline"}
             className={twJoin(
               "text-sm font-normal",
-              participantsView === "table" && "font-medium underline"
+              participantsView === "table" && "font-medium"
             )}
             onClick={() => setParticipantsView("table")}
           >
             List
           </Button>
           <Button
-            variant="ghost"
+            variant={participantsView === "pie" ? "tab-selected" : "bottomline"}
             className={twJoin(
-              "text-sm font-normal",
-              participantsView === "pie" && "font-medium underline"
+              "ml-4 text-sm font-normal",
+              participantsView === "pie" && "font-medium"
             )}
             onClick={() => setParticipantsView("pie")}
           >
