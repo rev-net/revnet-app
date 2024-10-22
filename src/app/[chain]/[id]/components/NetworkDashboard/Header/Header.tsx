@@ -30,7 +30,7 @@ export function Header() {
   const { name: projectName, logoUri } = metadata?.data ?? {};
 
   return (
-    <header className="mb-10">
+    <header className="mb-8">
       <div className="flex items-center gap-4">
         {logoUri ? (
           <Image

@@ -74,21 +74,17 @@ export function NetworkDashboard() {
   )
 
   return (
-    <div className="flex gap-10 container py-10 md:flex-nowrap flex-wrap mb-10">
+    <div className="flex gap-10 w-full px-4 sm:container py-10 md:flex-nowrap flex-wrap mb-10">
       {/* Column 1 */}
       <div className="flex-1">
         <Header />
-
+        <PriceSection />
         {/* Render Pay and activity after header on mobile */}
         <div className="sm:hidden mb-10">
           {payAndActivityBar}
         </div>
 
         <div className="max-w-4xl mx-auto">
-          <section>
-            <PriceSection />
-          </section>
-
           <section className="mb-10">
             <div className="mb-8">
               <NetworkDetailsTable />

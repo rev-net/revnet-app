@@ -13,6 +13,7 @@ import {
 } from "juice-sdk-react";
 import { useAccount } from "wagmi";
 import { RedeemDialog } from "./RedeemDialog";
+import { formatTokenSymbol } from "@/lib/utils";
 
 export function UserTokenBalanceCard() {
   const {
@@ -23,7 +24,7 @@ export function UserTokenBalanceCard() {
   const { address: userAddress } = useAccount();
   const tokenA = useTokenA();
   const { token } = useJBTokenContext();
-
+  const tokenSymbol = formatTokenSymbol(token);
   const { data: creditBalance } = useReadJbTokensTotalBalanceOf({
     args: userAddress ? [userAddress, projectId] : undefined,
     query: {
@@ -63,7 +64,7 @@ export function UserTokenBalanceCard() {
       <div>
         <div className="mb-1">Your tokens</div>
         <div className="text-lg overflow-auto mb-1">
-          {creditBalance?.format(6) ?? 0} {token?.data?.symbol}
+          {creditBalance?.format(6) ?? 0} {tokenSymbol}
         </div>
         {creditBalance && creditBalanceRedemptionQuote ? (
           <div className="text-xs text-zinc-500">
@@ -75,7 +76,7 @@ export function UserTokenBalanceCard() {
         <RedeemDialog
           projectId={projectId}
           creditBalance={creditBalance}
-          tokenSymbol={token.data.symbol}
+          tokenSymbol={tokenSymbol}
           primaryTerminalEth={primaryNativeTerminal.data}
         >
           <Button variant="outline" disabled={creditBalance.value === 0n}>

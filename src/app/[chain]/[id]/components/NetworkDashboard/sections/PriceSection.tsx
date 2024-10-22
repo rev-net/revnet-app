@@ -13,7 +13,7 @@ export function PriceSection() {
 
   return (
     <>
-      <div className="mb-4">
+      <div className="mb-8">
         <div>
           <div className="text-2xl font-semibold">Current Price</div>
           <span className="text-2xl">

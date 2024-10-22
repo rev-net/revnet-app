@@ -41,7 +41,7 @@ export function HoldersSection() {
     <div>
       {hasHolders ? (
         <div className="mb-2">
-          <SectionTooltip name="Holders" info="HOOOOLDOOOORS" />
+          <SectionTooltip name="Contributors" info="HOOOOLDOOOORS" />
           <Button
             variant={participantsView === "table" ? "tab-selected" : "bottomline"}
             className={twJoin(
