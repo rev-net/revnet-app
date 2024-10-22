@@ -65,6 +65,7 @@ export function PayForm() {
       <div className="flex justify-center items-center flex-col gap-3 mb-5">
         <PayInput
           label="You pay"
+          type="number"
           onChange={(e) => {
             const valueRaw = e.target.value;
             setAmountA(valueRaw);
@@ -96,6 +97,7 @@ export function PayForm() {
         <ArrowDownIcon className="h-5 w-5 text-zinc-500" />
         <PayInput
           label="You receive"
+          type="number"
           onChange={(e) => {
             const valueRaw = e.target.value;
             setAmountB(valueRaw);
@@ -134,7 +136,7 @@ export function PayForm() {
               </div>
             ) : null}
           </div>
- 
+
         </div> */}
 
       {devTax && boostRecipient ? (
