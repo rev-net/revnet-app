@@ -126,7 +126,7 @@ export function NetworkDashboard() {
       </div>
 
       {/* Column 2 */}
-      <aside className="md:w-[340px] md:block">
+      <aside className="md:w-[340px] md:block sm:mt-24">
         <div className="mb-10">
           <PayCard />
         </div>

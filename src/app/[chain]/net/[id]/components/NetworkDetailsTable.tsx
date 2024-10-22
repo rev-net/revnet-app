@@ -99,7 +99,7 @@ export function NetworkDetailsTable() {
               variant={selectedStageIdx === idx ? "tab-selected" : "bottomline"}
               className={twJoin(
                 "text-sm font-normal",
-                selectedStageIdx === idx && "font-medium"
+                selectedStageIdx === idx && "font-semibold"
               )}
               key={ruleset.id.toString() + idx}
               onClick={() => setSelectedStageIdx(idx)}
@@ -112,23 +112,23 @@ export function NetworkDetailsTable() {
           );
         })}
       </div>
-      <div className="grid grid-cols-2 gap-x-8 border-b border-zinc-100">
+      <div className="grid sm:grid-cols-2 gap-x-8 border-b border-zinc-100 overflow-x-scroll">
         <div className="px-4 py-2 sm:col-span-1 sm:px-0 grid grid-cols-2">
           <dt className="text-sm font-medium leading-6 text-zinc-900">
             Starts at
           </dt>
-          <dd className="text-sm leading-6 text-zinc-700">
+          <dd className="text-sm leading-6 text-zinc-700 whitespace-nowrap">
             {formatDate(
               new Date(Number(selectedStage.start) * 1000),
               "yyyy-MM-dd h:mm a"
             )}
           </dd>
         </div>
-        <div className="px-4 py-2 sm:col-span-1 sm:px-0 grid grid-cols-2">
+        <div className="border-t border-zinc-100 sm:border-none px-4 py-2 sm:col-span-1 sm:px-0 grid grid-cols-2">
           <dt className="text-sm font-medium leading-6 text-zinc-900">
             Starting price
           </dt>
-          <dd className="text-sm leading-6 text-zinc-700">
+          <dd className="text-sm leading-6 text-zinc-700 whitespace-nowrap">
             {formatTokenIssuance(
               tokenA,
               token,
