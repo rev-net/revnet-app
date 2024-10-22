@@ -63,11 +63,26 @@ export function NetworkDashboard() {
     notFound();
   }
 
+  const payAndActivityBar = (
+    <>
+      <div className="mb-10">
+        <PayCard />
+      </div>
+      <UserTokenBalanceCard />
+      <ActivityFeed />
+    </>
+  )
+
   return (
     <div className="flex gap-10 container py-10 md:flex-nowrap flex-wrap mb-10">
       {/* Column 1 */}
       <div className="flex-1">
         <Header />
+
+        {/* Render Pay and activity after header on mobile */}
+        <div className="sm:hidden mb-10">
+          {payAndActivityBar}
+        </div>
 
         <div className="max-w-4xl mx-auto">
           <section>
@@ -87,7 +102,7 @@ export function NetworkDashboard() {
           </section>
 
           <section className="mb-8">
-            <h2 className="text-2xl font-medium mb-1">About {name}</h2>
+            <h2 className="text-2xl font-semibold">About</h2>
             <div className="flex gap-3">
               {suckerPairs.data?.map((pair) => {
                 const networkName =
@@ -126,14 +141,8 @@ export function NetworkDashboard() {
       </div>
 
       {/* Column 2 */}
-      <aside className="md:w-[340px] md:block sm:mt-24">
-        <div className="mb-10">
-          <PayCard />
-        </div>
-
-        <UserTokenBalanceCard />
-
-        <ActivityFeed />
+      <aside className="hidden md:w-[340px] md:block sm:mt-24">
+        {payAndActivityBar}
       </aside>
     </div>
   );
