@@ -5,10 +5,10 @@ import {
 import { EthereumAddress } from "@/components/EthereumAddress";
 import { Button } from "@/components/ui/button";
 import { useNativeTokenSymbol } from "@/hooks/useNativeTokenSymbol";
+import { formatTokenIssuance } from "@/lib/utils";
 import { formatDate } from "date-fns";
 import {
   ReservedPercent,
-  getTokenBPrice,
   MAX_REDEMPTION_RATE,
   RedemptionRate,
   RulesetWeight,
@@ -23,7 +23,6 @@ import {
 } from "juice-sdk-react";
 import { useState } from "react";
 import { twJoin } from "tailwind-merge";
-import { formatTokenSymbol } from "@/lib/utils";
 
 export function NetworkDetailsTable() {
   const [selectedStageIdx, setSelectedStageIdx] = useState<number>(0);
@@ -80,15 +79,6 @@ export function NetworkDetailsTable() {
   });
   const selectedStageBoost = selectedStateReservedTokenSplits?.[0];
   const reservedPercent = selectedStageMetadata?.data?.reservedPercent;
-
-  const currentTokenBPrice =
-    selectedStage && selectedStageMetadata?.data
-      ? getTokenBPrice(tokenA.decimals, {
-          weight: selectedStage?.weight,
-          reservedPercent: selectedStageMetadata?.data?.reservedPercent,
-        })
-      : null;
-
   const stages = rulesets?.reverse();
   const nextStageIdx = Math.max(
     stages?.findIndex((stage) => stage.start > Date.now() / 1000) ?? -1,
@@ -100,6 +90,7 @@ export function NetworkDetailsTable() {
 
   return (
     <div>
+      <h2 className="text-2xl font-semibold">Rules</h2>
       <div className="flex gap-2 mb-2">
         {rulesets?.map((ruleset, idx) => {
           return (
@@ -137,8 +128,12 @@ export function NetworkDetailsTable() {
             Starting price
           </dt>
           <dd className="text-sm leading-6 text-zinc-700">
-            {currentTokenBPrice?.format(8)} {tokenA.symbol} /{" "}
-            {formatTokenSymbol(token)}
+            {formatTokenIssuance(
+              tokenA,
+              token,
+              selectedStage.weight,
+              selectedStageMetadata?.data?.reservedPercent
+            )}
           </dd>
         </div>
         <div className="border-t border-zinc-100 px-4 py-2 sm:col-span-1 sm:px-0 grid grid-cols-2">

@@ -95,6 +95,7 @@ export function ParticipantsPieChart({
             dataKey="balanceFormatted"
             nameKey="address"
             innerRadius="50%"
+            isAnimationActive={false}
           />
           <Tooltip content={<CustomTooltip totalSupply={totalSupply} />} />
         </PieChart>
