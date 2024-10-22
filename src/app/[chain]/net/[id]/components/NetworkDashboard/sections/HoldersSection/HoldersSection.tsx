@@ -13,6 +13,7 @@ import { zeroAddress } from "viem";
 import { Button } from "@/components/ui/button";
 import { twJoin } from "tailwind-merge";
 import { useSubgraphQuery } from "@/graphql/useSubgraphQuery";
+import { SectionTooltip } from "../SectionTooltip";
 
 export function HoldersSection() {
   const [participantsView, setParticipantsView] = useState<"table" | "pie">(
@@ -40,7 +41,7 @@ export function HoldersSection() {
     <div>
       {hasHolders ? (
         <div className="mb-2">
-          <div className="text-2xl font-semibold">Holders</div>
+          <SectionTooltip name="Holders" info="HOOOOLDOOOORS" />
           <Button
             variant="ghost"
             className={twJoin(

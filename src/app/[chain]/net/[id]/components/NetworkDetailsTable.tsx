@@ -23,6 +23,7 @@ import {
 } from "juice-sdk-react";
 import { useState } from "react";
 import { twJoin } from "tailwind-merge";
+import { SectionTooltip } from "./NetworkDashboard/sections/SectionTooltip";
 
 export function NetworkDetailsTable() {
   const [selectedStageIdx, setSelectedStageIdx] = useState<number>(0);
@@ -90,7 +91,7 @@ export function NetworkDetailsTable() {
 
   return (
     <div>
-      <h2 className="text-2xl font-semibold">Rules</h2>
+      <SectionTooltip name="Rules" info="These are how we play the game"/>
       <div className="flex gap-2 mb-2">
         {rulesets?.map((ruleset, idx) => {
           return (

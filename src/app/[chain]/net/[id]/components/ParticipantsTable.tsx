@@ -8,6 +8,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { ParticipantsQuery } from "@/generated/graphql";
 import { formatPortion } from "@/lib/utils";
 import { ForwardIcon } from "@heroicons/react/24/solid";
@@ -54,10 +55,15 @@ export function ParticipantsTable({
                   boostRecipient,
                   participant.wallet.id as Address
                 ) ? (
-                  <Badge variant="secondary" className="ml-2">
-                    <ForwardIcon className="w-4 h-4 mr-1 inline-block" />
-                    Operator
-                  </Badge>
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <Badge variant="secondary" className="ml-2 mt-1">
+                        <ForwardIcon className="w-4 h-4 mr-1 inline-block" />
+                        Operator
+                      </Badge>
+                    </TooltipTrigger>
+                    <TooltipContent side="right">The operator sets the rules once</TooltipContent>
+                  </Tooltip>
                 ) : accountAddress &&
                   isAddressEqual(
                     accountAddress,
