@@ -4,8 +4,6 @@ import {
 } from "@/app/constants";
 import { EthereumAddress } from "@/components/EthereumAddress";
 import { Button } from "@/components/ui/button";
-import { useNativeTokenSymbol } from "@/hooks/useNativeTokenSymbol";
-import { formatTokenIssuance } from "@/lib/utils";
 import { formatDate } from "date-fns";
 import {
   ReservedPercent,
@@ -16,7 +14,6 @@ import {
 } from "juice-sdk-core";
 import {
   useJBContractContext,
-  useJBTokenContext,
   useReadJbControllerGetRulesetOf,
   useReadJbRulesetsAllOf,
   useReadJbSplitsSplitsOf,
@@ -24,11 +21,10 @@ import {
 import { useState } from "react";
 import { twJoin } from "tailwind-merge";
 import { SectionTooltip } from "./NetworkDashboard/sections/SectionTooltip";
+import { useFormattedTokenIssuance } from "@/hooks/useFormattedTokenIssuance";
 
 export function NetworkDetailsTable() {
   const [selectedStageIdx, setSelectedStageIdx] = useState<number>(0);
-
-  // const { ruleset, rulesetMetadata } = useJBRulesetContext();
 
   const {
     projectId,
@@ -54,9 +50,6 @@ export function NetworkDetailsTable() {
   });
 
   const selectedStage = rulesets?.[selectedStageIdx];
-  const nativeTokenSymbol = useNativeTokenSymbol();
-  const tokenA = { symbol: nativeTokenSymbol, decimals: 18 };
-  const { token } = useJBTokenContext();
 
   const selectedStageMetadata = useReadJbControllerGetRulesetOf({
     address: controller.data ?? undefined,
@@ -87,6 +80,11 @@ export function NetworkDetailsTable() {
   );
   const currentStageIdx = nextStageIdx - 1;
 
+  const issuance = useFormattedTokenIssuance({
+    weight: selectedStage?.weight,
+    reservedPercent: selectedStageMetadata?.data?.reservedPercent
+  });
+
   if (!selectedStage) return null;
 
   return (
@@ -98,8 +96,8 @@ export function NetworkDetailsTable() {
             <Button
               variant={selectedStageIdx === idx ? "tab-selected" : "bottomline"}
               className={twJoin(
-                "text-sm font-normal",
-                selectedStageIdx === idx && "font-semibold"
+                "text-sm text-zinc-400",
+                selectedStageIdx === idx && "text-inherit"
               )}
               key={ruleset.id.toString() + idx}
               onClick={() => setSelectedStageIdx(idx)}
@@ -129,12 +127,7 @@ export function NetworkDetailsTable() {
             Starting price
           </dt>
           <dd className="text-sm leading-6 text-zinc-700 whitespace-nowrap">
-            {formatTokenIssuance(
-              tokenA,
-              token,
-              selectedStage.weight,
-              selectedStageMetadata?.data?.reservedPercent
-            )}
+            {issuance}
           </dd>
         </div>
         <div className="border-t border-zinc-100 px-4 py-2 sm:col-span-1 sm:px-0 grid grid-cols-2">

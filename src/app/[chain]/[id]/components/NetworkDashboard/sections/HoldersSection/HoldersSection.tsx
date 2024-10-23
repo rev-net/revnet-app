@@ -45,8 +45,8 @@ export function HoldersSection() {
           <Button
             variant={participantsView === "table" ? "tab-selected" : "bottomline"}
             className={twJoin(
-              "text-sm font-normal",
-              participantsView === "table" && "font-semibold"
+              "text-sm text-zinc-400",
+              participantsView === "table" && "text-inherit"
             )}
             onClick={() => setParticipantsView("table")}
           >
@@ -55,8 +55,8 @@ export function HoldersSection() {
           <Button
             variant={participantsView === "pie" ? "tab-selected" : "bottomline"}
             className={twJoin(
-              "ml-4 text-sm font-normal",
-              participantsView === "pie" && "font-semibold"
+              "ml-4 text-sm text-zinc-400",
+              participantsView === "pie" && "text-inherit"
             )}
             onClick={() => setParticipantsView("pie")}
           >

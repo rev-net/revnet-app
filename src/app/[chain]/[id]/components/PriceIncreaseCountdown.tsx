@@ -4,8 +4,9 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useCountdownToDate } from "@/hooks/useCountdownToDate";
+import { useFormattedTokenIssuance } from "@/hooks/useFormattedTokenIssuance";
 import { useNativeTokenSymbol } from "@/hooks/useNativeTokenSymbol";
-import { formatSeconds, formatTokenIssuance } from "@/lib/utils";
+import { formatSeconds } from "@/lib/utils";
 import { QuestionMarkCircleIcon } from "@heroicons/react/24/outline";
 import {
   RulesetWeight,
@@ -31,12 +32,10 @@ export function PriceIncreaseCountdown() {
     })
   );
 
-  const nextFormattedTokenIssuance = formatTokenIssuance(
-    tokenA,
-    token,
-    nextWeight,
-    rulesetMetadata?.data?.reservedPercent
-  )
+  const nextFormattedTokenIssuance = useFormattedTokenIssuance({
+    weight: nextWeight,
+    reservedPercent: rulesetMetadata?.data?.reservedPercent
+  });
 
   if (!timeLeft) return;
 

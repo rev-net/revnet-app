@@ -43,7 +43,7 @@ export function PayForm() {
   const tokenB = token?.data;
 
   if (!ruleset?.data || !rulesetMetadata?.data || !tokenB) {
-    return null;
+    return "Something went wrong";
   }
 
   const devTax = rulesetMetadata?.data?.reservedPercent;

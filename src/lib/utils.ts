@@ -79,29 +79,3 @@ export function formatTokenSymbol(token?: JBTokenContextData["token"]) {
   if (!token?.data?.symbol.includes("$")) return `$${token?.data?.symbol}`;
   return token.data.symbol;
 }
-
-/**
- * Calculate issuance rate and return a string with all information fit to print
- *
- * ex:
- * 12.345 $BAN/ETH
- */
-export function formatTokenIssuance(
-  tokenA: { symbol: string, decimals: number},
-  tokenB: JBTokenContextData["token"],
-  weight?: RulesetWeight,
-  reservedPercent?: ReservedPercent
-) {
-  if (!weight || !reservedPercent) return;
-  const quote = getTokenAToBQuote(
-    new FixedInt(parseUnits("1", tokenA.decimals), tokenA.decimals), {
-      weight,
-      reservedPercent
-    }
-  );
-  const amount = formatUnits(quote.payerTokens, tokenA.decimals);
-  const formattedAmount = new Intl.NumberFormat('en-US', {
-    maximumFractionDigits: 3
-  }).format(Number(amount));
-  return `${formattedAmount} ${formatTokenSymbol(tokenB)}/${tokenA.symbol}`;
-}
