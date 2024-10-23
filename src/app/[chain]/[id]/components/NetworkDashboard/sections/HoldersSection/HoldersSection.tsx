@@ -89,7 +89,7 @@ export function HoldersSection() {
           </div>
         </>
       ) : (
-        <span className="text-zinc-500">No holders yet.</span>
+        <span className="text-zinc-500">No contributors yet.</span>
       )}
     </div>
   );
