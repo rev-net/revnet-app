@@ -110,36 +110,47 @@ export function NetworkDetailsTable() {
           );
         })}
       </div>
-      <div className="grid sm:grid-cols-2 gap-x-8 border-b border-zinc-100 overflow-x-scroll">
-        <div className="px-4 py-2 sm:col-span-1 sm:px-0 grid grid-cols-2">
+      <div className="grid sm:grid-cols-2 gap-x-8 overflow-x-scroll">
+        <div className="py-1 sm:col-span-1 sm:px-0 grid grid-cols-1">
           <dt className="text-sm font-medium leading-6 text-zinc-900">
-            Starts at
+            Timing
           </dt>
           <dd className="text-sm leading-6 text-zinc-700 whitespace-nowrap">
             {formatDate(
               new Date(Number(selectedStage.start) * 1000),
-              "yyyy-MM-dd h:mm a"
-            )}
+              "MMM dd, yyyy 'at' h:mm a"
+            )}, lasting {selectedStage.duration / 86400} days
           </dd>
         </div>
-        <div className="border-t border-zinc-100 sm:border-none px-4 py-2 sm:col-span-1 sm:px-0 grid grid-cols-2">
+        <div className="py-1 sm:col-span-1 sm:px-0 grid grid-cols-1">
           <dt className="text-sm font-medium leading-6 text-zinc-900">
-            Starting price
+            Issuance 
           </dt>
           <dd className="text-sm leading-6 text-zinc-700 whitespace-nowrap">
-            {issuance}
-          </dd>
-        </div>
-        <div className="border-t border-zinc-100 px-4 py-2 sm:col-span-1 sm:px-0 grid grid-cols-2">
-          <dt className="text-sm font-medium leading-6 text-zinc-900">
-            Issuance Decrease
-          </dt>
-          <dd className="text-sm leading-6 text-zinc-700">
-            {selectedStage.decayPercent.formatPercentage()}% every{" "}
+            {issuance}, decreasing {selectedStage.decayPercent.formatPercentage()}% every{" "}
             {(selectedStage.duration / 86400).toString()} days
           </dd>
         </div>
-        <div className="border-t border-zinc-100 px-4 py-2 sm:col-span-1 sm:px-0 grid grid-cols-2">
+        <div className="py-1 sm:col-span-1 sm:px-0 grid grid-cols-1">
+          <dt className="text-sm font-medium leading-6 text-zinc-900">
+            Split 
+          </dt>
+          {selectedStageBoost ? (
+            <dd className="text-sm leading-6 text-zinc-700">
+              {reservedPercent?.formatPercentage()}% {selectedStageBoost?.beneficiary ? (
+              <> operated by <EthereumAddress
+                withEnsName
+                short
+                address={selectedStageBoost.beneficiary}
+              />
+              </>
+            ) : (
+              "Not set"
+            )} 
+            </dd>
+          ) : null}
+        </div>
+        <div className="py-1 sm:col-span-1 sm:px-0 grid grid-cols-1">
           <dt className="text-sm font-medium leading-6 text-zinc-900">
             Cash out tax
           </dt>
@@ -150,31 +161,13 @@ export function NetworkDetailsTable() {
             ).format()}
           </dd>
         </div>
-        <div className="border-t border-zinc-100 px-4 py-2 sm:col-span-1 sm:px-0 grid grid-cols-2">
+        <div className="py-1 sm:col-span-1 sm:px-0 grid grid-cols-1">
           <dt className="text-sm font-medium leading-6 text-zinc-900">
-            Operator
+            Automint
           </dt>
-          <dd className="text-sm leading-6 text-zinc-700 overflow-hidden text-ellipsis">
-            {selectedStageBoost?.beneficiary ? (
-              <EthereumAddress
-                withEnsName
-                short
-                address={selectedStageBoost.beneficiary}
-              />
-            ) : (
-              "Not set"
-            )}
+          <dd className="text-sm leading-6 text-zinc-700">
+            ~todo~
           </dd>
-        </div>
-        <div className="border-t border-zinc-100 px-4 py-2 sm:col-span-1 sm:px-0 grid grid-cols-2">
-          <dt className="text-sm font-medium leading-6 text-zinc-900">
-            Operator token split
-          </dt>
-          {selectedStageBoost ? (
-            <dd className="text-sm leading-6 text-zinc-700">
-              {reservedPercent?.formatPercentage()}%
-            </dd>
-          ) : null}
         </div>
       </div>
     </div>
