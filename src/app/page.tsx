@@ -15,7 +15,7 @@ export default function Page() {
         />
         <span className="sr-only">Revnet</span>
         <div className="text-2xl md:text-4xl mb-14 mt-4 font-medium text-center">
-          Revnets are a growth engine for the open internet
+          Revnets are an unstoppable growth engine for the open internet
         </div>
         <div className="flex gap-4">
           <Link href="/create">
