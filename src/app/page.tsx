@@ -40,7 +40,7 @@ export default function Page() {
 
       <div className="mx-auto max-w-prose text-l md:text-2xl text-center">
         <p className="mb-10">
-          A revnet serves as a hands-free, all-in-one tokenized incentive machine, cap table, and growth engine for leaders, workers, artists, investors, and customers, resolving tensions between open source productivity and private value capture by enabling collaborative growth throughout the increasingly open web.
+          A revnet serves as a hands-free, all-in-one tokenized incentive machine, cap table, and growth engine for leaders, workers, artists, investors, and customers, resolving tensions between open source productivity and private value capture by encouraging collaborative growth throughout the increasingly open web.
         </p>
 
         <p className="mb-10">
