@@ -116,11 +116,7 @@ export function NetworkDetailsTable() {
         <div className="space-y-1">
           <h3 className="font-medium text-black-500">Split</h3>
           <p className="text-sm text-black-300">Determines how much of {formatTokenSymbol(token)} issuance is set aside to be split among recipients defined by the split operator during a stage.</p>
-        </div>
-
-        <div className="space-y-1">
-          <h3 className="font-medium text-black-500">Split operator</h3>
-          <p className="text-sm text-black-300">The account that can change the split recipients, within the permanent split amount of a stage.</p>
+          <p className="text-sm text-black-300">The operator is theaccount that can change the split recipients, within the permanent split amount of a stage.</p>
           <p className="text-sm text-black-400 italic">
             Note:  The operator is not bound by stages. The operator can hand off this responsibility to another address at any time, or relinquish it altogether.
           </p>
@@ -205,6 +201,14 @@ export function NetworkDetailsTable() {
         </div>
         <div className="py-1 sm:col-span-1 sm:px-0 grid grid-cols-1">
           <dt className="text-sm font-medium leading-6 text-zinc-900">
+            Automint
+          </dt>
+          <dd className="text-sm leading-6 text-zinc-700">
+            ~todo~
+          </dd>
+        </div>
+        <div className="py-1 sm:col-span-1 sm:px-0 grid grid-cols-1">
+          <dt className="text-sm font-medium leading-6 text-zinc-900">
             Cash out tax
           </dt>
           <dd className="text-sm leading-6 text-zinc-700">
@@ -212,14 +216,6 @@ export function NetworkDetailsTable() {
               MAX_REDEMPTION_RATE -
                 Number(selectedStageMetadata?.data?.redemptionRate.value ?? 0n)
             ).format()}
-          </dd>
-        </div>
-        <div className="py-1 sm:col-span-1 sm:px-0 grid grid-cols-1">
-          <dt className="text-sm font-medium leading-6 text-zinc-900">
-            Automint
-          </dt>
-          <dd className="text-sm leading-6 text-zinc-700">
-            ~todo~
           </dd>
         </div>
       </div>
