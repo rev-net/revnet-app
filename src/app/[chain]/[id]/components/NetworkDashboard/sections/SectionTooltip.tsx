@@ -7,10 +7,12 @@ import { QuestionMarkCircleIcon } from "@heroicons/react/24/outline";
 
 export function SectionTooltip({
   name,
-  info
+  info,
+  children
 } : {
   name: string,
-  info: string
+  info?: string,
+  children?: React.ReactNode
 }) {
   return (
     <Tooltip>
@@ -21,6 +23,7 @@ export function SectionTooltip({
         </TooltipTrigger>
         <TooltipContent side="right">
           {info}
+          {children} 
         </TooltipContent>
       </div>
     </Tooltip>

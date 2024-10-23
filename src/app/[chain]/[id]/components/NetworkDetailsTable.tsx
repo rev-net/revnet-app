@@ -17,11 +17,13 @@ import {
   useReadJbControllerGetRulesetOf,
   useReadJbRulesetsAllOf,
   useReadJbSplitsSplitsOf,
+  useJBTokenContext
 } from "juice-sdk-react";
 import { useState } from "react";
 import { twJoin } from "tailwind-merge";
 import { SectionTooltip } from "./NetworkDashboard/sections/SectionTooltip";
 import { useFormattedTokenIssuance } from "@/hooks/useFormattedTokenIssuance";
+import { formatTokenSymbol } from "@/lib/utils";
 
 export function NetworkDetailsTable() {
   const [selectedStageIdx, setSelectedStageIdx] = useState<number>(0);
@@ -30,6 +32,8 @@ export function NetworkDetailsTable() {
     projectId,
     contracts: { controller },
   } = useJBContractContext();
+
+  const { token } = useJBTokenContext();
 
   // TODO(perf) duplicate call, move to a new context
   const { data: rulesets } = useReadJbRulesetsAllOf({
@@ -86,10 +90,58 @@ export function NetworkDetailsTable() {
   });
 
   if (!selectedStage) return null;
-
   return (
     <div>
-      <SectionTooltip name="Rules" info="These are how we play the game"/>
+      <SectionTooltip name="Rules" info="">
+      <div className="max-w-md space-y-4 p-2">
+      <p className="text-sm text-black-300">
+      This revnet’s rules can be set to change automatically in sequential stages. These stages are permanent once the revnet is deployed. 
+      </p>
+      
+      <div className="space-y-2">
+        <div className="space-y-1">
+          <h3 className="font-medium text-black-500">Timing</h3>
+          <p className="text-sm text-black-300">Determines when this stage becomes active, and how long it lasts before the next stage takes effect.</p>
+        </div>
+
+        <div className="space-y-1">
+          <h3 className="font-medium text-black-500">Issuance</h3>
+          <p className="text-sm text-black-300">Determines how many {formatTokenSymbol(token)} are created when this revnet receives funds.</p>
+          <p className="text-sm text-black-400 italic">
+            Note: If an AMM exists that is offering a better rate for $BAN than the current issuance rate, inbound payments will be used to buyback from this market instead of being absorbed by the revnet. Splits will still apply to bought back {formatTokenSymbol(token)}.
+          </p>
+        </div>
+
+        <div className="space-y-1">
+          <h3 className="font-medium text-black-500">Split</h3>
+          <p className="text-sm text-black-300">Determines how much of {formatTokenSymbol(token)} issuance is set aside to be split among recipients defined by the split operator.</p>
+        </div>
+
+        <div className="space-y-1">
+          <h3 className="font-medium text-black-500">Split operator</h3>
+          <p className="text-sm text-black-300">The account who can change the split recipients in the fixed total amount split from issuance.</p>
+          <p className="text-sm text-black-400 italic">
+            Note: The operator can hand off this responsibility to another address at any time, or relinquish it altogether.
+          </p>
+        </div>
+
+        <div className="space-y-1">
+          <h3 className="font-medium text-black-500">Automint</h3>
+          <p className="text-sm text-black-300">Determines the amount that can be minted on demand to preset recipients once the stage starts.</p>
+        </div>
+
+        <div className="space-y-1">
+          <h3 className="font-medium text-black-500">Cash out tax</h3>
+          <p className="text-sm text-black-300">Determines how much of this revnet’s funds can be withdrawn by burning {formatTokenSymbol(token)}.</p>
+          <p className="text-sm text-black-400 italic">
+            Note: This works on a bonding curve with the formula `y = (ax/s) * ((1-r) + xr/s)` where: `r` is the cash out tax rate (from 0 to 1) `a` is the amount in the revnet, `s` is the current token supply of $BAN, `x` is the amount of {formatTokenSymbol(token)} being cashed out. The higher the tax, the more is left to share between remaining {formatTokenSymbol(token)} holders who cash out later. A tax rate of 0 means {formatTokenSymbol(token)} can be cashed out for a proportional amount of the revnet’s funds.
+          </p>
+        </div>
+
+      </div>
+
+    </div>
+      </SectionTooltip>
       <div className="flex gap-4 mb-2">
         {rulesets?.map((ruleset, idx) => {
           return (
