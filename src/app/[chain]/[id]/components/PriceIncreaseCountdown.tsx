@@ -4,13 +4,13 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useCountdownToDate } from "@/hooks/useCountdownToDate";
+import { useFormattedTokenIssuance } from "@/hooks/useFormattedTokenIssuance";
 import { useNativeTokenSymbol } from "@/hooks/useNativeTokenSymbol";
 import { formatSeconds } from "@/lib/utils";
 import { QuestionMarkCircleIcon } from "@heroicons/react/24/outline";
 import {
   RulesetWeight,
   getNextRulesetWeight,
-  getTokenBPrice,
 } from "juice-sdk-core";
 import { useJBRulesetContext, useJBTokenContext } from "juice-sdk-react";
 
@@ -32,25 +32,20 @@ export function PriceIncreaseCountdown() {
     })
   );
 
-  const nextTokenBPrice =
-    ruleset?.data && rulesetMetadata?.data
-      ? getTokenBPrice(tokenA.decimals, {
-          weight: nextWeight,
-          reservedPercent: rulesetMetadata?.data?.reservedPercent,
-        })
-      : null;
+  const nextFormattedTokenIssuance = useFormattedTokenIssuance({
+    weight: nextWeight,
+    reservedPercent: rulesetMetadata?.data?.reservedPercent
+  });
 
   if (!timeLeft) return;
 
   return (
     <Tooltip>
       <TooltipTrigger>
-        <div className="text-sm mt-1 text-red-600">
-          Increases to{" "}
-          <span>
-            {nextTokenBPrice?.format(8)} {tokenA.symbol}
-          </span>
-          <span> / {token?.data?.symbol}</span>{" "}
+        <div className="text-sm mt-1 text-red-600 text-left">
+          Decreases to{" "}
+          <span className="font-semibold">{nextFormattedTokenIssuance}</span>
+          {" "}
           <span>in {formatSeconds(timeLeft)}</span>
           <QuestionMarkCircleIcon className="h-4 w-4 inline ml-1 mb-1" />
         </div>

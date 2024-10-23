@@ -13,6 +13,7 @@ import { zeroAddress } from "viem";
 import { Button } from "@/components/ui/button";
 import { twJoin } from "tailwind-merge";
 import { useSubgraphQuery } from "@/graphql/useSubgraphQuery";
+import { SectionTooltip } from "../SectionTooltip";
 
 export function HoldersSection() {
   const [participantsView, setParticipantsView] = useState<"table" | "pie">(
@@ -40,25 +41,26 @@ export function HoldersSection() {
     <div>
       {hasHolders ? (
         <div className="mb-2">
+          <SectionTooltip name="Contributors" info="HOOOOLDOOOORS" />
           <Button
-            variant="ghost"
+            variant={participantsView === "table" ? "tab-selected" : "bottomline"}
             className={twJoin(
-              "text-sm font-normal",
-              participantsView === "pie" && "font-medium underline"
-            )}
-            onClick={() => setParticipantsView("pie")}
-          >
-            Holders
-          </Button>
-          <Button
-            variant="ghost"
-            className={twJoin(
-              "text-sm font-normal",
-              participantsView === "table" && "font-medium underline"
+              "text-sm text-zinc-400",
+              participantsView === "table" && "text-inherit"
             )}
             onClick={() => setParticipantsView("table")}
           >
             List
+          </Button>
+          <Button
+            variant={participantsView === "pie" ? "tab-selected" : "bottomline"}
+            className={twJoin(
+              "ml-4 text-sm text-zinc-400",
+              participantsView === "pie" && "text-inherit"
+            )}
+            onClick={() => setParticipantsView("pie")}
+          >
+            Chart
           </Button>
         </div>
       ) : null}
@@ -87,7 +89,7 @@ export function HoldersSection() {
           </div>
         </>
       ) : (
-        <span className="text-zinc-500">No holders yet.</span>
+        <span className="text-zinc-500">No contributors yet.</span>
       )}
     </div>
   );

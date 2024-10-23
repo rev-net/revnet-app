@@ -24,6 +24,7 @@ import { Header } from "./Header/Header";
 import { DescriptionSection } from "./sections/DescriptionSection/DescriptionSection";
 import { PriceSection } from "./sections/PriceSection";
 import { HoldersSection } from "./sections/HoldersSection/HoldersSection";
+import { formatTokenSymbol } from "@/lib/utils";
 
 export function NetworkDashboard() {
   const { contracts, projectId } = useJBContractContext();
@@ -50,8 +51,8 @@ export function NetworkDashboard() {
   // TODO, hacky, probably eventually a next-idiomatic way to do this.
   useEffect(() => {
     if (!token?.data?.symbol) return;
-    document.title = `$${token?.data?.symbol} | REVNET`;
-  }, [token?.data?.symbol]);
+    document.title = `${formatTokenSymbol(token)} | REVNET`;
+  }, [token]);
 
   const pageLoading = metadata.isLoading && contracts.controller.isLoading;
   if (pageLoading) {
@@ -62,17 +63,28 @@ export function NetworkDashboard() {
     notFound();
   }
 
+  const payAndActivityBar = (
+    <>
+      <div className="mb-10">
+        <PayCard />
+      </div>
+      <UserTokenBalanceCard />
+      <ActivityFeed />
+    </>
+  )
+
   return (
-    <div className="flex gap-10 container py-10 md:flex-nowrap flex-wrap mb-10">
+    <div className="flex gap-10 w-full px-4 sm:container py-10 md:flex-nowrap flex-wrap mb-10">
       {/* Column 1 */}
       <div className="flex-1">
         <Header />
+        <PriceSection />
+        {/* Render Pay and activity after header on mobile */}
+        <div className="sm:hidden mb-10">
+          {payAndActivityBar}
+        </div>
 
         <div className="max-w-4xl mx-auto">
-          <section>
-            <PriceSection />
-          </section>
-
           <section className="mb-10">
             <div className="mb-8">
               <NetworkDetailsTable />
@@ -86,7 +98,7 @@ export function NetworkDashboard() {
           </section>
 
           <section className="mb-8">
-            <h2 className="text-2xl font-medium mb-1">About {name}</h2>
+            <h2 className="text-2xl font-semibold">About</h2>
             <div className="flex gap-3">
               {suckerPairs.data?.map((pair) => {
                 const networkName =
@@ -105,7 +117,7 @@ export function NetworkDashboard() {
             <DescriptionSection />
           </section>
 
-          {/* 
+          {/*
         <div>
           {totalTokenSupply && tokensReserved && token ? (
             <div>
@@ -125,14 +137,8 @@ export function NetworkDashboard() {
       </div>
 
       {/* Column 2 */}
-      <aside className="md:w-[340px] md:block">
-        <div className="mb-10">
-          <PayCard />
-        </div>
-
-        <UserTokenBalanceCard />
-
-        <ActivityFeed />
+      <aside className="hidden md:w-[340px] md:block sm:mt-24">
+        {payAndActivityBar}
       </aside>
     </div>
   );

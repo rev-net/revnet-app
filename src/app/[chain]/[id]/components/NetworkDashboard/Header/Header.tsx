@@ -11,6 +11,7 @@ import Image from "next/image";
 import { useNativeTokenSurplus } from "@/hooks/useTokenASurplus";
 import { ProjectsDocument } from "@/generated/graphql";
 import { useSubgraphQuery } from "@/graphql/useSubgraphQuery";
+import { formatTokenSymbol } from "@/lib/utils";
 
 export function Header() {
   const { projectId } = useJBContractContext();
@@ -29,7 +30,7 @@ export function Header() {
   const { name: projectName, logoUri } = metadata?.data ?? {};
 
   return (
-    <header className="mb-10">
+    <header className="mb-8">
       <div className="flex items-center gap-4">
         {logoUri ? (
           <Image
@@ -46,8 +47,8 @@ export function Header() {
         )}
 
         <div>
-          <div className="flex items-baseline gap-2 mb-2">
-            <h1 className="text-3xl font-medium tracking-tight">
+          <div className="flex flex-col sm:flex-row items-baseline sm:gap-2 mb-2">
+            <h1 className="text-3xl font-bold tracking-tight">
               {projectName}
             </h1>
             {token?.data ? (
@@ -55,7 +56,7 @@ export function Header() {
                 value={token.data.address}
                 className="text-zinc-500"
               >
-                {token.data.symbol}
+                {formatTokenSymbol(token)}
               </EtherscanLink>
             ) : null}
           </div>

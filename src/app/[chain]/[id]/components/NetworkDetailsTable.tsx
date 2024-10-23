@@ -4,11 +4,9 @@ import {
 } from "@/app/constants";
 import { EthereumAddress } from "@/components/EthereumAddress";
 import { Button } from "@/components/ui/button";
-import { useNativeTokenSymbol } from "@/hooks/useNativeTokenSymbol";
 import { formatDate } from "date-fns";
 import {
   ReservedPercent,
-  getTokenBPrice,
   MAX_REDEMPTION_RATE,
   RedemptionRate,
   RulesetWeight,
@@ -16,18 +14,17 @@ import {
 } from "juice-sdk-core";
 import {
   useJBContractContext,
-  useJBTokenContext,
   useReadJbControllerGetRulesetOf,
   useReadJbRulesetsAllOf,
   useReadJbSplitsSplitsOf,
 } from "juice-sdk-react";
 import { useState } from "react";
 import { twJoin } from "tailwind-merge";
+import { SectionTooltip } from "./NetworkDashboard/sections/SectionTooltip";
+import { useFormattedTokenIssuance } from "@/hooks/useFormattedTokenIssuance";
 
 export function NetworkDetailsTable() {
   const [selectedStageIdx, setSelectedStageIdx] = useState<number>(0);
-
-  // const { ruleset, rulesetMetadata } = useJBRulesetContext();
 
   const {
     projectId,
@@ -53,9 +50,6 @@ export function NetworkDetailsTable() {
   });
 
   const selectedStage = rulesets?.[selectedStageIdx];
-  const nativeTokenSymbol = useNativeTokenSymbol();
-  const tokenA = { symbol: nativeTokenSymbol, decimals: 18 };
-  const { token } = useJBTokenContext();
 
   const selectedStageMetadata = useReadJbControllerGetRulesetOf({
     address: controller.data ?? undefined,
@@ -79,15 +73,6 @@ export function NetworkDetailsTable() {
   });
   const selectedStageBoost = selectedStateReservedTokenSplits?.[0];
   const reservedPercent = selectedStageMetadata?.data?.reservedPercent;
-
-  const currentTokenBPrice =
-    selectedStage && selectedStageMetadata?.data
-      ? getTokenBPrice(tokenA.decimals, {
-          weight: selectedStage?.weight,
-          reservedPercent: selectedStageMetadata?.data?.reservedPercent,
-        })
-      : null;
-
   const stages = rulesets?.reverse();
   const nextStageIdx = Math.max(
     stages?.findIndex((stage) => stage.start > Date.now() / 1000) ?? -1,
@@ -95,18 +80,24 @@ export function NetworkDetailsTable() {
   );
   const currentStageIdx = nextStageIdx - 1;
 
+  const issuance = useFormattedTokenIssuance({
+    weight: selectedStage?.weight,
+    reservedPercent: selectedStageMetadata?.data?.reservedPercent
+  });
+
   if (!selectedStage) return null;
 
   return (
     <div>
-      <div className="flex gap-2 mb-2">
+      <SectionTooltip name="Rules" info="These are how we play the game"/>
+      <div className="flex gap-4 mb-2">
         {rulesets?.map((ruleset, idx) => {
           return (
             <Button
-              variant="ghost"
+              variant={selectedStageIdx === idx ? "tab-selected" : "bottomline"}
               className={twJoin(
-                "text-sm font-normal",
-                selectedStageIdx === idx && "font-medium underline"
+                "text-sm text-zinc-400",
+                selectedStageIdx === idx && "text-inherit"
               )}
               key={ruleset.id.toString() + idx}
               onClick={() => setSelectedStageIdx(idx)}
@@ -119,30 +110,29 @@ export function NetworkDetailsTable() {
           );
         })}
       </div>
-      <div className="grid grid-cols-2 gap-x-8 pl-4">
-        <div className="border-t border-zinc-100 px-4 py-2 sm:col-span-1 sm:px-0 grid grid-cols-2">
+      <div className="grid sm:grid-cols-2 gap-x-8 border-b border-zinc-100 overflow-x-scroll">
+        <div className="px-4 py-2 sm:col-span-1 sm:px-0 grid grid-cols-2">
           <dt className="text-sm font-medium leading-6 text-zinc-900">
             Starts at
           </dt>
-          <dd className="text-sm leading-6 text-zinc-700">
+          <dd className="text-sm leading-6 text-zinc-700 whitespace-nowrap">
             {formatDate(
               new Date(Number(selectedStage.start) * 1000),
-              "yyyy-mm-dd h:mm a"
+              "yyyy-MM-dd h:mm a"
             )}
           </dd>
         </div>
-        <div className="border-t border-zinc-100 px-4 py-2 sm:col-span-1 sm:px-0 grid grid-cols-2">
+        <div className="border-t border-zinc-100 sm:border-none px-4 py-2 sm:col-span-1 sm:px-0 grid grid-cols-2">
           <dt className="text-sm font-medium leading-6 text-zinc-900">
             Starting price
           </dt>
-          <dd className="text-sm leading-6 text-zinc-700">
-            {currentTokenBPrice?.format(8)} {tokenA.symbol} /{" "}
-            {token.data?.symbol}
+          <dd className="text-sm leading-6 text-zinc-700 whitespace-nowrap">
+            {issuance}
           </dd>
         </div>
         <div className="border-t border-zinc-100 px-4 py-2 sm:col-span-1 sm:px-0 grid grid-cols-2">
           <dt className="text-sm font-medium leading-6 text-zinc-900">
-            Price increase
+            Issuance Decrease
           </dt>
           <dd className="text-sm leading-6 text-zinc-700">
             {selectedStage.decayPercent.formatPercentage()}% every{" "}
@@ -157,8 +147,7 @@ export function NetworkDetailsTable() {
             {new RedemptionRate(
               MAX_REDEMPTION_RATE -
                 Number(selectedStageMetadata?.data?.redemptionRate.value ?? 0n)
-            ).formatPercentage()}
-            %
+            ).format()}
           </dd>
         </div>
         <div className="border-t border-zinc-100 px-4 py-2 sm:col-span-1 sm:px-0 grid grid-cols-2">

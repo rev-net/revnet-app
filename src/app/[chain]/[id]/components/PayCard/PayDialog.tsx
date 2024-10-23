@@ -57,7 +57,7 @@ export function PayDialog({
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="max-w-lg">
         <DialogHeader>
-          <DialogTitle>Join network</DialogTitle>
+          <DialogTitle>Contribution</DialogTitle>
           <DialogDescription>
             <div className="my-8">
               {isSuccess ? (
@@ -65,7 +65,7 @@ export function PayDialog({
               ) : (
                 <>
                   <div className="flex flex-col gap-6">
-                    <Stat label="You pay">
+                    <Stat label="You contribute">
                       <TokenAmount amount={amountA} />
                     </Stat>
                     <Stat label="You receive">
@@ -107,7 +107,7 @@ export function PayDialog({
                   });
                 }}
               >
-                Buy and Join
+                Confirm contribution
               </Button>
             ) : null}
           </DialogFooter>

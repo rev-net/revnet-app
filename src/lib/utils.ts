@@ -1,7 +1,10 @@
 import { clsx, type ClassValue } from "clsx";
 import { formatDuration, intervalToDuration } from "date-fns";
+import { FixedInt } from "fpnum";
+import { ReservedPercent, RulesetWeight, getTokenAToBQuote } from "juice-sdk-core";
+import { JBTokenContextData } from "juice-sdk-react";
 import { twMerge } from "tailwind-merge";
-import { Chain } from "viem";
+import { Chain, formatUnits, parseUnits } from "viem";
 import { mainnet } from "viem/chains";
 
 export function cn(...inputs: ClassValue[]) {
@@ -66,4 +69,13 @@ export function formatEthAddress(
 export function formatPortion(numerator: bigint, denominator: bigint) {
   if (numerator === 0n || denominator === 0n) return 0;
   return parseFloat(((numerator * 1000n) / denominator).toString()) / 10;
+}
+
+/**
+ * Ensure token symbol has $ in front of it
+ */
+export function formatTokenSymbol(token?: JBTokenContextData["token"]) {
+  if (!token?.data?.symbol) return "$TOKEN";
+  if (!token?.data?.symbol.includes("$")) return `$${token?.data?.symbol}`;
+  return token.data.symbol;
 }

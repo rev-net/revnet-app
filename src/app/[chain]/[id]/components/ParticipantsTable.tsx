@@ -8,6 +8,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { ParticipantsQuery } from "@/generated/graphql";
 import { formatPortion } from "@/lib/utils";
 import { ForwardIcon } from "@heroicons/react/24/solid";
@@ -35,45 +36,66 @@ export function ParticipantsTable({
           <TableHead className="w-auto md:w-1/2">Account</TableHead>
           <TableHead>Paid</TableHead>
           <TableHead>Tokens</TableHead>
-          <TableHead>Ownership %</TableHead>
+          <TableHead className="whitespace-nowrap">Ownership %</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
         {participants?.participants.map((participant) => (
           <TableRow key={participant.id}>
             <TableCell>
-              <div className="flex items-center">
-                <EthereumAddress
-                  address={participant.wallet.id as Address}
-                  short
-                  withEnsAvatar
-                  withEnsName
-                />
+              <div className="flex flex-col sm:flex-row">
+                <div className="hidden sm:block">
+                  <EthereumAddress
+                    address={participant.wallet.id as Address}
+                    short
+                    withEnsAvatar
+                    withEnsName
+                  />
+                </div>
+                <div className="block sm:hidden">
+                  <EthereumAddress
+                    address={participant.wallet.id as Address}
+                    short
+                    avatarProps={{size: "sm"}}
+                    withEnsAvatar
+                    withEnsName
+                  />
+                </div>
                 {boostRecipient &&
-                isAddressEqual(
-                  boostRecipient,
-                  participant.wallet.id as Address
-                ) ? (
-                  <Badge variant="secondary" className="ml-2">
-                    <ForwardIcon className="w-4 h-4 mr-1 inline-block" />
-                    Operator
-                  </Badge>
-                ) : accountAddress &&
+                  isAddressEqual(
+                    boostRecipient,
+                    participant.wallet.id as Address
+                  ) && (
+                    <div>
+                      <Tooltip>
+                        <TooltipTrigger>
+                          <Badge variant="secondary" className="sm:ml-2 mt-2">
+                            <ForwardIcon className="w-4 h-4 mr-1 inline-block" />
+                            Operator
+                          </Badge>
+                        </TooltipTrigger>
+                        <TooltipContent side="right">The operator sets the rules once</TooltipContent>
+                      </Tooltip>
+                    </div>
+                )}
+                {accountAddress &&
                   isAddressEqual(
                     accountAddress,
                     participant.wallet.id as Address
-                  ) ? (
-                  <Badge variant="secondary" className="ml-2">
-                    You
-                  </Badge>
-                ) : null}
+                  ) && (
+                    <div>
+                      <Badge variant="secondary" className="sm:ml-2 mt-2 sm:mt-1">
+                        You
+                      </Badge>
+                    </div>
+                )}
               </div>
             </TableCell>
-            <TableCell>
+            <TableCell className="whitespace-nowrap">
               {formatUnits(participant.volume, 18, { fractionDigits: 8 })} ETH
             </TableCell>
             {token ? (
-              <TableCell>
+              <TableCell className="whitespace-nowrap">
                 {formatUnits(participant.balance, token.decimals, {
                   fractionDigits: 8,
                 })}{" "}

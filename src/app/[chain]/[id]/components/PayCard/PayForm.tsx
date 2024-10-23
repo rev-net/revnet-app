@@ -23,6 +23,8 @@ import { useState } from "react";
 import { formatUnits, parseEther, parseUnits } from "viem";
 import { PayDialog } from "./PayDialog";
 import { PayInput } from "./PayInput";
+import { formatTokenSymbol } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
 
 export function PayForm() {
   const tokenA = useTokenA();
@@ -41,7 +43,7 @@ export function PayForm() {
   const tokenB = token?.data;
 
   if (!ruleset?.data || !rulesetMetadata?.data || !tokenB) {
-    return null;
+    return "Something went wrong";
   }
 
   const devTax = rulesetMetadata?.data?.reservedPercent;
@@ -52,7 +54,7 @@ export function PayForm() {
   };
   const _amountB = {
     amount: new FixedInt(parseEther(amountB), tokenB.decimals),
-    symbol: tokenB.symbol,
+    symbol: formatTokenSymbol(token),
   };
 
   function resetForm() {
@@ -64,7 +66,8 @@ export function PayForm() {
     <div>
       <div className="flex justify-center items-center flex-col gap-3 mb-5">
         <PayInput
-          label="You pay"
+          label="You contribute"
+          type="number"
           onChange={(e) => {
             const valueRaw = e.target.value;
             setAmountA(valueRaw);
@@ -96,6 +99,7 @@ export function PayForm() {
         <ArrowDownIcon className="h-5 w-5 text-zinc-500" />
         <PayInput
           label="You receive"
+          type="number"
           onChange={(e) => {
             const valueRaw = e.target.value;
             setAmountB(valueRaw);
@@ -117,7 +121,7 @@ export function PayForm() {
             setAmountA(amountAQuote.format());
           }}
           value={amountB}
-          currency={tokenB?.symbol}
+          currency={formatTokenSymbol(token)}
         />
       </div>
       {/* <div className="flex justify-between gap-3 items-center md:items-start flex-col md:flex-row">
@@ -134,21 +138,23 @@ export function PayForm() {
               </div>
             ) : null}
           </div>
- 
+
         </div> */}
 
       {devTax && boostRecipient ? (
         <Tooltip>
           <TooltipTrigger>
-            <div className="text-sm flex items-center justify-between gap-1 mb-3">
+            <div className="text-sm flex justify-between gap-1 mb-3">
               <span className="flex items-center gap-1">
-                <ForwardIcon className="h-4 w-4 inline-block" />
                 <span className="font-medium">
                   {devTax.formatPercentage().toFixed(2)}%
                 </span>{" "}
                 <span>tokens to </span>
               </span>
-              <EthereumAddress address={boostRecipient} short withEnsName />
+              <Badge variant="secondary" className="">
+                <ForwardIcon className="w-4 h-4 mr-1 inline-block" />
+                Operator
+              </Badge>
             </div>
           </TooltipTrigger>
           <TooltipContent>
@@ -158,8 +164,7 @@ export function PayForm() {
               withEnsName
               className="font-medium"
             />{" "}
-            will receive {devTax.formatPercentage().toFixed(2)}% of new tokens
-            minted.
+            is the split operator and can direct this split
           </TooltipContent>
         </Tooltip>
       ) : null}
@@ -174,10 +179,10 @@ export function PayForm() {
         >
           <ButtonWithWallet
             size="lg"
-            className="w-full mb-5 min-w-[20%] flex items-center gap-2 hover:gap-[10px] whitespace-nowrap transition-all"
-            connectWalletText="Connect wallet to pay"
+            className="w-full mb-5 min-w-[20%] flex items-center gap-2 hover:gap-[10px] whitespace-nowrap transition-all font-semibold"
+            connectWalletText="Connect wallet to contribute"
           >
-            Pay and join <ArrowRightIcon className="h-4 w-4" />
+            Contribute <ArrowRightIcon className="h-4 w-4" />
           </ButtonWithWallet>
         </PayDialog>
       ) : null}
