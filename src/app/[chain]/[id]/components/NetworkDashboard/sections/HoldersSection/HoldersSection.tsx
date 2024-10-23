@@ -11,6 +11,7 @@ import { useState } from "react";
 import { ParticipantsPieChart } from "../../../ParticipantsPieChart";
 import { zeroAddress } from "viem";
 import { Button } from "@/components/ui/button";
+import { formatTokenSymbol } from "@/lib/utils";
 import { twJoin } from "tailwind-merge";
 import { useSubgraphQuery } from "@/graphql/useSubgraphQuery";
 import { SectionTooltip } from "../SectionTooltip";
@@ -41,7 +42,19 @@ export function HoldersSection() {
     <div>
       {hasHolders ? (
         <div className="mb-2">
-          <SectionTooltip name="Contributors" info="HOOOOLDOOOORS" />
+          <SectionTooltip name="Contributors">
+            <div className="max-w-md space-y-4 p-2">
+              <p className="text-sm text-black-300">
+                The accounts who hold {formatTokenSymbol(token)}, either by:
+              </p>
+              <ul className="text-sm text-black-300 space-y-2 list-disc pl-4">
+                <li>Contributing payments to this revnet and receiving {formatTokenSymbol(token)}.</li>
+                <li>Receiving {formatTokenSymbol(token)} from splits.</li>
+                <li>Receiving {formatTokenSymbol(token)} from automints.</li>
+                <li>Acquiring {formatTokenSymbol(token)} from someone else.</li>
+              </ul>
+            </div>
+          </SectionTooltip>
           <Button
             variant={participantsView === "table" ? "tab-selected" : "bottomline"}
             className={twJoin(

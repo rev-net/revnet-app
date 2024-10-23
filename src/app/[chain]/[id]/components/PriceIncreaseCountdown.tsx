@@ -42,7 +42,7 @@ export function PriceIncreaseCountdown() {
   return (
     <Tooltip>
       <TooltipTrigger>
-        <div className="text-sm mt-1 text-red-600 text-left">
+        <div className="text-sm mt-1 text-orange-600 text-left">
           Decreases to{" "}
           <span className="font-semibold">{nextFormattedTokenIssuance}</span>
           {" "}
@@ -51,7 +51,7 @@ export function PriceIncreaseCountdown() {
         </div>
       </TooltipTrigger>
       <TooltipContent side="right">
-        +{entryTax?.formatPercentage()}% price ceiling increase scheduled for{" "}
+        +{entryTax?.formatPercentage()}% issuance decrease scheduled for{" "}
         {formatSeconds(timeLeft)}
       </TooltipContent>
     </Tooltip>
