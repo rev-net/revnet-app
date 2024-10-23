@@ -116,7 +116,7 @@ export function NetworkDetailsTable() {
             Timing
           </dt>
           <dd className="text-sm leading-6 text-zinc-700 whitespace-nowrap">
-            {formatDate(
+            Starts {formatDate(
               new Date(Number(selectedStage.start) * 1000),
               "MMM dd, yyyy 'at' h:mm a"
             )}, lasting {selectedStage.duration / 86400} days
