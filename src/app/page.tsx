@@ -5,8 +5,8 @@ import Link from "next/link";
 
 export default function Page() {
   return (
-    <div className="container mb-40 mt-40">
-      <div className="flex flex-col items-center justify-center mb-20">
+    <div className="container mt-40">
+      <div className="flex flex-col items-left justify-left">
         <Image
           src="/assets/img/revnet-logo.svg"
           width={200}
@@ -14,37 +14,44 @@ export default function Page() {
           alt="Revnet logo"
         />
         <span className="sr-only">Revnet</span>
-        <div className="text-2xl md:text-4xl mb-14 mt-4 font-medium text-center">
-          Revnets are an unstoppable growth engine for the open internet
+        <div className="text-2xl md:text-4xl mt-4 font-medium text-left">
+          Revnets are an unstoppable growth engine for projects on the open internet
         </div>
-        <div className="flex gap-4">
+        <div className="flex gap-4 mt-10">
           <Link href="/create">
             <Button className="md:h-20 h-16 text-xl md:text-2xl px-10 flex gap-2">
-              Deploy
+              Deploy yours
             </Button>
           </Link>
         </div>
-      </div>
-        <div className="text-xl md:text-2xl mb-14 mt-4 text-center">
-          Explore: $<Link href="https://revnet.app/1" target="_blank"
-            rel="noopener norefererr"
-            className="underline">NANA</Link> {"  |  "} $<Link href="https://revnet.app/3" target="_blank"
-            rel="noopener norefererr"
-            className="underline">REV</Link> {"  |  "} $<Link href="https://revnet.app/4" target="_blank"
-            rel="noopener norefererr"
-            className="underline">BAN</Link> {"  |  "} $<Link href="https://revnet.app/2" target="_blank"
-            rel="noopener norefererr"
-            className="underline">CPN</Link>
-
+        <div className="flex gap-4">
+          <Link href="https://discord.gg/8qdtvdep">
+            <div className="mt-10 bg-white text-black hover:text-black/70 text-l md:text-l flex gap-2 underline">
+              Plan your revnet with the community on Discord
+            </div>
+          </Link>
         </div>
+      </div>
 
-      <div className="mx-auto max-w-prose text-l md:text-2xl text-center">
+      <div className="mt-10 max-w-prose text-l md:text-2xl text-left">
         <p className="mb-10">
-          A revnet serves as a hands-free, all-in-one tokenized incentive machine, cap table, and growth engine for leaders, workers, artists, investors, and customers, resolving tensions between open source productivity and private value capture by encouraging collaborative growth throughout the increasingly open web.
+          A revnet serves as a hands-free, all-in-one tokenized incentive machine, cap table, and growth engine for leaders, workers, artists, investors, and customers of growth-oriented businesses, brands, campaigns, communities, and indy projects of the open web.
         </p>
 
-        <p className="mb-10">
-          Read the memo at {" "}
+        <div className="mt-10 mb-10 text-xl md:text-2xl text-left">
+          Explore: $<Link href="https://revnet.app/1" target="_blank"
+            rel="noopener norefererr"
+            className="underline hover:text-black/70">NANA</Link> {"  |  "} $<Link href="https://revnet.app/3" target="_blank"
+            rel="noopener norefererr"
+            className="underline hover:text-black/70">REV</Link> {"  |  "} $<Link href="https://revnet.app/4" target="_blank"
+            rel="noopener norefererr"
+            className="underline hover:text-black/70">BAN</Link> {"  |  "} $<Link href="https://revnet.app/2" target="_blank"
+            rel="noopener norefererr"
+            className="underline hover:text-black/70">CPN</Link>
+        </div>
+
+        <p className="mb-40">
+          Read the full memo at {" "}
           <Link
             href="https://revnet.eth.sucks/memo"
             target="_blank"
