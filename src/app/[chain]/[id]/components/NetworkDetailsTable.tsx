@@ -4,7 +4,7 @@ import {
 } from "@/app/constants";
 import { EthereumAddress } from "@/components/EthereumAddress";
 import { Button } from "@/components/ui/button";
-import { formatDate } from "date-fns";
+import { differenceInDays, formatDate } from "date-fns";
 import {
   ReservedPercent,
   MAX_REDEMPTION_RATE,
@@ -23,7 +23,7 @@ import { useState } from "react";
 import { twJoin } from "tailwind-merge";
 import { SectionTooltip } from "./NetworkDashboard/sections/SectionTooltip";
 import { useFormattedTokenIssuance } from "@/hooks/useFormattedTokenIssuance";
-import { formatTokenSymbol } from "@/lib/utils";
+import { formatTokenSymbol, rulesetStartDate } from "@/lib/utils";
 
 export function NetworkDetailsTable() {
   const [selectedStageIdx, setSelectedStageIdx] = useState<number>(0);
@@ -84,6 +84,21 @@ export function NetworkDetailsTable() {
   );
   const currentStageIdx = nextStageIdx - 1;
 
+  const stageDayDiff = () => {
+    const len = rulesets?.length ?? 0;
+    const reverseSelectedIdx = len - selectedStageIdx - 1;
+
+    const selectedRuleset = rulesets?.[reverseSelectedIdx];
+    const selectedStart = rulesetStartDate(selectedRuleset);
+
+    const nextRuleset = rulesets?.[reverseSelectedIdx - 1];
+    const nextStart = rulesetStartDate(nextRuleset);
+    if (!nextStart || !selectedStart) return "forever";
+
+    const days = differenceInDays(nextStart, selectedStart);
+    return `${days} days`;
+  };
+
   const issuance = useFormattedTokenIssuance({
     weight: selectedStage?.weight,
     reservedPercent: selectedStageMetadata?.data?.reservedPercent
@@ -96,9 +111,9 @@ export function NetworkDetailsTable() {
       <div className="max-w-md space-y-4 p-2">
         <h3 className="font-medium text-black-500">Stages</h3>
         <p className="text-sm text-black-300">
-          This revnet’s rules change automatically in sequential stages. It's stages are permanent once the revnet is deployed. 
+          This revnet’s rules change automatically in sequential stages. It's stages are permanent once the revnet is deployed.
         </p>
-      
+
         <div className="space-y-2">
         <div className="space-y-1">
           <h3 className="font-medium text-black-500">Timing</h3>
@@ -116,11 +131,7 @@ export function NetworkDetailsTable() {
         <div className="space-y-1">
           <h3 className="font-medium text-black-500">Split</h3>
           <p className="text-sm text-black-300">Determines how much of {formatTokenSymbol(token)} issuance is set aside to be split among recipients defined by the split operator during a stage.</p>
-        </div>
-
-        <div className="space-y-1">
-          <h3 className="font-medium text-black-500">Split operator</h3>
-          <p className="text-sm text-black-300">The account that can change the split recipients, within the permanent split amount of a stage.</p>
+          <p className="text-sm text-black-300">The operator is theaccount that can change the split recipients, within the permanent split amount of a stage.</p>
           <p className="text-sm text-black-400 italic">
             Note:  The operator is not bound by stages. The operator can hand off this responsibility to another address at any time, or relinquish it altogether.
           </p>
@@ -163,36 +174,55 @@ export function NetworkDetailsTable() {
           );
         })}
       </div>
-      <div className="grid sm:grid-cols-2 gap-x-8 border-b border-zinc-100 overflow-x-scroll">
-        <div className="px-4 py-2 sm:col-span-1 sm:px-0 grid grid-cols-2">
+      <div className="grid sm:grid-cols-2 gap-x-8 overflow-x-scroll">
+        <div className="py-1 sm:col-span-1 sm:px-0 grid grid-cols-1">
           <dt className="text-sm font-medium leading-6 text-zinc-900">
-            Starts at
+            Timing
           </dt>
           <dd className="text-sm leading-6 text-zinc-700 whitespace-nowrap">
-            {formatDate(
+            Starts {formatDate(
               new Date(Number(selectedStage.start) * 1000),
-              "yyyy-MM-dd h:mm a"
-            )}
+              "MMM dd, yyyy 'at' h:mm a"
+            )}, lasting {stageDayDiff()}
           </dd>
         </div>
-        <div className="border-t border-zinc-100 sm:border-none px-4 py-2 sm:col-span-1 sm:px-0 grid grid-cols-2">
+        <div className="py-1 sm:col-span-1 sm:px-0 grid grid-cols-1">
           <dt className="text-sm font-medium leading-6 text-zinc-900">
-            Starting price
+            Issuance
           </dt>
           <dd className="text-sm leading-6 text-zinc-700 whitespace-nowrap">
-            {issuance}
-          </dd>
-        </div>
-        <div className="border-t border-zinc-100 px-4 py-2 sm:col-span-1 sm:px-0 grid grid-cols-2">
-          <dt className="text-sm font-medium leading-6 text-zinc-900">
-            Issuance Decrease
-          </dt>
-          <dd className="text-sm leading-6 text-zinc-700">
-            {selectedStage.decayPercent.formatPercentage()}% every{" "}
+            {issuance}, decreasing {selectedStage.decayPercent.formatPercentage()}% every{" "}
             {(selectedStage.duration / 86400).toString()} days
           </dd>
         </div>
-        <div className="border-t border-zinc-100 px-4 py-2 sm:col-span-1 sm:px-0 grid grid-cols-2">
+        <div className="py-1 sm:col-span-1 sm:px-0 grid grid-cols-1">
+          <dt className="text-sm font-medium leading-6 text-zinc-900">
+            Split
+          </dt>
+          {selectedStageBoost ? (
+            <dd className="text-sm leading-6 text-zinc-700">
+              {reservedPercent?.formatPercentage()}% {selectedStageBoost?.beneficiary ? (
+              <> operated by <EthereumAddress
+                withEnsName
+                short
+                address={selectedStageBoost.beneficiary}
+              />
+              </>
+            ) : (
+              "Not set"
+            )}
+            </dd>
+          ) : null}
+        </div>
+        <div className="py-1 sm:col-span-1 sm:px-0 grid grid-cols-1">
+          <dt className="text-sm font-medium leading-6 text-zinc-900">
+            Automint
+          </dt>
+          <dd className="text-sm leading-6 text-zinc-700">
+            ~todo~
+          </dd>
+        </div>
+        <div className="py-1 sm:col-span-1 sm:px-0 grid grid-cols-1">
           <dt className="text-sm font-medium leading-6 text-zinc-900">
             Cash out tax
           </dt>
@@ -202,32 +232,6 @@ export function NetworkDetailsTable() {
                 Number(selectedStageMetadata?.data?.redemptionRate.value ?? 0n)
             ).format()}
           </dd>
-        </div>
-        <div className="border-t border-zinc-100 px-4 py-2 sm:col-span-1 sm:px-0 grid grid-cols-2">
-          <dt className="text-sm font-medium leading-6 text-zinc-900">
-            Operator
-          </dt>
-          <dd className="text-sm leading-6 text-zinc-700 overflow-hidden text-ellipsis">
-            {selectedStageBoost?.beneficiary ? (
-              <EthereumAddress
-                withEnsName
-                short
-                address={selectedStageBoost.beneficiary}
-              />
-            ) : (
-              "Not set"
-            )}
-          </dd>
-        </div>
-        <div className="border-t border-zinc-100 px-4 py-2 sm:col-span-1 sm:px-0 grid grid-cols-2">
-          <dt className="text-sm font-medium leading-6 text-zinc-900">
-            Operator token split
-          </dt>
-          {selectedStageBoost ? (
-            <dd className="text-sm leading-6 text-zinc-700">
-              {reservedPercent?.formatPercentage()}%
-            </dd>
-          ) : null}
         </div>
       </div>
     </div>

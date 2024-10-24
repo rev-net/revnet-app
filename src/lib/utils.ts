@@ -1,7 +1,7 @@
 import { clsx, type ClassValue } from "clsx";
 import { formatDuration, intervalToDuration } from "date-fns";
 import { FixedInt } from "fpnum";
-import { ReservedPercent, RulesetWeight, getTokenAToBQuote } from "juice-sdk-core";
+import { JBRulesetData, ReservedPercent, RulesetWeight, getTokenAToBQuote } from "juice-sdk-core";
 import { JBTokenContextData } from "juice-sdk-react";
 import { twMerge } from "tailwind-merge";
 import { Chain, formatUnits, parseUnits } from "viem";
@@ -78,4 +78,12 @@ export function formatTokenSymbol(token?: JBTokenContextData["token"]) {
   if (!token?.data?.symbol) return "$TOKEN";
   if (!token?.data?.symbol.includes("$")) return `$${token?.data?.symbol}`;
   return token.data.symbol;
+}
+
+/**
+ * Get start date for ruleset
+ */
+export function rulesetStartDate(ruleset?: JBRulesetData) {
+  if (!ruleset) return undefined;
+  return new Date(ruleset.start * 1000);
 }

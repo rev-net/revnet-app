@@ -98,7 +98,7 @@ export function NetworkDashboard() {
           </section>
 
           <section className="mb-8">
-            <h2 className="text-2xl font-semibold">About</h2>
+            <h2 className="text-2xl font-semibold mb-1">About</h2>
             <div className="flex gap-3">
               {suckerPairs.data?.map((pair) => {
                 const networkName =
@@ -136,7 +136,7 @@ export function NetworkDashboard() {
         </div>
       </div>
 
-      {/* Column 2 */}
+      {/* Column 2, hide on mobile */}
       <aside className="hidden md:w-[340px] md:block sm:mt-24">
         {payAndActivityBar}
       </aside>

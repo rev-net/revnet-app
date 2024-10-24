@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 76 60">
+  <!-- First arrow -->
+  <path d="M8 10 L38 30 L8 50 L8 10" fill="none" stroke="white" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <!-- Second arrow -->
+  <path d="M40 10 L70 30 L40 50 L40 10" fill="none" stroke="white" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+</svg>

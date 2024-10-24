@@ -12,6 +12,7 @@ import { useNativeTokenSurplus } from "@/hooks/useTokenASurplus";
 import { ProjectsDocument } from "@/generated/graphql";
 import { useSubgraphQuery } from "@/graphql/useSubgraphQuery";
 import { formatTokenSymbol } from "@/lib/utils";
+import { Creation } from "./Creation";
 
 export function Header() {
   const { projectId } = useJBContractContext();
@@ -76,6 +77,7 @@ export function Header() {
               <span className="text-zinc-500">
                 {contributorsCount === 1 ? "holder" : "holders"}
               </span>
+              <span className="ml-4"><Creation /></span>
             </span>
           </div>
         </div>

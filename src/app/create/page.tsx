@@ -21,6 +21,9 @@ import {
   QuestionMarkCircleIcon,
   TrashIcon,
 } from "@heroicons/react/24/outline";
+import {
+  useJBTokenContext
+} from "juice-sdk-react";
 import { CheckCircleIcon, PlusIcon } from "@heroicons/react/24/solid";
 import {
   FieldArray,
@@ -66,7 +69,7 @@ const defaultStageData = {
   priceCeilingIncreaseFrequency: "",
   priceFloorTaxIntensity: "",
 
-  premintTokenAmount: "", // only the first stage has this
+  premintTokenAmount: "",
 
   splitRate: "",
   boostDuration: "",
@@ -102,7 +105,7 @@ const DEFAULT_FORM_DATA: RevnetFormData = {
 const EXIT_TAX_HIGH = "90";
 const EXIT_TAX_MID = "50";
 const EXIT_TAX_LOW = "20";
-
+const EXIT_TAX_NONE = "0";
 /**
  * The contract addresses to use for deployment
  * @todo not ideal to hardcode these addresses
@@ -166,20 +169,21 @@ function FieldGroup(
   props: FieldAttributes<any> & {
     label: string;
     description?: string | ReactNode;
+    className?: string;
   }
 ) {
   return (
-    <div className="mb-5">
+    <div className={twMerge("mb-5", props.className)}>
       <label
         htmlFor={props.name}
-        className="block text-sm font-medium leading-6 mb-1"
+        className="block text-sm font-semibold leading-6 mb-1"
       >
         {props.label}
       </label>
-      <Field {...props} />
       {props.description ? (
-        <p className="text-sm text-zinc-500 mt-1">{props.description}</p>
+        <p className="text-sm text-zinc-600 mb-3">{props.description}</p>
       ) : null}
+      <Field {...props} />
     </div>
   );
 }
@@ -204,10 +208,10 @@ function DetailsPage() {
         label="Description"
         component="textarea"
         rows={5}
-        placeholder="What's your Revnet for?"
+        placeholder="What is your project about?"
       />
       <label
-        className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+        className="block mb-2 text-sm font-semibold text-gray-900 dark:text-white"
         htmlFor="file_input"
       >
         Upload logo
@@ -249,7 +253,7 @@ function AddStageDialog({
         </DialogHeader>
         <div className="my-8">
           <Formik
-            initialValues={initialValues ?? defaultStageData}
+            initialValues={{ ...(initialValues ?? defaultStageData), priceFloorTaxIntensity: EXIT_TAX_NONE }}
             onSubmit={(newValues) => {
               onSave(newValues);
               setOpen(false);
@@ -257,31 +261,33 @@ function AddStageDialog({
           >
             {() => (
               <Form>
-                <div className="pb-5 border-b border-zinc-200">
+                <div className="pb-7">
                   <FieldGroup
                     id="boostDuration"
                     name="boostDuration"
-                    label="Stage duration"
+                    label="1. Stage duration"
                     suffix="days"
                     description="How long will this stage last? Leave blank to make it last forever."
                     type="number"
                   />
+                </div>
+                <div className="pb-10">
                   <FieldGroup
                     id="initialIssuance"
                     name="initialIssuance"
-                    label="Starting issuance price"
+                    label="2. Issuance"
+                    description={`How many ${revnetTokenSymbol} to mint when the revnet receives 1 ${nativeTokenSymbol}.`}
                     suffix={`${revnetTokenSymbol} / ${nativeTokenSymbol}`}
-                    description="How many tokens to mint when the revnet receives 1 ETH."
                     type="number"
                   />
 
-                  <div className="mb-4">
-                    <div className="flex gap-2 items-center text-sm text-zinc-600 italic">
+                  <div>
+                    <div className="flex gap-2 items-center text-sm text-zinc-600">
                       <label
                         htmlFor="priceCeilingIncreasePercentage"
                         className="whitespace-nowrap"
                       >
-                        Increase price by
+                        ... decreasing by
                       </label>
                       <Field
                         id="priceCeilingIncreasePercentage"
@@ -302,34 +308,63 @@ function AddStageDialog({
                       />
                       days.
                     </div>
-                    <div className="text-zinc-500 text-sm mt-2">
-                      <span className="italic">Days</span> must be a multiple of
-                      this stage's duration. Increasing 100% means to double the
-                      price, resembling a halvening effect. If there’s a Uniswap
-                      pool for ETH/$TOKEN offering a better price, all ETH paid
-                      in will be used to buyback instead of feeding the revnet.
+                    <div className="text-zinc-600 text-sm mt-4">
+                      <span className="italic">Note:
+                        <ul className="list-disc list-inside pl-4">
+                          <li className="flex">
+    <span className="mr-2">•</span>
+    <div>
+Days must be a multiple of this stage's duration.
+    </div>
+  </li>
+                          <li className="flex">
+    <span className="mr-2">•</span>
+    <div>
+      Decreasing 50% means to double the price – a halvening effect.
+    </div>
+  </li>
+                          <li className="flex">
+    <span className="mr-2">•</span>
+    <div>
+      If there's a Uniswap pool for {revnetTokenSymbol} / {nativeTokenSymbol} offering a better price, all {nativeTokenSymbol} paid
+      in will be used to buyback instead of feeding the revnet.
+    </div>
+  </li>
+                        </ul>
+                        </span>
                     </div>
                   </div>
                 </div>
 
-                <div className="pt-5 border-b border-zinc-200">
-                  <h3 className="mb-1">Split</h3>
-                  <p className="text-zinc-600 text-sm mb-3">
-                    Split a portion of new token purchases to a core team,
-                    airdrop stockpile, staking rewards contract, or some other
-                    address. The split is managed by an Operator who can change
-                    the splits or relinquish power at any time.
+                <div className="pb-10">
+                  <div
+                    className="block text-sm font-semibold leading-6"
+                  >
+                    3. Split
+                  </div>
+                  <p className="text-zinc-600 text-sm pb-3 mt-1">
+                    Split a portion of new token issuance and buybacks to an operator.
                   </p>
 
                   <FieldGroup
+                    className="flex-1"
+                    id="splitRate"
+                    name="splitRate"
+                    suffix={`% of ${revnetTokenSymbol}`}
+                  />
+                  <div className="flex gap-2 items-center text-sm text-zinc-600">
+                    <label
+                      htmlFor="priceCeilingIncreasePercentage"
+                      className="whitespace-nowrap"
+                    >
+                      ... operated by
+                    </label>
+                  <Field
                     id="initialOperator"
                     name="initialOperator"
-                    label="Operator"
                     placeholder="0x"
                     description={
-                      stageIdx === 0 ? (
-                        "The person, group or contract that can receive a portion of new tokens."
-                      ) : (
+                      stageIdx === 0 ? "" : (
                         <span className="text-xs text-blue-900 mb-2 flex gap-1 p-2 bg-blue-50 rounded-md">
                           <QuestionMarkCircleIcon className="h-4 w-4" /> Set the
                           operator in the first stage.
@@ -339,32 +374,57 @@ function AddStageDialog({
                     disabled={stageIdx > 0}
                     required
                   />
-
-                  <div className="flex gap-2 justify-between">
-                    <FieldGroup
-                      className="flex-1"
-                      id="splitRate"
-                      name="splitRate"
-                      label="Split rate"
-                      description="Send a percentage of new tokens to the Operator."
-                      suffix={`% of new ${revnetTokenSymbol}`}
-                    />
+                  .
                   </div>
+
+                    <div className="text-zinc-600 text-sm mt-4">
+                      <span className="italic">Note:
+                        <ul className="list-disc list-inside pl-4">
+                          <li className="flex">
+    <span className="mr-2">•</span>
+    <div>
+    The operator can be a multisig, a DAO, an LLC, a core team, an
+                    airdrop stockpile, a staking rewards contract, or some other
+                    address.
+    </div>
+  </li>
+                          <li className="flex">
+    <span className="mr-2">•</span>
+    <div>
+    The operator is set once and is not bound by stages. The operator can hand off this responsibility to another address at any time, or relinquish it altogether.
+    </div>
+  </li>
+                        </ul>
+                        </span>
+                    </div>
+
                 </div>
 
-                <div className="py-5">
-                  <div className="mb-5">
+                  <div className="pb-10">
                     <div
                       id="priceFloorTaxIntensity-group"
-                      className="block text-sm font-medium leading-6 mb-1"
+                      className="block text-sm font-semibold leading-6"
                     >
-                      Cash out tax
+                      4. Cash out tax
                     </div>
+                    <p className="text-sm text-zinc-500 mt-3">
+                      All {revnetTokenSymbol} holders access revenue by cashing out their {revnetTokenSymbol}. A
+                      tax can be added that rewards {revnetTokenSymbol} holders who stick around as others cash out.
+                    </p>
                     <div
                       role="group"
                       aria-labelledby="priceFloorTaxIntensity-group"
-                      className="flex gap-3 text-sm"
+                      className="flex gap-3 text-sm mt-4"
                     >
+                      <label>
+                        <FormikField
+                          type="radio"
+                          name="priceFloorTaxIntensity"
+                          value={EXIT_TAX_NONE}
+                          className="mr-1"
+                        />
+                        None
+                      </label>
                       <label>
                         <FormikField
                           type="radio"
@@ -392,25 +452,18 @@ function AddStageDialog({
                         />
                         High
                       </label>
-                    </div>
-                    <p className="text-sm text-zinc-500 mt-1">
-                      ${values.tokenSymbol} tokenholders access revenue by cashing out their ${values.tokenSymbol}. A
-                      tax is charged, benefiting remaining token holders
-                      equally.
-                    </p>
                   </div>
-
-                  {stageIdx === 0 ? (
-                    <FieldGroup
-                      className="flex-1"
-                      id="premintTokenAmount"
-                      name="premintTokenAmount"
-                      label="Automint"
-                      description="Automatically tokens for the Operator. Only happens once."
-                      suffix={"$" + values.tokenSymbol || "tokens"}
-                    />
-                  ) : null}
-                </div>
+                  </div>
+                  <div className="pb-8">
+                      <FieldGroup
+                        className="flex-1"
+                        id="premintTokenAmount"
+                        name="premintTokenAmount"
+                        label="5. Automint"
+                        description="Automatically mint tokens for the Operator when this stage becomes active."
+                        suffix={revnetTokenSymbol || "tokens"}
+                      />
+                  </div>
 
                 <DialogFooter>
                   <Button type="submit">Save stage</Button>
@@ -447,19 +500,17 @@ function ConfigPage() {
                 {values.stages.map((stage, index) => (
                   <div className="py-4" key={index}>
                     <div className="mb-1 flex justify-between items-center">
-                      <div>Stage {index + 1}</div>
+                      <div className="font-semibold">Stage {index + 1}</div>
                       <div className="flex">
                         <AddStageDialog
                           stageIdx={index}
                           initialValues={stage}
                           onSave={(newStage) => {
                             arrayHelpers.replace(index, newStage);
-                            if (index === 0) {
-                              setFieldValue(
-                                "premintTokenAmount",
-                                newStage.premintTokenAmount
-                              );
-                            }
+                            setFieldValue(
+                              "premintTokenAmount",
+                              newStage.premintTokenAmount
+                            );
                           }}
                         >
                           <Button variant="ghost" size="sm">
@@ -476,7 +527,7 @@ function ConfigPage() {
                         </Button>
                       </div>
                     </div>
-                    <div className="text-xs text-zinc-500 flex gap-2 flex-wrap">
+                    <div className="text-sm text-zinc-500 flex gap-2 flex-wrap">
                       <div>
                         {stage.boostDuration ? (
                           <>{stage.boostDuration} days</>
@@ -488,17 +539,18 @@ function ConfigPage() {
                       <div>
                         {stage.initialIssuance} {values.tokenSymbol ?? "tokens"}{" "}
                         / {nativeTokenSymbol}
-                        {", "}+{stage.priceCeilingIncreasePercentage || 0}%
+                        {", "}-{stage.priceCeilingIncreasePercentage || 0}%
                         every {stage.priceCeilingIncreaseFrequency} days
                       </div>
                       •<div>{stage.priceFloorTaxIntensity}% cash out tax</div>
                       <div>• {stage.splitRate || 0}% operator split</div>
+                      <div>• {stage.premintTokenAmount || 0}% automint</div>
                     </div>
                   </div>
                 ))}
               </div>
             ) : (
-              <div className="text-center text-zinc-500 mb-4">
+              <div className="text-left text-zinc-500 mb-4 font-semibold">
                 Add a stage to get started
               </div>
             )}
@@ -507,12 +559,10 @@ function ConfigPage() {
               stageIdx={values.stages.length}
               onSave={(newStage) => {
                 arrayHelpers.push(newStage);
-                if (values.stages.length === 0) {
-                  setFieldValue(
-                    "premintTokenAmount",
-                    newStage.premintTokenAmount
-                  );
-                }
+                setFieldValue(
+                  "premintTokenAmount",
+                  newStage.premintTokenAmount
+                );
               }}
             >
               <Button
@@ -524,12 +574,12 @@ function ConfigPage() {
               </Button>
             </AddStageDialog>
             {maxStageReached ? (
-              <div className="text-xs text-orange-900 mt-2 flex gap-1 p-2 bg-orange-50 rounded-md">
+              <div className="text-sm text-orange-900 mt-2 flex gap-1 p-2 bg-orange-50 rounded-md">
                 <ExclamationCircleIcon className="h-4 w-4" /> You've added the
                 maximum number of stages.
               </div>
             ) : !canAddStage ? (
-              <div className="text-xs text-orange-900 mt-2 flex gap-1 p-2 bg-orange-50 rounded-md">
+              <div className="text-sm text-orange-900 mt-2 flex gap-1 p-2 bg-orange-50 rounded-md">
                 <ExclamationCircleIcon className="h-4 w-4" /> Your last stage is
                 indefinite. Set a duration to add another stage.
               </div>
@@ -681,14 +731,14 @@ function ReviewPage() {
 function DeployRevnetForm() {
   const { submitForm, values } = useFormikContext();
   return (
-    <div className="grid md:grid-cols-3 max-w-6xl mx-auto my-20 gap-x-6 gap-y-6 md:gap-y-0 md:px-0 px-10">
-      <h1 className="mb-16 text-2xl md:col-span-3 font-medium">
-        Deploy new Revnet
+    <div className="grid md:grid-cols-3 max-w-6xl mx-auto my-20 gap-x-6 gap-y-6 md:gap-y-0 md:px-0 px-5">
+      <h1 className="mb-16 text-2xl md:col-span-3 font-semibold">
+        Deploy a revnet for your project
       </h1>
       <div className="md:col-span-1">
-        <h2 className="font-medium text-lg">Details</h2>
-        <p className="text-zinc-500 text-sm">
-          Add basic information about the Revnet.
+        <h2 className="font-medium text-lg">Aesthetics</h2>
+        <p className="text-zinc-600 text-sm">
+          Your revnet's look and feel.
         </p>
       </div>
       <div className="md:col-span-2">
@@ -698,10 +748,13 @@ function DeployRevnetForm() {
       <div className="h-[1px] bg-zinc-200 md:col-span-3 my-10"></div>
 
       <div className="md:col-span-1">
-        <h2 className="font-medium text-lg">Stages</h2>
+        <h2 className="font-medium text-lg">Rules</h2>
         <p className="text-zinc-600 text-sm">
-          Configure how your Revnet should evolve over time. Your configuration
-          is locked forever and can't be changed.
+          Your revnet's monetization rules evolve over time automatically in stages.
+        </p>
+        <p className="text-zinc-600 text-sm mt-2">
+          Staged rules
+          are a contract and can't be edited once the revnet is deployed.
         </p>
       </div>
       <div className="md:col-span-2">
@@ -718,7 +771,7 @@ function DeployRevnetForm() {
             submitForm();
           }}
         >
-          Deploy Revnet <FastForwardIcon className="h-4 w-4 fill-white ml-2" />
+          Deploy <FastForwardIcon className="h-4 w-4 fill-white ml-2" />
         </Button>
       </div>
     </div>
@@ -755,8 +808,7 @@ function parseDeployData(
       autoMints: [
         {
           chainId: extra.chainId ?? mainnet.id,
-          // premint is only set once, in the first stage
-          count: parseUnits(formData.premintTokenAmount, 18),
+          count: parseUnits(stage.premintTokenAmount, 18),
           beneficiary: stage.initialOperator.trim() as Address,
         },
       ],
