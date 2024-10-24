@@ -4,7 +4,7 @@ import {
 } from "@/app/constants";
 import { EthereumAddress } from "@/components/EthereumAddress";
 import { Button } from "@/components/ui/button";
-import { formatDate } from "date-fns";
+import { differenceInDays, formatDate } from "date-fns";
 import {
   ReservedPercent,
   MAX_REDEMPTION_RATE,
@@ -23,7 +23,7 @@ import { useState } from "react";
 import { twJoin } from "tailwind-merge";
 import { SectionTooltip } from "./NetworkDashboard/sections/SectionTooltip";
 import { useFormattedTokenIssuance } from "@/hooks/useFormattedTokenIssuance";
-import { formatTokenSymbol } from "@/lib/utils";
+import { formatTokenSymbol, rulesetStartDate } from "@/lib/utils";
 
 export function NetworkDetailsTable() {
   const [selectedStageIdx, setSelectedStageIdx] = useState<number>(0);
@@ -84,6 +84,21 @@ export function NetworkDetailsTable() {
   );
   const currentStageIdx = nextStageIdx - 1;
 
+  const stageDayDiff = () => {
+    const len = rulesets?.length ?? 0;
+    const reverseSelectedIdx = len - selectedStageIdx - 1;
+
+    const selectedRuleset = rulesets?.[reverseSelectedIdx];
+    const selectedStart = rulesetStartDate(selectedRuleset);
+
+    const nextRuleset = rulesets?.[reverseSelectedIdx - 1];
+    const nextStart = rulesetStartDate(nextRuleset);
+    if (!nextStart || !selectedStart) return "forever";
+
+    const days = differenceInDays(nextStart, selectedStart);
+    return `${days} days`;
+  };
+
   const issuance = useFormattedTokenIssuance({
     weight: selectedStage?.weight,
     reservedPercent: selectedStageMetadata?.data?.reservedPercent
@@ -96,9 +111,9 @@ export function NetworkDetailsTable() {
       <div className="max-w-md space-y-4 p-2">
         <h3 className="font-medium text-black-500">Stages</h3>
         <p className="text-sm text-black-300">
-          This revnet’s rules change automatically in sequential stages. It's stages are permanent once the revnet is deployed. 
+          This revnet’s rules change automatically in sequential stages. It's stages are permanent once the revnet is deployed.
         </p>
-      
+
         <div className="space-y-2">
         <div className="space-y-1">
           <h3 className="font-medium text-black-500">Timing</h3>
@@ -168,12 +183,12 @@ export function NetworkDetailsTable() {
             Starts {formatDate(
               new Date(Number(selectedStage.start) * 1000),
               "MMM dd, yyyy 'at' h:mm a"
-            )}, lasting {selectedStage.duration / 86400} days
+            )}, lasting {stageDayDiff()}
           </dd>
         </div>
         <div className="py-1 sm:col-span-1 sm:px-0 grid grid-cols-1">
           <dt className="text-sm font-medium leading-6 text-zinc-900">
-            Issuance 
+            Issuance
           </dt>
           <dd className="text-sm leading-6 text-zinc-700 whitespace-nowrap">
             {issuance}, decreasing {selectedStage.decayPercent.formatPercentage()}% every{" "}
@@ -182,7 +197,7 @@ export function NetworkDetailsTable() {
         </div>
         <div className="py-1 sm:col-span-1 sm:px-0 grid grid-cols-1">
           <dt className="text-sm font-medium leading-6 text-zinc-900">
-            Split 
+            Split
           </dt>
           {selectedStageBoost ? (
             <dd className="text-sm leading-6 text-zinc-700">
@@ -195,7 +210,7 @@ export function NetworkDetailsTable() {
               </>
             ) : (
               "Not set"
-            )} 
+            )}
             </dd>
           ) : null}
         </div>
