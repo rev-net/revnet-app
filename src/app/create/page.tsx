@@ -349,7 +349,7 @@ Days must be a multiple of this stage's duration.
                     className="flex-1"
                     id="splitRate"
                     name="splitRate"
-                    suffix={`% of issued and bought back ${revnetTokenSymbol}`}
+                    suffix={`% of ${revnetTokenSymbol}`}
                   />
                   <div className="flex gap-2 items-center text-sm text-zinc-600">
                     <label
@@ -549,7 +549,7 @@ function ConfigPage() {
                 ))}
               </div>
             ) : (
-              <div className="text-center text-zinc-500 mb-4">
+              <div className="text-left text-zinc-500 mb-4 font-semibold">
                 Add a stage to get started
               </div>
             )}
@@ -730,7 +730,7 @@ function ReviewPage() {
 function DeployRevnetForm() {
   const { submitForm, values } = useFormikContext();
   return (
-    <div className="grid md:grid-cols-3 max-w-6xl mx-auto my-20 gap-x-6 gap-y-6 md:gap-y-0 md:px-0 px-10">
+    <div className="grid md:grid-cols-3 max-w-6xl mx-auto my-20 gap-x-6 gap-y-6 md:gap-y-0 md:px-0 px-5">
       <h1 className="mb-16 text-2xl md:col-span-3 font-semibold">
         Deploy a revnet for your project 
       </h1>
