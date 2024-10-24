@@ -35,17 +35,17 @@ export default function Page() {
 
       <div className="mt-10 max-w-prose text-l md:text-2xl text-left">
         <p className="mb-10">
-          A revnet serves as a hands-free, all-in-one tokenized incentive machine, cap table, and growth engine for leaders, workers, artists, investors, and customers of growth-oriented businesses, brands, campaigns, communities, and indy projects of the open web.
+          A revnet serves as a hands-free, all-in-one tokenized incentive machine, cap table, and growth engine for leaders, workers, artists, investors, and customers of growth-oriented businesses, brands, campaigns, communities, and indy projects operating their monetary contracts on the open web.
         </p>
 
         <div className="mt-10 mb-10 text-xl md:text-2xl text-left">
-          Explore: $<Link href="https://revnet.app/1" target="_blank"
+          Explore: $<Link href="https://revnet.app/sepolia/1" target="_blank"
             rel="noopener norefererr"
-            className="underline hover:text-black/70">NANA</Link> {"  |  "} $<Link href="https://revnet.app/3" target="_blank"
+            className="underline hover:text-black/70">NANA</Link> {"  |  "} $<Link href="https://revnet.app/sepolia/3" target="_blank"
             rel="noopener norefererr"
-            className="underline hover:text-black/70">REV</Link> {"  |  "} $<Link href="https://revnet.app/4" target="_blank"
+            className="underline hover:text-black/70">REV</Link> {"  |  "} $<Link href="https://revnet.app/sepolia/4" target="_blank"
             rel="noopener norefererr"
-            className="underline hover:text-black/70">BAN</Link> {"  |  "} $<Link href="https://revnet.app/2" target="_blank"
+            className="underline hover:text-black/70">BAN</Link> {"  |  "} $<Link href="https://revnet.app/sepolia/2" target="_blank"
             rel="noopener norefererr"
             className="underline hover:text-black/70">CPN</Link>
         </div>
