@@ -84,6 +84,7 @@ type RevnetFormData = {
   tokenName: string;
   tokenSymbol: string;
 
+  premintTokenAmount: string;
   stages: (typeof defaultStageData)[];
 };
 
@@ -308,7 +309,7 @@ function AddStageDialog({
                       days.
                     </div>
                     <div className="text-zinc-600 text-sm mt-4">
-                      <span className="italic">Note: 
+                      <span className="italic">Note:
                         <ul className="list-disc list-inside pl-4">
                           <li className="flex">
     <span className="mr-2">•</span>
@@ -342,7 +343,7 @@ Days must be a multiple of this stage's duration.
                     3. Split
                   </div>
                   <p className="text-zinc-600 text-sm pb-3 mt-1">
-                    Split a portion of new token issuance and buybacks to an operator. 
+                    Split a portion of new token issuance and buybacks to an operator.
                   </p>
 
                   <FieldGroup
@@ -377,14 +378,14 @@ Days must be a multiple of this stage's duration.
                   </div>
 
                     <div className="text-zinc-600 text-sm mt-4">
-                      <span className="italic">Note: 
+                      <span className="italic">Note:
                         <ul className="list-disc list-inside pl-4">
                           <li className="flex">
     <span className="mr-2">•</span>
     <div>
     The operator can be a multisig, a DAO, an LLC, a core team, an
                     airdrop stockpile, a staking rewards contract, or some other
-                    address. 
+                    address.
     </div>
   </li>
                           <li className="flex">
@@ -732,12 +733,12 @@ function DeployRevnetForm() {
   return (
     <div className="grid md:grid-cols-3 max-w-6xl mx-auto my-20 gap-x-6 gap-y-6 md:gap-y-0 md:px-0 px-5">
       <h1 className="mb-16 text-2xl md:col-span-3 font-semibold">
-        Deploy a revnet for your project 
+        Deploy a revnet for your project
       </h1>
       <div className="md:col-span-1">
         <h2 className="font-medium text-lg">Aesthetics</h2>
         <p className="text-zinc-600 text-sm">
-          Your revnet's look and feel. 
+          Your revnet's look and feel.
         </p>
       </div>
       <div className="md:col-span-2">
@@ -752,7 +753,7 @@ function DeployRevnetForm() {
           Your revnet's monetization rules evolve over time automatically in stages.
         </p>
         <p className="text-zinc-600 text-sm mt-2">
-          Staged rules 
+          Staged rules
           are a contract and can't be edited once the revnet is deployed.
         </p>
       </div>
