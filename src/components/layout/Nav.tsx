@@ -10,9 +10,9 @@ export function Nav() {
         <div className="flex items-center gap-2">
           <Link href="/" className="italic">
             <Image
-              src="/assets/img/revnet-white.svg"
-              width={100}
-              height={100}
+              src="/assets/img/revnet-logo-dark.svg"
+              width={50}
+              height={50}
               alt="Revnet logo"
             />
           </Link>
