@@ -460,19 +460,19 @@ Days must be a multiple of this stage's duration.
                           <li className="flex">
     <span className="mr-2">•</span>
     <div>
-    This works on a bonding curve with the formula `y = (ax/s) * ((1-r) + xr/s)` where: `r` is the cash out tax rate (from 0 to 1), `a` is the amount in the revnet being accessed, `s` is the current token supply of {revnetTokenSymbol}, `x` is the amount of {revnetTokenSymbol} being cashed out.
-    </div>
-  </li>
-                          <li className="flex">
-    <span className="mr-2">•</span>
-    <div>
     The higher the tax, the less that can be accessed by cashing out at any given time, and the more that is left to share between remaining {revnetTokenSymbol} holders who cash out later.
     </div>
   </li>
                           <li className="flex">
     <span className="mr-2">•</span>
     <div>
-    A tax rate of 0 means {revnetTokenSymbol} can be cashed out for a proportional amount of the revnet’s funds
+    Given 100 {nativeTokenSymbol} in the revnet, 100 total supply of {revnetTokenSymbol}, and 10 {revnetTokenSymbol} being cashed out, a tax rate of 0 would yield a cash out value of 10 {nativeTokenSymbol}, 0.2 would yield 8.2 {nativeTokenSymbol}, 0.5 would yield 5.5 {nativeTokenSymbol}, and 0.8 would yield 2.8 {nativeTokenSymbol}.
+    </div>
+  </li>
+  <li className="flex">
+    <span className="mr-2">•</span>
+    <div>
+    The formula for the amount of {nativeTokenSymbol} received when cashing out is `(ax/s) * ((1-r) + xr/s)` where: `r` is the cash out tax rate (from 0 to 1), `a` is the amount in the revnet being accessed, `s` is the current token supply of {revnetTokenSymbol}, `x` is the amount of {revnetTokenSymbol} being cashed out.
     </div>
   </li>
                         </ul>
