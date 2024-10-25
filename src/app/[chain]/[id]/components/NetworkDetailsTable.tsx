@@ -4,6 +4,7 @@ import {
 } from "@/app/constants";
 import { EthereumAddress } from "@/components/EthereumAddress";
 import { Button } from "@/components/ui/button";
+import { useNativeTokenSymbol } from "@/hooks/useNativeTokenSymbol";
 import { differenceInDays, formatDate } from "date-fns";
 import {
   ReservedPercent,
@@ -34,6 +35,7 @@ export function NetworkDetailsTable() {
   } = useJBContractContext();
 
   const { token } = useJBTokenContext();
+  const nativeTokenSymbol = useNativeTokenSymbol();
 
   // TODO(perf) duplicate call, move to a new context
   const { data: rulesets } = useReadJbRulesetsAllOf({
@@ -146,7 +148,7 @@ export function NetworkDetailsTable() {
           <h3 className="font-medium text-black-500">Cash out tax</h3>
           <p className="text-sm text-black-300">Determines how much of this revnet’s funds can be withdrawn by burning {formatTokenSymbol(token)} during a stage.</p>
           <p className="text-sm text-black-400 italic">
-            Note: This works on a bonding curve with the formula `y = (ax/s) * ((1-r) + xr/s)` where: `r` is the cash out tax rate (from 0 to 1), `a` is the total amount in the revnet being accessed, `s` is the current token supply of {formatTokenSymbol(token)}, `x` is the amount of {formatTokenSymbol(token)} being cashed out. The higher the tax, the less that can be accessed by cashing out at any given time, and the more that is left to share between remaining {formatTokenSymbol(token)} holders who cash out later. A tax rate of 0 means {formatTokenSymbol(token)} can be cashed out for a proportional amount of the revnet’s funds.
+            Note: The higher the tax, the less that can be accessed by cashing out at any given time, and the more that is left to share between remaining {formatTokenSymbol(token)} holders who cash out later. Given 100 {nativeTokenSymbol} in the revnet, 100 total supply of {formatTokenSymbol(token)}, and 10 {formatTokenSymbol(token)} being cashed out, a tax rate of 0 would yield a cash out value of 10 {nativeTokenSymbol}, 0.2 would yield 8.2 {nativeTokenSymbol}, 0.5 would yield 5.5 {nativeTokenSymbol}, and 0.8 would yield 2.8 {nativeTokenSymbol}.  This works on a bonding curve with the formula `y = (ax/s) * ((1-r) + xr/s)` where: `r` is the cash out tax rate (from 0 to 1), `a` is the total amount in the revnet being accessed, `s` is the current token supply of {formatTokenSymbol(token)}, `x` is the amount of {formatTokenSymbol(token)} being cashed out.
           </p>
         </div>
 

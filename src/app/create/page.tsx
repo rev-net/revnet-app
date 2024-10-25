@@ -400,12 +400,22 @@ Days must be a multiple of this stage's duration.
 
                 </div>
 
+                  <div className="pb-8">
+                      <FieldGroup
+                        className="flex-1"
+                        id="premintTokenAmount"
+                        name="premintTokenAmount"
+                        label="4. Automint"
+                        description="Automatically mint tokens for the Operator when this stage becomes active."
+                        suffix={revnetTokenSymbol || "tokens"}
+                      />
+                  </div>
                   <div className="pb-10">
                     <div
                       id="priceFloorTaxIntensity-group"
                       className="block text-sm font-semibold leading-6"
                     >
-                      4. Cash out tax
+                      5. Cash out tax
                     </div>
                     <p className="text-sm text-zinc-500 mt-3">
                       All {revnetTokenSymbol} holders can access revenue by cashing out their {revnetTokenSymbol}. A
@@ -478,16 +488,6 @@ Days must be a multiple of this stage's duration.
                         </ul>
                         </span>
                 </div>
-                  </div>
-                  <div className="pb-8">
-                      <FieldGroup
-                        className="flex-1"
-                        id="premintTokenAmount"
-                        name="premintTokenAmount"
-                        label="5. Automint"
-                        description="Automatically mint tokens for the Operator when this stage becomes active."
-                        suffix={revnetTokenSymbol || "tokens"}
-                      />
                   </div>
 
                 <DialogFooter>
