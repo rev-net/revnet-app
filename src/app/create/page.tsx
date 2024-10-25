@@ -102,7 +102,7 @@ const DEFAULT_FORM_DATA: RevnetFormData = {
   stages: [],
 };
 
-const EXIT_TAX_HIGH = "90";
+const EXIT_TAX_HIGH = "80";
 const EXIT_TAX_MID = "50";
 const EXIT_TAX_LOW = "20";
 const EXIT_TAX_NONE = "0";
@@ -408,8 +408,8 @@ Days must be a multiple of this stage's duration.
                       4. Cash out tax
                     </div>
                     <p className="text-sm text-zinc-500 mt-3">
-                      All {revnetTokenSymbol} holders access revenue by cashing out their {revnetTokenSymbol}. A
-                      tax can be added that rewards {revnetTokenSymbol} holders who stick around as others cash out.
+                      All {revnetTokenSymbol} holders can access revenue by cashing out their {revnetTokenSymbol}. A
+                      tax can be added that rewards {revnetTokenSymbol} holders who stick around while others cash out.
                     </p>
                     <div
                       role="group"
@@ -423,7 +423,7 @@ Days must be a multiple of this stage's duration.
                           value={EXIT_TAX_NONE}
                           className="mr-1"
                         />
-                        None
+                        None (0)
                       </label>
                       <label>
                         <FormikField
@@ -432,7 +432,7 @@ Days must be a multiple of this stage's duration.
                           value={EXIT_TAX_LOW}
                           className="mr-1"
                         />
-                        Low
+                        Low (0.2)
                       </label>
                       <label>
                         <FormikField
@@ -441,7 +441,7 @@ Days must be a multiple of this stage's duration.
                           value={EXIT_TAX_MID}
                           className="mr-1"
                         />
-                        Mid
+                        Mid (0.5)
                       </label>
                       <label>
                         <FormikField
@@ -450,9 +450,34 @@ Days must be a multiple of this stage's duration.
                           value={EXIT_TAX_HIGH}
                           className="mr-1"
                         />
-                        High
+                        High (0.8)
                       </label>
                   </div>
+
+                    <div className="text-zinc-600 text-sm mt-4">
+                      <span className="italic">Note:
+                        <ul className="list-disc list-inside pl-4">
+                          <li className="flex">
+    <span className="mr-2">•</span>
+    <div>
+    This works on a bonding curve with the formula `y = (ax/s) * ((1-r) + xr/s)` where: `r` is the cash out tax rate (from 0 to 1), `a` is the amount in the revnet being accessed, `s` is the current token supply of {revnetTokenSymbol}, `x` is the amount of {revnetTokenSymbol} being cashed out.
+    </div>
+  </li>
+                          <li className="flex">
+    <span className="mr-2">•</span>
+    <div>
+    The higher the tax, the less that can be accessed by cashing out at any given time, and the more that is left to share between remaining {revnetTokenSymbol} holders who cash out later.
+    </div>
+  </li>
+                          <li className="flex">
+    <span className="mr-2">•</span>
+    <div>
+    A tax rate of 0 means {revnetTokenSymbol} can be cashed out for a proportional amount of the revnet’s funds
+    </div>
+  </li>
+                        </ul>
+                        </span>
+                </div>
                   </div>
                   <div className="pb-8">
                       <FieldGroup

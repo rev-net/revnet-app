@@ -146,7 +146,7 @@ export function NetworkDetailsTable() {
           <h3 className="font-medium text-black-500">Cash out tax</h3>
           <p className="text-sm text-black-300">Determines how much of this revnet’s funds can be withdrawn by burning {formatTokenSymbol(token)} during a stage.</p>
           <p className="text-sm text-black-400 italic">
-            Note: This works on a bonding curve with the formula `y = (ax/s) * ((1-r) + xr/s)` where: `r` is the cash out tax rate (from 0 to 1) `a` is the amount in the revnet, `s` is the current token supply of $BAN, `x` is the amount of {formatTokenSymbol(token)} being cashed out. The higher the tax, the more is left to share between remaining {formatTokenSymbol(token)} holders who cash out later. A tax rate of 0 means {formatTokenSymbol(token)} can be cashed out for a proportional amount of the revnet’s funds.
+            Note: This works on a bonding curve with the formula `y = (ax/s) * ((1-r) + xr/s)` where: `r` is the cash out tax rate (from 0 to 1), `a` is the total amount in the revnet being accessed, `s` is the current token supply of {formatTokenSymbol(token)}, `x` is the amount of {formatTokenSymbol(token)} being cashed out. The higher the tax, the less that can be accessed by cashing out at any given time, and the more that is left to share between remaining {formatTokenSymbol(token)} holders who cash out later. A tax rate of 0 means {formatTokenSymbol(token)} can be cashed out for a proportional amount of the revnet’s funds.
           </p>
         </div>
 
