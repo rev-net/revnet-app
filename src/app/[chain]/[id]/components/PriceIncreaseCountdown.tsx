@@ -47,7 +47,7 @@ export function PriceIncreaseCountdown() {
           <span className="font-medium">{nextFormattedTokenIssuance}</span>
           {" "}
           <span>in {formatSeconds(timeLeft)}</span>
-          <QuestionMarkCircleIcon className="h-4 w-4 inline ml-1 mb-1" />
+          {/* <QuestionMarkCircleIcon className="h-4 w-4 inline ml-1 mb-1" /> */}
         </div>
       </TooltipTrigger>
       <TooltipContent side="right">

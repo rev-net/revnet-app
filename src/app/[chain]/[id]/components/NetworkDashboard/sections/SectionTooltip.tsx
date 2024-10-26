@@ -18,8 +18,8 @@ export function SectionTooltip({
     <Tooltip>
       <div className="flex flex-row space-x-2">
         <h2 className="text-2xl font-semibold">{name}</h2>
-        <TooltipTrigger>
-          <QuestionMarkCircleIcon className="h-4 w-4 inline mb-1" />
+        <TooltipTrigger> [ ? ]
+          {/* <QuestionMarkCircleIcon className="h-4 w-4 inline mb-1" /> */}
         </TooltipTrigger>
         <TooltipContent side="right">
           {info}

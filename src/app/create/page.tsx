@@ -3,6 +3,7 @@
 import EtherscanLink from "@/components/EtherscanLink";
 import { Nav } from "@/components/layout/Nav";
 import { Button } from "@/components/ui/button";
+
 import {
   Dialog,
   DialogContent,
@@ -130,13 +131,13 @@ function Field(props: FieldAttributes<any>) {
       <div className="relative w-full">
         {props.prefix ? (
           <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-            <span className="text-zinc-500 sm:text-sm">{props.prefix}</span>
+            <span className="text-zinc-500 sm:text-md">{props.prefix}</span>
           </div>
         ) : null}
         <FormikField
           {...props}
           className={twMerge(
-            "flex w-full rounded-md border border-zinc-200 bg-white px-3 py-1.5 text-sm ring-offset-white file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-zinc-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-950 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:border-zinc-800 dark:bg-zinc-950 dark:ring-offset-zinc-950 dark:placeholder:text-zinc-400 dark:focus-visible:ring-zinc-300",
+            "flex w-full rounded-md border border-zinc-200 bg-white px-3 py-1.5 text-md ring-offset-white file:border-0 file:bg-transparent file:text-md file:font-medium placeholder:text-zinc-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-950 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:border-zinc-800 dark:bg-zinc-950 dark:ring-offset-zinc-950 dark:placeholder:text-zinc-400 dark:focus-visible:ring-zinc-300",
             props.prefix ? "pl-6" : "",
             props.className
           )}
@@ -148,7 +149,7 @@ function Field(props: FieldAttributes<any>) {
               props.type === "number" ? "pr-9" : "pr-3"
             )}
           >
-            <span className="text-zinc-500 sm:text-sm">{props.suffix}</span>
+            <span className="text-zinc-500 sm:text-md">{props.suffix}</span>
           </div>
         ) : null}
       </div>
@@ -158,7 +159,7 @@ function Field(props: FieldAttributes<any>) {
     <FormikField
       {...props}
       className={twMerge(
-        "flex w-full rounded-md border border-zinc-200 bg-white px-3 py-1.5 text-sm ring-offset-white file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-zinc-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-950 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:border-zinc-800 dark:bg-zinc-950 dark:ring-offset-zinc-950 dark:placeholder:text-zinc-400 dark:focus-visible:ring-zinc-300",
+        "flex w-full rounded-md border border-zinc-200 bg-white px-3 py-1.5 text-md ring-offset-white file:border-0 file:bg-transparent file:text-md file:font-medium placeholder:text-zinc-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-950 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:border-zinc-800 dark:bg-zinc-950 dark:ring-offset-zinc-950 dark:placeholder:text-zinc-400 dark:focus-visible:ring-zinc-300",
         props.className
       )}
     />
@@ -176,12 +177,12 @@ function FieldGroup(
     <div className={twMerge("mb-5", props.className)}>
       <label
         htmlFor={props.name}
-        className="block text-sm font-semibold leading-6 mb-1"
+        className="block text-md font-semibold leading-6 mb-1"
       >
         {props.label}
       </label>
       {props.description ? (
-        <p className="text-sm text-zinc-600 mb-3">{props.description}</p>
+        <p className="text-md text-zinc-600 mb-3">{props.description}</p>
       ) : null}
       <Field {...props} />
     </div>
@@ -211,7 +212,7 @@ function DetailsPage() {
         placeholder="What is your project about?"
       />
       <label
-        className="block mb-2 text-sm font-semibold text-gray-900 dark:text-white"
+        className="block mb-2 text-md font-semibold text-gray-900 dark:text-white"
         htmlFor="file_input"
       >
         Upload logo
@@ -222,6 +223,37 @@ function DetailsPage() {
         }}
       />
     </>
+  );
+}
+
+function NotesSection({ title = "[ ? ]", children }: { title?: string, children: React.ReactNode }) {
+  const [isOpen, setIsOpen] = useState(false);
+
+  const toggleDropdown = () => {
+    setIsOpen(!isOpen);
+  };
+
+  return (
+    <div className="mt-4">
+      {/* Dropdown Header */}
+      <button
+        type="button"
+        onClick={toggleDropdown}
+        className="flex items-center gap-2 text-left text-zinc-600"
+      >
+        <span
+          className={`transform transition-transform font-sm ${
+            isOpen ? "rotate-90" : "rotate-0"
+          }`}
+        >
+          ▶
+        </span>
+        <div className="font-sm">{title}</div>
+      </button>
+
+      {/* Dropdown Content */}
+      {isOpen && <div className="mt-2 pl-4 text-gray-600 text-sm">{children}</div>}
+    </div>
   );
 }
 
@@ -282,7 +314,7 @@ function AddStageDialog({
                   />
 
                   <div>
-                    <div className="flex gap-2 items-center text-sm text-zinc-600">
+                    <div className="flex gap-2 items-center text-md text-zinc-600">
                       <label
                         htmlFor="priceCeilingIncreasePercentage"
                         className="whitespace-nowrap"
@@ -308,9 +340,11 @@ function AddStageDialog({
                       />
                       days.
                     </div>
-                    <div className="text-zinc-600 text-sm mt-4">
-                      <span className="italic">Note:
-                        <ul className="list-disc list-inside pl-4">
+                    <NotesSection>
+
+                    <div className="text-zinc-600 text-md mt-4">
+                      <span className="italic">
+                        <ul className="list-disc list-inside">
                           <li className="flex">
     <span className="mr-2">•</span>
     <div>
@@ -333,16 +367,17 @@ Days must be a multiple of this stage's duration.
                         </ul>
                         </span>
                     </div>
+                    </NotesSection>
                   </div>
                 </div>
 
                 <div className="pb-10">
                   <div
-                    className="block text-sm font-semibold leading-6"
+                    className="block text-md font-semibold leading-6"
                   >
                     3. Split
                   </div>
-                  <p className="text-zinc-600 text-sm pb-3 mt-1">
+                  <p className="text-zinc-600 text-md pb-3 mt-1">
                     Split a portion of new token issuance and buybacks to an operator.
                   </p>
 
@@ -352,7 +387,7 @@ Days must be a multiple of this stage's duration.
                     name="splitRate"
                     suffix={`% of ${revnetTokenSymbol}`}
                   />
-                  <div className="flex gap-2 items-center text-sm text-zinc-600">
+                  <div className="flex gap-2 items-center text-md text-zinc-600">
                     <label
                       htmlFor="priceCeilingIncreasePercentage"
                       className="whitespace-nowrap"
@@ -366,7 +401,9 @@ Days must be a multiple of this stage's duration.
                     description={
                       stageIdx === 0 ? "" : (
                         <span className="text-xs text-blue-900 mb-2 flex gap-1 p-2 bg-blue-50 rounded-md">
-                          <QuestionMarkCircleIcon className="h-4 w-4" /> Set the
+                          [ ? ] 
+                          {/* <QuestionMarkCircleIcon className="h-4 w-4" />  */}
+                          Set the
                           operator in the first stage.
                         </span>
                       )
@@ -377,9 +414,11 @@ Days must be a multiple of this stage's duration.
                   .
                   </div>
 
-                    <div className="text-zinc-600 text-sm mt-4">
-                      <span className="italic">Note:
-                        <ul className="list-disc list-inside pl-4">
+                    <NotesSection>
+
+                    <div className="text-zinc-600 text-md mt-4">
+                      <span className="italic">
+                        <ul className="list-disc list-inside">
                           <li className="flex">
     <span className="mr-2">•</span>
     <div>
@@ -397,6 +436,7 @@ Days must be a multiple of this stage's duration.
                         </ul>
                         </span>
                     </div>
+                    </NotesSection>
 
                 </div>
 
@@ -413,18 +453,18 @@ Days must be a multiple of this stage's duration.
                   <div className="pb-10">
                     <div
                       id="priceFloorTaxIntensity-group"
-                      className="block text-sm font-semibold leading-6"
+                      className="block text-md font-semibold leading-6"
                     >
                       5. Cash out tax
                     </div>
-                    <p className="text-sm text-zinc-500 mt-3">
+                    <p className="text-md text-zinc-500 mt-3">
                       All {revnetTokenSymbol} holders can access revenue by cashing out their {revnetTokenSymbol}. A
                       tax can be added that rewards {revnetTokenSymbol} holders who stick around while others cash out.
                     </p>
                     <div
                       role="group"
                       aria-labelledby="priceFloorTaxIntensity-group"
-                      className="flex gap-3 text-sm mt-4"
+                      className="flex gap-3 text-md mt-4"
                     >
                       <label>
                         <FormikField
@@ -464,9 +504,11 @@ Days must be a multiple of this stage's duration.
                       </label>
                   </div>
 
-                    <div className="text-zinc-600 text-sm mt-4">
-                      <span className="italic">Note:
-                        <ul className="list-disc list-inside pl-4">
+                    <NotesSection>
+
+                    <div className="text-zinc-600 text-md mt-4">
+                      <span className="italic">
+                        <ul className="list-disc list-inside">
                           <li className="flex">
     <span className="mr-2">•</span>
     <div>
@@ -488,6 +530,7 @@ Days must be a multiple of this stage's duration.
                         </ul>
                         </span>
                 </div>
+                    </NotesSection>
                   </div>
 
                 <DialogFooter>
@@ -552,7 +595,7 @@ function ConfigPage() {
                         </Button>
                       </div>
                     </div>
-                    <div className="text-sm text-zinc-500 flex gap-2 flex-wrap">
+                    <div className="text-md text-zinc-500 flex gap-2 flex-wrap">
                       <div>
                         {stage.boostDuration ? (
                           <>{stage.boostDuration} days</>
@@ -599,12 +642,12 @@ function ConfigPage() {
               </Button>
             </AddStageDialog>
             {maxStageReached ? (
-              <div className="text-sm text-orange-900 mt-2 flex gap-1 p-2 bg-orange-50 rounded-md">
+              <div className="text-md text-orange-900 mt-2 flex gap-1 p-2 bg-orange-50 rounded-md">
                 <ExclamationCircleIcon className="h-4 w-4" /> You've added the
                 maximum number of stages.
               </div>
             ) : !canAddStage ? (
-              <div className="text-sm text-orange-900 mt-2 flex gap-1 p-2 bg-orange-50 rounded-md">
+              <div className="text-md text-orange-900 mt-2 flex gap-1 p-2 bg-orange-50 rounded-md">
                 <ExclamationCircleIcon className="h-4 w-4" /> Your last stage is
                 indefinite. Set a duration to add another stage.
               </div>
@@ -631,26 +674,26 @@ function ReviewPage() {
         <div className="mt-6 border-t border-zinc-100">
           <dl className="divide-y divide-zinc-100">
             <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-              <dt className="text-sm font-medium leading-6 text-zinc-900">
+              <dt className="text-md font-medium leading-6 text-zinc-900">
                 Revnet name
               </dt>
-              <dd className="mt-1 text-sm leading-6 text-zinc-700 sm:col-span-2 sm:mt-0">
+              <dd className="mt-1 text-md leading-6 text-zinc-700 sm:col-span-2 sm:mt-0">
                 {values.name}
               </dd>
             </div>
             {/* <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-              <dt className="text-sm font-medium leading-6 text-zinc-900">
+              <dt className="text-md font-medium leading-6 text-zinc-900">
                 Revnet tagline
               </dt>
-              <dd className="mt-1 text-sm leading-6 text-zinc-700 sm:col-span-2 sm:mt-0">
+              <dd className="mt-1 text-md leading-6 text-zinc-700 sm:col-span-2 sm:mt-0">
                 {values.tagline}
               </dd>
             </div> */}
             <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-              <dt className="text-sm font-medium leading-6 text-zinc-900">
+              <dt className="text-md font-medium leading-6 text-zinc-900">
                 Revnet description
               </dt>
-              <dd className="mt-1 text-sm leading-6 text-zinc-700 sm:col-span-2 sm:mt-0">
+              <dd className="mt-1 text-md leading-6 text-zinc-700 sm:col-span-2 sm:mt-0">
                 {values.description.split("\n").map((d, idx) => (
                   <p
                     className={
@@ -664,11 +707,11 @@ function ReviewPage() {
               </dd>
             </div>
             <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-              <dt className="text-sm font-medium leading-6 text-zinc-900">
+              <dt className="text-md font-medium leading-6 text-zinc-900">
                 Logo
               </dt>
 
-              <dd className="mt-1 text-sm leading-6 text-zinc-700 sm:col-span-2 sm:mt-0">
+              <dd className="mt-1 text-md leading-6 text-zinc-700 sm:col-span-2 sm:mt-0">
                 {values.logoUri ? (
                   <Image
                     src={ipfsUriToGatewayUrl(values.logoUri)}
@@ -682,10 +725,10 @@ function ReviewPage() {
               </dd>
             </div>
             <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-              <dt className="text-sm font-medium leading-6 text-zinc-900">
+              <dt className="text-md font-medium leading-6 text-zinc-900">
                 Token
               </dt>
-              <dd className="mt-1 text-sm leading-6 text-zinc-700 sm:col-span-2 sm:mt-0">
+              <dd className="mt-1 text-md leading-6 text-zinc-700 sm:col-span-2 sm:mt-0">
                 {values.tokenName} (${values.tokenSymbol})
               </dd>
             </div>
@@ -698,16 +741,16 @@ function ReviewPage() {
             {values.stages.map((stage, idx) => {
               return (
                 <div key={idx} className="py-6">
-                  <div className="text-sm font-medium mb-3 uppercase flex gap-3 items-center">
+                  <div className="text-md font-medium mb-3 uppercase flex gap-3 items-center">
                     <span className="flex-shrink-0">Stage {idx + 1}</span>
                     <span className="h-[1px] w-full bg-zinc-100"></span>
                   </div>
 
                   <div className="px-4 py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                    <dt className="text-sm font-medium leading-6 text-zinc-900">
+                    <dt className="text-md font-medium leading-6 text-zinc-900">
                       Duration
                     </dt>
-                    <dd className="mt-1 text-sm leading-6 text-zinc-700 sm:col-span-2 sm:mt-0">
+                    <dd className="mt-1 text-md leading-6 text-zinc-700 sm:col-span-2 sm:mt-0">
                       {stage.boostDuration ? (
                         <>{stage.boostDuration} days</>
                       ) : (
@@ -717,29 +760,29 @@ function ReviewPage() {
                   </div>
 
                   <div className="px-4 py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                    <dt className="text-sm font-medium leading-6 text-zinc-900">
+                    <dt className="text-md font-medium leading-6 text-zinc-900">
                       Token price ceiling
                     </dt>
-                    <dd className="mt-1 text-sm leading-6 text-zinc-700 sm:col-span-2 sm:mt-0">
+                    <dd className="mt-1 text-md leading-6 text-zinc-700 sm:col-span-2 sm:mt-0">
                       +{stage.priceCeilingIncreasePercentage || 0}% every{" "}
                       {stage.priceCeilingIncreaseFrequency} days
                     </dd>
                   </div>
 
                   <div className="px-4 py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                    <dt className="text-sm font-medium leading-6 text-zinc-900">
+                    <dt className="text-md font-medium leading-6 text-zinc-900">
                       Cash out tax
                     </dt>
-                    <dd className="mt-1 text-sm leading-6 text-zinc-700 sm:col-span-2 sm:mt-0">
+                    <dd className="mt-1 text-md leading-6 text-zinc-700 sm:col-span-2 sm:mt-0">
                       {stage.priceFloorTaxIntensity}%
                     </dd>
                   </div>
 
                   <div className="px-4 py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                    <dt className="text-sm font-medium leading-6 text-zinc-900">
+                    <dt className="text-md font-medium leading-6 text-zinc-900">
                       Operator split
                     </dt>
-                    <dd className="mt-1 text-sm leading-6 text-zinc-700 sm:col-span-2 sm:mt-0">
+                    <dd className="mt-1 text-md leading-6 text-zinc-700 sm:col-span-2 sm:mt-0">
                       {stage.splitRate || 0}%{" "}
                     </dd>
                   </div>
@@ -749,6 +792,70 @@ function ReviewPage() {
           </dl>
         </div>
       </div>
+    </div>
+  );
+}
+
+function EnvironmentCheckbox() {
+  // State for dropdown selection
+  const [environment, setEnvironment] = useState("production");
+
+  // Handler for dropdown change
+  const handleEnvironmentChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setEnvironment(e.target.value);
+  };
+
+  return (
+
+    <div className="dropdown-check-array md:col-span-2">
+    <div className="flex flex-col gap-4">
+      <select
+        id="env-dropdown"
+        value={environment}
+        onChange={handleEnvironmentChange}
+        className="p-2 rounded border border-gray-300 text-black-600 font-semibold"
+      >
+        <option value="production">Production</option>
+        <option value="testing">Testing</option>
+      </select>
+
+      {/* Conditional Checkboxes */}
+      <div className="flex flex-wrap gap-6 mt-4">
+        {environment === "production" ? (
+          // Production Options
+          <>
+            <label className="flex items-center gap-2">
+              <input type="checkbox" value="ethereum" className="form-checkbox" /> Ethereum Mainnet
+            </label>
+            <label className="flex items-center gap-2">
+              <input type="checkbox" value="optimism" className="form-checkbox" /> Optimism Mainnet
+            </label>
+            <label className="flex items-center gap-2">
+              <input type="checkbox" value="arbitrum" className="form-checkbox" /> Arbitrum Mainnet
+            </label>
+            <label className="flex items-center gap-2">
+              <input type="checkbox" value="base" className="form-checkbox" /> Base Mainnet
+            </label>
+          </>
+        ) : (
+          // Testnet Options (Sepolia)
+          <>
+            <label className="flex items-center gap-2">
+              <input type="checkbox" value="sepolia-ethereum" className="form-checkbox" /> Ethereum Sepolia
+            </label>
+            <label className="flex items-center gap-2">
+              <input type="checkbox" value="sepolia-optimism" className="form-checkbox" /> Optimism Sepolia
+            </label>
+            <label className="flex items-center gap-2">
+              <input type="checkbox" value="sepolia-arbitrum" className="form-checkbox" /> Arbitrum Sepolia
+            </label>
+            <label className="flex items-center gap-2">
+              <input type="checkbox" value="sepolia-base" className="form-checkbox" /> Base Sepolia
+            </label>
+          </>
+        )}
+      </div>
+    </div>
     </div>
   );
 }
@@ -766,8 +873,8 @@ function DeployRevnetForm() {
         Deploy a revnet for your project
       </h1>
       <div className="md:col-span-1">
-        <h2 className="font-medium text-lg">1. Aesthetics</h2>
-        <p className="text-zinc-600 text-sm">
+        <h2 className="font-medium text-lg mb-2">1. Aesthetics</h2>
+        <p className="text-zinc-600 text-md">
           Your revnet's look and feel.
         </p>
       </div>
@@ -778,11 +885,11 @@ function DeployRevnetForm() {
       <div className="h-[1px] bg-zinc-200 md:col-span-3 my-10"></div>
 
       <div className="md:col-span-1">
-        <h2 className="font-medium text-lg">2. Rules</h2>
-        <p className="text-zinc-600 text-sm">
+        <h2 className="font-medium text-lg mb-2">2. Rules</h2>
+        <p className="text-zinc-600 text-md">
           Your revnet's monetization rules evolve over time automatically in stages.
         </p>
-        <p className="text-zinc-600 text-sm mt-2">
+        <p className="text-zinc-600 text-md mt-2">
           Staged rules
           are an onchain contract that can't be edited once deployed.
         </p>
@@ -792,57 +899,18 @@ function DeployRevnetForm() {
       </div>
       <div className="h-[1px] bg-zinc-200 md:col-span-3 my-10"></div>
       <div className="md:col-span-1">
-        <h2 className="font-medium text-lg">3. Deploy</h2>
-        <p className="text-zinc-600 text-sm">
+        <h2 className="font-medium text-lg mb-2">3. Deploy</h2>
+        <p className="text-zinc-600 text-md">
           Pick which chains your revnet will accept money on and issue {revnetTokenSymbol} from.
         </p>
-        <p className="text-zinc-600 text-sm mt-2">
+        <p className="text-zinc-600 text-md mt-2">
           Holder of {revnetTokenSymbol} can cash out on any of the selected chains, and can move their {revnetTokenSymbol} between chains at any time.
         </p>
-        <p className="text-zinc-600 text-sm mt-2">
+        <p className="text-zinc-600 text-md mt-2">
           The Operator you set in your revnet's rules will also be able to add new chains to the revnet later.
         </p>
       </div>
-      <div className="dropdown-check-array">
-    {/* Dropdown Menu */}
-    <select id="env-dropdown" >
-      <option value="production">Production</option>
-      <option value="testing">Testing</option>
-    </select>
-
-  {/* Horizontal Check Array */}
-  <div className="grid gap-1 mt-4">
-      {/* Mainnet Options */}
-      <label>
-        <input type="checkbox" value="ethereum" /> Ethereum Mainnet
-      </label>
-      <label>
-        <input type="checkbox" value="optimism" /> Optimism Mainnet
-      </label>
-      <label>
-        <input type="checkbox" value="arbitrum" /> Arbitrum Mainnet
-      </label>
-      <label>
-        <input type="checkbox" value="base" /> Base Mainnet
-      </label>
-
-      {/* Testnet Options */}
-      <label>
-        <input type="checkbox" value="sepolia-ethereum" /> Sepolia Ethereum Testnet
-      </label>
-      <label>
-        <input type="checkbox" value="sepolia-optimism" /> Sepolia Optimism Testnet
-      </label>
-      <label>
-        <input type="checkbox" value="sepolia-arbitrum" /> Sepolia Arbitrum Testnet
-      </label>
-      <label>
-        <input type="checkbox" value="sepolia-base" /> Sepolia Base Testnet
-      </label>
-    </div>
-  </div>
-
-      <div className="h-[1px] bg-zinc-200 md:col-span-3 my-10"></div>
+      <EnvironmentCheckbox />
 
       <div className="flex justify-end md:col-span-3">
         <Button
@@ -1070,3 +1138,4 @@ export default function Page() {
     </>
   );
 }
+
