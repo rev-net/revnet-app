@@ -60,11 +60,12 @@ export function UserTokenBalanceCard() {
       : null;
 
   return (
-    <div className="mb-16 bg-zinc-50 border border-zinc-200 w-full shadow-lg rounded-xl p-4 flex justify-between gap-2 flex-wrap items-center">
+    <div className="flex flex-col mb-16 bg-zinc-50 border border-zinc-200 w-full shadow-lg rounded-xl p-4 flex justify-between gap-2 flex-wrap">
       <div>
-        <div className="mb-1">Your tokens</div>
-        <div className="text-lg overflow-auto mb-1">
-          {creditBalance?.format(6) ?? 0} {tokenSymbol}
+        <div>
+          <div className="text-lg overflow-auto mb-1">
+            You own {creditBalance?.format(6) ?? 0} {tokenSymbol}
+          </div>
         </div>
         {creditBalance && creditBalanceRedemptionQuote ? (
           <div className="text-xs text-zinc-500">
@@ -84,6 +85,9 @@ export function UserTokenBalanceCard() {
           </Button>
         </RedeemDialog>
       ) : null}
+        <Button variant="outline" disabled={true}>
+          Get a loan (soon)
+        </Button>
     </div>
   );
 }
