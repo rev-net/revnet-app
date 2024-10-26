@@ -15,17 +15,12 @@ import {
 import { useNativeTokenSymbol } from "@/hooks/useNativeTokenSymbol";
 import { ipfsUri, ipfsUriToGatewayUrl } from "@/lib/ipfs";
 import { createSalt } from "@/lib/number";
-import { useDeployRevnet } from "@/lib/revnet/hooks/useDeployRevnet";
 import {
   ExclamationCircleIcon,
   PencilSquareIcon,
-  QuestionMarkCircleIcon,
   TrashIcon,
 } from "@heroicons/react/24/outline";
-import {
-  useJBTokenContext
-} from "juice-sdk-react";
-import { CheckCircleIcon, PlusIcon } from "@heroicons/react/24/solid";
+import { PlusIcon } from "@heroicons/react/24/solid";
 import {
   FieldArray,
   FieldAttributes,
@@ -54,13 +49,16 @@ import {
   Chain,
   ContractFunctionParameters,
   encodeFunctionData,
+  formatEther,
   parseUnits,
   zeroAddress,
 } from "viem";
 import { mainnet, sepolia } from "viem/chains";
-import { useWaitForTransactionReceipt } from "wagmi";
+import { useSendTransaction, useWaitForTransactionReceipt } from "wagmi";
 import { IpfsImageUploader } from "../../components/IpfsFileUploader";
 import { chainIdMap, MAX_RULESET_COUNT } from "../constants";
+import { ChainPayment, useDeployRevnetRelay } from "@/lib/relayr/hooks/useDeployRevnetRelay";
+import { formatHexEther } from "@/lib/utils";
 
 const defaultStageData = {
   initialOperator: "", // only the first stage has this
@@ -401,7 +399,7 @@ Days must be a multiple of this stage's duration.
                     description={
                       stageIdx === 0 ? "" : (
                         <span className="text-xs text-blue-900 mb-2 flex gap-1 p-2 bg-blue-50 rounded-md">
-                          [ ? ] 
+                          [ ? ]
                           {/* <QuestionMarkCircleIcon className="h-4 w-4" />  */}
                           Set the
                           operator in the first stage.
@@ -796,7 +794,7 @@ function ReviewPage() {
   );
 }
 
-function EnvironmentCheckbox() {
+function EnvironmentCheckbox({ payOptions }: { payOptions?: ChainPayment[] }) {
   // State for dropdown selection
   const [environment, setEnvironment] = useState("production");
 
@@ -873,36 +871,45 @@ function EnvironmentCheckbox() {
         </Button>
       </div>
 
-        <div className="text-left text-black-500 mt-4 font-semibold">
-          Deploying this revnet will cost 0.01 ETH. How would you like to pay?
-        </div>
-
-      <select
-        id="env-dropdown"
-        value={environment}
-        onChange={handleEnvironmentChange}
-        className="p-2 rounded border border-gray-300 text-black-600"
-      >
-        <option value="production">Pay option 1</option>
-        <option value="testing">Pay option 2</option>
-      </select>
-      <div className="flex md:col-span-3 mt-4">
-        <Button
-          type="submit"
-          size="lg"
-          onClick={() => {
-            submitForm();
-          }}
-        >
-          Finalize <FastForwardIcon className="h-4 w-4 fill-white ml-2" />
-        </Button>
+      <div className="text-left text-black-500 mt-4 font-semibold">
+        Deploying this revnet will cost {formatHexEther(payOptions?.[0]?.amount)} ETH. How would you like to pay?
       </div>
+
+      {payOptions && (
+        <>
+          <select
+            id="env-dropdown"
+            value={environment}
+            onChange={handleEnvironmentChange}
+            className="p-2 rounded border border-gray-300 text-black-600"
+          >
+            { payOptions.map((po) => {
+              return (
+                <option value={po.chain} key={po.chain}>{chainIdMap[po.chain]}</option>
+              )
+            })}
+          </select>
+        <div className="flex md:col-span-3 mt-4">
+          <Button
+            type="submit"
+            size="lg"
+            onClick={() => {
+              useSendTransaction({
+
+              })
+            }}
+          >
+            Finalize <FastForwardIcon className="h-4 w-4 fill-white ml-2" />
+          </Button>
+      </div>
+        </>
+      )}
     </div>
     </div>
   );
 }
 
-function DeployRevnetForm() {
+function DeployRevnetForm({ payOptions }: { payOptions?: ChainPayment[] }) {
   const { values } = useFormikContext<RevnetFormData>();
 
   const revnetTokenSymbol =
@@ -952,7 +959,7 @@ function DeployRevnetForm() {
           The Operator you set in your revnet's rules will also be able to add new chains to the revnet later.
         </p>
       </div>
-      <EnvironmentCheckbox />
+      <EnvironmentCheckbox payOptions={payOptions} />
     </div>
   );
 }
@@ -1073,11 +1080,11 @@ export default function Page() {
   const [isLoadingIpfs, setIsLoadingIpfs] = useState<boolean>(false);
 
   const chain = useChain();
-  const { write, data, isPending } = useDeployRevnet();
-  const { data: txData, isSuccess } = useWaitForTransactionReceipt({
-    hash: data,
-  });
-
+  const { write, payOptions } = useDeployRevnetRelay();
+  // const { data: txData, isSuccess } = useWaitForTransactionReceipt({
+  //   hash: data,
+  // });
+  console.log(payOptions);
   async function deployProject(formData: RevnetFormData) {
     // Upload metadata
     setIsLoadingIpfs(true);
@@ -1102,51 +1109,59 @@ export default function Page() {
 
     console.log("deployData::", deployData, encodedData);
 
-    // Deploy onchain
-    write?.(deployData);
+    // Send to Relayr
+    write?.({
+      data: encodedData,
+      chainTerminals: Object.entries(SUPPORTED_JB_MULTITERMINAL_ADDRESS).map(([chain, terminal]) => {
+        return {
+          chain: Number(chain),
+          terminal: String(terminal)
+        }
+      })
+    });
   }
 
-  if (isSuccess && txData) {
-    console.log("useDeployRevnet::tx success", txData.logs);
-    const projectIdHex = txData.logs[0].topics[1];
-    if (!projectIdHex) {
-      console.warn("useDeployRevnet::fail::no project id");
+  // if (isSuccess && txData) {
+  //   console.log("useDeployRevnet::tx success", txData.logs);
+  //   const projectIdHex = txData.logs[0].topics[1];
+  //   if (!projectIdHex) {
+  //     console.warn("useDeployRevnet::fail::no project id");
 
-      return (
-        <div className="container">
-          <div className="max-w-lg rounded-lg shadow-lg my-24 p-10 mx-auto border border-zinc-100">
-            Something went wrong.{" "}
-            <EtherscanLink type="tx" value={data}>
-              Check the transaction on Etherscan
-            </EtherscanLink>
-            .
-          </div>
-        </div>
-      );
-    }
+  //     return (
+  //       <div className="container">
+  //         <div className="max-w-lg rounded-lg shadow-lg my-24 p-10 mx-auto border border-zinc-100">
+  //           Something went wrong.{" "}
+  //           <EtherscanLink type="tx" value={data}>
+  //             Check the transaction on Etherscan
+  //           </EtherscanLink>
+  //           .
+  //         </div>
+  //       </div>
+  //     );
+  //   }
 
-    const projectId = BigInt(projectIdHex).toString(10);
-    console.warn("useDeployRevnet::success::project id", projectId);
+  //   const projectId = BigInt(projectIdHex).toString(10);
+  //   console.warn("useDeployRevnet::success::project id", projectId);
 
-    const chainId = chain?.id ?? sepolia.id;
+  //   const chainId = chain?.id ?? sepolia.id;
 
-    return (
-      <>
-        <Nav />
-        <div className="container min-h-screen">
-          <div className="max-w-lg rounded-lg shadow-lg my-24 p-10 mx-auto border border-zinc-100 flex flex-col items-center">
-            <CheckCircleIcon className="h-9 w-9 text-green-600 mb-4" />
-            <h1 className="text-4xl mb-10">Your Revnet is Live</h1>
-            <p>
-              <Link href={`${chainIdMap[chainId]}/net/${projectId}`}>
-                <Button size="lg">Go to Revnet</Button>
-              </Link>
-            </p>
-          </div>
-        </div>
-      </>
-    );
-  }
+  //   return (
+  //     <>
+  //       <Nav />
+  //       <div className="container min-h-screen">
+  //         <div className="max-w-lg rounded-lg shadow-lg my-24 p-10 mx-auto border border-zinc-100 flex flex-col items-center">
+  //           <CheckCircleIcon className="h-9 w-9 text-green-600 mb-4" />
+  //           <h1 className="text-4xl mb-10">Your Revnet is Live</h1>
+  //           <p>
+  //             <Link href={`${chainIdMap[chainId]}/net/${projectId}`}>
+  //               <Button size="lg">Go to Revnet</Button>
+  //             </Link>
+  //           </p>
+  //         </div>
+  //       </div>
+  //     </>
+  //   );
+  // }
 
   return (
     <>
@@ -1163,9 +1178,8 @@ export default function Page() {
           }
         }}
       >
-        <DeployRevnetForm />
+        <DeployRevnetForm payOptions={payOptions} />
       </Formik>
     </>
   );
 }
-

@@ -4,7 +4,7 @@ import { FixedInt } from "fpnum";
 import { JBRulesetData, ReservedPercent, RulesetWeight, getTokenAToBQuote } from "juice-sdk-core";
 import { JBTokenContextData } from "juice-sdk-react";
 import { twMerge } from "tailwind-merge";
-import { Chain, formatUnits, parseUnits } from "viem";
+import { Chain, formatEther, formatUnits, parseUnits } from "viem";
 import { mainnet } from "viem/chains";
 
 export function cn(...inputs: ClassValue[]) {
@@ -87,3 +87,9 @@ export function rulesetStartDate(ruleset?: JBRulesetData) {
   if (!ruleset) return undefined;
   return new Date(ruleset.start * 1000);
 }
+
+
+export const formatHexEther = (hexWei: `0x${string}` | undefined) => {
+  if (!hexWei) return "0";
+  return Number(formatEther(BigInt(hexWei))).toFixed(8);
+};
