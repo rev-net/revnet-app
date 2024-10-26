@@ -470,7 +470,7 @@ Days must be a multiple of this stage's duration.
                           <li className="flex">
     <span className="mr-2">•</span>
     <div>
-    The higher the tax, the less that can be accessed by cashing out at any given time, and the more that is left to share between remaining {revnetTokenSymbol} holders who cash out later.
+    The higher the tax, the less that can be accessed by cashing out at any given time, and the more that is left to share between remaining holders who cash out later.
     </div>
   </li>
                           <li className="flex">
@@ -575,7 +575,7 @@ function ConfigPage() {
                 ))}
               </div>
             ) : (
-              <div className="text-left text-zinc-500 mb-4 font-semibold">
+              <div className="text-left text-black-500 mb-4 font-semibold">
                 Add a stage to get started
               </div>
             )}
@@ -754,14 +754,19 @@ function ReviewPage() {
 }
 
 function DeployRevnetForm() {
-  const { submitForm, values } = useFormikContext();
+  const { submitForm, values } = useFormikContext<RevnetFormData>();
+
+  const revnetTokenSymbol =
+    values.tokenSymbol?.length > 0 ? `$${values.tokenSymbol}` : "tokens";
+
+  const nativeTokenSymbol = useNativeTokenSymbol();
   return (
     <div className="grid md:grid-cols-3 max-w-6xl mx-auto my-20 gap-x-6 gap-y-6 md:gap-y-0 md:px-0 px-5">
       <h1 className="mb-16 text-2xl md:col-span-3 font-semibold">
         Deploy a revnet for your project
       </h1>
       <div className="md:col-span-1">
-        <h2 className="font-medium text-lg">Aesthetics</h2>
+        <h2 className="font-medium text-lg">1. Aesthetics</h2>
         <p className="text-zinc-600 text-sm">
           Your revnet's look and feel.
         </p>
@@ -773,18 +778,69 @@ function DeployRevnetForm() {
       <div className="h-[1px] bg-zinc-200 md:col-span-3 my-10"></div>
 
       <div className="md:col-span-1">
-        <h2 className="font-medium text-lg">Rules</h2>
+        <h2 className="font-medium text-lg">2. Rules</h2>
         <p className="text-zinc-600 text-sm">
           Your revnet's monetization rules evolve over time automatically in stages.
         </p>
         <p className="text-zinc-600 text-sm mt-2">
           Staged rules
-          are a contract and can't be edited once the revnet is deployed.
+          are an onchain contract that can't be edited once deployed.
         </p>
       </div>
       <div className="md:col-span-2">
         <ConfigPage />
       </div>
+      <div className="h-[1px] bg-zinc-200 md:col-span-3 my-10"></div>
+      <div className="md:col-span-1">
+        <h2 className="font-medium text-lg">3. Deploy</h2>
+        <p className="text-zinc-600 text-sm">
+          Pick which chains your revnet will accept money on and issue {revnetTokenSymbol} from.
+        </p>
+        <p className="text-zinc-600 text-sm mt-2">
+          Holder of {revnetTokenSymbol} can cash out on any of the selected chains, and can move their {revnetTokenSymbol} between chains at any time.
+        </p>
+        <p className="text-zinc-600 text-sm mt-2">
+          The Operator you set in your revnet's rules will also be able to add new chains to the revnet later.
+        </p>
+      </div>
+      <div className="dropdown-check-array">
+    {/* Dropdown Menu */}
+    <select id="env-dropdown" >
+      <option value="production">Production</option>
+      <option value="testing">Testing</option>
+    </select>
+
+  {/* Horizontal Check Array */}
+  <div className="grid gap-1 mt-4">
+      {/* Mainnet Options */}
+      <label>
+        <input type="checkbox" value="ethereum" /> Ethereum Mainnet
+      </label>
+      <label>
+        <input type="checkbox" value="optimism" /> Optimism Mainnet
+      </label>
+      <label>
+        <input type="checkbox" value="arbitrum" /> Arbitrum Mainnet
+      </label>
+      <label>
+        <input type="checkbox" value="base" /> Base Mainnet
+      </label>
+
+      {/* Testnet Options */}
+      <label>
+        <input type="checkbox" value="sepolia-ethereum" /> Sepolia Ethereum Testnet
+      </label>
+      <label>
+        <input type="checkbox" value="sepolia-optimism" /> Sepolia Optimism Testnet
+      </label>
+      <label>
+        <input type="checkbox" value="sepolia-arbitrum" /> Sepolia Arbitrum Testnet
+      </label>
+      <label>
+        <input type="checkbox" value="sepolia-base" /> Sepolia Base Testnet
+      </label>
+    </div>
+  </div>
 
       <div className="h-[1px] bg-zinc-200 md:col-span-3 my-10"></div>
 
