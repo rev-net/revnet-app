@@ -524,7 +524,7 @@ Days must be a multiple of this stage's duration.
   <li className="flex">
     <span className="mr-2">•</span>
     <div>
-    The formula for the amount of {nativeTokenSymbol} received when cashing out is `(ax/s) * ((1-r) + xr/s)` where: `r` is the cash out tax rate (from 0 to 1), `a` is the amount in the revnet being accessed, `s` is the current token supply of {revnetTokenSymbol}, `x` is the amount of {revnetTokenSymbol} being cashed out.
+    The formula for the amount of {nativeTokenSymbol} received when cashing out is `(ax/s) * ((1-r) + xr/s)` where: `r` is the cash out tax rate, `a` is the amount in the revnet being accessed, `s` is the current token supply of {revnetTokenSymbol}, `x` is the amount of {revnetTokenSymbol} being cashed out.
     </div>
   </li>
                         </ul>
@@ -800,6 +800,8 @@ function EnvironmentCheckbox() {
   // State for dropdown selection
   const [environment, setEnvironment] = useState("production");
 
+  const { submitForm } = useFormikContext<RevnetFormData>();
+
   // Handler for dropdown change
   const handleEnvironmentChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setEnvironment(e.target.value);
@@ -808,12 +810,15 @@ function EnvironmentCheckbox() {
   return (
 
     <div className="dropdown-check-array md:col-span-2">
+      <div className="text-left text-black-500 mb-4 font-semibold">
+        Choose your chains
+      </div>
     <div className="flex flex-col gap-4">
       <select
         id="env-dropdown"
         value={environment}
         onChange={handleEnvironmentChange}
-        className="p-2 rounded border border-gray-300 text-black-600 font-semibold"
+        className="p-2 rounded border border-gray-300 text-black-600"
       >
         <option value="production">Production</option>
         <option value="testing">Testing</option>
@@ -855,13 +860,50 @@ function EnvironmentCheckbox() {
           </>
         )}
       </div>
+
+      <div className="flex md:col-span-3 mt-4">
+        <Button
+          type="submit"
+          size="lg"
+          onClick={() => {
+            submitForm();
+          }}
+        >
+          Deploy <FastForwardIcon className="h-4 w-4 fill-white ml-2" />
+        </Button>
+      </div>
+
+        <div className="text-left text-black-500 mt-4 font-semibold">
+          Deploying this revnet will cost 0.01 ETH. How would you like to pay?
+        </div>
+
+      <select
+        id="env-dropdown"
+        value={environment}
+        onChange={handleEnvironmentChange}
+        className="p-2 rounded border border-gray-300 text-black-600"
+      >
+        <option value="production">Pay option 1</option>
+        <option value="testing">Pay option 2</option>
+      </select>
+      <div className="flex md:col-span-3 mt-4">
+        <Button
+          type="submit"
+          size="lg"
+          onClick={() => {
+            submitForm();
+          }}
+        >
+          Finalize <FastForwardIcon className="h-4 w-4 fill-white ml-2" />
+        </Button>
+      </div>
     </div>
     </div>
   );
 }
 
 function DeployRevnetForm() {
-  const { submitForm, values } = useFormikContext<RevnetFormData>();
+  const { values } = useFormikContext<RevnetFormData>();
 
   const revnetTokenSymbol =
     values.tokenSymbol?.length > 0 ? `$${values.tokenSymbol}` : "tokens";
@@ -911,18 +953,6 @@ function DeployRevnetForm() {
         </p>
       </div>
       <EnvironmentCheckbox />
-
-      <div className="flex justify-end md:col-span-3">
-        <Button
-          type="submit"
-          size="lg"
-          onClick={() => {
-            submitForm();
-          }}
-        >
-          Deploy <FastForwardIcon className="h-4 w-4 fill-white ml-2" />
-        </Button>
-      </div>
     </div>
   );
 }
