@@ -24,7 +24,7 @@ export function Creation() {
           type="tx"
           className="text-zinc-500 text-sm"
         >
-          Since {format(timestamp * 1000, "yyyy-MM-dd")}
+          Since {format(timestamp * 1000, "MMM dd, yyyy")}
         </EtherscanLink>
       ) : null
   )
