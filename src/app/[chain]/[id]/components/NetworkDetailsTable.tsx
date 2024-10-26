@@ -173,8 +173,9 @@ export function NetworkDetailsTable() {
         </div>
 
         <div className="space-y-1">
-          <h3 className="font-medium text-black-500">Cash out tax</h3>
-          <p className="text-sm text-black-400">Determines how much of this revnet’s funds can be withdrawn by burning {formatTokenSymbol(token)} during a stage.</p>
+          <h3 className="font-medium text-black-500">Cash out tax rate</h3>
+          <p className="text-sm text-black-400">All {formatTokenSymbol(token)} holders can access revenue by cashing out their {formatTokenSymbol(token)}. A
+          tax can be added that rewards {formatTokenSymbol(token)} holders who stick around while others cash out, determined by a rate from 0 to 1.</p>
                     <div className="text-zinc-600 text-sm mt-4">
                       <span className="italic">Note:
                         <ul className="list-disc list-inside pl-4">
@@ -193,7 +194,7 @@ export function NetworkDetailsTable() {
   <li className="flex">
     <span className="mr-2">•</span>
     <div>
-    The formula for the amount of {nativeTokenSymbol} received when cashing out is `(ax/s) * ((1-r) + xr/s)` where: `r` is the cash out tax rate (from 0 to 1), `a` is the amount in the revnet being accessed, `s` is the current token supply of {formatTokenSymbol(token)}, `x` is the amount of {formatTokenSymbol(token)} being cashed out.
+    The formula for the amount of {nativeTokenSymbol} received when cashing out is `(ax/s) * ((1-r) + xr/s)` where: `r` is the cash out tax rate, `a` is the amount in the revnet being accessed, `s` is the current token supply of {formatTokenSymbol(token)}, `x` is the amount of {formatTokenSymbol(token)} being cashed out.
     </div>
   </li>
                         </ul>
