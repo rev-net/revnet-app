@@ -1,6 +1,7 @@
 import { useCallback } from "react";
-import { useChainId, useSwitchChain, useSendTransaction, useWaitForTransactionReceipt } from "wagmi";
+import { useChainId, useSwitchChain, useSendTransaction } from "wagmi";
 import { ChainPayment } from "./useDeployRevnetRelay";
+import { getChainId } from "viem/actions";
 
 export function usePayRelayr() {
   const chainId = useChainId();
@@ -11,12 +12,16 @@ export function usePayRelayr() {
   } = useSendTransaction();
 
   const pay = useCallback(async (chainPayment: ChainPayment) => {
+    if (chainId !== chainPayment.chain) {
+      switchChain({ chainId: chainPayment.chain})
+    }
+
     sendTransaction({
       to: chainPayment.target,
       value: BigInt(chainPayment.amount),
       data: chainPayment.calldata
-    })
-  }, [sendTransaction]);
+    });
+  }, [sendTransaction, chainId, switchChain]);
 
   return { pay };
 }

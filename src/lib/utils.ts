@@ -92,7 +92,8 @@ export function rulesetStartDate(ruleset?: JBRulesetData) {
 /**
  * Hex formated wei from Relayr API to Ether
  */
-export const formatHexEther = (hexWei: `0x${string}` | undefined) => {
+export const formatHexEther = (hexWei: `0x${string}` | undefined, fixed = 8) => {
   if (!hexWei) return "0";
-  return formatEther(BigInt(hexWei));
+  return Number(formatEther(BigInt(hexWei)))
+    .toFixed(fixed);
 };

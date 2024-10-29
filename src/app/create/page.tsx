@@ -57,7 +57,7 @@ import { mainnet, sepolia } from "viem/chains";
 import { useSendTransaction, useWaitForTransactionReceipt } from "wagmi";
 import { IpfsImageUploader } from "../../components/IpfsFileUploader";
 import { chainIdMap, MAX_RULESET_COUNT } from "../constants";
-import { ChainPayment, useDeployRevnetRelay } from "@/lib/relayr/hooks/useDeployRevnetRelay";
+import { RelayrAPIResponse, useDeployRevnetRelay } from "@/lib/relayr/hooks/useDeployRevnetRelay";
 import { formatHexEther } from "@/lib/utils";
 import { usePayRelayr } from "@/lib/relayr/hooks/usePayRelayr";
 
@@ -795,11 +795,32 @@ function ReviewPage() {
   );
 }
 
-function EnvironmentCheckbox({ payOptions }: { payOptions?: ChainPayment[] }) {
+function EnvironmentCheckbox({ relayrResponse }: { relayrResponse?: RelayrAPIResponse }) {
   // State for dropdown selection
   const [environment, setEnvironment] = useState("production");
   const { pay } = usePayRelayr();
-  const { submitForm } = useFormikContext<RevnetFormData>();
+  const { submitForm, values } = useFormikContext<RevnetFormData>();
+
+  const isFormValid = () => {
+    if (!values.name || !values.tokenSymbol || !values.description) {
+      return false;
+    }
+
+    if (!values.stages || values.stages.length === 0) {
+      return false;
+    }
+
+    const isStagesValid = values.stages.every((stage) => {
+      return (
+        stage.initialIssuance &&
+        stage.priceCeilingIncreasePercentage &&
+        stage.priceCeilingIncreaseFrequency &&
+        (values.stages.indexOf(stage) === 0 ? stage.initialOperator : true)
+      );
+    });
+
+    return isStagesValid;
+  };
 
   // Handler for dropdown change
   const handleEnvironmentChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -864,6 +885,7 @@ function EnvironmentCheckbox({ payOptions }: { payOptions?: ChainPayment[] }) {
         <Button
           type="submit"
           size="lg"
+          disabled={!isFormValid || !!relayrResponse?.bundle_uuid}
           onClick={() => {
             submitForm();
           }}
@@ -872,44 +894,42 @@ function EnvironmentCheckbox({ payOptions }: { payOptions?: ChainPayment[] }) {
         </Button>
       </div>
 
-      <div className="text-left text-black-500 mt-4 font-semibold">
-        Deploying this revnet will cost {formatHexEther(payOptions?.[0]?.amount)} ETH. How would you like to pay?
-      </div>
-
-      {payOptions && (
+      {relayrResponse && (
         <>
+          <div className="text-left text-black-500 mt-4 font-semibold">
+            Deploying this revnet will cost {formatHexEther(relayrResponse.payment_info?.[0]?.amount)} ETH. How would you like to pay?
+          </div>
           <select
             id="env-dropdown"
             value={environment}
             onChange={handleEnvironmentChange}
             className="p-2 rounded border border-gray-300 text-black-600"
           >
-            { payOptions.map((po) => {
+            { relayrResponse.payment_info.map((po) => {
               return (
                 <option value={po.chain} key={po.chain}>{chainIdMap[po.chain]}</option>
               )
             })}
           </select>
-        <div className="flex md:col-span-3 mt-4">
-          <Button
-            type="submit"
-            size="lg"
-            onClick={() => {
-              pay?.(payOptions[0])
-
-            }}
-          >
-            Finalize <FastForwardIcon className="h-4 w-4 fill-white ml-2" />
-          </Button>
-      </div>
+          <div className="flex md:col-span-3 mt-4">
+            <Button
+              type="submit"
+              size="lg"
+              onClick={() => {
+                pay?.(relayrResponse.payment_info[0])
+              }}
+            >
+              Finalize <FastForwardIcon className="h-4 w-4 fill-white ml-2" />
+            </Button>
+          </div>
         </>
       )}
-    </div>
+      </div>
     </div>
   );
 }
 
-function DeployRevnetForm({ payOptions }: { payOptions?: ChainPayment[] }) {
+function DeployRevnetForm({ relayrResponse }: { relayrResponse?: RelayrAPIResponse }) {
   const { values } = useFormikContext<RevnetFormData>();
 
   const revnetTokenSymbol =
@@ -959,7 +979,7 @@ function DeployRevnetForm({ payOptions }: { payOptions?: ChainPayment[] }) {
           The Operator you set in your revnet's rules will also be able to add new chains to the revnet later.
         </p>
       </div>
-      <EnvironmentCheckbox payOptions={payOptions} />
+      <EnvironmentCheckbox relayrResponse={relayrResponse} />
     </div>
   );
 }
@@ -1080,11 +1100,10 @@ export default function Page() {
   const [isLoadingIpfs, setIsLoadingIpfs] = useState<boolean>(false);
 
   const chain = useChain();
-  const { write, payOptions } = useDeployRevnetRelay();
+  const { write, response } = useDeployRevnetRelay();
   // const { data: txData, isSuccess } = useWaitForTransactionReceipt({
   //   hash: data,
   // });
-  console.log(payOptions);
   async function deployProject(formData: RevnetFormData) {
     // Upload metadata
     setIsLoadingIpfs(true);
@@ -1121,48 +1140,6 @@ export default function Page() {
     });
   }
 
-  // if (isSuccess && txData) {
-  //   console.log("useDeployRevnet::tx success", txData.logs);
-  //   const projectIdHex = txData.logs[0].topics[1];
-  //   if (!projectIdHex) {
-  //     console.warn("useDeployRevnet::fail::no project id");
-
-  //     return (
-  //       <div className="container">
-  //         <div className="max-w-lg rounded-lg shadow-lg my-24 p-10 mx-auto border border-zinc-100">
-  //           Something went wrong.{" "}
-  //           <EtherscanLink type="tx" value={data}>
-  //             Check the transaction on Etherscan
-  //           </EtherscanLink>
-  //           .
-  //         </div>
-  //       </div>
-  //     );
-  //   }
-
-  //   const projectId = BigInt(projectIdHex).toString(10);
-  //   console.warn("useDeployRevnet::success::project id", projectId);
-
-  //   const chainId = chain?.id ?? sepolia.id;
-
-  //   return (
-  //     <>
-  //       <Nav />
-  //       <div className="container min-h-screen">
-  //         <div className="max-w-lg rounded-lg shadow-lg my-24 p-10 mx-auto border border-zinc-100 flex flex-col items-center">
-  //           <CheckCircleIcon className="h-9 w-9 text-green-600 mb-4" />
-  //           <h1 className="text-4xl mb-10">Your Revnet is Live</h1>
-  //           <p>
-  //             <Link href={`${chainIdMap[chainId]}/net/${projectId}`}>
-  //               <Button size="lg">Go to Revnet</Button>
-  //             </Link>
-  //           </p>
-  //         </div>
-  //       </div>
-  //     </>
-  //   );
-  // }
-
   return (
     <>
       <Nav />
@@ -1178,7 +1155,7 @@ export default function Page() {
           }
         }}
       >
-        <DeployRevnetForm payOptions={payOptions} />
+        <DeployRevnetForm relayrResponse={response} />
       </Formik>
     </>
   );

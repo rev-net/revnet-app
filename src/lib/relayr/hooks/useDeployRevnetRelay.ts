@@ -1,5 +1,5 @@
 import { useToast } from "@/components/ui/use-toast";
-import { useCallback, useContext, useState } from "react";
+import { useCallback, useState } from "react";
 
 // relayr is a thing 0xBASED built
 // APP: https://relayr-dashboard-staging.up.railway.app
@@ -41,7 +41,7 @@ type Transaction = {
   status: TransactionStatus;
 }
 
-type RelayrAPIResponse = {
+export type RelayrAPIResponse = {
   bundle_uuid: string;
   payment_info: ChainPayment[];
   payment_received: boolean;
@@ -53,39 +53,49 @@ type RelayrAPIResponse = {
 const API = "https://relayr-api-staging.up.railway.app";
 
 export function useDeployRevnetRelay() {
-  const [payOptions, setpayOptions] = useState<ChainPayment[]>();
+  const { toast } = useToast();
+  const [relayrResponse, setRelayrResponse] = useState<RelayrAPIResponse>();
   const deployRevnet = useCallback(async (args: DeployRevnetRelayArgs) => {
-      const transactions = args.chainTerminals.map((ct) => {
-        return {
-          chain: ct.chain,
-          data: args.data,
-          target: ct.terminal,
-          value: "0"
-        }
-      });
-      try {
-        const response = await fetch(`${API}/v1/bundle/prepaid`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            transactions,
-            virtual_nonce_mode: "Disabled"
-          })
-        });
-
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const data: RelayrAPIResponse = await response.json();
-        setpayOptions(data.payment_info);
-      } catch(e) {
-        console.log(e);
+    const t = toast({
+      title: "Deploying through relayer...",
+    });
+    const transactions = args.chainTerminals.map((ct) => {
+      return {
+        chain: ct.chain,
+        data: args.data,
+        target: ct.terminal,
+        value: "0"
       }
-    },
-    []
-  );
-  return { write: deployRevnet, payOptions };
+    });
+    try {
+      const response = await fetch(`${API}/v1/bundle/prepaid`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          transactions,
+          virtual_nonce_mode: "Disabled"
+        })
+      });
+
+      if (!response.ok) {
+        const errorMessage = await response.text();
+        throw new Error(errorMessage);
+      }
+
+      const data: RelayrAPIResponse = await response.json();
+      console.log("Relayr:: ", data)
+      setRelayrResponse(data);
+      t.dismiss();
+    } catch(e: any) {
+      toast({
+        title: "Failed to deploy revnet",
+        description: e?.message,
+        variant: "destructive"
+      });
+      console.log("Relayr ERROR:: ", e)
+    }
+  }, [toast]);
+  return { write: deployRevnet, response: relayrResponse };
 }
