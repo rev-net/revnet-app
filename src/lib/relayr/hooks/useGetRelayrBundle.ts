@@ -12,7 +12,7 @@ export function useGetRelayrBundle() {
 
   useEffect(() => {
     let pollInterval: NodeJS.Timeout;
-
+    let t: any;
     const pollBundle = async () => {
       try {
         console.log("fetching bundle_uuid:: ", uuid);
@@ -46,8 +46,9 @@ export function useGetRelayrBundle() {
     };
 
     if (isPolling && uuid) {
-      toast({
-        title: "Getting deployment status..."
+      t = toast({
+        title: "Getting deployment status...",
+        duration: 35_000
       });
       pollBundle();
       pollInterval = setInterval(pollBundle, 2000);
@@ -56,6 +57,7 @@ export function useGetRelayrBundle() {
     return () => {
       if (pollInterval) {
         clearInterval(pollInterval);
+        t.dismiss();
       }
     };
   }, [isPolling, uuid, toast]);
