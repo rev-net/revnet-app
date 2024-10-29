@@ -13,8 +13,10 @@ export function usePayRelayr() {
   const pay = useCallback(async (chainPayment: ChainPayment) => {
     sendTransaction({
       to: chainPayment.target,
-      amount: chainPayment.amount,
+      value: BigInt(chainPayment.amount),
       data: chainPayment.calldata
     })
   }, [sendTransaction]);
+
+  return { pay };
 }

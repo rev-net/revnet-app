@@ -51,7 +51,6 @@ type RelayrAPIResponse = {
 }
 
 const API = "https://relayr-api-staging.up.railway.app";
-const GAS_LIMIT = "300_000";
 
 export function useDeployRevnetRelay() {
   const [payOptions, setpayOptions] = useState<ChainPayment[]>();
@@ -60,7 +59,6 @@ export function useDeployRevnetRelay() {
         return {
           chain: ct.chain,
           data: args.data,
-          gas_limit: GAS_LIMIT,
           target: ct.terminal,
           value: "0"
         }

@@ -59,6 +59,7 @@ import { IpfsImageUploader } from "../../components/IpfsFileUploader";
 import { chainIdMap, MAX_RULESET_COUNT } from "../constants";
 import { ChainPayment, useDeployRevnetRelay } from "@/lib/relayr/hooks/useDeployRevnetRelay";
 import { formatHexEther } from "@/lib/utils";
+import { usePayRelayr } from "@/lib/relayr/hooks/usePayRelayr";
 
 const defaultStageData = {
   initialOperator: "", // only the first stage has this
@@ -610,7 +611,7 @@ function ConfigPage() {
                       </div>
                       •<div>{stage.priceFloorTaxIntensity}% cash out tax</div>
                       <div>• {stage.splitRate || 0}% operator split</div>
-                      <div>• {stage.premintTokenAmount || 0}% automint</div>
+                      <div>• {stage.premintTokenAmount || 0} automint</div>
                     </div>
                   </div>
                 ))}
@@ -797,7 +798,7 @@ function ReviewPage() {
 function EnvironmentCheckbox({ payOptions }: { payOptions?: ChainPayment[] }) {
   // State for dropdown selection
   const [environment, setEnvironment] = useState("production");
-
+  const { pay } = usePayRelayr();
   const { submitForm } = useFormikContext<RevnetFormData>();
 
   // Handler for dropdown change
@@ -894,9 +895,8 @@ function EnvironmentCheckbox({ payOptions }: { payOptions?: ChainPayment[] }) {
             type="submit"
             size="lg"
             onClick={() => {
-              useSendTransaction({
+              pay?.(payOptions[0])
 
-              })
             }}
           >
             Finalize <FastForwardIcon className="h-4 w-4 fill-white ml-2" />
@@ -1112,10 +1112,10 @@ export default function Page() {
     // Send to Relayr
     write?.({
       data: encodedData,
-      chainTerminals: Object.entries(SUPPORTED_JB_MULTITERMINAL_ADDRESS).map(([chain, terminal]) => {
+      chainTerminals: Object.entries(SUPPORTED_JB_CONTROLLER_ADDRESS).map(([chain, terminal]) => {
         return {
           chain: Number(chain),
-          terminal: String(terminal)
+          terminal: "0x25bC5D5A708c2E426eF3a5196cc18dE6b2d5A3d1"
         }
       })
     });
