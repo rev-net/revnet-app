@@ -937,7 +937,6 @@ function EnvironmentCheckbox({ relayrResponse }: { relayrResponse?: RelayrAPIRes
                     {chainNames[txn.request.chain as JBChainId]} {txn?.status?.data?.hash}
                   </EtherscanLink> : null
               })}
-              {isComplete && ()}
             </div>
           )}
         </>
