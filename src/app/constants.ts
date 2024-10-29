@@ -1,5 +1,6 @@
 import { JBChainId } from "juice-sdk-react";
 import {
+  Chain,
   arbitrumSepolia,
   baseSepolia,
   optimismSepolia,
@@ -27,3 +28,17 @@ export const chainNames: Record<JBChainId, string> = {
   [baseSepolia.id]: "Base (Sepolia)",
   [arbitrumSepolia.id]: "Arbitrum (Sepolia)",
 };
+
+export const ChainIdToChain: Record<JBChainId, Chain> = {
+  [sepolia.id]: sepolia,
+  [optimismSepolia.id]: optimismSepolia,
+  [baseSepolia.id]: baseSepolia,
+  [arbitrumSepolia.id]: arbitrumSepolia,
+}
+
+export const ChainIdToEtherscanUrlBase: Record<JBChainId, string> = {
+  [sepolia.id]: "sepolia.etherscan.io",
+  [optimismSepolia.id]: "sepolia-optimism.etherscan.io",
+  [baseSepolia.id]: "sepolia.basescan.org",
+  [arbitrumSepolia.id]: "sepolia.arbiscan.io",
+}
