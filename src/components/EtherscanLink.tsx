@@ -2,6 +2,7 @@ import { etherscanLink, formatEthAddress } from "@/lib/utils";
 import { useChain } from "juice-sdk-react";
 import { twMerge } from "tailwind-merge";
 import { ExternalLink } from "./ExternalLink";
+import { Chain } from "viem";
 
 const EtherscanLink: React.FC<
   React.PropsWithChildren<{
@@ -9,9 +10,11 @@ const EtherscanLink: React.FC<
     className?: string;
     type?: "tx" | "address";
     truncateTo?: number;
+    chain?: Chain
   }>
-> = ({ className, value, type = "address", truncateTo, children }) => {
-  const chain = useChain();
+> = ({ className, value, type = "address", truncateTo, chain, children }) => {
+  const connectedChain = useChain();
+  const chainToLink = chain || connectedChain
   if (!value) return null;
 
   const renderValue = truncateTo
@@ -23,7 +26,7 @@ const EtherscanLink: React.FC<
       className={twMerge("hover:underline", className)}
       href={etherscanLink(value, {
         type,
-        chain,
+        chain: chainToLink,
       })}
     >
       {children ?? renderValue}
