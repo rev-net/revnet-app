@@ -151,6 +151,10 @@ export function NetworkDetailsTable() {
                           <li className="flex">
     <span className="mr-2">•</span>
     <div>
+    The operator can change the distribution of the split to new destinations at any time.
+    </div>
+    <span className="mr-2">•</span>
+    <div>
     The operator can be a multisig, a DAO, an LLC, a core team, an
                     airdrop stockpile, a staking rewards contract, or some other
                     address.
