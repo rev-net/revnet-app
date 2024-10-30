@@ -613,7 +613,7 @@ function ConfigPage() {
                         {", "}-{stage.priceCeilingIncreasePercentage || 0}%
                         every {stage.priceCeilingIncreaseFrequency} days
                       </div>
-                      •<div>{(stage.priceFloorTaxIntensity || 0)/100} cash out tax rate</div>
+                      •<div>{(Number(stage.priceFloorTaxIntensity) || 0)/100} cash out tax rate</div>
                       <div>• {stage.splitRate || 0}% operator split</div>
                       <div>• {stage.premintTokenAmount || 0} automint</div>
                     </div>
