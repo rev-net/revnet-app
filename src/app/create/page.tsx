@@ -284,7 +284,7 @@ function AddStageDialog({
         </DialogHeader>
         <div className="my-8">
           <Formik
-            initialValues={{ ...(initialValues ?? defaultStageData), priceFloorTaxIntensity: EXIT_TAX_NONE }}
+            initialValues={{ ...(initialValues ?? defaultStageData) }}
             onSubmit={(newValues) => {
               onSave(newValues);
               setOpen(false);
@@ -613,7 +613,7 @@ function ConfigPage() {
                         {", "}-{stage.priceCeilingIncreasePercentage || 0}%
                         every {stage.priceCeilingIncreaseFrequency} days
                       </div>
-                      •<div>{stage.priceFloorTaxIntensity}% cash out tax</div>
+                      •<div>{(stage.priceFloorTaxIntensity || 0)/100} cash out tax rate</div>
                       <div>• {stage.splitRate || 0}% operator split</div>
                       <div>• {stage.premintTokenAmount || 0} automint</div>
                     </div>
@@ -891,11 +891,12 @@ function EnvironmentCheckbox({ relayrResponse }: { relayrResponse?: RelayrAPIRes
           type="submit"
           size="lg"
           disabled={!isFormValid() || !!relayrResponse?.bundle_uuid}
+          className="text-color-black bg-transparent border border-black hover:bg-zinc-100"
           onClick={() => {
             submitForm();
           }}
         >
-          Deploy <FastForwardIcon className="h-4 w-4 fill-white ml-2" />
+          Get Quote <FastForwardIcon className="h-4 w-4 fill-transparent ml-2" />
         </Button>
       </div>
 
