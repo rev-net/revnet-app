@@ -994,7 +994,7 @@ function EnvironmentCheckbox({
                 }
               }}
             >
-              Pay and Launch
+              Pay and deploy
               <FastForwardIcon
                 className={
                   twMerge("h-4 w-4 fill-white ml-2", isProcessing ? "animate-spin" : "animate-pulse")
