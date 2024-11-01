@@ -1,10 +1,12 @@
+import { JBChainId } from "juice-sdk-react";
+
 export type ChainPayment = {
-  chain: number;
-  token: `0x${string}`;
   amount: `0x${string}`;
-  target: `0x${string}`;
   calldata: `0x${string}`;
+  chain: JBChainId;
   payment_deadline: string;
+  target: `0x${string}`;
+  token: `0x${string}`;
 }
 
 type TransactionRequest = {
@@ -27,11 +29,24 @@ type Transaction = {
   status: TransactionStatus;
 }
 
-export type RelayrAPIResponse = {
+type PerTransaction = {
+  gas_cost: number;
+  priced_in: { asset: string; type: string; }
+  value: number;
+}
+
+export type RelayrPostBundleResponse = {
   bundle_uuid: string;
-  payment_info: ChainPayment[];
-  payment_received: boolean;
-  transactions: Transaction[];
+  payment_info: ChainPayment[]
+  per_txn: PerTransaction[];
+  txn_uuids: string[];
+}
+
+export type RelayrGetBundleResponse = {
+  bundle_uuid: string;
   created_at: string;
   expires_at: string;
+  payment: ChainPayment[];
+  payment_received: boolean;
+  transactions: Transaction[];
 }

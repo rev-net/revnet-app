@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
-import { RelayrAPIResponse } from "../types";
+import { RelayrGetBundleResponse } from "../types";
 import { API } from "../constants";
 
 export function useGetRelayrBundle() {
   const { toast } = useToast();
-  const [relayrResponse, setRelayrResponse] = useState<RelayrAPIResponse>();
+  const [relayrResponse, setRelayrResponse] = useState<RelayrGetBundleResponse>();
   const [isPolling, setIsPolling] = useState(false);
   const [error, setError] = useState<Error | null>(null);
   const [uuid, setUuid] = useState<string>();
@@ -21,7 +21,7 @@ export function useGetRelayrBundle() {
           const errorMessage = await response.text();
           throw new Error(errorMessage);
         }
-        const data: RelayrAPIResponse = await response.json();
+        const data: RelayrGetBundleResponse = await response.json();
         console.log("Relayr:: ", data);
         setRelayrResponse(data);
         setError(null);

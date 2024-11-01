@@ -1,27 +1,40 @@
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { useChainId, useSwitchChain, useSendTransaction } from "wagmi";
 import { ChainPayment } from "../types";
 
 export function usePayRelayr() {
   const chainId = useChainId();
-  const { switchChain } = useSwitchChain();
-
-  const {
-    sendTransaction
-  } = useSendTransaction();
+  const { switchChainAsync } = useSwitchChain();
+  const { sendTransactionAsync } = useSendTransaction();
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const pay = useCallback(async (chainPayment: ChainPayment) => {
-    // this doesn't work if user changes chains after page loads, how do we fix?
-    if (chainId !== chainPayment.chain) {
-      switchChain({ chainId: chainPayment.chain})
+    try {
+      setIsProcessing(true);
+      if (chainId !== chainPayment.chain) {
+        await switchChainAsync({ chainId: chainPayment.chain });
+
+        if (chainId !== chainPayment.chain) {
+          throw new Error("Failed to switch to correct chain");
+        }
+      }
+
+      const tx = await sendTransactionAsync({
+        to: chainPayment.target,
+        value: BigInt(chainPayment.amount),
+        data: chainPayment.calldata
+      });
+
+      return tx;
+    } catch (error) {
+      throw error;
+    } finally {
+      setIsProcessing(false);
     }
+  }, [sendTransactionAsync, chainId, switchChainAsync]);
 
-    sendTransaction({
-      to: chainPayment.target,
-      value: BigInt(chainPayment.amount),
-      data: chainPayment.calldata
-    });
-  }, [sendTransaction, chainId, switchChain]);
-
-  return { pay };
+  return {
+    pay,
+    isProcessing
+  };
 }

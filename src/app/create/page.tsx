@@ -3,7 +3,7 @@
 import EtherscanLink from "@/components/EtherscanLink";
 import { Nav } from "@/components/layout/Nav";
 import { Button } from "@/components/ui/button";
-
+import { QuoteButton } from "./QuoteButton";
 import {
   Dialog,
   DialogContent,
@@ -55,14 +55,31 @@ import { mainnet, sepolia } from "viem/chains";
 import { IpfsImageUploader } from "../../components/IpfsFileUploader";
 import { ChainIdToChain, chainIdMap, chainNames, MAX_RULESET_COUNT } from "../constants";
 import { useDeployRevnetRelay } from "@/lib/relayr/hooks/useDeployRevnetRelay";
-import { RelayrAPIResponse } from "@/lib/relayr/types";
+import { RelayrPostBundleResponse } from "@/lib/relayr/types";
 import { formatHexEther } from "@/lib/utils";
 import { usePayRelayr } from "@/lib/relayr/hooks/usePayRelayr";
 import { useGetRelayrBundle } from "@/lib/relayr/hooks/useGetRelayrBundle";
-import { ExternalLink } from "@/components/ExternalLink";
+import { useToast } from "@/components/ui/use-toast";
+import { useTokenA } from "@/hooks/useTokenA";
+import { format } from "date-fns";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
-const defaultStageData = {
-  initialOperator: "", // only the first stage has this
+type StageData = {
+  initialOperator?: string; // only one operator (technically per chain) not per stage
+  initialIssuance: string;
+
+  priceCeilingIncreasePercentage: string;
+  priceCeilingIncreaseFrequency: string;
+  priceFloorTaxIntensity: string;
+
+  premintTokenAmount: string;
+
+  splitRate: string;
+  boostDuration: string;
+};
+
+const defaultStageData: StageData = {
+  initialOperator: "",
   initialIssuance: "",
 
   priceCeilingIncreasePercentage: "",
@@ -85,22 +102,64 @@ type RevnetFormData = {
   tokenSymbol: string;
 
   premintTokenAmount: string;
-  stages: (typeof defaultStageData)[];
+  stages: StageData[];
 };
+
+// const DEFAULT_FORM_DATA: RevnetFormData = {
+//   name: "",
+//   // tagline: "",
+//   description: "",
+//   logoUri: "",
+
+//   tokenName: "",
+//   tokenSymbol: "",
+
+//   premintTokenAmount: "",
+
+//   stages: [],
+// };
 
 const DEFAULT_FORM_DATA: RevnetFormData = {
-  name: "",
-  // tagline: "",
-  description: "",
-  logoUri: "",
+  name: "Test Revnet",
+  description: "This is a test revnet for development purposes. It demonstrates various features and configurations available in the revnet system.",
+  logoUri: "", // Leave empty or add an IPFS URI if needed
 
-  tokenName: "",
-  tokenSymbol: "",
+  tokenName: "Test Token",
+  tokenSymbol: "TEST",
 
-  premintTokenAmount: "",
+  premintTokenAmount: "1000",
 
-  stages: [],
-};
+  stages: [
+    {
+      initialOperator: "0x1234567890123456789012345678901234567890", // Example operator address
+      initialIssuance: "100",
+      priceCeilingIncreasePercentage: "50", // 50% decrease (doubles price)
+      priceCeilingIncreaseFrequency: "30", // 30 days
+      priceFloorTaxIntensity: "20", // 20% tax (LOW)
+      splitRate: "10", // 10% split
+      premintTokenAmount: "500",
+      boostDuration: "90" // 90 days
+    },
+    {
+      initialIssuance: "50",
+      priceCeilingIncreasePercentage: "25",
+      priceCeilingIncreaseFrequency: "15",
+      priceFloorTaxIntensity: "50", // 50% tax (MID)
+      splitRate: "5",
+      premintTokenAmount: "250",
+      boostDuration: "60"
+    },
+    {
+      initialIssuance: "25",
+      priceCeilingIncreasePercentage: "10",
+      priceCeilingIncreaseFrequency: "7",
+      priceFloorTaxIntensity: "80", // 80% tax (HIGH)
+      splitRate: "2",
+      premintTokenAmount: "100",
+      boostDuration: "" // Empty for indefinite duration
+    }
+  ]
+} as const;
 
 const EXIT_TAX_HIGH = "80";
 const EXIT_TAX_MID = "50";
@@ -135,6 +194,7 @@ function Field(props: FieldAttributes<any>) {
         ) : null}
         <FormikField
           {...props}
+          onWheel={(e: any) => e.target.blur()} // Prevents scrolling on number input
           className={twMerge(
             "flex w-full rounded-md border border-zinc-200 bg-white px-3 py-1.5 text-md ring-offset-white file:border-0 file:bg-transparent file:text-md file:font-medium placeholder:text-zinc-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-950 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:border-zinc-800 dark:bg-zinc-950 dark:ring-offset-zinc-950 dark:placeholder:text-zinc-400 dark:focus-visible:ring-zinc-300",
             props.prefix ? "pl-6" : "",
@@ -144,8 +204,7 @@ function Field(props: FieldAttributes<any>) {
         {props.suffix ? (
           <div
             className={twMerge(
-              "pointer-events-none absolute inset-y-0 right-0 flex items-center",
-              props.type === "number" ? "pr-9" : "pr-3"
+              "pointer-events-none absolute inset-y-0 right-0 flex items-center px-3",
             )}
           >
             <span className="text-zinc-500 sm:text-md">{props.suffix}</span>
@@ -263,9 +322,9 @@ function AddStageDialog({
   initialValues,
 }: {
   stageIdx: number;
-  initialValues?: typeof defaultStageData;
+  initialValues?: StageData;
   children: React.ReactNode;
-  onSave: (newStage: typeof defaultStageData) => void;
+  onSave: (newStage: StageData) => void;
 }) {
   const { values } = useFormikContext<RevnetFormData>();
 
@@ -298,18 +357,20 @@ function AddStageDialog({
                     name="boostDuration"
                     label="1. Stage duration"
                     suffix="days"
-                    description="How long will this stage last? Leave blank to make it last forever."
+                    min="0"
                     type="number"
+                    description="How long will this stage last? Leave blank to make it last forever."
                   />
                 </div>
                 <div className="pb-10">
                   <FieldGroup
                     id="initialIssuance"
                     name="initialIssuance"
+                    min="0"
+                    type="number"
                     label="2. Issuance"
                     description={`How many ${revnetTokenSymbol} to mint when the revnet receives 1 ${nativeTokenSymbol}.`}
                     suffix={`${revnetTokenSymbol} / ${nativeTokenSymbol}`}
-                    type="number"
                   />
 
                   <div>
@@ -323,6 +384,8 @@ function AddStageDialog({
                       <Field
                         id="priceCeilingIncreasePercentage"
                         name="priceCeilingIncreasePercentage"
+                        type="number"
+                        min="0"
                         className="h-9"
                         suffix="%"
                         required
@@ -335,37 +398,30 @@ function AddStageDialog({
                         name="priceCeilingIncreaseFrequency"
                         className="h-9"
                         type="number"
+                        min="0"
                         required
                       />
                       days.
                     </div>
-                    <NotesSection>
 
-                    <div className="text-zinc-600 text-md mt-4">
-                      <span className="italic">
+                    <NotesSection>
+                      <div className="text-zinc-600 text-md mt-4 italic">
                         <ul className="list-disc list-inside">
                           <li className="flex">
-    <span className="mr-2">•</span>
-    <div>
-Days must be a multiple of this stage's duration.
-    </div>
-  </li>
+                            <span className="mr-2">•</span>
+                            <div>Days must be a multiple of this stage's duration.</div>
+                          </li>
                           <li className="flex">
-    <span className="mr-2">•</span>
-    <div>
-      Decreasing 50% means to double the price – a halvening effect.
-    </div>
-  </li>
+                            <span className="mr-2">•</span>
+                              Decreasing 50% means to double the price – a halvening effect.
+                          </li>
                           <li className="flex">
-    <span className="mr-2">•</span>
-    <div>
-      If there's a Uniswap pool for {revnetTokenSymbol} / {nativeTokenSymbol} offering a better price, all {nativeTokenSymbol} paid
-      in will be used to buyback instead of feeding the revnet.
-    </div>
-  </li>
+                            <span className="mr-2">•</span>
+                              If there's a Uniswap pool for {revnetTokenSymbol} / {nativeTokenSymbol} offering a better price, all {nativeTokenSymbol} paid
+                              in will be used to buyback instead of feeding the revnet.
+                          </li>
                         </ul>
-                        </span>
-                    </div>
+                      </div>
                     </NotesSection>
                   </div>
                 </div>
@@ -383,6 +439,8 @@ Days must be a multiple of this stage's duration.
                   <FieldGroup
                     className="flex-1"
                     id="splitRate"
+                    type="number"
+                    min="0"
                     name="splitRate"
                     suffix={`% of ${revnetTokenSymbol}`}
                   />
@@ -396,143 +454,127 @@ Days must be a multiple of this stage's duration.
                   <Field
                     id="initialOperator"
                     name="initialOperator"
-                    placeholder="0x"
-                    description={
-                      stageIdx === 0 ? "" : (
-                        <span className="text-xs text-blue-900 mb-2 flex gap-1 p-2 bg-blue-50 rounded-md">
-                          [ ? ]
-                          {/* <QuestionMarkCircleIcon className="h-4 w-4" />  */}
-                          Set the
-                          operator in the first stage.
-                        </span>
-                      )
-                    }
+                    placeholder={stageIdx > 0 ? values.stages[0].initialOperator : "0x"}
                     disabled={stageIdx > 0}
                     required
                   />
-                  .
+                    {stageIdx > 0 && (
+                      <Tooltip>
+                        <TooltipTrigger>[ ? ]</TooltipTrigger>
+                        <TooltipContent side="left">
+                          Set the operator in the first stage
+                        </TooltipContent>
+                      </Tooltip>
+                    )}
                   </div>
 
-                    <NotesSection>
+                  <NotesSection>
 
-                    <div className="text-zinc-600 text-md mt-4">
-                      <span className="italic">
-                        <ul className="list-disc list-inside">
-                          <li className="flex">
-    <span className="mr-2">•</span>
-    <div>
-    The operator can change the distribution of the split to new destinations at any time.
-    </div>
-    <span className="mr-2">•</span>
-    <div>
-    The operator can be a multisig, a DAO, an LLC, a core team, an
-                    airdrop stockpile, a staking rewards contract, or some other
-                    address.
-    </div>
-  </li>
-                          <li className="flex">
-    <span className="mr-2">•</span>
-    <div>
-    The operator is set once and is not bound by stages. The operator can hand off this responsibility to another address at any time, or relinquish it altogether.
-    </div>
-  </li>
-                        </ul>
-                        </span>
+                    <div className="text-zinc-600 text-md mt-4 italic">
+                      <ul className="list-disc list-inside">
+                        <li className="flex">
+                          <span className="mr-2">•</span>
+                            The operator can change the distribution of the split to new destinations at any time.
+                        </li>
+                        <li className="flex">
+                          <span className="mr-2">•</span>
+                          The operator can be a multisig, a DAO, an LLC, a core team, an
+                          airdrop stockpile, a staking rewards contract, or some other
+                          address.
+                        </li>
+                        <li className="flex">
+                          <span className="mr-2">•</span>
+                          The operator is set once and is not bound by stages. The operator can hand off this responsibility to another address at any time, or relinquish it altogether.
+                        </li>
+                      </ul>
                     </div>
-                    </NotesSection>
-
+                  </NotesSection>
                 </div>
 
-                  <div className="pb-8">
-                      <FieldGroup
-                        className="flex-1"
-                        id="premintTokenAmount"
-                        name="premintTokenAmount"
-                        label="4. Automint"
-                        description="Automatically mint tokens for the Operator when this stage becomes active."
-                        suffix={revnetTokenSymbol || "tokens"}
+                <div className="pb-8">
+                  <FieldGroup
+                    className="flex-1"
+                    id="premintTokenAmount"
+                    min="0"
+                    type="number"
+                    name="premintTokenAmount"
+                    label="4. Automint"
+                    description="Automatically mint tokens for the Operator when this stage becomes active."
+                    suffix={revnetTokenSymbol || "tokens"}
+                  />
+                </div>
+                <div className="pb-10">
+                  <div
+                    id="priceFloorTaxIntensity-group"
+                    className="block text-md font-semibold leading-6"
+                  >
+                    5. Cash out tax
+                  </div>
+                  <p className="text-md text-zinc-500 mt-3">
+                    All {revnetTokenSymbol} holders can access revenue by cashing out their {revnetTokenSymbol}. A
+                    tax can be added that rewards {revnetTokenSymbol} holders who stick around while others cash out.
+                  </p>
+                  <div
+                    role="group"
+                    aria-labelledby="priceFloorTaxIntensity-group"
+                    className="flex gap-3 text-md mt-4"
+                  >
+                    <label>
+                      <FormikField
+                        type="radio"
+                        name="priceFloorTaxIntensity"
+                        value={EXIT_TAX_NONE}
+                        className="mr-1"
                       />
-                  </div>
-                  <div className="pb-10">
-                    <div
-                      id="priceFloorTaxIntensity-group"
-                      className="block text-md font-semibold leading-6"
-                    >
-                      5. Cash out tax
-                    </div>
-                    <p className="text-md text-zinc-500 mt-3">
-                      All {revnetTokenSymbol} holders can access revenue by cashing out their {revnetTokenSymbol}. A
-                      tax can be added that rewards {revnetTokenSymbol} holders who stick around while others cash out.
-                    </p>
-                    <div
-                      role="group"
-                      aria-labelledby="priceFloorTaxIntensity-group"
-                      className="flex gap-3 text-md mt-4"
-                    >
-                      <label>
-                        <FormikField
-                          type="radio"
-                          name="priceFloorTaxIntensity"
-                          value={EXIT_TAX_NONE}
-                          className="mr-1"
-                        />
-                        None (0)
-                      </label>
-                      <label>
-                        <FormikField
-                          type="radio"
-                          name="priceFloorTaxIntensity"
-                          value={EXIT_TAX_LOW}
-                          className="mr-1"
-                        />
-                        Low (0.2)
-                      </label>
-                      <label>
-                        <FormikField
-                          type="radio"
-                          name="priceFloorTaxIntensity"
-                          value={EXIT_TAX_MID}
-                          className="mr-1"
-                        />
-                        Mid (0.5)
-                      </label>
-                      <label>
-                        <FormikField
-                          type="radio"
-                          name="priceFloorTaxIntensity"
-                          value={EXIT_TAX_HIGH}
-                          className="mr-1"
-                        />
-                        High (0.8)
-                      </label>
-                  </div>
+                      None (0)
+                    </label>
+                    <label>
+                      <FormikField
+                        type="radio"
+                        name="priceFloorTaxIntensity"
+                        value={EXIT_TAX_LOW}
+                        className="mr-1"
+                      />
+                      Low (0.2)
+                    </label>
+                    <label>
+                      <FormikField
+                        type="radio"
+                        name="priceFloorTaxIntensity"
+                        value={EXIT_TAX_MID}
+                        className="mr-1"
+                      />
+                      Mid (0.5)
+                    </label>
+                    <label>
+                      <FormikField
+                        type="radio"
+                        name="priceFloorTaxIntensity"
+                        value={EXIT_TAX_HIGH}
+                        className="mr-1"
+                      />
+                      High (0.8)
+                    </label>
+                </div>
 
                     <NotesSection>
 
-                    <div className="text-zinc-600 text-md mt-4">
-                      <span className="italic">
-                        <ul className="list-disc list-inside">
-                          <li className="flex">
-    <span className="mr-2">•</span>
-    <div>
-    The higher the tax, the less that can be accessed by cashing out at any given time, and the more that is left to share between remaining holders who cash out later.
-    </div>
-  </li>
-                          <li className="flex">
-    <span className="mr-2">•</span>
-    <div>
-    Given 100 {nativeTokenSymbol} in the revnet, 100 total supply of {revnetTokenSymbol}, and 10 {revnetTokenSymbol} being cashed out, a tax rate of 0 would yield a cash out value of 10 {nativeTokenSymbol}, 0.2 would yield 8.2 {nativeTokenSymbol}, 0.5 would yield 5.5 {nativeTokenSymbol}, and 0.8 would yield 2.8 {nativeTokenSymbol}.
-    </div>
-  </li>
-  <li className="flex">
-    <span className="mr-2">•</span>
-    <div>
-    The formula for the amount of {nativeTokenSymbol} received when cashing out is `(ax/s) * ((1-r) + xr/s)` where: `r` is the cash out tax rate, `a` is the amount in the revnet being accessed, `s` is the current token supply of {revnetTokenSymbol}, `x` is the amount of {revnetTokenSymbol} being cashed out.
-    </div>
-  </li>
-                        </ul>
-                        </span>
-                </div>
+                    <div className="text-zinc-600 text-md mt-4 italic">
+                      <ul className="list-disc list-inside">
+                        <li className="flex">
+                          <span className="mr-2">•</span>
+                          The higher the tax, the less that can be accessed by cashing out at any given time, and the more that is left to share between remaining holders who cash out later.
+                        </li>
+                        <li className="flex">
+                          <span className="mr-2">•</span>
+                          Given 100 {nativeTokenSymbol} in the revnet, 100 total supply of {revnetTokenSymbol}, and 10 {revnetTokenSymbol} being cashed out, a tax rate of 0 would yield a cash out value of 10 {nativeTokenSymbol}, 0.2 would yield 8.2 {nativeTokenSymbol}, 0.5 would yield 5.5 {nativeTokenSymbol}, and 0.8 would yield 2.8 {nativeTokenSymbol}.
+                        </li>
+                        <li className="flex">
+                          <span className="mr-2">•</span>
+                          The formula for the amount of {nativeTokenSymbol} received when cashing out is `(ax/s) * ((1-r) + xr/s)` where: `r` is the cash out tax rate, `a` is the amount in the revnet being accessed, `s` is the current token supply of {revnetTokenSymbol}, `x` is the amount of {revnetTokenSymbol} being cashed out.
+                        </li>
+                      </ul>
+                    </div>
                     </NotesSection>
                   </div>
 
@@ -799,13 +841,19 @@ function ReviewPage() {
   );
 }
 
-function EnvironmentCheckbox({ relayrResponse }: { relayrResponse?: RelayrAPIResponse }) {
+function EnvironmentCheckbox({
+  relayrResponse,
+  isLoading,
+}: {
+  relayrResponse?: RelayrPostBundleResponse;
+  isLoading: boolean;
+}) {
   // State for dropdown selection
-  const [environment, setEnvironment] = useState("production");
-  const { pay } = usePayRelayr();
+  const [environment, setEnvironment] = useState("testing");
+  const { pay, isProcessing } = usePayRelayr();
   const { submitForm, values } = useFormikContext<RevnetFormData>();
   const { startPolling, response: bundleResponse, isComplete } = useGetRelayrBundle();
-
+  const { toast } = useToast();
   const isFormValid = () => {
     if (!values.name || !values.tokenSymbol || !values.description) {
       return false;
@@ -832,8 +880,11 @@ function EnvironmentCheckbox({ relayrResponse }: { relayrResponse?: RelayrAPIRes
     setEnvironment(e.target.value);
   };
 
-  return (
+  const validBundle = !!relayrResponse?.bundle_uuid;
+  const disableQuoteButton = !isFormValid() || validBundle;
 
+  const { symbol } = useTokenA();
+  return (
     <div className="dropdown-check-array md:col-span-2">
       <div className="text-left text-black-500 mb-4 font-semibold">
         Choose your chains
@@ -843,10 +894,16 @@ function EnvironmentCheckbox({ relayrResponse }: { relayrResponse?: RelayrAPIRes
         id="env-dropdown"
         value={environment}
         onChange={handleEnvironmentChange}
-        className="p-2 rounded border border-gray-300 text-black-600"
+        className="p-3 rounded border border-gray-300 text-black-600 max-w-40"
       >
-        <option value="production">Production</option>
-        <option value="testing">Testing</option>
+        <option value="testing">Testnets</option>
+        <option
+          value="production"
+          disabled
+          className="text-gray-400 bg-gray-100"
+        >
+          Production (coming soon)
+        </option>
       </select>
 
       {/* Conditional Checkboxes */}
@@ -886,34 +943,36 @@ function EnvironmentCheckbox({ relayrResponse }: { relayrResponse?: RelayrAPIRes
         )}
       </div>
 
-      <div className="flex md:col-span-3 mt-4">
-        <Button
-          type="submit"
-          size="lg"
-          disabled={!isFormValid() || !!relayrResponse?.bundle_uuid}
-          className="text-color-black bg-transparent border border-black hover:bg-zinc-100"
-          onClick={() => {
-            submitForm();
-          }}
-        >
-          Get Quote <FastForwardIcon className="h-4 w-4 fill-transparent ml-2" />
-        </Button>
+      <div className="flex flex-col md:col-span-3 mt-4">
+        <QuoteButton
+          isLoading={isLoading}
+          validBundle={validBundle}
+          disableQuoteButton={disableQuoteButton}
+          onSubmit={submitForm}
+        />
+        {relayrResponse && (
+          <div className="text-xs italic ml-2 mt-2">
+            quote valid until {format(relayrResponse.payment_info[0].payment_deadline, "h:mm:ss aaa") }
+          </div>
+        )}
       </div>
 
       {relayrResponse && (
-        <>
+        <div>
           <div className="text-left text-black-500 mt-4 font-semibold">
-            Deploying this revnet will cost {formatHexEther(relayrResponse.payment_info?.[0]?.amount)} ETH. How would you like to pay?
+            How would you like to pay?
           </div>
           <select
             id="env-dropdown"
             value={environment}
             onChange={handleEnvironmentChange}
-            className="p-2 rounded border border-gray-300 text-black-600"
+            className="p-3 rounded border border-gray-300 text-black-600 max-w-sm"
           >
-            { relayrResponse.payment_info.map((po) => {
+            {relayrResponse.payment_info.map((po) => {
               return (
-                <option value={po.chain} key={po.chain}>{chainIdMap[po.chain]}</option>
+                <option value={po.chain} key={po.chain}>
+                  {formatHexEther(relayrResponse.payment_info?.[0]?.amount)} {symbol} on {chainNames[po.chain]}
+                </option>
               )
             })}
           </select>
@@ -921,12 +980,26 @@ function EnvironmentCheckbox({ relayrResponse }: { relayrResponse?: RelayrAPIRes
             <Button
               type="submit"
               size="lg"
-              onClick={() => {
-                pay?.(relayrResponse.payment_info[0])
-                startPolling(relayrResponse.bundle_uuid);
+              disabled={isProcessing}
+              onClick={async () => {
+                try {
+                  await pay?.(relayrResponse.payment_info[0]);
+                  startPolling(relayrResponse.bundle_uuid);
+                } catch (e: any) {
+                  toast({
+                    title: "Error",
+                    description: e.message,
+                    variant: "destructive",
+                  })
+                }
               }}
             >
-              Finalize <FastForwardIcon className="h-4 w-4 fill-white ml-2" />
+              Pay and Launch
+              <FastForwardIcon
+                className={
+                  twMerge("h-4 w-4 fill-white ml-2", isProcessing ? "animate-spin" : "animate-pulse")
+                }
+              />
             </Button>
           </div>
           {!!bundleResponse && (
@@ -944,7 +1017,7 @@ function EnvironmentCheckbox({ relayrResponse }: { relayrResponse?: RelayrAPIRes
               })}
             </div>
           )}
-        </>
+        </div>
         // if (isSuccess && txData) {
         //   console.log("useDeployRevnet::tx success", txData.logs);
         //   const projectIdHex = txData.logs[0].topics[1];
@@ -992,13 +1065,18 @@ function EnvironmentCheckbox({ relayrResponse }: { relayrResponse?: RelayrAPIRes
   );
 }
 
-function DeployRevnetForm({ relayrResponse }: { relayrResponse?: RelayrAPIResponse }) {
+function DeployRevnetForm({
+  relayrResponse,
+  isLoading
+}:{
+  relayrResponse?: RelayrPostBundleResponse,
+  isLoading: boolean
+}) {
   const { values } = useFormikContext<RevnetFormData>();
 
   const revnetTokenSymbol =
     values.tokenSymbol?.length > 0 ? `$${values.tokenSymbol}` : "tokens";
 
-  const nativeTokenSymbol = useNativeTokenSymbol();
   return (
     <div className="grid md:grid-cols-3 max-w-6xl mx-auto my-20 gap-x-6 gap-y-6 md:gap-y-0 md:px-0 px-5">
       <h1 className="mb-16 text-2xl md:col-span-3 font-semibold">
@@ -1042,7 +1120,7 @@ function DeployRevnetForm({ relayrResponse }: { relayrResponse?: RelayrAPIRespon
           The Operator you set in your revnet's rules will also be able to add new chains to the revnet later.
         </p>
       </div>
-      <EnvironmentCheckbox relayrResponse={relayrResponse} />
+      <EnvironmentCheckbox relayrResponse={relayrResponse} isLoading={isLoading} />
     </div>
   );
 }
@@ -1061,6 +1139,7 @@ function parseDeployData(
   const now = Math.floor(Date.now() / 1000);
 
   let cumStart = 0;
+  const operator = formData?.stages[0]?.initialOperator?.trim() as Address;
   const stageConfigurations = formData.stages.map((stage, idx) => {
     const prevStageDuration =
       idx === 0 ? now : Number(formData.stages[idx - 1].boostDuration) * 86400; // days to seconds
@@ -1078,7 +1157,7 @@ function parseDeployData(
         {
           chainId: extra.chainId ?? mainnet.id,
           count: parseUnits(stage.premintTokenAmount, 18),
-          beneficiary: stage.initialOperator.trim() as Address,
+          beneficiary: operator,
         },
       ],
       splitPercent:
@@ -1099,7 +1178,8 @@ function parseDeployData(
       extraMetadata: 0, // ??
     };
   });
-
+  console.dir(formData, {depth: null})
+  console.log(operator);
   return [
     0n, // 0 for a new revnet
     {
@@ -1110,8 +1190,7 @@ function parseDeployData(
         salt: createSalt(),
       },
       baseCurrency: Number(BigInt(NATIVE_TOKEN)),
-      splitOperator:
-        (formData.stages[0]?.initialOperator.trim() as Address) ?? zeroAddress,
+      splitOperator: operator,
       stageConfigurations,
       allowCrosschainSuckerExtension: true,
       loans: zeroAddress,
@@ -1163,10 +1242,10 @@ export default function Page() {
   const [isLoadingIpfs, setIsLoadingIpfs] = useState<boolean>(false);
 
   const chain = useChain();
-  const { write, response } = useDeployRevnetRelay();
-  // const { data: txData, isSuccess } = useWaitForTransactionReceipt({
-  //   hash: data,
-  // });
+  const { write, response, isLoading: isRelayrLoading } = useDeployRevnetRelay();
+
+  const isLoading = isLoadingIpfs || isRelayrLoading;
+
   async function deployProject(formData: RevnetFormData) {
     // Upload metadata
     setIsLoadingIpfs(true);
@@ -1218,7 +1297,7 @@ export default function Page() {
           }
         }}
       >
-        <DeployRevnetForm relayrResponse={response} />
+        <DeployRevnetForm relayrResponse={response} isLoading={isLoading} />
       </Formik>
     </>
   );

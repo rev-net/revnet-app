@@ -1,11 +1,6 @@
-import { useToast } from "@/components/ui/use-toast";
 import { useCallback, useState } from "react";
-import { RelayrAPIResponse } from "../types";
+import { RelayrPostBundleResponse } from "../types";
 import { API } from "../constants";
-
-// relayr is a thing 0xBASED built
-// APP: https://relayr-dashboard-staging.up.railway.app
-// DOCS: https://relayr-docs-staging.up.railway.app
 
 type DeployRevnetRelayArgs = {
   data: `0x${string}`;
@@ -16,13 +11,14 @@ type DeployRevnetRelayArgs = {
 }
 
 export function useDeployRevnetRelay() {
-  const { toast } = useToast();
-  const [relayrResponse, setRelayrResponse] = useState<RelayrAPIResponse>();
+  const [isLoading, setIsLoading] = useState(false);
+  const [relayrResponse, setRelayrResponse] = useState<RelayrPostBundleResponse>();
+  const [error, setError] = useState<Error>();
+
   const deployRevnet = useCallback(async (args: DeployRevnetRelayArgs) => {
-    const t = toast({
-      title: "Deploying through relayer...",
-      duration: 35_000
-    });
+    setIsLoading(true);
+    setError(undefined);
+
     const transactions = args.chainDeployer.map((ct) => {
       return {
         chain: ct.chain,
@@ -31,6 +27,7 @@ export function useDeployRevnetRelay() {
         value: "0"
       }
     });
+
     try {
       const response = await fetch(`${API}/v1/bundle/prepaid`, {
         method: "POST",
@@ -48,18 +45,22 @@ export function useDeployRevnetRelay() {
         throw new Error(errorMessage);
       }
 
-      const data: RelayrAPIResponse = await response.json();
-      console.log("Relayr:: ", data)
+      const data: RelayrPostBundleResponse = await response.json();
+      console.log("Relayr:: ", data);
+      console.log(`https://relayr-dashboard-staging.up.railway.app/bundle/${data.bundle_uuid}`);
       setRelayrResponse(data);
-      t.dismiss();
     } catch(e: any) {
-      toast({
-        title: "Failed to deploy revnet",
-        description: e?.message,
-        variant: "destructive"
-      });
       console.log("Relayr ERROR:: ", e)
+      setError(e);
+    } finally {
+      setIsLoading(false);
     }
-  }, [toast]);
-  return { write: deployRevnet, response: relayrResponse };
+  }, []);
+
+  return {
+    write: deployRevnet,
+    response: relayrResponse,
+    error,
+    isLoading
+  };
 }
