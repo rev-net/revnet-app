@@ -8,7 +8,7 @@ export function PriceSection() {
     <>
       <div className="mb-8">
         <div>
-          <div className="text-2xl font-semibold">Current Price</div>
+          <div className="text-2xl font-semibold">Current Issuance</div>
           <span className="text-2xl">
             {issuance}
           </span>
