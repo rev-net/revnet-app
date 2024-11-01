@@ -75,7 +75,7 @@ export function Header() {
                 {contributorsCount ?? 0}
               </span>{" "}
               <span className="text-zinc-500">
-                {contributorsCount === 1 ? "holder" : "holders"}
+                {contributorsCount === 1 ? "owner" : "owners"}
               </span>
               <span className="ml-4"><Creation /></span>
             </span>

@@ -42,7 +42,7 @@ export function HoldersSection() {
     <div>
       {hasHolders ? (
         <div className="mb-2">
-          <SectionTooltip name="Contributors">
+          <SectionTooltip name="Owners">
             <div className="max-w-md space-y-4 p-2">
               <p className="text-sm text-black-300">
                 The accounts who hold {formatTokenSymbol(token)}, either by:
@@ -102,7 +102,7 @@ export function HoldersSection() {
           </div>
         </>
       ) : (
-        <span className="text-zinc-500">No contributors yet.</span>
+        <span className="text-zinc-500">No owners yet.</span>
       )}
     </div>
   );
