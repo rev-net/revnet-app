@@ -258,7 +258,7 @@ export function NetworkDetailsTable() {
           {selectedStageBoost ? (
             <dd className="text-sm leading-6 text-zinc-700">
               {reservedPercent?.formatPercentage()}% {selectedStageBoost?.beneficiary ? (
-              <> operated by <EthereumAddress
+              <> currently operated by <EthereumAddress
                 withEnsName
                 short
                 address={selectedStageBoost.beneficiary}
