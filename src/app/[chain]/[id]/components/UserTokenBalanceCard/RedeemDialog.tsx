@@ -12,13 +12,18 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Stat } from "@/components/ui/stat";
 import { FixedInt } from "fpnum";
-import { JBProjectToken, NATIVE_TOKEN } from "juice-sdk-core";
+import {
+  DEFAULT_METADATA,
+  JBProjectToken,
+  NATIVE_TOKEN,
+  NATIVE_TOKEN_DECIMALS,
+} from "juice-sdk-core";
 import {
   useJBContractContext,
   useWriteJbMultiTerminalRedeemTokensOf,
 } from "juice-sdk-react";
 import { PropsWithChildren, useState } from "react";
-import { Address, parseEther } from "viem";
+import { Address, parseUnits } from "viem";
 import { useAccount, useChainId, useWaitForTransactionReceipt } from "wagmi";
 
 export function RedeemDialog({
@@ -118,18 +123,24 @@ export function RedeemDialog({
                     return;
                   }
 
+                  const args = [
+                    address,
+                    projectId,
+                    NATIVE_TOKEN,
+                    redeemAmount
+                      ? parseUnits(redeemAmount, NATIVE_TOKEN_DECIMALS)
+                      : 0n,
+                    0n,
+                    address,
+                    DEFAULT_METADATA,
+                  ] as const;
+
+                  console.log("⏩ redeem args", args);
+
                   writeContract?.({
                     chainId,
                     address: primaryNativeTerminal?.data,
-                    args: [
-                      address,
-                      projectId,
-                      NATIVE_TOKEN,
-                      redeemAmount ? parseEther(redeemAmount) : 0n,
-                      0n,
-                      address,
-                      "0x0",
-                    ],
+                    args,
                   });
                 }}
               >

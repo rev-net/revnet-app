@@ -1,0 +1,52 @@
+query ProjectEvents(
+  $where: ProjectEvent_filter
+  $orderBy: ProjectEvent_orderBy
+  $orderDirection: OrderDirection
+  $first: Int
+  $skip: Int
+) {
+  projectEvents(
+    where: $where
+    orderBy: $orderBy
+    orderDirection: $orderDirection
+    first: $first
+    skip: $skip
+  ) {
+    id
+    payEvent {
+      id
+      amount
+      beneficiary
+      note
+      timestamp
+      feeFromV2Project
+      beneficiaryTokenCount
+      from
+      txHash
+      amountUSD
+      caller
+      distributionFromProjectId
+      projectId
+      project {
+        id
+        projectId
+        handle
+      }
+    }
+    redeemEvent {
+      id
+      timestamp
+      txHash
+      from
+      beneficiary
+      reclaimAmount
+      redeemCount
+      metadata
+      project {
+        id
+        projectId
+        handle
+      }
+    }
+  }
+}
