@@ -41,13 +41,9 @@ function PayActivityItem(
     ),
   };
 
-  const formattedDate = formatDistance(
-    payEvent.timestamp ?? 0 * 1000,
-    new Date(),
-    {
-      addSuffix: true,
-    }
-  );
+  const formattedDate = formatDistance(payEvent.timestamp * 1000, new Date(), {
+    addSuffix: true,
+  });
 
   return (
     <div>
@@ -89,13 +85,9 @@ function RedeemActivityItem(
     redeemCount: new JBProjectToken(BigInt(payEvent.redeemCount)),
   };
 
-  const formattedDate = formatDistance(
-    payEvent.timestamp ?? 0 * 1000,
-    new Date(),
-    {
-      addSuffix: true,
-    }
-  );
+  const formattedDate = formatDistance(payEvent.timestamp * 1000, new Date(), {
+    addSuffix: true,
+  });
 
   return (
     <div>
