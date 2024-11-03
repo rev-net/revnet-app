@@ -53,7 +53,7 @@ import {
 } from "viem";
 import { mainnet, sepolia } from "viem/chains";
 import { IpfsImageUploader } from "../../components/IpfsFileUploader";
-import { ChainIdToChain, chainIdMap, chainNames, MAX_RULESET_COUNT } from "../constants";
+import { ChainIdToChain, chainIdMap, chainNames, MAX_RULESET_COUNT, chainNameMap } from "../constants";
 import { useDeployRevnetRelay } from "@/lib/relayr/hooks/useDeployRevnetRelay";
 import { RelayrPostBundleResponse } from "@/lib/relayr/types";
 import { formatHexEther } from "@/lib/utils";
@@ -103,6 +103,7 @@ type RevnetFormData = {
 
   premintTokenAmount: string;
   stages: StageData[];
+  chainIds: JBChainId[];
 };
 
 // const DEFAULT_FORM_DATA: RevnetFormData = {
@@ -158,7 +159,8 @@ const DEFAULT_FORM_DATA: RevnetFormData = {
       premintTokenAmount: "100",
       boostDuration: "" // Empty for indefinite duration
     }
-  ]
+  ],
+  chainIds: [11155111, 11155420, 84532, 421614]
 } as const;
 
 const EXIT_TAX_HIGH = "80";
@@ -851,7 +853,7 @@ function EnvironmentCheckbox({
   // State for dropdown selection
   const [environment, setEnvironment] = useState("testing");
   const { pay, isProcessing } = usePayRelayr();
-  const { submitForm, values } = useFormikContext<RevnetFormData>();
+  const { submitForm, values, setFieldValue } = useFormikContext<RevnetFormData>();
   const { startPolling, response: bundleResponse, isComplete } = useGetRelayrBundle();
   const { toast } = useToast();
   const isFormValid = () => {
@@ -878,6 +880,13 @@ function EnvironmentCheckbox({
   // Handler for dropdown change
   const handleEnvironmentChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setEnvironment(e.target.value);
+  };
+
+  const handleChainSelect = (chainId: number, checked: boolean) => {
+    setFieldValue("chainIds", checked
+      ? [...values.chainIds, chainId]
+      : values.chainIds.filter(id => id !== chainId)
+    );
   };
 
   const validBundle = !!relayrResponse?.bundle_uuid;
@@ -927,18 +936,20 @@ function EnvironmentCheckbox({
         ) : (
           // Testnet Options (Sepolia)
           <>
-            <label className="flex items-center gap-2">
-              <input type="checkbox" value="sepolia-ethereum" className="form-checkbox" /> Ethereum Sepolia
-            </label>
-            <label className="flex items-center gap-2">
-              <input type="checkbox" value="sepolia-optimism" className="form-checkbox" /> Optimism Sepolia
-            </label>
-            <label className="flex items-center gap-2">
-              <input type="checkbox" value="sepolia-arbitrum" className="form-checkbox" /> Arbitrum Sepolia
-            </label>
-            <label className="flex items-center gap-2">
-              <input type="checkbox" value="sepolia-base" className="form-checkbox" /> Base Sepolia
-            </label>
+            {Object.entries(chainNames).map(([id, name]) => (
+              <label key={id} className="flex items-center gap-2">
+                <FormikField
+                  type="checkbox"
+                  name="chainIds"
+                  value={id}
+                  checked={values.chainIds.includes(Number(id) as JBChainId)}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                    handleChainSelect(Number(id), e.target.checked);
+                  }}
+                />
+                {name}
+              </label>
+            ))}
           </>
         )}
       </div>
@@ -1269,13 +1280,13 @@ export default function Page() {
     });
 
     console.log("deployData::", deployData, encodedData);
-
+    console.log("chainIds::", formData.chainIds);
     // Send to Relayr
     write?.({
       data: encodedData,
-      chainDeployer: Object.entries(SUPPORTED_JB_CONTROLLER_ADDRESS).map(([chain, terminal]) => {
+      chainDeployer: formData.chainIds.map((chainId) => {
         return {
-          chain: Number(chain),
+          chain: Number(chainId),
           deployer: "0x25bC5D5A708c2E426eF3a5196cc18dE6b2d5A3d1" // TODO
         }
       })

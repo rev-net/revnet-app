@@ -60,7 +60,7 @@ export function UserTokenBalanceCard() {
       : null;
 
   return (
-    <div className="flex flex-col mb-16 bg-zinc-50 border border-zinc-200 w-full shadow-lg rounded-xl p-4 flex justify-between gap-2 flex-wrap">
+    <div className="flex flex-col mb-16 bg-zinc-50 border border-zinc-200 w-full shadow-lg rounded-xl p-4 justify-between gap-2 flex-wrap">
       <div>
         <div>
           <div className="text-lg overflow-auto mb-1">
