@@ -18,7 +18,7 @@ type TransactionRequest = {
   virtual_nonce: null | number;
 }
 
-type TransactionStatus = {
+export type TransactionStatus = {
   state: "Pending" | "Completed" | "Failed" | "Included";
   data?: { hash: `0x${string}` };
 }

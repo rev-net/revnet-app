@@ -46,10 +46,6 @@ export function useGetRelayrBundle() {
     };
 
     if (isPolling && uuid) {
-      // t = toast({
-      //   title: "Getting deployment status...",
-      //   duration: 35_000
-      // });
       pollBundle();
       pollInterval = setInterval(pollBundle, 2000);
     }
@@ -57,7 +53,6 @@ export function useGetRelayrBundle() {
     return () => {
       if (pollInterval) {
         clearInterval(pollInterval);
-        t.dismiss();
       }
     };
   }, [isPolling, uuid, toast]);
@@ -69,12 +64,16 @@ export function useGetRelayrBundle() {
   }, []);
 
   const isComplete = relayrResponse?.transactions?.every(tx => tx?.status.data?.hash) ?? false;
+  const firstProjectIdReady = relayrResponse?.transactions.find((txn) => {
+    return txn?.status?.data?.hash !== undefined
+  });
 
   return {
     startPolling,
     response: relayrResponse,
     isPolling,
     isComplete,
+    firstProjectIdReady,
     error,
     uuid
   };

@@ -38,7 +38,15 @@ import {
   ReservedPercent,
 } from "juice-sdk-core";
 import { JBChainId, useChain } from "juice-sdk-react";
-import { CircleCheckBigIcon, CircleCheckIcon, CircleDashedIcon, CircleDotDashed, CircleDotDashedIcon, CircleDotIcon, CircleXIcon, ExternalLink, FastForwardIcon, SquareArrowOutUpRight, SquareArrowOutUpRightIcon } from "lucide-react";
+import {
+  CheckCircle,
+  CircleDashedIcon,
+  CircleDotDashedIcon,
+  CircleDotIcon,
+  CircleXIcon,
+  FastForwardIcon,
+  SquareArrowOutUpRightIcon
+} from "lucide-react";
 import Image from "next/image";
 import { ReactNode, useState } from "react";
 import { revDeployerAbi } from "revnet-sdk";
@@ -63,6 +71,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { useTokenA } from "@/hooks/useTokenA";
 import { format } from "date-fns";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { GoToProjectButton } from "./GoToProjectButton";
 
 type StageData = {
   initialOperator?: string; // only one operator (technically per chain) not per stage
@@ -847,7 +856,7 @@ const statusToIcon = (status: string) => {
   if (status === "Pending") return <CircleDashedIcon className="w-5 h-5 text-amber-400 animate-spin" />
   if (status === "Mempool") return <CircleDotDashedIcon className="w-5 h-5 text-blue-400 animate-spin" />
   if (status === "Included") return <CircleDotIcon className="w-5 h-5 text-cyan-400 animate-spin" />
-  if (status === "Success") return <CircleCheckBigIcon className="w-5 h-5 text-green-500 fade-in-50" />
+  if (status === "Success") return <CheckCircle className="w-5 h-5 text-emerald-500 fade-in-50" />
   return <CircleXIcon className="w-5 h-5 text-red-500 fade-in-50" />
 };
 
@@ -865,7 +874,7 @@ function EnvironmentCheckbox({
   const [paymentIndex, setPaymentIndex] = useState<number>(0);
   const { pay, isProcessing } = usePayRelayr();
   const { submitForm, values, setFieldValue } = useFormikContext<RevnetFormData>();
-  const { startPolling, response: bundleResponse, isComplete } = useGetRelayrBundle();
+  const { startPolling, response: bundleResponse, firstProjectIdReady } = useGetRelayrBundle();
   const { toast } = useToast();
   const isFormValid = () => {
     if (!values.name || !values.tokenSymbol || !values.description) {
@@ -997,6 +1006,7 @@ function EnvironmentCheckbox({
           <select
             id="env-dropdown"
             value={paymentIndex}
+            disabled={!!bundleResponse}
             onChange={(e) => setPaymentIndex(Number(e.target.value))}
             className="py-3 pl-4 pr-7 rounded border border-gray-300 text-black-600"
           >
@@ -1012,7 +1022,8 @@ function EnvironmentCheckbox({
             <Button
               type="submit"
               size="lg"
-              disabled={isProcessing}
+              disabled={isProcessing || !!bundleResponse}
+              className="disabled:text-black disabled:bg-transparent disabled:border disabled:border-black disabled:bg-gray-100"
               onClick={async () => {
                 try {
                   await pay?.(relayrResponse.payment_info[paymentIndex]);
@@ -1027,11 +1038,17 @@ function EnvironmentCheckbox({
               }}
             >
               Pay and deploy
-              <FastForwardIcon
-                className={
-                  twMerge("h-4 w-4 fill-white ml-2", isProcessing ? "animate-spin" : "animate-pulse")
-                }
-              />
+                {!!bundleResponse ? (
+                  <CheckCircle
+                    className={"h-4 w-4 ml-2 fill-none text-emerald-500"}
+                  />
+                ) : (
+                <FastForwardIcon
+                  className={
+                    twMerge("h-4 w-4 fill-white ml-2", isProcessing ? "animate-spin" : "animate-pulse")
+                  }
+                />
+              )}
             </Button>
           </div>
           {!!bundleResponse && (
@@ -1060,55 +1077,18 @@ function EnvironmentCheckbox({
                         <SquareArrowOutUpRightIcon className="w-3 h-3" />
                       </div>
                     ) : (
-                     <div className="animate-pulse bg-gray-200 rounded-xl h-6 w-24"></div>
+                     <div className="animate-pulse italic">generating...</div>
                     )}
                   </div>
                 )
               ))}
+              <GoToProjectButton
+                txHash={firstProjectIdReady?.status?.data?.hash}
+                chainId={firstProjectIdReady?.request.chain as JBChainId}
+              />
             </div>
           )}
         </div>
-        // if (isSuccess && txData) {
-        //   console.log("useDeployRevnet::tx success", txData.logs);
-        //   const projectIdHex = txData.logs[0].topics[1];
-        //   if (!projectIdHex) {
-        //     console.warn("useDeployRevnet::fail::no project id");
-
-        //     return (
-        //       <div className="container">
-        //         <div className="max-w-lg rounded-lg shadow-lg my-24 p-10 mx-auto border border-zinc-100">
-        //           Something went wrong.{" "}
-        //           <EtherscanLink type="tx" value={data}>
-        //             Check the transaction on Etherscan
-        //           </EtherscanLink>
-        //           .
-        //         </div>
-        //       </div>
-        //     );
-        //   }
-
-        //   const projectId = BigInt(projectIdHex).toString(10);
-        //   console.warn("useDeployRevnet::success::project id", projectId);
-
-        //   const chainId = chain?.id ?? sepolia.id;
-
-        //   return (
-        //     <>
-        //       <Nav />
-        //       <div className="container min-h-screen">
-        //         <div className="max-w-lg rounded-lg shadow-lg my-24 p-10 mx-auto border border-zinc-100 flex flex-col items-center">
-        //           <CheckCircleIcon className="h-9 w-9 text-green-600 mb-4" />
-        //           <h1 className="text-4xl mb-10">Your Revnet is Live</h1>
-        //           <p>
-        //             <Link href={`sepolia/${projectId}`}>
-        //               <Button size="lg">Go to Revnet</Button>
-        //             </Link>
-        //           </p>
-        //         </div>
-        //       </div>
-        //     </>
-        //   );
-        // }
       )}
       </div>
     </div>
