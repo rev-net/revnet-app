@@ -95,10 +95,27 @@ export function NetworkDetailsTable() {
 
     const nextRuleset = rulesets?.[reverseSelectedIdx - 1];
     const nextStart = rulesetStartDate(nextRuleset);
-    if (!nextStart || !selectedStart) return "forever";
+    if (!nextStart || !selectedStart) return "";
 
     const days = differenceInDays(nextStart, selectedStart);
-    return `${days} days`;
+    return `, lasting ${days} days`;
+  };
+
+  const stageNextStart = () => {
+    const len = rulesets?.length ?? 0;
+    const reverseSelectedIdx = len - selectedStageIdx - 1;
+
+    const selectedRuleset = rulesets?.[reverseSelectedIdx];
+    const selectedStart = rulesetStartDate(selectedRuleset);
+
+    const nextRuleset = rulesets?.[reverseSelectedIdx - 1];
+    const nextStart = rulesetStartDate(nextRuleset);
+    if (!nextStart || !selectedStart) return "forever";
+
+    return formatDate(
+      nextStart,
+      "MMM dd, yyyy"
+    );
   };
 
   const issuance = useFormattedTokenIssuance({
@@ -236,10 +253,10 @@ export function NetworkDetailsTable() {
             Timing
           </dt>
           <dd className="text-sm leading-6 text-zinc-700 whitespace-nowrap">
-            Starts {formatDate(
+            {formatDate(
               new Date(Number(selectedStage.start) * 1000),
-              "MMM dd, yyyy 'at' h:mm a"
-            )}, lasting {stageDayDiff()}
+              "MMM dd, yyyy"
+            )} - {stageNextStart()} {stageDayDiff()}
           </dd>
         </div>
         <div className="py-1 sm:col-span-1 sm:px-0 grid grid-cols-1">

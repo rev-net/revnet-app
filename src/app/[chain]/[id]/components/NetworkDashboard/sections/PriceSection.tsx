@@ -10,7 +10,7 @@ export function PriceSection() {
         <div>
           {/* <div className="text-2xl font-semibold">Current issuance price</div> */}
           <span className="text-2xl">
-            Issuing at {issuance}
+            Issuing {issuance}
           </span>
         </div>
 
