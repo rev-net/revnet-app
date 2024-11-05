@@ -12,9 +12,10 @@ export function usePayRelayr() {
     try {
       setIsProcessing(true);
       if (chainId !== chainPayment.chain) {
-        await switchChainAsync({ chainId: chainPayment.chain });
-
-        if (chainId !== chainPayment.chain) {
+        try {
+          await switchChainAsync({ chainId: chainPayment.chain });
+        } catch (e) {
+          console.error(e);
           throw new Error("Failed to switch to correct chain");
         }
       }

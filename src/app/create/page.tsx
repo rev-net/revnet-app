@@ -38,7 +38,7 @@ import {
   ReservedPercent,
 } from "juice-sdk-core";
 import { JBChainId, useChain } from "juice-sdk-react";
-import { FastForwardIcon } from "lucide-react";
+import { CircleCheckBigIcon, CircleCheckIcon, CircleDashedIcon, CircleDotDashed, CircleDotDashedIcon, CircleDotIcon, CircleXIcon, ExternalLink, FastForwardIcon, SquareArrowOutUpRight, SquareArrowOutUpRightIcon } from "lucide-react";
 import Image from "next/image";
 import { ReactNode, useState } from "react";
 import { revDeployerAbi } from "revnet-sdk";
@@ -843,15 +843,26 @@ function ReviewPage() {
   );
 }
 
+const statusToIcon = (status: string) => {
+  if (status === "Pending") return <CircleDashedIcon className="w-5 h-5 text-amber-400 animate-spin" />
+  if (status === "Mempool") return <CircleDotDashedIcon className="w-5 h-5 text-blue-400 animate-spin" />
+  if (status === "Included") return <CircleDotIcon className="w-5 h-5 text-cyan-400 animate-spin" />
+  if (status === "Success") return <CircleCheckBigIcon className="w-5 h-5 text-green-500 fade-in-50" />
+  return <CircleXIcon className="w-5 h-5 text-red-500 fade-in-50" />
+};
+
 function EnvironmentCheckbox({
   relayrResponse,
-  isLoading,
-}: {
-  relayrResponse?: RelayrPostBundleResponse;
-  isLoading: boolean;
+  reset,
+  isLoading
+}:{
+  relayrResponse?: RelayrPostBundleResponse,
+  reset: () => void
+  isLoading: boolean
 }) {
   // State for dropdown selection
   const [environment, setEnvironment] = useState("testing");
+  const [paymentIndex, setPaymentIndex] = useState<number>(0);
   const { pay, isProcessing } = usePayRelayr();
   const { submitForm, values, setFieldValue } = useFormikContext<RevnetFormData>();
   const { startPolling, response: bundleResponse, isComplete } = useGetRelayrBundle();
@@ -962,8 +973,18 @@ function EnvironmentCheckbox({
           onSubmit={submitForm}
         />
         {relayrResponse && (
-          <div className="text-xs italic ml-2 mt-2">
-            quote valid until {format(relayrResponse.payment_info[0].payment_deadline, "h:mm:ss aaa") }
+          <div className="flex flex-col items-start">
+            <div className="text-xs italic ml-2 mt-2">
+              quote valid until {format(relayrResponse.payment_info[0].payment_deadline, "h:mm:ss aaa") }
+            </div>
+            <Button
+              variant="link"
+              size="sm"
+              className="italic text-xs -ml-1"
+              onClick={() => reset()}
+            >
+              clear quote
+            </Button>
           </div>
         )}
       </div>
@@ -975,14 +996,14 @@ function EnvironmentCheckbox({
           </div>
           <select
             id="env-dropdown"
-            value={environment}
-            onChange={handleEnvironmentChange}
-            className="p-3 rounded border border-gray-300 text-black-600 max-w-sm"
+            value={paymentIndex}
+            onChange={(e) => setPaymentIndex(Number(e.target.value))}
+            className="py-3 pl-4 pr-7 rounded border border-gray-300 text-black-600"
           >
-            {relayrResponse.payment_info.map((po) => {
+            {relayrResponse.payment_info.map((payment, index) => {
               return (
-                <option value={po.chain} key={po.chain}>
-                  {formatHexEther(relayrResponse.payment_info?.[0]?.amount)} {symbol} on {chainNames[po.chain]}
+                <option value={index} key={payment.chain}>
+                  {formatHexEther(payment?.amount)} {symbol} on {chainNames[payment.chain]}
                 </option>
               )
             })}
@@ -994,7 +1015,7 @@ function EnvironmentCheckbox({
               disabled={isProcessing}
               onClick={async () => {
                 try {
-                  await pay?.(relayrResponse.payment_info[0]);
+                  await pay?.(relayrResponse.payment_info[paymentIndex]);
                   startPolling(relayrResponse.bundle_uuid);
                 } catch (e: any) {
                   toast({
@@ -1014,18 +1035,36 @@ function EnvironmentCheckbox({
             </Button>
           </div>
           {!!bundleResponse && (
-            <div className="flex flex-col space-y-2">
-              {bundleResponse.transactions.map((txn) => {
-                return txn?.status?.data?.hash ?
-                  <EtherscanLink
-                    value={txn?.status?.data?.hash}
-                    type="tx"
-                    chain={ChainIdToChain[txn.request.chain as JBChainId]}
-                    key={txn?.tx_uuid}
-                  >
-                    {chainNames[txn.request.chain as JBChainId]} {txn?.status?.data?.hash}
-                  </EtherscanLink> : null
-              })}
+            <div className="mt-4 flex flex-col space-y-2">
+              <div className="grid grid-cols-3 gap-4 font-semibold border-b mb-2">
+                <div>Network</div>
+                <div>Status</div>
+                <div>Transaction</div>
+              </div>
+              {bundleResponse.transactions.map((txn) => (
+                txn?.status && (
+                  <div key={txn?.tx_uuid} className="grid grid-cols-3 gap-4">
+                    <div>{chainNames[txn.request.chain as JBChainId]}</div>
+                    <div className="flex flex-row space-x-2 items-center justify-start">
+                      <div>{statusToIcon(txn.status.state)}</div>
+                      <div>{txn.status.state}</div>
+                    </div>
+                    {txn?.status?.data?.hash ? (
+                      <div className="flex flex-row space-x-1 items-center">
+                        <EtherscanLink
+                          value={txn?.status?.data?.hash}
+                          type="tx"
+                          chain={ChainIdToChain[txn.request.chain as JBChainId]}
+                          truncateTo={6}
+                        />
+                        <SquareArrowOutUpRightIcon className="w-3 h-3" />
+                      </div>
+                    ) : (
+                     <div className="animate-pulse bg-gray-200 rounded-xl h-6 w-24"></div>
+                    )}
+                  </div>
+                )
+              ))}
             </div>
           )}
         </div>
@@ -1078,9 +1117,11 @@ function EnvironmentCheckbox({
 
 function DeployRevnetForm({
   relayrResponse,
+  reset,
   isLoading
 }:{
   relayrResponse?: RelayrPostBundleResponse,
+  reset: () => void
   isLoading: boolean
 }) {
   const { values } = useFormikContext<RevnetFormData>();
@@ -1131,7 +1172,7 @@ function DeployRevnetForm({
           The Operator you set in your revnet's rules will also be able to add new chains to the revnet later.
         </p>
       </div>
-      <EnvironmentCheckbox relayrResponse={relayrResponse} isLoading={isLoading} />
+      <EnvironmentCheckbox relayrResponse={relayrResponse} isLoading={isLoading} reset={reset} />
     </div>
   );
 }
@@ -1253,7 +1294,7 @@ export default function Page() {
   const [isLoadingIpfs, setIsLoadingIpfs] = useState<boolean>(false);
 
   const chain = useChain();
-  const { write, response, isLoading: isRelayrLoading } = useDeployRevnetRelay();
+  const { write, response, isLoading: isRelayrLoading, reset } = useDeployRevnetRelay();
 
   const isLoading = isLoadingIpfs || isRelayrLoading;
 
@@ -1308,7 +1349,7 @@ export default function Page() {
           }
         }}
       >
-        <DeployRevnetForm relayrResponse={response} isLoading={isLoading} />
+        <DeployRevnetForm relayrResponse={response} isLoading={isLoading} reset={reset} />
       </Formik>
     </>
   );

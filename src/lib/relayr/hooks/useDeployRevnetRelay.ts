@@ -15,6 +15,12 @@ export function useDeployRevnetRelay() {
   const [relayrResponse, setRelayrResponse] = useState<RelayrPostBundleResponse>();
   const [error, setError] = useState<Error>();
 
+  const reset = useCallback(() => {
+    setIsLoading(false);
+    setRelayrResponse(undefined);
+    setError(undefined);
+  }, []);
+
   const deployRevnet = useCallback(async (args: DeployRevnetRelayArgs) => {
     setIsLoading(true);
     setError(undefined);
@@ -61,6 +67,7 @@ export function useDeployRevnetRelay() {
     write: deployRevnet,
     response: relayrResponse,
     error,
-    isLoading
+    isLoading,
+    reset
   };
 }

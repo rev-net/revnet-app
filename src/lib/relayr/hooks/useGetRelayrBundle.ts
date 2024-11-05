@@ -46,10 +46,10 @@ export function useGetRelayrBundle() {
     };
 
     if (isPolling && uuid) {
-      t = toast({
-        title: "Getting deployment status...",
-        duration: 35_000
-      });
+      // t = toast({
+      //   title: "Getting deployment status...",
+      //   duration: 35_000
+      // });
       pollBundle();
       pollInterval = setInterval(pollBundle, 2000);
     }
