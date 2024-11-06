@@ -130,7 +130,7 @@ export function NetworkDetailsTable() {
       <div className="max-w-md space-y-2 p-2">
         <h3 className="font-medium text-black-500">Stages</h3>
         <p className="text-sm text-black-400">
-          This revnet’s rules change automatically in sequential stages. It's stages are permanent once the revnet is deployed.
+          This revnet’s rules change automatically in sequential stages. Stages are permanent once the revnet is deployed.
         </p>
 
         <div className="space-y-2">
