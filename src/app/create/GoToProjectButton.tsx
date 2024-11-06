@@ -31,9 +31,9 @@ export function GoToProjectButton({
           type="submit"
           size="lg"
           disabled={!projectId}
-          className="transition-all duration-200"
+          className="transition-all duration-200 mt-2"
         >
-          Go to Revnet
+          Go to your revnet
           <FastForwardIcon
             className={"h-4 w-4 fill-white ml-2 animate-pulse"}
           />

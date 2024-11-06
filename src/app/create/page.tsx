@@ -913,6 +913,10 @@ function EnvironmentCheckbox({
   const disableQuoteButton = !isFormValid() || validBundle;
 
   const { symbol } = useTokenA();
+
+  const revnetTokenSymbol =
+    values.tokenSymbol?.length > 0 ? `$${values.tokenSymbol}` : "tokens";
+
   return (
     <div className="dropdown-check-array md:col-span-2">
       <div className="text-left text-black-500 mb-4 font-semibold">
@@ -984,23 +988,23 @@ function EnvironmentCheckbox({
         {relayrResponse && (
           <div className="flex flex-col items-start">
             <div className="text-xs italic ml-2 mt-2">
-              quote valid until {format(relayrResponse.payment_info[0].payment_deadline, "h:mm:ss aaa") }
+              quote valid until {format(relayrResponse.payment_info[0].payment_deadline, "h:mm:ss aaa") }.
+              <Button
+                variant="link"
+                size="sm"
+                className="italic text-xs px-1"
+                onClick={() => reset()}
+              >
+                clear quote
+              </Button>
             </div>
-            <Button
-              variant="link"
-              size="sm"
-              className="italic text-xs -ml-1"
-              onClick={() => reset()}
-            >
-              clear quote
-            </Button>
           </div>
         )}
       </div>
 
       {relayrResponse && (
         <div>
-          <div className="text-left text-black-500 mt-4 font-semibold">
+          <div className="text-left text-black-500 font-semibold">
             How would you like to pay?
           </div>
           <select
@@ -1052,7 +1056,8 @@ function EnvironmentCheckbox({
             </Button>
           </div>
           {!!bundleResponse && (
-            <div className="mt-4 flex flex-col space-y-2">
+            <div className="mt-10 flex flex-col space-y-2">
+              <div className="text-left text-zinc-500 mb-2">Your revnet is made up of components deployed on each blockchain where it'll accept funds and issue {revnetTokenSymbol} from. These transactions take 1-2 minutes to settle.</div>
               <div className="grid grid-cols-3 gap-4 font-semibold border-b mb-2">
                 <div>Network</div>
                 <div>Status</div>

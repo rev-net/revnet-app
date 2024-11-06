@@ -11,7 +11,7 @@ type ButtonContentType = {
 const getButtonContent = (isLoading: boolean, validBundle: boolean): ButtonContentType => {
   if (isLoading) {
     return {
-      text: "Get Quote",
+      text: "Get quote",
       icon: <FastForwardIcon className="h-4 w-4 fill-transparent ml-2 animate-spin" />,
       className: "opacity-70"
     };
@@ -19,14 +19,14 @@ const getButtonContent = (isLoading: boolean, validBundle: boolean): ButtonConte
 
   if (validBundle) {
     return {
-      text: "Quote Complete",
+      text: "Quote complete",
       icon: <CheckCircle className="h-4 w-4 text-emerald-500 ml-2" />,
       className: "bg-emerald-50"
     };
   }
 
   return {
-    text: "Get Quote",
+    text: "Get quote",
     icon: <FastForwardIcon className="h-4 w-4 fill-transparent ml-2" />,
     className: ""
   };
