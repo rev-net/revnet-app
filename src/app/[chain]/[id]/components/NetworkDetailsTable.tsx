@@ -256,7 +256,7 @@ export function NetworkDetailsTable() {
             {formatDate(
               new Date(Number(selectedStage.start) * 1000),
               "MMM dd, yyyy"
-            )} - {stageNextStart()} {stageDayDiff()}
+            )} - {stageNextStart()}{stageDayDiff()}
           </dd>
         </div>
         <div className="py-1 sm:col-span-1 sm:px-0 grid grid-cols-1">
