@@ -456,20 +456,20 @@ function AddStageDialog({
                     name="splitRate"
                     suffix={`% of ${revnetTokenSymbol}`}
                   />
-                  <div className="flex gap-2 items-center text-md text-zinc-600">
+                  <div className="flex gap-2 items-center text-md text-zinc-600 whitespace-nowrap">
                     <label
                       htmlFor="priceCeilingIncreasePercentage"
-                      className="whitespace-nowrap"
                     >
                       ... operated by
                     </label>
-                  <Field
-                    id="initialOperator"
-                    name="initialOperator"
-                    placeholder={stageIdx > 0 ? values.stages[0].initialOperator : "0x"}
-                    disabled={stageIdx > 0}
-                    required
-                  />
+                    <Field
+                      id="initialOperator"
+                      name="initialOperator"
+                      className=""
+                      placeholder={stageIdx > 0 ? values.stages[0].initialOperator : "0x"}
+                      disabled={stageIdx > 0}
+                      required
+                    />
                     {stageIdx > 0 && (
                       <Tooltip>
                         <TooltipTrigger>[ ? ]</TooltipTrigger>
@@ -897,6 +897,10 @@ function EnvironmentCheckbox({
       );
     });
 
+    if (!values.chainIds || values.chainIds.length === 0) {
+      return false;
+    }
+
     return isStagesValid;
   };
 
@@ -1168,7 +1172,7 @@ function DeployRevnetForm({
 }
 
 function parseDeployData(
-  formData: RevnetFormData,
+  _formData: RevnetFormData,
   extra: {
     metadataCid: string;
     chainId: Chain["id"] | undefined;
@@ -1179,7 +1183,13 @@ function parseDeployData(
   "deployFor"
 >["args"] {
   const now = Math.floor(Date.now() / 1000);
-
+  // hack: stringfy numbers
+  const formData: RevnetFormData = JSON.parse(
+    JSON.stringify(_formData),
+    (_, value) => typeof value === "number" ? String(value) : value
+  );
+  console.log("formData::")
+  console.dir(formData, {depth: null})
   let cumStart = 0;
   const operator = formData?.stages[0]?.initialOperator?.trim() as Address;
   const stageConfigurations = formData.stages.map((stage, idx) => {
