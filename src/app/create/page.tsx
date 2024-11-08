@@ -1146,7 +1146,34 @@ function DeployRevnetForm({
       </div>
       <div className="h-[1px] bg-zinc-200 md:col-span-3 my-10"></div>
       <div className="md:col-span-1">
-        <h2 className="font-medium text-lg mb-2">3. Deploy</h2>
+        <h2 className="font-medium text-lg mb-2">3. Reserves</h2>
+        <p className="text-zinc-600 text-md">
+          {revnetTokenSymbol} are backed by the tokens you choose to allow in your revnet.
+        </p>
+        <p className="text-zinc-600 text-md mt-2">
+          If your revnet is paid in any other token, they will first be swapped into the tokens that you choose, before being used to back your revnet.
+        </p>
+        <p className="text-zinc-600 text-md mt-2">
+          Cash outs and loans are fulfilled from the chosen reserve tokens.
+        </p>
+      </div>
+      <div className="dropdown-check-array md:col-span-2">
+        <div className="flex flex-col gap-4">
+          <div className="flex flex-wrap gap-6 mt-4">
+          <>
+            <label className="flex items-center gap-2">
+              <input type="checkbox" value="ethereum" className="form-checkbox" /> ETH
+            </label>
+            <label className="flex items-center gap-2">
+              <input type="checkbox" value="optimism" className="form-checkbox" /> USDC
+            </label>
+          </>
+          </div>
+        </div>
+      </div>
+      <div className="h-[1px] bg-zinc-200 md:col-span-3 my-10"></div>
+      <div className="md:col-span-1">
+        <h2 className="font-medium text-lg mb-2">4. Deploy</h2>
         <p className="text-zinc-600 text-md">
           Pick which chains your revnet will accept money on and issue {revnetTokenSymbol} from.
         </p>
