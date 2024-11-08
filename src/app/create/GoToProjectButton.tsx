@@ -19,8 +19,7 @@ export function GoToProjectButton({
 
   const projectId = data?.logs[0]?.topics[1] ? Number(data.logs[0].topics[1]) : undefined;
   const chain = chainId ? chainIdMap[chainId] : "sepolia";
-  const projectUrl = projectId ? `/${chain}/${projectId}` : '#';
-  console.log(projectUrl)
+  const projectUrl = `/${chain}/${projectId}`;
   return (
     <div className="max-w-fit">
       <Link

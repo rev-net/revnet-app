@@ -872,7 +872,9 @@ function EnvironmentCheckbox({
   // State for dropdown selection
   const [environment, setEnvironment] = useState("testing");
   const [paymentIndex, setPaymentIndex] = useState<number>(0);
-  const { pay, isProcessing } = usePayRelayr();
+  const [payIsProcessing, setPayIsProcessing] = useState(false);
+
+  const { pay } = usePayRelayr();
   const { submitForm, values, setFieldValue } = useFormikContext<RevnetFormData>();
   const { startPolling, response: bundleResponse, firstProjectIdReady } = useGetRelayrBundle();
   const { toast } = useToast();
@@ -1026,13 +1028,15 @@ function EnvironmentCheckbox({
             <Button
               type="submit"
               size="lg"
-              disabled={isProcessing || !!bundleResponse}
+              disabled={payIsProcessing}
               className="disabled:text-black disabled:bg-transparent disabled:border disabled:border-black disabled:bg-gray-100"
               onClick={async () => {
+                setPayIsProcessing(true);
                 try {
                   await pay?.(relayrResponse.payment_info[paymentIndex]);
                   startPolling(relayrResponse.bundle_uuid);
                 } catch (e: any) {
+                  setPayIsProcessing(false);
                   toast({
                     title: "Error",
                     description: e.message,
@@ -1049,7 +1053,7 @@ function EnvironmentCheckbox({
                 ) : (
                 <FastForwardIcon
                   className={
-                    twMerge("h-4 w-4 fill-white ml-2", isProcessing ? "animate-spin" : "animate-pulse")
+                    twMerge("h-4 w-4 fill-white ml-2", payIsProcessing ? "animate-spin" : "animate-pulse")
                   }
                 />
               )}

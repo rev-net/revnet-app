@@ -6,11 +6,9 @@ export function usePayRelayr() {
   const chainId = useChainId();
   const { switchChainAsync } = useSwitchChain();
   const { sendTransactionAsync } = useSendTransaction();
-  const [isProcessing, setIsProcessing] = useState(false);
 
   const pay = useCallback(async (chainPayment: ChainPayment) => {
     try {
-      setIsProcessing(true);
       if (chainId !== chainPayment.chain) {
         try {
           await switchChainAsync({ chainId: chainPayment.chain });
@@ -29,13 +27,10 @@ export function usePayRelayr() {
       return tx;
     } catch (error) {
       throw error;
-    } finally {
-      setIsProcessing(false);
     }
   }, [sendTransactionAsync, chainId, switchChainAsync]);
 
   return {
     pay,
-    isProcessing
   };
 }

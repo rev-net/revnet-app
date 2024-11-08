@@ -12,7 +12,6 @@ export function useGetRelayrBundle() {
 
   useEffect(() => {
     let pollInterval: NodeJS.Timeout;
-    let t: any;
     const pollBundle = async () => {
       try {
         console.log("fetching bundle_uuid:: ", uuid);
@@ -30,7 +29,7 @@ export function useGetRelayrBundle() {
         if (allTxHaveHash) {
           setIsPolling(false);
           toast({
-            title: "Deployment complete",
+            title: "Deployment complete!",
           });
         }
       } catch (e: any) {
