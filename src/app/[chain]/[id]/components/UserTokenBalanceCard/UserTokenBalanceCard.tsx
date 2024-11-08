@@ -4,6 +4,7 @@ import { useNativeTokenSurplus } from "@/hooks/useTokenASurplus";
 import { FixedInt } from "fpnum";
 import { JBProjectToken, getTokenRedemptionQuoteEth } from "juice-sdk-core";
 import {
+  useJBChainId,
   useJBContractContext,
   useJBRulesetContext,
   useJBTokenContext,
@@ -25,7 +26,9 @@ export function UserTokenBalanceCard() {
   const tokenA = useTokenA();
   const { token } = useJBTokenContext();
   const tokenSymbol = formatTokenSymbol(token);
+  const chainId = useJBChainId();
   const { data: creditBalance } = useReadJbTokensTotalBalanceOf({
+    chainId,
     args: userAddress ? [userAddress, projectId] : undefined,
     query: {
       select(data) {
@@ -35,11 +38,13 @@ export function UserTokenBalanceCard() {
   });
   const { data: tokensReserved } =
     useReadJbControllerPendingReservedTokenBalanceOf({
+      chainId,
       args: [projectId],
     });
   const { data: nativeTokenSurplus } = useNativeTokenSurplus();
 
   const { data: totalTokenSupply } = useReadJbTokensTotalSupplyOf({
+    chainId,
     args: [projectId],
   });
 

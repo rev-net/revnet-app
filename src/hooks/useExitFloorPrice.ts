@@ -1,5 +1,6 @@
 import { formatUnits, getTokenRedemptionQuoteEth } from "juice-sdk-core";
 import {
+  useJBChainId,
   useJBContractContext,
   useJBRulesetContext,
   useJBTokenContext,
@@ -17,11 +18,14 @@ export function useExitFloorPrice() {
   const { token } = useJBTokenContext();
   const { rulesetMetadata } = useJBRulesetContext();
   const { data: nativeTokenSurplus } = useNativeTokenSurplus();
+  const chainId = useJBChainId();
   const { data: totalTokenSupply } = useReadJbTokensTotalSupplyOf({
+    chainId,
     args: [projectId],
   });
   const { data: tokensReserved } =
     useReadJbControllerPendingReservedTokenBalanceOf({
+      chainId,
       address: contracts.controller.data ?? undefined,
       args: [projectId],
     });
