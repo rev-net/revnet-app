@@ -1,6 +1,6 @@
 "use client";
 
-import { chainNameMap, chainNames } from "@/app/constants";
+import { chainIdMap, chainNameMap, chainNames } from "@/app/constants";
 import { useQuery } from "@tanstack/react-query";
 import { getSuckerPairs } from "juice-sdk-core";
 import {
@@ -71,7 +71,7 @@ export function NetworkDashboard() {
       <UserTokenBalanceCard />
       <ActivityFeed />
     </>
-  )
+  );
 
   return (
     <div className="flex gap-10 w-full px-4 sm:container py-10 md:flex-nowrap flex-wrap mb-10">
@@ -80,9 +80,7 @@ export function NetworkDashboard() {
         <Header />
         <PriceSection />
         {/* Render Pay and activity after header on mobile */}
-        <div className="sm:hidden mb-10">
-          {payAndActivityBar}
-        </div>
+        <div className="sm:hidden mb-10">{payAndActivityBar}</div>
 
         <div className="max-w-4xl mx-auto">
           <section className="mb-10">
@@ -101,13 +99,12 @@ export function NetworkDashboard() {
             <h2 className="text-2xl font-semibold mb-1">About</h2>
             <div className="flex gap-3">
               {suckerPairs.data?.map((pair) => {
-                const networkName =
-                  chainNameMap[pair?.peerChainId as JBChainId];
+                const networkName = chainIdMap[pair?.peerChainId as JBChainId];
                 return (
                   <Link
                     className="underline"
                     key={networkName}
-                    href={`/${networkName}/net/${pair?.projectId}`}
+                    href={`/${networkName}/${pair?.projectId}`}
                   >
                     {chainNames[pair?.peerChainId as JBChainId]}
                   </Link>

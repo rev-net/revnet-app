@@ -18,7 +18,8 @@ import {
   useReadJbControllerGetRulesetOf,
   useReadJbRulesetsAllOf,
   useReadJbSplitsSplitsOf,
-  useJBTokenContext
+  useJBTokenContext,
+  useJBChainId
 } from "juice-sdk-react";
 import { useState } from "react";
 import { twJoin } from "tailwind-merge";
@@ -33,12 +34,14 @@ export function NetworkDetailsTable() {
     projectId,
     contracts: { controller },
   } = useJBContractContext();
+  const chainId = useJBChainId();
 
   const { token } = useJBTokenContext();
   const nativeTokenSymbol = useNativeTokenSymbol();
 
   // TODO(perf) duplicate call, move to a new context
   const { data: rulesets } = useReadJbRulesetsAllOf({
+    chainId,
     args: [projectId, 0n, BigInt(MAX_RULESET_COUNT)],
     query: {
       select(data) {
@@ -58,6 +61,7 @@ export function NetworkDetailsTable() {
   const selectedStage = rulesets?.[selectedStageIdx];
 
   const selectedStageMetadata = useReadJbControllerGetRulesetOf({
+    chainId,
     address: controller.data ?? undefined,
     args: selectedStage?.id ? [projectId, BigInt(selectedStage.id)] : undefined,
     query: {
@@ -72,6 +76,7 @@ export function NetworkDetailsTable() {
   });
 
   const { data: selectedStateReservedTokenSplits } = useReadJbSplitsSplitsOf({
+    chainId,
     args:
       selectedStage && selectedStage
         ? [projectId, BigInt(selectedStage.id), RESERVED_TOKEN_SPLIT_GROUP_ID]

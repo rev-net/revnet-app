@@ -2,6 +2,7 @@ import { MAX_RULESET_COUNT } from "@/app/constants";
 import { Button } from "@/components/ui/button";
 import { DecayPercent, Ether, RulesetWeight } from "juice-sdk-core";
 import {
+  useJBChainId,
   useJBContractContext,
   useJBRulesetContext,
   useReadJbRulesetsAllOf,
@@ -33,8 +34,10 @@ const StepChart = () => {
 
   const { projectId } = useJBContractContext();
   const { rulesetMetadata } = useJBRulesetContext();
+  const chainId = useJBChainId();
 
   const { data: rulesets } = useReadJbRulesetsAllOf({
+    chainId,
     args: [projectId, 0n, BigInt(MAX_RULESET_COUNT)],
     query: {
       select(data) {

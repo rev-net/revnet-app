@@ -3,6 +3,7 @@ import React from "react";
 import { useAccount, useChainId, useSwitchChain } from "wagmi";
 import { Button, ButtonProps } from "./ui/button";
 import { useJBChainId } from "juice-sdk-react";
+import { chainNames } from "@/app/constants";
 
 const ButtonWithWallet = React.forwardRef<
   HTMLInputElement,
@@ -22,7 +23,7 @@ const ButtonWithWallet = React.forwardRef<
         onClick={() => switchChain({ chainId: jbChainId })}
         loading={isPending}
       >
-        {"Switch to <chain>"}
+        {`Switch to ${chainNames[jbChainId]}`}
       </Button>
     );
   }
