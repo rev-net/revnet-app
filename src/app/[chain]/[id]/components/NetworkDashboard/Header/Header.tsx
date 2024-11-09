@@ -13,6 +13,7 @@ import { ProjectsDocument } from "@/generated/graphql";
 import { useSubgraphQuery } from "@/graphql/useSubgraphQuery";
 import { formatTokenSymbol } from "@/lib/utils";
 import { Creation } from "./Creation";
+import { TvlDatum } from "./TvlDatum";
 
 export function Header() {
   const { projectId } = useJBContractContext();
@@ -49,9 +50,7 @@ export function Header() {
 
         <div>
           <div className="flex flex-col sm:flex-row items-baseline sm:gap-2 mb-2">
-            <h1 className="text-3xl font-bold tracking-tight">
-              {projectName}
-            </h1>
+            <h1 className="text-3xl font-bold tracking-tight">{projectName}</h1>
             {token?.data ? (
               <EtherscanLink
                 value={token.data.address}
@@ -61,15 +60,8 @@ export function Header() {
               </EtherscanLink>
             ) : null}
           </div>
-          <div className="flex gap-4">
-            {typeof nativeTokenSurplus !== "undefined" ? (
-              <span className="text-sm">
-                <span className="font-medium text-zinc-500">
-                  <NativeTokenValue wei={nativeTokenSurplus} />
-                </span>{" "}
-                <span className="text-zinc-500">TVL</span>
-              </span>
-            ) : null}
+          <div className="flex gap-4 items-center">
+            <TvlDatum />
             <span className="text-sm">
               <span className="font-medium text-zinc-500">
                 {contributorsCount ?? 0}
@@ -77,7 +69,9 @@ export function Header() {
               <span className="text-zinc-500">
                 {contributorsCount === 1 ? "owner" : "owners"}
               </span>
-              <span className="ml-4"><Creation /></span>
+              <span className="ml-4">
+                <Creation />
+              </span>
             </span>
           </div>
         </div>

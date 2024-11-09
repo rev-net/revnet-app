@@ -1,14 +1,13 @@
 "use client";
 
-import { chainIdMap, chainNameMap, chainNames } from "@/app/constants";
-import { useQuery } from "@tanstack/react-query";
-import { getSuckerPairs } from "juice-sdk-core";
+import { chainIdMap, chainNames } from "@/app/constants";
+import { formatTokenSymbol } from "@/lib/utils";
 import {
   JBChainId,
-  useJBChainId,
   useJBContractContext,
   useJBProjectMetadataContext,
   useJBTokenContext,
+  useSuckerPairs,
 } from "juice-sdk-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -22,30 +21,16 @@ import { PayCard } from "../PayCard/PayCard";
 import { UserTokenBalanceCard } from "../UserTokenBalanceCard/UserTokenBalanceCard";
 import { Header } from "./Header/Header";
 import { DescriptionSection } from "./sections/DescriptionSection/DescriptionSection";
-import { PriceSection } from "./sections/PriceSection";
 import { HoldersSection } from "./sections/HoldersSection/HoldersSection";
-import { formatTokenSymbol } from "@/lib/utils";
+import { PriceSection } from "./sections/PriceSection";
+import { SuckerPair } from "juice-sdk-core";
 
 export function NetworkDashboard() {
   const { contracts, projectId } = useJBContractContext();
   const { token } = useJBTokenContext();
   const { metadata } = useJBProjectMetadataContext();
   const { name } = metadata?.data ?? {};
-  const config = useConfig();
-  const chainId = useJBChainId();
-  const suckerPairs = useQuery({
-    queryKey: ["suckerPairs", projectId.toString(), chainId?.toString()],
-    queryFn: async () => {
-      if (!chainId) return;
-      const data = await getSuckerPairs({
-        projectId,
-        chainId,
-        config,
-      });
-
-      return data;
-    },
-  });
+  const suckerPairs = useSuckerPairs();
 
   // set title
   // TODO, hacky, probably eventually a next-idiomatic way to do this.
@@ -98,7 +83,7 @@ export function NetworkDashboard() {
           <section className="mb-8">
             <h2 className="text-2xl font-semibold mb-1">About</h2>
             <div className="flex gap-3">
-              {suckerPairs.data?.map((pair) => {
+              {(suckerPairs.data as SuckerPair[])?.map((pair) => {
                 const networkName = chainIdMap[pair?.peerChainId as JBChainId];
                 return (
                   <Link
