@@ -178,7 +178,7 @@ export function NetworkDetailsTable() {
     The operator can change the distribution of the split to new destinations at any time.
     </div>
     </li>
-    <li>
+    <li className="flex">
     <span className="mr-2">•</span>
     <div>
     The operator can be a multisig, a DAO, an LLC, a core team, an
