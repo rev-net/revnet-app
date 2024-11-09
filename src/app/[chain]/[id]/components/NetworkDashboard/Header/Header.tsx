@@ -1,14 +1,18 @@
 import EtherscanLink from "@/components/EtherscanLink";
 import { NativeTokenValue } from "@/components/NativeTokenValue";
 import { ipfsUriToGatewayUrl } from "@/lib/ipfs";
+import { formatSeconds } from "@/lib/utils";
 import { ForwardIcon } from "@heroicons/react/24/solid";
 import {
   useJBContractContext,
   useJBProjectMetadataContext,
   useJBTokenContext,
+  useJBRulesetContext
 } from "juice-sdk-react";
 import Image from "next/image";
-import { useNativeTokenSurplus } from "@/hooks/useTokenASurplus";
+import { useNativeTokenSurplus  } from "@/hooks/useTokenASurplus";
+import { useCountdownToDate } from "@/hooks/useCountdownToDate";
+import { useFormattedTokenIssuance } from "@/hooks/useFormattedTokenIssuance";
 import { ProjectsDocument } from "@/generated/graphql";
 import { useSubgraphQuery } from "@/graphql/useSubgraphQuery";
 import { formatTokenSymbol } from "@/lib/utils";
@@ -30,7 +34,13 @@ export function Header() {
 
   const { contributorsCount } = projects?.projects?.[0] ?? {};
   const { name: projectName, logoUri } = metadata?.data ?? {};
-
+  const issuance = useFormattedTokenIssuance();
+  const { ruleset } = useJBRulesetContext();
+  const timeLeft = useCountdownToDate(
+    new Date(
+      ((ruleset?.data?.start ?? 0) + (ruleset?.data?.duration ?? 0)) * 1000
+    )
+  ); 
   return (
     <header className="mb-8">
       <div className="flex items-center gap-4">
@@ -69,9 +79,24 @@ export function Header() {
               <span className="text-zinc-500">
                 {contributorsCount === 1 ? "owner" : "owners"}
               </span>
-              <span className="ml-4">
-                <Creation />
-              </span>
+            </span>
+            <span className="text-sm text-zinc-500">
+              <span>
+                  Issuing 
+              </span>{" "}
+              <span className="font-medium">
+                 {issuance} 
+              </span>{" "}
+              {timeLeft &&
+                <span>
+                  for another 
+                {" "}
+                <span className="font-medium">
+                    {formatSeconds(timeLeft)}
+                  </span>
+                </span>
+              }
+              <span className="ml-4"><Creation /></span>
             </span>
           </div>
         </div>
