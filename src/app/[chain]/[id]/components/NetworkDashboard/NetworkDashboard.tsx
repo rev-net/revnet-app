@@ -2,18 +2,18 @@
 
 import { chainIdMap, chainNames } from "@/app/constants";
 import { formatTokenSymbol } from "@/lib/utils";
+import { SuckerPair } from "juice-sdk-core";
 import {
   JBChainId,
   useJBContractContext,
   useJBProjectMetadataContext,
   useJBTokenContext,
-  useSuckerPairs,
+  useSuckers,
 } from "juice-sdk-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { useEffect } from "react";
 import { zeroAddress } from "viem";
-import { useConfig } from "wagmi";
 import { ActivityFeed } from "../ActivityFeed";
 import { DistributeReservedTokensButton } from "../DistributeReservedTokensButton";
 import { NetworkDetailsTable } from "../NetworkDetailsTable";
@@ -23,14 +23,13 @@ import { Header } from "./Header/Header";
 import { DescriptionSection } from "./sections/DescriptionSection/DescriptionSection";
 import { HoldersSection } from "./sections/HoldersSection/HoldersSection";
 import { PriceSection } from "./sections/PriceSection";
-import { SuckerPair } from "juice-sdk-core";
 
 export function NetworkDashboard() {
   const { contracts, projectId } = useJBContractContext();
   const { token } = useJBTokenContext();
   const { metadata } = useJBProjectMetadataContext();
   const { name } = metadata?.data ?? {};
-  const suckerPairs = useSuckerPairs();
+  const suckerPairs = useSuckers();
 
   // set title
   // TODO, hacky, probably eventually a next-idiomatic way to do this.
