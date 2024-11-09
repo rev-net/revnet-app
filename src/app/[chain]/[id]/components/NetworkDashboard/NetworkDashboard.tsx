@@ -1,19 +1,20 @@
 "use client";
 
-import { chainIdMap, chainNames } from "@/app/constants";
-import { formatTokenSymbol } from "@/lib/utils";
-import { SuckerPair } from "juice-sdk-core";
+import { chainNameMap, chainNames } from "@/app/constants";
+import { useQuery } from "@tanstack/react-query";
+import { getSuckerPairs } from "juice-sdk-core";
 import {
   JBChainId,
+  useJBChainId,
   useJBContractContext,
   useJBProjectMetadataContext,
   useJBTokenContext,
-  useSuckers,
 } from "juice-sdk-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { useEffect } from "react";
 import { zeroAddress } from "viem";
+import { useConfig } from "wagmi";
 import { ActivityFeed } from "../ActivityFeed";
 import { DistributeReservedTokensButton } from "../DistributeReservedTokensButton";
 import { NetworkDetailsTable } from "../NetworkDetailsTable";
@@ -22,14 +23,28 @@ import { UserTokenBalanceCard } from "../UserTokenBalanceCard/UserTokenBalanceCa
 import { Header } from "./Header/Header";
 import { DescriptionSection } from "./sections/DescriptionSection/DescriptionSection";
 import { HoldersSection } from "./sections/HoldersSection/HoldersSection";
-import { PriceSection } from "./sections/PriceSection";
+import { formatTokenSymbol } from "@/lib/utils";
 
 export function NetworkDashboard() {
   const { contracts, projectId } = useJBContractContext();
   const { token } = useJBTokenContext();
   const { metadata } = useJBProjectMetadataContext();
   const { name } = metadata?.data ?? {};
-  const suckerPairs = useSuckers();
+  const config = useConfig();
+  const chainId = useJBChainId();
+  const suckerPairs = useQuery({
+    queryKey: ["suckerPairs", projectId.toString(), chainId?.toString()],
+    queryFn: async () => {
+      if (!chainId) return;
+      const data = await getSuckerPairs({
+        projectId,
+        chainId,
+        config,
+      });
+
+      return data;
+    },
+  });
 
   // set title
   // TODO, hacky, probably eventually a next-idiomatic way to do this.
@@ -55,7 +70,7 @@ export function NetworkDashboard() {
       <UserTokenBalanceCard />
       <ActivityFeed />
     </>
-  );
+  )
 
   return (
     <div className="flex gap-10 w-full px-4 sm:container py-10 md:flex-nowrap flex-wrap mb-10">
@@ -63,7 +78,9 @@ export function NetworkDashboard() {
       <div className="flex-1">
         <Header />
         {/* Render Pay and activity after header on mobile */}
-        <div className="sm:hidden mb-10">{payAndActivityBar}</div>
+        <div className="sm:hidden mb-10">
+          {payAndActivityBar}
+        </div>
 
         <div className="max-w-4xl mx-auto">
           <section className="mb-10">
@@ -81,13 +98,14 @@ export function NetworkDashboard() {
           <section className="mb-8">
             <h2 className="text-2xl font-semibold mb-1">About</h2>
             <div className="flex gap-3">
-              {(suckerPairs.data as SuckerPair[])?.map((pair) => {
-                const networkName = chainIdMap[pair?.peerChainId as JBChainId];
+              {suckerPairs.data?.map((pair) => {
+                const networkName =
+                  chainNameMap[pair?.peerChainId as JBChainId];
                 return (
                   <Link
                     className="underline"
                     key={networkName}
-                    href={`/${networkName}/${pair?.projectId}`}
+                    href={`/${networkName}/net/${pair?.projectId}`}
                   >
                     {chainNames[pair?.peerChainId as JBChainId]}
                   </Link>
