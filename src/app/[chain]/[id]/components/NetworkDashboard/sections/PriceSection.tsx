@@ -6,10 +6,10 @@ export function PriceSection() {
 
   return (
     <>
-      <div className="mb-8">
+      <div className="mb-2">
         <div>
           {/* <div className="text-2xl font-semibold">Current issuance price</div> */}
-          <span className="text-2xl">
+          <span className="text-sm text-zinc-600">
             Issuing {issuance}
           </span>
         </div>

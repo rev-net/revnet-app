@@ -62,7 +62,6 @@ export function NetworkDashboard() {
       {/* Column 1 */}
       <div className="flex-1">
         <Header />
-        <PriceSection />
         {/* Render Pay and activity after header on mobile */}
         <div className="sm:hidden mb-10">{payAndActivityBar}</div>
 

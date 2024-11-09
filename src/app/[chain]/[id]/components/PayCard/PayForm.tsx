@@ -7,6 +7,7 @@ import {
 } from "@/components/ui/tooltip";
 import { useBoostRecipient } from "@/hooks/useBoostRecipient";
 import { useTokenA } from "@/hooks/useTokenA";
+import { PriceSection } from "../NetworkDashboard/sections/PriceSection";
 import {
   ArrowDownIcon,
   ArrowRightIcon,
@@ -64,7 +65,7 @@ export function PayForm() {
 
   return (
     <div>
-      <div className="flex justify-center items-center flex-col gap-3 mb-5">
+      <div className="flex justify-center items-center flex-col gap-3 mb-2">
         <PayInput
           label="You contribute"
           type="number"
@@ -141,6 +142,7 @@ export function PayForm() {
 
         </div> */}
 
+      <PriceSection />
       {devTax && boostRecipient ? (
         <Tooltip>
           <TooltipTrigger>
