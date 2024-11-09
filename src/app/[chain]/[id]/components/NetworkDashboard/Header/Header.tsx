@@ -16,7 +16,6 @@ import { useFormattedTokenIssuance } from "@/hooks/useFormattedTokenIssuance";
 import { ProjectsDocument } from "@/generated/graphql";
 import { useSubgraphQuery } from "@/graphql/useSubgraphQuery";
 import { formatTokenSymbol } from "@/lib/utils";
-import { Creation } from "./Creation";
 import { TvlDatum } from "./TvlDatum";
 
 export function Header() {
@@ -96,7 +95,6 @@ export function Header() {
                   </span>
                 </span>
               }
-              <span className="ml-4"><Creation /></span>
             </span>
           </div>
         </div>
