@@ -3,9 +3,11 @@ import {
   RESERVED_TOKEN_SPLIT_GROUP_ID,
 } from "@/app/constants";
 import { EthereumAddress } from "@/components/EthereumAddress";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useNativeTokenSymbol } from "@/hooks/useNativeTokenSymbol";
 import { differenceInDays, formatDate } from "date-fns";
+import { ForwardIcon } from "@heroicons/react/24/solid";
 import {
   ReservedPercent,
   MAX_REDEMPTION_RATE,
@@ -282,11 +284,10 @@ export function NetworkDetailsTable() {
           {selectedStageBoost ? (
             <dd className="text-sm leading-6 text-zinc-700">
               {reservedPercent?.formatPercentage()}% {selectedStageBoost?.beneficiary ? (
-              <> currently operated by <EthereumAddress
-                withEnsName
-                short
-                address={selectedStageBoost.beneficiary}
-              />
+              <> to <Badge variant="secondary" className="mt-2">
+              <ForwardIcon className="w-4 h-4 mr-1 inline-block" />
+              Operator
+            </Badge>
               </>
             ) : (
               "Not set"
