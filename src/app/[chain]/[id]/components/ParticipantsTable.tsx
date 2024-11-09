@@ -74,7 +74,7 @@ export function ParticipantsTable({
                             Operator
                           </Badge>
                         </TooltipTrigger>
-                        <TooltipContent side="right">The operator sets the rules once</TooltipContent>
+                        <TooltipContent side="right">Operator of the current split</TooltipContent>
                       </Tooltip>
                     </div>
                 )}
