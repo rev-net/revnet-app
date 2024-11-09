@@ -10,18 +10,24 @@ import { JBChainId, useSuckersNativeTokenSurplus } from "juice-sdk-react";
 
 export function TvlDatum() {
   const surplusQuery = useSuckersNativeTokenSurplus();
-  const { data: ethPrice } = useEtherPrice();
-  const surpluses = surplusQuery?.data as {
-    surplus: bigint;
-    chainId: JBChainId;
-  }[];
-  const totalEth = surpluses?.reduce((acc, curr) => {
-    return acc + curr.surplus;
-  }, 0n);
+  const { data: ethPrice, isLoading: isEthLoading } = useEtherPrice();
+  const loading = isEthLoading || surplusQuery.isLoading;
+  const surpluses = surplusQuery?.data as
+    | {
+        surplus: bigint;
+        chainId: JBChainId;
+      }[]
+    | undefined;
+  const totalEth =
+    surpluses?.reduce((acc, curr) => {
+      return acc + curr.surplus;
+    }, 0n) ?? 0n;
 
   const usd = (
     (ethPrice ?? 0) * (totalEth ? Number(formatUnits(totalEth, 18)) : 0)
   ).toFixed(2);
+
+  if (loading) return <>...</>;
 
   return (
     <Tooltip>
