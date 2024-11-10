@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { useTokenA } from "@/hooks/useTokenA";
 import { useNativeTokenSurplus } from "@/hooks/useTokenASurplus";
+import { formatTokenSymbol } from "@/lib/utils";
 import { FixedInt } from "fpnum";
 import { JBProjectToken, getTokenRedemptionQuoteEth } from "juice-sdk-core";
 import {
@@ -9,12 +10,12 @@ import {
   useJBRulesetContext,
   useJBTokenContext,
   useReadJbControllerPendingReservedTokenBalanceOf,
-  useReadJbTokensTotalBalanceOf,
-  useReadJbTokensTotalSupplyOf,
+  useReadJbTokensTotalSupplyOf
 } from "juice-sdk-react";
 import { useAccount } from "wagmi";
 import { RedeemDialog } from "./RedeemDialog";
-import { formatTokenSymbol } from "@/lib/utils";
+import { UserTokenBalanceDatum } from "./UserTokenBalanceDatum";
+import { useSuckersUserTokenBalance } from "./useSuckersUserTokenBalance";
 
 export function UserTokenBalanceCard() {
   const {
@@ -27,15 +28,11 @@ export function UserTokenBalanceCard() {
   const { token } = useJBTokenContext();
   const tokenSymbol = formatTokenSymbol(token);
   const chainId = useJBChainId();
-  const { data: creditBalance } = useReadJbTokensTotalBalanceOf({
-    chainId,
-    args: userAddress ? [userAddress, projectId] : undefined,
-    query: {
-      select(data) {
-        return new JBProjectToken(data);
-      },
-    },
-  });
+  const { data: balances } = useSuckersUserTokenBalance();
+  const creditBalance = new JBProjectToken(
+    balances?.reduce((acc, balance) => acc + balance.balance.value, 0n) ?? 0n
+  );
+
   const { data: tokensReserved } =
     useReadJbControllerPendingReservedTokenBalanceOf({
       chainId,
@@ -68,8 +65,8 @@ export function UserTokenBalanceCard() {
     <div className="flex flex-col mb-16 bg-zinc-50 border border-zinc-200 w-full shadow-lg rounded-xl p-4 justify-between gap-2 flex-wrap">
       <div>
         <div>
-          <div className="text-lg overflow-auto mb-1">
-            You own {creditBalance?.format(6) ?? 0} {tokenSymbol}
+          <div className="text-lg overflow-auto mb-1 flex gap-1 items-center">
+            <span>You own</span> <UserTokenBalanceDatum />
           </div>
         </div>
         {creditBalance && creditBalanceRedemptionQuote ? (
@@ -90,9 +87,9 @@ export function UserTokenBalanceCard() {
           </Button>
         </RedeemDialog>
       ) : null}
-        <Button variant="outline" disabled={true}>
-          Get a loan (soon)
-        </Button>
+      <Button variant="outline" disabled={true}>
+        Get a loan (soon)
+      </Button>
     </div>
   );
 }
