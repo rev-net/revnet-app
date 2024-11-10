@@ -79,7 +79,7 @@ export function Header() {
                 {contributorsCount === 1 ? "owner" : "owners"}
               </span>
             </span>
-            <span className="text-md text-zinc-500">
+            <span className="text-md text-teal-600">
               <span>
                   Next issuance cut in 
               </span>{" "}
