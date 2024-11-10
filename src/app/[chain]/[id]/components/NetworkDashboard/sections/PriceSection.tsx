@@ -12,12 +12,13 @@ export function PriceSection() {
 
   const { ruleset, rulesetMetadata } = useJBRulesetContext();
 
+  const boostRecipient = useBoostRecipient();
+  
   if (!ruleset?.data || !rulesetMetadata?.data) {
     return "Something went wrong";
   }
 
   const devTax = rulesetMetadata?.data?.reservedPercent;
-  const boostRecipient = useBoostRecipient();
 
   return (
     <>
