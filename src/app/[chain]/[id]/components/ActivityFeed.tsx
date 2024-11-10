@@ -27,7 +27,7 @@ type PayActivityItemData = {
 function PayActivityItem(
   payEvent: Pick<
     PayEvent,
-    "amount" | "beneficiary" | "beneficiaryTokenCount" | "timestamp" | "txHash"
+    "amount" | "beneficiary" | "beneficiaryTokenCount" | "timestamp" | "txHash" | "note"
   >
 ) {
   const { token } = useJBTokenContext();
@@ -39,6 +39,7 @@ function PayActivityItem(
     beneficiaryTokenCount: new JBProjectToken(
       BigInt(payEvent.beneficiaryTokenCount)
     ),
+    memo: payEvent.note
   };
 
   const formattedDate = formatDistance(payEvent.timestamp * 1000, new Date(), {
@@ -61,10 +62,13 @@ function PayActivityItem(
         </div>
       </div>
       <div className="text-xs text-zinc-500 ml-7">
-        Paid {activityItemData.amount.format(6)} ETH •{" "}
+        Contributed {activityItemData.amount.format(6)} ETH •{" "}
         <EtherscanLink type="tx" value={payEvent.txHash}>
           {formattedDate}
         </EtherscanLink>
+      </div>
+      <div className="text-xs text-zinc-500 ml-7">
+        {activityItemData.memo}
       </div>
     </div>
   );
