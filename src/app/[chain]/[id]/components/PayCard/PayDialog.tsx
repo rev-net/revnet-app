@@ -9,13 +9,15 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Stat } from "@/components/ui/stat";
 import { NATIVE_TOKEN, TokenAmountType } from "juice-sdk-core";
 import {
   useJBContractContext,
   useWriteJbMultiTerminalPay,
 } from "juice-sdk-react";
-import { PropsWithChildren } from "react";
+import { PropsWithChildren, useState } from "react";
 import { Address } from "viem";
 import { useAccount, useChainId, useWaitForTransactionReceipt } from "wagmi";
 
@@ -44,7 +46,7 @@ export function PayDialog({
     isPending: isWriteLoading,
     data,
   } = useWriteJbMultiTerminalPay();
-
+  const [memo, setMemo] = useState<string>();
   const txHash = data;
   const { isLoading: isTxLoading, isSuccess } = useWaitForTransactionReceipt({
     hash: txHash,
@@ -75,6 +77,19 @@ export function PayDialog({
                   {isTxLoading ? (
                     <div>Transaction submitted, awaiting confirmation...</div>
                   ) : null}
+                  <div className="grid w-full gap-1.5 my-8">
+                    <Label htmlFor="amount" className="text-zinc-500">
+                      Onchain memo (optional)
+                    </Label>
+                    <Input
+                      id="amount"
+                      name="amount"
+                      value={memo}
+                      autoComplete="off"
+                      className="text-zinc-800"
+                      onChange={(e) => setMemo(e.target.value)}
+                    />
+                  </div>
                 </>
               )}
             </div>
@@ -100,7 +115,7 @@ export function PayDialog({
                       value,
                       address,
                       0n,
-                      `Joined REVNET ${projectId}`,
+                      memo || `Joined REVNET ${projectId}`,
                       "0x0",
                     ],
                     value,
