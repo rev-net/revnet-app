@@ -149,7 +149,7 @@ export function ActivityFeed() {
           chainId: d.value.chainId,
         };
       });
-    });
+    }).sort((a, b) => b.timestamp - a.timestamp);
   }, [data]);
 
   return (
