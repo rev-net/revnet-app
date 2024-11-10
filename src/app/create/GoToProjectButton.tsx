@@ -2,8 +2,9 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useTransactionReceipt } from "wagmi";
 import { JBChainId } from "juice-sdk-react";
-import { FastForwardIcon, CheckCircle } from "lucide-react";
+import { FastForwardIcon } from "lucide-react";
 import { chainIdMap } from "../constants";
+import { useState } from "react";
 
 export function GoToProjectButton({
   txHash,
@@ -12,7 +13,9 @@ export function GoToProjectButton({
   txHash?: string,
   chainId?: JBChainId,
 }) {
-  const { data, isLoading } = useTransactionReceipt({
+  const [isLoading, setIsLoading] = useState(false);
+
+  const { data } = useTransactionReceipt({
     chainId,
     hash: txHash as `0x${string}`,
   });
@@ -30,7 +33,9 @@ export function GoToProjectButton({
           type="submit"
           size="lg"
           disabled={!projectId}
+          loading={isLoading}
           className="transition-all duration-200 mt-2"
+          onClick={() => setIsLoading(true)}
         >
           Go to your revnet
           <FastForwardIcon

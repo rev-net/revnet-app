@@ -1,6 +1,6 @@
 import { useCallback, useState } from "react";
 import { RelayrPostBundleResponse } from "../types";
-import { API } from "../constants";
+import { API, DASHBOARD } from "../constants";
 
 type DeployRevnetRelayArgs = {
   data: `0x${string}`;
@@ -53,7 +53,7 @@ export function useDeployRevnetRelay() {
 
       const data: RelayrPostBundleResponse = await response.json();
       console.log("Relayr:: ", data);
-      console.log(`https://relayr-dashboard-staging.up.railway.app/bundle/${data.bundle_uuid}`);
+      console.log(`${DASHBOARD}/bundle/${data.bundle_uuid}`);
       setRelayrResponse(data);
     } catch(e: any) {
       console.log("Relayr ERROR:: ", e)

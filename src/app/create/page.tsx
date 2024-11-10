@@ -1,6 +1,5 @@
 "use client";
 
-import EtherscanLink from "@/components/EtherscanLink";
 import { Nav } from "@/components/layout/Nav";
 import { Button } from "@/components/ui/button";
 import { QuoteButton } from "./QuoteButton";
@@ -44,11 +43,9 @@ import {
   CircleDotDashedIcon,
   CircleDotIcon,
   CircleXIcon,
-  FastForwardIcon,
-  SquareArrowOutUpRightIcon
 } from "lucide-react";
 import Image from "next/image";
-import { ReactNode, useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import { revDeployerAbi } from "revnet-sdk";
 import { twMerge } from "tailwind-merge";
 import {
@@ -61,17 +58,16 @@ import {
 } from "viem";
 import { mainnet, sepolia } from "viem/chains";
 import { IpfsImageUploader } from "../../components/IpfsFileUploader";
-import { ChainIdToChain, chainIdMap, chainNames, MAX_RULESET_COUNT, chainNameMap } from "../constants";
+import { chainNames, MAX_RULESET_COUNT } from "../constants";
 import { useDeployRevnetRelay } from "@/lib/relayr/hooks/useDeployRevnetRelay";
 import { RelayrPostBundleResponse } from "@/lib/relayr/types";
-import { formatHexEther } from "@/lib/utils";
 import { usePayRelayr } from "@/lib/relayr/hooks/usePayRelayr";
 import { useGetRelayrBundle } from "@/lib/relayr/hooks/useGetRelayrBundle";
 import { useToast } from "@/components/ui/use-toast";
-import { useTokenA } from "@/hooks/useTokenA";
 import { format } from "date-fns";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { GoToProjectButton } from "./GoToProjectButton";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { PayAndDeploy } from "./PayAndDeploy";
 
 type StageData = {
   initialOperator?: string; // only one operator (technically per chain) not per stage
@@ -130,48 +126,48 @@ const DEFAULT_FORM_DATA: RevnetFormData = {
   chainIds: []
 };
 
-// const DEFAULT_FORM_DATA: RevnetFormData = {
-//   name: "Test Revnet",
-//   description: "This is a test revnet for development purposes. It demonstrates various features and configurations available in the revnet system.",
-//   logoUri: "", // Leave empty or add an IPFS URI if needed
+const TEST_FORM_DATA: RevnetFormData = {
+  name: "Test Revnet",
+  description: "This is a test revnet for development purposes. It demonstrates various features and configurations available in the revnet system.",
+  logoUri: "", // Leave empty or add an IPFS URI if needed
 
-//   tokenName: "Test Token",
-//   tokenSymbol: "TEST",
+  tokenName: "Test Token",
+  tokenSymbol: "TEST",
 
-//   premintTokenAmount: "1000",
+  premintTokenAmount: "1000",
 
-//   stages: [
-//     {
-//       initialOperator: "0x1234567890123456789012345678901234567890", // Example operator address
-//       initialIssuance: "100",
-//       priceCeilingIncreasePercentage: "50", // 50% decrease (doubles price)
-//       priceCeilingIncreaseFrequency: "30", // 30 days
-//       priceFloorTaxIntensity: "20", // 20% tax (LOW)
-//       splitRate: "10", // 10% split
-//       premintTokenAmount: "500",
-//       boostDuration: "90" // 90 days
-//     },
-//     {
-//       initialIssuance: "50",
-//       priceCeilingIncreasePercentage: "25",
-//       priceCeilingIncreaseFrequency: "15",
-//       priceFloorTaxIntensity: "50", // 50% tax (MID)
-//       splitRate: "5",
-//       premintTokenAmount: "250",
-//       boostDuration: "60"
-//     },
-//     {
-//       initialIssuance: "25",
-//       priceCeilingIncreasePercentage: "10",
-//       priceCeilingIncreaseFrequency: "7",
-//       priceFloorTaxIntensity: "80", // 80% tax (HIGH)
-//       splitRate: "2",
-//       premintTokenAmount: "100",
-//       boostDuration: "" // Empty for indefinite duration
-//     }
-//   ],
-//   chainIds: [11155111, 11155420, 84532, 421614]
-// } as const;
+  stages: [
+    {
+      initialOperator: "0x1234567890123456789012345678901234567890", // Example operator address
+      initialIssuance: "100",
+      priceCeilingIncreasePercentage: "50", // 50% decrease (doubles price)
+      priceCeilingIncreaseFrequency: "30", // 30 days
+      priceFloorTaxIntensity: "20", // 20% tax (LOW)
+      splitRate: "10", // 10% split
+      premintTokenAmount: "500",
+      boostDuration: "90" // 90 days
+    },
+    {
+      initialIssuance: "50",
+      priceCeilingIncreasePercentage: "25",
+      priceCeilingIncreaseFrequency: "15",
+      priceFloorTaxIntensity: "50", // 50% tax (MID)
+      splitRate: "5",
+      premintTokenAmount: "250",
+      boostDuration: "60"
+    },
+    {
+      initialIssuance: "25",
+      priceCeilingIncreasePercentage: "10",
+      priceCeilingIncreaseFrequency: "7",
+      priceFloorTaxIntensity: "80", // 80% tax (HIGH)
+      splitRate: "2",
+      premintTokenAmount: "100",
+      boostDuration: "" // Empty for indefinite duration
+    }
+  ],
+  chainIds: [11155111, 11155420, 84532, 421614]
+} as const;
 
 const EXIT_TAX_HIGH = "80";
 const EXIT_TAX_MID = "50";
@@ -853,14 +849,6 @@ function ReviewPage() {
   );
 }
 
-const statusToIcon = (status: string) => {
-  if (status === "Pending") return <CircleDashedIcon className="w-5 h-5 text-amber-400 animate-spin" />
-  if (status === "Mempool") return <CircleDotDashedIcon className="w-5 h-5 text-blue-400 animate-spin" />
-  if (status === "Included") return <CircleDotIcon className="w-5 h-5 text-cyan-400 animate-spin" />
-  if (status === "Success") return <CheckCircle className="w-5 h-5 text-emerald-500 fade-in-50" />
-  return <CircleXIcon className="w-5 h-5 text-red-500 fade-in-50" />
-};
-
 function EnvironmentCheckbox({
   relayrResponse,
   reset,
@@ -872,13 +860,8 @@ function EnvironmentCheckbox({
 }) {
   // State for dropdown selection
   const [environment, setEnvironment] = useState("testing");
-  const [paymentIndex, setPaymentIndex] = useState<number>(0);
-  const [payIsProcessing, setPayIsProcessing] = useState(false);
 
-  const { pay } = usePayRelayr();
   const { submitForm, values, setFieldValue } = useFormikContext<RevnetFormData>();
-  const { startPolling, response: bundleResponse, firstProjectIdReady } = useGetRelayrBundle();
-  const { toast } = useToast();
   const isFormValid = () => {
     if (!values.name || !values.tokenSymbol || !values.description) {
       return false;
@@ -904,11 +887,6 @@ function EnvironmentCheckbox({
     return isStagesValid;
   };
 
-  // Handler for dropdown change
-  const handleEnvironmentChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setEnvironment(e.target.value);
-  };
-
   const handleChainSelect = (chainId: number, checked: boolean) => {
     setFieldValue("chainIds", checked
       ? [...values.chainIds, chainId]
@@ -919,8 +897,6 @@ function EnvironmentCheckbox({
   const validBundle = !!relayrResponse?.bundle_uuid;
   const disableQuoteButton = !isFormValid() || validBundle;
 
-  const { symbol } = useTokenA();
-
   const revnetTokenSymbol =
     values.tokenSymbol?.length > 0 ? `$${values.tokenSymbol}` : "tokens";
 
@@ -930,22 +906,30 @@ function EnvironmentCheckbox({
         Choose your chains
       </div>
     <div className="flex flex-col gap-4">
-      <select
-        id="env-dropdown"
-        value={environment}
-        onChange={handleEnvironmentChange}
-        className="p-3 rounded border border-gray-300 text-black-600 max-w-40"
-      >
-        <option value="testing">Testnets</option>
-        <option
-          value="production"
-          disabled
-          className="text-gray-400 bg-gray-100"
+      <div className="max-w-56">
+        <Select
+          onValueChange={(v) => { setEnvironment(v) }}
+          defaultValue="testing"
         >
-          Production (coming soon)
-        </option>
-      </select>
-
+          <SelectTrigger className="col-span-1">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem
+              value="testing"
+              key="testing"
+            >
+              Testnets
+            </SelectItem>
+            <SelectItem
+              value="production"
+              key="production"
+            >
+              Production (coming soon)
+            </SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
       {/* Conditional Checkboxes */}
       <div className="flex flex-wrap gap-6 mt-4">
         {environment === "production" ? (
@@ -1010,99 +994,7 @@ function EnvironmentCheckbox({
       </div>
 
       {relayrResponse && (
-        <div>
-          <div className="text-left text-black-500 font-semibold">
-            How would you like to pay?
-          </div>
-          <select
-            id="env-dropdown"
-            value={paymentIndex}
-            disabled={!!bundleResponse}
-            onChange={(e) => setPaymentIndex(Number(e.target.value))}
-            className="py-3 pl-4 pr-7 rounded border border-gray-300 text-black-600"
-          >
-            {relayrResponse.payment_info.map((payment, index) => {
-              return (
-                <option value={index} key={payment.chain}>
-                  {formatHexEther(payment?.amount)} {symbol} on {chainNames[payment.chain]}
-                </option>
-              )
-            })}
-          </select>
-          <div className="flex md:col-span-3 mt-4">
-            <Button
-              type="submit"
-              size="lg"
-              disabled={payIsProcessing}
-              className="disabled:text-black disabled:bg-transparent disabled:border disabled:border-black disabled:bg-gray-100"
-              onClick={async () => {
-                setPayIsProcessing(true);
-                try {
-                  await pay?.(relayrResponse.payment_info[paymentIndex]);
-                  startPolling(relayrResponse.bundle_uuid);
-                } catch (e: any) {
-                  setPayIsProcessing(false);
-                  toast({
-                    title: "Error",
-                    description: e.message,
-                    variant: "destructive",
-                  })
-                }
-              }}
-            >
-              Pay and deploy
-                {!!bundleResponse ? (
-                  <CheckCircle
-                    className={"h-4 w-4 ml-2 fill-none text-emerald-500"}
-                  />
-                ) : (
-                <FastForwardIcon
-                  className={
-                    twMerge("h-4 w-4 fill-white ml-2", payIsProcessing ? "animate-spin" : "animate-pulse")
-                  }
-                />
-              )}
-            </Button>
-          </div>
-          {!!bundleResponse && (
-            <div className="mt-10 flex flex-col space-y-2">
-              <div className="text-left text-zinc-500 mb-2">Your revnet is made up of components deployed on each blockchain where it'll accept funds and issue {revnetTokenSymbol} from. These transactions take 1-2 minutes to settle.</div>
-              <div className="grid grid-cols-3 gap-4 font-semibold border-b mb-2">
-                <div>Network</div>
-                <div>Status</div>
-                <div>Transaction</div>
-              </div>
-              {bundleResponse.transactions.map((txn) => (
-                txn?.status && (
-                  <div key={txn?.tx_uuid} className="grid grid-cols-3 gap-4">
-                    <div>{chainNames[txn.request.chain as JBChainId]}</div>
-                    <div className="flex flex-row space-x-2 items-center justify-start">
-                      <div>{statusToIcon(txn.status.state)}</div>
-                      <div>{txn.status.state}</div>
-                    </div>
-                    {txn?.status?.data?.hash ? (
-                      <div className="flex flex-row space-x-1 items-center">
-                        <EtherscanLink
-                          value={txn?.status?.data?.hash}
-                          type="tx"
-                          chain={ChainIdToChain[txn.request.chain as JBChainId]}
-                          truncateTo={6}
-                        />
-                        <SquareArrowOutUpRightIcon className="w-3 h-3" />
-                      </div>
-                    ) : (
-                     <div className="animate-pulse italic">generating...</div>
-                    )}
-                  </div>
-                )
-              ))}
-              <GoToProjectButton
-                txHash={firstProjectIdReady?.status?.data?.hash}
-                chainId={firstProjectIdReady?.request.chain as JBChainId}
-              />
-            </div>
-          )}
-        </div>
+        <PayAndDeploy relayrResponse={relayrResponse} revnetTokenSymbol={revnetTokenSymbol} />
       )}
       </div>
     </div>
@@ -1118,7 +1010,30 @@ function DeployRevnetForm({
   reset: () => void
   isLoading: boolean
 }) {
-  const { values } = useFormikContext<RevnetFormData>();
+  const { values, setValues } = useFormikContext<RevnetFormData>();
+
+  // type `testdata` into console to fill form with TEST_FORM_DATA
+  useEffect(() => {
+    const fillTestData = () => {
+      setValues(TEST_FORM_DATA)
+      console.log('Test data loaded successfully! 🚀');
+      console.log('Form fields populated with:');
+      console.dir(TEST_FORM_DATA);
+    };
+
+    Object.defineProperty(window, "testdata", {
+      get: () => {
+        fillTestData();
+        return "filled."
+      },
+      configurable: true
+    });
+
+    return () => {
+      delete (window as any).testdata;
+    };
+
+  }, [setValues]);
 
   const revnetTokenSymbol =
     values.tokenSymbol?.length > 0 ? `$${values.tokenSymbol}` : "tokens";

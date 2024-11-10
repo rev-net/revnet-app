@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { FastForwardIcon, CheckCircle } from "lucide-react";
 import { twMerge } from "tailwind-merge";
+import { GoToProjectButton } from "./GoToProjectButton";
 
 type ButtonContentType = {
   text: string;

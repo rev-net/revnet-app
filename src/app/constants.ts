@@ -42,3 +42,10 @@ export const ChainIdToEtherscanUrlBase: Record<JBChainId, string> = {
   [baseSepolia.id]: "sepolia.basescan.org",
   [arbitrumSepolia.id]: "sepolia.arbiscan.io",
 }
+
+export const chainSortOrder = new Map<JBChainId, number>([
+  [sepolia.id, 0],
+  [optimismSepolia.id, 1],
+  [baseSepolia.id, 2],
+  [arbitrumSepolia.id, 3],
+]);

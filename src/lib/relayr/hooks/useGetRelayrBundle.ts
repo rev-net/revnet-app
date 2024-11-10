@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { RelayrGetBundleResponse } from "../types";
-import { API } from "../constants";
+import { API, DASHBOARD } from "../constants";
+import { chainSortOrder } from "@/app/constants";
 
 export function useGetRelayrBundle() {
   const { toast } = useToast();
@@ -22,6 +23,13 @@ export function useGetRelayrBundle() {
         }
         const data: RelayrGetBundleResponse = await response.json();
         console.log("Relayr:: ", data);
+        console.log("RelayrDashboard:: ", `${DASHBOARD}/bundle/${data.bundle_uuid}`)
+        data.transactions.sort((a, b) => {
+          const orderA = chainSortOrder.get(a.request.chain) || 0;
+          const orderB = chainSortOrder.get(b.request.chain) || 0;
+
+          return orderA - orderB;
+        })
         setRelayrResponse(data);
         setError(null);
 
@@ -63,16 +71,12 @@ export function useGetRelayrBundle() {
   }, []);
 
   const isComplete = relayrResponse?.transactions?.every(tx => tx?.status.data?.hash) ?? false;
-  const firstProjectIdReady = relayrResponse?.transactions.find((txn) => {
-    return txn?.status?.data?.hash !== undefined
-  });
 
   return {
     startPolling,
     response: relayrResponse,
     isPolling,
     isComplete,
-    firstProjectIdReady,
     error,
     uuid
   };

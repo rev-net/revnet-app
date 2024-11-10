@@ -10,7 +10,7 @@ export type ChainPayment = {
 }
 
 type TransactionRequest = {
-  chain: number;
+  chain: JBChainId;
   target: `0x${string}`;
   data: `0x${string}`;
   value: `0x${string}`;
