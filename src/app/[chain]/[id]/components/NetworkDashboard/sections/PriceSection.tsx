@@ -26,15 +26,14 @@ export function PriceSection() {
         <div>
           {/* <div className="text-2xl font-semibold">Current issuance price</div> */}
           <span className="text-sm text-zinc-600">
-            {issuance}
+            Issuing {issuance}
           {devTax && boostRecipient ?   (
             <span>
                 {", "}<span className="font-medium">
                   {devTax.formatPercentage().toFixed(2)}%
-                </span>
-                {/* {" "} */}
-                {/* <span>split to </span>
-            <Tooltip>
+                </span>{" "}
+                <span>split</span>
+            {/* <Tooltip>
               <TooltipTrigger>
               <Badge variant="secondary">
                 <ForwardIcon className="w-4 h-4 mr-1 inline-block" />
