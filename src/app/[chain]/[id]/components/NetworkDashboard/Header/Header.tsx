@@ -71,7 +71,7 @@ export function Header() {
           </div>
           <div className="flex gap-4 items-center">
             <TvlDatum />
-            <span className="text-sm">
+            <span className="text-md">
               <span className="font-medium text-zinc-500">
                 {contributorsCount ?? 0}
               </span>{" "}
@@ -79,7 +79,7 @@ export function Header() {
                 {contributorsCount === 1 ? "owner" : "owners"}
               </span>
             </span>
-            <span className="text-sm text-zinc-500">
+            {/* <span className="text-sm text-zinc-500">
               <span>
                   Issuing 
               </span>{" "}
@@ -95,7 +95,7 @@ export function Header() {
                   </span>
                 </span>
               }
-            </span>
+            </span> */}
           </div>
         </div>
       </div>

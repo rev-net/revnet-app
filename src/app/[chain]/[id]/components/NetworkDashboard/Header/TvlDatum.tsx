@@ -33,7 +33,7 @@ export function TvlDatum() {
     <Tooltip>
       <TooltipTrigger>
         {typeof usd !== "undefined" ? (
-          <span className="text-sm">
+          <span className="text-md">
             <span className="font-medium text-zinc-500">${usd}</span>{" "}
             <span className="text-zinc-500">TVL</span>
           </span>
