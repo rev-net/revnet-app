@@ -27,6 +27,7 @@ import {
 } from "juice-sdk-core";
 import {
   JBChainId,
+  NativeTokenValue,
   useJBContractContext,
   useWriteJbMultiTerminalRedeemTokensOf,
 } from "juice-sdk-react";
@@ -35,6 +36,7 @@ import { Address, parseUnits } from "viem";
 import { useAccount, useWaitForTransactionReceipt } from "wagmi";
 import { useSuckersUserTokenBalance } from "./useSuckersUserTokenBalance";
 import { ButtonWithWallet } from "@/components/ButtonWithWallet";
+import { useTokenRedemptionQuote } from "./useTokenRedemptionQuoteEth";
 
 export function RedeemDialog({
   projectId,
@@ -82,7 +84,17 @@ export function RedeemDialog({
     hash: txHash,
   });
 
+  const redeemQuote = useTokenRedemptionQuote(redeemAmountBN, {
+    chainId: Number(cashOutChainId) as JBChainId,
+  });
+
   const loading = isWriteLoading || isTxLoading;
+  const selectedBalance = balances?.find(
+    (b) => b.chainId === Number(cashOutChainId)
+  );
+  const valid =
+    redeemAmountBN > 0n &&
+    (selectedBalance?.balance.value ?? 0n) >= redeemAmountBN;
 
   return (
     <Dialog open={disabled === true ? false : undefined}>
@@ -112,6 +124,7 @@ export function RedeemDialog({
                       ))}
                     </div>
                   </div>
+
                   <div className="grid w-full gap-1.5">
                     <Label htmlFor="amount" className="text-zinc-900">
                       Cash out amount
@@ -159,6 +172,27 @@ export function RedeemDialog({
                       </div>
                     </div>
                   </div>
+
+                  {redeemAmount && cashOutChainId && !valid ? (
+                    <div className="text-red-500 mt-4">
+                      Insuffient {tokenSymbol} on{" "}
+                      {chainNames[Number(cashOutChainId) as JBChainId]}
+                    </div>
+                  ) : null}
+
+                  {redeemAmount && redeemAmountBN > 0n && valid ? (
+                    <div className="text-base mt-4">
+                      You'll receive:{" "}
+                      {redeemQuote ? (
+                        <span className="font-medium">
+                          <NativeTokenValue wei={redeemQuote} decimals={8} />
+                        </span>
+                      ) : (
+                        <>...</>
+                      )}
+                    </div>
+                  ) : null}
+
                   {isTxLoading ? (
                     <div>Transaction submitted, awaiting confirmation...</div>
                   ) : null}
