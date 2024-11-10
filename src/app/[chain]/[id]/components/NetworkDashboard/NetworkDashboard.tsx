@@ -117,7 +117,7 @@ export function NetworkDashboard() {
       </div>
 
       {/* Column 2, hide on mobile */}
-      <aside className="hidden md:w-[340px] md:block sm:mt-24">
+      <aside className="hidden md:w-[350px] md:block sm:mt-24">
         {payAndActivityBar}
       </aside>
     </div>
