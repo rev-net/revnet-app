@@ -19,7 +19,7 @@ query ProjectEvents(
       beneficiary
       note
       timestamp
-      feeFromV2Project
+      feeFromProject
       beneficiaryTokenCount
       from
       txHash
