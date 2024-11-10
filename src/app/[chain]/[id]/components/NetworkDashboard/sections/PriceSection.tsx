@@ -34,7 +34,7 @@ export function PriceSection() {
                 <span className="font-medium">
                   {devTax.formatPercentage().toFixed(2)}%
                 </span>{" "}
-                <span>tokens to </span>
+                <span>split to </span>
               </span>
               <Badge variant="secondary" className="">
                 <ForwardIcon className="w-4 h-4 mr-1 inline-block" />
