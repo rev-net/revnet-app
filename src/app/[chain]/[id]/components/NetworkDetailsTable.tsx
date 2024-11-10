@@ -105,7 +105,7 @@ export function NetworkDetailsTable() {
     if (!nextStart || !selectedStart) return "";
 
     const days = differenceInDays(nextStart, selectedStart);
-    return `, lasting ${days} days`;
+    return `, ${days} days`;
   };
 
   const stageNextStart = () => {
@@ -265,7 +265,7 @@ export function NetworkDetailsTable() {
             {formatDate(
               new Date(Number(selectedStage.start) * 1000),
               "MMM dd, yyyy"
-            )} - {stageNextStart()}{stageDayDiff()}
+            )} - {stageNextStart()}{stageDayDiff()}.
           </dd>
         </div>
         <div className="py-1 sm:col-span-1 sm:px-0 grid grid-cols-1">
@@ -274,34 +274,26 @@ export function NetworkDetailsTable() {
           </dt>
           <dd className="text-sm leading-6 text-zinc-700 whitespace-nowrap">
             {issuance}, decreasing {selectedStage.decayPercent.formatPercentage()}% every{" "}
-            {(selectedStage.duration / 86400).toString()} days
+            {(selectedStage.duration / 86400).toString()} days.
           </dd>
         </div>
         <div className="py-1 sm:col-span-1 sm:px-0 grid grid-cols-1">
           <dt className="text-sm font-medium leading-6 text-zinc-900">
-            Split
+            Special
           </dt>
           {selectedStageBoost ? (
             <dd className="text-sm leading-6 text-zinc-700">
-              {reservedPercent?.formatPercentage()}% {selectedStageBoost?.beneficiary ? (
-              <> to <Badge variant="secondary" className="mt-2">
+              {reservedPercent?.formatPercentage()}% of issuance and buybacks split to <Badge variant="secondary">
               <ForwardIcon className="w-4 h-4 mr-1 inline-block" />
               Operator
-            </Badge>
-              </>
-            ) : (
-              "Not set"
-            )}
+            </Badge>,
+            <div>
+            <span>
+            0 {formatTokenSymbol(token)} automint.
+            </span>
+            </div>
             </dd>
           ) : null}
-        </div>
-        <div className="py-1 sm:col-span-1 sm:px-0 grid grid-cols-1">
-          <dt className="text-sm font-medium leading-6 text-zinc-900">
-            Automint
-          </dt>
-          <dd className="text-sm leading-6 text-zinc-700">
-            ~todo~
-          </dd>
         </div>
         <div className="py-1 sm:col-span-1 sm:px-0 grid grid-cols-1">
           <dt className="text-sm font-medium leading-6 text-zinc-900">
