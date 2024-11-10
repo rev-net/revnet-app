@@ -256,46 +256,46 @@ export function NetworkDetailsTable() {
           );
         })}
       </div>
-      <div className="grid sm:grid-cols-2 gap-x-8 overflow-x-scroll">
-        <div className="py-1 sm:col-span-1 sm:px-0 grid grid-cols-1">
+      <div className="text-sm text-zinc-500 mb-2">
+        {formatDate(
+          new Date(Number(selectedStage.start) * 1000),
+          "MMM dd, yyyy"
+            )} - {stageNextStart()}{stageDayDiff()}
+      </div>
+      <div className="grid sm:grid-cols-1 gap-x-8 overflow-x-scroll">
+        <div className="sm:col-span-1 sm:px-0 grid grid-cols-6">
           <dt className="text-sm font-medium leading-6 text-zinc-900">
-            Timing
+           Auto issuance 
           </dt>
           <dd className="text-sm leading-6 text-zinc-700 whitespace-nowrap">
-            {formatDate(
-              new Date(Number(selectedStage.start) * 1000),
-              "MMM dd, yyyy"
-            )} - {stageNextStart()}{stageDayDiff()}.
+            0 {formatTokenSymbol(token)}
           </dd>
         </div>
-        <div className="py-1 sm:col-span-1 sm:px-0 grid grid-cols-1">
+        <div className="sm:col-span-1 sm:px-0 grid grid-cols-6">
           <dt className="text-sm font-medium leading-6 text-zinc-900">
-            Issuance
+            Paid issuance
           </dt>
           <dd className="text-sm leading-6 text-zinc-700 whitespace-nowrap">
             {issuance}, cut {selectedStage.decayPercent.formatPercentage()}% every{" "}
-            {(selectedStage.duration / 86400).toString()} days.
+            {(selectedStage.duration / 86400).toString()} days
           </dd>
         </div>
-        <div className="py-1 sm:col-span-1 sm:px-0 grid grid-cols-1">
+        <div className="sm:col-span-1 sm:px-0 grid grid-cols-6">
           <dt className="text-sm font-medium leading-6 text-zinc-900">
-            Special
+            Splits
           </dt>
-          {selectedStageBoost ? (
-            <dd className="text-sm leading-6 text-zinc-700">
-              {reservedPercent?.formatPercentage()}% of issuance and buybacks split to <Badge variant="secondary">
-              <ForwardIcon className="w-4 h-4 mr-1 inline-block" />
-              Operator
-            </Badge>,
-            <div>
-            <span>
-            0 {formatTokenSymbol(token)} automint.
-            </span>
-            </div>
-            </dd>
-          ) : null}
+          <dd className="text-sm leading-6 text-zinc-700 whitespace-nowrap">
+            {selectedStageBoost ? (
+              <div className="text-sm leading-6 text-zinc-700">
+                {reservedPercent?.formatPercentage()}% split to <Badge variant="secondary">
+                <ForwardIcon className="w-4 h-4 mr-1 inline-block" />
+                Operator
+              </Badge>
+              </div>
+            ) : null}
+          </dd>
         </div>
-        <div className="py-1 sm:col-span-1 sm:px-0 grid grid-cols-1">
+        <div className="sm:col-span-1 sm:px-0 grid grid-cols-6">
           <dt className="text-sm font-medium leading-6 text-zinc-900">
             Cash out tax rate
           </dt>
