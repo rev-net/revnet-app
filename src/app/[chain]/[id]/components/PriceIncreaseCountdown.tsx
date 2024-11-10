@@ -43,7 +43,7 @@ export function PriceIncreaseCountdown() {
     <Tooltip>
       <TooltipTrigger>
         <div className="text-xs text-teal-600 text-left">
-          Decreases to{" "}
+          Cut to{" "}
           <span className="font-medium">{nextFormattedTokenIssuance}</span>
           {" "}
           <span>in {formatSeconds(timeLeft)}</span>
@@ -51,7 +51,7 @@ export function PriceIncreaseCountdown() {
         </div>
       </TooltipTrigger>
       <TooltipContent side="right">
-        +{entryTax?.formatPercentage()}% issuance decrease scheduled for{" "}
+        +{entryTax?.formatPercentage()}% issuance cut scheduled for{" "}
         {formatSeconds(timeLeft)}
       </TooltipContent>
     </Tooltip>
