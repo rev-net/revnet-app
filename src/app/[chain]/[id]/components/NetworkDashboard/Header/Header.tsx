@@ -41,7 +41,7 @@ export function Header() {
     )
   ); 
   return (
-    <header className="mb-8">
+    <header className="mb-4">
       <div className="flex items-center gap-4">
         {logoUri ? (
           <Image
