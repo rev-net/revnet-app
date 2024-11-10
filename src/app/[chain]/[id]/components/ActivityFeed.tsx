@@ -12,7 +12,7 @@ import {
 import { useSubgraphQuery } from "@/graphql/useSubgraphQuery";
 import { formatDistance } from "date-fns";
 import { Ether, JBProjectToken } from "juice-sdk-core";
-import { useJBContractContext, useJBTokenContext } from "juice-sdk-react";
+import { useJBChainId, useJBContractContext, useJBTokenContext } from "juice-sdk-react";
 import { Address } from "viem";
 
 type PayActivityItemData = {
