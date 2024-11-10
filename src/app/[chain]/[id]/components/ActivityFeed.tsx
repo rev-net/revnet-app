@@ -1,3 +1,4 @@
+import { ChainIdToChain } from "@/app/constants";
 import { EthereumAddress } from "@/components/EthereumAddress";
 import EtherscanLink from "@/components/EtherscanLink";
 import {
@@ -31,6 +32,8 @@ function PayActivityItem(
   >
 ) {
   const { token } = useJBTokenContext();
+  const chainId = useJBChainId();
+  const chain = chainId && ChainIdToChain[chainId];
   if (!token?.data || !payEvent) return null;
 
   const activityItemData = {
@@ -63,7 +66,7 @@ function PayActivityItem(
       </div>
       <div className="text-xs text-zinc-500 ml-7">
         Contributed {activityItemData.amount.format(6)} ETH •{" "}
-        <EtherscanLink type="tx" value={payEvent.txHash}>
+        <EtherscanLink type="tx" value={payEvent.txHash} chain={chain}>
           {formattedDate}
         </EtherscanLink>
       </div>
