@@ -1,3 +1,4 @@
+import { chainNames } from "@/app/constants";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -10,7 +11,13 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Stat } from "@/components/ui/stat";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { FixedInt } from "fpnum";
 import {
   DEFAULT_METADATA,
@@ -19,12 +26,15 @@ import {
   NATIVE_TOKEN_DECIMALS,
 } from "juice-sdk-core";
 import {
+  JBChainId,
   useJBContractContext,
   useWriteJbMultiTerminalRedeemTokensOf,
 } from "juice-sdk-react";
 import { PropsWithChildren, useState } from "react";
 import { Address, parseUnits } from "viem";
-import { useAccount, useChainId, useWaitForTransactionReceipt } from "wagmi";
+import { useAccount, useWaitForTransactionReceipt } from "wagmi";
+import { useSuckersUserTokenBalance } from "./useSuckersUserTokenBalance";
+import { ButtonWithWallet } from "@/components/ButtonWithWallet";
 
 export function RedeemDialog({
   projectId,
@@ -45,7 +55,8 @@ export function RedeemDialog({
     contracts: { primaryNativeTerminal },
   } = useJBContractContext();
   const { address } = useAccount();
-  const chainId = useChainId();
+  const { data: balances } = useSuckersUserTokenBalance();
+  const [cashOutChainId, setCashOutChainId] = useState<string>();
 
   /**
    *       address holder,
@@ -80,26 +91,73 @@ export function RedeemDialog({
         <DialogHeader>
           <DialogTitle>Cash out</DialogTitle>
           <DialogDescription>
-            <div className="my-8">
+            <div className="my-4">
               {isSuccess ? (
                 <div>Success! You can close this window.</div>
               ) : (
                 <>
-                  <div className="mb-5">
-                    <Stat label="Total tokens">
-                      {creditBalance.format()} {tokenSymbol}
-                    </Stat>
+                  <div className="mb-5 w-[65%]">
+                    <span className="text-sm text-black font-medium">
+                      {" "}
+                      Your {tokenSymbol}
+                    </span>
+                    <div className="mt-1 border border-zinc-200 rounded-md p-3 bg-zinc-50">
+                      {balances?.map((balance, index) => (
+                        <div key={index} className="flex justify-between gap-2">
+                          {chainNames[balance.chainId as JBChainId]}
+                          <span className="font-medium">
+                            {balance.balance?.format(6)} {tokenSymbol}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                   <div className="grid w-full gap-1.5">
                     <Label htmlFor="amount" className="text-zinc-900">
-                      Tokens to cash out
+                      Cash out amount
                     </Label>
-                    <Input
-                      id="amount"
-                      name="amount"
-                      value={redeemAmount}
-                      onChange={(e) => setRedeemAmount(e.target.value)}
-                    />
+                    <div className="grid grid-cols-3 gap-2">
+                      <div className="col-span-2">
+                        <div className="relative">
+                          <Input
+                            id="amount"
+                            name="amount"
+                            value={redeemAmount}
+                            onChange={(e) => setRedeemAmount(e.target.value)}
+                          />
+                          <div
+                            className={
+                              "pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 z-10"
+                            }
+                          >
+                            <span className="text-zinc-500 sm:text-md">
+                              {tokenSymbol}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                      <div>
+                        <Select onValueChange={(v) => setCashOutChainId(v)}>
+                          <SelectTrigger className="col-span-1">
+                            <SelectValue placeholder="Select chain" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {balances
+                              ?.filter((b) => b.balance.value > 0n)
+                              .map((balance) => {
+                                return (
+                                  <SelectItem
+                                    value={balance.chainId.toString()}
+                                    key={balance.chainId}
+                                  >
+                                    {chainNames[balance.chainId as JBChainId]}
+                                  </SelectItem>
+                                );
+                              })}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
                   </div>
                   {isTxLoading ? (
                     <div>Transaction submitted, awaiting confirmation...</div>
@@ -110,7 +168,8 @@ export function RedeemDialog({
           </DialogDescription>
           <DialogFooter>
             {!isSuccess ? (
-              <Button
+              <ButtonWithWallet
+                targetChainId={Number(cashOutChainId) as JBChainId}
                 loading={loading}
                 onClick={() => {
                   if (!primaryNativeTerminal?.data) {
@@ -138,14 +197,14 @@ export function RedeemDialog({
                   console.log("⏩ redeem args", args);
 
                   writeContract?.({
-                    chainId,
+                    chainId: Number(cashOutChainId) as JBChainId,
                     address: primaryNativeTerminal?.data,
                     args,
                   });
                 }}
               >
                 Cash out
-              </Button>
+              </ButtonWithWallet>
             ) : null}
           </DialogFooter>
         </DialogHeader>

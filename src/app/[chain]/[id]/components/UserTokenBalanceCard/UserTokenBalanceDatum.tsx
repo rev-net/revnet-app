@@ -12,8 +12,7 @@ import { useSuckersUserTokenBalance } from "./useSuckersUserTokenBalance";
 
 export function UserTokenBalanceDatum({ className }: { className?: string }) {
   const balanceQuery = useSuckersUserTokenBalance();
-  const { data: ethPrice, isLoading: isEthLoading } = useEtherPrice();
-  const loading = isEthLoading || balanceQuery.isLoading;
+  const loading = balanceQuery.isLoading;
   const balances = balanceQuery?.data;
   const totalBalance = new JBProjectToken(
     balances?.reduce((acc, curr) => {
@@ -34,7 +33,6 @@ export function UserTokenBalanceDatum({ className }: { className?: string }) {
         {balances?.map((balance, index) => (
           <div key={index} className="flex justify-between gap-2">
             {chainNames[balance.chainId as JBChainId]}
-            {/* TODO maybe show USD-converted value here instead? */}
             <span className="font-medium">
               {balance.balance?.format(6)} {tokenSymbol}
             </span>

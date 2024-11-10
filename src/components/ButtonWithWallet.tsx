@@ -4,26 +4,31 @@ import { useAccount, useChainId, useSwitchChain } from "wagmi";
 import { Button, ButtonProps } from "./ui/button";
 import { useJBChainId } from "juice-sdk-react";
 import { chainNames } from "@/app/constants";
+import { JBChainId } from "juice-sdk-core";
 
 const ButtonWithWallet = React.forwardRef<
   HTMLInputElement,
-  { connectWalletText: string; children: React.ReactNode } & ButtonProps
->(({ children, connectWalletText, ...props }, ref) => {
+  {
+    connectWalletText?: string;
+    targetChainId?: JBChainId;
+    children: React.ReactNode;
+  } & ButtonProps
+>(({ children, connectWalletText, targetChainId, ...props }, ref) => {
   const jbChainId = useJBChainId();
   const userChainId = useChainId();
   const { isConnected } = useAccount();
   const { switchChain, isPending } = useSwitchChain();
 
-  console.log(jbChainId, userChainId);
+  const _targetChainId = targetChainId || jbChainId;
 
-  if (typeof jbChainId !== "undefined" && jbChainId !== userChainId) {
+  if (typeof _targetChainId !== "undefined" && userChainId !== _targetChainId) {
     return (
       <Button
         {...props}
-        onClick={() => switchChain({ chainId: jbChainId })}
+        onClick={() => switchChain({ chainId: _targetChainId })}
         loading={isPending}
       >
-        {`Switch to ${chainNames[jbChainId]}`}
+        {`Switch to ${chainNames[_targetChainId]}`}
       </Button>
     );
   }
