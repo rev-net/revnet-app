@@ -273,7 +273,7 @@ export function NetworkDetailsTable() {
             Issuance
           </dt>
           <dd className="text-sm leading-6 text-zinc-700 whitespace-nowrap">
-            {issuance}, decreasing {selectedStage.decayPercent.formatPercentage()}% every{" "}
+            {issuance}, cut {selectedStage.decayPercent.formatPercentage()}% every{" "}
             {(selectedStage.duration / 86400).toString()} days.
           </dd>
         </div>

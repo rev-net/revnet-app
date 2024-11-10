@@ -391,7 +391,7 @@ function AddStageDialog({
                         htmlFor="priceCeilingIncreasePercentage"
                         className="whitespace-nowrap"
                       >
-                        ... decreasing by
+                        ... cut by
                       </label>
                       <Field
                         id="priceCeilingIncreasePercentage"

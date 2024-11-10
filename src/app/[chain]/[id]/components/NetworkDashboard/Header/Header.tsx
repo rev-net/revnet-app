@@ -79,23 +79,16 @@ export function Header() {
                 {contributorsCount === 1 ? "owner" : "owners"}
               </span>
             </span>
-            {/* <span className="text-sm text-zinc-500">
+            <span className="text-md text-zinc-500">
               <span>
-                  Issuing 
-              </span>{" "}
-              <span className="font-medium">
-                 {issuance} 
+                  Next issuance cut in 
               </span>{" "}
               {timeLeft &&
-                <span>
-                  for another 
-                {" "}
                 <span className="font-medium">
                     {formatSeconds(timeLeft)}
-                  </span>
                 </span>
               }
-            </span> */}
+            </span>
           </div>
         </div>
       </div>
