@@ -31,8 +31,9 @@ export function PriceSection() {
             <span>
                 {", "}<span className="font-medium">
                   {devTax.formatPercentage().toFixed(2)}%
-                </span>{" "}
-                <span>split to </span>
+                </span>
+                {/* {" "} */}
+                {/* <span>split to </span>
             <Tooltip>
               <TooltipTrigger>
               <Badge variant="secondary">
@@ -49,7 +50,7 @@ export function PriceSection() {
             />{" "}
             is the split operator and can direct this split
                   </TooltipContent>
-                </Tooltip>
+                </Tooltip> */}
             </span>
             ) : null}
           </span>
