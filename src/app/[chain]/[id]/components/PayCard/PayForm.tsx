@@ -97,7 +97,6 @@ export function PayForm() {
           value={amountA}
           currency={tokenA?.symbol}
         />
-        <ArrowDownIcon className="h-5 w-5 text-zinc-500" />
         <PayInput
           label="You receive"
           type="number"
@@ -181,7 +180,7 @@ export function PayForm() {
         >
           <ButtonWithWallet
             size="lg"
-            className="w-full mb-5 min-w-[20%] flex items-center gap-2 hover:gap-[10px] whitespace-nowrap transition-all font-semibold"
+            className="w-full min-w-[20%] flex items-center gap-2 hover:gap-[10px] whitespace-nowrap transition-all font-semibold"
             connectWalletText="Connect wallet to contribute"
           >
             Contribute <ArrowRightIcon className="h-4 w-4" />
