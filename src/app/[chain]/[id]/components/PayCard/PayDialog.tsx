@@ -1,3 +1,4 @@
+import { ButtonWithWallet } from "@/components/ButtonWithWallet";
 import { ChainSelector } from "@/components/ChainSelect";
 import { TokenAmount } from "@/components/TokenAmount";
 import { Button } from "@/components/ui/button";
@@ -20,7 +21,7 @@ import {
 } from "juice-sdk-react";
 import { useState } from "react";
 import { Address } from "viem";
-import { useAccount, useChainId, useWaitForTransactionReceipt } from "wagmi";
+import { useAccount, usePrepareTransactionRequest, useWaitForTransactionReceipt } from "wagmi";
 
 export function PayDialog({
   amountA,
@@ -34,7 +35,6 @@ export function PayDialog({
   primaryTerminalEth: Address;
   disabled?: boolean;
 }) {
-  const chainId = useChainId();
   const {
     contracts: { primaryNativeTerminal },
   } = useJBContractContext();
@@ -55,12 +55,12 @@ export function PayDialog({
   const loading = isWriteLoading || isTxLoading;
 
   const handleContribute = () => {
-    if (!primaryNativeTerminal?.data || !address) {
+    if (!primaryNativeTerminal?.data || !address || !contributeChain) {
       return;
     }
 
     writeContract?.({
-      chainId,
+      chainId: contributeChain,
       address: primaryNativeTerminal?.data,
       args: [
         projectId,
@@ -125,12 +125,13 @@ export function PayDialog({
           <DialogFooter>
             <ChainSelector value={contributeChain} onChange={setContributeChain} />
             {!isSuccess ? (
-              <Button
+              <ButtonWithWallet
+                targetChainId={contributeChain}
                 loading={loading}
                 onClick={handleContribute}
               >
-                Confirm contribution
-              </Button>
+                Confirm Contribution
+              </ButtonWithWallet>
             ) : null}
           </DialogFooter>
         </DialogHeader>

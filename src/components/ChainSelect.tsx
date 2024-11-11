@@ -9,7 +9,6 @@ import {
 } from './ui/select'
 import {
   chainIdToLogo,
-  chainNameMap,
   chainNames,
 } from '@/app/constants'
 
@@ -19,21 +18,28 @@ interface ChainSelectorProps {
   disabled?: boolean;
 }
 
+const chainImage = (chainIdString: any) => {
+  const chainId = Number(chainIdString) as JBChainId;
+  return (
+    <Image
+      src={chainIdToLogo[chainId]}
+      alt={`${chainNames[chainId]} Logo`}
+      width={20}
+      height={20}
+    />
+  )
+}
+
 export const ChainSelector = ({ value, onChange, disabled }: ChainSelectorProps) => {
   return (
     <Select
-      onValueChange={(value) => { console.log(value); onChange(Number(value) as JBChainId)}}
+      onValueChange={(value) => { onChange(Number(value) as JBChainId)}}
       disabled={disabled}
     >
       <SelectTrigger className="w-[200px]">
-        <SelectValue>
+        <SelectValue placeholder="Select chain">
           <div className="flex items-center gap-2">
-            <Image
-            src={chainIdToLogo[value]}
-            alt={`${chainNames[value]} Logo`}
-              width={20}
-              height={20}
-            />
+            {chainImage(value)}
             <span>{chainNames[value]}</span>
           </div>
         </SelectValue>
@@ -46,12 +52,7 @@ export const ChainSelector = ({ value, onChange, disabled }: ChainSelectorProps)
             className="flex items-center gap-2"
           >
             <div className="flex items-center gap-2">
-              <Image
-                src={chainIdToLogo[Number(chainId) as JBChainId]}
-                alt={`${chainName} Logo`}
-                width={20}
-                height={20}
-              />
+              {chainImage(chainId)}
               <span>{chainName}</span>
             </div>
           </SelectItem>
