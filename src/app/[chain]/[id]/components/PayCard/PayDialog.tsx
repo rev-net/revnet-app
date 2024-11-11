@@ -1,3 +1,4 @@
+import { ChainSelector } from "@/components/ChainSelect";
 import { TokenAmount } from "@/components/TokenAmount";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,12 +13,12 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Stat } from "@/components/ui/stat";
-import { NATIVE_TOKEN, TokenAmountType } from "juice-sdk-core";
+import { JBChainId, NATIVE_TOKEN, TokenAmountType } from "juice-sdk-core";
 import {
   useJBContractContext,
   useWriteJbMultiTerminalPay,
 } from "juice-sdk-react";
-import { PropsWithChildren, useState } from "react";
+import { useState } from "react";
 import { Address } from "viem";
 import { useAccount, useChainId, useWaitForTransactionReceipt } from "wagmi";
 
@@ -25,16 +26,14 @@ export function PayDialog({
   amountA,
   amountB,
   projectId,
-  primaryTerminalEth,
   disabled,
-  children,
-}: PropsWithChildren<{
+}: {
   amountA: TokenAmountType;
   amountB: TokenAmountType;
   projectId: bigint;
   primaryTerminalEth: Address;
   disabled?: boolean;
-}>) {
+}) {
   const chainId = useChainId();
   const {
     contracts: { primaryNativeTerminal },
@@ -47,6 +46,7 @@ export function PayDialog({
     data,
   } = useWriteJbMultiTerminalPay();
   const [memo, setMemo] = useState<string>();
+  const [contributeChain, setContributeChain] = useState<JBChainId>(11155111);
   const txHash = data;
   const { isLoading: isTxLoading, isSuccess } = useWaitForTransactionReceipt({
     hash: txHash,
@@ -54,9 +54,37 @@ export function PayDialog({
 
   const loading = isWriteLoading || isTxLoading;
 
+  const handleContribute = () => {
+    if (!primaryNativeTerminal?.data || !address) {
+      return;
+    }
+
+    writeContract?.({
+      chainId,
+      address: primaryNativeTerminal?.data,
+      args: [
+        projectId,
+        NATIVE_TOKEN,
+        value,
+        address,
+        0n,
+        memo || `Joined REVNET ${projectId}`,
+        "0x0",
+      ],
+      value,
+    });
+  };
+
   return (
     <Dialog open={disabled === true ? false : undefined}>
-      <DialogTrigger asChild>{children}</DialogTrigger>
+      <DialogTrigger asChild>
+        <Button
+          disabled={disabled}
+          className="w-full"
+        >
+          Contribute
+        </Button>
+      </DialogTrigger>
       <DialogContent className="max-w-lg">
         <DialogHeader>
           <DialogTitle>Contribution</DialogTitle>
@@ -95,32 +123,11 @@ export function PayDialog({
             </div>
           </DialogDescription>
           <DialogFooter>
+            <ChainSelector value={contributeChain} onChange={setContributeChain} />
             {!isSuccess ? (
               <Button
                 loading={loading}
-                onClick={() => {
-                  if (!primaryNativeTerminal?.data) {
-                    return;
-                  }
-                  if (!address) {
-                    return;
-                  }
-
-                  writeContract?.({
-                    chainId,
-                    address: primaryNativeTerminal?.data ?? undefined,
-                    args: [
-                      projectId,
-                      NATIVE_TOKEN,
-                      value,
-                      address,
-                      0n,
-                      memo || `Joined REVNET ${projectId}`,
-                      "0x0",
-                    ],
-                    value,
-                  });
-                }}
+                onClick={handleContribute}
               >
                 Confirm contribution
               </Button>

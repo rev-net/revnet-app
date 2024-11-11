@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback } from "react";
 import { useChainId, useSwitchChain, useSendTransaction } from "wagmi";
 import { ChainPayment } from "../types";
 

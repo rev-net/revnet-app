@@ -49,3 +49,10 @@ export const chainSortOrder = new Map<JBChainId, number>([
   [baseSepolia.id, 2],
   [arbitrumSepolia.id, 3],
 ]);
+
+export const chainIdToLogo = {
+  [sepolia.id]: "/assets/img/logo/mainnet.svg",
+  [optimismSepolia.id]: "/assets/img/logo/optimism.svg",
+  [baseSepolia.id]: "/assets/img/logo/base.svg",
+  [arbitrumSepolia.id]: "/assets/img/logo/arbitrum.svg",
+}

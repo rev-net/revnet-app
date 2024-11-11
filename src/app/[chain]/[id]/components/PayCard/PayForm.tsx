@@ -149,15 +149,7 @@ export function PayForm() {
           projectId={projectId}
           primaryTerminalEth={primaryNativeTerminal?.data}
           disabled={!amountA}
-        >
-          <ButtonWithWallet
-            size="lg"
-            className="w-full min-w-[20%] flex items-center gap-2 hover:gap-[10px] whitespace-nowrap transition-all font-semibold"
-            connectWalletText="Connect wallet to contribute"
-          >
-            Contribute <ArrowRightIcon className="h-4 w-4" />
-          </ButtonWithWallet>
-        </PayDialog>
+        />
       ) : null}
     </div>
   );
