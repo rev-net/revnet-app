@@ -16,12 +16,13 @@ import { Label } from "@/components/ui/label";
 import { Stat } from "@/components/ui/stat";
 import { JBChainId, NATIVE_TOKEN, TokenAmountType } from "juice-sdk-core";
 import {
+  useJBChainId,
   useJBContractContext,
   useWriteJbMultiTerminalPay,
 } from "juice-sdk-react";
 import { useState } from "react";
 import { Address } from "viem";
-import { useAccount, usePrepareTransactionRequest, useWaitForTransactionReceipt } from "wagmi";
+import { useAccount, usePrepareTransactionRequest, useSimulateContract, useWaitForTransactionReceipt } from "wagmi";
 
 export function PayDialog({
   amountA,
@@ -45,8 +46,10 @@ export function PayDialog({
     isPending: isWriteLoading,
     data,
   } = useWriteJbMultiTerminalPay();
+  const a = useSimulateContract()
+  const chainId = useJBChainId();
   const [memo, setMemo] = useState<string>();
-  const [contributeChain, setContributeChain] = useState<JBChainId>(11155111);
+  const [contributeChain, setContributeChain] = useState<JBChainId | undefined>(chainId);
   const txHash = data;
   const { isLoading: isTxLoading, isSuccess } = useWaitForTransactionReceipt({
     hash: txHash,
@@ -122,18 +125,18 @@ export function PayDialog({
               )}
             </div>
           </DialogDescription>
-          <DialogFooter>
-            <ChainSelector value={contributeChain} onChange={setContributeChain} />
-            {!isSuccess ? (
-              <ButtonWithWallet
-                targetChainId={contributeChain}
-                loading={loading}
-                onClick={handleContribute}
-              >
-                Confirm Contribution
-              </ButtonWithWallet>
+          {!isSuccess ? (
+            <div className="flex flex-row justify-between">
+              <ChainSelector value={contributeChain || 11155111} onChange={setContributeChain} />
+                <ButtonWithWallet
+                  targetChainId={contributeChain}
+                  loading={loading}
+                  onClick={handleContribute}
+                >
+                  Confirm Contribution
+                </ButtonWithWallet>
+            </div>
             ) : null}
-          </DialogFooter>
         </DialogHeader>
       </DialogContent>
     </Dialog>

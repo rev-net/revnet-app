@@ -35,6 +35,7 @@ export const ChainSelector = ({ value, onChange, disabled }: ChainSelectorProps)
     <Select
       onValueChange={(value) => { onChange(Number(value) as JBChainId)}}
       disabled={disabled}
+      defaultValue={String(value)}
     >
       <SelectTrigger className="w-[200px]">
         <SelectValue placeholder="Select chain">

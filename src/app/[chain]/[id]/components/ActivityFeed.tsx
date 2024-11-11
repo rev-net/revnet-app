@@ -13,7 +13,6 @@ import { formatDistance } from "date-fns";
 import { Ether, JBProjectToken } from "juice-sdk-core";
 import {
   JBChainId,
-  useJBChainId,
   useJBContractContext,
   useJBTokenContext,
 } from "juice-sdk-react";
@@ -41,8 +40,8 @@ function PayActivityItem(
   > & { chainId: JBChainId }
 ) {
   const { token } = useJBTokenContext();
-  const chainId = useJBChainId();
-  const chain = chainId && ChainIdToChain[chainId];
+  const chainId = payEvent.chainId;
+  const chain = ChainIdToChain[chainId];
   if (!token?.data || !payEvent) return null;
 
   const activityItemData = {
