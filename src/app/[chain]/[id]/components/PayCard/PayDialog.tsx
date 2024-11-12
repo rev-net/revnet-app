@@ -1,12 +1,17 @@
+import Image from "next/image";
+import {
+  useAccount,
+  useWaitForTransactionReceipt
+} from "wagmi";
+import { useEffect, useState } from "react";
+import { Address } from "viem";
 import { ButtonWithWallet } from "@/components/ButtonWithWallet";
-import { ChainSelector } from "@/components/ChainSelect";
 import { TokenAmount } from "@/components/TokenAmount";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -18,55 +23,83 @@ import { JBChainId, NATIVE_TOKEN, TokenAmountType } from "juice-sdk-core";
 import {
   useJBChainId,
   useJBContractContext,
+  useSuckers,
   useWriteJbMultiTerminalPay,
 } from "juice-sdk-react";
-import { useState } from "react";
-import { Address } from "viem";
-import { useAccount, usePrepareTransactionRequest, useSimulateContract, useWaitForTransactionReceipt } from "wagmi";
+import { useToast } from "@/components/ui/use-toast";
+import { chainNames } from "@/app/constants";
+import { chainImage } from "@/components/ChainSelect";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
+type Sucker = {
+  peerChainId: JBChainId;
+  projectId: bigint;
+}
 
 export function PayDialog({
   amountA,
   amountB,
-  projectId,
   disabled,
 }: {
   amountA: TokenAmountType;
   amountB: TokenAmountType;
-  projectId: bigint;
   primaryTerminalEth: Address;
   disabled?: boolean;
 }) {
   const {
+    projectId,
     contracts: { primaryNativeTerminal },
   } = useJBContractContext();
   const { address } = useAccount();
   const value = amountA.amount.value;
   const {
+    isError,
+    error,
     writeContract,
     isPending: isWriteLoading,
     data,
   } = useWriteJbMultiTerminalPay();
-  const a = useSimulateContract()
   const chainId = useJBChainId();
   const [memo, setMemo] = useState<string>();
-  const [contributeChain, setContributeChain] = useState<JBChainId | undefined>(chainId);
+  const [selectedSucker, setSelectedSucker] = useState<Sucker>();
   const txHash = data;
   const { isLoading: isTxLoading, isSuccess } = useWaitForTransactionReceipt({
     hash: txHash,
   });
-
+  const { toast } = useToast();
   const loading = isWriteLoading || isTxLoading;
+  const { data: suckers } = useSuckers() as { data: Sucker[] };
+
+  useEffect(() => {
+    if (isError && error) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error.message || "An error occurred while processing your contribution",
+      });
+    }
+  }, [isError, error, toast]);
+
+  useEffect(() => {
+    if (chainId && suckers && !suckers.find((s) => s.peerChainId === chainId)) {
+      suckers.push({ projectId, peerChainId: chainId });
+    }
+    if (suckers && !selectedSucker) {
+      const i = suckers.findIndex((s) => s.peerChainId === chainId);
+      setSelectedSucker(suckers[i])
+    }
+  }, [suckers, chainId, projectId, selectedSucker]);
 
   const handleContribute = () => {
-    if (!primaryNativeTerminal?.data || !address || !contributeChain) {
+    if (!primaryNativeTerminal?.data || !address || !selectedSucker) {
       return;
     }
 
     writeContract?.({
-      chainId: contributeChain,
+      chainId: selectedSucker.peerChainId,
       address: primaryNativeTerminal?.data,
       args: [
-        projectId,
+        selectedSucker.projectId,
         NATIVE_TOKEN,
         value,
         address,
@@ -127,16 +160,53 @@ export function PayDialog({
           </DialogDescription>
           {!isSuccess ? (
             <div className="flex flex-row justify-between">
-              <ChainSelector value={contributeChain || 11155111} onChange={setContributeChain} />
-                <ButtonWithWallet
-                  targetChainId={contributeChain}
-                  loading={loading}
-                  onClick={handleContribute}
+              {suckers?.length > 1 ? (
+                <Select
+                  onValueChange={(v) => setSelectedSucker(suckers[parseInt(v)])}
+                  value={selectedSucker ? String(suckers.indexOf(selectedSucker)) : undefined}
                 >
-                  Confirm Contribution
-                </ButtonWithWallet>
+                  <SelectTrigger className="w-[200px]">
+                    <SelectValue placeholder="Select chain">
+                      {selectedSucker && (
+                        <div className="flex items-center gap-2">
+                          {chainImage(selectedSucker.peerChainId)}
+                          <span>{chainNames[selectedSucker.peerChainId]}</span>
+                        </div>
+                      )}
+                    </SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    {suckers.map((s, index) => (
+                      <SelectItem
+                        key={s.peerChainId}
+                        value={String(index)}
+                        className="flex items-center gap-2"
+                      >
+                        <div className="flex items-center gap-2">
+                          {chainImage(s.peerChainId)}
+                          <span>{chainNames[s.peerChainId]}</span>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              ) : (
+                selectedSucker && (
+                  <div className="flex items-center gap-2">
+                    {chainImage(selectedSucker.peerChainId)}
+                    <span>{chainNames[selectedSucker.peerChainId]}</span>
+                  </div>
+                )
+              )}
+              <ButtonWithWallet
+                targetChainId={selectedSucker?.peerChainId}
+                loading={loading}
+                onClick={handleContribute}
+              >
+                Confirm Contribution
+              </ButtonWithWallet>
             </div>
-            ) : null}
+          ) : null}
         </DialogHeader>
       </DialogContent>
     </Dialog>

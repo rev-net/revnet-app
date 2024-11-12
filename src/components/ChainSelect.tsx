@@ -18,7 +18,7 @@ interface ChainSelectorProps {
   disabled?: boolean;
 }
 
-const chainImage = (chainIdString: any) => {
+export const chainImage = (chainIdString: any) => {
   const chainId = Number(chainIdString) as JBChainId;
   return (
     <Image

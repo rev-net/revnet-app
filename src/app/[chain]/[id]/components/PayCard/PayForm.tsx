@@ -146,7 +146,6 @@ export function PayForm() {
         <PayDialog
           amountA={_amountA}
           amountB={_amountB}
-          projectId={projectId}
           primaryTerminalEth={primaryNativeTerminal?.data}
           disabled={!amountA}
         />
