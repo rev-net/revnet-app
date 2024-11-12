@@ -78,7 +78,7 @@ function PayActivityItem(
           {formattedDate}
         </EtherscanLink>
       </div>
-      <div className="text-xs text-zinc-500 ml-7">{activityItemData.memo}</div>
+      <div className="text-xs text-black-500 font-medium ml-7">{activityItemData.memo}</div>
     </div>
   );
 }

@@ -978,8 +978,8 @@ function EnvironmentCheckbox({
         />
         {relayrResponse && (
           <div className="flex flex-col items-start">
-            <div className="text-xs italic ml-2 mt-2">
-              quote valid until {format(relayrResponse.payment_info[0].payment_deadline, "h:mm:ss aaa") }.
+            <div className="text-xs italic mt-2">
+              Quote valid until {format(relayrResponse.payment_info[0].payment_deadline, "h:mm:ss aaa") }.
               <Button
                 variant="link"
                 size="sm"
