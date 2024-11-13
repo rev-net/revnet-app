@@ -873,10 +873,15 @@ function EnvironmentCheckbox({
 
     const isStagesValid = values.stages.every((stage) => {
       return (
-        stage.initialIssuance &&
-        stage.priceCeilingIncreasePercentage &&
-        stage.priceCeilingIncreaseFrequency &&
-        (values.stages.indexOf(stage) === 0 ? stage.initialOperator : true)
+        stage.initialIssuance !== undefined &&
+        stage.initialIssuance !== "" &&
+        stage.priceCeilingIncreasePercentage !== undefined &&
+        stage.priceCeilingIncreasePercentage !== "" &&
+        stage.priceCeilingIncreaseFrequency !== undefined &&
+        stage.priceCeilingIncreaseFrequency !== "" &&
+        stage.boostDuration !== undefined &&
+        stage.boostDuration !== "" &&
+        (values.stages.indexOf(stage) === 0 ? (stage.initialOperator && stage.initialOperator !== '') : true)
       );
     });
 
