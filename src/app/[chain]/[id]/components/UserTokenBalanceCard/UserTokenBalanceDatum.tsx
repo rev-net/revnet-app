@@ -4,7 +4,6 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { useEtherPrice } from "@/hooks/useEtherPrice";
 import { formatTokenSymbol } from "@/lib/utils";
 import { JBProjectToken } from "juice-sdk-core";
 import { JBChainId, useJBTokenContext } from "juice-sdk-react";
