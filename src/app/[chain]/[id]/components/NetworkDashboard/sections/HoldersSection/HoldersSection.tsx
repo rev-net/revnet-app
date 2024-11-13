@@ -54,6 +54,13 @@ export function HoldersSection() {
     )
   }
 
+  const getViewClasses = (view: TableView) => twJoin(
+    "absolute w-full transition-all duration-300 ease-in-out transform",
+    participantsView === view
+      ? "translate-x-0 opacity-100"
+      : "translate-x-full opacity-0 pointer-events-none"
+  );
+
   if (!hasHolders || !token?.data) {
     return <span className="text-zinc-500">No owners yet.</span>;
   }
@@ -89,7 +96,6 @@ export function HoldersSection() {
         <div className={participantsView === "you" ? "" : "hidden"}>
           <YouSection
             totalSupply={totalOutstandingTokens}
-            participants={participantsData}
           />
         </div>
 

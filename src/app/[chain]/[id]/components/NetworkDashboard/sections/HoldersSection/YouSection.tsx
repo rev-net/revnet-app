@@ -1,17 +1,30 @@
 import { ParticipantsQuery } from "@/generated/graphql";
 import { UserTokenBalanceDatum } from "../../../UserTokenBalanceCard/UserTokenBalanceDatum";
 import { formatPortion } from "@/lib/utils";
-import { useAccount } from "wagmi";
+import { useTokenRedemptionQuote } from "../../../UserTokenBalanceCard/useTokenRedemptionQuoteEth";
+import { useSuckersUserTokenBalance } from "../../../UserTokenBalanceCard/useSuckersUserTokenBalance";
+import { NativeTokenValue } from "@/components/NativeTokenValue";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { useEtherPrice } from "@/hooks/useEtherPrice";
+import { formatEther } from "juice-sdk-core";
 
 export function YouSection({
   totalSupply,
-  participants
 }: {
   totalSupply: bigint;
-  participants: ParticipantsQuery;
 }) {
-  const { address: accountAddress } = useAccount();
-  const amountOwned = participants.participants.find((p) => p.wallet.id === accountAddress?.toLowerCase())?.balance || 0n;
+  const balanceQuery = useSuckersUserTokenBalance();
+  const loading = balanceQuery.isLoading;
+  const balances = balanceQuery?.data;
+  const totalBalance = balances?.reduce((acc, curr) => {
+    return acc + curr.balance.value;
+  }, 0n) || 0n;
+  console.log("totalBalance", totalBalance)
+  const redeemQuote = useTokenRedemptionQuote(totalBalance, {
+    chainId: 11155111,
+  }) || 0n;
+
+  const { data: ethPrice, isLoading: isEthLoading } = useEtherPrice();
 
   return (
     <div className="grid grid-cols-2 max-w-xl text-sm">
@@ -25,7 +38,23 @@ export function YouSection({
         </div>
         <div>
           <dt className="font-medium text-zinc-900">Current cash out value</dt>
-          <dd className="text-zinc-600">$150.00</dd>
+          <dd className="text-zinc-600">
+            <Tooltip>
+            <TooltipTrigger>
+              {!loading && ethPrice ? (
+                `$${(Number(formatEther(redeemQuote)) * ethPrice).toFixed(2)}`
+              ) : (
+                '...'
+              )}
+            </TooltipTrigger>
+              <TooltipContent>
+                <div className="flex flex-col space-y-2">
+                  <NativeTokenValue wei={redeemQuote} decimals={8} />
+                  <span className="font-medium italic">WIP breakdown</span>
+                </div>
+              </TooltipContent>
+            </Tooltip>
+          </dd>
         </div>
       </div>
 
@@ -34,7 +63,7 @@ export function YouSection({
         <div>
           <dt className="font-medium text-zinc-900">Ownership</dt>
           <dd className="text-zinc-600">
-            {formatPortion(BigInt(amountOwned), totalSupply)} %
+            {formatPortion(totalBalance, totalSupply)} %
           </dd>
         </div>
         <div>
