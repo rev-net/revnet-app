@@ -3,7 +3,7 @@ import { formatEthAddress } from "@/lib/utils";
 import Image from "next/image";
 import { twMerge } from "tailwind-merge";
 import EtherscanLink from "./EtherscanLink";
-import { Address } from "viem";
+import { Address, Chain } from "viem";
 
 const STAMP_FYI_BASE_URL = "https://cdn.stamp.fyi";
 
@@ -25,6 +25,7 @@ export function EthereumAddress({
   withEnsAvatar,
   avatarProps,
   className,
+  chain,
 }: {
   address: Address;
   short?: boolean;
@@ -32,6 +33,7 @@ export function EthereumAddress({
   withEnsAvatar?: boolean;
   avatarProps?: { size?: "sm" | "md" };
   className?: string;
+  chain?: Chain
 }) {
   const { data } = useEnsName(address, { enabled: withEnsName });
   const formattedAddress = short ? formatEthAddress(address) : address;
@@ -46,13 +48,14 @@ export function EthereumAddress({
     <EtherscanLink
       className={twMerge("inline-flex items-center", className)}
       value={address}
+      chain={chain}
     >
       {withEnsAvatar && (
         <Image
           src={ensAvatarUrlForAddress(address)}
           alt={ensName ?? address}
           className={twMerge(
-            "inline-block mr-1 rounded-full",
+            "inline-block mr-2 rounded-full",
             avatarSize === "md" ? "w-9 h-9" : "w-6 h-6"
           )}
           width={avatarDimensions}

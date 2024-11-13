@@ -1,4 +1,3 @@
-import { ParticipantsQuery } from "@/generated/graphql";
 import { UserTokenBalanceDatum } from "../../../UserTokenBalanceCard/UserTokenBalanceDatum";
 import { formatPortion } from "@/lib/utils";
 import { useTokenRedemptionQuote } from "../../../UserTokenBalanceCard/useTokenRedemptionQuoteEth";
@@ -19,7 +18,7 @@ export function YouSection({
   const totalBalance = balances?.reduce((acc, curr) => {
     return acc + curr.balance.value;
   }, 0n) || 0n;
-  console.log("totalBalance", totalBalance)
+  // console.log("totalBalance", totalBalance)
   const redeemQuote = useTokenRedemptionQuote(totalBalance, {
     chainId: 11155111,
   }) || 0n;

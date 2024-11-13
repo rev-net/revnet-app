@@ -16,14 +16,18 @@ import { twJoin } from "tailwind-merge";
 import { useSubgraphQuery } from "@/graphql/useSubgraphQuery";
 import { SectionTooltip } from "../SectionTooltip";
 import { YouSection } from "./YouSection";
+import { useAccount } from "wagmi";
+import { SplitsSection } from "./SplitsSection";
 
 type TableView = "you" | "all" | "splits" | "automints"
 
 export function HoldersSection() {
-  const [participantsView, setParticipantsView] = useState<TableView>("you");
+  const { address } = useAccount();
+  const [participantsView, setParticipantsView] = useState<TableView>(address ? "you" : "all");
   const { projectId } = useJBContractContext();
   const { token } = useJBTokenContext();
   const boostRecipient = useBoostRecipient();
+
   const totalOutstandingTokens = useTotalOutstandingTokens();
 
   const { data: participantsData } = useSubgraphQuery(ParticipantsDocument, {
@@ -113,7 +117,9 @@ export function HoldersSection() {
 
         {/* Splits Section */}
         <div className={participantsView === "splits" ? "" : "hidden"}>
-          WIP
+          <div className="max-h-96 overflow-auto p-2 bg-zinc-50 rounded-md border-zinc-100 border">
+            <SplitsSection />
+          </div>
         </div>
 
         {/* Automints Section */}
