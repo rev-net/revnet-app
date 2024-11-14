@@ -21,6 +21,11 @@ import { Address } from "viem";
 import { useConfig } from "wagmi";
 import { useTokenRedemptionQuote } from "./useTokenRedemptionQuoteEth";
 
+/**
+ *
+ * @note can perf optimize this by moving terminal and controller calls to API endpoints, 
+ * and caching for longtime (their static addresses mostly)
+ */
 async function getTokenRedemptionQuote(
   config: ReturnType<typeof useConfig>,
   chainId: JBChainId,
