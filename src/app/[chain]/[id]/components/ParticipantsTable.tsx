@@ -1,3 +1,4 @@
+import { ChainLogo } from "@/components/ChainLogo";
 import { EthereumAddress } from "@/components/EthereumAddress";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -8,11 +9,16 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { ParticipantsQuery } from "@/generated/graphql";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { Participant } from "@/generated/graphql";
 import { formatPortion } from "@/lib/utils";
 import { ForwardIcon } from "@heroicons/react/24/solid";
 import { formatUnits } from "juice-sdk-core";
+import { JBChainId } from "juice-sdk-react";
 import { Address, isAddressEqual } from "viem";
 import { UseTokenReturnType, useAccount } from "wagmi";
 
@@ -22,7 +28,7 @@ export function ParticipantsTable({
   totalSupply,
   boostRecipient,
 }: {
-  participants: ParticipantsQuery;
+  participants: (Participant & { chains: JBChainId[] })[];
   token: UseTokenReturnType["data"];
   totalSupply: bigint;
   boostRecipient?: Address;
@@ -40,11 +46,11 @@ export function ParticipantsTable({
         </TableRow>
       </TableHeader>
       <TableBody>
-        {participants?.participants.map((participant) => (
+        {participants.map((participant) => (
           <TableRow key={participant.id}>
             <TableCell>
-              <div className="flex flex-col sm:flex-row">
-                <div className="hidden sm:block">
+              <div className="flex flex-col sm:flex-row gap-2 items-center">
+                <div className="hidden sm:flex">
                   <EthereumAddress
                     address={participant.wallet.id as Address}
                     short
@@ -52,11 +58,11 @@ export function ParticipantsTable({
                     withEnsName
                   />
                 </div>
-                <div className="block sm:hidden">
+                <div className="flex sm:hidden">
                   <EthereumAddress
                     address={participant.wallet.id as Address}
                     short
-                    avatarProps={{size: "sm"}}
+                    avatarProps={{ size: "sm" }}
                     withEnsAvatar
                     withEnsName
                   />
@@ -69,30 +75,40 @@ export function ParticipantsTable({
                     <div>
                       <Tooltip>
                         <TooltipTrigger>
-                          <Badge variant="secondary" className="sm:ml-2 mt-2">
+                          <Badge variant="secondary">
                             <ForwardIcon className="w-4 h-4 mr-1 inline-block" />
                             Operator
                           </Badge>
                         </TooltipTrigger>
-                        <TooltipContent side="right">Operator of the current split</TooltipContent>
+                        <TooltipContent side="right">
+                          Operator of the current split
+                        </TooltipContent>
                       </Tooltip>
                     </div>
-                )}
+                  )}
                 {accountAddress &&
                   isAddressEqual(
                     accountAddress,
                     participant.wallet.id as Address
                   ) && (
                     <div>
-                      <Badge variant="secondary" className="sm:ml-2 mt-2 sm:mt-1">
-                        You
-                      </Badge>
+                      <Badge variant="secondary">You</Badge>
                     </div>
-                )}
+                  )}
+                <div className="flex items-center gap-1">
+                  {participant.chains.map((chain) => (
+                    <ChainLogo
+                      chainId={chain}
+                      key={chain}
+                      width={14}
+                      height={14}
+                    />
+                  ))}
+                </div>
               </div>
             </TableCell>
             <TableCell className="whitespace-nowrap">
-              {formatUnits(participant.volume, 18, { fractionDigits: 8 })} ETH
+              {formatUnits(participant.volume, 18, { fractionDigits: 64 })} ETH
             </TableCell>
             {token ? (
               <TableCell className="whitespace-nowrap">
