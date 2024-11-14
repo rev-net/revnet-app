@@ -1,4 +1,5 @@
 import { ChainIdToChain, chainNames } from "@/app/constants";
+import { ChainLogo } from "@/components/ChainLogo";
 import { EthereumAddress } from "@/components/EthereumAddress";
 import EtherscanLink from "@/components/EtherscanLink";
 import {
@@ -67,9 +68,12 @@ function PayActivityItem(
           avatarProps={{ size: "sm" }}
           short
         />
-        <div>
-          bought {activityItemData.beneficiaryTokenCount?.format(6)}{" "}
-          {token.data.symbol} on {chainNames[payEvent.chainId]}
+        <div className="flex items-center gap-1">
+          <span>
+            bought {activityItemData.beneficiaryTokenCount?.format(6)}{" "}
+            {token.data.symbol}
+          </span>
+          <ChainLogo chainId={payEvent.chainId} width={15} height={15} />
         </div>
       </div>
       <div className="text-xs text-zinc-500 ml-7">
@@ -78,7 +82,9 @@ function PayActivityItem(
           {formattedDate}
         </EtherscanLink>
       </div>
-      <div className="text-xs text-black-500 font-medium ml-7">{activityItemData.memo}</div>
+      <div className="text-xs text-black-500 font-medium ml-7">
+        {activityItemData.memo}
+      </div>
     </div>
   );
 }
@@ -116,9 +122,12 @@ function RedeemActivityItem(
           avatarProps={{ size: "sm" }}
           short
         />
-        <div>
-          cashed out {activityItemData.redeemCount?.format(6)}{" "}
-          {token.data.symbol} on {chainNames[redeemEvent.chainId]}
+        <div className="flex items-center gap-1">
+          <span>
+            cashed out {activityItemData.redeemCount?.format(6)}{" "}
+            {token.data.symbol}
+          </span>
+          <ChainLogo chainId={redeemEvent.chainId} width={15} height={15} />
         </div>
       </div>
       <div className="text-xs text-zinc-500 ml-7">
@@ -141,14 +150,16 @@ export function ActivityFeed() {
     },
   });
   const projectEvents = useMemo(() => {
-    return data?.flatMap((d) => {
-      return d.value.response.projectEvents.map((e) => {
-        return {
-          ...e,
-          chainId: d.value.chainId,
-        };
-      });
-    }).sort((a, b) => b.timestamp - a.timestamp);
+    return data
+      ?.flatMap((d) => {
+        return d.value.response.projectEvents.map((e) => {
+          return {
+            ...e,
+            chainId: d.value.chainId,
+          };
+        });
+      })
+      .sort((a, b) => b.timestamp - a.timestamp);
   }, [data]);
 
   return (

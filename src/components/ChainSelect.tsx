@@ -1,16 +1,13 @@
-import Image from 'next/image'
-import { JBChainId } from 'juice-sdk-react'
+import { chainNames } from "@/app/constants";
+import { JBChainId } from "juice-sdk-react";
+import { ChainLogo } from "./ChainLogo";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue
-} from './ui/select'
-import {
-  chainIdToLogo,
-  chainNames,
-} from '@/app/constants'
+  SelectValue,
+} from "./ui/select";
 
 interface ChainSelectorProps {
   value: JBChainId;
@@ -18,29 +15,23 @@ interface ChainSelectorProps {
   disabled?: boolean;
 }
 
-export const chainImage = (chainIdString: any) => {
-  const chainId = Number(chainIdString) as JBChainId;
-  return (
-    <Image
-      src={chainIdToLogo[chainId]}
-      alt={`${chainNames[chainId]} Logo`}
-      width={20}
-      height={20}
-    />
-  )
-}
-
-export const ChainSelector = ({ value, onChange, disabled }: ChainSelectorProps) => {
+export const ChainSelector = ({
+  value,
+  onChange,
+  disabled,
+}: ChainSelectorProps) => {
   return (
     <Select
-      onValueChange={(value) => { onChange(Number(value) as JBChainId)}}
+      onValueChange={(value) => {
+        onChange(Number(value) as JBChainId);
+      }}
       disabled={disabled}
       defaultValue={String(value)}
     >
       <SelectTrigger className="w-[200px]">
         <SelectValue placeholder="Select chain">
           <div className="flex items-center gap-2">
-            {chainImage(value)}
+            <ChainLogo chainId={Number(value) as JBChainId} />
             <span>{chainNames[value]}</span>
           </div>
         </SelectValue>
@@ -53,12 +44,12 @@ export const ChainSelector = ({ value, onChange, disabled }: ChainSelectorProps)
             className="flex items-center gap-2"
           >
             <div className="flex items-center gap-2">
-              {chainImage(chainId)}
+              <ChainLogo chainId={Number(chainId) as JBChainId} />
               <span>{chainName}</span>
             </div>
           </SelectItem>
         ))}
       </SelectContent>
     </Select>
-  )
-}
+  );
+};

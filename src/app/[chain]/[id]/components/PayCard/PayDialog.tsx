@@ -28,8 +28,8 @@ import {
 } from "juice-sdk-react";
 import { useToast } from "@/components/ui/use-toast";
 import { chainNames } from "@/app/constants";
-import { chainImage } from "@/components/ChainSelect";
 import { Select, SelectContent, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ChainLogo } from "@/components/ChainLogo";
 
 type Sucker = {
   peerChainId: JBChainId;
@@ -173,7 +173,7 @@ export function PayDialog({
                     <SelectValue placeholder="Select chain">
                       {selectedSucker && (
                         <div className="flex items-center gap-2">
-                          {chainImage(selectedSucker.peerChainId)}
+                          <ChainLogo chainId={selectedSucker.peerChainId} />
                           <span>{chainNames[selectedSucker.peerChainId]}</span>
                         </div>
                       )}
@@ -187,7 +187,7 @@ export function PayDialog({
                         className="flex items-center gap-2"
                       >
                         <div className="flex items-center gap-2">
-                          {chainImage(s.peerChainId)}
+                          <ChainLogo chainId={s.peerChainId} />
                           <span>{chainNames[s.peerChainId]}</span>
                         </div>
                       </SelectItem>
@@ -200,7 +200,7 @@ export function PayDialog({
                   <div className="flex flex-col -mt-4">
                     <div className="text-xs text-slate-500">{amountB.symbol} is only on:</div>
                     <div className=" flex flex-row items-center gap-2 pl-3 min-w-fit pr-5 py-2 border rounded-sm ring-offset-white">
-                      {chainImage(selectedSucker.peerChainId)}
+                      <ChainLogo chainId={selectedSucker.peerChainId} />
                       {chainNames[selectedSucker.peerChainId]}
                     </div>
                   </div>
