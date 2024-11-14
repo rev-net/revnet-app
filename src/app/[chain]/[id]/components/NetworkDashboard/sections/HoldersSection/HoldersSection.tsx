@@ -13,7 +13,7 @@ import {
 import { useBoostRecipient } from "@/hooks/useBoostRecipient";
 import { useTotalOutstandingTokens } from "@/hooks/useTotalOutstandingTokens";
 import { useState } from "react";
-// import { ParticipantsPieChart } from "../../../ParticipantsPieChart";
+import { ParticipantsPieChart } from "../../../ParticipantsPieChart";
 import { zeroAddress } from "viem";
 import { Button } from "@/components/ui/button";
 import { formatTokenSymbol } from "@/lib/utils";
@@ -24,6 +24,8 @@ import { YouSection } from "./YouSection";
 import { useAccount } from "wagmi";
 import { SplitsSection } from "./SplitsSection";
 import { useOmnichainSubgraphQuery } from "@/graphql/useOmnichainSubgraphQuery";
+import { UserTokenBalanceCard } from "../../../UserTokenBalanceCard/UserTokenBalanceCard";
+import { DistributeReservedTokensButton } from "../../../DistributeReservedTokensButton";
 
 type TableView = "you" | "all" | "splits" | "automints";
 
@@ -93,14 +95,6 @@ export function HoldersSection() {
     );
   };
 
-  const getViewClasses = (view: TableView) =>
-    twJoin(
-      "absolute w-full transition-all duration-300 ease-in-out transform",
-      participantsView === view
-        ? "translate-x-0 opacity-100"
-        : "translate-x-full opacity-0 pointer-events-none"
-    );
-
   if (!hasHolders || !token?.data) {
     return <span className="text-zinc-500">No owners yet.</span>;
   }
@@ -138,25 +132,36 @@ export function HoldersSection() {
         {/* You Section */}
         <div className={participantsView === "you" ? "" : "hidden"}>
           <YouSection totalSupply={totalOutstandingTokens} />
+          <UserTokenBalanceCard />
         </div>
 
         {/* All Section */}
         <div className={participantsView === "all" ? "" : "hidden"}>
-          <div className="max-h-96 overflow-auto p-2 bg-zinc-50 rounded-md border-zinc-100 border">
-            <ParticipantsTable
-              participants={Object.values(participantsDataAggregate)}
-              token={token.data}
-              totalSupply={totalOutstandingTokens}
-              boostRecipient={boostRecipient}
-            />
+          <div className="flex flex-row max-h-96 overflow-auto p-2 bg-zinc-50 rounded-md border-zinc-100 border">
+            <div className="w-1/3">
+              <ParticipantsPieChart
+                participants={Object.values(participantsDataAggregate)}
+                totalSupply={totalOutstandingTokens}
+                token={token?.data}
+              />
+            </div>
+            <div>
+              <ParticipantsTable
+                participants={Object.values(participantsDataAggregate)}
+                token={token.data}
+                totalSupply={totalOutstandingTokens}
+                boostRecipient={boostRecipient}
+              />
+            </div>
           </div>
         </div>
 
         {/* Splits Section */}
         <div className={participantsView === "splits" ? "" : "hidden"}>
-          <div className="max-h-96 overflow-auto p-2 bg-zinc-50 rounded-md border-zinc-100 border">
+          <div className="max-h-96 overflow-auto p-2 bg-zinc-50 rounded-md border-zinc-100 border mb-4">
             <SplitsSection />
           </div>
+          <DistributeReservedTokensButton />
         </div>
 
         {/* Automints Section */}

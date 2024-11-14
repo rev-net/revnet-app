@@ -32,8 +32,8 @@ export function UserTokenBalanceCard() {
   );
 
   return (
-    <div className="flex flex-col mb-16 bg-zinc-50 border border-zinc-200 w-full shadow-lg rounded-xl p-4 justify-between gap-2 flex-wrap">
-      <div>
+    <div className="flex flex-row gap-2 mt-2">
+      {/* <div>
         <div>
           <div className="text-lg overflow-auto mb-1 flex gap-1 items-center">
             <span>You own</span> <UserTokenBalanceDatum />
@@ -48,7 +48,7 @@ export function UserTokenBalanceCard() {
             {tokenA.symbol}
           </div>
         ) : null}
-      </div>
+      </div> */}
       {token?.data?.symbol && creditBalance && primaryNativeTerminal.data ? (
         <RedeemDialog
           projectId={projectId}

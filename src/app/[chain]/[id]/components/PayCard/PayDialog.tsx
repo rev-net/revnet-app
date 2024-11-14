@@ -171,12 +171,6 @@ export function PayDialog({
                 >
                   <SelectTrigger className="w-[200px]">
                     <SelectValue placeholder="Select chain">
-                      {selectedSucker && (
-                        <div className="flex items-center gap-2">
-                          <ChainLogo chainId={selectedSucker.peerChainId} />
-                          <span>{chainNames[selectedSucker.peerChainId]}</span>
-                        </div>
-                      )}
                     </SelectValue>
                   </SelectTrigger>
                   <SelectContent>

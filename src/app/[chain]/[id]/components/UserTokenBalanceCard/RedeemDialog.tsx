@@ -37,6 +37,7 @@ import { useAccount, useWaitForTransactionReceipt } from "wagmi";
 import { useSuckersUserTokenBalance } from "./useSuckersUserTokenBalance";
 import { ButtonWithWallet } from "@/components/ButtonWithWallet";
 import { useTokenRedemptionQuote } from "./useTokenRedemptionQuoteEth";
+import { ChainLogo } from "@/components/ChainLogo";
 
 export function RedeemDialog({
   projectId,
@@ -129,8 +130,8 @@ export function RedeemDialog({
                     <Label htmlFor="amount" className="text-zinc-900">
                       Cash out amount
                     </Label>
-                    <div className="grid grid-cols-3 gap-2">
-                      <div className="col-span-2">
+                    <div className="grid grid-cols-7 gap-2">
+                      <div className="col-span-4">
                         <div className="relative">
                           <Input
                             id="amount"
@@ -149,9 +150,9 @@ export function RedeemDialog({
                           </div>
                         </div>
                       </div>
-                      <div>
+                      <div className="col-span-3">
                         <Select onValueChange={(v) => setCashOutChainId(v)}>
-                          <SelectTrigger className="col-span-1">
+                          <SelectTrigger>
                             <SelectValue placeholder="Select chain" />
                           </SelectTrigger>
                           <SelectContent>
@@ -163,7 +164,10 @@ export function RedeemDialog({
                                     value={balance.chainId.toString()}
                                     key={balance.chainId}
                                   >
-                                    {chainNames[balance.chainId as JBChainId]}
+                                    <div className="flex items-center gap-2">
+                                      <ChainLogo chainId={balance.chainId as JBChainId} />
+                                      {chainNames[balance.chainId as JBChainId]}
+                                    </div>
                                   </SelectItem>
                                 );
                               })}

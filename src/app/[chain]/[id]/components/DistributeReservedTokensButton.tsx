@@ -53,7 +53,7 @@ export function DistributeReservedTokensButton() {
         });
       }}
     >
-      Release operator tokens
+      Distribute pending splits
     </Button>
   );
 }

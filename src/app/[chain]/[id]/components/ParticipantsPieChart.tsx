@@ -1,7 +1,7 @@
 import { EthereumAddress } from "@/components/EthereumAddress";
-import { ParticipantsQuery } from "@/generated/graphql";
+import { Participant } from "@/generated/graphql";
 import { formatPortion } from "@/lib/utils";
-import { JBProjectToken } from "juice-sdk-core";
+import { JBChainId, JBProjectToken } from "juice-sdk-core";
 import { useMemo } from "react";
 import { Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 import { Address } from "viem";
@@ -64,10 +64,10 @@ export function ParticipantsPieChart({
 }: {
   token: UseTokenReturnType["data"];
   totalSupply: bigint;
-  participants: ParticipantsQuery;
+  participants: (Participant & { chains: JBChainId[] })[];
 }) {
   const pieChartData = useMemo(() => {
-    return participants.participants.map((participant, idx) => {
+    return participants.map((participant, idx) => {
       return {
         address: participant.wallet.id,
         balanceFormatted: new JBProjectToken(
@@ -80,7 +80,7 @@ export function ParticipantsPieChart({
   }, [participants]);
 
   // TODO maybe can remove this when balance=0 bug fixed in subgraph
-  const totalBalance = participants.participants.reduce(
+  const totalBalance = participants.reduce(
     (acc, participant) => acc + BigInt(participant.balance),
     BigInt(0)
   );

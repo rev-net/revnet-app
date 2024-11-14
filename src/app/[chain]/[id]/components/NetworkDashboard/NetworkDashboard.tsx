@@ -13,7 +13,6 @@ import { ActivityFeed } from "../ActivityFeed";
 import { DistributeReservedTokensButton } from "../DistributeReservedTokensButton";
 import { NetworkDetailsTable } from "../NetworkDetailsTable";
 import { PayCard } from "../PayCard/PayCard";
-import { UserTokenBalanceCard } from "../UserTokenBalanceCard/UserTokenBalanceCard";
 import { Header } from "./Header/Header";
 import { DescriptionSection } from "./sections/DescriptionSection/DescriptionSection";
 import { HoldersSection } from "./sections/HoldersSection/HoldersSection";
@@ -44,7 +43,6 @@ export function NetworkDashboard() {
       <div className="mb-10">
         <PayCard />
       </div>
-      <UserTokenBalanceCard />
       <ActivityFeed />
     </>
   );
@@ -66,8 +64,6 @@ export function NetworkDashboard() {
             <div className="mb-4">
               <HoldersSection />
             </div>
-
-            <DistributeReservedTokensButton />
           </section>
 
           <section className="mb-8">
