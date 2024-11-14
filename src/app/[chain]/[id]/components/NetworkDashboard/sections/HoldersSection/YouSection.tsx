@@ -11,6 +11,7 @@ import {
 import { useEtherPrice } from "@/hooks/useEtherPrice";
 import { formatEther } from "juice-sdk-core";
 import { useJBChainId } from "juice-sdk-react";
+import { useSuckersTokenRedemptionQuote } from "../../../UserTokenBalanceCard/useSuckersTokenRedemptionQuote";
 
 export function YouSection({ totalSupply }: { totalSupply: bigint }) {
   const chainId = useJBChainId();
@@ -22,12 +23,11 @@ export function YouSection({ totalSupply }: { totalSupply: bigint }) {
       return acc + curr.balance.value;
     }, 0n) || 0n;
   // console.log("totalBalance", totalBalance)
-  const redeemQuote =
-    useTokenRedemptionQuote(totalBalance, {
-      chainId,
-    }) || 0n;
 
+  const redeemQuoteQuery = useSuckersTokenRedemptionQuote(totalBalance);
   const { data: ethPrice, isLoading: isEthLoading } = useEtherPrice();
+
+  const redeemQuote = redeemQuoteQuery?.data ?? 0n;
 
   return (
     <div className="grid grid-cols-2 max-w-xl text-sm">
@@ -45,9 +45,9 @@ export function YouSection({ totalSupply }: { totalSupply: bigint }) {
             <Tooltip>
               <TooltipTrigger>
                 {!loading && ethPrice
-                  ? `$${(Number(formatEther(redeemQuote)) * ethPrice).toFixed(
-                      2
-                    )}`
+                  ? `$${(
+                      Number(formatEther(redeemQuote ?? 0n)) * ethPrice
+                    ).toFixed(2)}`
                   : "..."}
               </TooltipTrigger>
               <TooltipContent>
