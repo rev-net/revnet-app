@@ -16,7 +16,6 @@ export function Nav() {
               alt="Revnet logo"
             />
           </Link>
-          <ChainBadge />
         </div>
 
         <ConnectKitButton />

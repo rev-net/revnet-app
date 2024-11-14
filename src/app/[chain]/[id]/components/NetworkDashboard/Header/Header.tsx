@@ -7,7 +7,9 @@ import {
   useJBContractContext,
   useJBProjectMetadataContext,
   useJBTokenContext,
-  useJBRulesetContext
+  useJBRulesetContext,
+  JBChainId,
+  useSuckers
 } from "juice-sdk-react";
 import Image from "next/image";
 import { useNativeTokenSurplus  } from "@/hooks/useTokenASurplus";
@@ -17,6 +19,10 @@ import { ProjectsDocument } from "@/generated/graphql";
 import { useSubgraphQuery } from "@/graphql/useSubgraphQuery";
 import { formatTokenSymbol } from "@/lib/utils";
 import { TvlDatum } from "./TvlDatum";
+import { SuckerPair } from "juice-sdk-core";
+import { chainIdMap } from "@/app/constants";
+import { ChainLogo } from "@/components/ChainLogo";
+import Link from "next/link";
 
 export function Header() {
   const { projectId } = useJBContractContext();
@@ -30,6 +36,8 @@ export function Header() {
     first: 1,
   });
   const { data: nativeTokenSurplus } = useNativeTokenSurplus();
+  const suckerPairs = useSuckers();
+
 
   const { contributorsCount } = projects?.projects?.[0] ?? {};
   const { name: projectName, logoUri } = metadata?.data ?? {};
@@ -58,17 +66,32 @@ export function Header() {
         )}
 
         <div>
-          <div className="flex flex-col sm:flex-row items-baseline sm:gap-2 mb-2">
+          <div className="flex flex-col sm:flex-row items-center sm:gap-2 mb-2">
             <h1 className="text-3xl font-bold tracking-tight">{projectName}</h1>
             {token?.data ? (
               <EtherscanLink
                 value={token.data.address}
-                className="text-zinc-500"
+                className="text-zinc-500 tracking-tight"
               >
                 {formatTokenSymbol(token)}
               </EtherscanLink>
             ) : null}
+              {(suckerPairs.data as SuckerPair[])?.map((pair) => {
+                if (!pair) return null
+
+                const networkName = chainIdMap[pair?.peerChainId as JBChainId];
+                return (
+                  <Link
+                    className="underline"
+                    key={networkName}
+                    href={`/${networkName}/${pair.projectId}`}
+                  >
+                    <ChainLogo chainId={pair.peerChainId as JBChainId} width={18} height={18} />
+                  </Link>
+                );
+              })}
           </div>
+          
           <div className="flex gap-4 items-center">
             <TvlDatum />
             <span className="text-md">
