@@ -3,25 +3,29 @@ import { formatPortion } from "@/lib/utils";
 import { useTokenRedemptionQuote } from "../../../UserTokenBalanceCard/useTokenRedemptionQuoteEth";
 import { useSuckersUserTokenBalance } from "../../../UserTokenBalanceCard/useSuckersUserTokenBalance";
 import { NativeTokenValue } from "@/components/NativeTokenValue";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { useEtherPrice } from "@/hooks/useEtherPrice";
 import { formatEther } from "juice-sdk-core";
+import { useJBChainId } from "juice-sdk-react";
 
-export function YouSection({
-  totalSupply,
-}: {
-  totalSupply: bigint;
-}) {
+export function YouSection({ totalSupply }: { totalSupply: bigint }) {
+  const chainId = useJBChainId();
   const balanceQuery = useSuckersUserTokenBalance();
   const loading = balanceQuery.isLoading;
   const balances = balanceQuery?.data;
-  const totalBalance = balances?.reduce((acc, curr) => {
-    return acc + curr.balance.value;
-  }, 0n) || 0n;
+  const totalBalance =
+    balances?.reduce((acc, curr) => {
+      return acc + curr.balance.value;
+    }, 0n) || 0n;
   // console.log("totalBalance", totalBalance)
-  const redeemQuote = useTokenRedemptionQuote(totalBalance, {
-    chainId: 11155111,
-  }) || 0n;
+  const redeemQuote =
+    useTokenRedemptionQuote(totalBalance, {
+      chainId,
+    }) || 0n;
 
   const { data: ethPrice, isLoading: isEthLoading } = useEtherPrice();
 
@@ -39,13 +43,13 @@ export function YouSection({
           <dt className="font-medium text-zinc-900">Current cash out value</dt>
           <dd className="text-zinc-600">
             <Tooltip>
-            <TooltipTrigger>
-              {!loading && ethPrice ? (
-                `$${(Number(formatEther(redeemQuote)) * ethPrice).toFixed(2)}`
-              ) : (
-                '...'
-              )}
-            </TooltipTrigger>
+              <TooltipTrigger>
+                {!loading && ethPrice
+                  ? `$${(Number(formatEther(redeemQuote)) * ethPrice).toFixed(
+                      2
+                    )}`
+                  : "..."}
+              </TooltipTrigger>
               <TooltipContent>
                 <div className="flex flex-col space-y-2">
                   <NativeTokenValue wei={redeemQuote} decimals={8} />
@@ -71,5 +75,5 @@ export function YouSection({
         </div>
       </div>
     </div>
-  )
+  );
 }

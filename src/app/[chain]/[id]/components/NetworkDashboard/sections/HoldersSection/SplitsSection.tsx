@@ -21,7 +21,7 @@ export function SplitsSection() {
   const chainId = useJBChainId();
   const { ruleset } = useJBRulesetContext();
   const { data: reservedTokenSplits } = useReadJbSplitsSplitsOf({
-    chainId: 11155111,
+    chainId,
     args:
       ruleset && ruleset?.data
         ? [projectId, BigInt(ruleset.data.id), RESERVED_TOKEN_SPLIT_GROUP_ID]
