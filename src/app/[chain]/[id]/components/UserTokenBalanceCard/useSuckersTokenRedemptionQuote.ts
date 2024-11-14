@@ -1,71 +1,47 @@
 import { useQuery } from "@tanstack/react-query";
 import {
-  getTokenRedemptionQuoteEth,
   NATIVE_TOKEN,
   NATIVE_TOKEN_DECIMALS,
-  readJbControllerPendingReservedTokenBalanceOf,
-  readJbDirectoryControllerOf,
   readJbDirectoryPrimaryTerminalOf,
-  readJbMultiTerminalCurrentSurplusOf,
-  readJbTokensTotalSupplyOf,
+  readJbMultiTerminalStore,
+  readJbTerminalStoreCurrentReclaimableSurplusOf,
   SuckerPair,
 } from "juice-sdk-core";
 import {
   JBChainId,
   useJBChainId,
   useJBContractContext,
-  useJBRulesetContext,
   useSuckers,
 } from "juice-sdk-react";
-import { Address } from "viem";
+import { Address, zeroAddress } from "viem";
 import { useConfig } from "wagmi";
-import { useTokenRedemptionQuote } from "./useTokenRedemptionQuoteEth";
+import { useTokenRedemptionQuoteEth } from "./useTokenRedemptionQuoteEth";
+import { JB_REDEEM_FEE_PERCENT } from "@/app/constants";
 
-/**
- *
- * @note can perf optimize this by moving terminal and controller calls to API endpoints, 
- * and caching for longtime (their static addresses mostly)
- */
 async function getTokenRedemptionQuote(
   config: ReturnType<typeof useConfig>,
   chainId: JBChainId,
   tokenAmountWei: bigint,
   {
     projectId,
-    // redemption rate assumed to be the same across all chains
-    redemptionRate,
-    controller,
-    primaryNativeTerminal,
+    terminalStore,
   }: {
     projectId: bigint;
-    redemptionRate: bigint;
-    controller: Address;
-    primaryNativeTerminal: Address;
+    terminalStore: Address;
   }
 ) {
-  const [totalSupply, pendingReservedTokens, nativeTokenSurplus] =
-    await Promise.all([
-      readJbTokensTotalSupplyOf(config, {
-        chainId,
-        args: [projectId],
-      }),
-      readJbControllerPendingReservedTokenBalanceOf(config, {
-        chainId,
-        address: controller,
-        args: [projectId],
-      }),
-      readJbMultiTerminalCurrentSurplusOf(config, {
-        chainId,
-        address: primaryNativeTerminal ?? undefined,
-        args: [projectId, BigInt(NATIVE_TOKEN_DECIMALS), BigInt(NATIVE_TOKEN)],
-      }),
-    ]);
-
-  return getTokenRedemptionQuoteEth(tokenAmountWei, {
-    redemptionRate: Number(redemptionRate),
-    totalSupply,
-    tokensReserved: pendingReservedTokens,
-    overflowWei: nativeTokenSurplus,
+  return readJbTerminalStoreCurrentReclaimableSurplusOf(config, {
+    chainId,
+    address: terminalStore,
+    args: [
+      zeroAddress,
+      projectId,
+      [],
+      BigInt(NATIVE_TOKEN_DECIMALS),
+      BigInt(NATIVE_TOKEN),
+      tokenAmountWei,
+      true,
+    ],
   });
 }
 
@@ -76,11 +52,13 @@ export function useSuckersTokenRedemptionQuote(tokenAmountWei: bigint) {
 
   const chainId = useJBChainId();
   const { projectId } = useJBContractContext();
-  const { rulesetMetadata } = useJBRulesetContext();
 
-  const currentChainQuote = useTokenRedemptionQuote(tokenAmountWei, {
-    chainId,
-  });
+  const { data: currentChainQuote } = useTokenRedemptionQuoteEth(
+    tokenAmountWei,
+    {
+      chainId,
+    }
+  );
 
   return useQuery({
     queryKey: [
@@ -88,6 +66,7 @@ export function useSuckersTokenRedemptionQuote(tokenAmountWei: bigint) {
       projectId.toString(),
       chainId?.toString(),
       tokenAmountWei.toString(),
+      currentChainQuote?.toString(),
       pairs?.map((pair) => pair.peerChainId).join(","),
     ],
     queryFn: async () => {
@@ -97,11 +76,6 @@ export function useSuckersTokenRedemptionQuote(tokenAmountWei: bigint) {
         pairs?.map(async (pair) => {
           const { peerChainId, projectId } = pair;
 
-          const controller = await readJbDirectoryControllerOf(config, {
-            chainId: Number(peerChainId) as JBChainId,
-            args: [projectId],
-          });
-
           const primaryNativeTerminal = await readJbDirectoryPrimaryTerminalOf(
             config,
             {
@@ -110,18 +84,23 @@ export function useSuckersTokenRedemptionQuote(tokenAmountWei: bigint) {
             }
           );
 
-          return getTokenRedemptionQuote(config, chainId, 0n, {
+          const terminalStore = await readJbMultiTerminalStore(config, {
+            chainId: Number(peerChainId) as JBChainId,
+            address: primaryNativeTerminal,
+          });
+
+          return getTokenRedemptionQuote(config, chainId, tokenAmountWei, {
             projectId,
-            redemptionRate: rulesetMetadata.data?.redemptionRate?.value ?? 0n,
-            controller: controller,
-            primaryNativeTerminal: primaryNativeTerminal,
+            terminalStore,
           });
         }) ?? []
       );
 
       const sum = quotes.reduce((acc, quote) => acc + quote, 0n);
 
-      return sum + (currentChainQuote ?? 0n);
+      // eturn (quote * BigInt((1 - JB_REDEEM_FEE_PERCENT) * 1000)) / 1000n;
+      const total = sum + (currentChainQuote ?? 0n);
+      return total;
     },
   });
 }

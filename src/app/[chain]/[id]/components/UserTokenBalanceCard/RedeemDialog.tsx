@@ -1,5 +1,6 @@
 import { chainNames } from "@/app/constants";
-import { Button } from "@/components/ui/button";
+import { ButtonWithWallet } from "@/components/ButtonWithWallet";
+import { ChainLogo } from "@/components/ChainLogo";
 import {
   Dialog,
   DialogContent,
@@ -35,9 +36,7 @@ import { PropsWithChildren, useState } from "react";
 import { Address, parseUnits } from "viem";
 import { useAccount, useWaitForTransactionReceipt } from "wagmi";
 import { useSuckersUserTokenBalance } from "./useSuckersUserTokenBalance";
-import { ButtonWithWallet } from "@/components/ButtonWithWallet";
-import { useTokenRedemptionQuote } from "./useTokenRedemptionQuoteEth";
-import { ChainLogo } from "@/components/ChainLogo";
+import { useTokenRedemptionQuoteEth } from "./useTokenRedemptionQuoteEth";
 
 export function RedeemDialog({
   projectId,
@@ -85,7 +84,7 @@ export function RedeemDialog({
     hash: txHash,
   });
 
-  const redeemQuote = useTokenRedemptionQuote(redeemAmountBN, {
+  const { data: redeemQuote } = useTokenRedemptionQuoteEth(redeemAmountBN, {
     chainId: Number(cashOutChainId) as JBChainId,
   });
 
@@ -165,7 +164,9 @@ export function RedeemDialog({
                                     key={balance.chainId}
                                   >
                                     <div className="flex items-center gap-2">
-                                      <ChainLogo chainId={balance.chainId as JBChainId} />
+                                      <ChainLogo
+                                        chainId={balance.chainId as JBChainId}
+                                      />
                                       {chainNames[balance.chainId as JBChainId]}
                                     </div>
                                   </SelectItem>

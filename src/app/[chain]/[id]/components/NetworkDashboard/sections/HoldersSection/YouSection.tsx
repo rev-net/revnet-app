@@ -1,7 +1,3 @@
-import { UserTokenBalanceDatum } from "../../../UserTokenBalanceCard/UserTokenBalanceDatum";
-import { formatPortion } from "@/lib/utils";
-import { useTokenRedemptionQuote } from "../../../UserTokenBalanceCard/useTokenRedemptionQuoteEth";
-import { useSuckersUserTokenBalance } from "../../../UserTokenBalanceCard/useSuckersUserTokenBalance";
 import { NativeTokenValue } from "@/components/NativeTokenValue";
 import {
   Tooltip,
@@ -9,14 +5,14 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useEtherPrice } from "@/hooks/useEtherPrice";
+import { formatPortion } from "@/lib/utils";
 import { formatEther } from "juice-sdk-core";
-import { useJBChainId } from "juice-sdk-react";
+import { UserTokenBalanceDatum } from "../../../UserTokenBalanceCard/UserTokenBalanceDatum";
 import { useSuckersTokenRedemptionQuote } from "../../../UserTokenBalanceCard/useSuckersTokenRedemptionQuote";
+import { useSuckersUserTokenBalance } from "../../../UserTokenBalanceCard/useSuckersUserTokenBalance";
 
 export function YouSection({ totalSupply }: { totalSupply: bigint }) {
-  const chainId = useJBChainId();
   const balanceQuery = useSuckersUserTokenBalance();
-  const loading = balanceQuery.isLoading;
   const balances = balanceQuery?.data;
   const totalBalance =
     balances?.reduce((acc, curr) => {
@@ -26,8 +22,12 @@ export function YouSection({ totalSupply }: { totalSupply: bigint }) {
 
   const redeemQuoteQuery = useSuckersTokenRedemptionQuote(totalBalance);
   const { data: ethPrice, isLoading: isEthLoading } = useEtherPrice();
+  const loading =
+    balanceQuery.isLoading || redeemQuoteQuery.isLoading || isEthLoading;
 
   const redeemQuote = redeemQuoteQuery?.data ?? 0n;
+
+  console.log(redeemQuoteQuery)
 
   return (
     <div className="grid grid-cols-2 max-w-xl text-sm">

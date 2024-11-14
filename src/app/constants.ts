@@ -34,14 +34,14 @@ export const ChainIdToChain: Record<JBChainId, Chain> = {
   [optimismSepolia.id]: optimismSepolia,
   [baseSepolia.id]: baseSepolia,
   [arbitrumSepolia.id]: arbitrumSepolia,
-}
+};
 
 export const ChainIdToEtherscanUrlBase: Record<JBChainId, string> = {
   [sepolia.id]: "sepolia.etherscan.io",
   [optimismSepolia.id]: "sepolia-optimism.etherscan.io",
   [baseSepolia.id]: "sepolia.basescan.org",
   [arbitrumSepolia.id]: "sepolia.arbiscan.io",
-}
+};
 
 export const chainSortOrder = new Map<JBChainId, number>([
   [sepolia.id, 0],
@@ -55,4 +55,6 @@ export const chainIdToLogo = {
   [optimismSepolia.id]: "/assets/img/logo/optimism.svg",
   [baseSepolia.id]: "/assets/img/logo/base.svg",
   [arbitrumSepolia.id]: "/assets/img/logo/arbitrum.svg",
-}
+};
+
+export const JB_REDEEM_FEE_PERCENT = 0.025;

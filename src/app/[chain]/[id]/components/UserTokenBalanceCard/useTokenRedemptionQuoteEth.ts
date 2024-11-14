@@ -1,58 +1,47 @@
-import { getTokenRedemptionQuoteEth } from "juice-sdk-core";
+import { JB_REDEEM_FEE_PERCENT } from "@/app/constants";
+import {
+  NATIVE_TOKEN,
+  NATIVE_TOKEN_DECIMALS
+} from "juice-sdk-core";
 import {
   JBChainId,
   useJBChainId,
   useJBContractContext,
-  useJBRulesetContext,
-  useNativeTokenSurplus,
-  useReadJbControllerPendingReservedTokenBalanceOf,
-  useReadJbTokensTotalSupplyOf,
+  useJBTerminalContext,
+  useReadJbTerminalStoreCurrentReclaimableSurplusOf
 } from "juice-sdk-react";
+import { zeroAddress } from "viem";
 
 /**
  * Return the amount of ETH (wei) received from redeerming [tokenAmountWei] project tokens.
  */
-export function useTokenRedemptionQuote(
+export function useTokenRedemptionQuoteEth(
   tokenAmountWei: bigint | undefined,
   { chainId }: { chainId?: JBChainId }
-): bigint | undefined {
-  const { projectId, contracts } = useJBContractContext();
-  /**
-   * note: assumes that redemption rate is the same across all chains
-   */
-  const { rulesetMetadata } = useJBRulesetContext();
+) {
+  const { projectId } = useJBContractContext();
+  const { store } = useJBTerminalContext();
   const jbChainId = useJBChainId();
   const _chainId = chainId ?? jbChainId;
-  const { data: totalSupply } = useReadJbTokensTotalSupplyOf({
+
+  return useReadJbTerminalStoreCurrentReclaimableSurplusOf({
     chainId: _chainId,
-    args: [projectId],
-  });
-  const { data: nativeTokenSurplus } = useNativeTokenSurplus({
-    chainId: _chainId,
-  });
-
-  const { data: tokensReserved } =
-    useReadJbControllerPendingReservedTokenBalanceOf({
-      chainId: _chainId,
-      address: contracts.controller.data ?? undefined,
-      args: [projectId],
-    });
-  const redemptionRate = rulesetMetadata.data?.redemptionRate?.value;
-
-  if (
-    !redemptionRate ||
-    !totalSupply ||
-    !tokensReserved ||
-    !tokenAmountWei ||
-    !nativeTokenSurplus
-  ) {
-    return;
-  }
-
-  return getTokenRedemptionQuoteEth(tokenAmountWei, {
-    redemptionRate: Number(redemptionRate),
-    totalSupply,
-    tokensReserved,
-    overflowWei: nativeTokenSurplus,
+    address: store.data ?? undefined,
+    args: tokenAmountWei
+      ? [
+          zeroAddress,
+          projectId,
+          [],
+          BigInt(NATIVE_TOKEN_DECIMALS),
+          BigInt(NATIVE_TOKEN),
+          tokenAmountWei,
+          true,
+        ]
+      : undefined,
+    query: {
+      select(data) {
+        return (data * BigInt((1 - JB_REDEEM_FEE_PERCENT) * 1000)) / 1000n; // account for JB fee on redemption
+      },
+    },
   });
 }
