@@ -131,7 +131,7 @@ export function PayDialog({
               ) : (
                 <>
                   <div className="flex flex-col gap-6">
-                    <Stat label="You contribute">
+                    <Stat label="Youcontribute">
                       <TokenAmount amount={amountA} />
                     </Stat>
                     <Stat label="You receive">

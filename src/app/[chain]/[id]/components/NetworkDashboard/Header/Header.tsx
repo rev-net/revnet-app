@@ -53,8 +53,8 @@ export function Header() {
             src={ipfsUriToGatewayUrl(logoUri)}
             className="rounded-md overflow-hidden block"
             alt={"revnet logo"}
-            width={80}
-            height={80}
+            width={160}
+            height={160}
           />
         ) : (
           <div className="rounded-lg bg-zinc-100 h-20 w-20 flex items-center justify-center">
@@ -63,7 +63,7 @@ export function Header() {
         )}
 
         <div>
-          <div className="flex flex-col sm:flex-row items-center sm:gap-2 mb-2">
+          <div className="flex flex-col sm:flex-row sm:gap-2 mb-2">
             <h1 className="text-3xl font-bold tracking-tight">{projectName}</h1>
             {token?.data ? (
               <EtherscanLink
@@ -95,19 +95,13 @@ export function Header() {
 
           <div className="flex gap-4 items-center">
             <TvlDatum />
-            <span className="text-md">
+            <span className="text-xl">
               <span className="font-medium text-zinc-500">
                 {contributorsCount ?? 0}
               </span>{" "}
               <span className="text-zinc-500">
                 {contributorsCount === 1 ? "owner" : "owners"}
               </span>
-            </span>
-            <span className="text-md text-teal-600">
-              <span>Next issuance cut in</span>{" "}
-              {timeLeft && (
-                <span className="font-medium">{formatSeconds(timeLeft)}</span>
-              )}
             </span>
           </div>
         </div>

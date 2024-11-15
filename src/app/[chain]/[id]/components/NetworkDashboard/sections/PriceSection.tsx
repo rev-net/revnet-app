@@ -22,10 +22,10 @@ export function PriceSection() {
 
   return (
     <>
-      <div className="mb-2">
+      <div className="mb-2 border-l border-zinc-200 pl-2">
         <div>
           {/* <div className="text-2xl font-semibold">Current issuance price</div> */}
-          <span className="text-sm text-zinc-600">
+          <span className="text-md text-zinc-600">
             Issuing {issuance}
           {devTax && boostRecipient ?   (
             <span>

@@ -65,9 +65,10 @@ export function PayForm() {
 
   return (
     <div>
+      <PriceSection />
       <div className="flex justify-center items-center flex-col gap-3 mb-2">
         <PayInput
-          label="You contribute"
+          label="Contribute"
           type="number"
           onChange={(e) => {
             const valueRaw = e.target.value;
@@ -98,7 +99,7 @@ export function PayForm() {
           currency={tokenA?.symbol}
         />
         <PayInput
-          label="You receive"
+          label="Receive"
           type="number"
           onChange={(e) => {
             const valueRaw = e.target.value;
@@ -141,7 +142,6 @@ export function PayForm() {
 
         </div> */}
 
-      <PriceSection />
       {primaryNativeTerminal?.data ? (
         <PayDialog
           amountA={_amountA}
