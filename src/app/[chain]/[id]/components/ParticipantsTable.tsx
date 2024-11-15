@@ -49,11 +49,12 @@ export function ParticipantsTable({
         {participants.map((participant) => (
           <TableRow key={participant.id}>
             <TableCell>
-              <div className="flex flex-col sm:flex-row gap-2 items-center">
+              <div className="flex flex-col sm:flex-row gap-2 items-center pr-10">
                 <div className="hidden sm:flex">
                   <EthereumAddress
                     address={participant.wallet.id as Address}
                     short
+                    withEnsAvatar
                     withEnsName
                   />
                 </div>
@@ -61,38 +62,11 @@ export function ParticipantsTable({
                   <EthereumAddress
                     address={participant.wallet.id as Address}
                     short
+                    withEnsAvatar
                     avatarProps={{ size: "sm" }}
                     withEnsName
                   />
                 </div>
-                {boostRecipient &&
-                  isAddressEqual(
-                    boostRecipient,
-                    participant.wallet.id as Address
-                  ) && (
-                    <div>
-                      <Tooltip>
-                        <TooltipTrigger>
-                          <Badge variant="secondary">
-                            <ForwardIcon className="w-4 h-4 mr-1 inline-block" />
-                            Operator
-                          </Badge>
-                        </TooltipTrigger>
-                        <TooltipContent side="right">
-                          Operator of the current split
-                        </TooltipContent>
-                      </Tooltip>
-                    </div>
-                  )}
-                {accountAddress &&
-                  isAddressEqual(
-                    accountAddress,
-                    participant.wallet.id as Address
-                  ) && (
-                    <div>
-                      <Badge variant="secondary">You</Badge>
-                    </div>
-                  )}
               </div>
             </TableCell>
             {token ? (
