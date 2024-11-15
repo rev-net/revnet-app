@@ -90,7 +90,7 @@ export function PayDialog({
     }
   }, [suckers, chainId, projectId, selectedSucker]);
 
-  const handleContribute = () => {
+  const handlePay = () => {
     if (!primaryNativeTerminal?.data || !address || !selectedSucker) {
       return;
     }
@@ -118,7 +118,7 @@ export function PayDialog({
           disabled={disabled}
           className="w-full"
         >
-          Contribute
+          Pay
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-lg">
@@ -131,7 +131,7 @@ export function PayDialog({
               ) : (
                 <>
                   <div className="flex flex-col gap-6">
-                    <Stat label="Youcontribute">
+                    <Stat label="You pay">
                       <TokenAmount amount={amountA} />
                     </Stat>
                     <Stat label="You receive">
@@ -203,7 +203,7 @@ export function PayDialog({
               <ButtonWithWallet
                 targetChainId={selectedSucker?.peerChainId}
                 loading={loading}
-                onClick={handleContribute}
+                onClick={handlePay}
               >
                 Confirm Contribution
               </ButtonWithWallet>
