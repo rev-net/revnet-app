@@ -42,7 +42,7 @@ export function PriceIncreaseCountdown() {
   return (
     <Tooltip>
       <TooltipTrigger>
-        <div className="text-md text-teal-500 text-left">
+        <div className="text-sm text-teal-500 text-left">
           Cut to{" "}
           <span className="font-medium">{nextFormattedTokenIssuance}</span>
           {" "}

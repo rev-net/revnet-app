@@ -25,7 +25,7 @@ export function PriceSection() {
       <div className="mb-2 border-l border-zinc-200 pl-3">
         <div>
           {/* <div className="text-2xl font-semibold">Current issuance price</div> */}
-          <span className="text-md text-zinc-600">
+          <span className="text-sm text-zinc-600">
             Issuing {issuance}
           {devTax && boostRecipient ?   (
             <span>
