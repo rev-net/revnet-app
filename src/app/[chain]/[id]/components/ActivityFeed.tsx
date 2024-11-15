@@ -69,7 +69,7 @@ function PayActivityItem(
         <div className="flex items-center gap-1">
           <div className="text-sm text-zinc-500 ml-7">
             {activityItemData.amount.format(6)} ETH {" "}
-            <span className="border border-teal-500 bg-teal-50 text-teal-500 rounded-md px-1 py-0.5">
+            <span className="border border-teal-600 bg-teal-50 text-teal-600 rounded-md px-1 py-0.5">
               in
             </span>{" "}
             on{" "}
