@@ -86,7 +86,7 @@ export function Header() {
             </span>
           </div>
           <div className="text-sm text-zinc-500 flex items-start gap-1">
-            Available on
+            Runs on
             {(suckerPairs.data as SuckerPair[])?.map((pair) => {
               if (!pair) return null;
 
