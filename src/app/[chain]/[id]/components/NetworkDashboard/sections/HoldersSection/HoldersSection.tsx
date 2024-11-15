@@ -161,21 +161,23 @@ export function HoldersSection() {
 
         {/* All Section */}
         <div className={participantsView === "all" ? "" : "hidden"}>
-          <div className="flex flex-row max-h-96 overflow-auto p-2 bg-zinc-50 rounded-md border-zinc-100 border">
-            <div className="w-1/3">
-              <ParticipantsPieChart
-                participants={Object.values(participantsDataAggregate)}
-                totalSupply={totalOutstandingTokens}
-                token={token?.data}
-              />
-            </div>
-            <div>
-              <ParticipantsTable
-                participants={Object.values(participantsDataAggregate)}
-                token={token.data}
-                totalSupply={totalOutstandingTokens}
-                boostRecipient={boostRecipient}
-              />
+          <div className="flex flex-row max-h-96 p-2 items-start">
+              <div className="w-1/3">
+                <ParticipantsPieChart
+                  participants={Object.values(participantsDataAggregate)}
+                  totalSupply={totalOutstandingTokens}
+                  token={token?.data}
+                />
+              </div>
+            <div className="overflow-auto p-2 bg-zinc-50 rounded-md border-zinc-100 border">
+                <div>
+                  <ParticipantsTable
+                    participants={Object.values(participantsDataAggregate)}
+                    token={token.data}
+                    totalSupply={totalOutstandingTokens}
+                    boostRecipient={boostRecipient}
+                  />
+              </div>
             </div>
           </div>
         </div>

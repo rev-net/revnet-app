@@ -40,9 +40,9 @@ export function ParticipantsTable({
       <TableHeader>
         <TableRow>
           <TableHead className="w-auto md:w-1/2">Account</TableHead>
-          <TableHead>Paid</TableHead>
           <TableHead>Tokens</TableHead>
-          <TableHead className="whitespace-nowrap">Ownership %</TableHead>
+          <TableHead>Chains</TableHead>
+          <TableHead>Paid</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -54,7 +54,6 @@ export function ParticipantsTable({
                   <EthereumAddress
                     address={participant.wallet.id as Address}
                     short
-                    withEnsAvatar
                     withEnsName
                   />
                 </div>
@@ -63,7 +62,6 @@ export function ParticipantsTable({
                     address={participant.wallet.id as Address}
                     short
                     avatarProps={{ size: "sm" }}
-                    withEnsAvatar
                     withEnsName
                   />
                 </div>
@@ -95,34 +93,34 @@ export function ParticipantsTable({
                       <Badge variant="secondary">You</Badge>
                     </div>
                   )}
-                <div className="flex items-center gap-1">
-                  {participant.chains.map((chain) => (
-                    <ChainLogo
-                      chainId={chain}
-                      key={chain}
-                      width={14}
-                      height={14}
-                    />
-                  ))}
-                </div>
               </div>
-            </TableCell>
-            <TableCell className="whitespace-nowrap">
-              {formatUnits(participant.volume, 18, { fractionDigits: 64 })} ETH
             </TableCell>
             {token ? (
               <TableCell className="whitespace-nowrap">
                 {formatUnits(participant.balance, token.decimals, {
                   fractionDigits: 8,
                 })}{" "}
-                {token.symbol}
-              </TableCell>
-            ) : null}
-            <TableCell>
-              {participant.balance
+                ${token.symbol} {" "}
+              ( {participant.balance
                 ? formatPortion(BigInt(participant.balance), totalSupply)
                 : 0}
-              %
+              % )
+              </TableCell>
+            ) : null}
+            <TableCell className="whitespace-nowrap">
+              <div className="flex items-center gap-1">
+                {participant.chains.map((chain) => (
+                  <ChainLogo
+                      chainId={chain}
+                      key={chain}
+                      width={14}
+                      height={14}
+                    />
+                ))}
+              </div>
+            </TableCell>
+            <TableCell className="whitespace-nowrap">
+              {formatUnits(participant.volume, 18, { fractionDigits: 64 })} ETH
             </TableCell>
           </TableRow>
         ))}

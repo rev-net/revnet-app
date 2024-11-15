@@ -87,7 +87,7 @@ export function ParticipantsPieChart({
   if (totalBalance === 0n) return null;
 
   return (
-    <div style={{ width: "100%", height: 500 }}>
+    <div style={{ width: "100%", height: 200 }}>
       <ResponsiveContainer height="100%" width="100%">
         <PieChart>
           <Pie

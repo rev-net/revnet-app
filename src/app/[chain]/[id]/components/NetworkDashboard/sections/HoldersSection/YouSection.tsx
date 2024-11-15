@@ -30,17 +30,22 @@ export function YouSection({ totalSupply }: { totalSupply: bigint }) {
   console.log(redeemQuoteQuery)
 
   return (
-    <div className="grid grid-cols-2 max-w-xl text-sm">
+    <div className="grid sm:grid-cols-1 gap-x-8 overflow-x-scrolltext-md">
       {/* Left Column */}
-      <div className="space-y-4">
-        <div>
-          <dt className="font-medium text-zinc-900">Balance</dt>
+        <div className="sm:col-span-1 sm:px-0 grid grid-cols-4">
+          <dt className="text-md font-medium leading-6 text-zinc-900">Balance</dt>
           <dd className="text-zinc-600">
             <UserTokenBalanceDatum />
           </dd>
         </div>
-        <div>
-          <dt className="font-medium text-zinc-900">Current cash out value</dt>
+        <div className="sm:col-span-1 sm:px-0 grid grid-cols-4">
+          <dt className="text-md font-medium leading-6 text-zinc-900">Ownership</dt>
+          <dd className="text-zinc-600">
+            {formatPortion(totalBalance, totalSupply)} %
+          </dd>
+        </div>
+        <div className="sm:col-span-1 sm:px-0 grid grid-cols-4">
+          <dt className="text-md font-medium leading-6 text-zinc-900">Current cash out value</dt>
           <dd className="text-zinc-600">
             <Tooltip>
               <TooltipTrigger>
@@ -59,21 +64,10 @@ export function YouSection({ totalSupply }: { totalSupply: bigint }) {
             </Tooltip>
           </dd>
         </div>
-      </div>
-
-      {/* Right Column */}
-      <div className="space-y-4">
-        <div>
-          <dt className="font-medium text-zinc-900">Ownership</dt>
-          <dd className="text-zinc-600">
-            {formatPortion(totalBalance, totalSupply)} %
-          </dd>
-        </div>
-        <div>
-          <dt className="font-medium text-zinc-900">Current loan potential</dt>
+        <div className="sm:col-span-1 sm:px-0 grid grid-cols-4">
+          <dt className="text-md font-medium leading-6 text-zinc-900">Current loan potential</dt>
           <dd className="text-zinc-600">$100.50</dd>
         </div>
-      </div>
     </div>
   );
 }

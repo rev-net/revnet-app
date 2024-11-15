@@ -22,7 +22,7 @@ export function PriceSection() {
 
   return (
     <>
-      <div className="mb-2 border-l border-zinc-200 pl-2">
+      <div className="mb-2 border-l border-zinc-200 pl-3">
         <div>
           {/* <div className="text-2xl font-semibold">Current issuance price</div> */}
           <span className="text-md text-zinc-600">

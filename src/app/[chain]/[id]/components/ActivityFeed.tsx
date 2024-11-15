@@ -60,6 +60,23 @@ function PayActivityItem(
 
   return (
     <div className="border-b border-zinc-200 pb-2 mb-1">
+      <div className="flex items-center justify-between">
+        <div className="text-sm text-zinc-500 mb-2">
+          <EtherscanLink type="tx" value={payEvent.txHash} chain={chain}>
+            {formattedDate}
+          </EtherscanLink>
+        </div>
+        <div className="flex items-center gap-1">
+          <div className="text-sm text-zinc-500 ml-7">
+            {activityItemData.amount.format(6)} ETH {" "}
+            <span className="border border-teal-500 bg-teal-50 text-teal-500 rounded-md px-1 py-0.5">
+              in
+            </span>{" "}
+            on{" "}
+          </div>
+          <ChainLogo chainId={payEvent.chainId} width={15} height={15} />
+        </div>
+      </div>
       <div className="flex items-center gap-1 text-md flex-wrap">
         <EthereumAddress
           address={activityItemData.beneficiary}
@@ -71,16 +88,9 @@ function PayActivityItem(
         <div className="flex items-center gap-1">
           <span>
             bought {activityItemData.beneficiaryTokenCount?.format(6)}{" "}
-            {token.data.symbol}
+            ${token.data.symbol}
           </span>
-          <ChainLogo chainId={payEvent.chainId} width={15} height={15} />
         </div>
-      </div>
-      <div className="text-md text-zinc-500 ml-7">
-        Contributed {activityItemData.amount.format(6)} ETH {" "}
-        <EtherscanLink type="tx" value={payEvent.txHash} chain={chain}>
-          {formattedDate}
-        </EtherscanLink>
       </div>
       <div className="text-lg text-black-500 font-medium ml-7 pb-4">
         {activityItemData.memo}
@@ -113,8 +123,25 @@ function RedeemActivityItem(
   );
 
   return (
-    <div>
-      <div className="flex items-center pb-4 gap-1 text-sm flex-wrap">
+    <div className="border-b border-zinc-200 pb-2 mb-1">
+      <div className="flex items-center justify-between">
+        <div className="text-sm text-zinc-500 mb-2">
+        <EtherscanLink type="tx" value={redeemEvent.txHash}>
+          {formattedDate}
+        </EtherscanLink>
+        </div>
+        <div className="flex items-center gap-1">
+          <div className="text-sm text-zinc-500 ml-7">
+            {activityItemData.amount.format(6)} ETH {" "}
+            <span className="border border-orange-500 bg-orange-50 text-orange-500 rounded-md px-1 py-0.5">
+              out
+            </span>{" "}
+            on{" "}
+          </div>
+          <ChainLogo chainId={redeemEvent.chainId} width={15} height={15} />
+        </div>
+      </div>
+      <div className="flex items-center pb-4 gap-1 text-md flex-wrap">
         <EthereumAddress
           address={activityItemData.beneficiary}
           withEnsName
@@ -125,16 +152,9 @@ function RedeemActivityItem(
         <div className="flex items-center gap-1">
           <span>
             cashed out {activityItemData.redeemCount?.format(6)}{" "}
-            {token.data.symbol}
+            ${token.data.symbol}
           </span>
-          <ChainLogo chainId={redeemEvent.chainId} width={15} height={15} />
         </div>
-      </div>
-      <div className="text-xs text-zinc-500 ml-7">
-        Received {activityItemData.amount.format(6)} ETH •{" "}
-        <EtherscanLink type="tx" value={redeemEvent.txHash}>
-          {formattedDate}
-        </EtherscanLink>
       </div>
     </div>
   );

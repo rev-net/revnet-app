@@ -47,32 +47,46 @@ export function Header() {
   );
   return (
     <header>
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-4 mb-2">
         {logoUri ? (
           <Image
             src={ipfsUriToGatewayUrl(logoUri)}
-            className="rounded-md overflow-hidden block"
+            className="rounded-md overflow-hidden block border border-zinc-200"
             alt={"revnet logo"}
-            width={140}
-            height={140}
+            width={144}
+            height={144}
           />
         ) : (
-          <div className="rounded-lg bg-zinc-100 h-20 w-20 flex items-center justify-center">
+          <div className="rounded-lg bg-zinc-100 h-36 w-36 flex items-center justify-center">
             <ForwardIcon className="h-5 w-5 text-zinc-700" />
           </div>
         )}
 
         <div>
-          <div className="flex flex-col sm:flex-row sm:gap-2 mb-2">
+          <div className="flex flex-col items-baseline sm:flex-row sm:gap-2 mb-1">
             <h1 className="text-3xl font-bold tracking-tight">{projectName}</h1>
             {token?.data ? (
               <EtherscanLink
                 value={token.data.address}
-                className="text-zinc-500 tracking-tight"
+                className="text-zinc-500 text-lg tracking-tight"
               >
                 {formatTokenSymbol(token)}
               </EtherscanLink>
             ) : null}
+          </div>
+          <div className="flex gap-4 items-center mb-1">
+            <TvlDatum />
+            <span className="text-xl">
+              <span className="font-medium text-zinc-500">
+                {contributorsCount ?? 0}
+              </span>{" "}
+              <span className="text-zinc-500">
+                {contributorsCount === 1 ? "owner" : "owners"}
+              </span>
+            </span>
+          </div>
+          <div className="text-sm text-zinc-500 flex items-start gap-1">
+            Available on
             {(suckerPairs.data as SuckerPair[])?.map((pair) => {
               if (!pair) return null;
 
@@ -91,18 +105,6 @@ export function Header() {
                 </Link>
               );
             })}
-          </div>
-
-          <div className="flex gap-4 items-center">
-            <TvlDatum />
-            <span className="text-xl">
-              <span className="font-medium text-zinc-500">
-                {contributorsCount ?? 0}
-              </span>{" "}
-              <span className="text-zinc-500">
-                {contributorsCount === 1 ? "owner" : "owners"}
-              </span>
-            </span>
           </div>
         </div>
       </div>
