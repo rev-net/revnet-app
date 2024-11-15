@@ -68,7 +68,7 @@ export function PayForm() {
       <PriceSection />
       <div className="flex justify-center items-center flex-col gap-3 mb-2">
         <PayInput
-          label="Contribute"
+          label="Pay"
           type="number"
           onChange={(e) => {
             const valueRaw = e.target.value;
