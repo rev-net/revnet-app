@@ -86,7 +86,7 @@ export function HoldersSection() {
       <Button
         variant={participantsView === view ? "tab-selected" : "bottomline"}
         className={twJoin(
-          "text-sm text-zinc-400",
+          "text-md text-zinc-400",
           participantsView === view && "text-inherit"
         )}
         onClick={() => setParticipantsView(view)}
@@ -122,10 +122,10 @@ export function HoldersSection() {
         </span>
             <SectionTooltip name="Owners">
               <div className="max-w-md space-y-4 p-2">
-            <p className="text-sm text-black-300">
+            <p className="text-md text-black-300">
               The accounts who hold {formatTokenSymbol(token)}, either by:
             </p>
-            <ul className="text-sm text-black-300 space-y-2 list-disc pl-4">
+            <ul className="text-md text-black-300 space-y-2 list-disc pl-4">
               <li>
                 Contributing payments to this revnet and receiving{" "}
                 {formatTokenSymbol(token)}.
@@ -140,7 +140,7 @@ export function HoldersSection() {
 
       {/* Dropdown Content */}
       {isOpen && 
-        <div className="mt-2 pl-4 text-gray-600 text-sm">
+        <div className="mt-2 pl-4 text-gray-600 text-md">
           <div className="mb-2">
         {/* View Tabs */}
         <div className="flex flex-row space-x-4 mb-3">

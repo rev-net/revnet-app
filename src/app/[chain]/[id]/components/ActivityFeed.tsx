@@ -59,7 +59,7 @@ function PayActivityItem(
   });
 
   return (
-    <div className="border-b border-zinc-200 pb-4 mb-1">
+    <div className="border-b border-zinc-200 pb-2 mb-1">
       <div className="flex items-center gap-1 text-md flex-wrap">
         <EthereumAddress
           address={activityItemData.beneficiary}
@@ -114,7 +114,7 @@ function RedeemActivityItem(
 
   return (
     <div>
-      <div className="flex items-center gap-1 text-sm flex-wrap">
+      <div className="flex items-center pb-4 gap-1 text-sm flex-wrap">
         <EthereumAddress
           address={activityItemData.beneficiary}
           withEnsName
