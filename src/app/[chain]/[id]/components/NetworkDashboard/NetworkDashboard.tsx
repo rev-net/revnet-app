@@ -40,7 +40,7 @@ export function NetworkDashboard() {
 
   const payAndActivityBar = (
     <>
-      <div className="mb-10">
+      <div className="mb-14">
         <PayCard />
       </div>
       <ActivityFeed />
@@ -48,10 +48,17 @@ export function NetworkDashboard() {
   );
 
   return (
-    <div className="flex gap-10 w-full px-4 sm:container py-10 md:flex-nowrap flex-wrap mb-10">
+    <>
+      <div className="w-full px-4 sm:container py-10">
+      <Header />
+      </div>
+      <div className="flex gap-10 w-full px-4 sm:container pb-5 md:flex-nowrap flex-wrap mb-10">
+        {/* Column 2, hide on mobile */}
+        <aside className="hidden md:w-[400px] md:block">
+          {payAndActivityBar}
+        </aside>
       {/* Column 1 */}
       <div className="flex-1">
-        <Header />
         {/* Render Pay and activity after header on mobile */}
         <div className="sm:hidden mb-10">{payAndActivityBar}</div>
 
@@ -61,14 +68,13 @@ export function NetworkDashboard() {
               <NetworkDetailsTable />
             </div>
 
-            <div className="mb-4">
+            <div className="mb-8">
               <HoldersSection />
             </div>
-          </section>
 
-          <section className="mb-8">
-            <h2 className="text-2xl font-semibold mb-1">About</h2>
-            <DescriptionSection />
+            <div className="mb-8">
+              <DescriptionSection />
+            </div>
           </section>
 
           {/*
@@ -89,11 +95,7 @@ export function NetworkDashboard() {
         </div> */}
         </div>
       </div>
-
-      {/* Column 2, hide on mobile */}
-      <aside className="hidden md:w-[360px] md:block sm:mt-24">
-        {payAndActivityBar}
-      </aside>
     </div>
+  </>
   );
 }

@@ -40,6 +40,7 @@ export function NetworkDetailsTable() {
 
   const { token } = useJBTokenContext();
   const nativeTokenSymbol = useNativeTokenSymbol();
+  const [isOpen, setIsOpen] = useState(false);
 
   // TODO(perf) duplicate call, move to a new context
   const { data: rulesets } = useReadJbRulesetsAllOf({
@@ -131,8 +132,26 @@ export function NetworkDetailsTable() {
   });
 
   if (!selectedStage) return null;
+
+  const toggleDropdown = () => {
+    setIsOpen(!isOpen);
+  };
+
   return (
-    <div>
+    <div className="mt-4">
+      {/* Dropdown Header */}
+      <button
+        type="button"
+        onClick={toggleDropdown}
+        className="flex items-center gap-2 text-left text-black-600"
+      >
+        <span
+          className={`transform transition-transform font-sm ${
+            isOpen ? "rotate-90" : "rotate-0"
+          }`}
+        >
+          ▶
+        </span>
       <SectionTooltip name="Rules" info="">
       <div className="max-w-md space-y-2 p-2">
         <h3 className="font-medium text-black-500">Stages</h3>
@@ -236,6 +255,12 @@ export function NetworkDetailsTable() {
 
     </div>
       </SectionTooltip>
+      </button>
+      {/* Dropdown Content */}
+      {isOpen && 
+        <div className="mt-2 pl-4 text-gray-600 text-sm">
+          <div className="mb-2">
+
       <div className="flex gap-4 mb-2">
         {rulesets?.map((ruleset, idx) => {
           return (
@@ -307,6 +332,9 @@ export function NetworkDetailsTable() {
           </dd>
         </div>
       </div>
+        </div>
+        </div>
+        }
     </div>
   );
 }

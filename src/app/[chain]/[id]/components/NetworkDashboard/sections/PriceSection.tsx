@@ -32,24 +32,25 @@ export function PriceSection() {
                 {", "}<span className="font-medium">
                   {devTax.formatPercentage().toFixed(2)}%
                 </span>{" "}
-                <span>split</span>
-            {/* <Tooltip>
-              <TooltipTrigger>
-              <Badge variant="secondary">
-                <ForwardIcon className="w-4 h-4 mr-1 inline-block" />
-                Operator
-              </Badge>
-          </TooltipTrigger>
-          <TooltipContent>
-            <EthereumAddress
-              address={boostRecipient}
-              short
-              withEnsName
-              className="font-medium"
-            />{" "}
-            is the split operator and can direct this split
-                  </TooltipContent>
-                </Tooltip> */}
+                <span>split to </span>
+           
+             <Tooltip>
+               <TooltipTrigger>
+               <Badge variant="secondary">
+                 <ForwardIcon className="w-4 h-4 mr-1 inline-block" />
+                 Operator
+               </Badge>
+           </TooltipTrigger>
+           <TooltipContent>
+             <EthereumAddress
+               address={boostRecipient}
+               short
+               withEnsName
+               className="font-medium"
+             />{" "}
+             is the split operator and can direct this split
+                   </TooltipContent>
+                </Tooltip>
             </span>
             ) : null}
           </span>

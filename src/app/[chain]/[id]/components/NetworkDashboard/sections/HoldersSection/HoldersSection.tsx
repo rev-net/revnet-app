@@ -34,6 +34,7 @@ export function HoldersSection() {
   const [participantsView, setParticipantsView] = useState<TableView>(
     address ? "you" : "all"
   );
+  const [isOpen, setIsOpen] = useState(false);
   const { projectId } = useJBContractContext();
   const { token } = useJBTokenContext();
   const boostRecipient = useBoostRecipient();
@@ -99,11 +100,28 @@ export function HoldersSection() {
     return <span className="text-zinc-500">No owners yet.</span>;
   }
 
+  const toggleDropdown = () => {
+    setIsOpen(!isOpen);
+  };
+
   return (
     <div>
-      <div className="mb-2">
-        <SectionTooltip name="Owners">
-          <div className="max-w-md space-y-4 p-2">
+    <div className="mt-4">
+      {/* Dropdown Header */}
+      <button
+        type="button"
+        onClick={toggleDropdown}
+        className="flex items-center gap-2 text-left text-black-600"
+      >
+        <span
+          className={`transform transition-transform font-sm ${
+            isOpen ? "rotate-90" : "rotate-0"
+          }`}
+        >
+          ▶
+        </span>
+            <SectionTooltip name="Owners">
+              <div className="max-w-md space-y-4 p-2">
             <p className="text-sm text-black-300">
               The accounts who hold {formatTokenSymbol(token)}, either by:
             </p>
@@ -118,6 +136,12 @@ export function HoldersSection() {
             </ul>
           </div>
         </SectionTooltip>
+      </button>
+
+      {/* Dropdown Content */}
+      {isOpen && 
+        <div className="mt-2 pl-4 text-gray-600 text-sm">
+          <div className="mb-2">
         {/* View Tabs */}
         <div className="flex flex-row space-x-4 mb-3">
           {ownersTab("you", "You")}
@@ -169,6 +193,10 @@ export function HoldersSection() {
           WIP
         </div>
       </div>
+        </div>
+        }
+    </div>
     </div>
   );
 }
+
