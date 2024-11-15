@@ -134,7 +134,7 @@ export function PayDialog({
                     <Stat label="You pay">
                       <TokenAmount amount={amountA} />
                     </Stat>
-                    <Stat label="You receive">
+                    <Stat label="You get">
                       <TokenAmount amount={amountB} />
                     </Stat>
                   </div>

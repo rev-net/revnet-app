@@ -187,7 +187,7 @@ export function RedeemDialog({
 
                   {redeemAmount && redeemAmountBN > 0n && valid ? (
                     <div className="text-base mt-4">
-                      You'll receive:{" "}
+                      You'll get:{" "}
                       {redeemQuote ? (
                         <span className="font-medium">
                           <NativeTokenValue wei={redeemQuote} decimals={8} />

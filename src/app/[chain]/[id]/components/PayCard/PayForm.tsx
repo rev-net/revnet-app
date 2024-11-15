@@ -99,7 +99,7 @@ export function PayForm() {
           currency={tokenA?.symbol}
         />
         <PayInput
-          label="Receive"
+          label="Get"
           type="number"
           onChange={(e) => {
             const valueRaw = e.target.value;

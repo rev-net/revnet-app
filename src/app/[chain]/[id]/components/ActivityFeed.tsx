@@ -87,7 +87,7 @@ function PayActivityItem(
         />
         <div className="flex items-center gap-1">
           <span>
-            bought {activityItemData.beneficiaryTokenCount?.format(6)}{" "}
+            got {activityItemData.beneficiaryTokenCount?.format(6)}{" "}
             ${token.data.symbol}
           </span>
         </div>
