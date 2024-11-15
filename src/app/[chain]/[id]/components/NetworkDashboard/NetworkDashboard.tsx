@@ -49,7 +49,7 @@ export function NetworkDashboard() {
 
   return (
     <>
-      <div className="w-full px-4 sm:container py-10">
+      <div className="w-full px-4 sm:container py-3">
       <Header />
       </div>
       <div className="flex gap-10 w-full px-4 sm:container pb-5 md:flex-nowrap flex-wrap mb-10">

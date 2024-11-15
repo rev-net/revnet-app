@@ -27,7 +27,7 @@ import { useOmnichainSubgraphQuery } from "@/graphql/useOmnichainSubgraphQuery";
 import { UserTokenBalanceCard } from "../../../UserTokenBalanceCard/UserTokenBalanceCard";
 import { DistributeReservedTokensButton } from "../../../DistributeReservedTokensButton";
 
-type TableView = "you" | "all" | "splits" | "automints";
+type TableView = "you" | "all" | "splits" | "autoissuance";
 
 export function HoldersSection() {
   const { address } = useAccount();
@@ -131,7 +131,7 @@ export function HoldersSection() {
                 {formatTokenSymbol(token)}.
               </li>
               <li>Receiving {formatTokenSymbol(token)} from splits.</li>
-              <li>Receiving {formatTokenSymbol(token)} from automints.</li>
+              <li>Receiving {formatTokenSymbol(token)} from auto issuance.</li>
               <li>Acquiring {formatTokenSymbol(token)} from someone else.</li>
             </ul>
           </div>
@@ -147,7 +147,7 @@ export function HoldersSection() {
           {ownersTab("you", "You")}
           {ownersTab("all", "All")}
           {ownersTab("splits", "Splits")}
-          {ownersTab("automints", "Automints")}
+          {ownersTab("autoissuance", "Auto issuance")}
         </div>
 
         {/* ========================= */}
@@ -188,8 +188,8 @@ export function HoldersSection() {
           <DistributeReservedTokensButton />
         </div>
 
-        {/* Automints Section */}
-        <div className={participantsView === "automints" ? "" : "hidden"}>
+        {/* Auto issuance */}
+        <div className={participantsView === "autoissuance" ? "" : "hidden"}>
           WIP
         </div>
       </div>

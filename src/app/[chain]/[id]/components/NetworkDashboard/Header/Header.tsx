@@ -53,8 +53,8 @@ export function Header() {
             src={ipfsUriToGatewayUrl(logoUri)}
             className="rounded-md overflow-hidden block"
             alt={"revnet logo"}
-            width={160}
-            height={160}
+            width={140}
+            height={140}
           />
         ) : (
           <div className="rounded-lg bg-zinc-100 h-20 w-20 flex items-center justify-center">

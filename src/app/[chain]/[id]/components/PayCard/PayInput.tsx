@@ -14,7 +14,7 @@ const PayInput = React.forwardRef<HTMLInputElement, PayInputProps>(
     return (
       <div
         className={cn(
-          "flex rounded-md h-30 px-5 py-4 w-full items-center justify-between shadow-sm focus-within:ring-1 focus-within:ring-inset focus-within:ring-zinc-500 bg-zinc-100",
+          "flex rounded-md h-30 px-3 py-2 w-full items-center justify-between shadow-sm focus-within:ring-1 focus-within:ring-inset focus-within:ring-zinc-500 bg-zinc-100",
           className
         )}
       >
@@ -23,7 +23,7 @@ const PayInput = React.forwardRef<HTMLInputElement, PayInputProps>(
           <input
             type={type}
             className={cn(
-              "border-0 bg-transparent pl-0 pr-3 pt-1 pb-0 text-zinc-900 text-4xl w-full placeholder:text-zinc-400 focus:ring-0 sm:leading-6",
+              "border-0 bg-transparent pl-0 pr-3 pt-1 pb-0 text-zinc-900 text-2xl w-full placeholder:text-zinc-400 focus:ring-0 sm:leading-6",
               inputClassName
             )}
             ref={ref}
