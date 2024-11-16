@@ -106,7 +106,6 @@ export function HoldersSection() {
 
   return (
     <div>
-    <div className="mt-4">
       {/* Dropdown Header */}
       <button
         type="button"
@@ -189,7 +188,6 @@ export function HoldersSection() {
       </div>
         </div>
         }
-    </div>
     </div>
   );
 }

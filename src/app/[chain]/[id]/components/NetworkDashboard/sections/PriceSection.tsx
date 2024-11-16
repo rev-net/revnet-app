@@ -6,8 +6,9 @@ import { ForwardIcon } from "@heroicons/react/24/solid";
 import { Badge } from "@/components/ui/badge";
 import { useJBRulesetContext } from "juice-sdk-react";
 import { useBoostRecipient } from "@/hooks/useBoostRecipient";
+import { cn } from "@/lib/utils"
 
-export function PriceSection() {
+export function PriceSection({ className }: { className?: string }) {
   const issuance = useFormattedTokenIssuance();
 
   const { ruleset, rulesetMetadata } = useJBRulesetContext();
@@ -22,7 +23,7 @@ export function PriceSection() {
 
   return (
     <>
-      <div className="border-l border-zinc-200 pl-3 overflow-scroll whitespace-nowrap">
+      <div className={cn("overflow-scroll whitespace-nowrap", className)}>
           {/* <div className="text-2xl font-semibold">Current issuance price</div> */}
           <div className="text-md text-zinc-600">
             Issuing {issuance}

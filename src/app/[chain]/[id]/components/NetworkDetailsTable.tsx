@@ -143,7 +143,7 @@ export function NetworkDetailsTable() {
   };
 
   return (
-    <div className="mt-4">
+    <div>
       {/* Dropdown Header */}
       <button
         type="button"

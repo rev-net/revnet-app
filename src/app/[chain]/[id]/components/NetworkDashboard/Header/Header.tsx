@@ -9,6 +9,7 @@ import { ipfsUriToGatewayUrl } from "@/lib/ipfs";
 import { formatSeconds, formatTokenSymbol } from "@/lib/utils";
 import { ForwardIcon } from "@heroicons/react/24/solid";
 import { SuckerPair } from "juice-sdk-core";
+import { PriceSection } from "../sections/PriceSection";
 import {
   JBChainId,
   useJBContractContext,
@@ -47,7 +48,7 @@ export function Header() {
   );
   return (
     <header>
-      <div className="flex items-center gap-4 mb-6">
+      <div className="flex items-center gap-4 sm:mb-6 mb-4">
         {logoUri ? (
           <Image
             src={ipfsUriToGatewayUrl(logoUri)}
@@ -96,7 +97,7 @@ export function Header() {
             })}
           </div>
           </div>
-          <div className="flex gap-4 items-center mb-1">
+          <div className="flex gap-4 items-center mb-2 sm:border-b border-zinc-100 sm:pb-2">
             <TvlDatum />
             <span className="text-xl">
               <span className="font-medium text-zinc-500">
@@ -107,8 +108,10 @@ export function Header() {
               </span>
             </span>
           </div>
+          <PriceSection className="hidden sm:block" />
         </div>
       </div>
+      <PriceSection className="sm:hidden pl-3 border-l border-zinc-200 pb-2" />
     </header>
   );
 }
