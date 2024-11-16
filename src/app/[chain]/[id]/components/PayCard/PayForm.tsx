@@ -141,15 +141,15 @@ export function PayForm() {
           </div>
 
         </div> */}
-      <div className="mt-3">
-      {primaryNativeTerminal?.data ? (
-        <PayDialog
-          amountA={_amountA}
-          amountB={_amountB}
-          primaryTerminalEth={primaryNativeTerminal?.data}
-          disabled={!amountA}
-        />
-      ) : null}
+      <div className="mt-3 md:w-[100px] float-right">
+        {primaryNativeTerminal?.data ? (
+          <PayDialog
+            amountA={_amountA}
+            amountB={_amountB}
+            primaryTerminalEth={primaryNativeTerminal?.data}
+            disabled={!amountA}
+          />
+        ) : null}
       </div>
     </div>
   );
