@@ -116,7 +116,7 @@ export function PayDialog({
       <DialogTrigger asChild>
         <Button
           disabled={disabled}
-          className="w-full"
+          className="w-full bg-teal-500 hover:bg-teal-600"
         >
           Pay
         </Button>
