@@ -51,7 +51,7 @@ export default function Page() {
         </div>
 
         <p className="mb-40">
-          Read the full memo at {" "}
+          Read the memo at {" "}
           <Link
             href="https://revnet.eth.sucks/memo"
             target="_blank"
