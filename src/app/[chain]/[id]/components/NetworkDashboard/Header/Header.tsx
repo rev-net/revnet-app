@@ -47,7 +47,7 @@ export function Header() {
   );
   return (
     <header>
-      <div className="flex items-center gap-4 mb-2">
+      <div className="flex items-center gap-4 mb-6">
         {logoUri ? (
           <Image
             src={ipfsUriToGatewayUrl(logoUri)}

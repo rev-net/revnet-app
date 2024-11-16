@@ -6,6 +6,7 @@ import {
   useJBProjectMetadataContext,
   useJBTokenContext,
 } from "juice-sdk-react";
+import { PriceSection } from "../NetworkDashboard/sections/PriceSection";
 import { notFound } from "next/navigation";
 import { useEffect } from "react";
 import { zeroAddress } from "viem";
@@ -40,7 +41,7 @@ export function NetworkDashboard() {
 
   const payAndActivityBar = (
     <>
-      <div className="mb-14">
+      <div className="mt-1 mb-10">
         <PayCard />
       </div>
     </>
@@ -48,12 +49,13 @@ export function NetworkDashboard() {
 
   return (
     <>
-      <div className="w-full px-4 sm:container py-6">
+      <div className="w-full px-4 sm:container pt-6">
       <Header />
+      <PriceSection />
       </div>
       <div className="flex gap-10 w-full px-4 sm:container pb-5 md:flex-nowrap flex-wrap mb-10">
         {/* Column 2, hide on mobile */}
-        <aside className="hidden md:w-[440px] md:block">
+        <aside className="hidden md:w-[340px] md:block">
           {payAndActivityBar}
         </aside>
       {/* Column 1 */}

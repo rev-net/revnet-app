@@ -65,7 +65,6 @@ export function PayForm() {
 
   return (
     <div>
-      <PriceSection />
       <div className="flex justify-center items-center flex-col gap-3 mb-2">
         <PayInput
           label="Pay"
@@ -141,7 +140,7 @@ export function PayForm() {
           </div>
 
         </div> */}
-      <div className="mt-3 w-[100px] float-right">
+      <div className="mt-3 md:w-[100px] float-right">
         {primaryNativeTerminal?.data ? (
           <PayDialog
             amountA={_amountA}

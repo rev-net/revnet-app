@@ -22,10 +22,9 @@ export function PriceSection() {
 
   return (
     <>
-      <div className="mb-2 border-l border-zinc-200 pl-3">
-        <div>
+      <div className="border-l border-zinc-200 pl-3 overflow-scroll whitespace-nowrap">
           {/* <div className="text-2xl font-semibold">Current issuance price</div> */}
-          <span className="text-md text-zinc-600">
+          <div className="text-md text-zinc-600">
             Issuing {issuance}
           {devTax && boostRecipient ?   (
             <span>
@@ -53,8 +52,7 @@ export function PriceSection() {
                 </Tooltip>
             </span>
             ) : null}
-          </span>
-        </div>
+          </div>
         <PriceIncreaseCountdown />
       </div>
     </>
