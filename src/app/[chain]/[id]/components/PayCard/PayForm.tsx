@@ -141,7 +141,7 @@ export function PayForm() {
           </div>
 
         </div> */}
-
+      <div className="mt-3">
       {primaryNativeTerminal?.data ? (
         <PayDialog
           amountA={_amountA}
@@ -150,6 +150,7 @@ export function PayForm() {
           disabled={!amountA}
         />
       ) : null}
+      </div>
     </div>
   );
 }
