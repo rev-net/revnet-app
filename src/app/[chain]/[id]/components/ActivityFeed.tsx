@@ -209,7 +209,7 @@ export function ActivityFeed() {
       </button>
       {/* Dropdown Content */}
       {isOpen && 
-      <div className="flex flex-col gap-3 mt-8">
+      <div className="flex flex-col gap-1 mt-8">
         {projectEvents && projectEvents.length > 0 ? (
           projectEvents?.map((event) => {
             if (event.payEvent) {
