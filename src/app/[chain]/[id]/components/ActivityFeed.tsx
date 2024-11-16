@@ -162,7 +162,7 @@ function RedeemActivityItem(
 
 export function ActivityFeed() {
   const { projectId } = useJBContractContext();
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(true);
 
 
   const { data } = useOmnichainSubgraphQuery(ProjectEventsDocument, {
