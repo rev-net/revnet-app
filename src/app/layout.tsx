@@ -42,7 +42,7 @@ export default function RootLayout({
         )}
       >
         <Providers>
-          <main>{children}</main>
+          <main className="min-h-screen">{children}</main>
           <Footer />
         </Providers>
 

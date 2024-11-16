@@ -17,7 +17,7 @@ import {
   useJBContractContext,
   useJBTokenContext,
 } from "juice-sdk-react";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Address } from "viem";
 
 type PayActivityItemData = {
@@ -162,6 +162,9 @@ function RedeemActivityItem(
 
 export function ActivityFeed() {
   const { projectId } = useJBContractContext();
+  const [isOpen, setIsOpen] = useState(false);
+
+
   const { data } = useOmnichainSubgraphQuery(ProjectEventsDocument, {
     orderBy: ProjectEvent_OrderBy.timestamp,
     orderDirection: OrderDirection.desc,
@@ -182,8 +185,31 @@ export function ActivityFeed() {
       .sort((a, b) => b.timestamp - a.timestamp);
   }, [data]);
 
+  const toggleDropdown = () => {
+    setIsOpen(!isOpen);
+  };
   return (
-      <div className="flex flex-col gap-3">
+      <>
+      {/* Dropdown Header */}
+      <button
+        type="button"
+        onClick={toggleDropdown}
+        className="flex items-center gap-2 text-left text-black-600"
+      >
+        <span
+          className={`transform transition-transform font-sm ${
+            isOpen ? "rotate-90" : "rotate-0"
+          }`}
+        >
+          ▶
+        </span>
+      <div className="flex flex-row space-x-2">
+        <h2 className="text-2xl font-semibold">Activity</h2>
+      </div>
+      </button>
+      {/* Dropdown Content */}
+      {isOpen && 
+      <div className="flex flex-col gap-3 mt-8">
         {projectEvents && projectEvents.length > 0 ? (
           projectEvents?.map((event) => {
             if (event.payEvent) {
@@ -211,5 +237,7 @@ export function ActivityFeed() {
           <span className="text-zinc-500 text-sm">No activity yet.</span>
         )}
       </div>
+       }
+       </>
   );
 }

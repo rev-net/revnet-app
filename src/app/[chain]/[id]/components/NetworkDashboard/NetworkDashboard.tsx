@@ -43,13 +43,12 @@ export function NetworkDashboard() {
       <div className="mb-14">
         <PayCard />
       </div>
-      <ActivityFeed />
     </>
   );
 
   return (
     <>
-      <div className="w-full px-4 sm:container py-3">
+      <div className="w-full px-4 sm:container py-6">
       <Header />
       </div>
       <div className="flex gap-10 w-full px-4 sm:container pb-5 md:flex-nowrap flex-wrap mb-10">
@@ -60,7 +59,7 @@ export function NetworkDashboard() {
       {/* Column 1 */}
       <div className="flex-1">
         {/* Render Pay and activity after header on mobile */}
-        <div className="sm:hidden mb-10">{payAndActivityBar}</div>
+        <div className="sm:hidden">{payAndActivityBar}</div>
 
         <div className="max-w-4xl mx-auto">
           <section className="mb-10">
@@ -74,6 +73,9 @@ export function NetworkDashboard() {
 
             <div className="mb-8">
               <DescriptionSection />
+            </div>
+            <div className="mb-8">
+              <ActivityFeed />
             </div>
           </section>
 

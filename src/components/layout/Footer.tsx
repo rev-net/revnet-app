@@ -1,12 +1,11 @@
 export function Footer() {
   return (
-    <footer className="bg-zinc-900 text-zinc-50">
-      <div className="container border-x-zinc-500 py-10 grid md:grid-cols-4">
+    <footer className="text-zinc-900">
+      <div className="container border-x-zinc-500 py-10">
         <div>
-          <div>Revnet</div>
-          <div className="text-zinc-400">
-            <p>Backed by the full faith of Ethereum.</p>
-            <p>Powered by Juicebox.</p>
+          <div className="text-zinc-700">
+            <p>Revnets are enforced by the Juicebox protocol on Ethereum blockchains.</p>
+            <p>Huge gratitude to the ETH and JBX communities for crafting the infrastructure and economy to make revnets possible.</p>
           </div>
         </div>
       </div>
