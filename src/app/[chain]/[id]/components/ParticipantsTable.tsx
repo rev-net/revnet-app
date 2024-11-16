@@ -40,7 +40,7 @@ export function ParticipantsTable({
       <TableHeader>
         <TableRow>
           <TableHead className="w-auto md:w-1/2">Account</TableHead>
-          <TableHead>Tokens</TableHead>
+          <TableHead>Balance</TableHead>
           <TableHead>Chains</TableHead>
           <TableHead>Paid</TableHead>
         </TableRow>
@@ -74,11 +74,13 @@ export function ParticipantsTable({
                 {formatUnits(participant.balance, token.decimals, {
                   fractionDigits: 8,
                 })}{" "}
-                ${token.symbol} {" "}
-              ( {participant.balance
+                ${token.symbol} {" | "}
+                <span className="font-bold">
+               {participant.balance
                 ? formatPortion(BigInt(participant.balance), totalSupply)
                 : 0}
-              % )
+              % 
+              </span>
               </TableCell>
             ) : null}
             <TableCell className="whitespace-nowrap">

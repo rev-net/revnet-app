@@ -226,7 +226,7 @@ export function NetworkDetailsTable() {
           <TooltipContent side="right">
       <div className="max-w-md space-y-2 p-2">
         <div className="space-y-1">
-          <h3 className="font-medium text-black-500">Issuance</h3>
+          <h3 className="font-medium text-black-500">Paid Issuance</h3>
           <p className="text-md text-black-400">Determines how many {formatTokenSymbol(token)} are created when this revnet receives funds during a stage.</p>
 
                     <div className="text-zinc-600 text-md mt-4">
@@ -263,7 +263,7 @@ export function NetworkDetailsTable() {
           <TooltipContent side="right">
       <div className="max-w-md space-y-2 p-2">
         <div className="space-y-1">
-          <h3 className="font-medium text-black-500">Split</h3>
+          <h3 className="font-medium text-black-500">Splits</h3>
           <p className="text-md text-black-400">Determines how much of {formatTokenSymbol(token)} issuance is set aside to be split among recipients defined by the split operator during a stage.</p>
           <p className="text-md text-black-400">The operator is the account that can change the split recipients, within the permanent split amount of a stage.</p>
                     <div className="text-zinc-600 text-md mt-4">

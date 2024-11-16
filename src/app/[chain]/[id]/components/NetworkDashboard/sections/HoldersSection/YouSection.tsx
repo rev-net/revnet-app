@@ -41,7 +41,7 @@ export function YouSection({ totalSupply }: { totalSupply: bigint }) {
         <div className="sm:col-span-1 sm:px-0 grid grid-cols-2 sm:grid-cols-4">
           <dt className="text-md font-medium leading-6 text-zinc-900">Ownership</dt>
           <dd className="text-zinc-600">
-            {formatPortion(totalBalance, totalSupply)} %
+            {formatPortion(totalBalance, totalSupply)}%
           </dd>
         </div>
         <div className="sm:col-span-1 sm:px-0 grid grid-cols-2 sm:grid-cols-4">
