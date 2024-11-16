@@ -23,7 +23,7 @@ export function PriceSection({ className }: { className?: string }) {
 
   return (
     <>
-      <div className={cn("overflow-scroll whitespace-nowrap", className)}>
+      <div className={cn("overflow-scroll whitespace-nowrap [scrollbar-width:none]", className)}>
           {/* <div className="text-2xl font-semibold">Current issuance price</div> */}
           <div className="text-md text-zinc-600">
             Issuing {issuance}
