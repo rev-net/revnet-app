@@ -64,29 +64,18 @@ export function Header() {
 
         <div>
           <div className="flex flex-col items-baseline sm:flex-row sm:gap-2 mb-1">
-            <h1 className="text-3xl font-bold tracking-tight">{projectName}</h1>
-            {token?.data ? (
-              <EtherscanLink
-                value={token.data.address}
-                className="text-zinc-500 text-lg tracking-tight"
-              >
-                {formatTokenSymbol(token)}
-              </EtherscanLink>
-            ) : null}
-          </div>
-          <div className="flex gap-4 items-center mb-1">
-            <TvlDatum />
-            <span className="text-xl">
-              <span className="font-medium text-zinc-500">
-                {contributorsCount ?? 0}
-              </span>{" "}
-              <span className="text-zinc-500">
-                {contributorsCount === 1 ? "owner" : "owners"}
-              </span>
-            </span>
-          </div>
+          <span className="text-3xl font-bold">
+              {token?.data ? (
+                <EtherscanLink
+                  value={token.data.address}
+                  className="tracking-tight"
+                >
+                  {formatTokenSymbol(token)}
+                </EtherscanLink>
+              ) : null}
+          </span>
+            <h1 className="text-2xl font-medium tracking-tight">{projectName}</h1>
           <div className="text-sm text-zinc-500 flex items-start gap-1">
-            Runs on
             {(suckerPairs.data as SuckerPair[])?.map((pair) => {
               if (!pair) return null;
 
@@ -105,6 +94,18 @@ export function Header() {
                 </Link>
               );
             })}
+          </div>
+          </div>
+          <div className="flex gap-4 items-center mb-1">
+            <TvlDatum />
+            <span className="text-xl">
+              <span className="font-medium text-zinc-500">
+                {contributorsCount ?? 0}
+              </span>{" "}
+              <span className="text-zinc-500">
+                {contributorsCount === 1 ? "owner" : "owners"}
+              </span>
+            </span>
           </div>
         </div>
       </div>

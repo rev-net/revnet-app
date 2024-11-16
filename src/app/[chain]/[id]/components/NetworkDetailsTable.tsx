@@ -9,6 +9,11 @@ import { useNativeTokenSymbol } from "@/hooks/useNativeTokenSymbol";
 import { differenceInDays, formatDate } from "date-fns";
 import { ForwardIcon } from "@heroicons/react/24/solid";
 import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
   ReservedPercent,
   MAX_REDEMPTION_RATE,
   RedemptionRate,
@@ -152,19 +157,74 @@ export function NetworkDetailsTable() {
         >
           ▶
         </span>
-      <SectionTooltip name="Rules" info="">
+      <div className="flex flex-row space-x-2">
+        <h2 className="text-2xl font-semibold">Rules</h2>
+      </div>
+      </button>
+      {/* Dropdown Content */}
+      {isOpen && 
+        <div className="mt-2 pl-4 text-gray-600 text-md">
+          <div className="mb-2 text-zinc-500">Rules change automatically in sequential stages. Staged rules are permanent.</div>
+          <div className="mb-2">
+
+      <div className="flex gap-4 mb-2">
+        {rulesets?.map((ruleset, idx) => {
+          return (
+            <Button
+              variant={selectedStageIdx === idx ? "tab-selected" : "bottomline"}
+              className={twJoin(
+                "text-md text-zinc-400",
+                selectedStageIdx === idx && "text-inherit"
+              )}
+              key={ruleset.id.toString() + idx}
+              onClick={() => setSelectedStageIdx(idx)}
+            >
+              Stage {idx + 1}
+              {idx === currentStageIdx && (
+                <span className="rounded-full h-2 w-2 bg-orange-400 border-[2px] border-orange-200 ml-1"></span>
+              )}
+            </Button>
+          );
+        })}
+      </div>
+      <div className="text-md text-zinc-500 mb-2">
+        {formatDate(
+          new Date(Number(selectedStage.start) * 1000),
+          "MMM dd, yyyy"
+            )} - {stageNextStart()}{stageDayDiff()}
+      </div>
+      <div className="grid sm:grid-cols-1 gap-x-8 overflow-x-scroll">
+        <div className="sm:col-span-1 sm:px-0 grid grid-cols-2 sm:grid-cols-4">
+          <dt className="text-md font-medium leading-6 text-zinc-900">
+      <Tooltip>
+        <div className="flex flex-row space-x-1">
+          <div>Auto issuance</div>
+          <TooltipTrigger className="text-sm text-zinc-400"> [ ? ]
+          </TooltipTrigger>
+          <TooltipContent side="right">
       <div className="max-w-md space-y-2 p-2">
-        <h3 className="font-medium text-black-500">Stages</h3>
-        <p className="text-md text-black-400">
-          This revnet’s rules change automatically in sequential stages. Stages are permanent once the revnet is deployed.
-        </p>
-
-        <div className="space-y-2">
         <div className="space-y-1">
-          <h3 className="font-medium text-black-500">Timing</h3>
-          <p className="text-md text-black-400">Determines when a stage becomes active, and how long it lasts before the next stage takes effect.</p>
+          <h3 className="font-medium text-black-500">Auto issuance</h3>
+          <p className="text-md text-black-400">Determines the amount that can be minted on demand to chosen recipients once the stage starts.</p>
         </div>
-
+    </div>
+          </TooltipContent>
+        </div>
+    </Tooltip>
+          </dt>
+          <dd className="text-md leading-6 text-zinc-700 whitespace-nowrap">
+            0 {formatTokenSymbol(token)}
+          </dd>
+        </div>
+        <div className="sm:col-span-1 sm:px-0 grid grid-cols-2 sm:grid-cols-4">
+          <dt className="text-md font-medium leading-6 text-zinc-900">
+      <Tooltip>
+        <div className="flex flex-row space-x-1">
+          <div>Paid issuance</div>
+          <TooltipTrigger className="text-sm text-zinc-400"> [ ? ]
+          </TooltipTrigger>
+          <TooltipContent side="right">
+      <div className="max-w-md space-y-2 p-2">
         <div className="space-y-1">
           <h3 className="font-medium text-black-500">Issuance</h3>
           <p className="text-md text-black-400">Determines how many {formatTokenSymbol(token)} are created when this revnet receives funds during a stage.</p>
@@ -183,7 +243,25 @@ export function NetworkDetailsTable() {
                         </span>
                     </div>
         </div>
-
+    </div>
+          </TooltipContent>
+        </div>
+    </Tooltip>
+          </dt>
+          <dd className="text-md leading-6 text-zinc-700 whitespace-nowrap">
+            {issuance}, cut {selectedStage.decayPercent.formatPercentage()}% every{" "}
+            {(selectedStage.duration / 86400).toString()} days
+          </dd>
+        </div>
+        <div className="sm:col-span-1 sm:px-0 grid grid-cols-2 sm:grid-cols-4">
+          <dt className="text-md font-medium leading-6 text-zinc-900">
+      <Tooltip>
+        <div className="flex flex-row space-x-1">
+          <div>Splits</div>
+          <TooltipTrigger className="text-sm text-zinc-400"> [ ? ]
+          </TooltipTrigger>
+          <TooltipContent side="right">
+      <div className="max-w-md space-y-2 p-2">
         <div className="space-y-1">
           <h3 className="font-medium text-black-500">Split</h3>
           <p className="text-md text-black-400">Determines how much of {formatTokenSymbol(token)} issuance is set aside to be split among recipients defined by the split operator during a stage.</p>
@@ -215,12 +293,31 @@ export function NetworkDetailsTable() {
                         </span>
                     </div>
         </div>
-
-        <div className="space-y-1">
-          <h3 className="font-medium text-black-500">Automint</h3>
-          <p className="text-md text-black-400">Determines the amount that can be minted on demand to chosen recipients once the stage starts.</p>
+    </div>
+          </TooltipContent>
         </div>
-
+    </Tooltip>
+          </dt>
+          <dd className="text-md leading-6 text-zinc-700 whitespace-nowrap">
+            {selectedStageBoost ? (
+              <div className="text-md leading-6 text-zinc-700">
+                {reservedPercent?.formatPercentage()}% split to <Badge variant="secondary">
+                <ForwardIcon className="w-4 h-4 mr-1 inline-block" />
+                Operator
+              </Badge>
+              </div>
+            ) : null}
+          </dd>
+        </div>
+        <div className="sm:col-span-1 sm:px-0 grid grid-cols-2 sm:grid-cols-4">
+          <dt className="text-md font-medium leading-6 text-zinc-900">
+      <Tooltip>
+        <div className="flex flex-row space-x-1">
+          <div>Cash out tax rate</div>
+          <TooltipTrigger className="text-sm text-zinc-400"> [ ? ]
+          </TooltipTrigger>
+          <TooltipContent side="right">
+      <div className="max-w-md space-y-2 p-2">
         <div className="space-y-1">
           <h3 className="font-medium text-black-500">Cash out tax rate</h3>
           <p className="text-md text-black-400">All {formatTokenSymbol(token)} holders can access revenue by cashing out their {formatTokenSymbol(token)}. A
@@ -250,79 +347,10 @@ export function NetworkDetailsTable() {
                         </span>
                 </div>
         </div>
-
-      </div>
-
     </div>
-      </SectionTooltip>
-      </button>
-      {/* Dropdown Content */}
-      {isOpen && 
-        <div className="mt-2 pl-4 text-gray-600 text-md">
-          <div className="mb-2">
-
-      <div className="flex gap-4 mb-2">
-        {rulesets?.map((ruleset, idx) => {
-          return (
-            <Button
-              variant={selectedStageIdx === idx ? "tab-selected" : "bottomline"}
-              className={twJoin(
-                "text-md text-zinc-400",
-                selectedStageIdx === idx && "text-inherit"
-              )}
-              key={ruleset.id.toString() + idx}
-              onClick={() => setSelectedStageIdx(idx)}
-            >
-              Stage {idx + 1}
-              {idx === currentStageIdx && (
-                <span className="rounded-full h-2 w-2 bg-orange-400 border-[2px] border-orange-200 ml-1"></span>
-              )}
-            </Button>
-          );
-        })}
-      </div>
-      <div className="text-md text-zinc-500 mb-2">
-        {formatDate(
-          new Date(Number(selectedStage.start) * 1000),
-          "MMM dd, yyyy"
-            )} - {stageNextStart()}{stageDayDiff()}
-      </div>
-      <div className="grid sm:grid-cols-1 gap-x-8 overflow-x-scroll">
-        <div className="sm:col-span-1 sm:px-0 grid grid-cols-4">
-          <dt className="text-md font-medium leading-6 text-zinc-900">
-           Auto issuance 
-          </dt>
-          <dd className="text-md leading-6 text-zinc-700 whitespace-nowrap">
-            0 {formatTokenSymbol(token)}
-          </dd>
+          </TooltipContent>
         </div>
-        <div className="sm:col-span-1 sm:px-0 grid grid-cols-4">
-          <dt className="text-md font-medium leading-6 text-zinc-900">
-            Paid issuance
-          </dt>
-          <dd className="text-md leading-6 text-zinc-700 whitespace-nowrap">
-            {issuance}, cut {selectedStage.decayPercent.formatPercentage()}% every{" "}
-            {(selectedStage.duration / 86400).toString()} days
-          </dd>
-        </div>
-        <div className="sm:col-span-1 sm:px-0 grid grid-cols-4">
-          <dt className="text-md font-medium leading-6 text-zinc-900">
-            Splits
-          </dt>
-          <dd className="text-md leading-6 text-zinc-700 whitespace-nowrap">
-            {selectedStageBoost ? (
-              <div className="text-md leading-6 text-zinc-700">
-                {reservedPercent?.formatPercentage()}% split to <Badge variant="secondary">
-                <ForwardIcon className="w-4 h-4 mr-1 inline-block" />
-                Operator
-              </Badge>
-              </div>
-            ) : null}
-          </dd>
-        </div>
-        <div className="sm:col-span-1 sm:px-0 grid grid-cols-4">
-          <dt className="text-md font-medium leading-6 text-zinc-900">
-            Cash out tax rate
+    </Tooltip>
           </dt>
           <dd className="text-md leading-6 text-zinc-700">
             {new RedemptionRate(

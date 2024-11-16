@@ -54,7 +54,7 @@ export function NetworkDashboard() {
       </div>
       <div className="flex gap-10 w-full px-4 sm:container pb-5 md:flex-nowrap flex-wrap mb-10">
         {/* Column 2, hide on mobile */}
-        <aside className="hidden md:w-[400px] md:block">
+        <aside className="hidden md:w-[390px] md:block">
           {payAndActivityBar}
         </aside>
       {/* Column 1 */}
