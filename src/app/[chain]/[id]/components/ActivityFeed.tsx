@@ -61,13 +61,13 @@ function PayActivityItem(
   return (
     <div className="border-b border-zinc-200 pb-2 mb-1">
       <div className="flex items-center justify-between">
-        <div className="text-sm text-zinc-500 mb-2">
+        <div className="text-md text-zinc-500 mb-2">
           <EtherscanLink type="tx" value={payEvent.txHash} chain={chain}>
             {formattedDate}
           </EtherscanLink>
         </div>
         <div className="flex items-center gap-1">
-          <div className="text-sm text-zinc-500 ml-7">
+          <div className="text-md text-zinc-500 ml-7">
             {activityItemData.amount.format(6)} ETH {" "}
             <span className="border border-teal-600 bg-teal-50 text-teal-600 rounded-md px-1 py-0.5">
               in
@@ -125,13 +125,13 @@ function RedeemActivityItem(
   return (
     <div className="border-b border-zinc-200 pb-2 mb-1">
       <div className="flex items-center justify-between">
-        <div className="text-sm text-zinc-500 mb-2">
+        <div className="text-md text-zinc-500 mb-2">
         <EtherscanLink type="tx" value={redeemEvent.txHash}>
           {formattedDate}
         </EtherscanLink>
         </div>
         <div className="flex items-center gap-1">
-          <div className="text-sm text-zinc-500 ml-7">
+          <div className="text-md text-zinc-500 ml-7">
             {activityItemData.amount.format(6)} ETH {" "}
             <span className="border border-orange-500 bg-orange-50 text-orange-500 rounded-md px-1 py-0.5">
               out
@@ -234,7 +234,7 @@ export function ActivityFeed() {
             return null;
           })
         ) : (
-          <span className="text-zinc-500 text-sm">No activity yet.</span>
+          <span className="text-zinc-500 text-md">No activity yet.</span>
         )}
       </div>
        }
