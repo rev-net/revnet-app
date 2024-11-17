@@ -1054,6 +1054,9 @@ function DeployRevnetForm({
   const revnetTokenSymbol =
     values.tokenSymbol?.length > 0 ? `$${values.tokenSymbol}` : "tokens";
 
+  const revnetTokenSymbolCapitalized =
+    values.tokenSymbol?.length > 0 ? `$${values.tokenSymbol}` : "Tokens";
+
   return (
     <div className="grid md:grid-cols-3 max-w-6xl mx-auto my-20 gap-x-6 gap-y-6 md:gap-y-0 md:px-0 px-5">
       <h1 className="mb-16 text-2xl md:col-span-3 font-semibold">
@@ -1074,7 +1077,7 @@ function DeployRevnetForm({
       <div className="md:col-span-1">
         <h2 className="font-bold text-lg mb-2">2. Rules</h2>
         <p className="text-zinc-600 text-lg">
-          {revnetTokenSymbol}'s issuance and cash out rules evolve over time automatically in stages.
+          {revnetTokenSymbolCapitalized} issuance and cash out rules evolve over time automatically in stages.
         </p>
         <p className="text-zinc-600 text-lg mt-2">
           Staged rules
