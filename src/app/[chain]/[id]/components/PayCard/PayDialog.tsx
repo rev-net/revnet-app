@@ -137,9 +137,11 @@ export function PayDialog({
                     <Stat label="Get">
                       <TokenAmount amount={amountB} />
                     </Stat>
-                    <Stat label="Memo">
-                      {memo}
-                    </Stat>
+                    {memo && (
+                      <Stat label="Memo">
+                        {memo}
+                      </Stat>
+                    )}
                   </div>
                   {isTxLoading ? (
                     <div>Transaction submitted, awaiting confirmation...</div>
