@@ -20,7 +20,7 @@ const PayInput = React.forwardRef<HTMLInputElement, PayInputProps>(
       >
         <div className="flex flex-col">
           <label className="text-md text-black-700">
-            {label} on 
+            {label}
           </label>
           <input
             type={type}

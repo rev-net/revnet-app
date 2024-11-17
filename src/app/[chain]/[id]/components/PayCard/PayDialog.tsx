@@ -44,7 +44,7 @@ export function PayDialog({
 }: {
   amountA: TokenAmountType;
   amountB: TokenAmountType;
-  memo: string;
+  memo: string | undefined;
   primaryTerminalEth: Address;
   disabled?: boolean;
 }) {
