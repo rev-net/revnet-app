@@ -598,7 +598,7 @@ function AddStageDialog({
                 </div>
 
                 <DialogFooter>
-                  <Button type="submit">Save stage</Button>
+                  <Button type="submit" className="bg-teal-500 hover:bg-teal-600">Save stage</Button>
                 </DialogFooter>
               </Form>
             )}
