@@ -39,7 +39,7 @@ export default function Page() {
             className="underline hover:text-black/70 font-medium">CPN</Link>
         </div>
         <p className="mb-4">
-          A revnet serves as a hands-free, all-in-one tokenized incentive machine, cap table, and capital formation engine for leaders, workers, artists, researchers, investors, AI agents, and customers of growth-oriented businesses, brands, campaigns, experiments, communities, and indie projects.
+          A revnet serves as a hands-free, all-in-one token vending machine, cap table, and capital formation engine for leaders, workers, artists, researchers, investors, AI agents, and customers of growth-oriented businesses, brands, campaigns, experiments, communities, and indie projects on the open internet.
         </p>
 
         <p>
