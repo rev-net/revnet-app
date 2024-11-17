@@ -163,8 +163,8 @@ export function NetworkDetailsTable() {
       </button>
       {/* Dropdown Content */}
       {isOpen && 
-        <div className="mt-2 pl-4 text-gray-600 text-md">
-          <div className="mb-2 text-zinc-500">{formatTokenSymbol(token)}'s issuance and cash out rules change automatically in sequential stages, set and fixed when it was created.</div>
+        <div className="mt-2 pl-4 text-black text-md">
+          <div className="mb-2 text-black font-light">{formatTokenSymbol(token)}'s issuance and cash out rules change automatically in sequential stages, set and fixed when it was created.</div>
           <div className="mb-2">
 
       <div className="flex gap-4 mb-2">
