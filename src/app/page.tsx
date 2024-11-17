@@ -15,7 +15,7 @@ export default function Page() {
         />
         <span className="sr-only">Revnet</span>
         <div className="text-2xl md:text-3xl mt-4 font-medium text-left">
-          Revnets: unstoppable tokenized growth engines for projects on the open internet
+          Revnets: unstoppable funding machine for growth-oriented projects on the open internet
         </div>
         <div className="flex gap-4 mt-10">
           <Link href="/create">
@@ -39,7 +39,7 @@ export default function Page() {
             className="underline hover:text-black/70 font-medium mr-2">CPN</Link>
         </div>
         <p className="mb-4 text-xl">
-          A revnet serves as a hands-free incentive machine, cap table, and capital formation engine for leaders, workers, artists, researchers, investors, AI agents, and customers of growth-oriented businesses, brands, campaigns, communities, and indie projects on the open internet.
+          For leaders, workers, artists, researchers, investors, AI agents, and customers of businesses, brands, campaigns, communities, and indie projects raising funds and revenues on the open internet. Simple enough for startups, powerful enough for scaled global networks of anons.
         </p>
 
         <p className="text-xl">
