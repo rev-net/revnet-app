@@ -497,7 +497,7 @@ function AddStageDialog({
                     min="0"
                     type="number"
                     name="premintTokenAmount"
-                    label="3. Automint"
+                    label="3. Auto issuance"
                     description="Automatically mint tokens for the Operator when this stage becomes active."
                     suffix={revnetTokenSymbol || "tokens"}
                   />
@@ -676,7 +676,7 @@ function ConfigPage() {
                       </div>
                       •<div>{(Number(stage.priceFloorTaxIntensity) || 0)/100} cash out tax rate</div>
                       <div>• {stage.splitRate || 0}% operator split</div>
-                      <div>• {stage.premintTokenAmount || 0} automint</div>
+                      <div>• {stage.premintTokenAmount || 0} auto issuance</div>
                     </div>
                   </div>
                 ))}
