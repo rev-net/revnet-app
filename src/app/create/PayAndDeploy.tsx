@@ -69,7 +69,7 @@ export function PayAndDeploy({
           type="submit"
           size="lg"
           disabled={payIsProcessing}
-          className="disabled:text-black disabled:bg-transparent disabled:border disabled:border-black disabled:bg-gray-100"
+          className="disabled:text-black disabled:bg-transparent disabled:border disabled:border-black disabled:bg-gray-100 bg-teal-500 hover:bg-teal-600"
           onClick={async () => {
             setPayIsProcessing(true);
             try {
@@ -85,7 +85,7 @@ export function PayAndDeploy({
             }
           }}
         >
-          Pay and deploy
+          Pay and ship
           {!!bundleResponse ? (
             <CheckCircle
               className={"h-4 w-4 ml-2 fill-none text-emerald-500"}
