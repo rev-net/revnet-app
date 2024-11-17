@@ -584,7 +584,7 @@ function AddStageDialog({
                     suffix="days"
                     min="0"
                     type="number"
-                    description="How long will this stage last? Leave blank to make it last forever."
+                    description="How long will this stage last? Leave blank to make this the last stage that lasts forever."
                   />
                     <NotesSection>
 
