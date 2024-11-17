@@ -262,7 +262,7 @@ function DetailsPage() {
   return (
     <>
     {/* Grid Container for Name, Ticker, and Upload Logo */}
-    <div className="grid grid-cols-1 md:grid-cols-[2fr_1fr_2fr] gap-6">
+    <div className="grid grid-cols-1 md:grid-cols-[2fr_1fr_2fr] sm:gap-6">
       <FieldGroup id="name" name="name" label="Name" />
       <FieldGroup
         id="tokenSymbol"
@@ -626,7 +626,7 @@ function ConfigPage() {
       <FieldArray
         name="stages"
         render={(arrayHelpers) => (
-          <div>
+          <div className="mb-4">
             {values.stages.length > 0 ? (
               <div className="divide-y mb-2">
                 {values.stages.map((stage, index) => (
@@ -682,7 +682,7 @@ function ConfigPage() {
                 ))}
               </div>
             ) : (
-              <div className="text-left text-black-500 mb-4 font-semibold">
+              <div className="text-left text-black-500 mb-4 font-semibold mb-4">
                 Add a stage to get started
               </div>
             )}
@@ -1072,7 +1072,7 @@ function DeployRevnetForm({
         <DetailsPage />
       </div>
 
-      <div className="h-[1px] bg-zinc-200 md:col-span-3 my-10"></div>
+      <div className="h-[1px] bg-zinc-200 md:col-span-3 sm:my-10"></div>
 
       <div className="md:col-span-1">
         <h2 className="font-bold text-lg mb-2">2. How it works</h2>
@@ -1087,7 +1087,7 @@ function DeployRevnetForm({
       <div className="md:col-span-2">
         <ConfigPage />
       </div>
-      <div className="h-[1px] bg-zinc-200 md:col-span-3 my-10"></div>
+      <div className="h-[1px] bg-zinc-200 md:col-span-3 sm:my-10"></div>
       <div className="md:col-span-1">
         <h2 className="font-bold text-lg mb-2">3. Deploy</h2>
         <p className="text-zinc-600 text-lg">
