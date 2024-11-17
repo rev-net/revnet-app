@@ -19,7 +19,9 @@ const PayInput = React.forwardRef<HTMLInputElement, PayInputProps>(
         )}
       >
         <div className="flex flex-col">
-          <label className="text-md text-black-700">{label}</label>
+          <label className="text-md text-black-700">
+            {label} on 
+          </label>
           <input
             type={type}
             className={cn(

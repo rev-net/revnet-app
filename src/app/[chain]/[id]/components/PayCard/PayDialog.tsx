@@ -39,10 +39,12 @@ type Sucker = {
 export function PayDialog({
   amountA,
   amountB,
+  memo,
   disabled,
 }: {
   amountA: TokenAmountType;
   amountB: TokenAmountType;
+  memo: string;
   primaryTerminalEth: Address;
   disabled?: boolean;
 }) {
@@ -60,7 +62,6 @@ export function PayDialog({
     data,
   } = useWriteJbMultiTerminalPay();
   const chainId = useJBChainId();
-  const [memo, setMemo] = useState<string>();
   const [selectedSucker, setSelectedSucker] = useState<Sucker>();
   const txHash = data;
   const { isLoading: isTxLoading, isSuccess } = useWaitForTransactionReceipt({
@@ -123,43 +124,32 @@ export function PayDialog({
       </DialogTrigger>
       <DialogContent className="max-w-lg">
         <DialogHeader>
-          <DialogTitle>Contribution</DialogTitle>
           <DialogDescription>
-            <div className="my-8">
+            <div>
               {isSuccess ? (
                 <div>Success! You can close this window.</div>
               ) : (
                 <>
                   <div className="flex flex-col gap-6">
-                    <Stat label="You pay">
+                    <Stat label="Pay">
                       <TokenAmount amount={amountA} />
                     </Stat>
-                    <Stat label="You get">
+                    <Stat label="Get">
                       <TokenAmount amount={amountB} />
+                    </Stat>
+                    <Stat label="Memo">
+                      {memo}
                     </Stat>
                   </div>
                   {isTxLoading ? (
                     <div>Transaction submitted, awaiting confirmation...</div>
                   ) : null}
-                  <div className="grid w-full gap-1.5 my-8">
-                    <Label htmlFor="amount" className="text-zinc-500">
-                      Onchain memo (optional)
-                    </Label>
-                    <Input
-                      id="amount"
-                      name="amount"
-                      value={memo}
-                      autoComplete="off"
-                      className="text-zinc-800"
-                      onChange={(e) => setMemo(e.target.value)}
-                    />
-                  </div>
                 </>
               )}
             </div>
           </DialogDescription>
           {!isSuccess ? (
-            <div className="flex flex-row justify-between">
+            <div className="flex flex-row justify-between items-end">
               {suckers?.length > 1 ? (
                 <div className="flex flex-col -mt-5">
                   <div className="text-sm text-zinc-500">
@@ -191,7 +181,7 @@ export function PayDialog({
                 </div>
               ) : (
                 selectedSucker && (
-                  <div className="flex flex-col -mt-4">
+                  <div className="flex flex-col mt-4">
                     <div className="text-xs text-slate-500">{amountB.symbol} is only on:</div>
                     <div className=" flex flex-row items-center gap-2 pl-3 min-w-fit pr-5 py-2 border rounded-sm ring-offset-white">
                       <ChainLogo chainId={selectedSucker.peerChainId} />
@@ -204,8 +194,9 @@ export function PayDialog({
                 targetChainId={selectedSucker?.peerChainId}
                 loading={loading}
                 onClick={handlePay}
+                className="bg-teal-500 hover:bg-teal-600"
               >
-                Confirm Contribution
+                Pay 
               </ButtonWithWallet>
             </div>
           ) : null}

@@ -4,7 +4,7 @@ export function Stat({
 }: React.PropsWithChildren<{ label: string }>) {
   return (
     <div>
-      <div className="text-zinc-500">{label}</div>
+      <div className="font-bold text-xl">{label}</div>
       <div className="text-2xl">{children}</div>
     </div>
   );

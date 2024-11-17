@@ -16,11 +16,19 @@ import {
 import { FixedInt } from "fpnum";
 import { getTokenAToBQuote, getTokenBtoAQuote } from "juice-sdk-core";
 import {
+  FieldArray,
+  FieldAttributes,
+  Form,
+  Formik,
+  Field,
+  useFormikContext,
+} from "formik";
+import {
   useJBContractContext,
   useJBRulesetContext,
   useJBTokenContext,
 } from "juice-sdk-react";
-import { useState } from "react";
+import { memo, useState } from "react";
 import { formatUnits, parseEther, parseUnits } from "viem";
 import { PayDialog } from "./PayDialog";
 import { PayInput } from "./PayInput";
@@ -31,6 +39,7 @@ export function PayForm() {
   const tokenA = useTokenA();
   const { token } = useJBTokenContext();
   const boostRecipient = useBoostRecipient();
+  const [memo, setMemo] = useState<string>();
 
   const [amountA, setAmountA] = useState<string>("");
   const [amountB, setAmountB] = useState<string>("");
@@ -140,15 +149,35 @@ export function PayForm() {
           </div>
 
         </div> */}
-      <div className="mt-3 w-[100px] float-right">
+
+      <div className="flex flex-row gap-2 mt-3">
+        <Formik
+            initialValues={{ }}
+            onSubmit={() => {}}
+          >
+          <Field
+            component="textarea"
+            id="memo"
+            name="memo"
+            rows={2}
+            className={
+              "flex w-full rounded-md border border-zinc-200 bg-white px-3 py-1.5 text-md ring-offset-white file:border-0 file:bg-transparent file:text-md file:font-medium placeholder:text-zinc-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-950 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:border-zinc-800 dark:bg-zinc-950 dark:ring-offset-zinc-950 dark:placeholder:text-zinc-400 dark:focus-visible:ring-zinc-300"
+            }
+            onChange={(e) => setMemo?.(e.target.value)}
+            placeholder="Optional memo"
+          />
+          </Formik>
+      <div className="w-[100px]">
         {primaryNativeTerminal?.data ? (
           <PayDialog
             amountA={_amountA}
             amountB={_amountB}
+            memo={memo}
             primaryTerminalEth={primaryNativeTerminal?.data}
             disabled={!amountA}
           />
         ) : null}
+      </div>
       </div>
     </div>
   );
