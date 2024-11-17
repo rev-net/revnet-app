@@ -20,15 +20,8 @@ export default function Page() {
         <div className="flex gap-4 mt-10">
           <Link href="/create">
             <Button className="md:h-20 h-16 text-xl md:text-2xl px-10 flex gap-2 bg-teal-500 hover:bg-teal-600">
-              Deploy yours
+              Design and ship yours
             </Button>
-          </Link>
-        </div>
-        <div className="flex gap-4">
-          <Link href="https://discord.gg/8qdtvdep">
-            <div className="mt-10 bg-white text-black hover:text-black/70 text-l md:text-l flex gap-2 underline">
-              Plan your revnet with the community on Discord
-            </div>
           </Link>
         </div>
       </div>
@@ -50,7 +43,7 @@ export default function Page() {
             className="underline hover:text-black/70">CPN</Link>
         </div>
 
-        <p className="mb-40">
+        <p>
           Read the memo at {" "}
           <Link
             href="https://revnet.eth.sucks/memo"
@@ -61,6 +54,13 @@ export default function Page() {
             revnet.eth.sucks/memo
           </Link>.
         </p>
+        <div className="flex mb-40 text-sm">
+          <Link href="https://discord.gg/8qdtvdep">
+            <div className="mt-10 bg-white text-black hover:text-black/70 text-l md:text-l flex gap-2 underline">
+              Plan your revnet with the community on Discord
+            </div>
+          </Link>
+        </div>
       </div>
     </div>
   );

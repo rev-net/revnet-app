@@ -1060,7 +1060,7 @@ function DeployRevnetForm({
   return (
     <div className="grid md:grid-cols-3 max-w-6xl mx-auto my-20 gap-x-6 gap-y-6 md:gap-y-0 md:px-0 px-5">
       <h1 className="mb-16 text-2xl md:col-span-3 font-semibold">
-        Deploy a revnet for your project
+        Design and ship a tokenized revnet for your project
       </h1>
       <div className="md:col-span-1">
         <h2 className="font-bold text-lg mb-2">1. Aesthetics</h2>
@@ -1089,7 +1089,7 @@ function DeployRevnetForm({
       </div>
       <div className="h-[1px] bg-zinc-200 md:col-span-3 sm:my-10"></div>
       <div className="md:col-span-1">
-        <h2 className="font-bold text-lg mb-2">3. Deploy</h2>
+        <h2 className="font-bold text-lg mb-2">3. Ship it</h2>
         <p className="text-zinc-600 text-lg">
           Pick which chains your revnet will accept money on and issue {revnetTokenSymbol} from.
         </p>
