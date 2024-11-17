@@ -580,7 +580,7 @@ function AddStageDialog({
                   <FieldGroup
                     id="boostDuration"
                     name="boostDuration"
-                    label="5. Stage duration"
+                    label="5. Duration"
                     suffix="days"
                     min="0"
                     type="number"
