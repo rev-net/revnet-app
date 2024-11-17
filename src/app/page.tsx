@@ -28,15 +28,15 @@ export default function Page() {
 
       <div className="mt-32 max-w-prose text-l md:text-2xl text-lg text-left">
         <div className="mt-10 mb-8 text-xl md:text-2xl text-left">
-          Browse: $<Link href="https://revnet.app/sepolia/1" target="_blank"
+          <span className="mr-1">Browse:</span> $<Link href="https://revnet.app/sepolia/1" target="_blank"
             rel="noopener norefererr"
-            className="underline hover:text-black/70 font-medium">NANA</Link> {"  |  "} $<Link href="https://revnet.app/sepolia/3" target="_blank"
+            className="underline hover:text-black/70 font-medium mr-2">NANA</Link> $<Link href="https://revnet.app/sepolia/3" target="_blank"
             rel="noopener norefererr"
-            className="underline hover:text-black/70 font-medium">REV</Link> {"  |  "} $<Link href="https://revnet.app/sepolia/4" target="_blank"
+            className="underline hover:text-black/70 font-medium mr-2">REV</Link> $<Link href="https://revnet.app/sepolia/4" target="_blank"
             rel="noopener norefererr"
-            className="underline hover:text-black/70 font-medium">BAN</Link> {"  |  "} $<Link href="https://revnet.app/sepolia/2" target="_blank"
+            className="underline hover:text-black/70 font-medium mr-2">BAN</Link> $<Link href="https://revnet.app/sepolia/2" target="_blank"
             rel="noopener norefererr"
-            className="underline hover:text-black/70 font-medium">CPN</Link>
+            className="underline hover:text-black/70 font-medium mr-2">CPN</Link>
         </div>
         <p className="mb-4">
           A revnet serves as a hands-free, transparent token vending machine, cap table, and capital formation engine for leaders, workers, artists, researchers, investors, AI agents, and customers of growth-oriented businesses, brands, campaigns, experiments, communities, and indie projects on the open internet.
