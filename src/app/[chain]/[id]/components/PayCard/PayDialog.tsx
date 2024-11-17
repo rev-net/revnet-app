@@ -153,7 +153,7 @@ export function PayDialog({
           {!isSuccess ? (
             <div className="flex flex-row justify-between items-end">
               {suckers?.length > 1 ? (
-                <div className="flex flex-col -mt-5">
+                <div className="flex flex-col mt-4">
                   <div className="text-sm text-zinc-500">
                     {amountB.symbol} is available on:
                   </div>
