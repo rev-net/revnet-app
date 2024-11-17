@@ -4,8 +4,8 @@ export function Footer() {
       <div className="container border-x-zinc-500 py-10">
         <div>
           <div className="text-lg text-zinc-700">
-            <p>Revnets are enforced by the Juicebox protocol on Ethereum blockchains.</p>
-            <p>Huge gratitude to the ETH and JBX communities for crafting the infrastructure and economy to make revnets possible.</p>
+            <p>Revnets are enforced by the Revnet, Juicebox, and Uniswap protocols on Ethereum blockchains.</p>
+            <p>Huge gratitude to the ETH, JBX, REV, and UNI communities for crafting the infrastructure and economy to make revnets possible.</p>
           </div>
         </div>
       </div>
