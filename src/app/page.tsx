@@ -54,21 +54,21 @@ export default function Page() {
           </Link>.
         </p>
         <div className="flex">
-            <div className="mt-10 bg-white text-black hover:text-black/70 text-lg">
-          Plan your revnet with the community <Link href="https://discord.gg/8qdtvdep" className="underline">on Discord.
+            <div className="mt-10 bg-white text-black text-lg">
+          Plan your revnet with the community <Link href="https://discord.gg/8qdtvdep" className="underline hover:text-black/70">on Discord.
           </Link>
         </div>
             </div>
         <div className="flex">
-            <div className="mt-2 bg-white text-black hover:text-black/70 text-lg">
-Audit this website and the revnet protocol <Link href="https://github.com/orgs/rev-net/repositories" className="underline">
+            <div className="mt-2 bg-white text-black text-lg">
+Audit this website and the revnet protocol <Link href="https://github.com/orgs/rev-net/repositories" className="underline hover:text-black/70">
                on Github.
           </Link>
             </div>
         </div>
         <div className="flex mb-40">
-            <div className="mt-2 bg-white text-black hover:text-black/70 text-lg">
-    Support the $REV network itself <Link href="https://revnet.app/sepolia/3" className="underline">
+            <div className="mt-2 bg-white text-black text-lg">
+    Support the $REV network itself <Link href="https://revnet.app/sepolia/3" className="underline hover:text-black/70">
                here.
           </Link>
             </div>
