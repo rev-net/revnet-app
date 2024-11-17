@@ -28,7 +28,7 @@ export default function Page() {
 
       <div className="mt-10 max-w-prose text-l md:text-2xl text-lg text-left">
         <div className="mt-10 mb-8 text-xl md:text-2xl text-left">
-          Explore: $<Link href="https://revnet.app/sepolia/1" target="_blank"
+          Browse: $<Link href="https://revnet.app/sepolia/1" target="_blank"
             rel="noopener norefererr"
             className="underline hover:text-black/70 font-medium">NANA</Link> {"  |  "} $<Link href="https://revnet.app/sepolia/3" target="_blank"
             rel="noopener norefererr"
