@@ -1080,8 +1080,7 @@ function DeployRevnetForm({
           {revnetTokenSymbolCapitalized} issuance and cash out rules evolve over time automatically in stages.
         </p>
         <p className="text-zinc-600 text-lg mt-2">
-          Staged rules
-          are an onchain contract that can't be edited once deployed.
+          Staged rules can't be edited once deployed.
         </p>
       </div>
       <div className="md:col-span-2">
