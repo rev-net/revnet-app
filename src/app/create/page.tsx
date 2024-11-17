@@ -276,7 +276,7 @@ function DetailsPage() {
         className="block mb-1 text-md font-semibold text-gray-900 dark:text-white"
         htmlFor="file_input"
       >
-        Upload logo
+        Logo
       </label>
       <IpfsImageUploader
         onUploadSuccess={(cid) => {
