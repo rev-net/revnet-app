@@ -15,7 +15,7 @@ export default function Page() {
         />
         <span className="sr-only">Revnet</span>
         <div className="text-2xl md:text-3xl mt-4 font-medium text-left">
-          Revnets: unstoppable funding machine for growth-oriented projects on the open internet
+          Revnets: unstoppable funding machines for growth-oriented projects on the open internet
         </div>
         <div className="flex gap-4 mt-10">
           <Link href="/create">
