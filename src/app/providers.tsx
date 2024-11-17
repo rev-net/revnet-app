@@ -16,9 +16,13 @@ export function Providers({ children }: { children: React.ReactNode }) {
     <WagmiProvider config={wagmiConfig}>
       <QueryClientProvider client={queryClient}>
         <ConnectKitProvider
+          theme="soft"
+          mode="light"
           customTheme={{
-            "--ck-border-radius": "8px",
             "--ck-font-family": "var(--font-simplon-norm)",
+            "--ck-border-radius": "0.375rem",
+            "--ck-accent-color": "#14B8A6",
+            "--ck-accent-text-color": "#ffffff"
           }}
         >
           <TooltipProvider delayDuration={200} skipDelayDuration={100}>
