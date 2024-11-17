@@ -126,7 +126,7 @@ export function HoldersSection() {
 
       {/* Dropdown Content */}
       {isOpen && 
-        <div className="mt-2 pl-4 text-gray-600 text-md">
+        <div className="mt-2 text-gray-600 text-md">
           <div className="mb-2">
         {/* View Tabs */}
         <div className="flex flex-row space-x-4 mb-3">
@@ -147,12 +147,12 @@ export function HoldersSection() {
 
         {/* All Section */}
         <div className={participantsView === "all" ? "" : "hidden"}>
-                <div className="space-y-4 p-2">
+                <div className="space-y-4 p-2 pb-0 sm:pb-2">
                   <p className="text-md text-black font-light">
                     {formatTokenSymbol(token)} owners are accounts who either paid in, received splits, received auto issuance, or got them aftermarket.
                   </p>
                 </div>
-          <div className="flex flex-row max-h-96 p-2 items-start">
+          <div className="flex sm:flex-row flex-col max-h-140 sm:items-start items-center">
               <div className="w-1/3">
                 <ParticipantsPieChart
                   participants={Object.values(participantsDataAggregate)}

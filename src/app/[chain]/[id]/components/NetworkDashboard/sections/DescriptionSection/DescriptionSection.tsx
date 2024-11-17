@@ -35,7 +35,7 @@ export function DescriptionSection() {
       </button>
       {/* Dropdown Content */}
       {isOpen && 
-        <div className="mt-2 pl-4 text-gray-600 text-sm">
+        <div className="mt-2 text-gray-600 text-sm">
           <div className="mb-2">
             {description
               ? description.split("\n").map((d, idx) => (
