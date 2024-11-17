@@ -571,7 +571,7 @@ function AddStageDialog({
                       <ul className="list-disc list-inside">
                         <li className="flex">
                           <span className="mr-2">•</span>
-                          The higher the tax, the less that can be accessed by cashing out at any given time, and the more that is left to share between remaining holders who cash out later.
+                          The higher the tax, the less that can be accessed by cashing out or taking out a loan at any given time, and the more that is left to share between remaining holders who cash out later.
                         </li>
                         <li className="flex">
                           <span className="mr-2">•</span>

@@ -158,13 +158,13 @@ export function NetworkDetailsTable() {
           ▶
         </span>
       <div className="flex flex-row space-x-2">
-        <h2 className="text-2xl font-semibold">Rules</h2>
+        <h2 className="text-2xl font-semibold">How it works</h2>
       </div>
       </button>
       {/* Dropdown Content */}
       {isOpen && 
         <div className="mt-2 pl-4 text-gray-600 text-md">
-          <div className="mb-2 text-zinc-500">Rules change automatically in sequential stages. Staged rules are permanent.</div>
+          <div className="mb-2 text-zinc-500">{formatTokenSymbol(token)}'s issuance and cash out rules change automatically in sequential stages, set and fixed when it was created.</div>
           <div className="mb-2">
 
       <div className="flex gap-4 mb-2">
@@ -198,35 +198,13 @@ export function NetworkDetailsTable() {
           <dt className="text-md font-medium leading-6 text-zinc-900">
       <Tooltip>
         <div className="flex flex-row space-x-1">
-          <div>Auto issuance</div>
-          <TooltipTrigger className="text-sm text-zinc-400"> [ ? ]
-          </TooltipTrigger>
-          <TooltipContent side="right">
-      <div className="max-w-md space-y-2 p-2">
-        <div className="space-y-1">
-          <h3 className="font-medium text-black-500">Auto issuance</h3>
-          <p className="text-md text-black-400">Determines the amount that can be minted on demand to chosen recipients once the stage starts.</p>
-        </div>
-    </div>
-          </TooltipContent>
-        </div>
-    </Tooltip>
-          </dt>
-          <dd className="text-md leading-6 text-zinc-700 whitespace-nowrap">
-            0 {formatTokenSymbol(token)}
-          </dd>
-        </div>
-        <div className="sm:col-span-1 sm:px-0 grid grid-cols-2 sm:grid-cols-4">
-          <dt className="text-md font-medium leading-6 text-zinc-900">
-      <Tooltip>
-        <div className="flex flex-row space-x-1">
           <div>Paid issuance</div>
           <TooltipTrigger className="text-sm text-zinc-400"> [ ? ]
           </TooltipTrigger>
           <TooltipContent side="right">
       <div className="max-w-md space-y-2 p-2">
         <div className="space-y-1">
-          <h3 className="font-medium text-black-500">Paid Issuance</h3>
+          <h3 className="font-bold text-black-500">Paid Issuance</h3>
           <p className="text-md text-black-400">Determines how many {formatTokenSymbol(token)} are created when this revnet receives funds during a stage.</p>
 
                     <div className="text-zinc-600 text-md mt-4">
@@ -257,15 +235,37 @@ export function NetworkDetailsTable() {
           <dt className="text-md font-medium leading-6 text-zinc-900">
       <Tooltip>
         <div className="flex flex-row space-x-1">
+          <div>Auto issuance</div>
+          <TooltipTrigger className="text-sm text-zinc-400"> [ ? ]
+          </TooltipTrigger>
+          <TooltipContent side="right">
+      <div className="max-w-md space-y-2 p-2">
+        <div className="space-y-1">
+          <h3 className="font-bold text-black-500">Auto issuance</h3>
+          <p className="text-md text-black-400">An amount of {formatTokenSymbol(token)} that is inflated automatically once the stage starts. See the "Owners" table for the breakdown.</p>
+        </div>
+    </div>
+          </TooltipContent>
+        </div>
+    </Tooltip>
+          </dt>
+          <dd className="text-md leading-6 text-zinc-700 whitespace-nowrap">
+            0 {formatTokenSymbol(token)}
+          </dd>
+        </div>
+        <div className="sm:col-span-1 sm:px-0 grid grid-cols-2 sm:grid-cols-4">
+          <dt className="text-md font-medium leading-6 text-zinc-900">
+      <Tooltip>
+        <div className="flex flex-row space-x-1">
           <div>Splits</div>
           <TooltipTrigger className="text-sm text-zinc-400"> [ ? ]
           </TooltipTrigger>
           <TooltipContent side="right">
       <div className="max-w-md space-y-2 p-2">
         <div className="space-y-1">
-          <h3 className="font-medium text-black-500">Splits</h3>
+          <h3 className="font-bold text-black-500">Splits</h3>
           <p className="text-md text-black-400">Determines how much of {formatTokenSymbol(token)} issuance is set aside to be split among recipients defined by the split operator during a stage.</p>
-          <p className="text-md text-black-400">The operator is the account that can change the split recipients, within the permanent split amount of a stage.</p>
+          <p className="text-md text-black-400">The operator is the account that can change the split recipients, within the permanent split amount of a stage. See the "Owners" table for the current breakdown.</p>
                     <div className="text-zinc-600 text-md mt-4">
                       <span className="italic">Note:
                         <ul className="list-disc list-inside pl-4">
@@ -287,6 +287,12 @@ export function NetworkDetailsTable() {
     <span className="mr-2">•</span>
     <div>
     The operator is set once and is not bound by stages. The operator can hand off this responsibility to another address at any time, or relinquish it altogether.
+    </div>
+  </li>
+                          <li className="flex">
+    <span className="mr-2">•</span>
+    <div>
+      A revnet can have different split destinations on each chain it exists on, but they're all bound by the same total split percentage.
     </div>
   </li>
                         </ul>
@@ -319,16 +325,18 @@ export function NetworkDetailsTable() {
           <TooltipContent side="right">
       <div className="max-w-md space-y-2 p-2">
         <div className="space-y-1">
-          <h3 className="font-medium text-black-500">Cash out tax rate</h3>
-          <p className="text-md text-black-400">All {formatTokenSymbol(token)} holders can access revenue by cashing out their {formatTokenSymbol(token)}. A
-          tax can be added that rewards {formatTokenSymbol(token)} holders who stick around while others cash out, determined by a rate from 0 to 1.</p>
+          <h3 className="font-bold text-black-500">Cash out tax rate</h3>
+          <p className="text-md text-black-400">All {formatTokenSymbol(token)} holders can access revenue by either cashing out their {formatTokenSymbol(token)}, or taking out a loan against their {formatTokenSymbol(token)}. A
+          tax can be added that makes the cost of cashing out and borrowing money more expensive.</p>
+          <p className="text-md text-black-400">This can be used to reward {formatTokenSymbol(token)} holders who stick around while others cash out, with the tradeoff of making loans more expensive.</p>
+          <p className="text-md text-black-400">It is expressed as a value from 0 to 1.</p>
                     <div className="text-zinc-600 text-md mt-4">
                       <span className="italic">Note:
                         <ul className="list-disc list-inside pl-4">
                           <li className="flex">
     <span className="mr-2">•</span>
     <div>
-    The higher the tax, the less that can be accessed by cashing out at any given time, and the more that is left to share between remaining holders who cash out later.
+    The higher the tax, the less that can be accessed by cashing out or taking out a loan at any given time, and the more that is left to share between remaining holders who cash out later.
     </div>
   </li>
                           <li className="flex">
