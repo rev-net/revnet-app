@@ -20,28 +20,27 @@ export default function Page() {
         <div className="flex gap-4 mt-10">
           <Link href="/create">
             <Button className="md:h-20 h-16 text-xl md:text-2xl px-10 flex gap-2 bg-teal-500 hover:bg-teal-600">
-              Design and ship yours
+              Ship yours
             </Button>
           </Link>
         </div>
       </div>
 
-      <div className="mt-10 max-w-prose text-l md:text-2xl text-left">
-        <p className="mb-10">
-          A revnet serves as a hands-free, all-in-one tokenized incentive machine, cap table, and capital formation engine for leaders, workers, artists, researchers, investors, AI agents, and customers of growth-oriented businesses, brands, campaigns, experiments, communities, and indie projects.
-        </p>
-
-        <div className="mt-10 mb-10 text-xl md:text-2xl text-left">
+      <div className="mt-10 max-w-prose text-l md:text-2xl text-lg text-left">
+        <div className="mt-10 mb-8 text-xl md:text-2xl text-left">
           Explore: $<Link href="https://revnet.app/sepolia/1" target="_blank"
             rel="noopener norefererr"
-            className="underline hover:text-black/70">NANA</Link> {"  |  "} $<Link href="https://revnet.app/sepolia/3" target="_blank"
+            className="underline hover:text-black/70 font-medium">NANA</Link> {"  |  "} $<Link href="https://revnet.app/sepolia/3" target="_blank"
             rel="noopener norefererr"
-            className="underline hover:text-black/70">REV</Link> {"  |  "} $<Link href="https://revnet.app/sepolia/4" target="_blank"
+            className="underline hover:text-black/70 font-medium">REV</Link> {"  |  "} $<Link href="https://revnet.app/sepolia/4" target="_blank"
             rel="noopener norefererr"
-            className="underline hover:text-black/70">BAN</Link> {"  |  "} $<Link href="https://revnet.app/sepolia/2" target="_blank"
+            className="underline hover:text-black/70 font-medium">BAN</Link> {"  |  "} $<Link href="https://revnet.app/sepolia/2" target="_blank"
             rel="noopener norefererr"
-            className="underline hover:text-black/70">CPN</Link>
+            className="underline hover:text-black/70 font-medium">CPN</Link>
         </div>
+        <p className="mb-4">
+          A revnet serves as a hands-free, all-in-one tokenized incentive machine, cap table, and capital formation engine for leaders, workers, artists, researchers, investors, AI agents, and customers of growth-oriented businesses, brands, campaigns, experiments, communities, and indie projects.
+        </p>
 
         <p>
           Read the memo at {" "}
