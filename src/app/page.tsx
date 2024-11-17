@@ -14,19 +14,19 @@ export default function Page() {
           alt="Revnet logo"
         />
         <span className="sr-only">Revnet</span>
-        <div className="text-2xl md:text-4xl mt-4 font-medium text-left">
-          Unstoppable tokenized growth engines for projects on the open internet
+        <div className="text-2xl md:text-3xl mt-4 font-medium text-left">
+          Revnets: unstoppable tokenized growth engines for projects on the open internet
         </div>
         <div className="flex gap-4 mt-10">
           <Link href="/create">
             <Button className="md:h-20 h-16 text-xl md:text-2xl px-10 flex gap-2 bg-teal-500 hover:bg-teal-600">
-              Ship your revnet
+              Ship a token
             </Button>
           </Link>
         </div>
       </div>
 
-      <div className="mt-10 max-w-prose text-l md:text-2xl text-lg text-left">
+      <div className="mt-32 max-w-prose text-l md:text-2xl text-lg text-left">
         <div className="mt-10 mb-8 text-xl md:text-2xl text-left">
           Browse: $<Link href="https://revnet.app/sepolia/1" target="_blank"
             rel="noopener norefererr"
