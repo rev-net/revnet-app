@@ -1055,7 +1055,7 @@ function DeployRevnetForm({
     values.tokenSymbol?.length > 0 ? `$${values.tokenSymbol}` : "tokens";
 
   const revnetTokenSymbolCapitalized =
-    values.tokenSymbol?.length > 0 ? `$${values.tokenSymbol}` : "Tokens";
+    values.tokenSymbol?.length > 0 ? `$${values.tokenSymbol}` : "Token";
 
   return (
     <div className="grid md:grid-cols-3 max-w-6xl mx-auto my-20 gap-x-6 gap-y-6 md:gap-y-0 md:px-0 px-5">
