@@ -53,12 +53,28 @@ export default function Page() {
             revnet.eth.sucks/memo
           </Link>.
         </p>
-        <div className="flex mb-40 text-sm">
-          <Link href="https://discord.gg/8qdtvdep">
-            <div className="mt-10 bg-white text-black hover:text-black/70 text-l md:text-l flex gap-2 underline">
-              Plan your revnet with the community on Discord
-            </div>
+        <div className="flex text-sm">
+            <div className="mt-10 bg-white text-black hover:text-black/70 text-l md:text-l flex gap-1">
+          Plan your revnet with the community 
+          <Link href="https://discord.gg/8qdtvdep" className="underline">on Discord.
           </Link>
+        </div>
+            </div>
+        <div className="flex text-sm">
+            <div className="mt-2 bg-white text-black hover:text-black/70 text-l md:text-l flex gap-1">
+See and contribute to the revnet.app website and revnet protocol
+          <Link href="https://github.com/orgs/rev-net/repositories" className="underline">
+               on Github.
+          </Link>
+            </div>
+        </div>
+        <div className="flex mb-40 text-sm">
+            <div className="mt-2 bg-white text-black hover:text-black/70 text-l md:text-l flex gap-1">
+    Support the $REV network itself
+          <Link href="https://revnet.app/sepolia/3" className="underline">
+               here.
+          </Link>
+            </div>
         </div>
       </div>
     </div>
