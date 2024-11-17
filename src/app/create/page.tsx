@@ -261,6 +261,8 @@ function DetailsPage() {
 
   return (
     <>
+    {/* Grid Container for Name, Ticker, and Upload Logo */}
+    <div className="grid grid-cols-1 md:grid-cols-[2fr_1fr_2fr] gap-6">
       <FieldGroup id="name" name="name" label="Name" />
       <FieldGroup
         id="tokenSymbol"
@@ -269,16 +271,9 @@ function DetailsPage() {
         placeholder="MOON"
         prefix="$"
       />
-      <FieldGroup
-        id="description"
-        name="description"
-        label="Description"
-        component="textarea"
-        rows={5}
-        placeholder="What is your project about?"
-      />
+      <div>
       <label
-        className="block mb-2 text-md font-semibold text-gray-900 dark:text-white"
+        className="block mb-1 text-md font-semibold text-gray-900 dark:text-white"
         htmlFor="file_input"
       >
         Upload logo
@@ -287,6 +282,17 @@ function DetailsPage() {
         onUploadSuccess={(cid) => {
           setFieldValue("logoUri", ipfsUri(cid));
         }}
+      />
+      </div>
+    </div>
+      <FieldGroup
+        id="description"
+        name="description"
+        label="Description"
+        component="textarea"
+        rows={2}
+        className="max-w-lg"
+        placeholder="What is your project about?"
       />
     </>
   );
@@ -318,7 +324,7 @@ function NotesSection({ title = "[ ? ]", children }: { title?: string, children:
       </button>
 
       {/* Dropdown Content */}
-      {isOpen && <div className="mt-2 pl-4 text-gray-600 text-sm">{children}</div>}
+      {isOpen && <div className="mt-2 pl-4 text-gray-600 text-md">{children}</div>}
     </div>
   );
 }
@@ -403,7 +409,7 @@ function AddStageDialog({
 
                     <NotesSection>
                       <div className="text-zinc-600 text-md mt-4 italic">
-                        <ul className="list-disc list-inside">
+                        <ul className="list-disc list-inside space-y-2">
                           <li className="flex">
                             <span className="mr-2">•</span>
                               Decreasing 50% means to double the price – a halvening effect.
@@ -464,7 +470,7 @@ function AddStageDialog({
                   <NotesSection>
 
                     <div className="text-zinc-600 text-md mt-4 italic">
-                      <ul className="list-disc list-inside">
+                      <ul className="list-disc list-inside space-y-2">
                         <li className="flex">
                           <span className="mr-2">•</span>
                             The operator can change the distribution of the split to new destinations at any time.
@@ -504,8 +510,8 @@ function AddStageDialog({
                     4. Cash out tax
                   </div>
                   <p className="text-md text-zinc-500 mt-3">
-                    All {revnetTokenSymbol} holders can access revenue by cashing out their {revnetTokenSymbol}. A
-                    tax can be added that rewards {revnetTokenSymbol} holders who stick around while others cash out.
+                    All {revnetTokenSymbol} holders can access revenue by cashing out or taking out a loan against their {revnetTokenSymbol}. A
+                    tax can be added that makes cashing out and taking out loans more expensive, while rewarding {revnetTokenSymbol} holders who stick around as others cash out.
                   </p>
                   <div
                     role="group"
@@ -553,7 +559,7 @@ function AddStageDialog({
                     <NotesSection>
 
                     <div className="text-zinc-600 text-md mt-4 italic">
-                      <ul className="list-disc list-inside">
+                      <ul className="list-disc list-inside space-y-2">
                         <li className="flex">
                           <span className="mr-2">•</span>
                           The higher the tax, the less that can be accessed by cashing out or taking out a loan at any given time, and the more that is left to share between remaining holders who cash out later.
@@ -692,7 +698,7 @@ function ConfigPage() {
               }}
             >
               <Button
-                className="w-full flex gap-1 border border-dashed border-zinc-400"
+                className="flex gap-1 border border-dashed border-zinc-400"
                 variant="secondary"
                 disabled={!canAddStage}
               >
@@ -1054,8 +1060,8 @@ function DeployRevnetForm({
         Deploy a revnet for your project
       </h1>
       <div className="md:col-span-1">
-        <h2 className="font-medium text-lg mb-2">1. Aesthetics</h2>
-        <p className="text-zinc-600 text-md">
+        <h2 className="font-bold text-lg mb-2">1. Aesthetics</h2>
+        <p className="text-zinc-600 text-lg">
           Your revnet's look and feel.
         </p>
       </div>
@@ -1066,11 +1072,11 @@ function DeployRevnetForm({
       <div className="h-[1px] bg-zinc-200 md:col-span-3 my-10"></div>
 
       <div className="md:col-span-1">
-        <h2 className="font-medium text-lg mb-2">2. Rules</h2>
-        <p className="text-zinc-600 text-md">
-          Your revnet's monetization rules evolve over time automatically in stages.
+        <h2 className="font-bold text-lg mb-2">2. Rules</h2>
+        <p className="text-zinc-600 text-lg">
+          {revnetTokenSymbol}'s issuance and cash out rules evolve over time automatically in stages.
         </p>
-        <p className="text-zinc-600 text-md mt-2">
+        <p className="text-zinc-600 text-lg mt-2">
           Staged rules
           are an onchain contract that can't be edited once deployed.
         </p>
@@ -1080,14 +1086,14 @@ function DeployRevnetForm({
       </div>
       <div className="h-[1px] bg-zinc-200 md:col-span-3 my-10"></div>
       <div className="md:col-span-1">
-        <h2 className="font-medium text-lg mb-2">3. Deploy</h2>
-        <p className="text-zinc-600 text-md">
+        <h2 className="font-bold text-lg mb-2">3. Deploy</h2>
+        <p className="text-zinc-600 text-lg">
           Pick which chains your revnet will accept money on and issue {revnetTokenSymbol} from.
         </p>
-        <p className="text-zinc-600 text-md mt-2">
+        <p className="text-zinc-600 text-lg mt-2">
           Holder of {revnetTokenSymbol} can cash out on any of the selected chains, and can move their {revnetTokenSymbol} between chains at any time.
         </p>
-        <p className="text-zinc-600 text-md mt-2">
+        <p className="text-zinc-600 text-lg mt-2">
           The Operator you set in your revnet's rules will also be able to add new chains to the revnet later.
         </p>
       </div>

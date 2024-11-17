@@ -209,7 +209,7 @@ export function NetworkDetailsTable() {
 
                     <div className="text-zinc-600 text-md mt-4">
                       <span className="italic">Note:
-                        <ul className="list-disc list-inside pl-4">
+                        <ul className="list-disc list-inside pl-4 space-y-2">
                           <li className="flex">
     <span className="mr-2">•</span>
     <div>
@@ -268,7 +268,7 @@ export function NetworkDetailsTable() {
           <p className="text-md text-black-400">The operator is the account that can change the split recipients, within the permanent split amount of a stage. See the "Owners" table for the current breakdown.</p>
                     <div className="text-zinc-600 text-md mt-4">
                       <span className="italic">Note:
-                        <ul className="list-disc list-inside pl-4">
+                        <ul className="list-disc list-inside pl-4 space-y-2">
                           <li className="flex">
     <span className="mr-2">•</span>
     <div>
@@ -332,7 +332,7 @@ export function NetworkDetailsTable() {
           <p className="text-md text-black-400">It is expressed as a value from 0 to 1.</p>
                     <div className="text-zinc-600 text-md mt-4">
                       <span className="italic">Note:
-                        <ul className="list-disc list-inside pl-4">
+                        <ul className="list-disc list-inside pl-4 space-y-2">
                           <li className="flex">
     <span className="mr-2">•</span>
     <div>
