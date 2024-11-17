@@ -15,12 +15,12 @@ export default function Page() {
         />
         <span className="sr-only">Revnet</span>
         <div className="text-2xl md:text-4xl mt-4 font-medium text-left">
-          Revnets are an unstoppable growth engine for projects on the open internet
+          Unstoppable tokenized growth engines for projects on the open internet
         </div>
         <div className="flex gap-4 mt-10">
           <Link href="/create">
             <Button className="md:h-20 h-16 text-xl md:text-2xl px-10 flex gap-2 bg-teal-500 hover:bg-teal-600">
-              Ship yours
+              Ship your revnet
             </Button>
           </Link>
         </div>
@@ -39,7 +39,7 @@ export default function Page() {
             className="underline hover:text-black/70 font-medium">CPN</Link>
         </div>
         <p className="mb-4">
-          A revnet serves as a hands-free, all-in-one token vending machine, cap table, and capital formation engine for leaders, workers, artists, researchers, investors, AI agents, and customers of growth-oriented businesses, brands, campaigns, experiments, communities, and indie projects on the open internet.
+          A revnet serves as a hands-free, transparent token vending machine, cap table, and capital formation engine for leaders, workers, artists, researchers, investors, AI agents, and customers of growth-oriented businesses, brands, campaigns, experiments, communities, and indie projects on the open internet.
         </p>
 
         <p>
