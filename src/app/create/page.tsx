@@ -359,24 +359,13 @@ function AddStageDialog({
           >
             {() => (
               <Form>
-                <div className="pb-7">
-                  <FieldGroup
-                    id="boostDuration"
-                    name="boostDuration"
-                    label="1. Stage duration"
-                    suffix="days"
-                    min="0"
-                    type="number"
-                    description="How long will this stage last? Leave blank to make it last forever."
-                  />
-                </div>
                 <div className="pb-10">
                   <FieldGroup
                     id="initialIssuance"
                     name="initialIssuance"
                     min="0"
                     type="number"
-                    label="2. Issuance"
+                    label="1. Issuance"
                     description={`How many ${revnetTokenSymbol} to mint when the revnet receives 1 ${nativeTokenSymbol}.`}
                     suffix={`${revnetTokenSymbol} / ${nativeTokenSymbol}`}
                   />
@@ -417,10 +406,6 @@ function AddStageDialog({
                         <ul className="list-disc list-inside">
                           <li className="flex">
                             <span className="mr-2">•</span>
-                            <div>Days must be a multiple of this stage's duration.</div>
-                          </li>
-                          <li className="flex">
-                            <span className="mr-2">•</span>
                               Decreasing 50% means to double the price – a halvening effect.
                           </li>
                           <li className="flex">
@@ -438,7 +423,7 @@ function AddStageDialog({
                   <div
                     className="block text-md font-semibold leading-6"
                   >
-                    3. Split
+                    2. Split
                   </div>
                   <p className="text-zinc-600 text-md pb-3 mt-1">
                     Split a portion of new token issuance and buybacks to an operator.
@@ -506,7 +491,7 @@ function AddStageDialog({
                     min="0"
                     type="number"
                     name="premintTokenAmount"
-                    label="4. Automint"
+                    label="3. Automint"
                     description="Automatically mint tokens for the Operator when this stage becomes active."
                     suffix={revnetTokenSymbol || "tokens"}
                   />
@@ -516,7 +501,7 @@ function AddStageDialog({
                     id="priceFloorTaxIntensity-group"
                     className="block text-md font-semibold leading-6"
                   >
-                    5. Cash out tax
+                    4. Cash out tax
                   </div>
                   <p className="text-md text-zinc-500 mt-3">
                     All {revnetTokenSymbol} holders can access revenue by cashing out their {revnetTokenSymbol}. A
@@ -585,6 +570,26 @@ function AddStageDialog({
                     </div>
                     </NotesSection>
                   </div>
+                <div className="pb-7">
+                  <FieldGroup
+                    id="boostDuration"
+                    name="boostDuration"
+                    label="5. Stage duration"
+                    suffix="days"
+                    min="0"
+                    type="number"
+                    description="How long will this stage last? Leave blank to make it last forever."
+                  />
+                    <NotesSection>
+
+                      <ul className="list-disc list-inside">
+                          <li className="flex">
+                            <span className="mr-2">•</span>
+                            <div>Days must be a multiple of this stage's issuance cut rate.</div>
+                          </li>
+                      </ul>
+                    </NotesSection>
+                </div>
 
                 <DialogFooter>
                   <Button type="submit">Save stage</Button>
