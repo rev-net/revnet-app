@@ -196,6 +196,9 @@ export function ActivityFeed() {
         onClick={toggleDropdown}
         className="flex items-center gap-2 text-left text-black-600"
       >
+      <div className="flex flex-row space-x-2">
+        <h2 className="text-2xl font-semibold">Activity</h2>
+      </div>
         <span
           className={`transform transition-transform font-sm ${
             isOpen ? "rotate-90" : "rotate-0"
@@ -203,9 +206,6 @@ export function ActivityFeed() {
         >
           ▶
         </span>
-      <div className="flex flex-row space-x-2">
-        <h2 className="text-2xl font-semibold">Activity</h2>
-      </div>
       </button>
       {/* Dropdown Content */}
       {isOpen && 

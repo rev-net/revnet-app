@@ -313,6 +313,7 @@ function NotesSection({ title = "[ ? ]", children }: { title?: string, children:
         onClick={toggleDropdown}
         className="flex items-center gap-2 text-left text-zinc-600"
       >
+        <div className="font-sm">{title}</div>
         <span
           className={`transform transition-transform font-sm ${
             isOpen ? "rotate-90" : "rotate-0"
@@ -320,7 +321,6 @@ function NotesSection({ title = "[ ? ]", children }: { title?: string, children:
         >
           ▶
         </span>
-        <div className="font-sm">{title}</div>
       </button>
 
       {/* Dropdown Content */}
