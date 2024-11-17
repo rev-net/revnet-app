@@ -1075,7 +1075,7 @@ function DeployRevnetForm({
       <div className="h-[1px] bg-zinc-200 md:col-span-3 my-10"></div>
 
       <div className="md:col-span-1">
-        <h2 className="font-bold text-lg mb-2">2. Rules</h2>
+        <h2 className="font-bold text-lg mb-2">2. How it works</h2>
         <p className="text-zinc-600 text-lg">
           {revnetTokenSymbolCapitalized} issuance and cash out rules evolve over time automatically in stages.
         </p>
