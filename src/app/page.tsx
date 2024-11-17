@@ -62,7 +62,7 @@ export default function Page() {
             </div>
         <div className="flex text-sm">
             <div className="mt-2 bg-white text-black hover:text-black/70 text-l md:text-l flex gap-1">
-See and contribute to the revnet.app website and revnet protocol
+Audit and contribute to the revnet.app website and revnet protocol
           <Link href="https://github.com/orgs/rev-net/repositories" className="underline">
                on Github.
           </Link>
