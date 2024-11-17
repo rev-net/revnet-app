@@ -199,7 +199,7 @@ export function NetworkDetailsTable() {
       <Tooltip>
         <div className="flex flex-row space-x-1">
           <div>Paid issuance</div>
-          <TooltipTrigger className="text-sm text-zinc-400"> [ ? ]
+          <TooltipTrigger className="pl-1 text-md text-zinc-500"> [ ? ]
           </TooltipTrigger>
           <TooltipContent side="right">
       <div className="max-w-md space-y-2 p-2">
@@ -236,7 +236,7 @@ export function NetworkDetailsTable() {
       <Tooltip>
         <div className="flex flex-row space-x-1">
           <div>Auto issuance</div>
-          <TooltipTrigger className="text-sm text-zinc-400"> [ ? ]
+          <TooltipTrigger className="pl-1 text-md text-zinc-500"> [ ? ]
           </TooltipTrigger>
           <TooltipContent side="right">
       <div className="max-w-md space-y-2 p-2">
@@ -258,7 +258,7 @@ export function NetworkDetailsTable() {
       <Tooltip>
         <div className="flex flex-row space-x-1">
           <div>Splits</div>
-          <TooltipTrigger className="text-sm text-zinc-400"> [ ? ]
+          <TooltipTrigger className="pl-1 text-md text-zinc-500"> [ ? ]
           </TooltipTrigger>
           <TooltipContent side="right">
       <div className="max-w-md space-y-2 p-2">
@@ -320,7 +320,7 @@ export function NetworkDetailsTable() {
       <Tooltip>
         <div className="flex flex-row space-x-1">
           <div>Cash out tax rate</div>
-          <TooltipTrigger className="text-sm text-zinc-400"> [ ? ]
+          <TooltipTrigger className="pl-1 text-md text-zinc-500"> [ ? ]
           </TooltipTrigger>
           <TooltipContent side="right">
       <div className="max-w-md space-y-2 p-2">
