@@ -20,7 +20,7 @@ export default function Page() {
         <div className="flex gap-4 mt-10">
           <Link href="/create">
             <Button className="md:h-20 h-16 text-xl md:text-2xl px-10 flex gap-2 bg-teal-500 hover:bg-teal-600">
-              Design your revnet
+              Design yours
             </Button>
           </Link>
         </div>
