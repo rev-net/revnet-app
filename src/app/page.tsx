@@ -39,7 +39,10 @@ export default function Page() {
             className="underline hover:text-black/70">CPN</Link>
         </div>
         <p className="text-xl">
-          Simple enough for startups, powerful enough for scaled global networks of anons.
+          Made for creators, developers, marketers, investors, and customers. 
+        </p>
+        <p className="text-xl">
+          Simple enough for startups, powerful enough for scaled global brands.
         </p>
 
         <p className="text-xl">
@@ -60,17 +63,17 @@ export default function Page() {
         </div>
             </div>
         <div className="flex">
-            <div className="mt-2 bg-white text-black text-lg">
+            <div className="bg-white text-black text-lg">
 Audit this website and the revnet protocol <Link href="https://github.com/orgs/rev-net/repositories" className="underline hover:text-black/70">
                on Github.
           </Link>
             </div>
         </div>
         <div className="flex mb-40">
-            <div className="mt-2 bg-white text-black text-lg">
-    Support the $REV network itself <Link href="https://revnet.app/sepolia/3" className="underline hover:text-black/70">
-               here.
-          </Link>
+            <div className="bg-white text-black text-lg">
+    Support the $REV network <Link href="https://revnet.app/sepolia/3" className="underline hover:text-black/70">
+               here,
+          </Link>{" "}we run as a revnet ourselves.
             </div>
         </div>
       </div>
