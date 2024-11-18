@@ -1088,7 +1088,7 @@ function DeployRevnetForm({
       </div>
       <div className="h-[1px] bg-zinc-200 md:col-span-3 sm:my-10"></div>
       <div className="md:col-span-1">
-        <h2 className="font-bold text-lg mb-2">3. Ship it</h2>
+        <h2 className="font-bold text-lg mb-2">3. Deploy</h2>
         <p className="text-zinc-600 text-lg">
           Pick which chains your revnet will accept money on and issue {revnetTokenSymbol} from.
         </p>
