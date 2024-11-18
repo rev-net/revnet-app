@@ -27,7 +27,7 @@ export function YouSection({ totalSupply }: { totalSupply: bigint }) {
 
   const redeemQuote = redeemQuoteQuery?.data ?? 0n;
 
-  console.log(redeemQuoteQuery)
+  // console.log(redeemQuoteQuery)
 
   return (
     <div className="grid grid-cols-1 gap-x-8 overflow-x-scrolltext-md gap-1">

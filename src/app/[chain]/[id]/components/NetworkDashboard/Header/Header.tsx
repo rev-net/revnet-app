@@ -75,7 +75,7 @@ export function Header() {
                 </EtherscanLink>
               ) : null}
           </span>
-          <div className="text-sm flex items-start gap-2 items-baseline">
+          <div className="text-sm flex gap-2 items-baseline">
             <h1 className="text-2xl font-medium tracking-tight">{projectName}</h1>
             {(suckerPairs.data as SuckerPair[])?.map((pair) => {
               if (!pair) return null;

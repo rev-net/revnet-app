@@ -1,4 +1,3 @@
-import Image from "next/image";
 import {
   useAccount,
   useWaitForTransactionReceipt
@@ -13,11 +12,8 @@ import {
   DialogContent,
   DialogDescription,
   DialogHeader,
-  DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Stat } from "@/components/ui/stat";
 import { JBChainId, NATIVE_TOKEN, TokenAmountType } from "juice-sdk-core";
 import {
@@ -198,7 +194,7 @@ export function PayDialog({
                 onClick={handlePay}
                 className="bg-teal-500 hover:bg-teal-600"
               >
-                Pay 
+                Pay
               </ButtonWithWallet>
             </div>
           ) : null}

@@ -26,7 +26,7 @@ export function ParticipantsTable({
   totalSupply: bigint;
   boostRecipient?: Address;
 }) {
-
+console.log(participants)
   return (
     <Table>
       <TableHeader>
@@ -39,7 +39,7 @@ export function ParticipantsTable({
       </TableHeader>
       <TableBody>
         {participants.map((participant) => (
-          <TableRow key={participant.id}>
+          <TableRow key={participant.wallet.id}>
             <TableCell>
               <div className="flex flex-col sm:flex-row gap-2 items-center pr-10">
                 <div className="hidden sm:flex">
