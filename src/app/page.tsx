@@ -20,26 +20,26 @@ export default function Page() {
         <div className="flex gap-4 mt-10">
           <Link href="/create">
             <Button className="md:h-20 h-16 text-xl md:text-2xl px-10 flex gap-2 bg-teal-500 hover:bg-teal-600">
-              Ship your token
+              Design your revnet
             </Button>
           </Link>
         </div>
       </div>
 
-      <div className="mt-32 max-w-prose text-l md:text-2xl text-lg text-left">
+      <div className="mt-20 max-w-prose text-l md:text-2xl text-lg text-left">
         <div className="mt-10 mb-8 text-xl md:text-2xl text-left">
           <span className="mr-1">Browse:</span> $<Link href="https://revnet.app/sepolia/1" target="_blank"
             rel="noopener norefererr"
-            className="underline hover:text-black/70 font-medium mr-2">NANA</Link> $<Link href="https://revnet.app/sepolia/3" target="_blank"
+            className="underline hover:text-black/70">NANA</Link><span className="text-zinc-300">{" | "}</span> $<Link href="https://revnet.app/sepolia/3" target="_blank"
             rel="noopener norefererr"
-            className="underline hover:text-black/70 font-medium mr-2">REV</Link> $<Link href="https://revnet.app/sepolia/4" target="_blank"
+            className="underline hover:text-black/70">REV</Link><span className="text-zinc-300">{" | "}</span> $<Link href="https://revnet.app/sepolia/4" target="_blank"
             rel="noopener norefererr"
-            className="underline hover:text-black/70 font-medium mr-2">BAN</Link> $<Link href="https://revnet.app/sepolia/2" target="_blank"
+            className="underline hover:text-black/70">BAN</Link><span className="text-zinc-300">{" | "}</span> $<Link href="https://revnet.app/sepolia/2" target="_blank"
             rel="noopener norefererr"
-            className="underline hover:text-black/70 font-medium mr-2">CPN</Link>
+            className="underline hover:text-black/70">CPN</Link>
         </div>
-        <p className="mb-4 text-xl">
-          For leaders, workers, artists, researchers, investors, AI agents, and customers of businesses, brands, campaigns, communities, and indie projects raising funds and revenues on the open internet. Simple enough for startups, powerful enough for scaled global networks of anons.
+        <p className="text-xl">
+          Simple enough for startups, powerful enough for scaled global networks of anons.
         </p>
 
         <p className="text-xl">
