@@ -38,9 +38,9 @@ export default function Page() {
             rel="noopener norefererr"
             className="underline hover:text-black/70">CPN</Link>
         </div>
-        <p className="text-xl">
+        {/* <p className="text-xl">
           Made for creators, developers, communities, investors, and customers. 
-        </p>
+        </p> */}
         <p className="text-xl">
           Simple enough for startups, powerful enough for scaled global brands.
         </p>
