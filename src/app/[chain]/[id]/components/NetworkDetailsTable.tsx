@@ -213,8 +213,8 @@ export function NetworkDetailsTable() {
                           <li className="flex">
     <span className="mr-2">•</span>
     <div>
-      If there's a Uniswap pool for {formatTokenSymbol(token)} / {nativeTokenSymbol} offering a better price, all {nativeTokenSymbol} paid
-      in will be used to buyback instead of feeding the revnet.
+      If there's a market for {formatTokenSymbol(token)} / {nativeTokenSymbol} offering a better price, all {nativeTokenSymbol} paid
+      in will be used to buyback instead of feeding the revnet. Uniswap is used as the market.
     </div>
   </li>
                         </ul>

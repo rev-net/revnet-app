@@ -416,8 +416,8 @@ function AddStageDialog({
                           </li>
                           <li className="flex">
                             <span className="mr-2">•</span>
-                              If there's a Uniswap pool for {revnetTokenSymbol} / {nativeTokenSymbol} offering a better price, all {nativeTokenSymbol} paid
-                              in will be used to buyback instead of feeding the revnet.
+                              If there's a market for {revnetTokenSymbol} / {nativeTokenSymbol} offering a better price, all {nativeTokenSymbol} paid
+                              in will be used to buyback instead of feeding the revnet. Uniswap is used as the market.
                           </li>
                         </ul>
                       </div>
