@@ -31,9 +31,7 @@ type TableView = "you" | "all" | "splits" | "autoissuance";
 
 export function HoldersSection() {
   const { address } = useAccount();
-  const [participantsView, setParticipantsView] = useState<TableView>(
-    address ? "you" : "all"
-  );
+  const [participantsView, setParticipantsView] = useState<TableView>("all");
   const [isOpen, setIsOpen] = useState(false);
   const { projectId } = useJBContractContext();
   const { token } = useJBTokenContext();
