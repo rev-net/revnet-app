@@ -39,7 +39,7 @@ export default function Page() {
             className="underline hover:text-black/70">CPN</Link>
         </div>
         <p className="text-xl">
-          Made for creators, developers, marketers, investors, and customers. 
+          Made for creators, developers, communities, investors, and customers. 
         </p>
         <p className="text-xl">
           Simple enough for startups, powerful enough for scaled global brands.
