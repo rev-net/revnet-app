@@ -130,8 +130,8 @@ export function HoldersSection() {
           <div className="mb-2">
         {/* View Tabs */}
         <div className="flex flex-row space-x-4 mb-3">
-          {ownersTab("you", "You")}
           {ownersTab("all", "All")}
+          {ownersTab("you", "You")}
           {ownersTab("splits", "Splits")}
           {ownersTab("autoissuance", "Auto issuance")}
         </div>
@@ -139,11 +139,6 @@ export function HoldersSection() {
         {/* ========================= */}
         {/* ========= Views ========= */}
         {/* ========================= */}
-        {/* You Section */}
-        <div className={participantsView === "you" ? "" : "hidden"}>
-          <YouSection totalSupply={totalOutstandingTokens} />
-          <UserTokenBalanceCard />
-        </div>
 
         {/* All Section */}
         <div className={participantsView === "all" ? "" : "hidden"}>
@@ -171,6 +166,12 @@ export function HoldersSection() {
               </div>
             </div>
           </div>
+        </div>
+
+        {/* You Section */}
+        <div className={participantsView === "you" ? "" : "hidden"}>
+          <YouSection totalSupply={totalOutstandingTokens} />
+          <UserTokenBalanceCard />
         </div>
 
         {/* Splits Section */}
