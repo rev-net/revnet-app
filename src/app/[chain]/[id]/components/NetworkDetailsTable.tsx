@@ -193,7 +193,7 @@ export function NetworkDetailsTable() {
           "MMM dd, yyyy"
             )} - {stageNextStart()}{stageDayDiff()}
       </div>
-      <div className="grid sm:grid-cols-1 gap-x-8 overflow-x-scroll">
+      <div className="grid sm:grid-cols-1 gap-x-8 overflow-x-scroll gap-1">
         <div className="sm:col-span-1 sm:px-0 grid grid-cols-2 sm:grid-cols-4">
           <dt className="text-md font-medium leading-6 text-zinc-900">
       <Tooltip>
