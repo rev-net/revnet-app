@@ -1063,10 +1063,7 @@ function DeployRevnetForm({
         Design and deploy a tokenized revnet for your project
       </h1>
       <div className="md:col-span-1">
-        <h2 className="font-bold text-lg mb-2">1. Aesthetics</h2>
-        <p className="text-zinc-600 text-lg">
-          Your revnet's look and feel.
-        </p>
+        <h2 className="font-bold text-lg mb-2">1. Look and feel</h2>
       </div>
       <div className="md:col-span-2">
         <DetailsPage />
