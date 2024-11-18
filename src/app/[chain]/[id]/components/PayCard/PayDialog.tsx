@@ -105,7 +105,7 @@ export function PayDialog({
         value,
         address,
         0n,
-        memo || `Joined REVNET ${projectId}`,
+        memo || "",
         "0x0",
       ],
       value,
