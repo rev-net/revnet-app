@@ -45,12 +45,12 @@ export default function Page() {
         <p className="text-xl">
           Read the memo at {" "}
           <Link
-            href="https://revnet.eth.sucks/memo"
+            href="https://rev.eth.sucks/memo"
             target="_blank"
             rel="noopener norefererr"
             className="underline"
           >
-            revnet.eth.sucks/memo
+            rev.eth.sucks/memo
           </Link>.
         </p>
         <div className="flex">
