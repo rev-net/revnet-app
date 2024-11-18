@@ -13,9 +13,13 @@ export function cn(...inputs: ClassValue[]) {
 
 export function formatSeconds(seconds: number) {
   const duration = intervalToDuration({ start: 0, end: seconds * 1000 }); // convert seconds to milliseconds
+  console.log("duration", duration);
+  console.log("seconds", seconds);
   return formatDuration(duration, {
     format:
-      seconds > 86400 // if greater than a day, only show 'days'
+      seconds > 2592000 // if greater than 30 days, only show 'months'
+        ? ["months", "days"]
+        : seconds > 86400 // if greater than a day, only show 'days'
         ? ["days", "hours"]
         : seconds > 3600 // if greater than an hour, only show 'hours' and 'minutes'
         ? ["hours", "minutes"]

@@ -23,6 +23,8 @@ export function PriceIncreaseCountdown() {
       ((ruleset?.data?.start ?? 0) + (ruleset?.data?.duration ?? 0)) * 1000
     )
   );
+  console.log("ruleset", ruleset);
+  console.log("timeLeft", timeLeft);
   const entryTax = ruleset?.data?.decayPercent;
   const tokenA = { symbol: nativeTokenSymbol, decimals: 18 };
   const nextWeight = new RulesetWeight(
@@ -47,7 +49,6 @@ export function PriceIncreaseCountdown() {
           <span className="font-medium">{nextFormattedTokenIssuance}</span>
           {" "}
           <span>in {formatSeconds(timeLeft)}</span>
-          {/* <QuestionMarkCircleIcon className="h-4 w-4 inline ml-1 mb-1" /> */}
         </div>
       </TooltipTrigger>
       <TooltipContent side="right">
