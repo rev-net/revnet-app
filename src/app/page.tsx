@@ -57,7 +57,7 @@ export default function Page() {
           </Link>.
         </p>
         <div className="flex">
-            <div className="mt-10 bg-white text-black text-lg">
+            <div className="mt-8 bg-white text-black text-lg">
           Plan your revnet with the community <Link href="https://discord.gg/8qdtvdep" className="underline hover:text-black/70">on Discord.
           </Link>
         </div>
