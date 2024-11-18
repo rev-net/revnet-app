@@ -74,7 +74,12 @@ export function formatPortion(numerator: bigint, denominator: bigint) {
 /**
  * Ensure token symbol has $ in front of it
  */
-export function formatTokenSymbol(token?: JBTokenContextData["token"]) {
+export function formatTokenSymbol(token?: JBTokenContextData["token"] | string) {
+  if (typeof token === 'string') {
+    if (!token) return '$TOKEN';
+    if (!token.includes('$')) return `$${token}`;
+    return token;
+  }
   if (!token?.data?.symbol) return "$TOKEN";
   if (!token?.data?.symbol.includes("$")) return `$${token?.data?.symbol}`;
   return token.data.symbol;

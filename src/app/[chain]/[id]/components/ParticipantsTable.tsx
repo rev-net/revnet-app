@@ -1,6 +1,5 @@
 import { ChainLogo } from "@/components/ChainLogo";
 import { EthereumAddress } from "@/components/EthereumAddress";
-import { Badge } from "@/components/ui/badge";
 import {
   Table,
   TableBody,
@@ -9,14 +8,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { Participant } from "@/generated/graphql";
-import { formatPortion } from "@/lib/utils";
-import { ForwardIcon } from "@heroicons/react/24/solid";
+import { formatPortion, formatTokenSymbol } from "@/lib/utils";
 import { formatUnits } from "juice-sdk-core";
 import { JBChainId } from "juice-sdk-react";
 import { Address, isAddressEqual } from "viem";
@@ -33,7 +26,6 @@ export function ParticipantsTable({
   totalSupply: bigint;
   boostRecipient?: Address;
 }) {
-  const { address: accountAddress } = useAccount();
 
   return (
     <Table>
@@ -74,12 +66,12 @@ export function ParticipantsTable({
                 {formatUnits(participant.balance, token.decimals, {
                   fractionDigits: 8,
                 })}{" "}
-                ${token.symbol} {" | "}
+                {formatTokenSymbol(token.symbol)} {" | "}
                 <span className="font-bold">
                {participant.balance
                 ? formatPortion(BigInt(participant.balance), totalSupply)
                 : 0}
-              % 
+              %
               </span>
               </TableCell>
             ) : null}
