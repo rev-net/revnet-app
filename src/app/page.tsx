@@ -42,7 +42,7 @@ export default function Page() {
           Made for creators, developers, communities, investors, and customers. 
         </p> */}
         <p className="text-xl">
-          Simple enough for startups, powerful enough for scaled global brands.
+          Simple enough for startups, powerful enough for decentralized global organizations and brands.
         </p>
 
         <p className="text-xl">
