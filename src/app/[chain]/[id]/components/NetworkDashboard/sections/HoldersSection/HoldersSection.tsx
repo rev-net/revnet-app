@@ -153,7 +153,7 @@ export function HoldersSection() {
                   token={token?.data}
                 />
               </div>
-            <div className="overflow-auto p-2 bg-zinc-50 rounded-md rounded-tl-none border-zinc-100 border w-full">
+            <div className="overflow-auto p-2 bg-zinc-50 rounded-md rounded-tl-none border-zinc-100 sm:border-t-[0px] border w-full">
                 <div>
                   <ParticipantsTable
                     participants={Object.values(participantsDataAggregate)}
