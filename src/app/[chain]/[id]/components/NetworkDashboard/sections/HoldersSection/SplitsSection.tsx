@@ -10,7 +10,10 @@ import {
   RESERVED_TOKEN_SPLIT_GROUP_ID,
   chainNames
 } from "@/app/constants";
+import { Badge } from "@/components/ui/badge";
+import { ForwardIcon } from "@heroicons/react/24/solid";
 import { EthereumAddress } from "@/components/EthereumAddress";
+import { useBoostRecipient } from "@/hooks/useBoostRecipient";
 import {
   Table,
   TableBody,
@@ -39,6 +42,7 @@ export function SplitsSection() {
   const { projectId } = useJBContractContext();
   const chainId = useJBChainId();
   const { ruleset } = useJBRulesetContext();
+  const boostRecipient = useBoostRecipient();
   const [selectedSucker, setSelectedSucker] = useState<Sucker>();
   const { data: suckers } = useSuckers() as { data: Sucker[] };
   const { data: reservedTokenSplits, isLoading } = useReadJbSplitsSplitsOf({
@@ -60,9 +64,17 @@ export function SplitsSection() {
   }, [suckers, chainId, projectId, selectedSucker]);
 
   return (
-    <div className="flex flex-col space-y-2 p-3">
-      {suckers.length > 1 && (
-        <div>
+    <>
+    <div className="flex space-y-4 pb-0 sm:pb-2">
+      <p className="text-md text-black font-light italic">
+        Splits can be adjusted by the <Badge variant="secondary">
+                <ForwardIcon className="w-4 h-4 mr-1 inline-block" />
+                <span className="non-italic">Operator</span>
+              </Badge> at any time.
+      </p>
+    </div>
+      {suckers?.length > 1 && (
+        <div className="mt-2 mb-4">
           <div className="text-sm text-zinc-500">
             See splits on
           </div>
@@ -91,6 +103,12 @@ export function SplitsSection() {
           </Select>
         </div>
       )}
+    <div className="flex gap-1 pb-2 pt-2 text-md font-medium border-l border-zinc-100 pl-3"><Badge variant="secondary">
+                <ForwardIcon className="w-4 h-4 mr-1 inline-block" />
+                <span className="non-italic">Operator</span>
+              </Badge> is {boostRecipient}</div>
+    <div className="max-h-96 overflow-auto bg-zinc-50 rounded-tr-md rounded-bl-md rounded-br-md  border-zinc-100 border mb-4">
+    <div className="flex flex-col p-2">
       <Table>
         <TableHeader>
           <TableRow>
@@ -138,5 +156,7 @@ export function SplitsSection() {
         </TableBody>
       </Table>
     </div>
+    </div>
+    </>
   )
 }

@@ -141,7 +141,7 @@ export function HoldersSection() {
         {/* All Section */}
         <div className={participantsView === "all" ? "" : "hidden"}>
                 <div className="space-y-4 p-2 pb-0 sm:pb-2">
-                  <p className="text-md text-black font-light">
+                  <p className="text-md text-black font-light italic">
                     {formatTokenSymbol(token)} owners are accounts who either paid in, received splits, received auto issuance, or got them aftermarket.
                   </p>
                 </div>
@@ -174,9 +174,7 @@ export function HoldersSection() {
 
         {/* Splits Section */}
         <div className={participantsView === "splits" ? "" : "hidden"}>
-          <div className="max-h-96 overflow-auto p-2 bg-zinc-50 rounded-md border-zinc-100 border mb-4">
-            <SplitsSection />
-          </div>
+          <SplitsSection />
           <DistributeReservedTokensButton />
         </div>
 
