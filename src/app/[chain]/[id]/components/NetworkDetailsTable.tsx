@@ -31,6 +31,7 @@ import {
 import { useState } from "react";
 import { twJoin } from "tailwind-merge";
 import { SectionTooltip } from "./NetworkDashboard/sections/SectionTooltip";
+import { PriceSection } from "./NetworkDashboard/sections/PriceSection";
 import { useFormattedTokenIssuance } from "@/hooks/useFormattedTokenIssuance";
 import { formatTokenSymbol, rulesetStartDate } from "@/lib/utils";
 
@@ -163,8 +164,10 @@ export function NetworkDetailsTable() {
       </button>
       {/* Dropdown Content */}
       {isOpen && 
-        <div className="mt-2 text-black text-md">
-          <div className="mb-2 text-black font-light">{formatTokenSymbol(token)}'s issuance and cash out rules change automatically in sequential stages, set and fixed when it was created.</div>
+        <div className="mt-2 text-black text-md max-w-sm sm:max-w-full">
+          <PriceSection className="mb-2" />
+          <div className="border-b border-zinc-100 w-[400px] max-w-sm mb-4"></div>
+          <div className="mb-2 text-black font-light italic">{formatTokenSymbol(token)}'s issuance and cash out rules change automatically in sequential stages, set and fixed when it was created.</div>
           <div className="mb-2">
 
       <div className="flex gap-4 mb-2">

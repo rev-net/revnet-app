@@ -7,7 +7,6 @@ import {
 } from "@/components/ui/tooltip";
 import { useBoostRecipient } from "@/hooks/useBoostRecipient";
 import { useTokenA } from "@/hooks/useTokenA";
-import { PriceSection } from "../NetworkDashboard/sections/PriceSection";
 import {
   ArrowDownIcon,
   ArrowRightIcon,
@@ -43,6 +42,7 @@ export function PayForm() {
 
   const [amountA, setAmountA] = useState<string>("");
   const [amountB, setAmountB] = useState<string>("");
+  const [amountC, setAmountC] = useState<string>("");
 
   const {
     projectId,
@@ -70,14 +70,16 @@ export function PayForm() {
   function resetForm() {
     setAmountA("");
     setAmountB("");
+    setAmountC("");
   }
 
   return (
     <div>
-      <div className="flex justify-center items-center flex-col gap-3 mb-2">
+      <div className="flex justify-center items-center flex-col mb-2">
         <PayInput
           label="Pay"
           type="number"
+          className="mb-3"
           onChange={(e) => {
             const valueRaw = e.target.value;
             setAmountA(valueRaw);
@@ -102,6 +104,7 @@ export function PayForm() {
             );
 
             setAmountB(formatUnits(amountBQuote.payerTokens, tokenB.decimals));
+            setAmountC(formatUnits(amountBQuote.reservedTokens, tokenB.decimals));
           }}
           value={amountA}
           currency={tokenA?.symbol}
@@ -109,6 +112,7 @@ export function PayForm() {
         <PayInput
           label="Get"
           type="number"
+          className="rounded-bl-none"
           onChange={(e) => {
             const valueRaw = e.target.value;
             setAmountB(valueRaw);
@@ -132,6 +136,12 @@ export function PayForm() {
           value={amountB}
           currency={formatTokenSymbol(token)}
         />
+        <div className="flex gap-1 p-3 border-l-[3px] border-b-[3px] border-zinc-100 rounded-md rounded-tl-none rounded-br-none w-full text-md text-zinc-500 overflow-x-auto whitespace-nowrap">
+          <Badge variant="secondary">
+                <ForwardIcon className="w-4 h-4 mr-1 inline-block" />
+                Operator
+              </Badge> gets {amountC || 0} ${tokenB.symbol}
+        </div>
       </div>
       {/* <div className="flex justify-between gap-3 items-center md:items-start flex-col md:flex-row">
           <div className="flex flex-col gap-2 text-sm items-center md:items-start">
