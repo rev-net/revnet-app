@@ -110,7 +110,7 @@ export function PayForm() {
           currency={tokenA?.symbol}
         />
         <PayInput
-          label="Get"
+          label="You get"
           type="number"
           className="rounded-bl-none"
           onChange={(e) => {
@@ -136,7 +136,7 @@ export function PayForm() {
           value={amountB}
           currency={formatTokenSymbol(token)}
         />
-        <div className="flex gap-1 p-3 border-l-[3px] border-b-[3px] border-zinc-100 rounded-md rounded-tl-none rounded-br-none w-full text-md text-zinc-500 overflow-x-auto whitespace-nowrap">
+        <div className="flex gap-1 p-3 bg-zinc-200 rounded-b-md w-full text-md text-zinc-700 overflow-x-auto whitespace-nowrap">
           <Badge variant="secondary">
                 <ForwardIcon className="w-4 h-4 mr-1 inline-block" />
                 Operator
