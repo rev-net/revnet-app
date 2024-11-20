@@ -10,6 +10,7 @@ import {
   RedeemEvent,
 } from "@/generated/graphql";
 import { useOmnichainSubgraphQuery } from "@/graphql/useOmnichainSubgraphQuery";
+import { formatTokenSymbol } from "@/lib/utils";
 import { formatDistance } from "date-fns";
 import { Ether, JBProjectToken } from "juice-sdk-core";
 import {
@@ -88,7 +89,7 @@ function PayActivityItem(
         <div className="flex items-center gap-1">
           <span>
             got {activityItemData.beneficiaryTokenCount?.format(6)}{" "}
-            ${token.data.symbol}
+            ${formatTokenSymbol(token.data.symbol)}
           </span>
         </div>
       </div>
@@ -208,7 +209,7 @@ export function ActivityFeed() {
         </span>
       </button>
       {/* Dropdown Content */}
-      {isOpen && 
+      {isOpen &&
       <div className="flex flex-col gap-1 mt-8">
         {projectEvents && projectEvents.length > 0 ? (
           projectEvents?.map((event) => {
