@@ -14,6 +14,7 @@ import { Badge } from "@/components/ui/badge";
 import { ForwardIcon } from "@heroicons/react/24/solid";
 import { EthereumAddress } from "@/components/EthereumAddress";
 import { useBoostRecipient } from "@/hooks/useBoostRecipient";
+import EtherscanLink from "@/components/EtherscanLink";
 import {
   Table,
   TableBody,
@@ -106,7 +107,12 @@ export function SplitsSection() {
     <div className="flex gap-1 pb-2 pt-2 text-md font-medium border-l border-zinc-100 pl-3"><Badge variant="secondary">
                 <ForwardIcon className="w-4 h-4 mr-1 inline-block" />
                 <span className="non-italic">Operator</span>
-              </Badge> is {boostRecipient}</div>
+              </Badge> is <EtherscanLink
+                      value={boostRecipient}
+                      type="address"
+                      chain={chainId ? ChainIdToChain[chainId] : undefined}
+                      truncateTo={6}
+                    /></div>
     <div className="max-h-96 overflow-auto bg-zinc-50 rounded-tr-md rounded-bl-md rounded-br-md  border-zinc-100 border mb-4">
     <div className="flex flex-col p-2">
       <Table>
