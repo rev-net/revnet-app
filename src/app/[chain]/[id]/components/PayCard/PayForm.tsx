@@ -140,7 +140,7 @@ export function PayForm() {
           <Badge variant="secondary">
                 <ForwardIcon className="w-4 h-4 mr-1 inline-block" />
                 Operator
-              </Badge> gets {amountC || 0} ${formatTokenSymbol(tokenB.symbol)}
+              </Badge> gets {amountC || 0} {formatTokenSymbol(tokenB.symbol)}
         </div>
       </div>
       {/* <div className="flex justify-between gap-3 items-center md:items-start flex-col md:flex-row">
