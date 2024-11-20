@@ -153,7 +153,7 @@ function RedeemActivityItem(
         <div className="flex items-center gap-1">
           <span>
             cashed out {activityItemData.redeemCount?.format(6)}{" "}
-            ${token.data.symbol}
+            {formatTokenSymbol(token.data.symbol)}
           </span>
         </div>
       </div>
