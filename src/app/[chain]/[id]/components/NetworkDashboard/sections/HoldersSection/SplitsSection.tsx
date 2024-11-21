@@ -66,14 +66,14 @@ export function SplitsSection() {
 
   return (
     <>
-    <div className="flex space-y-4 pb-0 sm:pb-2">
-      <p className="text-md text-black font-light italic">
+      <div className="flex space-y-4 pb-0 sm:pb-2">
+        <p className="text-md text-black font-light italic">
         Splits can be adjusted by the <Badge variant="secondary" className="border border-visible">
-                <ForwardIcon className="w-4 h-4 mr-1 inline-block" />
-                <span className="non-italic">Operator</span>
-              </Badge> at any time.
-      </p>
-    </div>
+            <ForwardIcon className="w-4 h-4 mr-1 inline-block" />
+            <span className="non-italic">Operator</span>
+          </Badge> at any time.
+        </p>
+      </div>
       {suckers?.length > 1 && (
         <div className="mt-2 mb-4">
           <div className="text-sm text-zinc-500">
@@ -104,65 +104,65 @@ export function SplitsSection() {
           </Select>
         </div>
       )}
-    <div className="flex gap-1 pb-2 pt-2 text-md font-medium border-l border-zinc-200 pl-3"><Badge variant="secondary" className="border border-visible">
-                <ForwardIcon className="w-4 h-4 mr-1 inline-block" />
-                <span className="non-italic">Operator</span>
-              </Badge> is <EtherscanLink
-                      value={boostRecipient}
-                      type="address"
-                      chain={chainId ? ChainIdToChain[chainId] : undefined}
-                      truncateTo={6}
-                    /></div>
-    <div className="max-h-96 overflow-auto bg-zinc-50 rounded-tr-md rounded-bl-md rounded-br-md  border-zinc-200 border mb-4">
-    <div className="flex flex-col p-2">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead className="w-auto md:w-1/2">Account</TableHead>
-            <TableHead>Percentage</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {isLoading ? (
-            <TableRow>
-              <TableCell colSpan={2} className="text-center">
-                Loading...
-              </TableCell>
-            </TableRow>
-          ) : (
-            reservedTokenSplits?.map((split) => (
-              <TableRow key={split.beneficiary}>
-                <TableCell>
-                  <div className="flex flex-col sm:flex-row text-sm">
-                    <EthereumAddress
-                      address={split.beneficiary}
-                      chain={selectedSucker ? ChainIdToChain[selectedSucker.peerChainId] : chainId ? ChainIdToChain[chainId] : undefined }
-                      short
-                      withEnsAvatar
-                      withEnsName
-                      className="hidden sm:block"
-                    />
-                    <EthereumAddress
-                      address={split.beneficiary}
-                      chain={selectedSucker ? ChainIdToChain[selectedSucker.peerChainId] : chainId ? ChainIdToChain[chainId] : undefined }
-                      short
-                      avatarProps={{size: "sm"}}
-                      withEnsAvatar
-                      withEnsName
-                      className="block sm:hidden"
-                    />
-                  </div>
-                </TableCell>
-                <TableCell>
-                  {formatUnits(BigInt(split.percent), 7)} %
-                </TableCell>
+      <div className="flex gap-1 pb-2 pt-2 text-md font-medium border-l border-zinc-200 pl-3"><Badge variant="secondary" className="border border-visible">
+        <ForwardIcon className="w-4 h-4 mr-1 inline-block" />
+        <span className="non-italic">Operator</span>
+      </Badge> is <EtherscanLink
+        value={boostRecipient}
+        type="address"
+        chain={chainId ? ChainIdToChain[chainId] : undefined}
+        truncateTo={6}
+      /></div>
+      <div className="max-h-96 overflow-auto bg-zinc-50 rounded-tr-md rounded-bl-md rounded-br-md  border-zinc-200 border mb-4">
+        <div className="flex flex-col p-2">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-auto md:w-1/2">Account</TableHead>
+                <TableHead>Percentage</TableHead>
               </TableRow>
-            ))
-          )}
-        </TableBody>
-      </Table>
-    </div>
-    </div>
+            </TableHeader>
+            <TableBody>
+              {isLoading ? (
+                <TableRow>
+                  <TableCell colSpan={2} className="text-center">
+                Loading...
+                  </TableCell>
+                </TableRow>
+              ) : (
+                reservedTokenSplits?.map((split) => (
+                  <TableRow key={split.beneficiary}>
+                    <TableCell>
+                      <div className="flex flex-col sm:flex-row text-sm">
+                        <EthereumAddress
+                          address={split.beneficiary}
+                          chain={selectedSucker ? ChainIdToChain[selectedSucker.peerChainId] : chainId ? ChainIdToChain[chainId] : undefined }
+                          short
+                          withEnsAvatar
+                          withEnsName
+                          className="hidden sm:block"
+                        />
+                        <EthereumAddress
+                          address={split.beneficiary}
+                          chain={selectedSucker ? ChainIdToChain[selectedSucker.peerChainId] : chainId ? ChainIdToChain[chainId] : undefined }
+                          short
+                          avatarProps={{size: "sm"}}
+                          withEnsAvatar
+                          withEnsName
+                          className="block sm:hidden"
+                        />
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      {formatUnits(BigInt(split.percent), 7)} %
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </div>
+      </div>
     </>
   )
 }
