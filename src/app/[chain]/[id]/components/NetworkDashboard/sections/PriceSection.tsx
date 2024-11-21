@@ -40,7 +40,7 @@ export function PriceSection({ className }: { className?: string }) {
   
   return (
     <>
-      <div className={cn("overflow-scroll whitespace-nowrap", className)}>
+      <div className={className}>
           {/* <div className="text-2xl font-semibold">Current issuance price</div> */}
           <ul className="list-disc list-inside mt-2 space-y-2">
             <li className="flex">

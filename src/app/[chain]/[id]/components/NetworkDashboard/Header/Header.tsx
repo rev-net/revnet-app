@@ -134,7 +134,7 @@ export function Header() {
                 ).toFixed(4)}`
               : "..."} 
               </span>{" "}
-              <span className="text-zinc-500">unit value</span>
+              <span className="text-zinc-500">cash out value</span>
             </div>
           </div>
         </div>
