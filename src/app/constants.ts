@@ -1,4 +1,5 @@
 import { JBChainId } from "juice-sdk-react";
+import { Address } from "viem";
 import {
   Chain,
   arbitrumSepolia,
@@ -58,3 +59,21 @@ export const chainIdToLogo = {
 };
 
 export const JB_REDEEM_FEE_PERCENT = 0.025;
+
+export const SUPPORTED_JB_CONTROLLER_ADDRESS = {
+  [sepolia.id]: "0x219A5cE6d1c512D5b050ad2E3d380b8746BE0Cb8" as Address,
+  [optimismSepolia.id]: "0x219A5cE6d1c512D5b050ad2E3d380b8746BE0Cb8" as Address,
+  [baseSepolia.id]: "0x219A5cE6d1c512D5b050ad2E3d380b8746BE0Cb8" as Address,
+  [arbitrumSepolia.id]: "0x219A5cE6d1c512D5b050ad2E3d380b8746BE0Cb8" as Address,
+};
+
+/**
+ * The contract addresses to use for deployment
+ * @todo not ideal to hardcode these addresses
+ */
+export const SUPPORTED_JB_MULTITERMINAL_ADDRESS = {
+  [sepolia.id]: "0x4DeF0AA5B9CA095d11705284221b2878731ab4EF" as Address,
+  [optimismSepolia.id]: "0x4DeF0AA5B9CA095d11705284221b2878731ab4EF" as Address,
+  [baseSepolia.id]: "0x4DeF0AA5B9CA095d11705284221b2878731ab4EF" as Address,
+  [arbitrumSepolia.id]: "0x4DeF0AA5B9CA095d11705284221b2878731ab4EF" as Address,
+};

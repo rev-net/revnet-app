@@ -2,12 +2,15 @@ import {
   useJBChainId,
   useJBContractContext,
   useJBRulesetContext,
+  useJBTokenContext,
+  useReadJbControllerPendingReservedTokenBalanceOf,
   useReadJbSplitsSplitsOf,
   useSuckers
 } from "juice-sdk-react";
 import {
   ChainIdToChain,
   RESERVED_TOKEN_SPLIT_GROUP_ID,
+  SUPPORTED_JB_CONTROLLER_ADDRESS,
   chainNames
 } from "@/app/constants";
 import { Badge } from "@/components/ui/badge";
@@ -33,6 +36,7 @@ import {
   SelectValue
 } from "@/components/ui/select";
 import { ChainLogo } from "@/components/ChainLogo";
+import { formatTokenSymbol } from "@/lib/utils";
 
 type Sucker = {
   peerChainId: JBChainId;
@@ -43,6 +47,7 @@ export function SplitsSection() {
   const { projectId } = useJBContractContext();
   const chainId = useJBChainId();
   const { ruleset } = useJBRulesetContext();
+  const { token } = useJBTokenContext();
   const boostRecipient = useBoostRecipient();
   const [selectedSucker, setSelectedSucker] = useState<Sucker>();
   const { data: suckers } = useSuckers() as { data: Sucker[] };
@@ -53,7 +58,17 @@ export function SplitsSection() {
         ? [projectId, BigInt(ruleset.data.id), RESERVED_TOKEN_SPLIT_GROUP_ID]
         : undefined,
   });
-
+  const { data: pendingReserveTokenBalance } = useReadJbControllerPendingReservedTokenBalanceOf({
+    chainId: selectedSucker?.peerChainId,
+    address: selectedSucker?.peerChainId
+      ? SUPPORTED_JB_CONTROLLER_ADDRESS[selectedSucker?.peerChainId]
+      : undefined,
+    args:
+      ruleset && ruleset?.data
+        ? [projectId]
+        : undefined,
+  })
+  console.log("reserveToken", pendingReserveTokenBalance)
   useEffect(() => {
     if (chainId && suckers && !suckers.find((s) => s.peerChainId === chainId)) {
       suckers.push({ projectId, peerChainId: chainId });
@@ -68,7 +83,8 @@ export function SplitsSection() {
     <>
       <div className="flex space-y-4 pb-0 sm:pb-2">
         <p className="text-md text-black font-light italic">
-        Splits can be adjusted by the <Badge variant="secondary" className="border border-visible">
+          Splits can be adjusted by the
+          <Badge variant="secondary" className="border border-visible">
             <ForwardIcon className="w-4 h-4 mr-1 inline-block" />
             <span className="non-italic">Operator</span>
           </Badge> at any time.
@@ -120,6 +136,7 @@ export function SplitsSection() {
               <TableRow>
                 <TableHead className="w-auto md:w-1/2">Account</TableHead>
                 <TableHead>Percentage</TableHead>
+                <TableHead>Pending Splits</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -155,6 +172,14 @@ export function SplitsSection() {
                     </TableCell>
                     <TableCell>
                       {formatUnits(BigInt(split.percent), 7)} %
+                    </TableCell>
+                    <TableCell>
+                      {pendingReserveTokenBalance
+                        ? `
+                          ${formatUnits(pendingReserveTokenBalance * BigInt(split.percent) / BigInt(10**9), 18)}
+                          ${formatTokenSymbol(token.data?.symbol)}
+                        ` : "?"
+                      }
                     </TableCell>
                   </TableRow>
                 ))

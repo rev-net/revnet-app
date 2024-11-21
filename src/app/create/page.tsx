@@ -37,13 +37,6 @@ import {
   ReservedPercent,
 } from "juice-sdk-core";
 import { JBChainId, useChain } from "juice-sdk-react";
-import {
-  CheckCircle,
-  CircleDashedIcon,
-  CircleDotDashedIcon,
-  CircleDotIcon,
-  CircleXIcon,
-} from "lucide-react";
 import Image from "next/image";
 import { ReactNode, useEffect, useState } from "react";
 import { revDeployerAbi } from "revnet-sdk";
@@ -58,12 +51,9 @@ import {
 } from "viem";
 import { mainnet, sepolia } from "viem/chains";
 import { IpfsImageUploader } from "../../components/IpfsFileUploader";
-import { chainNames, MAX_RULESET_COUNT } from "../constants";
+import { chainNames, MAX_RULESET_COUNT, SUPPORTED_JB_MULTITERMINAL_ADDRESS } from "../constants";
 import { useDeployRevnetRelay } from "@/lib/relayr/hooks/useDeployRevnetRelay";
 import { RelayrPostBundleResponse } from "@/lib/relayr/types";
-import { usePayRelayr } from "@/lib/relayr/hooks/usePayRelayr";
-import { useGetRelayrBundle } from "@/lib/relayr/hooks/useGetRelayrBundle";
-import { useToast } from "@/components/ui/use-toast";
 import { format } from "date-fns";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -173,23 +163,6 @@ const EXIT_TAX_HIGH = "80";
 const EXIT_TAX_MID = "50";
 const EXIT_TAX_LOW = "20";
 const EXIT_TAX_NONE = "0";
-/**
- * The contract addresses to use for deployment
- * @todo not ideal to hardcode these addresses
- */
-const SUPPORTED_JB_MULTITERMINAL_ADDRESS = {
-  "84532": "0x4DeF0AA5B9CA095d11705284221b2878731ab4EF" as Address,
-  "421614": "0x4DeF0AA5B9CA095d11705284221b2878731ab4EF" as Address,
-  "11155111": "0x4DeF0AA5B9CA095d11705284221b2878731ab4EF" as Address,
-  "11155420": "0x4DeF0AA5B9CA095d11705284221b2878731ab4EF" as Address,
-};
-
-const SUPPORTED_JB_CONTROLLER_ADDRESS = {
-  "84532": "0x219A5cE6d1c512D5b050ad2E3d380b8746BE0Cb8" as Address,
-  "421614": "0x219A5cE6d1c512D5b050ad2E3d380b8746BE0Cb8" as Address,
-  "11155111": "0x219A5cE6d1c512D5b050ad2E3d380b8746BE0Cb8" as Address,
-  "11155420": "0x219A5cE6d1c512D5b050ad2E3d380b8746BE0Cb8" as Address,
-};
 
 function Field(props: FieldAttributes<any>) {
   if (props.suffix || props.prefix) {
