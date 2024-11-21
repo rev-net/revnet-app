@@ -21,6 +21,7 @@ export function PriceSection({ className }: { className?: string }) {
   const { ruleset, rulesetMetadata } = useJBRulesetContext();
   const { data: ethPrice, isLoading: isEthLoading } = useEtherPrice();
   const { token } = useJBTokenContext();
+  const redeemQuoteQuery = useSuckersTokenRedemptionQuote(1000000000000000000n);
 
   const boostRecipient = useBoostRecipient();
 
@@ -31,8 +32,6 @@ export function PriceSection({ className }: { className?: string }) {
   const devTax = rulesetMetadata?.data?.reservedPercent;
   // console.log("totalBalance", totalBalance)
 
-  const redeemQuoteQuery = useSuckersTokenRedemptionQuote(1000000000000000000n);
-  console.log("redeemQuery", redeemQuoteQuery)
   const loading =
     redeemQuoteQuery.isLoading || isEthLoading;
 

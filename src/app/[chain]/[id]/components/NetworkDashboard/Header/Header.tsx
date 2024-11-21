@@ -47,11 +47,8 @@ export function Header() {
   const loading =
     redeemQuoteQuery.isLoading || isEthLoading;
 
-  console.log("2redeemQuery", redeemQuoteQuery)
   const redeemQuote = redeemQuoteQuery?.data ?? 0n;
 
-  console.log("2redeemQuote", redeemQuote)
-  console.log("2ethPrice", ethPrice)
   return (
     <header>
       <div className="flex sm:items-center items-end gap-4 sm:mb-6 mb-4">
