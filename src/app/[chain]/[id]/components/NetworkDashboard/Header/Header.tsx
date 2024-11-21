@@ -5,10 +5,13 @@ import { ProjectsDocument } from "@/generated/graphql";
 import { useSubgraphQuery } from "@/graphql/useSubgraphQuery";
 import { useCountdownToDate } from "@/hooks/useCountdownToDate";
 import { useFormattedTokenIssuance } from "@/hooks/useFormattedTokenIssuance";
+import { formatEther } from "juice-sdk-core";
 import { ipfsUriToGatewayUrl } from "@/lib/ipfs";
 import { formatSeconds, formatTokenSymbol } from "@/lib/utils";
+import { useEtherPrice } from "@/hooks/useEtherPrice";
 import { ForwardIcon } from "@heroicons/react/24/solid";
 import { SuckerPair } from "juice-sdk-core";
+import { useSuckersTokenRedemptionQuote } from "../../UserTokenBalanceCard/useSuckersTokenRedemptionQuote";
 import {
   JBChainId,
   useJBContractContext,
@@ -25,6 +28,7 @@ export function Header() {
   const { projectId } = useJBContractContext();
   const { metadata } = useJBProjectMetadataContext();
   const { token } = useJBTokenContext();
+  const { data: ethPrice, isLoading: isEthLoading } = useEtherPrice();
 
   const { data: projects } = useSubgraphQuery(ProjectsDocument, {
     where: {
@@ -39,23 +43,39 @@ export function Header() {
   const issuance = useFormattedTokenIssuance();
   const { ruleset } = useJBRulesetContext();
 
-  // TODO move this to own component, to avoid rerendering the whole header every second
-  const timeLeft = useCountdownToDate(
-    new Date(
-      ((ruleset?.data?.start ?? 0) + (ruleset?.data?.duration ?? 0)) * 1000
-    )
-  );
+  const redeemQuoteQuery = useSuckersTokenRedemptionQuote(1000000000000000000n);
+  const loading =
+    redeemQuoteQuery.isLoading || isEthLoading;
+
+  console.log("2redeemQuery", redeemQuoteQuery)
+  const redeemQuote = redeemQuoteQuery?.data ?? 0n;
+
+  console.log("2redeemQuote", redeemQuote)
+  console.log("2ethPrice", ethPrice)
   return (
     <header>
-      <div className="flex items-center gap-4 sm:mb-6 mb-4">
+      <div className="flex sm:items-center items-end gap-4 sm:mb-6 mb-4">
         {logoUri ? (
+          <>
+          <div className="sm:hidden">
+            <Image
+              src={ipfsUriToGatewayUrl(logoUri)}
+              className="rounded-md overflow-hidden block border border-zinc-200"
+              alt={"revnet logo"}
+              width={120}
+              height={10}
+            />
+          </div>
+          <div className="sm:block hidden">
           <Image
             src={ipfsUriToGatewayUrl(logoUri)}
             className="rounded-md overflow-hidden block border border-zinc-200"
             alt={"revnet logo"}
             width={144}
             height={144}
-          />
+              />
+            </div>
+          </>
         ) : (
           <div className="rounded-lg bg-zinc-100 h-36 w-36 flex items-center justify-center">
             <ForwardIcon className="h-5 w-5 text-zinc-700" />
@@ -96,16 +116,26 @@ export function Header() {
             })}
           </div>
           </div>
-          <div className="flex gap-4 items-center mb-2">
+          <div className="flex sm:flex-row flex-col sm:items-center items-leading sm:gap-4 items-start">
             <TvlDatum />
-            <span className="text-xl">
+            <div className="sm:text-xl text-lg">
               <span className="font-medium text-zinc-500">
                 {contributorsCount ?? 0}
               </span>{" "}
               <span className="text-zinc-500">
                 {contributorsCount === 1 ? "owner" : "owners"}
               </span>
-            </span>
+            </div>
+            <div className="sm:text-xl text-lg">
+            <span className="font-medium text-zinc-500">
+            {!loading && ethPrice
+              ? `$${(
+                  Number(formatEther(redeemQuote ?? 0n)) * ethPrice
+                ).toFixed(4)}`
+              : "..."} 
+              </span>{" "}
+              <span className="text-zinc-500">unit value</span>
+            </div>
           </div>
         </div>
       </div>

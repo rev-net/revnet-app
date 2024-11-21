@@ -68,7 +68,7 @@ export function SplitsSection() {
     <>
     <div className="flex space-y-4 pb-0 sm:pb-2">
       <p className="text-md text-black font-light italic">
-        Splits can be adjusted by the <Badge variant="secondary">
+        Splits can be adjusted by the <Badge variant="secondary" className="border border-visible">
                 <ForwardIcon className="w-4 h-4 mr-1 inline-block" />
                 <span className="non-italic">Operator</span>
               </Badge> at any time.
@@ -104,7 +104,7 @@ export function SplitsSection() {
           </Select>
         </div>
       )}
-    <div className="flex gap-1 pb-2 pt-2 text-md font-medium border-l border-zinc-100 pl-3"><Badge variant="secondary">
+    <div className="flex gap-1 pb-2 pt-2 text-md font-medium border-l border-zinc-200 pl-3"><Badge variant="secondary" className="border border-visible">
                 <ForwardIcon className="w-4 h-4 mr-1 inline-block" />
                 <span className="non-italic">Operator</span>
               </Badge> is <EtherscanLink
@@ -113,7 +113,7 @@ export function SplitsSection() {
                       chain={chainId ? ChainIdToChain[chainId] : undefined}
                       truncateTo={6}
                     /></div>
-    <div className="max-h-96 overflow-auto bg-zinc-50 rounded-tr-md rounded-bl-md rounded-br-md  border-zinc-100 border mb-4">
+    <div className="max-h-96 overflow-auto bg-zinc-50 rounded-tr-md rounded-bl-md rounded-br-md  border-zinc-200 border mb-4">
     <div className="flex flex-col p-2">
       <Table>
         <TableHeader>

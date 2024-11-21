@@ -735,7 +735,7 @@ function ReviewPage() {
           <h3 className="font-medium">General</h3>
         </div>
 
-        <div className="mt-6 border-t border-zinc-100">
+        <div className="mt-6 border-t border-zinc-200">
           <dl className="divide-y divide-zinc-100">
             <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
               <dt className="text-md font-medium leading-6 text-zinc-900">

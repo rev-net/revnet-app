@@ -137,7 +137,7 @@ export function PayForm() {
           currency={formatTokenSymbol(token)}
         />
         <div className="flex gap-1 p-3 bg-zinc-200 rounded-b-md w-full text-md text-zinc-700 overflow-x-auto whitespace-nowrap">
-          <Badge variant="secondary">
+          <Badge variant="secondary" className="border border-visible">
                 <ForwardIcon className="w-4 h-4 mr-1 inline-block" />
                 Operator
               </Badge> gets {amountC || 0} {formatTokenSymbol(tokenB.symbol)}
