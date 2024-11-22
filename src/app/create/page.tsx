@@ -234,30 +234,30 @@ function DetailsPage() {
 
   return (
     <>
-    {/* Grid Container for Name, Ticker, and Upload Logo */}
-    <div className="grid grid-cols-1 md:grid-cols-[2fr_1fr_2fr] sm:gap-6">
-      <FieldGroup id="name" name="name" label="Name" />
-      <FieldGroup
-        id="tokenSymbol"
-        name="tokenSymbol"
-        label="Ticker"
-        placeholder="MOON"
-        prefix="$"
-      />
-      <div>
-      <label
-        className="block mb-1 text-md font-semibold text-gray-900 dark:text-white"
-        htmlFor="file_input"
-      >
+      {/* Grid Container for Name, Ticker, and Upload Logo */}
+      <div className="grid grid-cols-1 md:grid-cols-[2fr_1fr_2fr] sm:gap-6">
+        <FieldGroup id="name" name="name" label="Name" />
+        <FieldGroup
+          id="tokenSymbol"
+          name="tokenSymbol"
+          label="Ticker"
+          placeholder="MOON"
+          prefix="$"
+        />
+        <div>
+          <label
+            className="block mb-1 text-md font-semibold text-gray-900 dark:text-white"
+            htmlFor="file_input"
+          >
         Logo
-      </label>
-      <IpfsImageUploader
-        onUploadSuccess={(cid) => {
-          setFieldValue("logoUri", ipfsUri(cid));
-        }}
-      />
+          </label>
+          <IpfsImageUploader
+            onUploadSuccess={(cid) => {
+              setFieldValue("logoUri", ipfsUri(cid));
+            }}
+          />
+        </div>
       </div>
-    </div>
       <FieldGroup
         id="description"
         name="description"
@@ -527,9 +527,9 @@ function AddStageDialog({
                       />
                       High (0.8)
                     </label>
-                </div>
+                  </div>
 
-                    <NotesSection>
+                  <NotesSection>
 
                     <div className="text-zinc-600 text-md mt-4 italic">
                       <ul className="list-disc list-inside space-y-2">
@@ -547,8 +547,8 @@ function AddStageDialog({
                         </li>
                       </ul>
                     </div>
-                    </NotesSection>
-                  </div>
+                  </NotesSection>
+                </div>
                 <div className="pb-7">
                   <FieldGroup
                     id="boostDuration"
@@ -559,15 +559,15 @@ function AddStageDialog({
                     type="number"
                     description="How long will this stage last? Leave blank to make this the last stage that lasts forever."
                   />
-                    <NotesSection>
+                  <NotesSection>
 
-                      <ul className="list-disc list-inside">
-                          <li className="flex">
-                            <span className="mr-2">•</span>
-                            <div>Days must be a multiple of this stage's issuance cut rate.</div>
-                          </li>
-                      </ul>
-                    </NotesSection>
+                    <ul className="list-disc list-inside">
+                      <li className="flex">
+                        <span className="mr-2">•</span>
+                        <div>Days must be a multiple of this stage's issuance cut rate.</div>
+                      </li>
+                    </ul>
+                  </NotesSection>
                 </div>
 
                 <DialogFooter>
@@ -894,97 +894,97 @@ function EnvironmentCheckbox({
       <div className="text-left text-black-500 mb-4 font-semibold">
         Choose your chains
       </div>
-    <div className="flex flex-col gap-4">
-      <div className="max-w-56">
-        <Select
-          onValueChange={(v) => { setEnvironment(v) }}
-          defaultValue="testing"
-        >
-          <SelectTrigger className="col-span-1">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem
-              value="testing"
-              key="testing"
-            >
-              Testnets
-            </SelectItem>
-            <SelectItem
-              value="production"
-              key="production"
-            >
-              Production (coming soon)
-            </SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-      {/* Conditional Checkboxes */}
-      <div className="flex flex-wrap gap-6 mt-4">
-        {environment === "production" ? (
-          // Production Options
-          <>
-            <label className="flex items-center gap-2">
-              <input type="checkbox" value="ethereum" className="form-checkbox" /> Ethereum Mainnet
-            </label>
-            <label className="flex items-center gap-2">
-              <input type="checkbox" value="optimism" className="form-checkbox" /> Optimism Mainnet
-            </label>
-            <label className="flex items-center gap-2">
-              <input type="checkbox" value="arbitrum" className="form-checkbox" /> Arbitrum Mainnet
-            </label>
-            <label className="flex items-center gap-2">
-              <input type="checkbox" value="base" className="form-checkbox" /> Base Mainnet
-            </label>
-          </>
-        ) : (
-          // Testnet Options (Sepolia)
-          <>
-            {Object.entries(chainNames).map(([id, name]) => (
-              <label key={id} className="flex items-center gap-2">
-                <FormikField
-                  type="checkbox"
-                  name="chainIds"
-                  value={id}
-                  checked={values.chainIds.includes(Number(id) as JBChainId)}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                    handleChainSelect(Number(id), e.target.checked);
-                  }}
-                />
-                {name}
-              </label>
-            ))}
-          </>
-        )}
-      </div>
-
-      <div className="flex flex-col md:col-span-3 mt-4">
-        <QuoteButton
-          isLoading={isLoading}
-          validBundle={validBundle}
-          disableQuoteButton={disableQuoteButton}
-          onSubmit={submitForm}
-        />
-        {relayrResponse && (
-          <div className="flex flex-col items-start">
-            <div className="text-xs italic mt-2">
-              Quote valid until {format(relayrResponse.payment_info[0].payment_deadline, "h:mm:ss aaa") }.
-              <Button
-                variant="link"
-                size="sm"
-                className="italic text-xs px-1"
-                onClick={() => reset()}
+      <div className="flex flex-col gap-4">
+        <div className="max-w-56">
+          <Select
+            onValueChange={(v) => { setEnvironment(v) }}
+            defaultValue="testing"
+          >
+            <SelectTrigger className="col-span-1">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem
+                value="testing"
+                key="testing"
               >
-                clear quote
-              </Button>
-            </div>
-          </div>
-        )}
-      </div>
+              Testnets
+              </SelectItem>
+              <SelectItem
+                value="production"
+                key="production"
+              >
+              Production (coming soon)
+              </SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        {/* Conditional Checkboxes */}
+        <div className="flex flex-wrap gap-6 mt-4">
+          {environment === "production" ? (
+          // Production Options
+            <>
+              <label className="flex items-center gap-2">
+                <input type="checkbox" value="ethereum" className="form-checkbox" /> Ethereum Mainnet
+              </label>
+              <label className="flex items-center gap-2">
+                <input type="checkbox" value="optimism" className="form-checkbox" /> Optimism Mainnet
+              </label>
+              <label className="flex items-center gap-2">
+                <input type="checkbox" value="arbitrum" className="form-checkbox" /> Arbitrum Mainnet
+              </label>
+              <label className="flex items-center gap-2">
+                <input type="checkbox" value="base" className="form-checkbox" /> Base Mainnet
+              </label>
+            </>
+          ) : (
+          // Testnet Options (Sepolia)
+            <>
+              {Object.entries(chainNames).map(([id, name]) => (
+                <label key={id} className="flex items-center gap-2">
+                  <FormikField
+                    type="checkbox"
+                    name="chainIds"
+                    value={id}
+                    checked={values.chainIds.includes(Number(id) as JBChainId)}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                      handleChainSelect(Number(id), e.target.checked);
+                    }}
+                  />
+                  {name}
+                </label>
+              ))}
+            </>
+          )}
+        </div>
 
-      {relayrResponse && (
-        <PayAndDeploy relayrResponse={relayrResponse} revnetTokenSymbol={revnetTokenSymbol} />
-      )}
+        <div className="flex flex-col md:col-span-3 mt-4">
+          <QuoteButton
+            isLoading={isLoading}
+            validBundle={validBundle}
+            disableQuoteButton={disableQuoteButton}
+            onSubmit={submitForm}
+          />
+          {relayrResponse && (
+            <div className="flex flex-col items-start">
+              <div className="text-xs italic mt-2">
+              Quote valid until {format(relayrResponse.payment_info[0].payment_deadline, "h:mm:ss aaa") }.
+                <Button
+                  variant="link"
+                  size="sm"
+                  className="italic text-xs px-1"
+                  onClick={() => reset()}
+                >
+                clear quote
+                </Button>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {relayrResponse && (
+          <PayAndDeploy relayrResponse={relayrResponse} revnetTokenSymbol={revnetTokenSymbol} />
+        )}
       </div>
     </div>
   );

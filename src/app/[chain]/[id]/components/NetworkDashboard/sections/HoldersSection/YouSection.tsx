@@ -32,42 +32,42 @@ export function YouSection({ totalSupply }: { totalSupply: bigint }) {
   return (
     <div className="grid grid-cols-1 gap-x-8 overflow-x-scrolltext-md gap-1">
       {/* Left Column */}
-        <div className="sm:col-span-1 sm:px-0 grid grid-cols-2 sm:grid-cols-4">
-          <dt className="text-md font-medium leading-6 text-zinc-900">Balance</dt>
-          <dd className="text-zinc-600">
-            <UserTokenBalanceDatum />
-          </dd>
-        </div>
-        <div className="sm:col-span-1 sm:px-0 grid grid-cols-2 sm:grid-cols-4">
-          <dt className="text-md font-medium leading-6 text-zinc-900">Ownership</dt>
-          <dd className="text-zinc-600">
-            {formatPortion(totalBalance, totalSupply)}%
-          </dd>
-        </div>
-        <div className="sm:col-span-1 sm:px-0 grid grid-cols-2 sm:grid-cols-4">
-          <dt className="text-md font-medium leading-6 text-zinc-900">Current cash out value</dt>
-          <dd className="text-zinc-600">
-            <Tooltip>
-              <TooltipTrigger>
-                {!loading && ethPrice
-                  ? `$${(
-                      Number(formatEther(redeemQuote ?? 0n)) * ethPrice
-                    ).toFixed(2)}`
-                  : "..."}
-              </TooltipTrigger>
-              <TooltipContent>
-                <div className="flex flex-col space-y-2">
-                  <NativeTokenValue wei={redeemQuote} decimals={8} />
-                  <span className="font-medium italic">WIP breakdown</span>
-                </div>
-              </TooltipContent>
-            </Tooltip>
-          </dd>
-        </div>
-        <div className="sm:col-span-1 sm:px-0 grid grid-cols-2 sm:grid-cols-4">
-          <dt className="text-md font-medium leading-6 text-zinc-900">Current loan potential</dt>
-          <dd className="text-zinc-600">$100.50</dd>
-        </div>
+      <div className="sm:col-span-1 sm:px-0 grid grid-cols-2 sm:grid-cols-4">
+        <dt className="text-md font-medium leading-6 text-zinc-900">Balance</dt>
+        <dd className="text-zinc-600">
+          <UserTokenBalanceDatum />
+        </dd>
+      </div>
+      <div className="sm:col-span-1 sm:px-0 grid grid-cols-2 sm:grid-cols-4">
+        <dt className="text-md font-medium leading-6 text-zinc-900">Ownership</dt>
+        <dd className="text-zinc-600">
+          {formatPortion(totalBalance, totalSupply)}%
+        </dd>
+      </div>
+      <div className="sm:col-span-1 sm:px-0 grid grid-cols-2 sm:grid-cols-4">
+        <dt className="text-md font-medium leading-6 text-zinc-900">Current cash out value</dt>
+        <dd className="text-zinc-600">
+          <Tooltip>
+            <TooltipTrigger>
+              {!loading && ethPrice
+                ? `$${(
+                  Number(formatEther(redeemQuote ?? 0n)) * ethPrice
+                ).toFixed(2)}`
+                : "..."}
+            </TooltipTrigger>
+            <TooltipContent>
+              <div className="flex flex-col space-y-2">
+                <NativeTokenValue wei={redeemQuote} decimals={8} />
+                <span className="font-medium italic">WIP breakdown</span>
+              </div>
+            </TooltipContent>
+          </Tooltip>
+        </dd>
+      </div>
+      <div className="sm:col-span-1 sm:px-0 grid grid-cols-2 sm:grid-cols-4">
+        <dt className="text-md font-medium leading-6 text-zinc-900">Current loan potential</dt>
+        <dd className="text-zinc-600">$100.50</dd>
+      </div>
     </div>
   );
 }

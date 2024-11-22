@@ -22,7 +22,7 @@ export function SectionTooltip({
         </TooltipTrigger>
         <TooltipContent side="right">
           {info}
-          {children} 
+          {children}
         </TooltipContent>
       </div>
     </Tooltip>

@@ -39,7 +39,7 @@ export default function Page() {
 
       <div className="mt-14 max-w-prose text-l md:text-2xl text-lg text-left">
         {/* <p className="text-xl">
-          Made for creators, developers, communities, investors, and customers. 
+          Made for creators, developers, communities, investors, and customers.
         </p> */}
         <p className="text-xl">
           Simple enough for startups, powerful enough for decentralized global organizations and brands.
@@ -57,24 +57,24 @@ export default function Page() {
           </Link>.
         </p>
         <div className="flex">
-            <div className="mt-8 bg-white text-black text-lg">
+          <div className="mt-8 bg-white text-black text-lg">
           Plan your revnet with the community <Link href="https://discord.gg/vhVxwh8aD9" className="underline hover:text-black/70">on Discord.
-          </Link>
+            </Link>
+          </div>
         </div>
-            </div>
         <div className="flex">
-            <div className="bg-white text-black text-lg">
+          <div className="bg-white text-black text-lg">
 Audit this website and the revnet protocol <Link href="https://github.com/orgs/rev-net/repositories" className="underline hover:text-black/70">
                on Github.
-          </Link>
-            </div>
+            </Link>
+          </div>
         </div>
         <div className="flex mb-40">
-            <div className="bg-white text-black text-lg">
+          <div className="bg-white text-black text-lg">
     Support the $REV network <Link href="https://revnet.app/sepolia/3" className="underline hover:text-black/70">
                here,
-          </Link>{" "}we run as a revnet ourselves.
-            </div>
+            </Link>{" "}we run as a revnet ourselves.
+          </div>
         </div>
       </div>
     </div>

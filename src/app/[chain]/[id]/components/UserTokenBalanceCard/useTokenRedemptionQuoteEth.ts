@@ -29,14 +29,14 @@ export function useTokenRedemptionQuoteEth(
     address: store.data ?? undefined,
     args: tokenAmountWei
       ? [
-          zeroAddress,
-          projectId,
-          [],
-          BigInt(NATIVE_TOKEN_DECIMALS),
-          BigInt(NATIVE_TOKEN),
-          tokenAmountWei,
-          true,
-        ]
+        zeroAddress,
+        projectId,
+        [],
+        BigInt(NATIVE_TOKEN_DECIMALS),
+        BigInt(NATIVE_TOKEN),
+        tokenAmountWei,
+        true,
+      ]
       : undefined,
     query: {
       select(data) {

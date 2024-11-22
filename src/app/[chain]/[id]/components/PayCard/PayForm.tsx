@@ -138,9 +138,9 @@ export function PayForm() {
         />
         <div className="flex gap-1 p-3 bg-zinc-200 rounded-b-md w-full text-md text-zinc-700 overflow-x-auto whitespace-nowrap">
           <Badge variant="secondary" className="border border-visible">
-                <ForwardIcon className="w-4 h-4 mr-1 inline-block" />
+            <ForwardIcon className="w-4 h-4 mr-1 inline-block" />
                 Operator
-              </Badge> gets {amountC || 0} {formatTokenSymbol(tokenB.symbol)}
+          </Badge> gets {amountC || 0} {formatTokenSymbol(tokenB.symbol)}
         </div>
       </div>
       {/* <div className="flex justify-between gap-3 items-center md:items-start flex-col md:flex-row">
@@ -162,9 +162,9 @@ export function PayForm() {
 
       <div className="flex flex-row gap-2 mt-3">
         <Formik
-            initialValues={{ }}
-            onSubmit={() => {}}
-          >
+          initialValues={{ }}
+          onSubmit={() => {}}
+        >
           <Field
             component="textarea"
             id="memo"
@@ -176,18 +176,18 @@ export function PayForm() {
             onChange={(e: any) => setMemo?.(e.target.value)}
             placeholder="Optional memo"
           />
-          </Formik>
-      <div className="w-[100px]">
-        {primaryNativeTerminal?.data ? (
-          <PayDialog
-            amountA={_amountA}
-            amountB={_amountB}
-            memo={memo}
-            primaryTerminalEth={primaryNativeTerminal?.data}
-            disabled={!amountA}
-          />
-        ) : null}
-      </div>
+        </Formik>
+        <div className="w-[100px]">
+          {primaryNativeTerminal?.data ? (
+            <PayDialog
+              amountA={_amountA}
+              amountB={_amountB}
+              memo={memo}
+              primaryTerminalEth={primaryNativeTerminal?.data}
+              disabled={!amountA}
+            />
+          ) : null}
+        </div>
       </div>
     </div>
   );

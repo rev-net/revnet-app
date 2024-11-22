@@ -54,22 +54,22 @@ export function Header() {
       <div className="flex sm:items-center items-end gap-4 sm:mb-6 mb-4">
         {logoUri ? (
           <>
-          <div className="sm:hidden">
-            <Image
-              src={ipfsUriToGatewayUrl(logoUri)}
-              className="rounded-md overflow-hidden block border border-zinc-200"
-              alt={"revnet logo"}
-              width={120}
-              height={10}
-            />
-          </div>
-          <div className="sm:block hidden">
-          <Image
-            src={ipfsUriToGatewayUrl(logoUri)}
-            className="rounded-md overflow-hidden block border border-zinc-200"
-            alt={"revnet logo"}
-            width={144}
-            height={144}
+            <div className="sm:hidden">
+              <Image
+                src={ipfsUriToGatewayUrl(logoUri)}
+                className="rounded-md overflow-hidden block border border-zinc-200"
+                alt={"revnet logo"}
+                width={120}
+                height={10}
+              />
+            </div>
+            <div className="sm:block hidden">
+              <Image
+                src={ipfsUriToGatewayUrl(logoUri)}
+                className="rounded-md overflow-hidden block border border-zinc-200"
+                alt={"revnet logo"}
+                width={144}
+                height={144}
               />
             </div>
           </>
@@ -81,7 +81,7 @@ export function Header() {
 
         <div>
           <div className="flex flex-col items-baseline sm:flex-row sm:gap-2 mb-1">
-          <span className="text-3xl font-bold">
+            <span className="text-3xl font-bold">
               {token?.data ? (
                 <EtherscanLink
                   value={token.data.address}
@@ -90,28 +90,28 @@ export function Header() {
                   {formatTokenSymbol(token)}
                 </EtherscanLink>
               ) : null}
-          </span>
-          <div className="text-sm flex gap-2 items-baseline">
-            <h1 className="text-2xl font-medium tracking-tight">{projectName}</h1>
-            {(suckerPairs.data as SuckerPair[])?.map((pair) => {
-              if (!pair) return null;
+            </span>
+            <div className="text-sm flex gap-2 items-baseline">
+              <h1 className="text-2xl font-medium tracking-tight">{projectName}</h1>
+              {(suckerPairs.data as SuckerPair[])?.map((pair) => {
+                if (!pair) return null;
 
-              const networkName = chainIdMap[pair?.peerChainId as JBChainId];
-              return (
-                <Link
-                  className="underline"
-                  key={networkName}
-                  href={`/${networkName}/${pair.projectId}`}
-                >
-                  <ChainLogo
-                    chainId={pair.peerChainId as JBChainId}
-                    width={18}
-                    height={18}
-                  />
-                </Link>
-              );
-            })}
-          </div>
+                const networkName = chainIdMap[pair?.peerChainId as JBChainId];
+                return (
+                  <Link
+                    className="underline"
+                    key={networkName}
+                    href={`/${networkName}/${pair.projectId}`}
+                  >
+                    <ChainLogo
+                      chainId={pair.peerChainId as JBChainId}
+                      width={18}
+                      height={18}
+                    />
+                  </Link>
+                );
+              })}
+            </div>
           </div>
           <div className="flex sm:flex-row flex-col sm:items-center items-leading sm:gap-4 items-start">
             <TvlDatum />
@@ -124,12 +124,12 @@ export function Header() {
               </span>
             </div>
             <div className="sm:text-xl text-lg">
-            <span className="font-medium text-zinc-500">
-            {!loading && ethPrice
-              ? `$${(
-                  Number(formatEther(redeemQuote ?? 0n)) * ethPrice
-                ).toFixed(4)}`
-              : "..."} 
+              <span className="font-medium text-zinc-500">
+                {!loading && ethPrice
+                  ? `$${(
+                    Number(formatEther(redeemQuote ?? 0n)) * ethPrice
+                  ).toFixed(4)}`
+                  : "..."}
               </span>{" "}
               <span className="text-zinc-500">cash out value</span>
             </div>

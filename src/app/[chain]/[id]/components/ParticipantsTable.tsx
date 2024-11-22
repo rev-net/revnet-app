@@ -26,7 +26,7 @@ export function ParticipantsTable({
   totalSupply: bigint;
   boostRecipient?: Address;
 }) {
-console.log(participants)
+  console.log(participants)
   return (
     <Table>
       <TableHeader>
@@ -68,22 +68,22 @@ console.log(participants)
                 })}{" "}
                 {formatTokenSymbol(token.symbol)} {" | "}
                 <span className="font-bold">
-               {participant.balance
-                ? formatPortion(BigInt(participant.balance), totalSupply)
-                : 0}
+                  {participant.balance
+                    ? formatPortion(BigInt(participant.balance), totalSupply)
+                    : 0}
               %
-              </span>
+                </span>
               </TableCell>
             ) : null}
             <TableCell className="whitespace-nowrap">
               <div className="flex items-center gap-1">
                 {participant.chains.map((chain) => (
                   <ChainLogo
-                      chainId={chain}
-                      key={chain}
-                      width={14}
-                      height={14}
-                    />
+                    chainId={chain}
+                    key={chain}
+                    width={14}
+                    height={14}
+                  />
                 ))}
               </div>
             </TableCell>

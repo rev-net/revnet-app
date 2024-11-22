@@ -55,16 +55,16 @@ export function useExitFloorPrice() {
     exitFloorPriceUnit &&
     rulesetMetadata?.data
       ? getTokenRedemptionQuoteEth(
-          parseUnits(exitFloorPriceUnit as `${number}`, token.data.decimals),
-          {
-            overflowWei: nativeTokenSurplus,
-            totalSupply: totalTokenSupply,
-            redemptionRate: Number(
-              rulesetMetadata?.data?.redemptionRate.value ?? 0n
-            ),
-            tokensReserved,
-          }
-        ) * 10n
+        parseUnits(exitFloorPriceUnit as `${number}`, token.data.decimals),
+        {
+          overflowWei: nativeTokenSurplus,
+          totalSupply: totalTokenSupply,
+          redemptionRate: Number(
+            rulesetMetadata?.data?.redemptionRate.value ?? 0n
+          ),
+          tokensReserved,
+        }
+      ) * 10n
       : null;
 
   return exitFloorPrice;

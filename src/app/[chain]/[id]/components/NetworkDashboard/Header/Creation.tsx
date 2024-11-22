@@ -19,13 +19,13 @@ export function Creation() {
 
   return (
     timestamp && txHash ? (
-        <EtherscanLink
-          value={txHash}
-          type="tx"
-          className="text-zinc-500 text-sm"
-        >
+      <EtherscanLink
+        value={txHash}
+        type="tx"
+        className="text-zinc-500 text-sm"
+      >
           Since {format(timestamp * 1000, "MMM dd, yyyy")}
-        </EtherscanLink>
-      ) : null
+      </EtherscanLink>
+    ) : null
   )
 }

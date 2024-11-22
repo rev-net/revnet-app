@@ -127,9 +127,9 @@ function RedeemActivityItem(
     <div className="border-b border-zinc-200 pb-2 mb-1">
       <div className="flex items-center justify-between">
         <div className="text-md text-zinc-500 mb-2">
-        <EtherscanLink type="tx" value={redeemEvent.txHash}>
-          {formattedDate}
-        </EtherscanLink>
+          <EtherscanLink type="tx" value={redeemEvent.txHash}>
+            {formattedDate}
+          </EtherscanLink>
         </div>
         <div className="flex items-center gap-1">
           <div className="text-md text-zinc-500 ml-7">
@@ -190,16 +190,16 @@ export function ActivityFeed() {
     setIsOpen(!isOpen);
   };
   return (
-      <>
+    <>
       {/* Dropdown Header */}
       <button
         type="button"
         onClick={toggleDropdown}
         className="flex items-center gap-2 text-left text-black-600"
       >
-      <div className="flex flex-row space-x-2">
-        <h2 className="text-2xl font-semibold">Activity</h2>
-      </div>
+        <div className="flex flex-row space-x-2">
+          <h2 className="text-2xl font-semibold">Activity</h2>
+        </div>
         <span
           className={`transform transition-transform font-sm ${
             isOpen ? "rotate-90" : "rotate-0"
@@ -238,7 +238,7 @@ export function ActivityFeed() {
           <span className="text-zinc-500 text-md">No activity yet.</span>
         )}
       </div>
-       }
-       </>
+      }
+    </>
   );
 }

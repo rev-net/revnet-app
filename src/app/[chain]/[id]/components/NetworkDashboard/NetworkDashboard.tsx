@@ -49,37 +49,37 @@ export function NetworkDashboard() {
   return (
     <>
       <div className="w-full px-4 sm:container pt-6">
-      <Header />
+        <Header />
       </div>
       <div className="flex gap-10 w-full px-4 sm:container pb-5 md:flex-nowrap flex-wrap mb-10">
         {/* Column 2, hide on mobile */}
         <aside className="hidden md:w-[300px] md:block">
           {payAndActivityBar}
         </aside>
-      {/* Column 1 */}
-      <div className="flex-1">
-        {/* Render Pay and activity after header on mobile */}
-        <div className="sm:hidden">{payAndActivityBar}</div>
+        {/* Column 1 */}
+        <div className="flex-1">
+          {/* Render Pay and activity after header on mobile */}
+          <div className="sm:hidden">{payAndActivityBar}</div>
 
-        <div className="max-w-4xl mx-auto">
-          <section className="mb-10">
-            <div className="sm:mb-8 mb-5">
-              <NetworkDetailsTable />
-            </div>
+          <div className="max-w-4xl mx-auto">
+            <section className="mb-10">
+              <div className="sm:mb-8 mb-5">
+                <NetworkDetailsTable />
+              </div>
 
-            <div className="sm:mb-8 mb-5">
-              <HoldersSection />
-            </div>
+              <div className="sm:mb-8 mb-5">
+                <HoldersSection />
+              </div>
 
-            <div className="sm:mb-8 mb-5">
-              <DescriptionSection />
-            </div>
-            <div className="sm:mb-8 mb-5">
-              <ActivityFeed />
-            </div>
-          </section>
+              <div className="sm:mb-8 mb-5">
+                <DescriptionSection />
+              </div>
+              <div className="sm:mb-8 mb-5">
+                <ActivityFeed />
+              </div>
+            </section>
 
-          {/*
+            {/*
         <div>
           {totalTokenSupply && tokensReserved && token ? (
             <div>
@@ -90,14 +90,14 @@ export function NetworkDashboard() {
           ) : null}
         </div> */}
 
-          {/* <div>
+            {/* <div>
           Gen {(cycleData.number + 1n).toString()} buy price:{" "}
           {formatEther(nextCycleEthQuote)} ETH / {token?.data?.symbol} (+
           {formatEther(nextCycleEthQuote - ethQuote)} ETH)
         </div> */}
+          </div>
         </div>
       </div>
-    </div>
-  </>
+    </>
   );
 }

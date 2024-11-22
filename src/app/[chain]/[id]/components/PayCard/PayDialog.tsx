@@ -153,29 +153,29 @@ export function PayDialog({
                   <div className="text-sm text-zinc-500">
                     {amountB.symbol} is available on:
                   </div>
-                <Select
-                  onValueChange={(v) => setSelectedSucker(suckers[parseInt(v)])}
-                  value={selectedSucker ? String(suckers.indexOf(selectedSucker)) : undefined}
-                >
-                  <SelectTrigger className="w-[200px]">
-                    <SelectValue placeholder="Select chain">
-                    </SelectValue>
-                  </SelectTrigger>
-                  <SelectContent>
-                    {suckers.map((s, index) => (
-                      <SelectItem
-                        key={s.peerChainId}
-                        value={String(index)}
-                        className="flex items-center gap-2"
-                      >
-                        <div className="flex items-center gap-2">
-                          <ChainLogo chainId={s.peerChainId} />
-                          <span>{chainNames[s.peerChainId]}</span>
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  <Select
+                    onValueChange={(v) => setSelectedSucker(suckers[parseInt(v)])}
+                    value={selectedSucker ? String(suckers.indexOf(selectedSucker)) : undefined}
+                  >
+                    <SelectTrigger className="w-[200px]">
+                      <SelectValue placeholder="Select chain">
+                      </SelectValue>
+                    </SelectTrigger>
+                    <SelectContent>
+                      {suckers.map((s, index) => (
+                        <SelectItem
+                          key={s.peerChainId}
+                          value={String(index)}
+                          className="flex items-center gap-2"
+                        >
+                          <div className="flex items-center gap-2">
+                            <ChainLogo chainId={s.peerChainId} />
+                            <span>{chainNames[s.peerChainId]}</span>
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
               ) : (
                 selectedSucker && (

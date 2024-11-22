@@ -3,6 +3,7 @@
   "rules": {
     "react/no-unescaped-entities": "off",
     "indent": ["warn", 2],
-    "indent-legacy": "off"
+    "indent-legacy": "off",
+    "no-trailing-spaces": "warn"
   }
 }

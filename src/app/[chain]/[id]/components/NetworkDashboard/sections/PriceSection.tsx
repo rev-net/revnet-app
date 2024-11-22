@@ -36,65 +36,65 @@ export function PriceSection({ className }: { className?: string }) {
     redeemQuoteQuery.isLoading || isEthLoading;
 
   const redeemQuote = redeemQuoteQuery?.data ?? 0n;
-  
+
   return (
     <>
       <div className={className}>
-          {/* <div className="text-2xl font-semibold">Current issuance price</div> */}
-          <ul className="list-disc list-inside mt-2 space-y-2">
-            <li className="flex">
-              <div className="flex flex-col border-l border-zinc-300 pl-2">
-                <div className="text-md">
-                  Currently issuing {issuance} 
-                </div> 
-                <PriceIncreaseCountdown />
+        {/* <div className="text-2xl font-semibold">Current issuance price</div> */}
+        <ul className="list-disc list-inside mt-2 space-y-2">
+          <li className="flex">
+            <div className="flex flex-col border-l border-zinc-300 pl-2">
+              <div className="text-md">
+                  Currently issuing {issuance}
               </div>
-            </li>
-          </ul>
+              <PriceIncreaseCountdown />
+            </div>
+          </li>
+        </ul>
         {devTax && boostRecipient ?   (
           <ul className="list-disc list-inside mt-2 space-y-2">
             <li className="flex">
               <div className="flex flex-col border-l border-zinc-300 pl-2">
-            <span>
-                {devTax.formatPercentage().toFixed(2)}%
-                {" "}
-                <span>of issuance and buybacks split to </span>
-           
-             <Tooltip>
-               <TooltipTrigger>
-               <Badge variant="secondary" className="border border-visible">
-                 <ForwardIcon className="w-4 h-4 mr-1 inline-block" />
+                <span>
+                  {devTax.formatPercentage().toFixed(2)}%
+                  {" "}
+                  <span>of issuance and buybacks split to </span>
+
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <Badge variant="secondary" className="border border-visible">
+                        <ForwardIcon className="w-4 h-4 mr-1 inline-block" />
                  Operator
-               </Badge>
-           </TooltipTrigger>
-           <TooltipContent>
-             <EthereumAddress
-               address={boostRecipient}
-               short
-               withEnsName
-               className="font-medium"
-             />{" "}
+                      </Badge>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <EthereumAddress
+                        address={boostRecipient}
+                        short
+                        withEnsName
+                        className="font-medium"
+                      />{" "}
              is the split operator and can direct this split
-                   </TooltipContent>
-                </Tooltip>
-            </span>
+                    </TooltipContent>
+                  </Tooltip>
+                </span>
               </div>
             </li>
           </ul>
-            ) : null}
-          <ul className="list-disc list-inside mt-2 space-y-2">
-            <li className="flex">
-              <div className="flex flex-col border-l border-zinc-300 pl-2">
-                <div className="text-md">
+        ) : null}
+        <ul className="list-disc list-inside mt-2 space-y-2">
+          <li className="flex">
+            <div className="flex flex-col border-l border-zinc-300 pl-2">
+              <div className="text-md">
                 Current {formatTokenSymbol(token)} cash out value of {!loading && ethPrice
                   ? `$${(
-                      Number(formatEther(redeemQuote ?? 0n)) * ethPrice
-                    ).toFixed(4)}`
+                    Number(formatEther(redeemQuote ?? 0n)) * ethPrice
+                  ).toFixed(4)}`
                   : "..."}. Up only.
-                </div> 
               </div>
-            </li>
-          </ul>
+            </div>
+          </li>
+        </ul>
       </div>
     </>
   );

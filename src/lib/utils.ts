@@ -18,10 +18,10 @@ export function formatSeconds(seconds: number) {
       seconds > 2592000 // if greater than 30 days, only show 'months'
         ? ["months", "days"]
         : seconds > 86400 // if greater than a day, only show 'days'
-        ? ["days", "hours"]
-        : seconds > 3600 // if greater than an hour, only show 'hours' and 'minutes'
-        ? ["hours", "minutes"]
-        : ["minutes", "seconds"],
+          ? ["days", "hours"]
+          : seconds > 3600 // if greater than an hour, only show 'hours' and 'minutes'
+            ? ["hours", "minutes"]
+            : ["minutes", "seconds"],
     delimiter: ", ",
   });
 }
@@ -38,10 +38,10 @@ export function etherscanLink(
   const baseUrl = ChainIdToEtherscanUrlBase[chain.id as JBChainId];
 
   switch (type) {
-    case "address":
-      return `https://${baseUrl}/address/${addressOrTxHash}`;
-    case "tx":
-      return `https://${baseUrl}/tx/${addressOrTxHash}`;
+  case "address":
+    return `https://${baseUrl}/address/${addressOrTxHash}`;
+  case "tx":
+    return `https://${baseUrl}/tx/${addressOrTxHash}`;
   }
 }
 

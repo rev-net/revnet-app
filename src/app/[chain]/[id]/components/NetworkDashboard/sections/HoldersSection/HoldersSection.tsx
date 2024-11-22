@@ -123,68 +123,68 @@ export function HoldersSection() {
       </button>
 
       {/* Dropdown Content */}
-      {isOpen && 
+      {isOpen &&
         <div className="mt-2 text-gray-600 text-md">
           <div className="mb-2">
-        {/* View Tabs */}
-        <div className="flex flex-row space-x-4 mb-3">
-          {ownersTab("all", "All")}
-          {ownersTab("you", "You")}
-          {ownersTab("splits", "Splits")}
-          {ownersTab("autoissuance", "Auto issuance")}
-        </div>
+            {/* View Tabs */}
+            <div className="flex flex-row space-x-4 mb-3">
+              {ownersTab("all", "All")}
+              {ownersTab("you", "You")}
+              {ownersTab("splits", "Splits")}
+              {ownersTab("autoissuance", "Auto issuance")}
+            </div>
 
-        {/* ========================= */}
-        {/* ========= Views ========= */}
-        {/* ========================= */}
+            {/* ========================= */}
+            {/* ========= Views ========= */}
+            {/* ========================= */}
 
-        {/* All Section */}
-        <div className={participantsView === "all" ? "" : "hidden"}>
-                <div className="space-y-4 p-2 pb-0 sm:pb-2">
-                  <p className="text-md text-black font-light italic">
-                    {formatTokenSymbol(token)} owners are accounts who either paid in, received splits, received auto issuance, or got them aftermarket.
-                  </p>
-                </div>
-          <div className="flex sm:flex-row flex-col max-h-140 sm:items-start items-center sm:border-t border-zinc-200">
-              <div className="w-1/3">
-                <ParticipantsPieChart
-                  participants={Object.values(participantsDataAggregate)}
-                  totalSupply={totalOutstandingTokens}
-                  token={token?.data}
-                />
+            {/* All Section */}
+            <div className={participantsView === "all" ? "" : "hidden"}>
+              <div className="space-y-4 p-2 pb-0 sm:pb-2">
+                <p className="text-md text-black font-light italic">
+                  {formatTokenSymbol(token)} owners are accounts who either paid in, received splits, received auto issuance, or got them aftermarket.
+                </p>
               </div>
-            <div className="overflow-auto p-2 bg-zinc-50 rounded-md rounded-tl-none border-zinc-200 sm:border-t-[0px] border w-full">
-                <div>
-                  <ParticipantsTable
+              <div className="flex sm:flex-row flex-col max-h-140 sm:items-start items-center sm:border-t border-zinc-200">
+                <div className="w-1/3">
+                  <ParticipantsPieChart
                     participants={Object.values(participantsDataAggregate)}
-                    token={token.data}
                     totalSupply={totalOutstandingTokens}
-                    boostRecipient={boostRecipient}
+                    token={token?.data}
                   />
+                </div>
+                <div className="overflow-auto p-2 bg-zinc-50 rounded-md rounded-tl-none border-zinc-200 sm:border-t-[0px] border w-full">
+                  <div>
+                    <ParticipantsTable
+                      participants={Object.values(participantsDataAggregate)}
+                      token={token.data}
+                      totalSupply={totalOutstandingTokens}
+                      boostRecipient={boostRecipient}
+                    />
+                  </div>
+                </div>
               </div>
+            </div>
+
+            {/* You Section */}
+            <div className={participantsView === "you" ? "" : "hidden"}>
+              <YouSection totalSupply={totalOutstandingTokens} />
+              <UserTokenBalanceCard />
+            </div>
+
+            {/* Splits Section */}
+            <div className={participantsView === "splits" ? "" : "hidden"}>
+              <SplitsSection />
+              <DistributeReservedTokensButton />
+            </div>
+
+            {/* Auto issuance */}
+            <div className={participantsView === "autoissuance" ? "" : "hidden"}>
+          WIP
             </div>
           </div>
         </div>
-
-        {/* You Section */}
-        <div className={participantsView === "you" ? "" : "hidden"}>
-          <YouSection totalSupply={totalOutstandingTokens} />
-          <UserTokenBalanceCard />
-        </div>
-
-        {/* Splits Section */}
-        <div className={participantsView === "splits" ? "" : "hidden"}>
-          <SplitsSection />
-          <DistributeReservedTokensButton />
-        </div>
-
-        {/* Auto issuance */}
-        <div className={participantsView === "autoissuance" ? "" : "hidden"}>
-          WIP
-        </div>
-      </div>
-        </div>
-        }
+      }
     </div>
   );
 }
