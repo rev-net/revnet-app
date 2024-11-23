@@ -84,7 +84,7 @@ export function SplitsSection() {
       <div className="flex space-y-4 pb-0 sm:pb-2">
         <p className="text-md text-black font-light italic">
           Splits can be adjusted by the
-          <Badge variant="secondary" className="border border-visible">
+          <Badge variant="secondary" className="ml-1 border border-visible">
             <ForwardIcon className="w-4 h-4 mr-1 inline-block" />
             <span className="non-italic">Operator</span>
           </Badge> at any time.

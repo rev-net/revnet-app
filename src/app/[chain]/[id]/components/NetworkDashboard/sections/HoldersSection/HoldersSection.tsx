@@ -26,6 +26,7 @@ import { SplitsSection } from "./SplitsSection";
 import { useOmnichainSubgraphQuery } from "@/graphql/useOmnichainSubgraphQuery";
 import { UserTokenBalanceCard } from "../../../UserTokenBalanceCard/UserTokenBalanceCard";
 import { DistributeReservedTokensButton } from "../../../DistributeReservedTokensButton";
+import { AutoIssuance } from "./AutoIssuance";
 
 type TableView = "you" | "all" | "splits" | "autoissuance";
 
@@ -180,7 +181,7 @@ export function HoldersSection() {
 
             {/* Auto issuance */}
             <div className={participantsView === "autoissuance" ? "" : "hidden"}>
-          WIP
+              <AutoIssuance />
             </div>
           </div>
         </div>
