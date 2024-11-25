@@ -1,0 +1,22 @@
+query StoreAutoMintAmountEvents(
+  $where: StoreAutoMintAmountEvent_filter
+  $orderBy: StoreAutoMintAmountEvent_orderBy
+  $orderDirection: OrderDirection
+  $first: Int
+  $skip: Int
+) {
+  storeAutoMintAmountEvents(
+    where: $where
+    orderBy: $orderBy
+    orderDirection: $orderDirection
+    first: $first
+    skip: $skip
+  ) {
+    id
+    revnetId
+    beneficiary
+    count
+    stageId
+    caller
+  }
+}
