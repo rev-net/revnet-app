@@ -113,7 +113,7 @@ export function RedeemDialog({
                       {" "}
                       Your {tokenSymbol}
                     </span>
-                    <div className="mt-1 border border-zinc-200 rounded-md p-3 bg-zinc-50">
+                    <div className="mt-1 border border-zinc-200 p-3 bg-zinc-50">
                       {balances?.map((balance, index) => (
                         <div key={index} className="flex justify-between gap-2">
                           {chainNames[balance.chainId as JBChainId]}

@@ -68,7 +68,7 @@ export function IpfsImageUploader({
         </div>
       )}
       {uploadFile.data && (
-        <div className="overflow-hidden rounded-md mt-3">
+        <div className="overflow-hidden mt-3">
           <Image
             src={ipfsGatewayUrl(uploadFile.data.Hash)}
             alt="Uploaded file"

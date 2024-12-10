@@ -48,7 +48,7 @@ const CustomTooltip = ({
   const portion = formatPortion(item.balance.value, totalSupply);
 
   return (
-    <div className="bg-white px-5 py-3 text-sm rounded-md border border-zinc-200 shadow-md">
+    <div className="bg-white px-5 py-3 text-sm border border-zinc-200 shadow-md">
       <EthereumAddress address={item.address} short />
       <div className="text-zinc-500">
         {item.balance.format()} tokens ({portion}%)

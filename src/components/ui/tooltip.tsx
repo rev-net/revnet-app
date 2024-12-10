@@ -92,7 +92,7 @@ const TooltipContent = React.forwardRef<
       side={isMobile ? "top" : undefined}
       align={isMobile ? "center" : undefined}
       className={cn(
-        "z-50 rounded-md border border-zinc-200 bg-white px-3 py-1.5 text-sm text-zinc-950 shadow-md dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-50",
+        "z-50 border border-zinc-200 bg-white px-3 py-1.5 text-sm text-zinc-950 shadow-md dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-50",
         isMobile && "fixed -translate-x-1/4 w-60 max-h-64 overflow-y-auto",
         className
       )}

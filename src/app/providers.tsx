@@ -20,7 +20,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
           mode="light"
           customTheme={{
             "--ck-font-family": "var(--font-simplon-norm)",
-            "--ck-border-radius": "0.375rem",
+            "--ck-connectbutton-border-radius": "0",
             "--ck-accent-color": "#14B8A6",
             "--ck-accent-text-color": "#ffffff"
           }}

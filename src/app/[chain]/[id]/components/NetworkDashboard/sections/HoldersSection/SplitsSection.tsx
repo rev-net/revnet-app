@@ -129,7 +129,7 @@ export function SplitsSection() {
         chain={chainId ? ChainIdToChain[chainId] : undefined}
         truncateTo={6}
       /></div>
-      <div className="max-h-96 overflow-auto bg-zinc-50 rounded-tr-md rounded-bl-md rounded-br-md  border-zinc-200 border mb-4">
+      <div className="max-h-96 overflow-auto bg-zinc-50 rounded-tr-md rounded-br-md  border-zinc-200 border mb-4">
         <div className="flex flex-col p-2">
           <Table>
             <TableHeader>

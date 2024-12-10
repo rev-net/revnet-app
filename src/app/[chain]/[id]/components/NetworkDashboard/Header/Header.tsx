@@ -57,7 +57,7 @@ export function Header() {
             <div className="sm:hidden">
               <Image
                 src={ipfsUriToGatewayUrl(logoUri)}
-                className="rounded-md overflow-hidden block border border-zinc-200"
+                className="overflow-hidden block border border-zinc-200"
                 alt={"revnet logo"}
                 width={120}
                 height={10}
@@ -66,7 +66,7 @@ export function Header() {
             <div className="sm:block hidden">
               <Image
                 src={ipfsUriToGatewayUrl(logoUri)}
-                className="rounded-md overflow-hidden block border border-zinc-200"
+                className="overflow-hidden block border border-zinc-200"
                 alt={"revnet logo"}
                 width={144}
                 height={144}
@@ -80,7 +80,7 @@ export function Header() {
         )}
 
         <div>
-          <div className="flex flex-col items-baseline sm:flex-row sm:gap-2 mb-1">
+          <div className="flex flex-col items-baseline sm:flex-row sm:gap-2 mb-2">
             <span className="text-3xl font-bold">
               {token?.data ? (
                 <EtherscanLink
@@ -116,7 +116,7 @@ export function Header() {
           <div className="flex sm:flex-row flex-col sm:items-center items-leading sm:gap-4 items-start">
             <TvlDatum />
             <div className="sm:text-xl text-lg">
-              <span className="font-medium text-zinc-500">
+              <span className="font-medium text-black-500">
                 {contributorsCount ?? 0}
               </span>{" "}
               <span className="text-zinc-500">
@@ -124,7 +124,7 @@ export function Header() {
               </span>
             </div>
             <div className="sm:text-xl text-lg">
-              <span className="font-medium text-zinc-500">
+              <span className="font-medium text-black-500">
                 {!loading && ethPrice
                   ? `$${(
                     Number(formatEther(redeemQuote ?? 0n)) * ethPrice

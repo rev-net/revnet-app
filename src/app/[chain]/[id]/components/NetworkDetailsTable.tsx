@@ -165,9 +165,9 @@ export function NetworkDetailsTable() {
       {/* Dropdown Content */}
       {isOpen &&
         <div className="mt-2 text-black text-md max-w-sm sm:max-w-full">
-          <h3 className="text-md font-semibold mt-2">Overview</h3>
+          <h3 className="text-md font-semibold mt-4">Overview</h3>
           <PriceSection className="mb-2" />
-          <h3 className="text-md font-semibold mt-4">Rules</h3>
+          <h3 className="text-md font-semibold mt-6">Rules</h3>
           <div className="mb-2 mt-2 text-black font-light italic">{formatTokenSymbol(token)}'s issuance and cash out rules change automatically in sequential stages, set and fixed when it was created.</div>
           <div className="mb-2">
 
