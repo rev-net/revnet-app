@@ -15,7 +15,7 @@ import {
 } from "juice-sdk-react";
 import { Address, zeroAddress } from "viem";
 import { useConfig } from "wagmi";
-import { useTokenRedemptionQuoteEth } from "./useTokenRedemptionQuoteEth";
+import { useTokenRedemptionQuoteEth } from "../app/[chain]/[id]/components/UserTokenBalanceCard/useTokenRedemptionQuoteEth";
 import { JB_REDEEM_FEE_PERCENT } from "@/app/constants";
 
 async function getTokenRedemptionQuote(
@@ -46,31 +46,30 @@ async function getTokenRedemptionQuote(
 }
 
 export function useSuckersTokenRedemptionQuote(tokenAmountWei: bigint) {
-  const suckersQuery = useSuckers();
-  const pairs = suckersQuery.data as SuckerPair[] | undefined;
   const config = useConfig();
-
   const chainId = useJBChainId();
   const { projectId } = useJBContractContext();
+  const suckersQuery = useSuckers();
+  const pairs = suckersQuery.data as SuckerPair[] | undefined;
 
-  const { data: currentChainQuote } = useTokenRedemptionQuoteEth(
-    tokenAmountWei,
-    {
+  const { data: currentChainQuote, isLoading: isQuoteLoading } =
+    useTokenRedemptionQuoteEth(tokenAmountWei, {
       chainId,
-    }
-  );
+    });
 
-  return useQuery({
+  const suckersQuote = useQuery({
     queryKey: [
       "suckersTokenRedemptionQuote",
       projectId.toString(),
       chainId?.toString(),
       tokenAmountWei.toString(),
-      currentChainQuote?.toString(),
       pairs?.map((pair) => pair.peerChainId).join(","),
     ],
+    enabled: Boolean(!isQuoteLoading && !suckersQuery.isLoading && chainId),
     queryFn: async () => {
-      if (!chainId) return null;
+      if (!chainId) {
+        return null;
+      }
 
       const quotes = await Promise.all(
         pairs?.map(async (pair) => {
@@ -96,11 +95,17 @@ export function useSuckersTokenRedemptionQuote(tokenAmountWei: bigint) {
         }) ?? []
       );
 
-      const sum = quotes.reduce((acc, quote) => acc + quote, 0n);
-
-      // eturn (quote * BigInt((1 - JB_REDEEM_FEE_PERCENT) * 1000)) / 1000n;
-      const total = sum + (currentChainQuote ?? 0n);
-      return total;
+      return quotes.reduce((acc, quote) => acc + quote, 0n);
     },
   });
+
+  const grossTotal = suckersQuote.data ?? 0n + (currentChainQuote ?? 0n);
+  const fee = (grossTotal * BigInt(JB_REDEEM_FEE_PERCENT * 1000)) / 1000n;
+  const netTotal = grossTotal - fee;
+
+  return {
+    data: netTotal,
+    isLoading:
+      isQuoteLoading || suckersQuote.isLoading || suckersQuery.isLoading,
+  };
 }

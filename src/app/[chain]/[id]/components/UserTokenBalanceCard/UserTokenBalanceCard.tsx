@@ -1,15 +1,14 @@
 import { Button } from "@/components/ui/button";
 import { useTokenA } from "@/hooks/useTokenA";
 import { formatTokenSymbol } from "@/lib/utils";
-import { formatUnits, JBProjectToken } from "juice-sdk-core";
+import { JBProjectToken } from "juice-sdk-core";
 import {
   useJBChainId,
   useJBContractContext,
   useJBTokenContext,
 } from "juice-sdk-react";
+import { useSuckersTokenRedemptionQuote } from "../../../../../hooks/useSuckersTokenRedemptionQuote";
 import { RedeemDialog } from "./RedeemDialog";
-import { UserTokenBalanceDatum } from "./UserTokenBalanceDatum";
-import { useSuckersTokenRedemptionQuote } from "./useSuckersTokenRedemptionQuote";
 import { useSuckersUserTokenBalance } from "./useSuckersUserTokenBalance";
 
 export function UserTokenBalanceCard() {

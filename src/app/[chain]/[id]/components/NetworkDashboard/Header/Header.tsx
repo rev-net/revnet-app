@@ -3,15 +3,12 @@ import { ChainLogo } from "@/components/ChainLogo";
 import EtherscanLink from "@/components/EtherscanLink";
 import { ProjectsDocument } from "@/generated/graphql";
 import { useSubgraphQuery } from "@/graphql/useSubgraphQuery";
-import { useCountdownToDate } from "@/hooks/useCountdownToDate";
+import { useCashOutValue } from "@/hooks/useCashOutValue";
 import { useFormattedTokenIssuance } from "@/hooks/useFormattedTokenIssuance";
-import { formatEther } from "juice-sdk-core";
 import { ipfsUriToGatewayUrl } from "@/lib/ipfs";
-import { formatSeconds, formatTokenSymbol } from "@/lib/utils";
-import { useEtherPrice } from "@/hooks/useEtherPrice";
+import { formatTokenSymbol } from "@/lib/utils";
 import { ForwardIcon } from "@heroicons/react/24/solid";
 import { SuckerPair } from "juice-sdk-core";
-import { useSuckersTokenRedemptionQuote } from "../../UserTokenBalanceCard/useSuckersTokenRedemptionQuote";
 import {
   JBChainId,
   useJBContractContext,
@@ -28,7 +25,6 @@ export function Header() {
   const { projectId } = useJBContractContext();
   const { metadata } = useJBProjectMetadataContext();
   const { token } = useJBTokenContext();
-  const { data: ethPrice, isLoading: isEthLoading } = useEtherPrice();
 
   const { data: projects } = useSubgraphQuery(ProjectsDocument, {
     where: {
@@ -43,11 +39,9 @@ export function Header() {
   const issuance = useFormattedTokenIssuance();
   const { ruleset } = useJBRulesetContext();
 
-  const redeemQuoteQuery = useSuckersTokenRedemptionQuote(1000000000000000000n);
-  const loading =
-    redeemQuoteQuery.isLoading || isEthLoading;
-
-  const redeemQuote = redeemQuoteQuery?.data ?? 0n;
+  const { data: cashOutValue, loading: cashOutLoading } = useCashOutValue({
+    targetCurrency: "usd",
+  });
 
   return (
     <header>
@@ -92,7 +86,9 @@ export function Header() {
               ) : null}
             </span>
             <div className="text-sm flex gap-2 items-baseline">
-              <h1 className="text-2xl font-medium tracking-tight">{projectName}</h1>
+              <h1 className="text-2xl font-medium tracking-tight">
+                {projectName}
+              </h1>
               {(suckerPairs.data as SuckerPair[])?.map((pair) => {
                 if (!pair) return null;
 
@@ -124,11 +120,9 @@ export function Header() {
               </span>
             </div>
             <div className="sm:text-xl text-lg">
-              <span className="font-medium text-black-500">
-                {!loading && ethPrice
-                  ? `$${(
-                    Number(formatEther(redeemQuote ?? 0n)) * ethPrice
-                  ).toFixed(4)}`
+              <span className="font-medium text-zinc-500">
+                {!cashOutLoading
+                  ? `$${Number(cashOutValue).toFixed(2)}`
                   : "..."}
               </span>{" "}
               <span className="text-zinc-500">cash out value</span>

@@ -8,7 +8,7 @@ import { useEtherPrice } from "@/hooks/useEtherPrice";
 import { formatPortion } from "@/lib/utils";
 import { formatEther } from "juice-sdk-core";
 import { UserTokenBalanceDatum } from "../../../UserTokenBalanceCard/UserTokenBalanceDatum";
-import { useSuckersTokenRedemptionQuote } from "../../../UserTokenBalanceCard/useSuckersTokenRedemptionQuote";
+import { useSuckersTokenRedemptionQuote } from "../../../../../../../hooks/useSuckersTokenRedemptionQuote";
 import { useSuckersUserTokenBalance } from "../../../UserTokenBalanceCard/useSuckersUserTokenBalance";
 
 export function YouSection({ totalSupply }: { totalSupply: bigint }) {

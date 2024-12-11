@@ -1,28 +1,28 @@
-import { PriceIncreaseCountdown } from "../../PriceIncreaseCountdown";
-import { useFormattedTokenIssuance } from "@/hooks/useFormattedTokenIssuance";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { EthereumAddress } from "@/components/EthereumAddress";
-import { useEtherPrice } from "@/hooks/useEtherPrice";
-import { ForwardIcon } from "@heroicons/react/24/solid";
-import { formatEther } from "juice-sdk-core";
 import { Badge } from "@/components/ui/badge";
-import { useJBRulesetContext } from "juice-sdk-react";
-import { useBoostRecipient } from "@/hooks/useBoostRecipient";
-import { cn } from "@/lib/utils"
-import { useSuckersTokenRedemptionQuote } from "../../UserTokenBalanceCard/useSuckersTokenRedemptionQuote";
 import {
-  useJBTokenContext
-} from "juice-sdk-react";
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { useBoostRecipient } from "@/hooks/useBoostRecipient";
+import { useCashOutValue } from "@/hooks/useCashOutValue";
+import { useEtherPrice } from "@/hooks/useEtherPrice";
+import { useFormattedTokenIssuance } from "@/hooks/useFormattedTokenIssuance";
 import { formatTokenSymbol } from "@/lib/utils";
+import { ForwardIcon } from "@heroicons/react/24/solid";
+import { useJBRulesetContext, useJBTokenContext } from "juice-sdk-react";
+import { PriceIncreaseCountdown } from "../../PriceIncreaseCountdown";
 
 export function PriceSection({ className }: { className?: string }) {
   const issuance = useFormattedTokenIssuance();
 
   const { ruleset, rulesetMetadata } = useJBRulesetContext();
-  const { data: ethPrice, isLoading: isEthLoading } = useEtherPrice();
+  const { data: ethPrice } = useEtherPrice();
   const { token } = useJBTokenContext();
-  const redeemQuoteQuery = useSuckersTokenRedemptionQuote(1000000000000000000n);
-
+  const { data: cashOutValue, loading: cashOutLoading } = useCashOutValue({
+    targetCurrency: "usd",
+  });
   const boostRecipient = useBoostRecipient();
 
   if (!ruleset?.data || !rulesetMetadata?.data) {
@@ -32,11 +32,6 @@ export function PriceSection({ className }: { className?: string }) {
   const devTax = rulesetMetadata?.data?.reservedPercent;
   // console.log("totalBalance", totalBalance)
 
-  const loading =
-    redeemQuoteQuery.isLoading || isEthLoading;
-
-  const redeemQuote = redeemQuoteQuery?.data ?? 0n;
-
   return (
     <>
       <div className={className}>
@@ -44,27 +39,26 @@ export function PriceSection({ className }: { className?: string }) {
         <ul className="list-disc list-inside mt-2 space-y-2">
           <li className="flex">
             <div className="flex flex-col border-l border-zinc-300 pl-2">
-              <div className="text-md">
-                  Currently issuing {issuance}
-              </div>
+              <div className="text-md">Currently issuing {issuance}</div>
               <PriceIncreaseCountdown />
             </div>
           </li>
         </ul>
-        {devTax && boostRecipient ?   (
+        {devTax && boostRecipient ? (
           <ul className="list-disc list-inside mt-2 space-y-2">
             <li className="flex">
               <div className="flex flex-col border-l border-zinc-300 pl-2">
                 <span>
-                  {devTax.formatPercentage().toFixed(2)}%
-                  {" "}
+                  {devTax.formatPercentage().toFixed(2)}%{" "}
                   <span>of issuance and buybacks split to </span>
-
                   <Tooltip>
                     <TooltipTrigger>
-                      <Badge variant="secondary" className="border border-visible">
+                      <Badge
+                        variant="secondary"
+                        className="border border-visible"
+                      >
                         <ForwardIcon className="w-4 h-4 mr-1 inline-block" />
-                 Operator
+                        Operator
                       </Badge>
                     </TooltipTrigger>
                     <TooltipContent>
@@ -74,7 +68,7 @@ export function PriceSection({ className }: { className?: string }) {
                         withEnsName
                         className="font-medium"
                       />{" "}
-             is the split operator and can direct this split
+                      is the split operator and can direct this split
                     </TooltipContent>
                   </Tooltip>
                 </span>
@@ -86,11 +80,11 @@ export function PriceSection({ className }: { className?: string }) {
           <li className="flex">
             <div className="flex flex-col border-l border-zinc-300 pl-2">
               <div className="text-md">
-                Current {formatTokenSymbol(token)} cash out value of {!loading && ethPrice
-                  ? `$${(
-                    Number(formatEther(redeemQuote ?? 0n)) * ethPrice
-                  ).toFixed(4)}`
-                  : "..."}. Up only.
+                Current {formatTokenSymbol(token)} cash out value of{" "}
+                {!cashOutLoading
+                  ? `$${Number(cashOutValue).toFixed(4)}`
+                  : "..."}
+                . Up only.
               </div>
             </div>
           </li>
