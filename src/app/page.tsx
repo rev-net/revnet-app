@@ -18,24 +18,24 @@ export default function Page() {
           Unstoppable funding machines for growth-oriented projects on the open internet
         </div>
         <div className="flex flex-col md:flex-row items-start md:items-center gap-4 ">
-        <div className="flex gap-4 mt-8">
-          <Link href="/create">
-            <Button className="md:h-12 h-16 text-xl md:text-xl px-4 flex gap-2 bg-teal-500 hover:bg-teal-600">
-              Design yours
-            </Button>
-          </Link>
-        </div>
-        <div className="mt-8 text-xl md:text-xl text-left overflow-scroll whitespace-nowrap">
-          <span className="mr-1">Browse:</span> $<Link href="https://revnet.app/sepolia/1" target="_blank"
-            rel="noopener norefererr"
-            className="underline hover:text-black/70">NANA</Link><span className="text-zinc-300">{" | "}</span> $<Link href="https://revnet.app/sepolia/3" target="_blank"
-            rel="noopener norefererr"
-            className="underline hover:text-black/70">REV</Link><span className="text-zinc-300">{" | "}</span> $<Link href="https://revnet.app/sepolia/4" target="_blank"
-            rel="noopener norefererr"
-            className="underline hover:text-black/70">BAN</Link><span className="text-zinc-300">{" | "}</span> $<Link href="https://revnet.app/sepolia/2" target="_blank"
-            rel="noopener norefererr"
-            className="underline hover:text-black/70">CPN</Link>
-        </div>
+          <div className="flex gap-4 mt-8">
+            <Link href="/create">
+              <Button className="md:h-12 h-16 text-xl md:text-xl px-4 flex gap-2 bg-teal-500 hover:bg-teal-600">
+                Design yours
+              </Button>
+            </Link>
+          </div>
+          <div className="mt-8 text-xl md:text-xl text-left overflow-scroll whitespace-nowrap">
+            <span className="mr-1">Browse:</span> $<Link href="https://revnet.app/sepolia/1" target="_blank"
+              rel="noopener norefererr"
+              className="underline hover:text-black/70">NANA</Link><span className="text-zinc-300">{" | "}</span> $<Link href="https://revnet.app/sepolia/3" target="_blank"
+              rel="noopener norefererr"
+              className="underline hover:text-black/70">REV</Link><span className="text-zinc-300">{" | "}</span> $<Link href="https://revnet.app/sepolia/4" target="_blank"
+              rel="noopener norefererr"
+              className="underline hover:text-black/70">BAN</Link><span className="text-zinc-300">{" | "}</span> $<Link href="https://revnet.app/sepolia/2" target="_blank"
+              rel="noopener norefererr"
+              className="underline hover:text-black/70">CPN</Link>
+          </div>
         </div>
       </div>
       <div className="border border-zinc-100 mt-20"></div>

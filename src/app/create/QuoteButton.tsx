@@ -1,7 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { FastForwardIcon, CheckCircle } from "lucide-react";
 import { twMerge } from "tailwind-merge";
-import { GoToProjectButton } from "./GoToProjectButton";
 
 type ButtonContentType = {
   text: string;
@@ -55,7 +54,7 @@ export function QuoteButton({
       size="lg"
       disabled={disableQuoteButton || isLoading}
       className={twMerge(
-        "text-color-black bg-transparent border border-black hover:bg-zinc-100 disabled:bg-gray-100 w-[200px]",
+        "text-color-black bg-transparent border border-black hover:bg-zinc-100 disabled:bg-gray-100 w-[220px]",
         buttonContent.className
       )}
       onClick={onSubmit}
