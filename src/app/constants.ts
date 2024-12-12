@@ -77,3 +77,5 @@ export const SUPPORTED_JB_MULTITERMINAL_ADDRESS = {
   [baseSepolia.id]: "0x4DeF0AA5B9CA095d11705284221b2878731ab4EF" as Address,
   [arbitrumSepolia.id]: "0x4DeF0AA5B9CA095d11705284221b2878731ab4EF" as Address,
 };
+
+export const BACKED_BY_TOKENS = ["ETH", "USDC"] as const;

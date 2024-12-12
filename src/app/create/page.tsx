@@ -51,7 +51,7 @@ import {
 } from "viem";
 import { mainnet, sepolia } from "viem/chains";
 import { IpfsImageUploader } from "../../components/IpfsFileUploader";
-import { chainNames, MAX_RULESET_COUNT, SUPPORTED_JB_MULTITERMINAL_ADDRESS } from "../constants";
+import { BACKED_BY_TOKENS, chainNames, MAX_RULESET_COUNT, SUPPORTED_JB_MULTITERMINAL_ADDRESS } from "../constants";
 import { useDeployRevnetRelay } from "@/lib/relayr/hooks/useDeployRevnetRelay";
 import { RelayrPostBundleResponse } from "@/lib/relayr/types";
 import { format } from "date-fns";
@@ -98,6 +98,7 @@ type RevnetFormData = {
 
   premintTokenAmount: string;
   stages: StageData[];
+  backedBy?: string[];
   chainIds: JBChainId[];
 };
 
@@ -655,7 +656,7 @@ function ConfigPage() {
                 ))}
               </div>
             ) : (
-              <div className="text-left text-black-500 mb-4 font-semibold mb-4">
+              <div className="text-left text-black-500 font-semibold mb-4">
                 Add a stage to get started
               </div>
             )}
@@ -913,6 +914,7 @@ function EnvironmentCheckbox({
               <SelectItem
                 value="production"
                 key="production"
+                disabled
               >
               Production (coming soon)
               </SelectItem>
@@ -1056,9 +1058,36 @@ function DeployRevnetForm({
       <div className="md:col-span-2">
         <ConfigPage />
       </div>
+
       <div className="h-[1px] bg-zinc-200 md:col-span-3 sm:my-10"></div>
       <div className="md:col-span-1">
-        <h2 className="font-bold text-lg mb-2">3. Deploy</h2>
+        <h2 className="font-bold text-lg mb-2">3. Backed by</h2>
+        <p className="text-zinc-600 text-lg">
+          {revnetTokenSymbolCapitalized} are backed by the tokens you choose to allow in your revnet.
+        </p>
+        <p className="text-zinc-600 text-lg mt-2">
+          If your revnet is paid in any other token, they will first be swapped into the tokens that you choose, before being used to back your revnet.
+        </p>
+        <p className="text-zinc-600 text-lg mt-2">
+          Cash outs and loans are fulfilled from the chosen tokens.
+        </p>
+      </div>
+      <div className="flex flex-row gap-8">
+        {BACKED_BY_TOKENS.map((token) => (
+          <label key={token} className="flex items-center gap-2">
+            <FormikField
+              type="checkbox"
+              name="chainIds"
+              value={token}
+            />
+            {token}
+          </label>
+        ))}
+      </div>
+
+      <div className="h-[1px] bg-zinc-200 md:col-span-3 sm:my-10"></div>
+      <div className="md:col-span-1">
+        <h2 className="font-bold text-lg mb-2">4. Deploy</h2>
         <p className="text-zinc-600 text-lg">
           Pick which chains your revnet will accept money on and issue {revnetTokenSymbol} from.
         </p>
