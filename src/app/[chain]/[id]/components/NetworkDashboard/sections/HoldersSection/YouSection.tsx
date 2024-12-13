@@ -8,7 +8,7 @@ import { useEtherPrice } from "@/hooks/useEtherPrice";
 import { formatPortion } from "@/lib/utils";
 import { formatEther } from "juice-sdk-core";
 import { UserTokenBalanceDatum } from "../../../UserTokenBalanceCard/UserTokenBalanceDatum";
-import { useSuckersTokenRedemptionQuote } from "../../../../../../../hooks/useSuckersTokenRedemptionQuote";
+import { useSuckersTokenRedemptionQuote } from "@/hooks/useSuckersTokenRedemptionQuote";
 import { useSuckersUserTokenBalance } from "../../../UserTokenBalanceCard/useSuckersUserTokenBalance";
 
 export function YouSection({ totalSupply }: { totalSupply: bigint }) {
@@ -39,20 +39,24 @@ export function YouSection({ totalSupply }: { totalSupply: bigint }) {
         </dd>
       </div>
       <div className="sm:col-span-1 sm:px-0 grid grid-cols-2 sm:grid-cols-4">
-        <dt className="text-md font-medium leading-6 text-zinc-900">Ownership</dt>
+        <dt className="text-md font-medium leading-6 text-zinc-900">
+          Ownership
+        </dt>
         <dd className="text-zinc-600">
           {formatPortion(totalBalance, totalSupply)}%
         </dd>
       </div>
       <div className="sm:col-span-1 sm:px-0 grid grid-cols-2 sm:grid-cols-4">
-        <dt className="text-md font-medium leading-6 text-zinc-900">Current cash out value</dt>
+        <dt className="text-md font-medium leading-6 text-zinc-900">
+          Current cash out value
+        </dt>
         <dd className="text-zinc-600">
           <Tooltip>
             <TooltipTrigger>
               {!loading && ethPrice
                 ? `$${(
-                  Number(formatEther(redeemQuote ?? 0n)) * ethPrice
-                ).toFixed(2)}`
+                    Number(formatEther(redeemQuote ?? 0n)) * ethPrice
+                  ).toFixed(2)}`
                 : "..."}
             </TooltipTrigger>
             <TooltipContent>
@@ -65,7 +69,9 @@ export function YouSection({ totalSupply }: { totalSupply: bigint }) {
         </dd>
       </div>
       <div className="sm:col-span-1 sm:px-0 grid grid-cols-2 sm:grid-cols-4">
-        <dt className="text-md font-medium leading-6 text-zinc-900">Current loan potential</dt>
+        <dt className="text-md font-medium leading-6 text-zinc-900">
+          Current loan potential
+        </dt>
         <dd className="text-zinc-600">$100.50</dd>
       </div>
     </div>

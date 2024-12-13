@@ -64,7 +64,7 @@ export function RedeemDialog({
    *       address holder,
         uint256 projectId,
         address tokenToReclaim,
-        uint256 redeemCount,
+        uint256 cashOutCount,
         uint256 minTokensReclaimed,
         address payable beneficiary,
    */
