@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import {
+  NATIVE_CURRENCY_ID,
   NATIVE_TOKEN,
   NATIVE_TOKEN_DECIMALS,
   readJbDirectoryPrimaryTerminalOf,
@@ -34,13 +35,12 @@ async function getTokenRedemptionQuote(
     chainId,
     address: terminalStore,
     args: [
-      zeroAddress,
       projectId,
+      tokenAmountWei,
+      [zeroAddress],
       [],
       BigInt(NATIVE_TOKEN_DECIMALS),
-      BigInt(NATIVE_TOKEN),
-      tokenAmountWei,
-      true,
+      BigInt(NATIVE_CURRENCY_ID),
     ],
   });
 }
