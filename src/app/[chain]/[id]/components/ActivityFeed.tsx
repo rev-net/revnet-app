@@ -7,7 +7,7 @@ import {
   PayEvent,
   ProjectEvent_OrderBy,
   ProjectEventsDocument,
-  RedeemEvent,
+  CashOutEvent,
 } from "@/generated/graphql";
 import { useOmnichainSubgraphQuery } from "@/graphql/useOmnichainSubgraphQuery";
 import { formatTokenSymbol } from "@/lib/utils";
@@ -101,22 +101,22 @@ function PayActivityItem(
 }
 
 function RedeemActivityItem(
-  redeemEvent: Pick<
-    RedeemEvent,
-    "reclaimAmount" | "beneficiary" | "txHash" | "timestamp" | "redeemCount"
+  cashOutEvent: Pick<
+    CashOutEvent,
+    "reclaimAmount" | "beneficiary" | "txHash" | "timestamp" | "cashOutCount"
   > & { chainId: JBChainId }
 ) {
   const { token } = useJBTokenContext();
-  if (!token?.data || !redeemEvent) return null;
+  if (!token?.data || !cashOutEvent) return null;
 
   const activityItemData = {
-    amount: new Ether(BigInt(redeemEvent.reclaimAmount)),
-    beneficiary: redeemEvent.beneficiary,
-    redeemCount: new JBProjectToken(BigInt(redeemEvent.redeemCount)),
+    amount: new Ether(BigInt(cashOutEvent.reclaimAmount)),
+    beneficiary: cashOutEvent.beneficiary,
+    cashOutCount: new JBProjectToken(BigInt(cashOutEvent.cashOutCount)),
   };
 
   const formattedDate = formatDistance(
-    redeemEvent.timestamp * 1000,
+    cashOutEvent.timestamp * 1000,
     new Date(),
     {
       addSuffix: true,
@@ -127,7 +127,7 @@ function RedeemActivityItem(
     <div className="border-b border-zinc-200 pb-2 mb-1">
       <div className="flex items-center justify-between">
         <div className="text-md text-zinc-500 mb-2">
-          <EtherscanLink type="tx" value={redeemEvent.txHash}>
+          <EtherscanLink type="tx" value={cashOutEvent.txHash}>
             {formattedDate}
           </EtherscanLink>
         </div>
@@ -139,7 +139,7 @@ function RedeemActivityItem(
             </span>{" "}
             on{" "}
           </div>
-          <ChainLogo chainId={redeemEvent.chainId} width={15} height={15} />
+          <ChainLogo chainId={cashOutEvent.chainId} width={15} height={15} />
         </div>
       </div>
       <div className="flex items-center pb-4 gap-1 text-md flex-wrap">
@@ -152,7 +152,7 @@ function RedeemActivityItem(
         />
         <div className="flex items-center gap-1">
           <span>
-            cashed out {activityItemData.redeemCount?.format(6)}{" "}
+            cashed out {activityItemData.cashOutCount?.format(6)}{" "}
             {formatTokenSymbol(token.data.symbol)}
           </span>
         </div>
@@ -222,12 +222,12 @@ export function ActivityFeed() {
                 />
               );
             }
-            if (event.redeemEvent) {
+            if (event.cashOutEvent) {
               return (
                 <RedeemActivityItem
                   key={event.id}
                   chainId={event.chainId}
-                  {...event.redeemEvent}
+                  {...event.cashOutEvent}
                 />
               );
             }

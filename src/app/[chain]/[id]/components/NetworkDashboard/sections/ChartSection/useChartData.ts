@@ -41,19 +41,19 @@ export function useChartData({
   const prevWeight = new RulesetWeight(
     getPrevRulesetWeight({
       weight: ruleset?.weight.value ?? 0n,
-      decayPercent: Number(ruleset?.decayPercent.value ?? 0n),
+      weightCutPercent: Number(ruleset?.weightCutPercent.value ?? 0n),
     })
   );
   const nextWeight = new RulesetWeight(
     getNextRulesetWeight({
       weight: ruleset?.weight.value ?? 0n,
-      decayPercent: Number(ruleset?.decayPercent.value ?? 0n),
+      weightCutPercent: Number(ruleset?.weightCutPercent.value ?? 0n),
     })
   );
   const nextNextWeight = new RulesetWeight(
     getNextRulesetWeight({
       weight: nextWeight.value ?? 0n,
-      decayPercent: Number(ruleset?.decayPercent.value ?? 0n),
+      weightCutPercent: Number(ruleset?.weightCutPercent.value ?? 0n),
     })
   );
 

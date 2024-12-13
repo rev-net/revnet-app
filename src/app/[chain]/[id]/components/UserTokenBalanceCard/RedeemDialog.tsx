@@ -30,13 +30,13 @@ import {
   JBChainId,
   NativeTokenValue,
   useJBContractContext,
-  useWriteJbMultiTerminalRedeemTokensOf,
+  useWriteJbMultiTerminalCashOutTokensOf,
 } from "juice-sdk-react";
 import { PropsWithChildren, useState } from "react";
 import { Address, parseUnits } from "viem";
 import { useAccount, useWaitForTransactionReceipt } from "wagmi";
 import { useSuckersUserTokenBalance } from "./useSuckersUserTokenBalance";
-import { useTokenRedemptionQuoteEth } from "./useTokenRedemptionQuoteEth";
+import { useTokenCashOutQuoteEth } from "./useTokenCashOutQuoteEth";
 
 export function RedeemDialog({
   projectId,
@@ -64,7 +64,7 @@ export function RedeemDialog({
    *       address holder,
         uint256 projectId,
         address tokenToReclaim,
-        uint256 redeemCount,
+        uint256 cashOutCount,
         uint256 minTokensReclaimed,
         address payable beneficiary,
    */
@@ -77,14 +77,14 @@ export function RedeemDialog({
     writeContract,
     isPending: isWriteLoading,
     data,
-  } = useWriteJbMultiTerminalRedeemTokensOf();
+  } = useWriteJbMultiTerminalCashOutTokensOf();
 
   const txHash = data;
   const { isLoading: isTxLoading, isSuccess } = useWaitForTransactionReceipt({
     hash: txHash,
   });
 
-  const { data: redeemQuote } = useTokenRedemptionQuoteEth(redeemAmountBN, {
+  const { data: redeemQuote } = useTokenCashOutQuoteEth(redeemAmountBN, {
     chainId: Number(cashOutChainId) as JBChainId,
   });
 
@@ -222,15 +222,15 @@ export function RedeemDialog({
                   }
 
                   const args = [
-                    address,
-                    projectId,
-                    NATIVE_TOKEN,
+                    address, // holder
+                    projectId, // project id
                     redeemAmount
                       ? parseUnits(redeemAmount, NATIVE_TOKEN_DECIMALS)
-                      : 0n,
-                    0n,
-                    address,
-                    DEFAULT_METADATA,
+                      : 0n, // cash out count
+                    NATIVE_TOKEN, // token to reclaim
+                    0n, // min tokens reclaimed
+                    address, // beneficiary
+                    DEFAULT_METADATA, // metadata
                   ] as const;
 
                   console.log("⏩ redeem args", args);

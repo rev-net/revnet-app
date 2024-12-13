@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import {
+  NATIVE_CURRENCY_ID,
   NATIVE_TOKEN,
   NATIVE_TOKEN_DECIMALS,
   readJbDirectoryPrimaryTerminalOf,
@@ -15,7 +16,7 @@ import {
 } from "juice-sdk-react";
 import { Address, zeroAddress } from "viem";
 import { useConfig } from "wagmi";
-import { useTokenRedemptionQuoteEth } from "../app/[chain]/[id]/components/UserTokenBalanceCard/useTokenRedemptionQuoteEth";
+import { useTokenCashOutQuoteEth } from "../app/[chain]/[id]/components/UserTokenBalanceCard/useTokenCashOutQuoteEth";
 import { JB_REDEEM_FEE_PERCENT } from "@/app/constants";
 
 async function getTokenRedemptionQuote(
@@ -34,13 +35,12 @@ async function getTokenRedemptionQuote(
     chainId,
     address: terminalStore,
     args: [
-      zeroAddress,
       projectId,
+      tokenAmountWei,
+      [zeroAddress],
       [],
       BigInt(NATIVE_TOKEN_DECIMALS),
-      BigInt(NATIVE_TOKEN),
-      tokenAmountWei,
-      true,
+      BigInt(NATIVE_CURRENCY_ID),
     ],
   });
 }
@@ -53,7 +53,7 @@ export function useSuckersTokenRedemptionQuote(tokenAmountWei: bigint) {
   const pairs = suckersQuery.data as SuckerPair[] | undefined;
 
   const { data: currentChainQuote, isLoading: isQuoteLoading } =
-    useTokenRedemptionQuoteEth(tokenAmountWei, {
+    useTokenCashOutQuoteEth(tokenAmountWei, {
       chainId,
     });
 

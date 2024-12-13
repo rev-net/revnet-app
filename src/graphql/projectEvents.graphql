@@ -34,14 +34,14 @@ query ProjectEvents(
         handle
       }
     }
-    redeemEvent {
+    cashOutEvent {
       id
       timestamp
       txHash
       from
       beneficiary
       reclaimAmount
-      redeemCount
+      cashOutCount
       metadata
       project {
         id

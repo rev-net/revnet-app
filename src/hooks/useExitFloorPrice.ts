@@ -1,4 +1,4 @@
-import { formatUnits, getTokenRedemptionQuoteEth } from "juice-sdk-core";
+import { formatUnits, getTokenCashOutQuoteEth } from "juice-sdk-core";
 import {
   useJBChainId,
   useJBContractContext,
@@ -54,13 +54,13 @@ export function useExitFloorPrice() {
     nativeTokenSurplus &&
     exitFloorPriceUnit &&
     rulesetMetadata?.data
-      ? getTokenRedemptionQuoteEth(
+      ? getTokenCashOutQuoteEth(
         parseUnits(exitFloorPriceUnit as `${number}`, token.data.decimals),
         {
           overflowWei: nativeTokenSurplus,
           totalSupply: totalTokenSupply,
-          redemptionRate: Number(
-            rulesetMetadata?.data?.redemptionRate.value ?? 0n
+          cashOutTaxRate: Number(
+            rulesetMetadata?.data?.cashOutTaxRate.value ?? 0n
           ),
           tokensReserved,
         }

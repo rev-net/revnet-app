@@ -1,6 +1,6 @@
 import { MAX_RULESET_COUNT } from "@/app/constants";
 import { Button } from "@/components/ui/button";
-import { DecayPercent, Ether, RulesetWeight } from "juice-sdk-core";
+import { WeightCutPercent, Ether, RulesetWeight } from "juice-sdk-core";
 import {
   useJBChainId,
   useJBContractContext,
@@ -45,7 +45,7 @@ const StepChart = () => {
           return {
             ...ruleset,
             weight: new RulesetWeight(ruleset.weight),
-            decayPercent: new DecayPercent(ruleset.decayPercent),
+            weightCutPercent: new WeightCutPercent(ruleset.weightCutPercent),
           };
         });
       },

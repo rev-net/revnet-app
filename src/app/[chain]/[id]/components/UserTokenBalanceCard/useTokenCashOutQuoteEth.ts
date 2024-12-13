@@ -1,21 +1,22 @@
 import { JB_REDEEM_FEE_PERCENT } from "@/app/constants";
 import {
+  NATIVE_CURRENCY_ID,
   NATIVE_TOKEN,
-  NATIVE_TOKEN_DECIMALS
+  NATIVE_TOKEN_DECIMALS,
 } from "juice-sdk-core";
 import {
   JBChainId,
   useJBChainId,
   useJBContractContext,
   useJBTerminalContext,
-  useReadJbTerminalStoreCurrentReclaimableSurplusOf
+  useReadJbTerminalStoreCurrentReclaimableSurplusOf,
 } from "juice-sdk-react";
 import { zeroAddress } from "viem";
 
 /**
  * Return the amount of ETH (wei) received from redeerming [tokenAmountWei] project tokens.
  */
-export function useTokenRedemptionQuoteEth(
+export function useTokenCashOutQuoteEth(
   tokenAmountWei: bigint | undefined,
   { chainId }: { chainId?: JBChainId }
 ) {
@@ -29,14 +30,13 @@ export function useTokenRedemptionQuoteEth(
     address: store.data ?? undefined,
     args: tokenAmountWei
       ? [
-        zeroAddress,
-        projectId,
-        [],
-        BigInt(NATIVE_TOKEN_DECIMALS),
-        BigInt(NATIVE_TOKEN),
-        tokenAmountWei,
-        true,
-      ]
+          projectId,
+          tokenAmountWei,
+          [zeroAddress],
+          [],
+          BigInt(NATIVE_TOKEN_DECIMALS),
+          BigInt(NATIVE_CURRENCY_ID),
+        ]
       : undefined,
     query: {
       select(data) {
