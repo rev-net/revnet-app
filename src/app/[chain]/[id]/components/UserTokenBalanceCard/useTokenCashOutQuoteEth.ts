@@ -15,7 +15,7 @@ import { zeroAddress } from "viem";
 /**
  * Return the amount of ETH (wei) received from redeerming [tokenAmountWei] project tokens.
  */
-export function useTokenRedemptionQuoteEth(
+export function useTokenCashOutQuoteEth(
   tokenAmountWei: bigint | undefined,
   { chainId }: { chainId?: JBChainId }
 ) {

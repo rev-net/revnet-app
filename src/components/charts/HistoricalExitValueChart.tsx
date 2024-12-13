@@ -3,7 +3,7 @@
 //   PayEvent_OrderBy,
 //   usePayEventsQuery,
 // } from "@/generated/graphql";
-// import { formatEther, getTokenRedemptionQuoteEth } from "juice-sdk-core";
+// import { formatEther, getTokenCashOutQuoteEth } from "juice-sdk-core";
 // import { Line, LineChart, XAxis, YAxis } from "recharts";
 // import { parseEther } from "viem";
 
@@ -14,11 +14,11 @@
 // export function HistoricalExitValueChart({
 //   projectId,
 //   reservedPercent,
-//   redemptionRate,
+//   cashOutTaxRate,
 // }: {
 //   projectId: bigint;
 //   reservedPercent: bigint;
-//   redemptionRate: bigint;
+//   cashOutTaxRate: bigint;
 // }) {
 //   const { data: payEvents } = usePayEventsQuery({
 //     variables: {
@@ -61,10 +61,10 @@
 
 //   const historicalTokenExitValue = historicalTokenSupply?.map(
 //     ({ totalSupply, totalEth, id }) => {
-//       const quote = getTokenRedemptionQuoteEth(parseEther("1"), {
+//       const quote = getTokenCashOutQuoteEth(parseEther("1"), {
 //         totalSupply,
 //         overflowWei: totalEth,
-//         redemptionRate,
+//         cashOutTaxRate,
 //         tokensReserved: 0n, // TODO update
 //       });
 

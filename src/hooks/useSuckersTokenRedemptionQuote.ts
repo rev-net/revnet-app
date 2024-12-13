@@ -15,7 +15,7 @@ import {
 } from "juice-sdk-react";
 import { Address, zeroAddress } from "viem";
 import { useConfig } from "wagmi";
-import { useTokenRedemptionQuoteEth } from "../app/[chain]/[id]/components/UserTokenBalanceCard/useTokenRedemptionQuoteEth";
+import { useTokenCashOutQuoteEth } from "../app/[chain]/[id]/components/UserTokenBalanceCard/useTokenCashOutQuoteEth";
 import { JB_REDEEM_FEE_PERCENT } from "@/app/constants";
 
 async function getTokenRedemptionQuote(
@@ -53,7 +53,7 @@ export function useSuckersTokenRedemptionQuote(tokenAmountWei: bigint) {
   const pairs = suckersQuery.data as SuckerPair[] | undefined;
 
   const { data: currentChainQuote, isLoading: isQuoteLoading } =
-    useTokenRedemptionQuoteEth(tokenAmountWei, {
+    useTokenCashOutQuoteEth(tokenAmountWei, {
       chainId,
     });
 

@@ -15,10 +15,10 @@ import {
 } from "@/components/ui/tooltip";
 import {
   ReservedPercent,
-  MAX_REDEMPTION_RATE,
-  RedemptionRate,
+  MAX_CASH_OUT_TAX_RATE,
+  CashOutTaxRate,
   RulesetWeight,
-  DecayPercent,
+  WeightCutPercent,
 } from "juice-sdk-core";
 import {
   useJBContractContext,
@@ -59,7 +59,7 @@ export function NetworkDetailsTable() {
             return {
               ...ruleset,
               weight: new RulesetWeight(ruleset.weight),
-              decayPercent: new DecayPercent(ruleset.decayPercent),
+              weightCutPercent: new WeightCutPercent(ruleset.weightCutPercent),
             };
           })
           .reverse();
@@ -77,7 +77,7 @@ export function NetworkDetailsTable() {
       select([, rulesetMetadata]) {
         return {
           ...rulesetMetadata,
-          redemptionRate: new RedemptionRate(rulesetMetadata.redemptionRate),
+          cashOutTaxRate: new CashOutTaxRate(rulesetMetadata.cashOutTaxRate),
           reservedPercent: new ReservedPercent(rulesetMetadata.reservedPercent),
         };
       },
@@ -231,7 +231,7 @@ export function NetworkDetailsTable() {
                   </Tooltip>
                 </dt>
                 <dd className="text-md leading-6 text-zinc-700 whitespace-nowrap">
-                  {issuance}, cut {selectedStage.decayPercent.formatPercentage()}% every{" "}
+                  {issuance}, cut {selectedStage.weightCutPercent.formatPercentage()}% every{" "}
                   {(selectedStage.duration / 86400).toString()} days
                 </dd>
               </div>
@@ -365,9 +365,9 @@ export function NetworkDetailsTable() {
                   </Tooltip>
                 </dt>
                 <dd className="text-md leading-6 text-zinc-700">
-                  {new RedemptionRate(
-                    MAX_REDEMPTION_RATE -
-                Number(selectedStageMetadata?.data?.redemptionRate.value ?? 0n)
+                  {new CashOutTaxRate(
+                    MAX_CASH_OUT_TAX_RATE -
+                Number(selectedStageMetadata?.data?.cashOutTaxRate.value ?? 0n)
                   ).format()}
                 </dd>
               </div>

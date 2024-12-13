@@ -23,12 +23,12 @@ export function PriceIncreaseCountdown() {
       ((ruleset?.data?.start ?? 0) + (ruleset?.data?.duration ?? 0)) * 1000
     )
   );
-  const entryTax = ruleset?.data?.decayPercent;
+  const entryTax = ruleset?.data?.weightCutPercent;
   const tokenA = { symbol: nativeTokenSymbol, decimals: 18 };
   const nextWeight = new RulesetWeight(
     getNextRulesetWeight({
       weight: ruleset?.data?.weight.value ?? 0n,
-      decayPercent: Number(ruleset?.data?.decayPercent.value ?? 0n),
+      weightCutPercent: Number(ruleset?.data?.weightCutPercent.value ?? 0n),
     })
   );
 

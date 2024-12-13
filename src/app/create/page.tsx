@@ -29,11 +29,11 @@ import {
   useFormikContext,
 } from "formik";
 import {
-  DecayPercent,
+  WeightCutPercent,
   JBProjectMetadata,
   NATIVE_TOKEN,
   NATIVE_TOKEN_DECIMALS,
-  RedemptionRate,
+  CashOutTaxRate,
   ReservedPercent,
 } from "juice-sdk-core";
 import { JBChainId, useChain } from "juice-sdk-react";
@@ -1137,7 +1137,7 @@ function parseDeployData(
        *
        * @see https://github.com/rev-net/revnet-core/blob/main/src/structs/REVAutoMint.sol
        */
-      autoMints: [
+      autoIssuances: [
         {
           chainId: extra.chainId ?? mainnet.id,
           count: parseUnits(stage.premintTokenAmount, 18),
@@ -1150,14 +1150,14 @@ function parseDeployData(
         stage.initialIssuance && stage.initialIssuance !== ""
           ? parseUnits(`${stage.initialIssuance}`, 18)
           : 0n,
-      issuanceDecayFrequency:
+      issuanceCutFrequency:
         Number(stage.priceCeilingIncreaseFrequency) * 86400, // seconds
-      issuanceDecayPercent:
+      issuanceCutPercent:
         Number(
-          DecayPercent.parse(stage.priceCeilingIncreasePercentage, 9).value
+          WeightCutPercent.parse(stage.priceCeilingIncreasePercentage, 9).value
         ) / 100,
       cashOutTaxRate:
-        Number(RedemptionRate.parse(stage.priceFloorTaxIntensity, 4).value) /
+        Number(CashOutTaxRate.parse(stage.priceFloorTaxIntensity, 4).value) /
         100, //
       extraMetadata: 0, // ??
     };
@@ -1176,7 +1176,6 @@ function parseDeployData(
       baseCurrency: Number(BigInt(NATIVE_TOKEN)),
       splitOperator: operator,
       stageConfigurations,
-      allowCrosschainSuckerExtension: true,
       loans: zeroAddress,
       loanSources: [],
     },
