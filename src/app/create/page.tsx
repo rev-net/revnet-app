@@ -36,11 +36,12 @@ import {
   CashOutTaxRate,
   ReservedPercent,
   NATIVE_CURRENCY_ID,
+  jbProjectDeploymentAddresses,
 } from "juice-sdk-core";
 import { JBChainId, useChain } from "juice-sdk-react";
 import Image from "next/image";
 import { ReactNode, useEffect, useState } from "react";
-import { revDeployerAbi } from "revnet-sdk";
+import { revDeployerAbi, revDeployerAddress } from "revnet-sdk";
 import { twMerge } from "tailwind-merge";
 import {
   Address,
@@ -52,12 +53,7 @@ import {
 } from "viem";
 import { mainnet, sepolia } from "viem/chains";
 import { IpfsImageUploader } from "../../components/IpfsFileUploader";
-import {
-  BACKED_BY_TOKENS,
-  chainNames,
-  MAX_RULESET_COUNT,
-  SUPPORTED_JB_MULTITERMINAL_ADDRESS,
-} from "../constants";
+import { BACKED_BY_TOKENS, chainNames, MAX_RULESET_COUNT } from "../constants";
 import { useDeployRevnetRelay } from "@/lib/relayr/hooks/useDeployRevnetRelay";
 import { RelayrPostBundleResponse } from "@/lib/relayr/types";
 import { format } from "date-fns";
@@ -1270,7 +1266,9 @@ function parseDeployData(
     },
     [
       {
-        terminal: SUPPORTED_JB_MULTITERMINAL_ADDRESS[sepolia.id],
+        terminal: jbProjectDeploymentAddresses.JBMultiTerminal[
+          sepolia.id
+        ] as Address,
         accountingContextsToAccept: [
           {
             token: NATIVE_TOKEN,
@@ -1353,7 +1351,7 @@ export default function Page() {
       chainDeployer: formData.chainIds.map((chainId) => {
         return {
           chain: Number(chainId),
-          deployer: "0x25bC5D5A708c2E426eF3a5196cc18dE6b2d5A3d1", // TODO
+          deployer: revDeployerAddress[chainId],
         };
       }),
     });

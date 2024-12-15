@@ -5,13 +5,12 @@ import {
   useJBTokenContext,
   useReadJbControllerPendingReservedTokenBalanceOf,
   useReadJbSplitsSplitsOf,
-  useSuckers
+  useSuckers,
 } from "juice-sdk-react";
 import {
   ChainIdToChain,
   RESERVED_TOKEN_SPLIT_GROUP_ID,
-  SUPPORTED_JB_CONTROLLER_ADDRESS,
-  chainNames
+  chainNames,
 } from "@/app/constants";
 import { Badge } from "@/components/ui/badge";
 import { ForwardIcon } from "@heroicons/react/24/solid";
@@ -24,24 +23,29 @@ import {
   TableCell,
   TableHead,
   TableHeader,
-  TableRow
+  TableRow,
 } from "@/components/ui/table";
-import { JBChainId, formatUnits } from "juice-sdk-core";
+import {
+  JBChainId,
+  formatUnits,
+  jbProjectDeploymentAddresses,
+} from "juice-sdk-core";
 import { useEffect, useState } from "react";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue
+  SelectValue,
 } from "@/components/ui/select";
 import { ChainLogo } from "@/components/ChainLogo";
 import { formatTokenSymbol } from "@/lib/utils";
+import { Address } from "viem";
 
 type Sucker = {
   peerChainId: JBChainId;
   projectId: bigint;
-}
+};
 
 export function SplitsSection() {
   const { projectId } = useJBContractContext();
@@ -58,24 +62,24 @@ export function SplitsSection() {
         ? [projectId, BigInt(ruleset.data.id), RESERVED_TOKEN_SPLIT_GROUP_ID]
         : undefined,
   });
-  const { data: pendingReserveTokenBalance } = useReadJbControllerPendingReservedTokenBalanceOf({
-    chainId: selectedSucker?.peerChainId,
-    address: selectedSucker?.peerChainId
-      ? SUPPORTED_JB_CONTROLLER_ADDRESS[selectedSucker?.peerChainId]
-      : undefined,
-    args:
-      ruleset && ruleset?.data
-        ? [projectId]
+  const { data: pendingReserveTokenBalance } =
+    useReadJbControllerPendingReservedTokenBalanceOf({
+      chainId: selectedSucker?.peerChainId,
+      address: selectedSucker?.peerChainId
+        ? (jbProjectDeploymentAddresses.JBController[
+            selectedSucker?.peerChainId
+          ] as Address)
         : undefined,
-  })
-  console.log("reserveToken", pendingReserveTokenBalance)
+      args: ruleset && ruleset?.data ? [projectId] : undefined,
+    });
+  console.log("reserveToken", pendingReserveTokenBalance);
   useEffect(() => {
     if (chainId && suckers && !suckers.find((s) => s.peerChainId === chainId)) {
       suckers.push({ projectId, peerChainId: chainId });
     }
     if (suckers && !selectedSucker) {
       const i = suckers.findIndex((s) => s.peerChainId === chainId);
-      setSelectedSucker(suckers[i])
+      setSelectedSucker(suckers[i]);
     }
   }, [suckers, chainId, projectId, selectedSucker]);
 
@@ -87,21 +91,23 @@ export function SplitsSection() {
           <Badge variant="secondary" className="ml-1 border border-visible">
             <ForwardIcon className="w-4 h-4 mr-1 inline-block" />
             <span className="non-italic">Operator</span>
-          </Badge> at any time.
+          </Badge>{" "}
+          at any time.
         </p>
       </div>
       {suckers?.length > 1 && (
         <div className="mt-2 mb-4">
-          <div className="text-sm text-zinc-500">
-            See splits on
-          </div>
+          <div className="text-sm text-zinc-500">See splits on</div>
           <Select
             onValueChange={(v) => setSelectedSucker(suckers[parseInt(v)])}
-            value={selectedSucker ? String(suckers.indexOf(selectedSucker)) : undefined}
+            value={
+              selectedSucker
+                ? String(suckers.indexOf(selectedSucker))
+                : undefined
+            }
           >
             <SelectTrigger className="w-[200px]">
-              <SelectValue placeholder="Select chain">
-              </SelectValue>
+              <SelectValue placeholder="Select chain"></SelectValue>
             </SelectTrigger>
             <SelectContent>
               {suckers?.map((s, index) => (
@@ -120,15 +126,19 @@ export function SplitsSection() {
           </Select>
         </div>
       )}
-      <div className="flex gap-1 pb-2 pt-2 text-md font-medium border-l border-zinc-200 pl-3"><Badge variant="secondary" className="border border-visible">
-        <ForwardIcon className="w-4 h-4 mr-1 inline-block" />
-        <span className="non-italic">Operator</span>
-      </Badge> is <EtherscanLink
-        value={boostRecipient}
-        type="address"
-        chain={chainId ? ChainIdToChain[chainId] : undefined}
-        truncateTo={6}
-      /></div>
+      <div className="flex gap-1 pb-2 pt-2 text-md font-medium border-l border-zinc-200 pl-3">
+        <Badge variant="secondary" className="border border-visible">
+          <ForwardIcon className="w-4 h-4 mr-1 inline-block" />
+          <span className="non-italic">Operator</span>
+        </Badge>{" "}
+        is{" "}
+        <EtherscanLink
+          value={boostRecipient}
+          type="address"
+          chain={chainId ? ChainIdToChain[chainId] : undefined}
+          truncateTo={6}
+        />
+      </div>
       <div className="max-h-96 overflow-auto bg-zinc-50 rounded-tr-md rounded-br-md  border-zinc-200 border mb-4">
         <div className="flex flex-col p-2">
           <Table>
@@ -143,7 +153,7 @@ export function SplitsSection() {
               {isLoading ? (
                 <TableRow>
                   <TableCell colSpan={2} className="text-center">
-                Loading...
+                    Loading...
                   </TableCell>
                 </TableRow>
               ) : (
@@ -153,7 +163,13 @@ export function SplitsSection() {
                       <div className="flex flex-col sm:flex-row text-sm">
                         <EthereumAddress
                           address={split.beneficiary}
-                          chain={selectedSucker ? ChainIdToChain[selectedSucker.peerChainId] : chainId ? ChainIdToChain[chainId] : undefined }
+                          chain={
+                            selectedSucker
+                              ? ChainIdToChain[selectedSucker.peerChainId]
+                              : chainId
+                              ? ChainIdToChain[chainId]
+                              : undefined
+                          }
                           short
                           withEnsAvatar
                           withEnsName
@@ -161,9 +177,15 @@ export function SplitsSection() {
                         />
                         <EthereumAddress
                           address={split.beneficiary}
-                          chain={selectedSucker ? ChainIdToChain[selectedSucker.peerChainId] : chainId ? ChainIdToChain[chainId] : undefined }
+                          chain={
+                            selectedSucker
+                              ? ChainIdToChain[selectedSucker.peerChainId]
+                              : chainId
+                              ? ChainIdToChain[chainId]
+                              : undefined
+                          }
                           short
-                          avatarProps={{size: "sm"}}
+                          avatarProps={{ size: "sm" }}
                           withEnsAvatar
                           withEnsName
                           className="block sm:hidden"
@@ -176,10 +198,15 @@ export function SplitsSection() {
                     <TableCell>
                       {pendingReserveTokenBalance
                         ? `
-                          ${formatUnits(pendingReserveTokenBalance * BigInt(split.percent) / BigInt(10**9), 18)}
+                          ${formatUnits(
+                            (pendingReserveTokenBalance *
+                              BigInt(split.percent)) /
+                              BigInt(10 ** 9),
+                            18
+                          )}
                           ${formatTokenSymbol(token.data?.symbol)}
-                        ` : "?"
-                      }
+                        `
+                        : "?"}
                     </TableCell>
                   </TableRow>
                 ))
@@ -189,5 +216,5 @@ export function SplitsSection() {
         </div>
       </div>
     </>
-  )
+  );
 }
