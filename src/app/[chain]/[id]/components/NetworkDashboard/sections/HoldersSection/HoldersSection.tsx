@@ -18,8 +18,6 @@ import { zeroAddress } from "viem";
 import { Button } from "@/components/ui/button";
 import { formatTokenSymbol } from "@/lib/utils";
 import { twJoin } from "tailwind-merge";
-import { useSubgraphQuery } from "@/graphql/useSubgraphQuery";
-import { SectionTooltip } from "../SectionTooltip";
 import { YouSection } from "./YouSection";
 import { useAccount } from "wagmi";
 import { SplitsSection } from "./SplitsSection";
@@ -31,7 +29,6 @@ import { AutoIssuance } from "./AutoIssuance";
 type TableView = "you" | "all" | "splits" | "autoissuance";
 
 export function HoldersSection() {
-  const { address } = useAccount();
   const [participantsView, setParticipantsView] = useState<TableView>("all");
   const [isOpen, setIsOpen] = useState(false);
   const { projectId } = useJBContractContext();

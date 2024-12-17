@@ -12,30 +12,29 @@ import {
   Formik,
   useFormikContext,
 } from "formik";
-import {
-  JBProjectMetadata,
-} from "juice-sdk-core";
 import { useChain } from "juice-sdk-react";
 import { useState } from "react";
 import { revDeployerAbi, revDeployerAddress } from "revnet-sdk";
 import { encodeFunctionData } from "viem";
+import { RevnetFormData } from "./types";
 import { Nav } from "@/components/layout/Nav";
 import { Button } from "@/components/ui/button";
 import { useNativeTokenSymbol } from "@/hooks/useNativeTokenSymbol";
 import { useDeployRevnetRelay } from "@/lib/relayr/hooks/useDeployRevnetRelay";
 import { RelayrPostBundleResponse } from "@/lib/relayr/types";
 import { MAX_RULESET_COUNT } from "../constants";
+import { DEFAULT_FORM_DATA } from "./constants";
 import { PayAndDeploy } from "./buttons/PayAndDeploy";
 import { QuoteButton } from "./buttons/QuoteButton";
-import { DEFAULT_FORM_DATA } from "./constants";
 import { AddStageDialog } from "./form/AddStageDialog";
 import { ChainSelect } from "./form/ChainSelect";
 import { DetailsPage } from "./form/ProjectDetails";
+import { BackedBySelect } from "./form/BackedBySelect";
+import { Divider } from "./form/Divider";
 import { isFormValid } from "./helpers/isFormValid";
 import { parseDeployData } from "./helpers/parseDeployData";
-import { RevnetFormData } from "./types";
 import { useTestData } from "./helpers/useTestData";
-import { BackedBySelect } from "./form/BackedBySelect";
+import { pinProjectMetadata } from "./helpers/pinProjectMetaData";
 
 function ConfigPage() {
   const { values, setFieldValue } = useFormikContext<RevnetFormData>();
@@ -245,7 +244,7 @@ function DeployRevnetForm({
         <DetailsPage />
       </div>
 
-      <div className="h-[1px] bg-zinc-200 md:col-span-3 sm:my-10"></div>
+      <Divider />
 
       <div className="md:col-span-1">
         <h2 className="font-bold text-lg mb-2">2. How it works</h2>
@@ -261,12 +260,12 @@ function DeployRevnetForm({
         <ConfigPage />
       </div>
 
-      <div className="h-[1px] bg-zinc-200 md:col-span-3 sm:my-10"></div>
+      <Divider />
       <BackedBySelect
         disabled={validBundle}
         symbol={revnetTokenSymbolCapitalized}
       />
-      <div className="h-[1px] bg-zinc-200 md:col-span-3 sm:my-10"></div>
+      <Divider />
       <div className="md:col-span-1">
         <h2 className="font-bold text-lg mb-2">4. Deploy</h2>
         <p className="text-zinc-600 text-lg">
@@ -290,18 +289,6 @@ function DeployRevnetForm({
       />
     </div>
   );
-}
-
-async function pinProjectMetadata(metadata: JBProjectMetadata) {
-  const { Hash } = await fetch("/api/ipfs/pinJson", {
-    method: "post",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(metadata),
-  }).then((res) => res.json());
-
-  return Hash;
 }
 
 export default function Page() {

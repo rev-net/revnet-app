@@ -1,4 +1,4 @@
-import { ChainIdToChain, chainNames } from "@/app/constants";
+import { ChainIdToChain } from "@/app/constants";
 import { ChainLogo } from "@/components/ChainLogo";
 import { EthereumAddress } from "@/components/EthereumAddress";
 import EtherscanLink from "@/components/EtherscanLink";

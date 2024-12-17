@@ -5,7 +5,7 @@ import { IpfsImageUploader } from "@/components/IpfsFileUploader";
 import { ipfsUri } from "@/lib/ipfs";
 
 export function DetailsPage() {
-  const { setFieldValue, isSubmitting, isValid, initialErrors } =
+  const { setFieldValue } =
     useFormikContext<RevnetFormData>();
 
   return (
