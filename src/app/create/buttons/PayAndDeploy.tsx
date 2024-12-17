@@ -6,14 +6,14 @@ import { usePayRelayr } from "@/lib/relayr/hooks/usePayRelayr";
 import { RelayrPostBundleResponse } from "@/lib/relayr/types";
 import { formatHexEther } from "@/lib/utils";
 import { useTokenA } from "@/hooks/useTokenA";
-import { chainNames } from "../constants";
+import { chainNames } from "@/app/constants";
 import { CheckCircle, FastForwardIcon } from "lucide-react";
 import { useState } from "react";
 import { twMerge } from "tailwind-merge";
 import { GoToProjectButton } from "./GoToProjectButton";
 import EtherscanLink from "@/components/EtherscanLink";
 import { SquareArrowOutUpRightIcon, CircleDashedIcon, CircleDotDashedIcon, CircleDotIcon, CircleXIcon } from "lucide-react";
-import { ChainIdToChain } from "../constants";
+import { ChainIdToChain } from "@/app/constants";
 import { JBChainId } from "juice-sdk-react";
 
 interface PaymentAndDeploySectionProps {

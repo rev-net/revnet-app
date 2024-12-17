@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { useTransactionReceipt } from "wagmi";
 import { JBChainId } from "juice-sdk-react";
 import { FastForwardIcon } from "lucide-react";
-import { chainIdMap } from "../constants";
+import { chainIdMap } from "@/app/constants";
 import { useState } from "react";
 
 export function GoToProjectButton({

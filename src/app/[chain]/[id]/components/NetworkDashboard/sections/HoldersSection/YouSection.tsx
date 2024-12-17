@@ -55,8 +55,8 @@ export function YouSection({ totalSupply }: { totalSupply: bigint }) {
             <TooltipTrigger>
               {!loading && ethPrice
                 ? `$${(
-                    Number(formatEther(redeemQuote ?? 0n)) * ethPrice
-                  ).toFixed(2)}`
+                  Number(formatEther(redeemQuote ?? 0n)) * ethPrice
+                ).toFixed(2)}`
                 : "..."}
             </TooltipTrigger>
             <TooltipContent>

@@ -30,13 +30,13 @@ export function useTokenCashOutQuoteEth(
     address: store.data ?? undefined,
     args: tokenAmountWei
       ? [
-          projectId,
-          tokenAmountWei,
-          [zeroAddress],
-          [],
-          BigInt(NATIVE_TOKEN_DECIMALS),
-          BigInt(NATIVE_CURRENCY_ID),
-        ]
+        projectId,
+        tokenAmountWei,
+        [zeroAddress],
+        [],
+        BigInt(NATIVE_TOKEN_DECIMALS),
+        BigInt(NATIVE_CURRENCY_ID),
+      ]
       : undefined,
     query: {
       select(data) {

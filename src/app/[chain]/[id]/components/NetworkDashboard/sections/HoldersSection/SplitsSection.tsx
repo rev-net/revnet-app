@@ -67,8 +67,8 @@ export function SplitsSection() {
       chainId: selectedSucker?.peerChainId,
       address: selectedSucker?.peerChainId
         ? (jbProjectDeploymentAddresses.JBController[
-            selectedSucker?.peerChainId
-          ] as Address)
+          selectedSucker?.peerChainId
+        ] as Address)
         : undefined,
       args: ruleset && ruleset?.data ? [projectId] : undefined,
     });
@@ -167,8 +167,8 @@ export function SplitsSection() {
                             selectedSucker
                               ? ChainIdToChain[selectedSucker.peerChainId]
                               : chainId
-                              ? ChainIdToChain[chainId]
-                              : undefined
+                                ? ChainIdToChain[chainId]
+                                : undefined
                           }
                           short
                           withEnsAvatar
@@ -181,8 +181,8 @@ export function SplitsSection() {
                             selectedSucker
                               ? ChainIdToChain[selectedSucker.peerChainId]
                               : chainId
-                              ? ChainIdToChain[chainId]
-                              : undefined
+                                ? ChainIdToChain[chainId]
+                                : undefined
                           }
                           short
                           avatarProps={{ size: "sm" }}
@@ -199,11 +199,11 @@ export function SplitsSection() {
                       {pendingReserveTokenBalance
                         ? `
                           ${formatUnits(
-                            (pendingReserveTokenBalance *
+                    (pendingReserveTokenBalance *
                               BigInt(split.percent)) /
                               BigInt(10 ** 9),
-                            18
-                          )}
+                    18
+                  )}
                           ${formatTokenSymbol(token.data?.symbol)}
                         `
                         : "?"}
