@@ -1,62 +1,41 @@
 "use client";
 
-import { Nav } from "@/components/layout/Nav";
-import { Button } from "@/components/ui/button";
-import { QuoteButton } from "./buttons/QuoteButton";
-import { useNativeTokenSymbol } from "@/hooks/useNativeTokenSymbol";
-import { createSalt } from "@/lib/number";
 import {
   ExclamationCircleIcon,
   PencilSquareIcon,
   TrashIcon,
 } from "@heroicons/react/24/outline";
 import { PlusIcon } from "@heroicons/react/24/solid";
+import { format } from "date-fns";
 import {
   FieldArray,
   Formik,
-  Field as FormikField,
   useFormikContext,
 } from "formik";
 import {
-  WeightCutPercent,
   JBProjectMetadata,
-  NATIVE_TOKEN,
-  NATIVE_TOKEN_DECIMALS,
-  CashOutTaxRate,
-  ReservedPercent,
-  NATIVE_CURRENCY_ID,
-  jbProjectDeploymentAddresses,
 } from "juice-sdk-core";
-import { JBChainId, useChain } from "juice-sdk-react";
-import { useEffect, useState } from "react";
+import { useChain } from "juice-sdk-react";
+import { useState } from "react";
 import { revDeployerAbi, revDeployerAddress } from "revnet-sdk";
-import {
-  Address,
-  Chain,
-  ContractFunctionParameters,
-  encodeFunctionData,
-  parseUnits,
-  zeroAddress,
-} from "viem";
-import { mainnet, sepolia } from "viem/chains";
-import { BACKED_BY_TOKENS, chainNames, MAX_RULESET_COUNT } from "../constants";
+import { encodeFunctionData } from "viem";
+import { Nav } from "@/components/layout/Nav";
+import { Button } from "@/components/ui/button";
+import { useNativeTokenSymbol } from "@/hooks/useNativeTokenSymbol";
 import { useDeployRevnetRelay } from "@/lib/relayr/hooks/useDeployRevnetRelay";
 import { RelayrPostBundleResponse } from "@/lib/relayr/types";
-import { format } from "date-fns";
-
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { MAX_RULESET_COUNT } from "../constants";
 import { PayAndDeploy } from "./buttons/PayAndDeploy";
-import { RevnetFormData } from "./types";
+import { QuoteButton } from "./buttons/QuoteButton";
+import { DEFAULT_FORM_DATA } from "./constants";
 import { AddStageDialog } from "./form/AddStageDialog";
+import { ChainSelect } from "./form/ChainSelect";
 import { DetailsPage } from "./form/ProjectDetails";
-import { DEFAULT_FORM_DATA, TEST_FORM_DATA } from "./constants";
 import { isFormValid } from "./helpers/isFormValid";
+import { parseDeployData } from "./helpers/parseDeployData";
+import { RevnetFormData } from "./types";
+import { useTestData } from "./helpers/useTestData";
+import { BackedBySelect } from "./form/BackedBySelect";
 
 function ConfigPage() {
   const { values, setFieldValue } = useFormikContext<RevnetFormData>();
@@ -185,20 +164,9 @@ function EnvironmentCheckbox({
   reset: () => void;
   isLoading: boolean;
 }) {
-  // State for dropdown selection
-  const [environment, setEnvironment] = useState("testing");
 
-  const { submitForm, values, setFieldValue } =
-    useFormikContext<RevnetFormData>();
-
-  const handleChainSelect = (chainId: number, checked: boolean) => {
-    setFieldValue(
-      "chainIds",
-      checked
-        ? [...values.chainIds, chainId]
-        : values.chainIds.filter((id) => id !== chainId)
-    );
-  };
+  const { submitForm, values } = useFormikContext<RevnetFormData>();
+  useTestData(); // type `testdata` into console to fill form with TEST_FORM_DATA
 
   const validBundle = !!relayrResponse?.bundle_uuid;
   const disableQuoteButton = !isFormValid(values) || validBundle;
@@ -207,124 +175,43 @@ function EnvironmentCheckbox({
     values.tokenSymbol?.length > 0 ? `$${values.tokenSymbol}` : "tokens";
 
   return (
-    <div className="dropdown-check-array md:col-span-2">
-      <div className="text-left text-black-500 mb-4 font-semibold">
-        Choose your chains
-      </div>
-      <div className="flex flex-col gap-4">
-        <div className="max-w-56">
-          <Select
-            onValueChange={(v) => {
-              setEnvironment(v);
-            }}
-            defaultValue="testing"
-          >
-            <SelectTrigger className="col-span-1">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="testing" key="testing">
-                Testnets
-              </SelectItem>
-              <SelectItem value="production" key="production" disabled>
-                Production (coming soon)
-              </SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-        {/* Conditional Checkboxes */}
-        <div className="flex flex-wrap gap-6 mt-4">
-          {environment === "production" ? (
-            // Production Options
-            <>
-              <label className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  value="ethereum"
-                  className="form-checkbox"
-                />{" "}
-                Ethereum Mainnet
-              </label>
-              <label className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  value="optimism"
-                  className="form-checkbox"
-                />{" "}
-                Optimism Mainnet
-              </label>
-              <label className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  value="arbitrum"
-                  className="form-checkbox"
-                />{" "}
-                Arbitrum Mainnet
-              </label>
-              <label className="flex items-center gap-2">
-                <input type="checkbox" value="base" className="form-checkbox" />{" "}
-                Base Mainnet
-              </label>
-            </>
-          ) : (
-            // Testnet Options (Sepolia)
-            <>
-              {Object.entries(chainNames).map(([id, name]) => (
-                <label key={id} className="flex items-center gap-2">
-                  <FormikField
-                    type="checkbox"
-                    name="chainIds"
-                    value={id}
-                    disabled={validBundle}
-                    className="disabled:opacity-50"
-                    checked={values.chainIds.includes(Number(id) as JBChainId)}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                      handleChainSelect(Number(id), e.target.checked);
-                    }}
-                  />
-                  {name}
-                </label>
-              ))}
-            </>
-          )}
-        </div>
-
-        <div className="flex flex-col md:col-span-3 mt-4">
-          <QuoteButton
-            isLoading={isLoading}
-            validBundle={validBundle}
-            disableQuoteButton={disableQuoteButton}
-            onSubmit={submitForm}
-          />
-          {relayrResponse && (
-            <div className="flex flex-col items-start">
-              <div className="text-xs italic mt-2">
-                Quote valid until{" "}
-                {format(
-                  relayrResponse.payment_info[0].payment_deadline,
-                  "h:mm:ss aaa"
-                )}
-                .
-                <Button
-                  variant="link"
-                  size="sm"
-                  className="italic text-xs px-1"
-                  onClick={() => reset()}
-                >
-                  clear quote
-                </Button>
-              </div>
-            </div>
-          )}
-        </div>
-
+    <div className="md:col-span-2">
+      <ChainSelect validBundle={validBundle} />
+      <div className="flex flex-col md:col-span-3 mt-4">
+        <QuoteButton
+          isLoading={isLoading}
+          validBundle={validBundle}
+          disableQuoteButton={disableQuoteButton}
+          onSubmit={submitForm}
+        />
         {relayrResponse && (
-          <PayAndDeploy
-            relayrResponse={relayrResponse}
-            revnetTokenSymbol={revnetTokenSymbol}
-          />
+          <div className="flex flex-col items-start">
+            <div className="text-xs italic mt-2">
+              Quote valid until{" "}
+              {format(
+                relayrResponse.payment_info[0].payment_deadline,
+                "h:mm:ss aaa"
+              )}
+              .
+              <Button
+                variant="link"
+                size="sm"
+                className="italic text-xs px-1"
+                onClick={() => reset()}
+              >
+                clear quote
+              </Button>
+            </div>
+          </div>
         )}
       </div>
+
+      {relayrResponse && (
+        <PayAndDeploy
+          relayrResponse={relayrResponse}
+          revnetTokenSymbol={revnetTokenSymbol}
+        />
+      )}
     </div>
   );
 }
@@ -338,36 +225,14 @@ function DeployRevnetForm({
   reset: () => void;
   isLoading: boolean;
 }) {
-  const { values, setValues } = useFormikContext<RevnetFormData>();
-
-  // type `testdata` into console to fill form with TEST_FORM_DATA
-  useEffect(() => {
-    const fillTestData = () => {
-      setValues(TEST_FORM_DATA);
-      console.log("Test data loaded successfully! 🚀");
-      console.log("Form fields populated with:");
-      console.dir(TEST_FORM_DATA);
-    };
-
-    Object.defineProperty(window, "testdata", {
-      get: () => {
-        fillTestData();
-        return "filled.";
-      },
-      configurable: true,
-    });
-
-    return () => {
-      delete (window as any).testdata;
-    };
-  }, [setValues]);
+  const { values } = useFormikContext<RevnetFormData>();
 
   const revnetTokenSymbol =
     values.tokenSymbol?.length > 0 ? `$${values.tokenSymbol}` : "tokens";
 
   const revnetTokenSymbolCapitalized =
     values.tokenSymbol?.length > 0 ? `$${values.tokenSymbol}` : "Token";
-
+  const validBundle = !!relayrResponse?.bundle_uuid;
   return (
     <div className="grid md:grid-cols-3 max-w-6xl mx-auto my-20 gap-x-6 gap-y-6 md:gap-y-0 md:px-0 px-5">
       <h1 className="mb-16 text-2xl md:col-span-3 font-semibold">
@@ -397,30 +262,10 @@ function DeployRevnetForm({
       </div>
 
       <div className="h-[1px] bg-zinc-200 md:col-span-3 sm:my-10"></div>
-      <div className="md:col-span-1">
-        <h2 className="font-bold text-lg mb-2">3. Backed by</h2>
-        <p className="text-zinc-600 text-lg">
-          {revnetTokenSymbolCapitalized} are backed by the tokens you choose to
-          allow in your revnet.
-        </p>
-        <p className="text-zinc-600 text-lg mt-2">
-          If your revnet is paid in any other token, they will first be swapped
-          into the tokens that you choose, before being used to back your
-          revnet.
-        </p>
-        <p className="text-zinc-600 text-lg mt-2">
-          Cash outs and loans are fulfilled from the chosen tokens.
-        </p>
-      </div>
-      <div className="flex flex-row gap-8">
-        {BACKED_BY_TOKENS.map((token) => (
-          <div key={token} className="flex items-center gap-2">
-            <FormikField type="checkbox" name="backedBy" value={token} />
-            <span>{token}</span>
-          </div>
-        ))}
-      </div>
-
+      <BackedBySelect
+        disabled={validBundle}
+        symbol={revnetTokenSymbolCapitalized}
+      />
       <div className="h-[1px] bg-zinc-200 md:col-span-3 sm:my-10"></div>
       <div className="md:col-span-1">
         <h2 className="font-bold text-lg mb-2">4. Deploy</h2>
@@ -445,113 +290,6 @@ function DeployRevnetForm({
       />
     </div>
   );
-}
-
-function parseDeployData(
-  _formData: RevnetFormData,
-  extra: {
-    metadataCid: string;
-    chainId: Chain["id"] | undefined;
-  }
-): ContractFunctionParameters<
-  typeof revDeployerAbi,
-  "nonpayable",
-  "deployFor"
->["args"] {
-  const now = Math.floor(Date.now() / 1000);
-  // hack: stringfy numbers
-  const formData: RevnetFormData = JSON.parse(
-    JSON.stringify(_formData),
-    (_, value) => (typeof value === "number" ? String(value) : value)
-  );
-  console.log("formData::");
-  console.dir(formData, { depth: null });
-  let cumStart = 0;
-  const operator = formData?.stages[0]?.initialOperator?.trim() as Address;
-  const stageConfigurations = formData.stages.map((stage, idx) => {
-    const prevStageDuration =
-      idx === 0 ? now : Number(formData.stages[idx - 1].boostDuration) * 86400; // days to seconds
-    const startsAtOrAfter = cumStart + prevStageDuration;
-    cumStart += prevStageDuration;
-
-    return {
-      startsAtOrAfter,
-      /**
-       * REVAutoMint[]
-       *
-       * @see https://github.com/rev-net/revnet-core/blob/main/src/structs/REVAutoMint.sol
-       */
-      autoIssuances: [
-        {
-          chainId: extra.chainId ?? mainnet.id,
-          count: parseUnits(stage.premintTokenAmount, 18),
-          beneficiary: operator,
-        },
-      ],
-      splitPercent:
-        Number(ReservedPercent.parse(stage.splitRate, 4).value) / 100,
-      initialIssuance:
-        stage.initialIssuance && stage.initialIssuance !== ""
-          ? parseUnits(`${stage.initialIssuance}`, 18)
-          : 0n,
-      issuanceCutFrequency: Number(stage.priceCeilingIncreaseFrequency) * 86400, // seconds
-      issuanceCutPercent:
-        Number(
-          WeightCutPercent.parse(stage.priceCeilingIncreasePercentage, 9).value
-        ) / 100,
-      cashOutTaxRate:
-        Number(CashOutTaxRate.parse(stage.priceFloorTaxIntensity, 4).value) /
-        100, //
-      extraMetadata: 0, // ??
-    };
-  });
-  console.dir(formData, { depth: null });
-  console.log(operator);
-  return [
-    0n, // 0 for a new revnet
-    {
-      description: {
-        name: formData.name,
-        ticker: formData.tokenSymbol,
-        uri: extra.metadataCid,
-        salt: createSalt(),
-      },
-      baseCurrency: Number(BigInt(NATIVE_TOKEN)),
-      splitOperator: operator,
-      stageConfigurations,
-      loans: zeroAddress,
-      loanSources: [],
-    },
-    [
-      {
-        terminal: jbProjectDeploymentAddresses.JBMultiTerminal[
-          sepolia.id
-        ] as Address,
-        accountingContextsToAccept: [
-          {
-            token: NATIVE_TOKEN,
-            decimals: NATIVE_TOKEN_DECIMALS,
-            currency: NATIVE_CURRENCY_ID, // ETH
-          },
-        ],
-      },
-    ],
-    {
-      hook: zeroAddress,
-      poolConfigurations: [
-        {
-          token: NATIVE_TOKEN,
-          fee: 0,
-          twapSlippageTolerance: 0,
-          twapWindow: 0,
-        },
-      ],
-    },
-    {
-      deployerConfigurations: [],
-      salt: createSalt(),
-    },
-  ];
 }
 
 async function pinProjectMetadata(metadata: JBProjectMetadata) {

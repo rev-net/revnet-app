@@ -78,4 +78,5 @@ export const TEST_FORM_DATA: RevnetFormData = {
     },
   ],
   chainIds: [11155111, 11155420, 84532, 421614],
+  backedBy: ["ETH", "USDC"]
 } as const;

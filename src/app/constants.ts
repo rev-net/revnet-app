@@ -1,5 +1,4 @@
 import { JBChainId } from "juice-sdk-react";
-import { Address } from "viem";
 import {
   Chain,
   arbitrumSepolia,
