@@ -127,6 +127,7 @@ const DEFAULT_FORM_DATA: RevnetFormData = {
 
   stages: [],
   chainIds: [],
+  backedBy: ["ETH"]
 };
 
 const TEST_FORM_DATA: RevnetFormData = {
@@ -912,6 +913,8 @@ function EnvironmentCheckbox({
       return false;
     }
 
+    if (values.backedBy?.length === 0) return false;
+
     const isStagesValid = values.stages.every((stage) => {
       return (
         stage.initialIssuance !== undefined &&
@@ -920,8 +923,6 @@ function EnvironmentCheckbox({
         stage.priceCeilingIncreasePercentage !== "" &&
         stage.priceCeilingIncreaseFrequency !== undefined &&
         stage.priceCeilingIncreaseFrequency !== "" &&
-        stage.boostDuration !== undefined &&
-        stage.boostDuration !== "" &&
         (values.stages.indexOf(stage) === 0
           ? stage.initialOperator && stage.initialOperator !== ""
           : true)
@@ -1019,6 +1020,8 @@ function EnvironmentCheckbox({
                     type="checkbox"
                     name="chainIds"
                     value={id}
+                    disabled={validBundle}
+                    className="disabled:opacity-50"
                     checked={values.chainIds.includes(Number(id) as JBChainId)}
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                       handleChainSelect(Number(id), e.target.checked);
@@ -1156,10 +1159,10 @@ function DeployRevnetForm({
       </div>
       <div className="flex flex-row gap-8">
         {BACKED_BY_TOKENS.map((token) => (
-          <label key={token} className="flex items-center gap-2">
-            <FormikField type="checkbox" name="chainIds" value={token} />
-            {token}
-          </label>
+          <div key={token} className="flex items-center gap-2">
+            <FormikField type="checkbox" name="backedBy" value={token} />
+            <span>{token}</span>
+          </div>
         ))}
       </div>
 
