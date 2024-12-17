@@ -1,21 +1,26 @@
 import {
-  Field as FormikField
+  Field as FormikField,
+  useFormikContext
 } from "formik";
 import { BACKED_BY_TOKENS } from "@/app/constants";
+import { RevnetFormData } from "../types";
 
 export function BackedBySelect({
-  disabled,
-  symbol,
+  disabled = false
 }: {
-  disabled: boolean
-  symbol: string
+  disabled?: boolean
 }) {
+
+  const { values } = useFormikContext<RevnetFormData>();
+  const revnetTokenSymbolCapitalized =
+    values.tokenSymbol?.length > 0 ? `$${values.tokenSymbol}` : "Tokens";
+
   return (
     <>
       <div className="md:col-span-1">
         <h2 className="font-bold text-lg mb-2">3. Backed by</h2>
         <p className="text-zinc-600 text-lg">
-          {symbol} are backed by the tokens you choose to
+          {revnetTokenSymbolCapitalized} are backed by the tokens you choose to
           allow in your revnet.
         </p>
         <p className="text-zinc-600 text-lg mt-2">
