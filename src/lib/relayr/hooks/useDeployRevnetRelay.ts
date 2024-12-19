@@ -4,11 +4,9 @@ import { API, DASHBOARD } from "../constants";
 
 type DeployRevnetRelayArgs = {
   data: `0x${string}`;
-  chainDeployer: {
-    chain: number;
-    deployer: string;
-  }[];
-}
+  chain: number;
+  deployer: string;
+};
 
 export function useDeployRevnetRelay() {
   const [isLoading, setIsLoading] = useState(false);
@@ -21,17 +19,17 @@ export function useDeployRevnetRelay() {
     setError(undefined);
   }, []);
 
-  const deployRevnet = useCallback(async (args: DeployRevnetRelayArgs) => {
+  const deployRevnet = useCallback(async (args: DeployRevnetRelayArgs[]) => {
     setIsLoading(true);
     setError(undefined);
 
-    const transactions = args.chainDeployer.map((ct) => {
+    const transactions = args.map(ct => {
       return {
         chain: ct.chain,
-        data: args.data,
+        data: ct.data,
         target: ct.deployer,
-        value: "0"
-      }
+        value: "0",
+      };
     });
 
     try {
@@ -42,7 +40,7 @@ export function useDeployRevnetRelay() {
         },
         body: JSON.stringify({
           transactions,
-          virtual_nonce_mode: "Disabled"
+          virtual_nonce_mode: "Disabled",
         })
       });
 
@@ -55,8 +53,8 @@ export function useDeployRevnetRelay() {
       console.log("Relayr:: ", data);
       console.log(`${DASHBOARD}/bundle/${data.bundle_uuid}`);
       setRelayrResponse(data);
-    } catch(e: any) {
-      console.log("Relayr ERROR:: ", e)
+    } catch (e: any) {
+      console.log("Relayr ERROR:: ", e);
       setError(e);
     } finally {
       setIsLoading(false);

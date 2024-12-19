@@ -12,6 +12,7 @@ import { DEFAULT_FORM_DATA } from "./constants";
 import { DeployRevnetForm } from "./form/DeployRevnetForm";
 import { parseDeployData } from "./helpers/parseDeployData";
 import { pinProjectMetadata } from "./helpers/pinProjectMetaData";
+import { parseSuckerDeployerConfig } from "./helpers/parseSuckerDeployerConfig";
 
 export default function Page() {
   const [isLoadingIpfs, setIsLoadingIpfs] = useState<boolean>(false);
@@ -37,9 +38,18 @@ export default function Page() {
     });
     setIsLoadingIpfs(false);
 
+    const suckerDeployerConfig = parseSuckerDeployerConfig(
+      formData.backedBy,
+      formData.chainIds
+    );
+
     const deployData = parseDeployData(formData, {
       metadataCid,
       chainId: chain?.id,
+      usdcAddress: "0x",
+      usdcDecimals: 6,
+      usdcCurrency: 1,
+      suckerDeployerConfig: suckerDeployerConfig,
     });
 
     const encodedData = encodeFunctionData({
@@ -50,16 +60,16 @@ export default function Page() {
 
     console.log("deployData::", deployData, encodedData);
     console.log("chainIds::", formData.chainIds);
-    // Send to Relayr
-    write?.({
-      data: encodedData,
-      chainDeployer: formData.chainIds.map((chainId) => {
-        return {
-          chain: Number(chainId),
-          deployer: revDeployerAddress[chainId],
-        };
-      }),
+
+    const writeData = formData.chainIds.map(chainId => {
+      return {
+        data: encodedData,
+        chain: Number(chainId),
+        deployer: revDeployerAddress[chainId],
+      };
     });
+
+    write?.(writeData);
   }
 
   return (
