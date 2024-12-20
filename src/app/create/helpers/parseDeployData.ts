@@ -1,28 +1,19 @@
 // https://github.com/rev-net/revnet-core/blob/main/script/Deploy.s.sol
+import { createSalt } from "@/lib/number";
 import {
-  parseUnits,
-  zeroAddress,
-  Address,
-  Chain,
-  ContractFunctionParameters,
-} from "viem";
-import { revDeployerAbi } from "revnet-sdk";
-import { mainnet, sepolia } from "viem/chains";
-import {
-  jbProjectDeploymentAddresses,
   CashOutTaxRate,
+  JBChainId,
+  jbProjectDeploymentAddresses,
   NATIVE_CURRENCY_ID,
   NATIVE_TOKEN,
   NATIVE_TOKEN_DECIMALS,
   ReservedPercent,
   WeightCutPercent,
-  JBChainId,
 } from "juice-sdk-core";
-import { createSalt } from "@/lib/number";
+import { revDeployerAbi, revLoansAddress } from "revnet-sdk";
+import { Address, Chain, ContractFunctionParameters, parseUnits } from "viem";
+import { mainnet, sepolia } from "viem/chains";
 import { RevnetFormData } from "../types";
-
-const loans = zeroAddress; //TODO get real address
-const buyBackHook = zeroAddress; //TODO get real address
 
 export function parseDeployData(
   _formData: RevnetFormData,
@@ -60,7 +51,7 @@ export function parseDeployData(
   console.dir(formData, { depth: null });
   let cumStart = 0;
   const operator = formData?.stages[0]?.initialOperator?.trim() as Address;
-  const accountingContextsToAccept = formData.backedBy.map(ctx => {
+  const accountingContextsToAccept = formData.backedBy.map((ctx) => {
     if (ctx === "ETH") {
       return {
         token: NATIVE_TOKEN,
@@ -75,7 +66,7 @@ export function parseDeployData(
       };
     }
   });
-  const loanSources = formData.backedBy.map(source => {
+  const loanSources = formData.backedBy.map((source) => {
     return {
       token: source === "ETH" ? NATIVE_TOKEN : extra.usdcAddress,
       terminal: jbProjectDeploymentAddresses.JBMultiTerminal[
@@ -84,7 +75,7 @@ export function parseDeployData(
     };
   });
 
-  const poolConfigurations = formData.backedBy.map(source => {
+  const poolConfigurations = formData.backedBy.map((source) => {
     return {
       token: source === "ETH" ? NATIVE_TOKEN : extra.usdcAddress,
       fee: 10_000,
@@ -144,7 +135,7 @@ export function parseDeployData(
       baseCurrency: Number(BigInt(NATIVE_TOKEN)),
       splitOperator: operator,
       stageConfigurations,
-      loans,
+      loans: revLoansAddress[extra.chainId as JBChainId] as Address,
       loanSources,
     },
     [
@@ -156,7 +147,9 @@ export function parseDeployData(
       },
     ],
     {
-      hook: buyBackHook,
+      hook: jbProjectDeploymentAddresses.JBBuybackHook[
+        extra.chainId as JBChainId
+      ] as Address,
       poolConfigurations,
     },
     {
