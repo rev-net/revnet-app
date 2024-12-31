@@ -12,14 +12,13 @@ import {
 } from "juice-sdk-core";
 import { revDeployerAbi, revLoansAddress } from "revnet-sdk";
 import { Address, Chain, ContractFunctionParameters, parseUnits } from "viem";
-import { mainnet, sepolia } from "viem/chains";
 import { RevnetFormData } from "../types";
 
 export function parseDeployData(
   _formData: RevnetFormData,
   extra: {
     metadataCid: string;
-    chainId: Chain["id"] | undefined;
+    chainId: Chain["id"];
     suckerDeployerConfig: {
       deployerConfigurations: {
         deployer: Address;
@@ -85,7 +84,7 @@ export function parseDeployData(
        */
       autoIssuances: [
         {
-          chainId: extra.chainId ?? mainnet.id,
+          chainId: extra.chainId,
           count: parseUnits(stage.premintTokenAmount, 18),
           beneficiary: operator,
         },
@@ -127,7 +126,7 @@ export function parseDeployData(
     [
       {
         terminal: jbProjectDeploymentAddresses.JBMultiTerminal[
-          sepolia.id
+          extra.chainId as JBChainId
         ] as Address,
         accountingContextsToAccept,
       },
