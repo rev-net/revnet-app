@@ -50,39 +50,28 @@ export function parseDeployData(
   console.log("formData::");
   console.dir(formData, { depth: null });
   let cumStart = 0;
-  const operator = formData?.stages[0]?.initialOperator?.trim() as Address;
-  const accountingContextsToAccept = formData.backedBy.map((ctx) => {
-    if (ctx === "ETH") {
-      return {
-        token: NATIVE_TOKEN,
-        decimals: NATIVE_TOKEN_DECIMALS,
-        currency: NATIVE_CURRENCY_ID,
-      };
-    } else {
-      return {
-        token: extra.usdcAddress,
-        decimals: extra.usdcDecimals,
-        currency: extra.usdcCurrency,
-      };
-    }
-  });
-  const loanSources = formData.backedBy.map((source) => {
-    return {
-      token: source === "ETH" ? NATIVE_TOKEN : extra.usdcAddress,
-      terminal: jbProjectDeploymentAddresses.JBMultiTerminal[
-        extra?.chainId as JBChainId
-      ] as Address,
-    };
-  });
 
-  const poolConfigurations = formData.backedBy.map((source) => {
-    return {
-      token: source === "ETH" ? NATIVE_TOKEN : extra.usdcAddress,
-      fee: 10_000,
-      twapWindow: 2 * 60 * 60 * 24,
-      twapSlippageTolerance: 9000,
-    };
-  });
+  const operator = formData?.stages[0]?.initialOperator?.trim() as Address;
+
+  const accountingContextsToAccept = [{
+    token: NATIVE_TOKEN,
+    decimals: NATIVE_TOKEN_DECIMALS,
+    currency: NATIVE_CURRENCY_ID,
+  }];
+
+  const loanSources = [{
+    token: NATIVE_TOKEN,
+    terminal: jbProjectDeploymentAddresses.JBMultiTerminal[
+      extra?.chainId as JBChainId
+    ] as Address,
+  }];
+
+  const poolConfigurations = [{
+    token: NATIVE_TOKEN,
+    fee: 10_000,
+    twapWindow: 2 * 60 * 60 * 24,
+    twapSlippageTolerance: 9000,
+  }];
 
   const stageConfigurations = formData.stages.map((stage, idx) => {
     const prevStageDuration =

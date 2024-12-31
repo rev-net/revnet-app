@@ -32,16 +32,13 @@ export default function Page() {
     setIsLoadingIpfs(true);
     const metadataCid = await pinProjectMetadata({
       name: formData.name,
-      // projectTagline: formData.tagline,
       description: formData.description,
       logoUri: formData.logoUri,
     });
     setIsLoadingIpfs(false);
 
-    const suckerDeployerConfig = parseSuckerDeployerConfig(
-      formData.backedBy,
-      formData.chainIds
-    );
+    // returns empty deployer config until new suckers are deployed
+    const suckerDeployerConfig = parseSuckerDeployerConfig();
 
     const deployData = parseDeployData(formData, {
       metadataCid,

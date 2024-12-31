@@ -27,7 +27,6 @@ export const DEFAULT_FORM_DATA: RevnetFormData = {
 
   stages: [],
   chainIds: [],
-  backedBy: ["ETH"]
 };
 
 export const EXIT_TAX_HIGH = "80";
@@ -78,5 +77,4 @@ export const TEST_FORM_DATA: RevnetFormData = {
     },
   ],
   chainIds: [11155111, 11155420, 84532, 421614],
-  backedBy: ["ETH", "USDC"]
 } as const;
