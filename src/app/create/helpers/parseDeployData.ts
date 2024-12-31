@@ -20,9 +20,6 @@ export function parseDeployData(
   extra: {
     metadataCid: string;
     chainId: Chain["id"] | undefined;
-    usdcAddress: Address;
-    usdcDecimals: number;
-    usdcCurrency: number;
     suckerDeployerConfig: {
       deployerConfigurations: {
         deployer: Address;
@@ -111,7 +108,7 @@ export function parseDeployData(
     };
   });
   console.dir(formData, { depth: null });
-  console.log(operator);
+
   return [
     0n, // 0 for a new revnet
     {

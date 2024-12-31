@@ -37,33 +37,27 @@ export default function Page() {
     });
     setIsLoadingIpfs(false);
 
-    // returns empty deployer config until new suckers are deployed
-    const suckerDeployerConfig = parseSuckerDeployerConfig();
-
-    const deployData = parseDeployData(formData, {
-      metadataCid,
-      chainId: chain?.id,
-      usdcAddress: "0x",
-      usdcDecimals: 6,
-      usdcCurrency: 1,
-      suckerDeployerConfig: suckerDeployerConfig,
-    });
-
-    const encodedData = encodeFunctionData({
-      abi: revDeployerAbi, // ABI of the contract
-      functionName: "deployFor",
-      args: deployData,
-    });
-
-    console.log("deployData::", deployData, encodedData);
-    console.log("chainIds::", formData.chainIds);
-
     const writeData = formData.chainIds.map(chainId => {
+      // returns empty deployer config until new suckers are deployed
+      const suckerDeployerConfig = parseSuckerDeployerConfig();
+
+      const deployData = parseDeployData(formData, {
+        metadataCid,
+        chainId,
+        suckerDeployerConfig: suckerDeployerConfig,
+      });
+
+      const encodedData = encodeFunctionData({
+        abi: revDeployerAbi, // ABI of the contract
+        functionName: "deployFor",
+        args: deployData,
+      });
+
       return {
         data: encodedData,
         chain: Number(chainId),
         deployer: revDeployerAddress[chainId],
-      };
+      }
     });
 
     write?.(writeData);
