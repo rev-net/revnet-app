@@ -15,7 +15,6 @@ import {
 } from "@/components/ui/tooltip";
 import {
   ReservedPercent,
-  MAX_CASH_OUT_TAX_RATE,
   CashOutTaxRate,
   RulesetWeight,
   WeightCutPercent,
@@ -366,8 +365,7 @@ export function NetworkDetailsTable() {
                 </dt>
                 <dd className="text-md leading-6 text-zinc-700">
                   {new CashOutTaxRate(
-                    MAX_CASH_OUT_TAX_RATE -
-                Number(selectedStageMetadata?.data?.cashOutTaxRate.value ?? 0n)
+                    Number(selectedStageMetadata?.data?.cashOutTaxRate.value ?? 0n)
                   ).format()}
                 </dd>
               </div>
