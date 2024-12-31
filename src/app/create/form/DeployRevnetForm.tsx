@@ -1,5 +1,4 @@
 import { RelayrPostBundleResponse } from "@/lib/relayr/types";
-import { BackedBySelect } from "./BackedBySelect";
 import { Divider } from "./Divider";
 import { DetailsPage } from "./ProjectDetails";
 import { Stages } from "./Stages";
@@ -39,9 +38,6 @@ export function DeployRevnetForm({
       <Divider />
 
       <Stages disabled={validBundle} />
-      <Divider />
-
-      <BackedBySelect disabled={validBundle} />
       <Divider />
 
       <ChainSelect disabled={validBundle} />

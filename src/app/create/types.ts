@@ -25,6 +25,5 @@ export type RevnetFormData = {
 
   premintTokenAmount: string;
   stages: StageData[];
-  backedBy: string[];
   chainIds: JBChainId[];
 };

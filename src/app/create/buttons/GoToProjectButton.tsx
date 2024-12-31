@@ -27,7 +27,7 @@ export function GoToProjectButton({
     <div className="max-w-fit">
       <Link
         href={projectUrl}
-        className={!projectId ? 'pointer-events-none' : ''}
+        className={!projectId ? "pointer-events-none" : ""}
       >
         <Button
           type="submit"
