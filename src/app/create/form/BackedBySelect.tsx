@@ -1,3 +1,5 @@
+// removed from initial deploy for simplicity
+// https://discord.com/channels/1139291093310132376/1139291094069301385/1319669598148231263
 import {
   Field as FormikField,
   useFormikContext

@@ -69,7 +69,7 @@ function PayActivityItem(
         </div>
         <div className="flex items-center gap-1">
           <div className="text-md text-zinc-500 ml-7">
-            {activityItemData.amount.format(6)} ETH {" "}
+            {activityItemData.amount.format(6)} ETH{" "}
             <span className="border border-teal-600 bg-teal-50 text-teal-600 px-1 py-0.5">
               in
             </span>{" "}
@@ -133,7 +133,7 @@ function RedeemActivityItem(
         </div>
         <div className="flex items-center gap-1">
           <div className="text-md text-zinc-500 ml-7">
-            {activityItemData.amount.format(6)} ETH {" "}
+            {activityItemData.amount.format(6)} ETH{" "}
             <span className="border border-orange-500 bg-orange-50 text-orange-500 px-1 py-0.5">
               out
             </span>{" "}
@@ -165,7 +165,6 @@ export function ActivityFeed() {
   const { projectId } = useJBContractContext();
   const [isOpen, setIsOpen] = useState(true);
 
-
   const { data } = useOmnichainSubgraphQuery(ProjectEventsDocument, {
     orderBy: ProjectEvent_OrderBy.timestamp,
     orderDirection: OrderDirection.desc,
@@ -175,8 +174,8 @@ export function ActivityFeed() {
   });
   const projectEvents = useMemo(() => {
     return data
-      ?.flatMap((d) => {
-        return d.value.response.projectEvents.map((e) => {
+      ?.flatMap(d => {
+        return d.value.response.projectEvents.map(e => {
           return {
             ...e,
             chainId: d.value.chainId,
@@ -209,36 +208,36 @@ export function ActivityFeed() {
         </span>
       </button>
       {/* Dropdown Content */}
-      {isOpen &&
-      <div className="flex flex-col gap-1 mt-8">
-        {projectEvents && projectEvents.length > 0 ? (
-          projectEvents?.map((event) => {
-            if (event.payEvent) {
-              return (
-                <PayActivityItem
-                  key={event.id}
-                  chainId={event.chainId}
-                  {...event.payEvent}
-                />
-              );
-            }
-            if (event.cashOutEvent) {
-              return (
-                <RedeemActivityItem
-                  key={event.id}
-                  chainId={event.chainId}
-                  {...event.cashOutEvent}
-                />
-              );
-            }
+      {isOpen && (
+        <div className="flex flex-col gap-1 mt-8">
+          {projectEvents && projectEvents.length > 0 ? (
+            projectEvents?.map(event => {
+              if (event.payEvent) {
+                return (
+                  <PayActivityItem
+                    key={event.id}
+                    chainId={event.chainId}
+                    {...event.payEvent}
+                  />
+                );
+              }
+              if (event.cashOutEvent) {
+                return (
+                  <RedeemActivityItem
+                    key={event.id}
+                    chainId={event.chainId}
+                    {...event.cashOutEvent}
+                  />
+                );
+              }
 
-            return null;
-          })
-        ) : (
-          <span className="text-zinc-500 text-md">No activity yet.</span>
-        )}
-      </div>
-      }
+              return null;
+            })
+          ) : (
+            <span className="text-zinc-500 text-md">No activity yet.</span>
+          )}
+        </div>
+      )}
     </>
   );
 }

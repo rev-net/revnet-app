@@ -12,6 +12,7 @@ import { DEFAULT_FORM_DATA } from "./constants";
 import { DeployRevnetForm } from "./form/DeployRevnetForm";
 import { parseDeployData } from "./helpers/parseDeployData";
 import { pinProjectMetadata } from "./helpers/pinProjectMetaData";
+import { parseSuckerDeployerConfig } from "./helpers/parseSuckerDeployerConfig";
 
 export default function Page() {
   const [isLoadingIpfs, setIsLoadingIpfs] = useState<boolean>(false);
@@ -31,35 +32,35 @@ export default function Page() {
     setIsLoadingIpfs(true);
     const metadataCid = await pinProjectMetadata({
       name: formData.name,
-      // projectTagline: formData.tagline,
       description: formData.description,
       logoUri: formData.logoUri,
     });
     setIsLoadingIpfs(false);
 
-    const deployData = parseDeployData(formData, {
-      metadataCid,
-      chainId: chain?.id,
+    const writeData = formData.chainIds.map(chainId => {
+      // returns empty deployer config until new suckers are deployed
+      const suckerDeployerConfig = parseSuckerDeployerConfig();
+
+      const deployData = parseDeployData(formData, {
+        metadataCid,
+        chainId,
+        suckerDeployerConfig: suckerDeployerConfig,
+      });
+
+      const encodedData = encodeFunctionData({
+        abi: revDeployerAbi, // ABI of the contract
+        functionName: "deployFor",
+        args: deployData,
+      });
+
+      return {
+        data: encodedData,
+        chain: Number(chainId),
+        deployer: revDeployerAddress[chainId],
+      }
     });
 
-    const encodedData = encodeFunctionData({
-      abi: revDeployerAbi, // ABI of the contract
-      functionName: "deployFor",
-      args: deployData,
-    });
-
-    console.log("deployData::", deployData, encodedData);
-    console.log("chainIds::", formData.chainIds);
-    // Send to Relayr
-    write?.({
-      data: encodedData,
-      chainDeployer: formData.chainIds.map((chainId) => {
-        return {
-          chain: Number(chainId),
-          deployer: revDeployerAddress[chainId],
-        };
-      }),
-    });
+    write?.(writeData);
   }
 
   return (

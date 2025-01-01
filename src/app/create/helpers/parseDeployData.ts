@@ -1,29 +1,36 @@
+// https://github.com/rev-net/revnet-core/blob/main/script/Deploy.s.sol
+import { createSalt } from "@/lib/number";
 import {
-  parseUnits,
-  zeroAddress,
-  Address,
-  Chain,
-  ContractFunctionParameters,
-} from "viem";
-import { revDeployerAbi } from "revnet-sdk";
-import { mainnet, sepolia } from "viem/chains";
-import {
-  jbProjectDeploymentAddresses,
   CashOutTaxRate,
+  JBChainId,
+  jbProjectDeploymentAddresses,
   NATIVE_CURRENCY_ID,
   NATIVE_TOKEN,
   NATIVE_TOKEN_DECIMALS,
   ReservedPercent,
-  WeightCutPercent
+  WeightCutPercent,
 } from "juice-sdk-core";
-import { createSalt } from "@/lib/number";
+import { revDeployerAbi, revLoansAddress } from "revnet-sdk";
+import { Address, Chain, ContractFunctionParameters, parseUnits } from "viem";
 import { RevnetFormData } from "../types";
 
 export function parseDeployData(
   _formData: RevnetFormData,
   extra: {
     metadataCid: string;
-    chainId: Chain["id"] | undefined;
+    chainId: Chain["id"];
+    suckerDeployerConfig: {
+      deployerConfigurations: {
+        deployer: Address;
+        mappings: {
+          localToken: Address;
+          remoteToken: Address;
+          minGas: number;
+          minBridgeAmount: bigint;
+        }[];
+      }[];
+      salt: `0x${string}`;
+    };
   }
 ): ContractFunctionParameters<
   typeof revDeployerAbi,
@@ -39,7 +46,29 @@ export function parseDeployData(
   console.log("formData::");
   console.dir(formData, { depth: null });
   let cumStart = 0;
+
   const operator = formData?.stages[0]?.initialOperator?.trim() as Address;
+
+  const accountingContextsToAccept = [{
+    token: NATIVE_TOKEN,
+    decimals: NATIVE_TOKEN_DECIMALS,
+    currency: NATIVE_CURRENCY_ID,
+  }];
+
+  const loanSources = [{
+    token: NATIVE_TOKEN,
+    terminal: jbProjectDeploymentAddresses.JBMultiTerminal[
+      extra?.chainId as JBChainId
+    ] as Address,
+  }];
+
+  const poolConfigurations = [{
+    token: NATIVE_TOKEN,
+    fee: 10_000,
+    twapWindow: 2 * 60 * 60 * 24,
+    twapSlippageTolerance: 9000,
+  }];
+
   const stageConfigurations = formData.stages.map((stage, idx) => {
     const prevStageDuration =
       idx === 0 ? now : Number(formData.stages[idx - 1].boostDuration) * 86400; // days to seconds
@@ -55,7 +84,7 @@ export function parseDeployData(
        */
       autoIssuances: [
         {
-          chainId: extra.chainId ?? mainnet.id,
+          chainId: extra.chainId,
           count: parseUnits(stage.premintTokenAmount, 18),
           beneficiary: operator,
         },
@@ -78,7 +107,7 @@ export function parseDeployData(
     };
   });
   console.dir(formData, { depth: null });
-  console.log(operator);
+
   return [
     0n, // 0 for a new revnet
     {
@@ -91,37 +120,26 @@ export function parseDeployData(
       baseCurrency: Number(BigInt(NATIVE_TOKEN)),
       splitOperator: operator,
       stageConfigurations,
-      loans: zeroAddress,
-      loanSources: [],
+      loans: revLoansAddress[extra.chainId as JBChainId] as Address,
+      loanSources,
     },
     [
       {
         terminal: jbProjectDeploymentAddresses.JBMultiTerminal[
-          sepolia.id
+          extra.chainId as JBChainId
         ] as Address,
-        accountingContextsToAccept: [
-          {
-            token: NATIVE_TOKEN,
-            decimals: NATIVE_TOKEN_DECIMALS,
-            currency: NATIVE_CURRENCY_ID, // ETH
-          },
-        ],
+        accountingContextsToAccept,
       },
     ],
     {
-      hook: zeroAddress,
-      poolConfigurations: [
-        {
-          token: NATIVE_TOKEN,
-          fee: 0,
-          twapSlippageTolerance: 0,
-          twapWindow: 0,
-        },
-      ],
+      hook: jbProjectDeploymentAddresses.JBBuybackHook[
+        extra.chainId as JBChainId
+      ] as Address,
+      poolConfigurations,
     },
     {
-      deployerConfigurations: [],
-      salt: createSalt(),
+      deployerConfigurations: extra.suckerDeployerConfig.deployerConfigurations,
+      salt: extra.suckerDeployerConfig.salt,
     },
   ];
 }

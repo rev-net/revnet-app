@@ -9,8 +9,6 @@ export const isFormValid = (values: RevnetFormData) => {
     return false;
   }
 
-  if (values.backedBy?.length === 0) return false;
-
   const isStagesValid = values.stages.every((stage) => {
     return (
       stage.initialIssuance !== undefined &&

@@ -33,7 +33,7 @@ export function useFormattedTokenIssuance(params?: TokenIssuanceParams) {
     }
   );
   const amount = formatUnits(quote.payerTokens, tokenA.decimals);
-  const formattedAmount = new Intl.NumberFormat('en-US', {
+  const formattedAmount = new Intl.NumberFormat("en-US", {
     maximumFractionDigits: 3
   }).format(Number(amount));
   return `${formattedAmount} ${formatTokenSymbol(tokenB)} / ${tokenA.symbol}`;
