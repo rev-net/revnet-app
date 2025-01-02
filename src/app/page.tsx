@@ -1,7 +1,20 @@
 import { Button } from "@/components/ui/button";
-import { FastForwardIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+
+const RevLink = ({ network, id, text }: { network: string; id: number; text: string }) => {
+  return (
+    <span>
+      $<Link href={`/${network}/${id}`} className="underline hover:text-black/70">
+        {text}
+      </Link>
+    </span>
+  );
+};
+
+const Pipe = () => {
+  return <div className="text-zinc-300">{" | "}</div>;
+}
 
 export default function Page() {
   return (
@@ -25,16 +38,15 @@ export default function Page() {
               </Button>
             </Link>
           </div>
-          <div className="mt-8 text-xl md:text-xl text-left overflow-scroll whitespace-nowrap">
-            <span className="mr-1">Browse:</span> $<Link href="https://revnet.app/sepolia/1" target="_blank"
-              rel="noopener norefererr"
-              className="underline hover:text-black/70">NANA</Link><span className="text-zinc-300">{" | "}</span> $<Link href="https://revnet.app/sepolia/3" target="_blank"
-              rel="noopener norefererr"
-              className="underline hover:text-black/70">REV</Link><span className="text-zinc-300">{" | "}</span> $<Link href="https://revnet.app/sepolia/4" target="_blank"
-              rel="noopener norefererr"
-              className="underline hover:text-black/70">BAN</Link><span className="text-zinc-300">{" | "}</span> $<Link href="https://revnet.app/sepolia/2" target="_blank"
-              rel="noopener norefererr"
-              className="underline hover:text-black/70">CPN</Link>
+          <div className="flex flex-row mt-8 text-xl md:text-xl text-left gap-1 overflow-scroll whitespace-nowrap">
+            <span className="mr-1">Browse:</span>
+            <RevLink network="sepolia" id={1} text="NANA" />
+            <Pipe />
+            <RevLink network="sepolia" id={2} text="REV" />
+            <Pipe />
+            <RevLink network="sepolia" id={3} text="BAN" />
+            <Pipe />
+            <RevLink network="sepolia" id={4} text="CPN" />
           </div>
         </div>
       </div>

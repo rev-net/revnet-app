@@ -63,6 +63,7 @@ export function DeployRevnetForm({
                 variant="link"
                 size="sm"
                 className="italic text-xs px-1"
+                disabled={isLoading}
                 onClick={() => reset()}
               >
                 clear quote

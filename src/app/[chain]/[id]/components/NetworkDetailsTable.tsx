@@ -2,7 +2,6 @@ import {
   MAX_RULESET_COUNT,
   RESERVED_TOKEN_SPLIT_GROUP_ID,
 } from "@/app/constants";
-import { EthereumAddress } from "@/components/EthereumAddress";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useNativeTokenSymbol } from "@/hooks/useNativeTokenSymbol";
@@ -29,10 +28,12 @@ import {
 } from "juice-sdk-react";
 import { useState } from "react";
 import { twJoin } from "tailwind-merge";
-import { SectionTooltip } from "./NetworkDashboard/sections/SectionTooltip";
 import { PriceSection } from "./NetworkDashboard/sections/PriceSection";
 import { useFormattedTokenIssuance } from "@/hooks/useFormattedTokenIssuance";
 import { formatTokenSymbol, rulesetStartDate } from "@/lib/utils";
+import { useAutoMints } from "@/hooks/useAutomints";
+import { commaNumber } from "@/lib/number";
+import { formatUnits } from "viem";
 
 export function NetworkDetailsTable() {
   const [selectedStageIdx, setSelectedStageIdx] = useState<number>(0);
@@ -99,10 +100,9 @@ export function NetworkDetailsTable() {
   );
   const currentStageIdx = nextStageIdx - 1;
 
+  const len = rulesets?.length ?? 0;
+  const reverseSelectedIdx = len - selectedStageIdx - 1;
   const stageDayDiff = () => {
-    const len = rulesets?.length ?? 0;
-    const reverseSelectedIdx = len - selectedStageIdx - 1;
-
     const selectedRuleset = rulesets?.[reverseSelectedIdx];
     const selectedStart = rulesetStartDate(selectedRuleset);
 
@@ -115,9 +115,6 @@ export function NetworkDetailsTable() {
   };
 
   const stageNextStart = () => {
-    const len = rulesets?.length ?? 0;
-    const reverseSelectedIdx = len - selectedStageIdx - 1;
-
     const selectedRuleset = rulesets?.[reverseSelectedIdx];
     const selectedStart = rulesetStartDate(selectedRuleset);
 
@@ -135,6 +132,16 @@ export function NetworkDetailsTable() {
     weight: selectedStage?.weight,
     reservedPercent: selectedStageMetadata?.data?.reservedPercent
   });
+
+  const autoMints = useAutoMints();
+  const getAutoMintsTotalForStage = () => {
+    if (!autoMints) return 0;
+    const stageAutoMints = autoMints.filter((a) => a.stage === selectedStageIdx + 1);
+    return commaNumber(formatUnits(
+      stageAutoMints.reduce((acc, curr) => acc + BigInt(curr.count), 0n),
+      token?.data?.decimals || 18
+    ))
+  };
 
   if (!selectedStage) return null;
 
@@ -253,7 +260,7 @@ export function NetworkDetailsTable() {
                   </Tooltip>
                 </dt>
                 <dd className="text-md leading-6 text-zinc-700 whitespace-nowrap">
-            0 {formatTokenSymbol(token)}
+                  {getAutoMintsTotalForStage()} {formatTokenSymbol(token)}
                 </dd>
               </div>
               <div className="sm:col-span-1 sm:px-0 grid grid-cols-2 sm:grid-cols-4">
