@@ -1,10 +1,11 @@
+import { JB_REDEEM_FEE_PERCENT } from "@/app/constants";
 import { useQuery } from "@tanstack/react-query";
+import axios from "axios";
 import {
   NATIVE_CURRENCY_ID,
   NATIVE_TOKEN,
   NATIVE_TOKEN_DECIMALS,
   readJbDirectoryPrimaryTerminalOf,
-  readJbMultiTerminalStore,
   readJbTerminalStoreCurrentReclaimableSurplusOf,
   SuckerPair,
 } from "juice-sdk-core";
@@ -14,43 +15,16 @@ import {
   useJBContractContext,
   useSuckers,
 } from "juice-sdk-react";
-import { Address, zeroAddress } from "viem";
+import { zeroAddress } from "viem";
 import { useConfig } from "wagmi";
 import { useTokenCashOutQuoteEth } from "../app/[chain]/[id]/components/UserTokenBalanceCard/useTokenCashOutQuoteEth";
-import { JB_REDEEM_FEE_PERCENT } from "@/app/constants";
-
-async function getTokenRedemptionQuote(
-  config: ReturnType<typeof useConfig>,
-  chainId: JBChainId,
-  tokenAmountWei: bigint,
-  {
-    projectId,
-    terminalStore,
-  }: {
-    projectId: bigint;
-    terminalStore: Address;
-  }
-) {
-  return readJbTerminalStoreCurrentReclaimableSurplusOf(config, {
-    chainId,
-    address: terminalStore,
-    args: [
-      projectId,
-      tokenAmountWei,
-      [zeroAddress],
-      [],
-      BigInt(NATIVE_TOKEN_DECIMALS),
-      BigInt(NATIVE_CURRENCY_ID),
-    ],
-  });
-}
 
 export function useSuckersTokenRedemptionQuote(tokenAmountWei: bigint) {
   const config = useConfig();
   const chainId = useJBChainId();
   const { projectId } = useJBContractContext();
   const suckersQuery = useSuckers();
-  const pairs = suckersQuery.data as SuckerPair[] | undefined;
+  const pairs = suckersQuery.data?.suckers as SuckerPair[] | undefined;
 
   const { data: currentChainQuote, isLoading: isQuoteLoading } =
     useTokenCashOutQuoteEth(tokenAmountWei, {
@@ -72,26 +46,13 @@ export function useSuckersTokenRedemptionQuote(tokenAmountWei: bigint) {
       }
 
       const quotes = await Promise.all(
-        pairs?.map(async (pair) => {
-          const { peerChainId, projectId } = pair;
-
-          const primaryNativeTerminal = await readJbDirectoryPrimaryTerminalOf(
+        pairs?.map(async ({ peerChainId, projectId }) => {
+          return getTokenRedemptionQuote(
             config,
-            {
-              chainId: Number(peerChainId) as JBChainId,
-              args: [projectId, NATIVE_TOKEN],
-            }
-          );
-
-          const terminalStore = await readJbMultiTerminalStore(config, {
-            chainId: Number(peerChainId) as JBChainId,
-            address: primaryNativeTerminal,
-          });
-
-          return getTokenRedemptionQuote(config, chainId, tokenAmountWei, {
+            peerChainId as JBChainId,
             projectId,
-            terminalStore,
-          });
+            tokenAmountWei
+          );
         }) ?? []
       );
 
@@ -108,4 +69,46 @@ export function useSuckersTokenRedemptionQuote(tokenAmountWei: bigint) {
     isLoading:
       isQuoteLoading || suckersQuote.isLoading || suckersQuery.isLoading,
   };
+}
+
+async function getTokenRedemptionQuote(
+  config: ReturnType<typeof useConfig>,
+  chainId: JBChainId,
+  projectId: bigint,
+  tokenAmountWei: bigint
+) {
+  const terminalStore = await getProjectTerminalStore(
+    config,
+    chainId,
+    projectId
+  );
+  return readJbTerminalStoreCurrentReclaimableSurplusOf(config, {
+    chainId,
+    address: terminalStore,
+    args: [
+      projectId,
+      tokenAmountWei,
+      [zeroAddress],
+      [],
+      BigInt(NATIVE_TOKEN_DECIMALS),
+      BigInt(NATIVE_CURRENCY_ID),
+    ],
+  });
+}
+
+async function getProjectTerminalStore(
+  config: ReturnType<typeof useConfig>,
+  chainId: JBChainId,
+  projectId: bigint
+) {
+  const primaryNativeTerminal = await readJbDirectoryPrimaryTerminalOf(config, {
+    chainId: Number(chainId) as JBChainId,
+    args: [projectId, NATIVE_TOKEN],
+  });
+  const terminalStoreData = await axios.get(
+    `https://sepolia.juicebox.money/api/juicebox/v4/terminal/${primaryNativeTerminal}/jb-terminal-store?chainId=${chainId}`
+  );
+  const terminalStore = terminalStoreData.data.terminalStoreAddress;
+
+  return terminalStore;
 }

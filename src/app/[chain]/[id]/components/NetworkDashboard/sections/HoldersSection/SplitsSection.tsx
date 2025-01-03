@@ -27,6 +27,8 @@ import {
 } from "@/components/ui/table";
 import {
   JBChainId,
+  JBSplit,
+  SuckerPair,
   formatUnits,
   jbProjectDeploymentAddresses,
 } from "juice-sdk-core";
@@ -42,19 +44,15 @@ import { ChainLogo } from "@/components/ChainLogo";
 import { formatTokenSymbol } from "@/lib/utils";
 import { Address } from "viem";
 
-type Sucker = {
-  peerChainId: JBChainId;
-  projectId: bigint;
-};
-
 export function SplitsSection() {
   const { projectId } = useJBContractContext();
   const chainId = useJBChainId();
   const { ruleset } = useJBRulesetContext();
   const { token } = useJBTokenContext();
   const boostRecipient = useBoostRecipient();
-  const [selectedSucker, setSelectedSucker] = useState<Sucker>();
-  const { data: suckers } = useSuckers() as { data: Sucker[] };
+  const [selectedSucker, setSelectedSucker] = useState<SuckerPair>();
+  const suckersQuery = useSuckers();
+  const suckers = suckersQuery.data?.suckers as SuckerPair[] | undefined;
   const { data: reservedTokenSplits, isLoading } = useReadJbSplitsSplitsOf({
     chainId: selectedSucker?.peerChainId,
     args:
@@ -67,8 +65,8 @@ export function SplitsSection() {
       chainId: selectedSucker?.peerChainId,
       address: selectedSucker?.peerChainId
         ? (jbProjectDeploymentAddresses.JBController[
-          selectedSucker?.peerChainId
-        ] as Address)
+            selectedSucker.peerChainId as JBChainId
+          ] as Address)
         : undefined,
       args: ruleset && ruleset?.data ? [projectId] : undefined,
     });
@@ -95,7 +93,7 @@ export function SplitsSection() {
           at any time.
         </p>
       </div>
-      {suckers?.length > 1 && (
+      {suckers && suckers.length > 1 && (
         <div className="mt-2 mb-4">
           <div className="text-sm text-zinc-500">See splits on</div>
           <Select
@@ -117,8 +115,8 @@ export function SplitsSection() {
                   className="flex items-center gap-2"
                 >
                   <div className="flex items-center gap-2">
-                    <ChainLogo chainId={s.peerChainId} />
-                    <span>{chainNames[s.peerChainId]}</span>
+                    <ChainLogo chainId={s.peerChainId as JBChainId} />
+                    <span>{chainNames[s.peerChainId as JBChainId]}</span>
                   </div>
                 </SelectItem>
               ))}
@@ -157,7 +155,7 @@ export function SplitsSection() {
                   </TableCell>
                 </TableRow>
               ) : (
-                reservedTokenSplits?.map((split) => (
+                reservedTokenSplits?.map((split: JBSplit) => (
                   <TableRow key={split.beneficiary}>
                     <TableCell>
                       <div className="flex flex-col sm:flex-row text-sm">
@@ -165,10 +163,12 @@ export function SplitsSection() {
                           address={split.beneficiary}
                           chain={
                             selectedSucker
-                              ? ChainIdToChain[selectedSucker.peerChainId]
+                              ? ChainIdToChain[
+                                  selectedSucker.peerChainId as JBChainId
+                                ]
                               : chainId
-                                ? ChainIdToChain[chainId]
-                                : undefined
+                              ? ChainIdToChain[chainId]
+                              : undefined
                           }
                           short
                           withEnsAvatar
@@ -179,10 +179,12 @@ export function SplitsSection() {
                           address={split.beneficiary}
                           chain={
                             selectedSucker
-                              ? ChainIdToChain[selectedSucker.peerChainId]
+                              ? ChainIdToChain[
+                                  selectedSucker.peerChainId as JBChainId
+                                ]
                               : chainId
-                                ? ChainIdToChain[chainId]
-                                : undefined
+                              ? ChainIdToChain[chainId]
+                              : undefined
                           }
                           short
                           avatarProps={{ size: "sm" }}
@@ -199,11 +201,11 @@ export function SplitsSection() {
                       {pendingReserveTokenBalance
                         ? `
                           ${formatUnits(
-                    (pendingReserveTokenBalance *
+                            (pendingReserveTokenBalance *
                               BigInt(split.percent)) /
                               BigInt(10 ** 9),
-                    18
-                  )}
+                            18
+                          )}
                           ${formatTokenSymbol(token.data?.symbol)}
                         `
                         : "?"}

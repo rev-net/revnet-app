@@ -89,7 +89,7 @@ export function Header() {
               <h1 className="text-2xl font-medium tracking-tight">
                 {projectName}
               </h1>
-              {(suckerPairs.data as SuckerPair[])?.map((pair) => {
+              {(suckerPairs.data?.suckers as SuckerPair[])?.map((pair) => {
                 console.log({ pair });
                 if (!pair) return null;
 
