@@ -69,7 +69,8 @@ export function PayDialog({
   const { toast } = useToast();
   const loading = isWriteLoading || isTxLoading;
   const suckersQuery = useSuckers();
-  const suckers = suckersQuery.data?.suckers as SuckerPair[] | undefined;
+  const suckers = (suckersQuery.data as { suckers: SuckerPair[] | null })
+    ?.suckers;
 
   useEffect(() => {
     if (isError && error) {

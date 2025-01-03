@@ -1,22 +1,19 @@
 import {
-  useJBChainId,
-  useJBContractContext,
-  useJBRulesetContext,
-  useJBTokenContext,
-  useReadJbControllerPendingReservedTokenBalanceOf,
-  useReadJbSplitsSplitsOf,
-  useSuckers,
-} from "juice-sdk-react";
-import {
   ChainIdToChain,
   RESERVED_TOKEN_SPLIT_GROUP_ID,
   chainNames,
 } from "@/app/constants";
-import { Badge } from "@/components/ui/badge";
-import { ForwardIcon } from "@heroicons/react/24/solid";
+import { ChainLogo } from "@/components/ChainLogo";
 import { EthereumAddress } from "@/components/EthereumAddress";
-import { useBoostRecipient } from "@/hooks/useBoostRecipient";
 import EtherscanLink from "@/components/EtherscanLink";
+import { Badge } from "@/components/ui/badge";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Table,
   TableBody,
@@ -25,23 +22,25 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { useBoostRecipient } from "@/hooks/useBoostRecipient";
+import { formatTokenSymbol } from "@/lib/utils";
+import { ForwardIcon } from "@heroicons/react/24/solid";
 import {
-  JBChainId,
-  JBSplit,
   SuckerPair,
   formatUnits,
   jbProjectDeploymentAddresses,
 } from "juice-sdk-core";
-import { useEffect, useState } from "react";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { ChainLogo } from "@/components/ChainLogo";
-import { formatTokenSymbol } from "@/lib/utils";
+  JBChainId,
+  useJBChainId,
+  useJBContractContext,
+  useJBRulesetContext,
+  useJBTokenContext,
+  useReadJbControllerPendingReservedTokenBalanceOf,
+  useReadJbSplitsSplitsOf,
+  useSuckers,
+} from "juice-sdk-react";
+import { useEffect, useState } from "react";
 import { Address } from "viem";
 
 export function SplitsSection() {
@@ -52,9 +51,10 @@ export function SplitsSection() {
   const boostRecipient = useBoostRecipient();
   const [selectedSucker, setSelectedSucker] = useState<SuckerPair>();
   const suckersQuery = useSuckers();
-  const suckers = suckersQuery.data?.suckers as SuckerPair[] | undefined;
+  const suckers = (suckersQuery.data as { suckers: SuckerPair[] | null })
+    ?.suckers;
   const { data: reservedTokenSplits, isLoading } = useReadJbSplitsSplitsOf({
-    chainId: selectedSucker?.peerChainId,
+    chainId: selectedSucker?.peerChainId as JBChainId | undefined,
     args:
       ruleset && ruleset?.data
         ? [projectId, BigInt(ruleset.data.id), RESERVED_TOKEN_SPLIT_GROUP_ID]
@@ -155,51 +155,52 @@ export function SplitsSection() {
                   </TableCell>
                 </TableRow>
               ) : (
-                reservedTokenSplits?.map((split: JBSplit) => (
-                  <TableRow key={split.beneficiary}>
-                    <TableCell>
-                      <div className="flex flex-col sm:flex-row text-sm">
-                        <EthereumAddress
-                          address={split.beneficiary}
-                          chain={
-                            selectedSucker
-                              ? ChainIdToChain[
-                                  selectedSucker.peerChainId as JBChainId
-                                ]
-                              : chainId
-                              ? ChainIdToChain[chainId]
-                              : undefined
-                          }
-                          short
-                          withEnsAvatar
-                          withEnsName
-                          className="hidden sm:block"
-                        />
-                        <EthereumAddress
-                          address={split.beneficiary}
-                          chain={
-                            selectedSucker
-                              ? ChainIdToChain[
-                                  selectedSucker.peerChainId as JBChainId
-                                ]
-                              : chainId
-                              ? ChainIdToChain[chainId]
-                              : undefined
-                          }
-                          short
-                          avatarProps={{ size: "sm" }}
-                          withEnsAvatar
-                          withEnsName
-                          className="block sm:hidden"
-                        />
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      {formatUnits(BigInt(split.percent), 7)} %
-                    </TableCell>
-                    <TableCell>
-                      {pendingReserveTokenBalance
-                        ? `
+                reservedTokenSplits?.map(
+                  (split: { beneficiary: Address; percent: number }) => (
+                    <TableRow key={split.beneficiary}>
+                      <TableCell>
+                        <div className="flex flex-col sm:flex-row text-sm">
+                          <EthereumAddress
+                            address={split.beneficiary}
+                            chain={
+                              selectedSucker
+                                ? ChainIdToChain[
+                                    selectedSucker.peerChainId as JBChainId
+                                  ]
+                                : chainId
+                                ? ChainIdToChain[chainId]
+                                : undefined
+                            }
+                            short
+                            withEnsAvatar
+                            withEnsName
+                            className="hidden sm:block"
+                          />
+                          <EthereumAddress
+                            address={split.beneficiary}
+                            chain={
+                              selectedSucker
+                                ? ChainIdToChain[
+                                    selectedSucker.peerChainId as JBChainId
+                                  ]
+                                : chainId
+                                ? ChainIdToChain[chainId]
+                                : undefined
+                            }
+                            short
+                            avatarProps={{ size: "sm" }}
+                            withEnsAvatar
+                            withEnsName
+                            className="block sm:hidden"
+                          />
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        {formatUnits(BigInt(split.percent), 7)} %
+                      </TableCell>
+                      <TableCell>
+                        {pendingReserveTokenBalance
+                          ? `
                           ${formatUnits(
                             (pendingReserveTokenBalance *
                               BigInt(split.percent)) /
@@ -208,10 +209,11 @@ export function SplitsSection() {
                           )}
                           ${formatTokenSymbol(token.data?.symbol)}
                         `
-                        : "?"}
-                    </TableCell>
-                  </TableRow>
-                ))
+                          : "?"}
+                      </TableCell>
+                    </TableRow>
+                  )
+                )
               )}
             </TableBody>
           </Table>

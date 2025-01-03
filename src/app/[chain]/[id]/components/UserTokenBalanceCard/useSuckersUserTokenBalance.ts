@@ -33,7 +33,8 @@ export function useSuckersUserTokenBalance() {
     },
   });
   const suckersQuery = useSuckers();
-  const pairs = suckersQuery.data?.suckers as SuckerPair[] | undefined;
+  const pairs = (suckersQuery.data as { suckers: SuckerPair[] | null })
+    ?.suckers;
 
   const balanceQuery = useQuery({
     queryKey: [
