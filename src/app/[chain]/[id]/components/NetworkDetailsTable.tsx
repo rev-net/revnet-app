@@ -134,15 +134,16 @@ export function NetworkDetailsTable() {
   });
 
   const autoMints = useAutoMints();
+  // console.log("autoMints::", autoMints)
   const getAutoMintsTotalForStage = () => {
     if (!autoMints) return 0;
+    console.log("selectedStageIdx", selectedStageIdx + 1)
     const stageAutoMints = autoMints.filter((a) => a.stage === selectedStageIdx + 1);
     return commaNumber(formatUnits(
       stageAutoMints.reduce((acc, curr) => acc + BigInt(curr.count), 0n),
       token?.data?.decimals || 18
     ))
   };
-
   if (!selectedStage) return null;
 
   const toggleDropdown = () => {

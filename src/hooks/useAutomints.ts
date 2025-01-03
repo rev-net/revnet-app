@@ -17,7 +17,6 @@ export function useAutoMints() {
     StoreAutoMintAmountEventsDocument,
     {
       where: { revnetId: String(projectId) },
-      first: 1,
     }
   );
 
@@ -27,7 +26,6 @@ export function useAutoMints() {
   });
 
   const autoMints = useMemo(() => {
-    console.log("rulesets?.length", rulesets?.length)
     return autoMintsData?.storeAutoMintAmountEvents.map((automint) => {
       const rulesetIndex =
         rulesets?.findIndex((r) => String(r.id) === automint.stageId) || 0;
