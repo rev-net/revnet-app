@@ -80,14 +80,13 @@ export function Header() {
               {token?.data ? (
                 <EtherscanLink
                   value={token.data.address}
-                  className="tracking-tight"
                 >
                   {formatTokenSymbol(token)}
                 </EtherscanLink>
               ) : null}
             </span>
             <div className="text-sm flex gap-2 items-baseline">
-              <h1 className="text-2xl font-medium tracking-tight">
+              <h1 className="text-2xl font-medium">
                 {projectName}
               </h1>
               {suckers?.map((pair) => {
