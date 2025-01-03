@@ -52,7 +52,7 @@ export function AutoIssuance() {
               <TableHead>Stage</TableHead>
               <TableHead>Account</TableHead>
               <TableHead>Amount</TableHead>
-              <TableHead>Distributable date</TableHead>
+              <TableHead>Unlock date</TableHead>
               <TableHead>Distribute</TableHead>
             </TableRow>
           </TableHeader>
