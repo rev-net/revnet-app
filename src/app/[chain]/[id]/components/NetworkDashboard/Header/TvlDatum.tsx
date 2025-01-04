@@ -1,11 +1,10 @@
-import { chainNames } from "@/app/constants";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { useEtherPrice } from "@/hooks/useEtherPrice";
-import { formatUnits, NATIVE_TOKEN_DECIMALS } from "juice-sdk-core";
+import { useEtherPrice } from "juice-sdk-react";
+import { formatUnits, JB_CHAINS, NATIVE_TOKEN_DECIMALS } from "juice-sdk-core";
 import { JBChainId, useSuckersNativeTokenSurplus } from "juice-sdk-react";
 
 export function TvlDatum() {
@@ -25,7 +24,10 @@ export function TvlDatum() {
 
   const usd = (
     (ethPrice ?? 0) * (totalEth ? Number(formatUnits(totalEth, 18)) : 0)
-  ).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  ).toLocaleString("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
 
   if (loading) return <>...</>;
 
@@ -42,7 +44,7 @@ export function TvlDatum() {
       <TooltipContent className="w-64">
         {surpluses?.map((surplus, index) => (
           <div key={index} className="flex justify-between gap-2">
-            {chainNames[surplus.chainId]}
+            {JB_CHAINS[surplus.chainId].name}
             {/* TODO maybe show USD-converted value here instead? */}
             <span className="font-medium">
               {formatUnits(surplus.surplus, NATIVE_TOKEN_DECIMALS, {

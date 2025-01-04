@@ -1,4 +1,5 @@
-import { chainIdToLogo, chainNames } from "@/app/constants";
+import { chainIdToLogo } from "@/app/constants";
+import { JB_CHAINS } from "juice-sdk-core";
 import { JBChainId } from "juice-sdk-react";
 import Image from "next/image";
 
@@ -14,7 +15,7 @@ export const ChainLogo = ({
   return (
     <Image
       src={chainIdToLogo[chainId]}
-      alt={`${chainNames[chainId]} Logo`}
+      alt={`${JB_CHAINS[chainId].name} Logo`}
       width={width ?? 20}
       height={height ?? 20}
     />

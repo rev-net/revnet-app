@@ -1,11 +1,3 @@
-import { useState } from "react";
-import {
-  Field as FormikField,
-  useFormikContext
-} from "formik";
-import { JBChainId } from "juice-sdk-core";
-import { chainNames } from "@/app/constants";
-import { RevnetFormData } from "../types";
 import {
   Select,
   SelectContent,
@@ -13,12 +5,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Field as FormikField, useFormikContext } from "formik";
+import { JB_CHAINS, JBChainId } from "juice-sdk-core";
+import { useState } from "react";
+import { RevnetFormData } from "../types";
 
-export function ChainSelect({
-  disabled = false
-}: {
-  disabled?: boolean
-}) {
+export function ChainSelect({ disabled = false }: { disabled?: boolean }) {
   const [environment, setEnvironment] = useState("testing");
 
   const { values, setFieldValue } = useFormikContext<RevnetFormData>();
@@ -84,17 +76,19 @@ export function ChainSelect({
               <p>...</p> //TODO with production chainnames
             ) : (
               <>
-                {Object.entries(chainNames).map(([id, name]) => (
-                  <label key={id} className="flex items-center gap-2">
+                {Object.values(JB_CHAINS).map(({ chain, name }) => (
+                  <label key={chain.id} className="flex items-center gap-2">
                     <FormikField
                       type="checkbox"
                       name="chainIds"
-                      value={id}
+                      value={chain.id}
                       disabled={disabled}
                       className="disabled:opacity-50"
-                      checked={values.chainIds.includes(Number(id) as JBChainId)}
+                      checked={values.chainIds.includes(
+                        Number(chain.id) as JBChainId
+                      )}
                       onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                        handleChainSelect(Number(id), e.target.checked);
+                        handleChainSelect(Number(chain.id), e.target.checked);
                       }}
                     />
                     {name}

@@ -1,4 +1,3 @@
-import { chainNames } from "@/app/constants";
 import { ButtonWithWallet } from "@/components/ButtonWithWallet";
 import { ChainLogo } from "@/components/ChainLogo";
 import {
@@ -22,6 +21,7 @@ import {
 import { FixedInt } from "fpnum";
 import {
   DEFAULT_METADATA,
+  JB_CHAINS,
   JBProjectToken,
   NATIVE_TOKEN,
   NATIVE_TOKEN_DECIMALS,
@@ -30,13 +30,13 @@ import {
   JBChainId,
   NativeTokenValue,
   useJBContractContext,
+  useSuckersUserTokenBalance,
+  useTokenCashOutQuoteEth,
   useWriteJbMultiTerminalCashOutTokensOf,
 } from "juice-sdk-react";
 import { PropsWithChildren, useState } from "react";
 import { Address, parseUnits } from "viem";
 import { useAccount, useWaitForTransactionReceipt } from "wagmi";
-import { useSuckersUserTokenBalance } from "./useSuckersUserTokenBalance";
-import { useTokenCashOutQuoteEth } from "./useTokenCashOutQuoteEth";
 
 export function RedeemDialog({
   projectId,
@@ -116,7 +116,7 @@ export function RedeemDialog({
                     <div className="mt-1 border border-zinc-200 p-3 bg-zinc-50">
                       {balances?.map((balance, index) => (
                         <div key={index} className="flex justify-between gap-2">
-                          {chainNames[balance.chainId as JBChainId]}
+                          {JB_CHAINS[balance.chainId as JBChainId].name}
                           <span className="font-medium">
                             {balance.balance?.format(6)} {tokenSymbol}
                           </span>
@@ -167,7 +167,10 @@ export function RedeemDialog({
                                       <ChainLogo
                                         chainId={balance.chainId as JBChainId}
                                       />
-                                      {chainNames[balance.chainId as JBChainId]}
+                                      {
+                                        JB_CHAINS[balance.chainId as JBChainId]
+                                          .name
+                                      }
                                     </div>
                                   </SelectItem>
                                 );
@@ -181,7 +184,7 @@ export function RedeemDialog({
                   {redeemAmount && cashOutChainId && !valid ? (
                     <div className="text-red-500 mt-4">
                       Insuffient {tokenSymbol} on{" "}
-                      {chainNames[Number(cashOutChainId) as JBChainId]}
+                      {JB_CHAINS[Number(cashOutChainId) as JBChainId].name}
                     </div>
                   ) : null}
 

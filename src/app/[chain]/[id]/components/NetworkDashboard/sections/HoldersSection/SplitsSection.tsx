@@ -1,8 +1,4 @@
-import {
-  ChainIdToChain,
-  RESERVED_TOKEN_SPLIT_GROUP_ID,
-  chainNames,
-} from "@/app/constants";
+import { RESERVED_TOKEN_SPLIT_GROUP_ID } from "@/app/constants";
 import { ChainLogo } from "@/components/ChainLogo";
 import { EthereumAddress } from "@/components/EthereumAddress";
 import EtherscanLink from "@/components/EtherscanLink";
@@ -26,6 +22,7 @@ import { useBoostRecipient } from "@/hooks/useBoostRecipient";
 import { formatTokenSymbol } from "@/lib/utils";
 import { ForwardIcon } from "@heroicons/react/24/solid";
 import {
+  JB_CHAINS,
   SuckerPair,
   formatUnits,
   jbProjectDeploymentAddresses,
@@ -51,8 +48,7 @@ export function SplitsSection() {
   const boostRecipient = useBoostRecipient();
   const [selectedSucker, setSelectedSucker] = useState<SuckerPair>();
   const suckersQuery = useSuckers();
-  const suckers = (suckersQuery.data as { suckers: SuckerPair[] | null })
-    ?.suckers;
+  const suckers = suckersQuery.data;
   const { data: reservedTokenSplits, isLoading } = useReadJbSplitsSplitsOf({
     chainId: selectedSucker?.peerChainId as JBChainId | undefined,
     args:
@@ -116,7 +112,7 @@ export function SplitsSection() {
                 >
                   <div className="flex items-center gap-2">
                     <ChainLogo chainId={s.peerChainId as JBChainId} />
-                    <span>{chainNames[s.peerChainId as JBChainId]}</span>
+                    <span>{JB_CHAINS[s.peerChainId as JBChainId].name}</span>
                   </div>
                 </SelectItem>
               ))}
@@ -133,7 +129,7 @@ export function SplitsSection() {
         <EtherscanLink
           value={boostRecipient}
           type="address"
-          chain={chainId ? ChainIdToChain[chainId] : undefined}
+          chain={chainId ? JB_CHAINS[chainId].chain : undefined}
           truncateTo={6}
         />
       </div>
@@ -164,11 +160,11 @@ export function SplitsSection() {
                             address={split.beneficiary}
                             chain={
                               selectedSucker
-                                ? ChainIdToChain[
+                                ? JB_CHAINS[
                                     selectedSucker.peerChainId as JBChainId
-                                  ]
+                                  ].chain
                                 : chainId
-                                ? ChainIdToChain[chainId]
+                                ? JB_CHAINS[chainId].chain
                                 : undefined
                             }
                             short
@@ -180,11 +176,11 @@ export function SplitsSection() {
                             address={split.beneficiary}
                             chain={
                               selectedSucker
-                                ? ChainIdToChain[
+                                ? JB_CHAINS[
                                     selectedSucker.peerChainId as JBChainId
-                                  ]
+                                  ].chain
                                 : chainId
-                                ? ChainIdToChain[chainId]
+                                ? JB_CHAINS[chainId].chain
                                 : undefined
                             }
                             short

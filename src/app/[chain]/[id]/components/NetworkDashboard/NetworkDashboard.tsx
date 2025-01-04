@@ -10,7 +10,6 @@ import { notFound } from "next/navigation";
 import { useEffect } from "react";
 import { zeroAddress } from "viem";
 import { ActivityFeed } from "../ActivityFeed";
-import { DistributeReservedTokensButton } from "../DistributeReservedTokensButton";
 import { NetworkDetailsTable } from "../NetworkDetailsTable";
 import { PayCard } from "../PayCard/PayCard";
 import { Header } from "./Header/Header";
@@ -18,10 +17,10 @@ import { DescriptionSection } from "./sections/DescriptionSection/DescriptionSec
 import { HoldersSection } from "./sections/HoldersSection/HoldersSection";
 
 export function NetworkDashboard() {
-  const { contracts, projectId } = useJBContractContext();
+  const { contracts } = useJBContractContext();
+
   const { token } = useJBTokenContext();
   const { metadata } = useJBProjectMetadataContext();
-
   // set title
   // TODO, hacky, probably eventually a next-idiomatic way to do this.
   useEffect(() => {

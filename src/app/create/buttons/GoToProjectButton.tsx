@@ -1,17 +1,18 @@
-import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { useTransactionReceipt } from "wagmi";
+import { JB_CHAIN_SLUGS } from "juice-sdk-core";
 import { JBChainId } from "juice-sdk-react";
 import { FastForwardIcon } from "lucide-react";
-import { chainIdMap } from "@/app/constants";
+import Link from "next/link";
 import { useState } from "react";
+import { sepolia } from "viem/chains";
+import { useTransactionReceipt } from "wagmi";
 
 export function GoToProjectButton({
   txHash,
   chainId,
 }: {
-  txHash?: string,
-  chainId?: JBChainId,
+  txHash?: string;
+  chainId?: JBChainId;
 }) {
   const [isLoading, setIsLoading] = useState(false);
 
@@ -20,8 +21,12 @@ export function GoToProjectButton({
     hash: txHash as `0x${string}`,
   });
 
-  const projectId = data?.logs[0]?.topics[1] ? Number(data.logs[0].topics[1]) : undefined;
-  const chain = chainId ? chainIdMap[chainId] : "sepolia";
+  const projectId = data?.logs[0]?.topics[1]
+    ? Number(data.logs[0].topics[1])
+    : undefined;
+  const chain = chainId
+    ? JB_CHAIN_SLUGS[chainId].slug
+    : JB_CHAIN_SLUGS[sepolia.id].slug;
   const projectUrl = `/${chain}/${projectId}`;
   return (
     <div className="max-w-fit">

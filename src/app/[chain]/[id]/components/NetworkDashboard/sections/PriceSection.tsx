@@ -6,12 +6,15 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useBoostRecipient } from "@/hooks/useBoostRecipient";
-import { useSuckersTokenCashOutValue } from "@/hooks/useSuckersTokenCashOutValue";
-import { useEtherPrice } from "@/hooks/useEtherPrice";
 import { useFormattedTokenIssuance } from "@/hooks/useFormattedTokenIssuance";
 import { formatTokenSymbol } from "@/lib/utils";
 import { ForwardIcon } from "@heroicons/react/24/solid";
-import { useJBRulesetContext, useJBTokenContext } from "juice-sdk-react";
+import {
+  useEtherPrice,
+  useJBRulesetContext,
+  useJBTokenContext,
+  useSuckersTokenCashOutValue,
+} from "juice-sdk-react";
 import { PriceIncreaseCountdown } from "../../PriceIncreaseCountdown";
 
 export function PriceSection({ className }: { className?: string }) {
@@ -20,9 +23,10 @@ export function PriceSection({ className }: { className?: string }) {
   const { ruleset, rulesetMetadata } = useJBRulesetContext();
   const { data: ethPrice } = useEtherPrice();
   const { token } = useJBTokenContext();
-  const { data: cashOutValue, loading: cashOutLoading } = useSuckersTokenCashOutValue({
-    targetCurrency: "usd",
-  });
+  const { data: cashOutValue, loading: cashOutLoading } =
+    useSuckersTokenCashOutValue({
+      targetCurrency: "usd",
+    });
   const boostRecipient = useBoostRecipient();
 
   if (!ruleset?.data || !rulesetMetadata?.data) {

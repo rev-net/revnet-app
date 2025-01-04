@@ -4,12 +4,14 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { useEtherPrice } from "@/hooks/useEtherPrice";
 import { formatPortion } from "@/lib/utils";
 import { formatEther } from "juice-sdk-core";
+import {
+  useEtherPrice,
+  useSuckersCashOutQuote,
+  useSuckersUserTokenBalance,
+} from "juice-sdk-react";
 import { UserTokenBalanceDatum } from "../../../UserTokenBalanceCard/UserTokenBalanceDatum";
-import { useSuckersCashOutQuote } from "@/hooks/useSuckersCashOutQuote";
-import { useSuckersUserTokenBalance } from "../../../UserTokenBalanceCard/useSuckersUserTokenBalance";
 
 export function YouSection({ totalSupply }: { totalSupply: bigint }) {
   const balanceQuery = useSuckersUserTokenBalance();
@@ -27,7 +29,7 @@ export function YouSection({ totalSupply }: { totalSupply: bigint }) {
 
   const redeemQuote = redeemQuoteQuery?.data ?? 0n;
 
-  // console.log(redeemQuoteQuery)
+  console.log("redeemQuote", redeemQuoteQuery);
 
   return (
     <div className="grid grid-cols-1 gap-x-8 overflow-x-scrolltext-md gap-1">

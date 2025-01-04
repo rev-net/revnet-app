@@ -22,7 +22,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
             "--ck-font-family": "var(--font-simplon-norm)",
             "--ck-connectbutton-border-radius": "0",
             "--ck-accent-color": "#14B8A6",
-            "--ck-accent-text-color": "#ffffff"
+            "--ck-accent-text-color": "#ffffff",
           }}
         >
           <TooltipProvider delayDuration={200} skipDelayDuration={100}>

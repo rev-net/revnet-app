@@ -1,7 +1,6 @@
-import { ChainIdToEtherscanUrlBase } from "@/app/constants";
 import { clsx, type ClassValue } from "clsx";
 import { formatDuration, intervalToDuration } from "date-fns";
-import { JBRulesetData, getTokenAToBQuote } from "juice-sdk-core";
+import { JBRulesetData, JB_CHAINS } from "juice-sdk-core";
 import { JBChainId, JBTokenContextData } from "juice-sdk-react";
 import { twMerge } from "tailwind-merge";
 import { Chain, formatEther } from "viem";
@@ -18,10 +17,10 @@ export function formatSeconds(seconds: number) {
       seconds > 2592000 // if greater than 30 days, only show 'months'
         ? ["months", "days"]
         : seconds > 86400 // if greater than a day, only show 'days'
-          ? ["days", "hours"]
-          : seconds > 3600 // if greater than an hour, only show 'hours' and 'minutes'
-            ? ["hours", "minutes"]
-            : ["minutes", "seconds"],
+        ? ["days", "hours"]
+        : seconds > 3600 // if greater than an hour, only show 'hours' and 'minutes'
+        ? ["hours", "minutes"]
+        : ["minutes", "seconds"],
     delimiter: ", ",
   });
 }
@@ -35,13 +34,13 @@ export function etherscanLink(
 ) {
   const { type, chain = mainnet } = opts;
 
-  const baseUrl = ChainIdToEtherscanUrlBase[chain.id as JBChainId];
+  const baseUrl = JB_CHAINS[chain.id as JBChainId].etherscanHostname;
 
   switch (type) {
-  case "address":
-    return `https://${baseUrl}/address/${addressOrTxHash}`;
-  case "tx":
-    return `https://${baseUrl}/tx/${addressOrTxHash}`;
+    case "address":
+      return `https://${baseUrl}/address/${addressOrTxHash}`;
+    case "tx":
+      return `https://${baseUrl}/tx/${addressOrTxHash}`;
   }
 }
 
@@ -74,7 +73,9 @@ export function formatPortion(numerator: bigint, denominator: bigint) {
 /**
  * Ensure token symbol has $ in front of it
  */
-export function formatTokenSymbol(token?: JBTokenContextData["token"] | string) {
+export function formatTokenSymbol(
+  token?: JBTokenContextData["token"] | string
+) {
   if (typeof token === "string") {
     if (!token) return "$TOKEN";
     if (!token.includes("$")) return `$${token}`;
@@ -93,12 +94,13 @@ export function rulesetStartDate(ruleset?: JBRulesetData) {
   return new Date(ruleset.start * 1000);
 }
 
-
 /**
  * Hex formated wei from Relayr API to Ether
  */
-export const formatHexEther = (hexWei: `0x${string}` | undefined, fixed = 8) => {
+export const formatHexEther = (
+  hexWei: `0x${string}` | undefined,
+  fixed = 8
+) => {
   if (!hexWei) return "0";
-  return Number(formatEther(BigInt(hexWei)))
-    .toFixed(fixed);
+  return Number(formatEther(BigInt(hexWei))).toFixed(fixed);
 };

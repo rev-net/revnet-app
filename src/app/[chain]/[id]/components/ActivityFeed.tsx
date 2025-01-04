@@ -1,18 +1,17 @@
-import { ChainIdToChain } from "@/app/constants";
 import { ChainLogo } from "@/components/ChainLogo";
 import { EthereumAddress } from "@/components/EthereumAddress";
 import EtherscanLink from "@/components/EtherscanLink";
 import {
+  CashOutEvent,
   OrderDirection,
   PayEvent,
   ProjectEvent_OrderBy,
   ProjectEventsDocument,
-  CashOutEvent,
 } from "@/generated/graphql";
 import { useOmnichainSubgraphQuery } from "@/graphql/useOmnichainSubgraphQuery";
 import { formatTokenSymbol } from "@/lib/utils";
 import { formatDistance } from "date-fns";
-import { Ether, JBProjectToken } from "juice-sdk-core";
+import { Ether, JB_CHAINS, JBProjectToken } from "juice-sdk-core";
 import {
   JBChainId,
   useJBContractContext,
@@ -43,7 +42,7 @@ function PayActivityItem(
 ) {
   const { token } = useJBTokenContext();
   const chainId = payEvent.chainId;
-  const chain = ChainIdToChain[chainId];
+  const chain = JB_CHAINS[chainId].chain;
   if (!token?.data || !payEvent) return null;
 
   const activityItemData = {
@@ -174,8 +173,8 @@ export function ActivityFeed() {
   });
   const projectEvents = useMemo(() => {
     return data
-      ?.flatMap(d => {
-        return d.value.response.projectEvents.map(e => {
+      ?.flatMap((d) => {
+        return d.value.response.projectEvents.map((e) => {
           return {
             ...e,
             chainId: d.value.chainId,
@@ -211,7 +210,7 @@ export function ActivityFeed() {
       {isOpen && (
         <div className="flex flex-col gap-1 mt-8">
           {projectEvents && projectEvents.length > 0 ? (
-            projectEvents?.map(event => {
+            projectEvents?.map((event) => {
               if (event.payEvent) {
                 return (
                   <PayActivityItem

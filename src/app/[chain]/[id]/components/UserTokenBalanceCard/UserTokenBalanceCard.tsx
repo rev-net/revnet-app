@@ -6,9 +6,9 @@ import {
   useJBChainId,
   useJBContractContext,
   useJBTokenContext,
+  useSuckersUserTokenBalance,
 } from "juice-sdk-react";
 import { RedeemDialog } from "./RedeemDialog";
-import { useSuckersUserTokenBalance } from "./useSuckersUserTokenBalance";
 
 export function UserTokenBalanceCard() {
   const {

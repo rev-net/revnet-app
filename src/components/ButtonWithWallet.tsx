@@ -1,10 +1,9 @@
 import { ConnectKitButton } from "connectkit";
+import { JB_CHAINS, JBChainId } from "juice-sdk-core";
+import { useJBChainId } from "juice-sdk-react";
 import React from "react";
 import { useAccount, useChainId, useSwitchChain } from "wagmi";
 import { Button, ButtonProps } from "./ui/button";
-import { useJBChainId } from "juice-sdk-react";
-import { chainNames } from "@/app/constants";
-import { JBChainId } from "juice-sdk-core";
 
 const ButtonWithWallet = React.forwardRef<
   HTMLInputElement,
@@ -28,7 +27,7 @@ const ButtonWithWallet = React.forwardRef<
         onClick={() => switchChain({ chainId: _targetChainId })}
         loading={isPending}
       >
-        {`Switch to ${chainNames[_targetChainId]}`}
+        {`Switch to ${JB_CHAINS[_targetChainId].name}`}
       </Button>
     );
   }

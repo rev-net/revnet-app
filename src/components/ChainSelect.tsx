@@ -1,4 +1,4 @@
-import { chainNames } from "@/app/constants";
+import { JB_CHAINS } from "juice-sdk-core";
 import { JBChainId } from "juice-sdk-react";
 import { ChainLogo } from "./ChainLogo";
 import {
@@ -32,20 +32,20 @@ export const ChainSelector = ({
         <SelectValue placeholder="Select chain">
           <div className="flex items-center gap-2">
             <ChainLogo chainId={Number(value) as JBChainId} />
-            <span>{chainNames[value]}</span>
+            <span>{JB_CHAINS[value].name}</span>
           </div>
         </SelectValue>
       </SelectTrigger>
       <SelectContent>
-        {Object.entries(chainNames).map(([chainId, chainName]) => (
+        {Object.values(JB_CHAINS).map(({ chain, name }) => (
           <SelectItem
-            key={chainId}
-            value={chainId}
+            key={chain.id}
+            value={chain.id.toString()}
             className="flex items-center gap-2"
           >
             <div className="flex items-center gap-2">
-              <ChainLogo chainId={Number(chainId) as JBChainId} />
-              <span>{chainName}</span>
+              <ChainLogo chainId={Number(chain.id) as JBChainId} />
+              <span>{name}</span>
             </div>
           </SelectItem>
         ))}
