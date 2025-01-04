@@ -44,7 +44,7 @@ export function ChainSelect({
           {revnetTokenSymbol} from.
         </p>
         <p className="text-zinc-600 text-lg mt-2">
-          Holder of {revnetTokenSymbol} can cash out on any of the selected
+          Holders of {revnetTokenSymbol} can cash out on any of the selected
           chains, and can move their {revnetTokenSymbol} between chains at any
           time.
         </p>
