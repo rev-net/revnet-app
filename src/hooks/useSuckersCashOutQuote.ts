@@ -15,32 +15,33 @@ import {
   useJBContractContext,
   useSuckers,
 } from "juice-sdk-react";
-import { zeroAddress } from "viem";
 import { useConfig } from "wagmi";
-import { useTokenCashOutQuoteEth } from "../app/[chain]/[id]/components/UserTokenBalanceCard/useTokenCashOutQuoteEth";
 
-export function useSuckersTokenRedemptionQuote(tokenAmountWei: bigint) {
+/**
+ * Return the amount of ETH (wei) received from cashing out [tokenAmountWei] project tokens, across all suckers.
+ * @param tokenAmountWei the amount of tokens to cash out.
+ */
+export function useSuckersCashOutQuote(tokenAmountWei: bigint) {
   const config = useConfig();
   const chainId = useJBChainId();
   const { projectId } = useJBContractContext();
+
   const suckersQuery = useSuckers();
   const pairs = (suckersQuery.data as { suckers: SuckerPair[] | null })
     ?.suckers;
 
-  const { data: currentChainQuote, isLoading: isQuoteLoading } =
-    useTokenCashOutQuoteEth(tokenAmountWei, {
-      chainId,
-    });
+  const queryKey = [
+    "suckersTokenRedemptionQuote",
+    projectId.toString(),
+    chainId?.toString(),
+    tokenAmountWei.toString(),
+    pairs?.map((pair) => pair.peerChainId).join(","),
+  ];
 
   const suckersQuote = useQuery({
-    queryKey: [
-      "suckersTokenRedemptionQuote",
-      projectId.toString(),
-      chainId?.toString(),
-      tokenAmountWei.toString(),
-      pairs?.map((pair) => pair.peerChainId).join(","),
-    ],
-    enabled: Boolean(!isQuoteLoading && !suckersQuery.isLoading && chainId),
+    queryKey,
+    staleTime: 10000,
+    enabled: Boolean(!suckersQuery.isLoading && chainId),
     queryFn: async () => {
       if (!chainId) {
         return null;
@@ -61,14 +62,14 @@ export function useSuckersTokenRedemptionQuote(tokenAmountWei: bigint) {
     },
   });
 
-  const grossTotal = suckersQuote.data ?? 0n + (currentChainQuote ?? 0n);
+  const grossTotal = suckersQuote.data ?? 0n;
   const fee = (grossTotal * BigInt(JB_REDEEM_FEE_PERCENT * 1000)) / 1000n;
   const netTotal = grossTotal - fee;
 
   return {
     data: netTotal,
-    isLoading:
-      isQuoteLoading || suckersQuote.isLoading || suckersQuery.isLoading,
+    isLoading: suckersQuote.isLoading || suckersQuery.isLoading,
+    errors: [suckersQuery.error, suckersQuote.error].filter(Boolean),
   };
 }
 
@@ -83,13 +84,13 @@ async function getTokenRedemptionQuote(
     chainId,
     projectId
   );
-  return readJbTerminalStoreCurrentReclaimableSurplusOf(config, {
+  return await readJbTerminalStoreCurrentReclaimableSurplusOf(config, {
     chainId,
     address: terminalStore,
     args: [
       projectId,
       tokenAmountWei,
-      [zeroAddress],
+      [],
       [],
       BigInt(NATIVE_TOKEN_DECIMALS),
       BigInt(NATIVE_CURRENCY_ID),

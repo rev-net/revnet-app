@@ -3,7 +3,7 @@ import { ChainLogo } from "@/components/ChainLogo";
 import EtherscanLink from "@/components/EtherscanLink";
 import { ProjectsDocument } from "@/generated/graphql";
 import { useSubgraphQuery } from "@/graphql/useSubgraphQuery";
-import { useCashOutValue } from "@/hooks/useCashOutValue";
+import { useSuckersTokenCashOutValue } from "@/hooks/useSuckersTokenCashOutValue";
 import { useFormattedTokenIssuance } from "@/hooks/useFormattedTokenIssuance";
 import { ipfsUriToGatewayUrl } from "@/lib/ipfs";
 import { formatTokenSymbol } from "@/lib/utils";
@@ -37,10 +37,8 @@ export function Header() {
     ?.suckers;
   const { contributorsCount } = projects?.projects?.[0] ?? {};
   const { name: projectName, logoUri } = metadata?.data ?? {};
-  const issuance = useFormattedTokenIssuance();
-  const { ruleset } = useJBRulesetContext();
 
-  const { data: cashOutValue, loading: cashOutLoading } = useCashOutValue({
+  const { data: cashOutValue, loading: cashOutLoading } = useSuckersTokenCashOutValue({
     targetCurrency: "usd",
   });
 
@@ -122,7 +120,7 @@ export function Header() {
             <div className="sm:text-xl text-lg">
               <span className="font-medium text-zinc-500">
                 {!cashOutLoading
-                  ? `$${Number(cashOutValue).toFixed(2)}`
+                  ? `$${Number(cashOutValue).toFixed(4)}`
                   : "..."}
               </span>{" "}
               <span className="text-zinc-500">cash out value</span>

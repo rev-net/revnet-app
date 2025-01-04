@@ -7,7 +7,6 @@ import {
   useJBContractContext,
   useJBTokenContext,
 } from "juice-sdk-react";
-import { useSuckersTokenRedemptionQuote } from "../../../../../hooks/useSuckersTokenRedemptionQuote";
 import { RedeemDialog } from "./RedeemDialog";
 import { useSuckersUserTokenBalance } from "./useSuckersUserTokenBalance";
 
@@ -24,10 +23,6 @@ export function UserTokenBalanceCard() {
   const { data: balances } = useSuckersUserTokenBalance();
   const creditBalance = new JBProjectToken(
     balances?.reduce((acc, balance) => acc + balance.balance.value, 0n) ?? 0n
-  );
-
-  const { data: creditBalanceRedemptionQuote } = useSuckersTokenRedemptionQuote(
-    creditBalance.value
   );
 
   return (

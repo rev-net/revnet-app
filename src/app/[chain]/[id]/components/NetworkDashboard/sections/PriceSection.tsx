@@ -6,7 +6,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useBoostRecipient } from "@/hooks/useBoostRecipient";
-import { useCashOutValue } from "@/hooks/useCashOutValue";
+import { useSuckersTokenCashOutValue } from "@/hooks/useSuckersTokenCashOutValue";
 import { useEtherPrice } from "@/hooks/useEtherPrice";
 import { useFormattedTokenIssuance } from "@/hooks/useFormattedTokenIssuance";
 import { formatTokenSymbol } from "@/lib/utils";
@@ -20,7 +20,7 @@ export function PriceSection({ className }: { className?: string }) {
   const { ruleset, rulesetMetadata } = useJBRulesetContext();
   const { data: ethPrice } = useEtherPrice();
   const { token } = useJBTokenContext();
-  const { data: cashOutValue, loading: cashOutLoading } = useCashOutValue({
+  const { data: cashOutValue, loading: cashOutLoading } = useSuckersTokenCashOutValue({
     targetCurrency: "usd",
   });
   const boostRecipient = useBoostRecipient();
@@ -49,7 +49,7 @@ export function PriceSection({ className }: { className?: string }) {
             <li className="flex">
               <div className="flex flex-col border-l border-zinc-300 pl-2">
                 <span>
-                  {devTax.formatPercentage().toFixed(2)}%{" "}
+                  {devTax.formatPercentage().toFixed(4)}%{" "}
                   <span>of issuance and buybacks split to </span>
                   <Tooltip>
                     <TooltipTrigger>

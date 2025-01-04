@@ -8,7 +8,7 @@ import { useEtherPrice } from "@/hooks/useEtherPrice";
 import { formatPortion } from "@/lib/utils";
 import { formatEther } from "juice-sdk-core";
 import { UserTokenBalanceDatum } from "../../../UserTokenBalanceCard/UserTokenBalanceDatum";
-import { useSuckersTokenRedemptionQuote } from "@/hooks/useSuckersTokenRedemptionQuote";
+import { useSuckersCashOutQuote } from "@/hooks/useSuckersCashOutQuote";
 import { useSuckersUserTokenBalance } from "../../../UserTokenBalanceCard/useSuckersUserTokenBalance";
 
 export function YouSection({ totalSupply }: { totalSupply: bigint }) {
@@ -20,7 +20,7 @@ export function YouSection({ totalSupply }: { totalSupply: bigint }) {
     }, 0n) || 0n;
   // console.log("totalBalance", totalBalance)
 
-  const redeemQuoteQuery = useSuckersTokenRedemptionQuote(totalBalance);
+  const redeemQuoteQuery = useSuckersCashOutQuote(totalBalance);
   const { data: ethPrice, isLoading: isEthLoading } = useEtherPrice();
   const loading =
     balanceQuery.isLoading || redeemQuoteQuery.isLoading || isEthLoading;
@@ -55,8 +55,8 @@ export function YouSection({ totalSupply }: { totalSupply: bigint }) {
             <TooltipTrigger>
               {!loading && ethPrice
                 ? `$${(
-                  Number(formatEther(redeemQuote ?? 0n)) * ethPrice
-                ).toFixed(2)}`
+                    Number(formatEther(redeemQuote ?? 0n)) * ethPrice
+                  ).toFixed(4)}`
                 : "..."}
             </TooltipTrigger>
             <TooltipContent>

@@ -2,15 +2,7 @@
   "extends": "next/core-web-vitals",
   "rules": {
     "react/no-unescaped-entities": "off",
-    "indent": [
-      "warn",
-      2
-    ],
-    "indent-legacy": "off",
     "no-trailing-spaces": "warn",
-    "quotes": [
-      "warn",
-      "double"
-    ]
+    "quotes": ["warn", "double"]
   }
 }
