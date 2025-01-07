@@ -12,7 +12,7 @@
     "lint": "next lint",
     "export": "next export",
     "ts:compile": "tsc",
-    "generate:gql": "graphql-code-generator --config codegen.yml -r dotenv/config"
+    "generate:gql": "DOTENV_CONFIG_PATH=./.env.local graphql-code-generator --config codegen.yml -r dotenv/config"
   },
   "dependencies": {
     "@heroicons/react": "^2.0.18",

@@ -18,14 +18,14 @@ import { formatUnits } from "juice-sdk-core";
 import { formatTokenSymbol } from "@/lib/utils";
 import { commaNumber } from "@/lib/number";
 import { EthereumAddress } from "@/components/EthereumAddress";
-import { useAutoMints } from "@/hooks/useAutomints";
+import { useAutoIssuances } from "@/hooks/useAutoIssuances";
 
 export function AutoIssuance() {
   const { projectId } = useJBContractContext();
   const chainId = useJBChainId();
   const { token } = useJBTokenContext();
 
-  const autoMints = useAutoMints();
+  const autoIssuances = useAutoIssuances();
 
   const { data: unrealized } = useReadRevDeployerUnrealizedAutoIssuanceAmountOf(
     {
@@ -57,22 +57,22 @@ export function AutoIssuance() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {autoMints &&
-              autoMints.map((automint) => (
-                <TableRow key={automint.id}>
-                  <TableCell>{automint.stage}</TableCell>
+            {autoIssuances &&
+              autoIssuances.map((autoIssuance) => (
+                <TableRow key={autoIssuance.id}>
+                  <TableCell>{autoIssuance.stage}</TableCell>
                   <TableCell>
                     <div className="flex flex-col sm:flex-row text-sm">
                       <div className="flex flex-col sm:flex-row text-sm">
                         <EthereumAddress
-                          address={automint.beneficiary}
+                          address={autoIssuance.beneficiary}
                           short
                           withEnsAvatar
                           withEnsName
                           className="hidden sm:block"
                         />
                         <EthereumAddress
-                          address={automint.beneficiary}
+                          address={autoIssuance.beneficiary}
                           short
                           avatarProps={{ size: "sm" }}
                           withEnsAvatar
@@ -84,16 +84,16 @@ export function AutoIssuance() {
                   </TableCell>
                   <TableCell>
                     {commaNumber(
-                      formatUnits(automint.count, token?.data?.decimals || 18)
+                      formatUnits(autoIssuance.count, token?.data?.decimals || 18)
                     )}{" "}
                     {formatTokenSymbol(token)}
                   </TableCell>
                   <TableCell>
-                    {automint.startsAt &&
-                      format(automint.startsAt * 1000, "MMM dd, yyyy p")}
+                    {autoIssuance.startsAt &&
+                      format(autoIssuance.startsAt * 1000, "MMM dd, yyyy p")}
                   </TableCell>
                   <TableCell>
-                    <Button disabled={(automint?.startsAt || 0) >= now}>
+                    <Button disabled={(autoIssuance?.startsAt || 0) >= now}>
                       Distribute
                     </Button>
                   </TableCell>

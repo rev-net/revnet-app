@@ -78,9 +78,9 @@ export function parseDeployData(
     return {
       startsAtOrAfter,
       /**
-       * REVAutoMint[]
+       * REVAutoIssuance[]
        *
-       * @see https://github.com/rev-net/revnet-core/blob/main/src/structs/REVAutoMint.sol
+       * @see https://github.com/rev-net/revnet-core/blob/main/src/structs/REVAutoIssuance.sol
        */
       autoIssuances: [
         {

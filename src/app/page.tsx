@@ -30,7 +30,7 @@ export default function Page() {
         <div className="text-2xl md:text-2xl mt-8 font-medium text-left">
           Unstoppable funding machines for growth-oriented projects on the open internet
         </div>
-        <div className="flex flex-col md:flex-row items-start md:items-center gap-4 ">
+        <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
           <div className="flex gap-4 mt-8">
             <Link href="/create">
               <Button className="md:h-12 h-16 text-xl md:text-xl px-4 flex gap-2 bg-teal-500 hover:bg-teal-600">
@@ -38,7 +38,7 @@ export default function Page() {
               </Button>
             </Link>
           </div>
-          <div className="flex flex-row mt-8 text-xl md:text-xl text-left gap-1 overflow-scroll whitespace-nowrap">
+          <div className="flex flex-row mt-8 text-xl md:text-xl text-left gap-1 whitespace-nowrap">
             <span className="mr-1">Browse:</span>
             <RevLink network="sepolia" id={1} text="NANA" />
             <Pipe />
