@@ -1,11 +1,11 @@
-query StoreAutoMintAmountEvents(
-  $where: StoreAutoMintAmountEvent_filter
-  $orderBy: StoreAutoMintAmountEvent_orderBy
+query StoreAutoIssuanceAmountEvents(
+  $where: StoreAutoIssuanceAmountEvent_filter
+  $orderBy: StoreAutoIssuanceAmountEvent_orderBy
   $orderDirection: OrderDirection
   $first: Int
   $skip: Int
 ) {
-  storeAutoMintAmountEvents(
+  storeAutoIssuanceAmountEvents(
     where: $where
     orderBy: $orderBy
     orderDirection: $orderDirection

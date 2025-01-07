@@ -31,7 +31,7 @@ import { twJoin } from "tailwind-merge";
 import { PriceSection } from "./NetworkDashboard/sections/PriceSection";
 import { useFormattedTokenIssuance } from "@/hooks/useFormattedTokenIssuance";
 import { formatTokenSymbol, rulesetStartDate } from "@/lib/utils";
-import { useAutoMints } from "@/hooks/useAutomints";
+import { useAutoIssuances } from "@/hooks/useAutoIssuances";
 import { commaNumber } from "@/lib/number";
 import { formatUnits } from "viem";
 
@@ -133,14 +133,14 @@ export function NetworkDetailsTable() {
     reservedPercent: selectedStageMetadata?.data?.reservedPercent
   });
 
-  const autoMints = useAutoMints();
-  // console.log("autoMints::", autoMints)
-  const getAutoMintsTotalForStage = () => {
-    if (!autoMints) return 0;
+  const autoIssuances = useAutoIssuances();
+  // console.log("autoIssuances::", autoIssuances)
+  const getAutoIssuancesTotalForStage = () => {
+    if (!autoIssuances) return 0;
     console.log("selectedStageIdx", selectedStageIdx + 1)
-    const stageAutoMints = autoMints.filter((a) => a.stage === selectedStageIdx + 1);
+    const stageautoIssuances = autoIssuances.filter((a) => a.stage === selectedStageIdx + 1);
     return commaNumber(formatUnits(
-      stageAutoMints.reduce((acc, curr) => acc + BigInt(curr.count), 0n),
+      stageautoIssuances.reduce((acc, curr) => acc + BigInt(curr.count), 0n),
       token?.data?.decimals || 18
     ))
   };
@@ -261,7 +261,7 @@ export function NetworkDetailsTable() {
                   </Tooltip>
                 </dt>
                 <dd className="text-md leading-6 text-zinc-700 whitespace-nowrap">
-                  {getAutoMintsTotalForStage()} {formatTokenSymbol(token)}
+                  {getAutoIssuancesTotalForStage()} {formatTokenSymbol(token)}
                 </dd>
               </div>
               <div className="sm:col-span-1 sm:px-0 grid grid-cols-2 sm:grid-cols-4">
