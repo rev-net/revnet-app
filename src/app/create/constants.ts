@@ -8,7 +8,10 @@ export const defaultStageData: StageData = {
   priceCeilingIncreaseFrequency: "",
   priceFloorTaxIntensity: "",
 
-  premintTokenAmount: "",
+  autoIssuance: [{
+    amount: "",
+    beneficiary: "",
+  }],
 
   splitRate: "",
   boostDuration: "",
@@ -22,8 +25,6 @@ export const DEFAULT_FORM_DATA: RevnetFormData = {
 
   tokenName: "",
   tokenSymbol: "",
-
-  premintTokenAmount: "",
 
   stages: [],
   chainIds: [],
@@ -44,8 +45,6 @@ export const TEST_FORM_DATA: RevnetFormData = {
   tokenName: "Test Token",
   tokenSymbol: "TEST",
 
-  premintTokenAmount: "1000",
-
   stages: [
     {
       initialOperator: "0x1234567890123456789012345678901234567890", // Example operator address
@@ -54,7 +53,16 @@ export const TEST_FORM_DATA: RevnetFormData = {
       priceCeilingIncreaseFrequency: "30", // 30 days
       priceFloorTaxIntensity: "20", // 20% tax (LOW)
       splitRate: "10", // 10% split
-      premintTokenAmount: "500",
+      autoIssuance: [
+        {
+          amount: "100",
+          beneficiary: "0x1234567890123456789012345678901234567890", // Example beneficiary address
+        },
+        {
+          amount: "500",
+          beneficiary: "0x0987654321098765432109876543210987654321", // Different example beneficiary address
+        },
+      ],
       boostDuration: "90", // 90 days
     },
     {
@@ -63,7 +71,16 @@ export const TEST_FORM_DATA: RevnetFormData = {
       priceCeilingIncreaseFrequency: "15",
       priceFloorTaxIntensity: "50", // 50% tax (MID)
       splitRate: "5",
-      premintTokenAmount: "250",
+      autoIssuance: [
+        {
+          amount: "10",
+          beneficiary: "0x1234567890123456789012345678901234567890", // Example beneficiary address
+        },
+        {
+          amount: "50",
+          beneficiary: "0x0987654321098765432109876543210987654321", // Different example beneficiary address
+        },
+      ],
       boostDuration: "60",
     },
     {
@@ -72,7 +89,16 @@ export const TEST_FORM_DATA: RevnetFormData = {
       priceCeilingIncreaseFrequency: "7",
       priceFloorTaxIntensity: "80", // 80% tax (HIGH)
       splitRate: "2",
-      premintTokenAmount: "100",
+      autoIssuance: [
+        {
+          amount: "1",
+          beneficiary: "0x1234567890123456789012345678901234567890", // Example beneficiary address
+        },
+        {
+          amount: "5",
+          beneficiary: "0x0987654321098765432109876543210987654321", // Different example beneficiary address
+        },
+      ],
       boostDuration: "", // Empty for indefinite duration
     },
   ],

@@ -3,7 +3,8 @@ import {
   Form,
   Formik,
   useFormikContext,
-  Field as FormikField
+  Field as FormikField,
+  FieldArray
 } from "formik";
 import { RevnetFormData, StageData } from "../types";
 import { useNativeTokenSymbol } from "@/hooks/useNativeTokenSymbol";
@@ -29,6 +30,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
+import { TrashIcon } from "@heroicons/react/24/outline";
 
 function NotesSection({
   title = "[ ? ]",
@@ -237,15 +239,59 @@ export function AddStageDialog({
                 </div>
 
                 <div className="pb-8">
-                  <FieldGroup
-                    className="flex-1"
-                    id="premintTokenAmount"
-                    min="0"
-                    type="number"
-                    name="premintTokenAmount"
-                    label="3. Auto issuance"
-                    description="Automatically mint tokens for the Operator when this stage becomes active."
-                    suffix={revnetTokenSymbol || "tokens"}
+                  <FieldArray
+                    name={`stages.${stageIdx}.autoIssuance`}
+                    render={(arrayHelpers) => (
+                      <div>
+                        <div className="block text-md font-semibold leading-6">
+                          3. Auto issuance
+                        </div>
+                        <p className="text-md text-zinc-500 mt-3">
+                          Mint {revnetTokenSymbol} to specific addresses when the
+                          stage starts.
+                        </p>
+                        {values.stages?.[stageIdx]?.autoIssuance?.map((item, index) => (
+                          <div key={index} className="flex gap-2 items-center text-md text-zinc-600 mt-4">
+                            <label htmlFor={`autoIssuance.${index}.amount`}>Mint</label>
+                            <Field
+                              id={`autoIssuance.${index}.amount`}
+                              name={`autoIssuance.${index}.amount`}
+                              type="number"
+                              min="0"
+                              className="h-9"
+                              suffix={`${revnetTokenSymbol}`}
+                              required
+                            />
+                            <label htmlFor={`autoIssuance.${index}.beneficiary`}>to</label>
+                            <Field
+                              id={`autoIssuance.${index}.beneficiary`}
+                              name={`autoIssuance.${index}.beneficiary`}
+                              className="h-9"
+                              placeholder="0x"
+                              required
+                            />
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => arrayHelpers.remove(index)}
+                              className="h-9"
+                            >
+                              <TrashIcon className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        ))}
+                        <Button
+                          type="button"
+                          onClick={() => {
+                            console.log(values)
+                            arrayHelpers.push({ amount: "", beneficiary: "" })
+                          }}
+                          className="h-9"
+                        >
+                          +
+                        </Button>
+                      </div>
+                    )}
                   />
                 </div>
                 <div className="pb-10">
