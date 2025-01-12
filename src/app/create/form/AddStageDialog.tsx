@@ -4,7 +4,7 @@ import {
   Formik,
   useFormikContext,
   Field as FormikField,
-  FieldArray
+  FieldArray,
 } from "formik";
 import { RevnetFormData, StageData } from "../types";
 import { useNativeTokenSymbol } from "@/hooks/useNativeTokenSymbol";
@@ -14,14 +14,14 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger
+  DialogTrigger,
 } from "@/components/ui/dialog";
 import {
   defaultStageData,
   EXIT_TAX_HIGH,
   EXIT_TAX_LOW,
   EXIT_TAX_MID,
-  EXIT_TAX_NONE
+  EXIT_TAX_NONE,
 } from "../constants";
 import { Field, FieldGroup } from "./Fields";
 import {
@@ -82,13 +82,15 @@ export function AddStageDialog({
   children: React.ReactNode;
   onSave: (newStage: StageData) => void;
 }) {
-  const { values } = useFormikContext<RevnetFormData>();
+  const { values: formikValues } = useFormikContext<RevnetFormData>();
 
   const [open, setOpen] = useState(false);
   const nativeTokenSymbol = useNativeTokenSymbol();
 
   const revnetTokenSymbol =
-    values.tokenSymbol?.length > 0 ? `$${values.tokenSymbol}` : "tokens";
+    formikValues.tokenSymbol?.length > 0
+      ? `$${formikValues.tokenSymbol}`
+      : "tokens";
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -105,7 +107,7 @@ export function AddStageDialog({
               setOpen(false);
             }}
           >
-            {() => (
+            {({ values }) => (
               <Form>
                 <div className="pb-10">
                   <FieldGroup
@@ -197,7 +199,9 @@ export function AddStageDialog({
                       name="initialOperator"
                       className=""
                       placeholder={
-                        stageIdx > 0 ? values.stages[0].initialOperator : "0x"
+                        stageIdx > 0
+                          ? formikValues.stages[0].initialOperator
+                          : "0x"
                       }
                       disabled={stageIdx > 0}
                       required
@@ -240,19 +244,27 @@ export function AddStageDialog({
 
                 <div className="pb-8">
                   <FieldArray
-                    name={`stages.${stageIdx}.autoIssuance`}
+                    name="autoIssuance"
                     render={(arrayHelpers) => (
                       <div>
                         <div className="block text-md font-semibold leading-6">
                           3. Auto issuance
                         </div>
                         <p className="text-md text-zinc-500 mt-3">
-                          Mint {revnetTokenSymbol} to specific addresses when the
-                          stage starts.
+                          Mint {revnetTokenSymbol} to specific addresses when
+                          the stage starts.
                         </p>
-                        {values.stages?.[stageIdx]?.autoIssuance?.map((item, index) => (
-                          <div key={index} className="flex gap-2 items-center text-md text-zinc-600 mt-4">
-                            <label htmlFor={`autoIssuance.${index}.amount`}>Mint</label>
+                        {values.autoIssuance?.map((item, index) => (
+                          <div
+                            key={index}
+                            className="flex gap-2 items-center text-md text-zinc-600 mt-4"
+                          >
+                            <div className="text-zinc-400 w-32">
+                              [ {index + 1} ]
+                            </div>
+                            <label htmlFor={`autoIssuance.${index}.amount`}>
+                              Issue
+                            </label>
                             <Field
                               id={`autoIssuance.${index}.amount`}
                               name={`autoIssuance.${index}.amount`}
@@ -262,7 +274,11 @@ export function AddStageDialog({
                               suffix={`${revnetTokenSymbol}`}
                               required
                             />
-                            <label htmlFor={`autoIssuance.${index}.beneficiary`}>to</label>
+                            <label
+                              htmlFor={`autoIssuance.${index}.beneficiary`}
+                            >
+                              to
+                            </label>
                             <Field
                               id={`autoIssuance.${index}.beneficiary`}
                               name={`autoIssuance.${index}.beneficiary`}
@@ -283,10 +299,10 @@ export function AddStageDialog({
                         <Button
                           type="button"
                           onClick={() => {
-                            console.log(values)
-                            arrayHelpers.push({ amount: "", beneficiary: "" })
+                            console.log(values);
+                            arrayHelpers.push({ amount: "", beneficiary: "" });
                           }}
-                          className="h-9"
+                          className="h-9 mt-3"
                         >
                           +
                         </Button>
