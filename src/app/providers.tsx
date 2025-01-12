@@ -1,11 +1,20 @@
 "use client";
 
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { wagmiConfig } from "@/lib/wagmiConfig";
+import { TooltipProvider } from "../components/ui/tooltip";
+import { wagmiConfig } from "../lib/wagmiConfig";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ConnectKitProvider } from "connectkit";
 import * as React from "react";
-import { WagmiProvider } from "wagmi";
+//import { WagmiProvider } from "wagmi";
+
+import dynamic from "next/dynamic";
+
+const WagmiProvider = dynamic(
+  () => import("../components/providers/WagmiProvider"),
+  {
+    ssr: false,
+  }
+);
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [mounted, setMounted] = React.useState(false);

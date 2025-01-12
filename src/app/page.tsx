@@ -1,6 +1,10 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import Link from "next/link";
+import { useEffect, useState } from "react";
+import sdk from "@farcaster/frame-sdk";
 
 const RevLink = ({ network, id, text }: { network: string; id: number; text: string }) => {
   return (
@@ -17,6 +21,19 @@ const Pipe = () => {
 }
 
 export default function Page() {
+  const [isLoadingIpfs, setIsLoadingIpfs] = useState<boolean>(false);
+  const [isSDKLoaded, setIsSDKLoaded] = useState(false);
+
+  useEffect(() => {
+    const load = async () => {
+      sdk.actions.ready();
+    };
+    if (sdk && !isSDKLoaded) {
+      setIsSDKLoaded(true);
+      load();
+    }
+  }, [isSDKLoaded]);
+
   return (
     <div className="container mt-40">
       <div className="flex flex-col items-left justify-left">

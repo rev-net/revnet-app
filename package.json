@@ -15,6 +15,7 @@
     "generate:gql": "DOTENV_CONFIG_PATH=./.env.local graphql-code-generator --config codegen.yml -r dotenv/config"
   },
   "dependencies": {
+    "@farcaster/frame-sdk": "^0.0.26",
     "@heroicons/react": "^2.0.18",
     "@radix-ui/react-accordion": "^1.1.2",
     "@radix-ui/react-dialog": "^1.0.5",
