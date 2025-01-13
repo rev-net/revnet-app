@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { PlusIcon } from "@heroicons/react/24/solid";
 import { RevnetFormData } from "../types";
 import { AddStageDialog } from "./AddStageDialog";
+import { defaultStageData } from "../constants";
 
 export function Stages({
   disabled = false
@@ -57,10 +58,6 @@ export function Stages({
                           initialValues={stage}
                           onSave={(newStage) => {
                             arrayHelpers.replace(index, newStage);
-                            setFieldValue(
-                              "premintTokenAmount",
-                              newStage.premintTokenAmount
-                            );
                           }}
                         >
                           <Button variant="ghost" size="sm" disabled={disabled}>
@@ -99,7 +96,8 @@ export function Stages({
                         out tax rate
                       </div>
                       <div>• {stage.splitRate || 0}% operator split</div>
-                      <div>• {stage.premintTokenAmount || 0} auto issuance</div>
+                      {/* change to sum of autoissuance? */}
+                      {/* <div>• {stage.autoIssuance || 0} auto issuance</div> */}
                     </div>
                   </div>
                 ))}
@@ -114,10 +112,6 @@ export function Stages({
               stageIdx={values.stages.length}
               onSave={(newStage) => {
                 arrayHelpers.push(newStage);
-                setFieldValue(
-                  "premintTokenAmount",
-                  newStage.premintTokenAmount
-                );
               }}
             >
               <Button

@@ -1,7 +1,6 @@
 "use client";
 
 import { Formik } from "formik";
-import { useChain } from "juice-sdk-react";
 import { useState } from "react";
 import { revDeployerAbi, revDeployerAddress } from "revnet-sdk";
 import { encodeFunctionData } from "viem";
@@ -13,11 +12,11 @@ import { DeployRevnetForm } from "./form/DeployRevnetForm";
 import { parseDeployData } from "./helpers/parseDeployData";
 import { pinProjectMetadata } from "./helpers/pinProjectMetaData";
 import { parseSuckerDeployerConfig } from "./helpers/parseSuckerDeployerConfig";
+import { useToast } from "@/components/ui/use-toast";
 
 export default function Page() {
   const [isLoadingIpfs, setIsLoadingIpfs] = useState<boolean>(false);
-
-  const chain = useChain();
+  const { toast } = useToast();
   const {
     write,
     response,
@@ -47,16 +46,27 @@ export default function Page() {
         suckerDeployerConfig: suckerDeployerConfig,
       });
 
-      const encodedData = encodeFunctionData({
-        abi: revDeployerAbi, // ABI of the contract
-        functionName: "deployFor",
-        args: deployData,
-      });
+      try {
+        const encodedData = encodeFunctionData({
+          abi: revDeployerAbi, // ABI of the contract
+          functionName: "deployFor",
+          args: deployData,
+        });
 
-      return {
-        data: encodedData,
-        chain: Number(chainId),
-        deployer: revDeployerAddress[chainId],
+        return {
+          data: encodedData,
+          chain: Number(chainId),
+          deployer: revDeployerAddress[chainId],
+        }
+      } catch (e: any) {
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description:
+            e.message ||
+            "Error encoding transaction",
+        });
+        throw e;
       }
     });
 

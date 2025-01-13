@@ -8,7 +8,10 @@ export type StageData = {
   priceCeilingIncreaseFrequency: string;
   priceFloorTaxIntensity: string;
 
-  premintTokenAmount: string;
+  autoIssuance: {
+    amount: string;
+    beneficiary: string;
+  }[];
 
   splitRate: string;
   boostDuration: string;
@@ -23,7 +26,6 @@ export type RevnetFormData = {
   tokenName: string;
   tokenSymbol: string;
 
-  premintTokenAmount: string;
   stages: StageData[];
   chainIds: JBChainId[];
 };

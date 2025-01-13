@@ -75,6 +75,12 @@ export function parseDeployData(
     const startsAtOrAfter = cumStart + prevStageDuration;
     cumStart += prevStageDuration;
 
+    const autoIssuances = stage.autoIssuance.map((autoIssuance) => ({
+      chainId: extra.chainId,
+      count: parseUnits(autoIssuance.amount, 18),
+      beneficiary: autoIssuance.beneficiary as Address,
+    }));
+
     return {
       startsAtOrAfter,
       /**
@@ -82,13 +88,7 @@ export function parseDeployData(
        *
        * @see https://github.com/rev-net/revnet-core/blob/main/src/structs/REVAutoIssuance.sol
        */
-      autoIssuances: [
-        {
-          chainId: extra.chainId,
-          count: parseUnits(stage.premintTokenAmount, 18),
-          beneficiary: operator,
-        },
-      ],
+      autoIssuances,
       splitPercent:
         Number(ReservedPercent.parse(stage.splitRate, 4).value) / 100,
       initialIssuance:
@@ -106,7 +106,6 @@ export function parseDeployData(
       extraMetadata: 0, // ??
     };
   });
-  console.dir(formData, { depth: null });
 
   return [
     0n, // 0 for a new revnet
