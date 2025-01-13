@@ -1,6 +1,5 @@
 import { JBChainId } from "juice-sdk-react";
 import {
-  Chain,
   arbitrumSepolia,
   baseSepolia,
   optimismSepolia,

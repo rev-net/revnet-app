@@ -28,6 +28,7 @@ export const DEFAULT_FORM_DATA: RevnetFormData = {
 
   stages: [],
   chainIds: [],
+  operator: []
 };
 
 export const EXIT_TAX_HIGH = "80";
@@ -103,4 +104,22 @@ export const TEST_FORM_DATA: RevnetFormData = {
     },
   ],
   chainIds: [11155111, 11155420, 84532, 421614],
+  operator: [
+    {
+      chainId: "11155111",
+      address: "0x1234567890123456789012345678901234567890"
+    },
+    {
+      chainId: "11155420",
+      address: "0x0987654321098765432109876543210987654321"
+    },
+    {
+      chainId: "84532",
+      address: "0xabcdef0123456789abcdef0123456789abcdef01"
+    },
+    {
+      chainId: "421614",
+      address: "0xfedcba9876543210fedcba9876543210fedcba98"
+    }
+  ]
 } as const;

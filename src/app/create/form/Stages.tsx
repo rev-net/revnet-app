@@ -2,6 +2,7 @@ import { FieldArray, useFormikContext } from "formik";
 import {
   ExclamationCircleIcon,
   PencilSquareIcon,
+  LockClosedIcon,
   TrashIcon
 } from "@heroicons/react/24/outline";
 import { useNativeTokenSymbol } from "@/hooks/useNativeTokenSymbol";
@@ -61,7 +62,11 @@ export function Stages({
                           }}
                         >
                           <Button variant="ghost" size="sm" disabled={disabled}>
-                            <PencilSquareIcon className="h-4 w-4" />
+                            {disabled ? (
+                              null
+                            ) : (
+                              <PencilSquareIcon className="h-4 w-4" />
+                            )}
                           </Button>
                         </AddStageDialog>
 
@@ -71,7 +76,11 @@ export function Stages({
                           disabled={disabled}
                           onClick={() => arrayHelpers.remove(index)}
                         >
-                          <TrashIcon className="h-4 w-4" />
+                          {disabled ? (
+                            <LockClosedIcon className="h-4 w-4" />
+                          ) : (
+                            <TrashIcon className="h-4 w-4" />
+                          )}
                         </Button>
                       </div>
                     </div>

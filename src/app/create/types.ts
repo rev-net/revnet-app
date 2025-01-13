@@ -28,4 +28,8 @@ export type RevnetFormData = {
 
   stages: StageData[];
   chainIds: JBChainId[];
+  operator: {
+    chainId: string;
+    address: string;
+  }[];
 };

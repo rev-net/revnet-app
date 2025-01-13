@@ -81,8 +81,15 @@ export default function Page() {
         onSubmit={(formData: RevnetFormData) => {
           try {
             deployProject?.(formData);
-          } catch (e) {
+          } catch (e: any) {
             setIsLoadingIpfs(false);
+            toast({
+              variant: "destructive",
+              title: "Error",
+              description:
+                e.message ||
+                "Error encoding transaction",
+            });
             console.error(e);
           }
         }}

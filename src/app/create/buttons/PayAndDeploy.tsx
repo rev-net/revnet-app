@@ -158,7 +158,7 @@ export function PayAndDeploy({
           )}
           <GoToProjectButton
             txHash={bundleResponse.transactions[0].status?.data?.hash}
-            chainId={bundleResponse.transactions[0].request.chain as JBChainId}
+            chainId={bundleResponse.transactions[0].request.chain}
           />
         </div>
       )}

@@ -11,14 +11,14 @@ import {
   WeightCutPercent,
 } from "juice-sdk-core";
 import { revDeployerAbi, revLoansAddress } from "revnet-sdk";
-import { Address, Chain, ContractFunctionParameters, parseUnits } from "viem";
+import { Address, ContractFunctionParameters, parseUnits } from "viem";
 import { RevnetFormData } from "../types";
 
 export function parseDeployData(
   _formData: RevnetFormData,
   extra: {
     metadataCid: string;
-    chainId: Chain["id"];
+    chainId: JBChainId;
     suckerDeployerConfig: {
       deployerConfigurations: {
         deployer: Address;
@@ -43,11 +43,12 @@ export function parseDeployData(
     JSON.stringify(_formData),
     (_, value) => (typeof value === "number" ? String(value) : value)
   );
-  console.log("formData::");
+  console.log(`formData::${extra.chainId}`);
   console.dir(formData, { depth: null });
   let cumStart = 0;
-
-  const operator = formData?.stages[0]?.initialOperator?.trim() as Address;
+  const operator = formData?.operator.find((c) => (
+    c.chainId === String(extra.chainId)
+  ))?.address || formData.stages[0].initialOperator;
 
   const accountingContextsToAccept = [{
     token: NATIVE_TOKEN,
@@ -117,7 +118,7 @@ export function parseDeployData(
         salt: createSalt(),
       },
       baseCurrency: Number(BigInt(NATIVE_TOKEN)),
-      splitOperator: operator,
+      splitOperator: operator as Address,
       stageConfigurations,
       loans: revLoansAddress[extra.chainId as JBChainId] as Address,
       loanSources,

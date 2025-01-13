@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { JB_CHAIN_SLUGS } from "juice-sdk-core";
+import { JB_CHAINS, JB_CHAIN_SLUGS } from "juice-sdk-core";
 import { JBChainId } from "juice-sdk-react";
 import { FastForwardIcon } from "lucide-react";
 import Link from "next/link";
@@ -12,7 +12,7 @@ export function GoToProjectButton({
   chainId,
 }: {
   txHash?: string;
-  chainId?: JBChainId;
+  chainId: JBChainId;
 }) {
   const [isLoading, setIsLoading] = useState(false);
 
@@ -24,9 +24,7 @@ export function GoToProjectButton({
   const projectId = data?.logs[0]?.topics[1]
     ? Number(data.logs[0].topics[1])
     : undefined;
-  const chain = chainId
-    ? JB_CHAIN_SLUGS[chainId].slug
-    : JB_CHAIN_SLUGS[sepolia.id].slug;
+  const chain = JB_CHAINS[chainId].slug
   const projectUrl = `/${chain}/${projectId}`;
   return (
     <div className="max-w-fit">
