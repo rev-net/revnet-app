@@ -1,7 +1,6 @@
 "use client";
 
 import { Formik } from "formik";
-import { useChain } from "juice-sdk-react";
 import { useState } from "react";
 import { revDeployerAbi, revDeployerAddress } from "revnet-sdk";
 import { encodeFunctionData } from "viem";

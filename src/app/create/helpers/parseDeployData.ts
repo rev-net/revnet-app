@@ -106,7 +106,6 @@ export function parseDeployData(
       extraMetadata: 0, // ??
     };
   });
-  console.dir(formData, { depth: null });
 
   return [
     0n, // 0 for a new revnet
