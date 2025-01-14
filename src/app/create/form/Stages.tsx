@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { PlusIcon } from "@heroicons/react/24/solid";
 import { RevnetFormData } from "../types";
 import { AddStageDialog } from "./AddStageDialog";
-import { defaultStageData } from "../constants";
+import { stageDuration } from "../helpers/stageDuration";
 
 export function Stages({
   disabled = false
@@ -22,15 +22,12 @@ export function Stages({
   const nativeTokenSymbol = useNativeTokenSymbol();
 
   const hasStages = values.stages.length > 0;
-  const lastStageHasDuration = Boolean(
-    values.stages[values.stages.length - 1]?.boostDuration
-  );
 
   const revnetTokenSymbolCapitalized =
     values.tokenSymbol?.length > 0 ? `$${values.tokenSymbol}` : "Token";
 
   const maxStageReached = values.stages.length >= MAX_RULESET_COUNT;
-  const canAddStage = !hasStages || (lastStageHasDuration && !maxStageReached);
+  const canAddStage = !hasStages || !maxStageReached;
   return (
     <>
       <div className="md:col-span-1">
@@ -86,11 +83,7 @@ export function Stages({
                     </div>
                     <div className="text-md text-zinc-500 flex gap-2 flex-wrap">
                       <div>
-                        {stage.boostDuration ? (
-                          <>{stage.boostDuration} days</>
-                        ) : (
-                          "Forever"
-                        )}{" "}
+                        {stageDuration(values.stages, index)}
                       </div>
                       •
                       <div>

@@ -31,6 +31,7 @@ import {
 } from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
 import { TrashIcon } from "@heroicons/react/24/outline";
+import { MAX_RULESET_COUNT } from "@/app/constants";
 
 function NotesSection({
   title = "[ ? ]",
@@ -401,28 +402,30 @@ export function AddStageDialog({
                     </div>
                   </NotesSection>
                 </div>
-                <div className="pb-7">
-                  <FieldGroup
-                    id="boostDuration"
-                    name="boostDuration"
-                    label="5. Duration"
-                    suffix="days"
-                    min="0"
-                    type="number"
-                    description="How long will this stage last? Leave blank to make this the last stage that lasts forever."
-                  />
-                  <NotesSection>
-                    <ul className="list-disc list-inside">
-                      <li className="flex">
-                        <span className="mr-2">•</span>
-                        <div>
-                          Days must be a multiple of this stage's issuance cut
-                          rate.
-                        </div>
-                      </li>
-                    </ul>
-                  </NotesSection>
-                </div>
+                {stageIdx > 0 && (
+                  <div className="pb-7">
+                    <FieldGroup
+                      id="boostDuration"
+                      name="boostDuration"
+                      label="5. Stage Start Day"
+                      suffix="days"
+                      min="0"
+                      type="number"
+                      description="How many days after the previous stage should this stage start?"
+                    />
+                    <NotesSection>
+                      <ul className="list-disc list-inside">
+                        <li className="flex">
+                          <span className="mr-2">•</span>
+                          <div>
+                            Days must be a multiple of this stage's issuance cut
+                            rate.
+                          </div>
+                        </li>
+                      </ul>
+                    </NotesSection>
+                  </div>
+                )}
 
                 <DialogFooter>
                   <Button

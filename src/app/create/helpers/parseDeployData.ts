@@ -45,7 +45,7 @@ export function parseDeployData(
   );
   console.log(`formData::${extra.chainId}`);
   console.dir(formData, { depth: null });
-  let cumStart = 0;
+  let prevStart = 0;
   const operator = formData?.operator.find((c) => (
     c.chainId === String(extra.chainId)
   ))?.address || formData.stages[0].initialOperator;
@@ -71,11 +71,11 @@ export function parseDeployData(
   }];
 
   const stageConfigurations = formData.stages.map((stage, idx) => {
-    const prevStageDuration =
-      idx === 0 ? now : Number(formData.stages[idx - 1].boostDuration) * 86400; // days to seconds
-    const startsAtOrAfter = cumStart + prevStageDuration;
-    cumStart += prevStageDuration;
-
+    const lengthSeconds = Number(stage.boostDuration) * 86400;
+    const startsAtOrAfter =
+      idx === 0 ? now : prevStart + lengthSeconds;
+    prevStart = startsAtOrAfter
+    console.log("idx", idx, startsAtOrAfter)
     const autoIssuances = stage.autoIssuance.map((autoIssuance) => ({
       chainId: extra.chainId,
       count: parseUnits(autoIssuance.amount, 18),

@@ -1,12 +1,17 @@
 import { RevnetFormData, StageData } from "./types";
 
+export const EXIT_TAX_HIGH = "80";
+export const EXIT_TAX_MID = "50";
+export const EXIT_TAX_LOW = "20";
+export const EXIT_TAX_NONE = "0";
+
 export const defaultStageData: StageData = {
   initialOperator: "",
   initialIssuance: "",
 
   priceCeilingIncreasePercentage: "",
   priceCeilingIncreaseFrequency: "",
-  priceFloorTaxIntensity: "",
+  priceFloorTaxIntensity: EXIT_TAX_NONE,
 
   autoIssuance: [{
     amount: "",
@@ -30,12 +35,6 @@ export const DEFAULT_FORM_DATA: RevnetFormData = {
   chainIds: [],
   operator: []
 };
-
-export const EXIT_TAX_HIGH = "80";
-export const EXIT_TAX_MID = "50";
-export const EXIT_TAX_LOW = "20";
-export const EXIT_TAX_NONE = "0";
-
 
 export const TEST_FORM_DATA: RevnetFormData = {
   name: "Test Revnet",
@@ -64,7 +63,7 @@ export const TEST_FORM_DATA: RevnetFormData = {
           beneficiary: "0x0987654321098765432109876543210987654321", // Different example beneficiary address
         },
       ],
-      boostDuration: "90", // 90 days
+      boostDuration: "0",
     },
     {
       initialIssuance: "50",
@@ -100,7 +99,7 @@ export const TEST_FORM_DATA: RevnetFormData = {
           beneficiary: "0x0987654321098765432109876543210987654321", // Different example beneficiary address
         },
       ],
-      boostDuration: "", // Empty for indefinite duration
+      boostDuration: "100",
     },
   ],
   chainIds: [11155111, 11155420, 84532, 421614],

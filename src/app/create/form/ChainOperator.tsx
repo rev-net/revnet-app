@@ -40,6 +40,11 @@ export function ChainOperator({ disabled = false }: { disabled?: boolean }) {
                   disabled={disabled}
                   required
                 />
+                <Field
+                  type="hidden"
+                  name={`operator.${chainIndex}.chainId`}
+                  value={chain}
+                />
               </div>
             ))}
         </div>
