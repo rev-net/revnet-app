@@ -179,10 +179,8 @@ export function AddStageDialog({
                     2. Split
                   </div>
                   <p className="text-zinc-600 text-md pb-3 mt-1">
-                    Split a portion of new token issuance and buybacks to an
-                    operator.
+                    Split a portion of new {revnetTokenSymbol} issuance to splits chosen by an operator
                   </p>
-
                   <FieldGroup
                     className="flex-1"
                     id="splitRate"
@@ -192,8 +190,8 @@ export function AddStageDialog({
                     suffix={`% of ${revnetTokenSymbol}`}
                   />
                   <div className="flex gap-2 items-center text-md text-zinc-600 whitespace-nowrap">
-                    <label htmlFor="priceCeilingIncreasePercentage">
-                      ... operated by
+                    <label htmlFor="priceCeilingIncreasePercentage" className="text-sm">
+                      ...operated by
                     </label>
                     <Field
                       id="initialOperator"
@@ -215,6 +213,72 @@ export function AddStageDialog({
                         </TooltipContent>
                       </Tooltip>
                     )}
+                  </div>
+
+                  <div>
+                    <p className="text-md text-zinc-500 mt-3">
+                      Start by splitting {values.splitRate}% of {revnetTokenSymbol} to
+                    </p>
+                    <FieldArray
+                      name="splits"
+                      render={(arrayHelpers) => (
+                        <div>
+                          {values.splits.map((_, index) => (
+                            <div
+                              key={index}
+                              className="flex gap-2 items-center text-md text-zinc-600 mt-4"
+                            >
+                              <div className="text-zinc-400 w-32">
+                                [ {index + 1} ]
+                              </div>
+                              <label htmlFor={`splits.${index}.percentage`}>
+                                Split
+                              </label>
+                              <Field
+                                id={`splits.${index}.percentage`}
+                                name={`splits.${index}.percentage`}
+                                type="number"
+                                min="0"
+                                max="100"
+                                className="h-9"
+                                suffix="%"
+                                required
+                                defaultValue="100"
+                              />
+                              <label htmlFor={`splits.${index}.beneficiary[0].address`}>
+                                to
+                              </label>
+                              <Field
+                                id={`splits.${index}.beneficiary[0].address`}
+                                name={`splits.${index}.beneficiary[0].address`}
+                                className="h-9"
+                                placeholder="0x"
+                                required
+                                defaultValue={formikValues.stages[0]?.initialOperator || ""}
+                              />
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => arrayHelpers.remove(index)}
+                                className="h-9"
+                              >
+                                <TrashIcon className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          ))}
+                          <div className="text-sm font-medium ml-12 text-zinc-500 mt-2">
+                            Total: {values.splits.reduce((sum, split) => sum + (Number(split.percentage) || 0), 0)}%
+                          </div>
+                          <Button
+                            type="button"
+                            onClick={() => arrayHelpers.push({ percentage: "", beneficiary: "" })}
+                            className="h-9 mt-3"
+                          >
+                            +
+                          </Button>
+                        </div>
+                      )}
+                    />
                   </div>
 
                   <NotesSection>
@@ -255,7 +319,7 @@ export function AddStageDialog({
                           Mint {revnetTokenSymbol} to specific addresses when
                           the stage starts.
                         </p>
-                        {values.autoIssuance?.map((item, index) => (
+                        {values.autoIssuance?.map((_, index) => (
                           <div
                             key={index}
                             className="flex gap-2 items-center text-md text-zinc-600 mt-4"

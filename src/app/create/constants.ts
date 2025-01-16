@@ -1,10 +1,11 @@
+import { JB_CHAINS } from "juice-sdk-core";
 import { RevnetFormData, StageData } from "./types";
 
 export const EXIT_TAX_HIGH = "80";
 export const EXIT_TAX_MID = "50";
 export const EXIT_TAX_LOW = "20";
 export const EXIT_TAX_NONE = "0";
-
+console.log(Object.keys(JB_CHAINS)[0])
 export const defaultStageData: StageData = {
   initialOperator: "",
   initialIssuance: "",
@@ -18,6 +19,11 @@ export const defaultStageData: StageData = {
     beneficiary: "",
   }],
 
+  splits: [{
+    id: "1-1",
+    percentage: "",
+    beneficiary: []
+  }],
   splitRate: "",
   boostDuration: "",
 };
@@ -40,27 +46,49 @@ export const TEST_FORM_DATA: RevnetFormData = {
   name: "Test Revnet",
   description:
     "This is a test revnet for development purposes. It demonstrates various features and configurations available in the revnet system.",
-  logoUri: "", // Leave empty or add an IPFS URI if needed
+  logoUri: "",
 
   tokenName: "Test Token",
   tokenSymbol: "TEST",
 
   stages: [
     {
-      initialOperator: "0x1234567890123456789012345678901234567890", // Example operator address
+      initialOperator: "0x1234567890123456789012345678901234567890",
       initialIssuance: "100",
-      priceCeilingIncreasePercentage: "50", // 50% decrease (doubles price)
-      priceCeilingIncreaseFrequency: "30", // 30 days
-      priceFloorTaxIntensity: "20", // 20% tax (LOW)
-      splitRate: "10", // 10% split
+      priceCeilingIncreasePercentage: "50",
+      priceCeilingIncreaseFrequency: "30",
+      priceFloorTaxIntensity: "20",
+      splitRate: "10",
+      splits: [
+        {
+          id: "1-1",
+          percentage: "60",
+          beneficiary: [
+            { chainId: 11155111, address: "0x1234567890123456789012345678901234567890" },
+            { chainId: 11155420, address: "0x1234567890123456789012345678901234567890" },
+            { chainId: 84532, address: "0x1234567890123456789012345678901234567890" },
+            { chainId: 421614, address: "0x1234567890123456789012345678901234567890" }
+          ]
+        },
+        {
+          id: "1-2",
+          percentage: "40",
+          beneficiary: [
+            { chainId: 11155111, address: "0x0987654321098765432109876543210987654321" },
+            { chainId: 11155420, address: "0x0987654321098765432109876543210987654321" },
+            { chainId: 84532, address: "0x0987654321098765432109876543210987654321" },
+            { chainId: 421614, address: "0x0987654321098765432109876543210987654321" }
+          ]
+        }
+      ],
       autoIssuance: [
         {
           amount: "100",
-          beneficiary: "0x1234567890123456789012345678901234567890", // Example beneficiary address
+          beneficiary: "0x1234567890123456789012345678901234567890",
         },
         {
           amount: "500",
-          beneficiary: "0x0987654321098765432109876543210987654321", // Different example beneficiary address
+          beneficiary: "0x0987654321098765432109876543210987654321",
         },
       ],
       boostDuration: "0",
@@ -69,16 +97,28 @@ export const TEST_FORM_DATA: RevnetFormData = {
       initialIssuance: "50",
       priceCeilingIncreasePercentage: "25",
       priceCeilingIncreaseFrequency: "15",
-      priceFloorTaxIntensity: "50", // 50% tax (MID)
+      priceFloorTaxIntensity: "50",
       splitRate: "5",
+      splits: [
+        {
+          id: "2-1",
+          percentage: "100",
+          beneficiary: [
+            { chainId: 11155111, address: "0x1234567890123456789012345678901234567890" },
+            { chainId: 11155420, address: "0x1234567890123456789012345678901234567890" },
+            { chainId: 84532, address: "0x1234567890123456789012345678901234567890" },
+            { chainId: 421614, address: "0x1234567890123456789012345678901234567890" }
+          ]
+        }
+      ],
       autoIssuance: [
         {
           amount: "10",
-          beneficiary: "0x1234567890123456789012345678901234567890", // Example beneficiary address
+          beneficiary: "0x1234567890123456789012345678901234567890",
         },
         {
           amount: "50",
-          beneficiary: "0x0987654321098765432109876543210987654321", // Different example beneficiary address
+          beneficiary: "0x0987654321098765432109876543210987654321",
         },
       ],
       boostDuration: "60",
@@ -87,16 +127,38 @@ export const TEST_FORM_DATA: RevnetFormData = {
       initialIssuance: "25",
       priceCeilingIncreasePercentage: "10",
       priceCeilingIncreaseFrequency: "7",
-      priceFloorTaxIntensity: "80", // 80% tax (HIGH)
+      priceFloorTaxIntensity: "80",
       splitRate: "2",
+      splits: [
+        {
+          id: "3-1",
+          percentage: "50",
+          beneficiary: [
+            { chainId: 11155111, address: "0x1234567890123456789012345678901234567890" },
+            { chainId: 11155420, address: "0x1234567890123456789012345678901234567890" },
+            { chainId: 84532, address: "0x1234567890123456789012345678901234567890" },
+            { chainId: 421614, address: "0x1234567890123456789012345678901234567890" }
+          ]
+        },
+        {
+          id: "3-2",
+          percentage: "50",
+          beneficiary: [
+            { chainId: 11155111, address: "0x0987654321098765432109876543210987654321" },
+            { chainId: 11155420, address: "0x0987654321098765432109876543210987654321" },
+            { chainId: 84532, address: "0x0987654321098765432109876543210987654321" },
+            { chainId: 421614, address: "0x0987654321098765432109876543210987654321" }
+          ]
+        }
+      ],
       autoIssuance: [
         {
           amount: "1",
-          beneficiary: "0x1234567890123456789012345678901234567890", // Example beneficiary address
+          beneficiary: "0x1234567890123456789012345678901234567890",
         },
         {
           amount: "5",
-          beneficiary: "0x0987654321098765432109876543210987654321", // Different example beneficiary address
+          beneficiary: "0x0987654321098765432109876543210987654321",
         },
       ],
       boostDuration: "100",

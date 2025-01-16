@@ -4,7 +4,6 @@ import { ChainLogo } from "@/components/ChainLogo";
 import { JB_CHAINS } from "juice-sdk-core";
 import { Field } from "./Fields";
 import { chainSortOrder } from "@/app/constants";
-import { twMerge } from "tailwind-merge";
 
 export function ChainOperator({ disabled = false }: { disabled?: boolean }) {
   const { values } = useFormikContext<RevnetFormData>();
