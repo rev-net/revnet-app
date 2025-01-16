@@ -45,9 +45,13 @@ export function DeployRevnetForm({
       <ChainSelect disabled={validBundle} />
       {/* Quote and Depoly */}
       <div className="md:col-start-2 md:col-span-2 md:-mt-20">
-        <ChainOperator disabled={validBundle} />
-        <Divider />
-        <ChainSplits disabled={validBundle} />
+        {values.chainIds.length > 0 && (
+          <>
+            <ChainOperator disabled={validBundle} />
+            <Divider />
+            <ChainSplits disabled={validBundle} />
+          </>
+        )}
         <QuoteButton
           isLoading={isLoading}
           validBundle={validBundle}

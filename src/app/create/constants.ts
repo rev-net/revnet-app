@@ -5,7 +5,7 @@ export const EXIT_TAX_HIGH = "80";
 export const EXIT_TAX_MID = "50";
 export const EXIT_TAX_LOW = "20";
 export const EXIT_TAX_NONE = "0";
-console.log(Object.keys(JB_CHAINS)[0])
+
 export const defaultStageData: StageData = {
   initialOperator: "",
   initialIssuance: "",

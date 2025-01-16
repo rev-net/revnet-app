@@ -186,6 +186,7 @@ export function AddStageDialog({
                     id="splitRate"
                     type="number"
                     min="0"
+                    max="100"
                     name="splitRate"
                     suffix={`% of ${revnetTokenSymbol}`}
                   />
