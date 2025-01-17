@@ -4,7 +4,6 @@ import { ChainLogo } from "@/components/ChainLogo";
 import { JB_CHAINS } from "juice-sdk-core";
 import { Field } from "./Fields";
 import { chainSortOrder } from "@/app/constants";
-import { twMerge } from "tailwind-merge";
 
 export function ChainOperator({ disabled = false }: { disabled?: boolean }) {
   const { values } = useFormikContext<RevnetFormData>();
@@ -13,12 +12,10 @@ export function ChainOperator({ disabled = false }: { disabled?: boolean }) {
       name="operator"
       render={() => (
         <div className="mb-8">
-          {values.chainIds.length > 0 &&(
-            <div className="flex mb-2 text-sm font-medium text-zinc-500">
-              <div className="w-48">Chain</div>
-              <div>Operator address</div>
-            </div>
-          )}
+          <div className="flex mb-2 text-sm font-medium text-zinc-500">
+            <div className="w-48">Chain</div>
+            <div>Operator address</div>
+          </div>
           {[...values.chainIds]
             .sort((a, b) => {
               const aOrder = chainSortOrder.get(a) ?? 0;

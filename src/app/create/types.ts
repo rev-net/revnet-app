@@ -14,6 +14,14 @@ export type StageData = {
   }[];
 
   splitRate: string;
+  splits: {
+    id: string;
+    percentage: string;
+    beneficiary: {
+      chainId: JBChainId;
+      address: string;
+    }[];
+  }[];
   boostDuration: string;
 };
 

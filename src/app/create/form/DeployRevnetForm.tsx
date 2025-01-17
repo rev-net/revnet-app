@@ -12,6 +12,7 @@ import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { PayAndDeploy } from "../buttons/PayAndDeploy";
 import { ChainOperator } from "./ChainOperator";
+import { ChainSplits } from "./ChainSplits";
 
 export function DeployRevnetForm({
   relayrResponse,
@@ -41,13 +42,16 @@ export function DeployRevnetForm({
     <Stages disabled={validBundle} />
     <Divider />
 
-    <ChainSelect disabled={validBundle} />
-    {/* Quote and Depoly */}
-    <div className="flex flex-col md:flex-row md:justify-between items-center gap-6 mt-8">
-      <div className="w-full md:w-1/2">
-        <ChainOperator disabled={validBundle} />
-      </div>
-      <div className="w-full md:w-1/2 flex flex-col items-center">
+      <ChainSelect disabled={validBundle} />
+      {/* Quote and Depoly */}
+      <div className="md:col-start-2 md:col-span-2 md:-mt-20">
+        {values.chainIds.length > 0 && (
+          <>
+            <ChainOperator disabled={validBundle} />
+            <Divider />
+            <ChainSplits disabled={validBundle} />
+          </>
+        )}
         <QuoteButton
           isLoading={isLoading}
           validBundle={validBundle}
@@ -83,6 +87,5 @@ export function DeployRevnetForm({
         )}
       </div>
     </div>
-  </div>
   );
 }
