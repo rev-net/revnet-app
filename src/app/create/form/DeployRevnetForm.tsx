@@ -34,17 +34,20 @@ export function DeployRevnetForm({
     values.tokenSymbol?.length > 0 ? `$${values.tokenSymbol}` : "token";
 
   return (
-    <div className="grid md:grid-cols-3 max-w-6xl mx-auto my-20 gap-x-6 gap-y-6 md:gap-y-0 md:px-0 px-5">
-      <DetailsPage disabled={validBundle} />
-      <Divider />
+    <div className="container mx-auto px-4 py-6 lg:px-8">
+    <DetailsPage disabled={validBundle} />
+    <Divider />
 
-      <Stages disabled={validBundle} />
-      <Divider />
+    <Stages disabled={validBundle} />
+    <Divider />
 
-      <ChainSelect disabled={validBundle} />
-      {/* Quote and Depoly */}
-      <div className="md:col-start-2 md:col-span-2 md:-mt-20">
+    <ChainSelect disabled={validBundle} />
+    {/* Quote and Depoly */}
+    <div className="flex flex-col md:flex-row md:justify-between items-center gap-6 mt-8">
+      <div className="w-full md:w-1/2">
         <ChainOperator disabled={validBundle} />
+      </div>
+      <div className="w-full md:w-1/2 flex flex-col items-center">
         <QuoteButton
           isLoading={isLoading}
           validBundle={validBundle}
@@ -52,8 +55,8 @@ export function DeployRevnetForm({
           onSubmit={submitForm}
         />
         {relayrResponse && (
-          <div className="flex flex-col items-start">
-            <div className="text-xs italic mt-2">
+          <div className="flex flex-col items-center mt-4 w-full">
+            <div className="text-xs italic text-center">
               Quote valid until{" "}
               {format(
                 relayrResponse.payment_info[0].payment_deadline,
@@ -70,17 +73,16 @@ export function DeployRevnetForm({
                 clear quote
               </Button>
             </div>
-            {relayrResponse && (
-              <div className="mt-4">
-                <PayAndDeploy
-                  relayrResponse={relayrResponse}
-                  revnetTokenSymbol={revnetTokenSymbol}
-                />
-              </div>
-            )}
+            <div className="mt-4 w-full">
+              <PayAndDeploy
+                relayrResponse={relayrResponse}
+                revnetTokenSymbol={revnetTokenSymbol}
+              />
+            </div>
           </div>
         )}
       </div>
     </div>
+  </div>
   );
 }
