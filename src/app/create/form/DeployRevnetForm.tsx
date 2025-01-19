@@ -35,7 +35,7 @@ export function DeployRevnetForm({
     values.tokenSymbol?.length > 0 ? `$${values.tokenSymbol}` : "token";
 
   return (
-    <div className="md:grid md:grid-cols-3 max-w-6xl mx-auto my-20 gap-x-6 gap-y-6 md:gap-y-0 md:px-0 px-5">
+    <div className="md:grid md:grid-cols-3 max-w-6xl mx-auto my-20 gap-x-6 gap-y-6 px-8 xl:gap-y-0 xl:px-0">
       <DetailsPage disabled={validBundle} />
       <Divider />
 

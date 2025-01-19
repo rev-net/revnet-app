@@ -190,31 +190,6 @@ export function AddStageDialog({
                     name="splitRate"
                     suffix={`% of ${revnetTokenSymbol}`}
                   />
-                  <div className="flex gap-2 items-center text-md text-zinc-600 whitespace-nowrap">
-                    <label htmlFor="priceCeilingIncreasePercentage" className="text-sm">
-                      ...operated by
-                    </label>
-                    <Field
-                      id="initialOperator"
-                      name="initialOperator"
-                      className=""
-                      placeholder={
-                        stageIdx > 0
-                          ? formikValues.stages[0].initialOperator
-                          : "0x"
-                      }
-                      disabled={stageIdx > 0}
-                      required
-                    />
-                    {stageIdx > 0 && (
-                      <Tooltip>
-                        <TooltipTrigger>[ ? ]</TooltipTrigger>
-                        <TooltipContent side="left">
-                          Set the operator in the first stage
-                        </TooltipContent>
-                      </Tooltip>
-                    )}
-                  </div>
 
                   <div>
                     <p className="text-md text-zinc-500 mt-3">
@@ -229,11 +204,8 @@ export function AddStageDialog({
                               key={index}
                               className="flex gap-2 items-center text-md text-zinc-600 mt-4"
                             >
-                              <div className="text-zinc-400 w-32">
-                                [ {index + 1} ]
-                              </div>
                               <label htmlFor={`splits.${index}.percentage`}>
-                                Split
+                                {index === 0 ? "...split" : "...and"}
                               </label>
                               <Field
                                 id={`splits.${index}.percentage`}
@@ -281,6 +253,31 @@ export function AddStageDialog({
                       )}
                     />
                   </div>
+                  <div className="mt-4 flex gap-2 items-center text-md text-zinc-600 whitespace-nowrap">
+                    <label htmlFor="priceCeilingIncreasePercentage" className="text-sm">
+                      ...operated by
+                    </label>
+                    <Field
+                      id="initialOperator"
+                      name="initialOperator"
+                      className=""
+                      placeholder={
+                        stageIdx > 0
+                          ? formikValues.stages[0].initialOperator
+                          : "0x"
+                      }
+                      disabled={stageIdx > 0}
+                      required
+                    />
+                    {stageIdx > 0 && (
+                      <Tooltip>
+                        <TooltipTrigger>[ ? ]</TooltipTrigger>
+                        <TooltipContent side="left">
+                          Set the operator in the first stage
+                        </TooltipContent>
+                      </Tooltip>
+                    )}
+                  </div>
 
                   <NotesSection>
                     <div className="text-zinc-600 text-md mt-4 italic">
@@ -325,11 +322,8 @@ export function AddStageDialog({
                             key={index}
                             className="flex gap-2 items-center text-md text-zinc-600 mt-4"
                           >
-                            <div className="text-zinc-400 w-32">
-                              [ {index + 1} ]
-                            </div>
                             <label htmlFor={`autoIssuance.${index}.amount`}>
-                              Issue
+                              {index === 0 ? "Issue" : "...and"}
                             </label>
                             <Field
                               id={`autoIssuance.${index}.amount`}
@@ -362,6 +356,9 @@ export function AddStageDialog({
                             </Button>
                           </div>
                         ))}
+                        <div className="text-sm font-medium ml-12 text-zinc-500 mt-2">
+                          Total: {values.autoIssuance?.reduce((sum, issuance) => sum + (Number(issuance.amount) || 0), 0)} {revnetTokenSymbol}
+                        </div>
                         <Button
                           type="button"
                           onClick={() => {
@@ -384,9 +381,9 @@ export function AddStageDialog({
                     4. Cash out tax
                   </div>
                   <p className="text-md text-zinc-500 mt-3">
-                    All {revnetTokenSymbol} holders can access revenue by
-                    cashing out or taking out a loan against their{" "}
-                    {revnetTokenSymbol}. A tax can be added that makes cashing
+                    The only way for anyone to access revenue is by cashing out or
+                    taking out a loan against their {revnetTokenSymbol}.
+                    A tax can be added that makes cashing
                     out and taking out loans more expensive, while rewarding{" "}
                     {revnetTokenSymbol} holders who stick around as others cash
                     out.

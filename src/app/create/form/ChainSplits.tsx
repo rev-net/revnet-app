@@ -37,28 +37,14 @@ export function ChainSplits({ disabled = false }: { disabled?: boolean }) {
               ))}
             </div>
 
-            {values.chainIds.length > 0 && (
-              <div className="flex mb-2 text-sm font-semibold text-zinc-500">
-                <div className="w-32">Split Number</div>
-                <div className="w-32">Split rate (%)</div>
-              </div>
-            )}
-
             {values.stages[selectedStageIdx]?.splits.map((split, splitIndex) => (
-              <div key={splitIndex}>
-                <div className="flex items-center text-md text-zinc-600 mt-4">
-                  <div className="flex gap-2 items-center w-32 text-sm">
-                    <div className="text-zinc-400">Split {splitIndex + 1}</div>
-                  </div>
-                  <div className="w-32 text-sm text-zinc-600">
-                    {split.percentage || "0"}%
+              <div key={splitIndex} className="mb-8">
+                <div className="flex items-center gap-2 mb-6 text-sm font-semibold">
+                  <div className="text-zinc-500 text-md">
+                    Split {splitIndex + 1} ({split.percentage || "0"}%)
                   </div>
                 </div>
-                <div className="ml-32 mt-4">
-                  <div className="flex mb-2 text-sm font-medium text-zinc-500">
-                    <div className="w-48">Chain</div>
-                    <div>Beneficiary addresses</div>
-                  </div>
+                <div className="space-y-3">
                   {[...values.chainIds]
                     .sort((a, b) => {
                       const aOrder = chainSortOrder.get(a) ?? 0;
@@ -66,7 +52,7 @@ export function ChainSplits({ disabled = false }: { disabled?: boolean }) {
                       return aOrder - bOrder;
                     })
                     .map((chainId, chainIndex) => (
-                      <div key={chainId} className="flex items-center text-md text-zinc-600 mt-2">
+                      <div key={chainId} className="flex items-center text-md text-zinc-600">
                         <div className="flex gap-2 items-center w-48 text-sm">
                           <ChainLogo chainId={chainId} width={25} height={25} />
                           <div className="text-zinc-400">{JB_CHAINS[chainId].name}</div>
@@ -85,7 +71,6 @@ export function ChainSplits({ disabled = false }: { disabled?: boolean }) {
                       </div>
                     ))}
                 </div>
-                <hr className="border-t border-zinc-200 mt-4" />
               </div>
             ))}
           </div>
