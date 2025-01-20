@@ -32,6 +32,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { TrashIcon } from "@heroicons/react/24/outline";
 import { MAX_RULESET_COUNT } from "@/app/constants";
+import { commaNumber } from "@/lib/number";
 
 function NotesSection({
   title = "[ ? ]",
@@ -176,25 +177,14 @@ export function AddStageDialog({
 
                 <div className="pb-10">
                   <div className="block text-md font-semibold leading-6">
-                    2. Split
+                    2. Splits
                   </div>
                   <p className="text-zinc-600 text-md pb-3 mt-1">
-                    Split a portion of new {revnetTokenSymbol} issuance to splits chosen by an operator
+                    Of the {commaNumber(values.initialIssuance)} {revnetTokenSymbol} issued for every {" "}
+                    {nativeTokenSymbol}, do you want to split a percentage of it to {" "}
+                    beneficiaries?
                   </p>
-                  <FieldGroup
-                    className="flex-1"
-                    id="splitRate"
-                    type="number"
-                    min="0"
-                    max="100"
-                    name="splitRate"
-                    suffix={`% of ${revnetTokenSymbol}`}
-                  />
-
                   <div>
-                    <p className="text-md text-zinc-500 mt-3">
-                      Start by splitting {values.splitRate}% of {revnetTokenSymbol} to
-                    </p>
                     <FieldArray
                       name="splits"
                       render={(arrayHelpers) => (
@@ -204,9 +194,6 @@ export function AddStageDialog({
                               key={index}
                               className="flex gap-2 items-center text-md text-zinc-600 mt-4"
                             >
-                              <label htmlFor={`splits.${index}.percentage`}>
-                                {index === 0 ? "...split" : "...and"}
-                              </label>
                               <Field
                                 id={`splits.${index}.percentage`}
                                 name={`splits.${index}.percentage`}
@@ -214,6 +201,7 @@ export function AddStageDialog({
                                 min="0"
                                 max="100"
                                 className="h-9"
+                                width="w-28"
                                 suffix="%"
                                 required
                                 defaultValue="100"
@@ -239,8 +227,11 @@ export function AddStageDialog({
                               </Button>
                             </div>
                           ))}
-                          <div className="text-sm font-medium ml-12 text-zinc-500 mt-2">
+                          <div className="text-sm font-medium text-zinc-500 mt-2">
                             Total: {values.splits.reduce((sum, split) => sum + (Number(split.percentage) || 0), 0)}%
+                          </div>
+                          <div className="text-sm font-medium text-zinc-500 mt-2">
+                            Contributor receives: {100 - values.splits.reduce((sum, split) => sum + (Number(split.percentage) || 0), 0)}%
                           </div>
                           <Button
                             type="button"
@@ -356,7 +347,7 @@ export function AddStageDialog({
                             </Button>
                           </div>
                         ))}
-                        <div className="text-sm font-medium ml-12 text-zinc-500 mt-2">
+                        <div className="text-sm font-medium text-zinc-500 mt-2">
                           Total: {values.autoIssuance?.reduce((sum, issuance) => sum + (Number(issuance.amount) || 0), 0)} {revnetTokenSymbol}
                         </div>
                         <Button

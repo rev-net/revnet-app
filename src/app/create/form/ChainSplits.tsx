@@ -18,9 +18,6 @@ export function ChainSplits({ disabled = false }: { disabled?: boolean }) {
         name="stages"
         render={() => (
           <div>
-            <p className="text-sm text-zinc-500 mb-4">
-              Set a unique beneficiary address for each chain.
-            </p>
             <div className="flex gap-4 mb-4">
               {values.stages.map((_, idx) => (
                 <Button

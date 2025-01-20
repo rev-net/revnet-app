@@ -1,4 +1,3 @@
-import { JB_CHAINS } from "juice-sdk-core";
 import { RevnetFormData, StageData } from "./types";
 
 export const EXIT_TAX_HIGH = "80";
@@ -12,7 +11,7 @@ export const defaultStageData: StageData = {
 
   priceCeilingIncreasePercentage: "",
   priceCeilingIncreaseFrequency: "",
-  priceFloorTaxIntensity: EXIT_TAX_NONE,
+  priceFloorTaxIntensity: EXIT_TAX_LOW,
 
   autoIssuance: [{
     amount: "",
@@ -20,11 +19,9 @@ export const defaultStageData: StageData = {
   }],
 
   splits: [{
-    id: "1-1",
     percentage: "",
     beneficiary: []
   }],
-  splitRate: "",
   boostDuration: "",
 };
 
@@ -58,11 +55,9 @@ export const TEST_FORM_DATA: RevnetFormData = {
       priceCeilingIncreasePercentage: "50",
       priceCeilingIncreaseFrequency: "30",
       priceFloorTaxIntensity: "20",
-      splitRate: "10",
       splits: [
         {
-          id: "1-1",
-          percentage: "60",
+          percentage: "6",
           beneficiary: [
             { chainId: 11155111, address: "0x1234567890123456789012345678901234567890" },
             { chainId: 11155420, address: "0x1234567890123456789012345678901234567890" },
@@ -71,8 +66,7 @@ export const TEST_FORM_DATA: RevnetFormData = {
           ]
         },
         {
-          id: "1-2",
-          percentage: "40",
+          percentage: "4",
           beneficiary: [
             { chainId: 11155111, address: "0x0987654321098765432109876543210987654321" },
             { chainId: 11155420, address: "0x0987654321098765432109876543210987654321" },
@@ -98,11 +92,9 @@ export const TEST_FORM_DATA: RevnetFormData = {
       priceCeilingIncreasePercentage: "25",
       priceCeilingIncreaseFrequency: "15",
       priceFloorTaxIntensity: "50",
-      splitRate: "5",
       splits: [
         {
-          id: "2-1",
-          percentage: "100",
+          percentage: "10",
           beneficiary: [
             { chainId: 11155111, address: "0x1234567890123456789012345678901234567890" },
             { chainId: 11155420, address: "0x1234567890123456789012345678901234567890" },
@@ -128,11 +120,9 @@ export const TEST_FORM_DATA: RevnetFormData = {
       priceCeilingIncreasePercentage: "10",
       priceCeilingIncreaseFrequency: "7",
       priceFloorTaxIntensity: "80",
-      splitRate: "2",
       splits: [
         {
-          id: "3-1",
-          percentage: "50",
+          percentage: "5",
           beneficiary: [
             { chainId: 11155111, address: "0x1234567890123456789012345678901234567890" },
             { chainId: 11155420, address: "0x1234567890123456789012345678901234567890" },
@@ -141,8 +131,7 @@ export const TEST_FORM_DATA: RevnetFormData = {
           ]
         },
         {
-          id: "3-2",
-          percentage: "50",
+          percentage: "5",
           beneficiary: [
             { chainId: 11155111, address: "0x0987654321098765432109876543210987654321" },
             { chainId: 11155420, address: "0x0987654321098765432109876543210987654321" },
