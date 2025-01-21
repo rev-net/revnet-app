@@ -1,3 +1,4 @@
+import { chainSortOrder } from "@/app/constants";
 import { clsx, type ClassValue } from "clsx";
 import { formatDuration, intervalToDuration } from "date-fns";
 import { JBRulesetData, JB_CHAINS } from "juice-sdk-core";
@@ -104,3 +105,11 @@ export const formatHexEther = (
   if (!hexWei) return "0";
   return Number(formatEther(BigInt(hexWei))).toFixed(fixed);
 };
+
+export function sortChains(chainIds: JBChainId[]): JBChainId[] {
+  return [...chainIds].sort((a, b) => {
+    const aOrder = chainSortOrder.get(a) ?? 0
+    const bOrder = chainSortOrder.get(b) ?? 0;
+    return aOrder - bOrder;
+  });
+}

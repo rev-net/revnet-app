@@ -6,7 +6,7 @@ import { Field } from "./Fields";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { twJoin } from "tailwind-merge";
-import { chainSortOrder } from "@/app/constants";
+import { sortChains } from "@/lib/utils";
 
 export function ChainSplits({ disabled = false }: { disabled?: boolean }) {
   const { values } = useFormikContext<RevnetFormData>();
@@ -42,31 +42,25 @@ export function ChainSplits({ disabled = false }: { disabled?: boolean }) {
                   </div>
                 </div>
                 <div className="space-y-3">
-                  {[...values.chainIds]
-                    .sort((a, b) => {
-                      const aOrder = chainSortOrder.get(a) ?? 0;
-                      const bOrder = chainSortOrder.get(b) ?? 0;
-                      return aOrder - bOrder;
-                    })
-                    .map((chainId, chainIndex) => (
-                      <div key={chainId} className="flex items-center text-md text-zinc-600">
-                        <div className="flex gap-2 items-center w-48 text-sm">
-                          <ChainLogo chainId={chainId} width={25} height={25} />
-                          <div className="text-zinc-400">{JB_CHAINS[chainId].name}</div>
-                        </div>
-                        <Field
-                          id={`stages.${selectedStageIdx}.splits.${splitIndex}.beneficiary[${chainIndex}].address`}
-                          name={`stages.${selectedStageIdx}.splits.${splitIndex}.beneficiary[${chainIndex}].address`}
-                          type="text"
-                          className="h-9 flex-1"
-                          placeholder="0x..."
-                          defaultValue={values.stages[selectedStageIdx]?.splits[splitIndex]?.beneficiary[0]?.address}
-                          disabled={disabled}
-                          required
-                          address
-                        />
+                  {sortChains(values.chainIds).map((chainId, chainIndex) => (
+                    <div key={chainId} className="flex items-center text-md text-zinc-600">
+                      <div className="flex gap-2 items-center w-48 text-sm">
+                        <ChainLogo chainId={chainId} width={25} height={25} />
+                        <div className="text-zinc-400">{JB_CHAINS[chainId].name}</div>
                       </div>
-                    ))}
+                      <Field
+                        id={`stages.${selectedStageIdx}.splits.${splitIndex}.beneficiary[${chainIndex}].address`}
+                        name={`stages.${selectedStageIdx}.splits.${splitIndex}.beneficiary[${chainIndex}].address`}
+                        type="text"
+                        className="h-9 flex-1"
+                        placeholder="0x..."
+                        defaultValue={values.stages[selectedStageIdx]?.splits[splitIndex]?.beneficiary[0]?.address}
+                        disabled={disabled}
+                        required
+                        address
+                      />
+                    </div>
+                  ))}
                 </div>
               </div>
             ))}

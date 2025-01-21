@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { PayAndDeploy } from "../buttons/PayAndDeploy";
 import { ChainOperator } from "./ChainOperator";
 import { ChainSplits } from "./ChainSplits";
+import { ChainAutoIssuance } from "./ChainAutoIssuance";
 
 export function DeployRevnetForm({
   relayrResponse,
@@ -50,6 +51,8 @@ export function DeployRevnetForm({
             <ChainOperator disabled={validBundle} />
             <Divider />
             <ChainSplits disabled={validBundle} />
+            <Divider />
+            <ChainAutoIssuance disabled={validBundle} />
           </>
         )}
         <QuoteButton

@@ -8,18 +8,25 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./ui/select";
+import { sortChains } from "@/lib/utils";
 
 interface ChainSelectorProps {
   value: JBChainId;
   onChange: (chainId: JBChainId) => void;
   disabled?: boolean;
+  options?: JBChainId[];
 }
 
 export const ChainSelector = ({
   value,
   onChange,
   disabled,
+  options,
 }: ChainSelectorProps) => {
+  const chainOptions = options && options.length > 0 ?
+    sortChains(options) :
+    sortChains(Object.keys(JB_CHAINS) as unknown as JBChainId[]);
+
   return (
     <Select
       onValueChange={(value) => {
@@ -30,22 +37,26 @@ export const ChainSelector = ({
     >
       <SelectTrigger className="w-[200px]">
         <SelectValue placeholder="Select chain">
-          <div className="flex items-center gap-2">
-            <ChainLogo chainId={Number(value) as JBChainId} />
-            <span>{JB_CHAINS[value].name}</span>
-          </div>
+          {value ? (
+            <div className="flex items-center gap-2">
+              <ChainLogo chainId={Number(value) as JBChainId} />
+              <span>{JB_CHAINS[value].name}</span>
+            </div>
+          ) : (
+            <span>Select chain</span>
+          )}
         </SelectValue>
       </SelectTrigger>
       <SelectContent>
-        {Object.values(JB_CHAINS).map(({ chain, name }) => (
+        {chainOptions.map((chainId) => (
           <SelectItem
-            key={chain.id}
-            value={chain.id.toString()}
+            key={chainId}
+            value={chainId.toString()}
             className="flex items-center gap-2"
           >
             <div className="flex items-center gap-2">
-              <ChainLogo chainId={Number(chain.id) as JBChainId} />
-              <span>{name}</span>
+              <ChainLogo chainId={chainId as JBChainId} />
+              <span>{JB_CHAINS[chainId as JBChainId].name}</span>
             </div>
           </SelectItem>
         ))}
