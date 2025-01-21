@@ -44,7 +44,7 @@ export function DeployRevnetForm({
 
       <ChainSelect disabled={validBundle} />
       {/* Quote and Depoly */}
-      <div className="md:col-start-2 md:col-span-2 md:-mt-20">
+      <div className="md:col-start-2 md:col-span-2 mt-6 md:-mt-20">
         {values.chainIds.length > 0 && (
           <>
             <ChainOperator disabled={validBundle} />
