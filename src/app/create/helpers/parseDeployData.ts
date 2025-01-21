@@ -90,8 +90,8 @@ export function parseDeployData(
        * @see https://github.com/rev-net/revnet-core/blob/main/src/structs/REVAutoIssuance.sol
        */
       autoIssuances,
-      splitPercent:
-        Number(ReservedPercent.parse(stage.splitRate, 4).value) / 100,
+      splitPercent: // to be change to array of splits
+        stage.splits.reduce((sum, split) => sum + (Number(split.percentage) || 0), 0) / 100,
       initialIssuance:
         stage.initialIssuance && stage.initialIssuance !== ""
           ? parseUnits(`${stage.initialIssuance}`, 18)

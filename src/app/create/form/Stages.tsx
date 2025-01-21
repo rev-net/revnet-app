@@ -12,6 +12,7 @@ import { PlusIcon } from "@heroicons/react/24/solid";
 import { RevnetFormData } from "../types";
 import { AddStageDialog } from "./AddStageDialog";
 import { stageDuration } from "../helpers/stageDuration";
+import { formatTokenSymbol } from "@/lib/utils";
 
 export function Stages({
   disabled = false
@@ -87,7 +88,7 @@ export function Stages({
                       </div>
                       •
                       <div>
-                        {stage.initialIssuance} {values.tokenSymbol ?? "tokens"}{" "}
+                        {stage.initialIssuance} {formatTokenSymbol(values.tokenSymbol) ?? "tokens"}{" "}
                         / {nativeTokenSymbol}
                         {", "}-{stage.priceCeilingIncreasePercentage || 0}%
                         every {stage.priceCeilingIncreaseFrequency} days
@@ -97,9 +98,9 @@ export function Stages({
                         {(Number(stage.priceFloorTaxIntensity) || 0) / 100} cash
                         out tax rate
                       </div>
-                      <div>• {stage.splitRate || 0}% operator split</div>
+                      <div>• {stage.splits.reduce((sum, split) => sum + (Number(split.percentage) || 0), 0)}% operator split</div>
                       {/* change to sum of autoissuance? */}
-                      {/* <div>• {stage.autoIssuance || 0} auto issuance</div> */}
+                      <div>• {stage.autoIssuance.reduce((sum, autoIssuance) => sum + (Number(autoIssuance.amount) || 0), 0)} {formatTokenSymbol(values.tokenSymbol) ?? "tokens"} auto issuance</div>
                     </div>
                   </div>
                 ))}
