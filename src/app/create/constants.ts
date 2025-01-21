@@ -16,6 +16,7 @@ export const defaultStageData: StageData = {
   autoIssuance: [{
     amount: "",
     beneficiary: "",
+    chainId: 11155111,
   }],
 
   splits: [{
@@ -79,10 +80,12 @@ export const TEST_FORM_DATA: RevnetFormData = {
         {
           amount: "100",
           beneficiary: "0x1234567890123456789012345678901234567890",
+          chainId: 11155111,
         },
         {
           amount: "500",
           beneficiary: "0x0987654321098765432109876543210987654321",
+          chainId: 11155420,
         },
       ],
       boostDuration: "0",
@@ -107,10 +110,12 @@ export const TEST_FORM_DATA: RevnetFormData = {
         {
           amount: "10",
           beneficiary: "0x1234567890123456789012345678901234567890",
+          chainId: 11155111,
         },
         {
           amount: "50",
           beneficiary: "0x0987654321098765432109876543210987654321",
+          chainId: 11155420,
         },
       ],
       boostDuration: "60",
@@ -144,10 +149,12 @@ export const TEST_FORM_DATA: RevnetFormData = {
         {
           amount: "1",
           beneficiary: "0x1234567890123456789012345678901234567890",
+          chainId: 11155111,
         },
         {
           amount: "5",
           beneficiary: "0x0987654321098765432109876543210987654321",
+          chainId: 11155420,
         },
       ],
       boostDuration: "100",
