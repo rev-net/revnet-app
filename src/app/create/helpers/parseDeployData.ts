@@ -91,7 +91,7 @@ export function parseDeployData(
        */
       autoIssuances,
       splitPercent: // to be change to array of splits
-        stage.splits.reduce((sum, split) => sum + (Number(split.percentage) || 0), 0) / 100,
+        stage.splits.reduce((sum, split) => sum + (Number(split.percentage) || 0), 0),
       initialIssuance:
         stage.initialIssuance && stage.initialIssuance !== ""
           ? parseUnits(`${stage.initialIssuance}`, 18)
