@@ -6,6 +6,7 @@ import { useState } from "react";
 import { twJoin } from "tailwind-merge";
 import { formatTokenSymbol } from "@/lib/utils";
 import { ChainSelector } from "@/components/ChainSelector";
+import { formatEthAddress } from "juice-sdk-core";
 
 export function ChainAutoIssuance({ disabled = false }: { disabled?: boolean }) {
   const { values, setFieldValue } = useFormikContext<RevnetFormData>();
@@ -38,7 +39,7 @@ export function ChainAutoIssuance({ disabled = false }: { disabled?: boolean }) 
                 <div className="w-full">
                   <div className="flex items-center text-sm font-semibold">
                     <div className="text-zinc-500 text-md mb-2">
-                      {issuance.amount || "0"} {revnetTokenSymbol} • {issuance.beneficiary}
+                      {issuance.amount || "0"} {revnetTokenSymbol} • {formatEthAddress(issuance.beneficiary)}
                     </div>
                   </div>
                   <ChainSelector
