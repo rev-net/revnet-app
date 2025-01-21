@@ -50,9 +50,18 @@ export function DeployRevnetForm({
           <>
             <ChainOperator disabled={validBundle} />
             <Divider />
+          </>
+        )}
+        {values.stages.some(stage => stage.splits.length > 0) && (
+          <>
             <ChainSplits disabled={validBundle} />
             <Divider />
+          </>
+        )}
+        {values.stages.some(stage => stage.autoIssuance.length > 0) && (
+          <>
             <ChainAutoIssuance disabled={validBundle} />
+            <Divider />
           </>
         )}
         <QuoteButton

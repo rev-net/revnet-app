@@ -1,6 +1,5 @@
 import { useFormikContext, FieldArray } from "formik";
 import { RevnetFormData } from "../types";
-import { Field } from "./Fields";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { twJoin } from "tailwind-merge";
@@ -15,6 +14,9 @@ export function ChainAutoIssuance({ disabled = false }: { disabled?: boolean }) 
 
   return (
     <div className="mb-10">
+      <h2 className="text-left text-black-500 mb-4 font-semibold">
+        Auto issuance
+      </h2>
       <FieldArray
         name="stages"
         render={() => (

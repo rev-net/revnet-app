@@ -14,6 +14,9 @@ export function ChainSplits({ disabled = false }: { disabled?: boolean }) {
 
   return (
     <div className="mb-10">
+      <h2 className="text-left text-black-500 mb-4 font-semibold">
+        Splits
+      </h2>
       <FieldArray
         name="stages"
         render={() => (

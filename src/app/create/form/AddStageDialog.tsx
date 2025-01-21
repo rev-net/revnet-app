@@ -179,9 +179,9 @@ export function AddStageDialog({
                     2. Splits
                   </div>
                   <p className="text-zinc-600 text-md pb-3 mt-1">
-                    Of the {commaNumber(values.initialIssuance)} {revnetTokenSymbol} issued for every {" "}
-                    {nativeTokenSymbol}, do you want to split a percentage of it to {" "}
-                    beneficiaries?
+                    Optionally, split a percentage of the {commaNumber(values.initialIssuance)}
+                    {revnetTokenSymbol} issued per {" "} {nativeTokenSymbol}. The total amount {" "}
+                    split will be fixed during this stage.
                   </p>
                   <div>
                     <FieldArray
@@ -227,10 +227,10 @@ export function AddStageDialog({
                             </div>
                           ))}
                           <div className="text-sm font-medium text-zinc-500 mt-2">
-                            Total: {values.splits.reduce((sum, split) => sum + (Number(split.percentage) || 0), 0)}%
+                            Total split limit of {values.splits.reduce((sum, split) => sum + (Number(split.percentage) || 0), 0)}%
                           </div>
                           <div className="text-sm font-medium text-zinc-500 mt-2">
-                            Contributor receives: {100 - values.splits.reduce((sum, split) => sum + (Number(split.percentage) || 0), 0)}%
+                            Payer always receives {100 - values.splits.reduce((sum, split) => sum + (Number(split.percentage) || 0), 0)}%
                           </div>
                           <Button
                             type="button"
@@ -304,7 +304,7 @@ export function AddStageDialog({
                           3. Auto issuance
                         </div>
                         <p className="text-md text-zinc-500 mt-3">
-                          Mint {revnetTokenSymbol} to specific addresses when
+                          Automatically issue {revnetTokenSymbol} to specific addresses when
                           the stage starts.
                         </p>
                         {values.autoIssuance?.map((_, index) => (
