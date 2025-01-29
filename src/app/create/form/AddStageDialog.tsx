@@ -220,7 +220,7 @@ export function AddStageDialog({
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => arrayHelpers.remove(index)}
-                                className="h-9"
+                                className="h-9 px-0 sm:px-3"
                               >
                                 <TrashIcon className="h-4 w-4" />
                               </Button>
@@ -340,7 +340,7 @@ export function AddStageDialog({
                               variant="ghost"
                               size="sm"
                               onClick={() => arrayHelpers.remove(index)}
-                              className="h-9"
+                              className="h-9 px-0 sm:px-3"
                             >
                               <TrashIcon className="h-4 w-4" />
                             </Button>
