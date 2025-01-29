@@ -22,7 +22,7 @@ export function ParticipantsTable({
   boostRecipient,
 }: {
   participants: (Participant & { chains: JBChainId[] })[];
-  token: UseTokenReturnType["data"];
+  token: UseTokenReturnType["data"] | null;
   totalSupply: bigint;
   boostRecipient?: Address;
 }) {

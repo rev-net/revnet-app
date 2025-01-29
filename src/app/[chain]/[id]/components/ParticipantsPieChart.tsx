@@ -62,7 +62,7 @@ export function ParticipantsPieChart({
   totalSupply,
   participants,
 }: {
-  token: UseTokenReturnType["data"];
+  token: UseTokenReturnType["data"] | null;
   totalSupply: bigint;
   participants: (Participant & { chains: JBChainId[] })[];
 }) {

@@ -151,7 +151,7 @@ export function HoldersSection() {
                   <div>
                     <ParticipantsTable
                       participants={Object.values(participantsDataAggregate)}
-                      token={token.data}
+                      token={token?.data}
                       totalSupply={totalOutstandingTokens}
                       boostRecipient={boostRecipient}
                     />
