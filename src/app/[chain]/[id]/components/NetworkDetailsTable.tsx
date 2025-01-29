@@ -159,7 +159,7 @@ export function NetworkDetailsTable() {
         className="flex items-center gap-2 text-left text-black-600"
       >
         <div className="flex flex-row space-x-2">
-          <h2 className="text-2xl font-semibold">How it works</h2>
+          <h2 className="text-2xl font-semibold">Rules</h2>
         </div>
         <span
           className={`transform transition-transform font-sm ${
@@ -174,7 +174,7 @@ export function NetworkDetailsTable() {
         <div className="mt-2 text-black text-md max-w-sm sm:max-w-full">
           <h3 className="text-md font-semibold mt-4">Overview</h3>
           <PriceSection className="mb-2" />
-          <h3 className="text-md font-semibold mt-6">Rules</h3>
+          <h3 className="text-md font-semibold mt-6">Specifics</h3>
           <div className="mb-2 mt-2 text-black font-light italic">{formatTokenSymbol(token)}'s issuance and cash out rules change automatically in permanent sequential stages.</div>
           <div className="mb-2">
 
@@ -268,22 +268,22 @@ export function NetworkDetailsTable() {
                 <dt className="text-md font-medium leading-6 text-zinc-900">
                   <Tooltip>
                     <div className="flex flex-row space-x-1">
-                      <div>Splits</div>
+                      <div>Split limit</div>
                       <TooltipTrigger className="pl-1 text-md text-zinc-500"> [ ? ]
                       </TooltipTrigger>
                       <TooltipContent side="right">
                         <div className="max-w-md space-y-2 p-2">
                           <div className="space-y-1">
-                            <h3 className="font-bold text-black-500">Splits</h3>
+                            <h3 className="font-bold text-black-500">Split limit</h3>
                             <p className="text-md text-black-400">Determines how much of {formatTokenSymbol(token)} issuance is set aside to be split among recipients defined by the split operator during a stage.</p>
-                            <p className="text-md text-black-400">The operator is the account that can change the split recipients, within the permanent split amount of a stage. See the "Owners" table for the current breakdown.</p>
+                            <p className="text-md text-black-400">The operator is the account that can change the split recipients, within the permanent split limit amount of a stage. See the "Owners" table for the current breakdown.</p>
                             <div className="text-zinc-600 text-md mt-4">
                               <span className="italic">Note:
                                 <ul className="list-disc list-inside pl-4 space-y-2">
                                   <li className="flex">
                                     <span className="mr-2">•</span>
                                     <div>
-                                      The operator can change the distribution of the split to new destinations at any time.
+                                      The operator can change the distribution of the split limit to new destinations at any time.
                                     </div>
                                   </li>
                                   <li className="flex">
@@ -318,9 +318,9 @@ export function NetworkDetailsTable() {
                 <dd className="text-md leading-6 text-zinc-700 whitespace-nowrap">
                   {selectedStageBoost ? (
                     <div className="text-md leading-6 text-zinc-700">
-                      {reservedPercent?.formatPercentage()}% split to <Badge variant="secondary" className="border border-visible">
+                      {reservedPercent?.formatPercentage()}% to <Badge variant="secondary" className="border border-visible">
                         <ForwardIcon className="w-4 h-4 mr-1 inline-block" />
-                        Operator
+                        Splits
                       </Badge>
                     </div>
                   ) : null}

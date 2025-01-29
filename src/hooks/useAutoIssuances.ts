@@ -33,7 +33,8 @@ export function useAutoIssuances() {
         rulesets?.findIndex((r) => String(r.id) === autoIssuance.stageId) || 0;
       return {
         ...autoIssuance,
-        startsAt: rulesets?.[rulesetIndex].start,
+        startsAt: rulesets?.[rulesetIndex]
+        ?.start,
         stage: (rulesets?.length || 0) - rulesetIndex,
       };
     });

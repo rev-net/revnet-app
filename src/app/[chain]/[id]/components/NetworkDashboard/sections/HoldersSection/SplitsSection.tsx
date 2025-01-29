@@ -81,12 +81,11 @@ export function SplitsSection() {
     <>
       <div className="flex space-y-4 pb-0 sm:pb-2">
         <p className="text-md text-black font-light italic">
-          Splits can be adjusted by the
           <Badge variant="secondary" className="ml-1 border border-visible">
             <ForwardIcon className="w-4 h-4 mr-1 inline-block" />
-            <span className="non-italic">Operator</span>
+            <span className="non-italic">Splits</span>
           </Badge>{" "}
-          at any time.
+          can be adjusted by the Operator at any time, within the permanent split limit of a stage.
         </p>
       </div>
       {suckers && suckers.length > 1 && (
@@ -121,11 +120,7 @@ export function SplitsSection() {
         </div>
       )}
       <div className="flex gap-1 pb-2 pt-2 text-md font-medium border-l border-zinc-200 pl-3">
-        <Badge variant="secondary" className="border border-visible">
-          <ForwardIcon className="w-4 h-4 mr-1 inline-block" />
-          <span className="non-italic">Operator</span>
-        </Badge>{" "}
-        is{" "}
+        Operator is{" "}
         <EtherscanLink
           value={boostRecipient}
           type="address"

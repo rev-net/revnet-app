@@ -54,7 +54,7 @@ export function PriceSection({ className }: { className?: string }) {
               <div className="flex flex-col border-l border-zinc-300 pl-2">
                 <span>
                   {devTax.formatPercentage().toFixed(4)}%{" "}
-                  <span>of issuance and buybacks split to </span>
+                  <span>of issuance and buybacks to </span>
                   <Tooltip>
                     <TooltipTrigger>
                       <Badge
@@ -62,7 +62,7 @@ export function PriceSection({ className }: { className?: string }) {
                         className="border border-visible"
                       >
                         <ForwardIcon className="w-4 h-4 mr-1 inline-block" />
-                        Operator
+                        Splits 
                       </Badge>
                     </TooltipTrigger>
                     <TooltipContent>

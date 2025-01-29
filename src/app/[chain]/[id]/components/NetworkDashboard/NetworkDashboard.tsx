@@ -62,18 +62,18 @@ export function NetworkDashboard() {
 
           <div className="max-w-4xl mx-auto">
             <section className="mb-10">
-              <div className="sm:mb-8 mb-5">
+              <div className="pb-5 pt-5 border-b border-zinc-200">
                 <NetworkDetailsTable />
               </div>
 
-              <div className="sm:mb-8 mb-5">
+              <div className="pb-5 pt-5 border-b border-zinc-200">
                 <HoldersSection />
               </div>
 
-              <div className="sm:mb-8 mb-5">
+              <div className="pb-5 pt-5 border-b border-zinc-200">
                 <DescriptionSection />
               </div>
-              <div className="sm:mb-8 mb-5">
+              <div className="pb-5 pt-5 border-b border-zinc-200">
                 <ActivityFeed />
               </div>
             </section>

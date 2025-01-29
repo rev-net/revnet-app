@@ -92,10 +92,6 @@ export function HoldersSection() {
     );
   };
 
-  if (!hasHolders || !token?.data) {
-    return <span className="text-zinc-500">No owners yet.</span>;
-  }
-
   const toggleDropdown = () => {
     setIsOpen(!isOpen);
   };

@@ -75,11 +75,11 @@ export function PayForm() {
 
   return (
     <div>
-      <div className="flex justify-center items-center flex-col mb-2">
+      <div className="flex justify-center items-center flex-col">
         <PayInput
           label="Pay"
           type="number"
-          className="mb-3"
+          className="border-b border-zinc-300"
           onChange={(e) => {
             const valueRaw = e.target.value;
             setAmountA(valueRaw);
@@ -138,8 +138,8 @@ export function PayForm() {
         <div className="flex gap-1 p-3 bg-zinc-200 w-full text-md text-zinc-700 overflow-x-auto whitespace-nowrap">
           <Badge variant="secondary" className="border border-visible">
             <ForwardIcon className="w-4 h-4 mr-1 inline-block" />
-                Operator
-          </Badge> gets {amountC || 0} {formatTokenSymbol(tokenB.symbol)}
+                Splits
+          </Badge> get {amountC || 0} {formatTokenSymbol(tokenB.symbol)}
         </div>
       </div>
       {/* <div className="flex justify-between gap-3 items-center md:items-start flex-col md:flex-row">
@@ -159,7 +159,7 @@ export function PayForm() {
 
         </div> */}
 
-      <div className="flex flex-row gap-2 mt-3">
+      <div className="flex flex-row">
         <Formik
           initialValues={{ }}
           onSubmit={() => {}}
@@ -170,13 +170,13 @@ export function PayForm() {
             name="memo"
             rows={2}
             className={
-              "flex w-full border border-zinc-200 bg-white px-3 py-1.5 text-md ring-offset-white file:border-0 file:bg-transparent file:text-md file:font-medium placeholder:text-zinc-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-950 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:border-zinc-800 dark:bg-zinc-950 dark:ring-offset-zinc-950 dark:placeholder:text-zinc-400 dark:focus-visible:ring-zinc-300"
+              "flex w-full border border-zinc-200 bg-white px-3 py-1.5 text-md ring-offset-white file:border-0 file:bg-transparent file:text-md file:font-medium placeholder:text-zinc-500 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 dark:border-zinc-800 dark:bg-zinc-950 dark:ring-offset-zinc-950 dark:placeholder:text-zinc-400 dark:focus-visible:ring-zinc-300 z-10"
             }
             onChange={(e: any) => setMemo?.(e.target.value)}
-            placeholder="Optional memo"
+            placeholder="Add an optional memo"
           />
         </Formik>
-        <div className="w-[100px]">
+        <div className="w-[150px] flex">
           {primaryNativeTerminal?.data ? (
             <PayDialog
               amountA={_amountA}
