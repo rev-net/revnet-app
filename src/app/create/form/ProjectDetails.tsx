@@ -53,7 +53,7 @@ export function DetailsPage({
           component="textarea"
           rows={2}
           className="max-w-lg"
-          placeholder="What is your project about?"
+          placeholder="What is the gist?"
           disabled={disabled}
         />
       </div>
