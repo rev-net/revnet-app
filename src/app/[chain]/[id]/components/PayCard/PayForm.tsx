@@ -173,7 +173,7 @@ export function PayForm() {
               "flex w-full border border-zinc-200 bg-white px-3 py-1.5 text-md ring-offset-white file:border-0 file:bg-transparent file:text-md file:font-medium placeholder:text-zinc-500 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 dark:border-zinc-800 dark:bg-zinc-950 dark:ring-offset-zinc-950 dark:placeholder:text-zinc-400 dark:focus-visible:ring-zinc-300 z-10"
             }
             onChange={(e: any) => setMemo?.(e.target.value)}
-            placeholder="Add an optional memo"
+            placeholder="Leave a note"
           />
         </Formik>
         <div className="w-[150px] flex">
