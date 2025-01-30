@@ -46,19 +46,19 @@ export function DeployRevnetForm({
       <ChainSelect disabled={validBundle} />
       {/* Quote and Depoly */}
       <div className="md:col-start-2 md:col-span-2 mt-6 md:-mt-20">
-        {values.chainIds.length > 0 && (
+        {values.chainIds.length > 1 && (
           <>
             <ChainOperator disabled={validBundle} />
             <Divider />
           </>
         )}
-        {values.stages.some(stage => stage.splits.length > 0) && (
+        {values.chainIds.length > 1 && values.stages.some(stage => stage.splits.length > 0) && (
           <>
             <ChainSplits disabled={validBundle} />
             <Divider />
           </>
         )}
-        {values.stages.some(stage => stage.autoIssuance.length > 0) && (
+        {values.chainIds.length > 1 && values.stages.some(stage => stage.autoIssuance.length > 0) && (
           <>
             <ChainAutoIssuance disabled={validBundle} />
             <Divider />
