@@ -46,36 +46,41 @@ export function parseDeployData(
   console.log(`formData::${extra.chainId}`);
   console.dir(formData, { depth: null });
   let prevStart = 0;
-  const operator = formData?.operator.find((c) => (
-    c.chainId === String(extra.chainId)
-  ))?.address || formData.stages[0].initialOperator;
+  const operator =
+    formData?.operator.find((c) => c.chainId === String(extra.chainId))
+      ?.address || formData.stages[0].initialOperator;
 
-  const accountingContextsToAccept = [{
-    token: NATIVE_TOKEN,
-    decimals: NATIVE_TOKEN_DECIMALS,
-    currency: NATIVE_CURRENCY_ID,
-  }];
+  const accountingContextsToAccept = [
+    {
+      token: NATIVE_TOKEN,
+      decimals: NATIVE_TOKEN_DECIMALS,
+      currency: NATIVE_CURRENCY_ID,
+    },
+  ];
 
-  const loanSources = [{
-    token: NATIVE_TOKEN,
-    terminal: jbProjectDeploymentAddresses.JBMultiTerminal[
-      extra?.chainId as JBChainId
-    ] as Address,
-  }];
+  const loanSources = [
+    {
+      token: NATIVE_TOKEN,
+      terminal: jbProjectDeploymentAddresses.JBMultiTerminal[
+        extra?.chainId as JBChainId
+      ] as Address,
+    },
+  ];
 
-  const poolConfigurations = [{
-    token: NATIVE_TOKEN,
-    fee: 10_000,
-    twapWindow: 2 * 60 * 60 * 24,
-    twapSlippageTolerance: 9000,
-  }];
+  const poolConfigurations = [
+    {
+      token: NATIVE_TOKEN,
+      fee: 10_000,
+      twapWindow: 2 * 60 * 60 * 24,
+      twapSlippageTolerance: 9000,
+    },
+  ];
 
   const stageConfigurations = formData.stages.map((stage, idx) => {
     const lengthSeconds = Number(stage.boostDuration) * 86400;
-    const startsAtOrAfter =
-      idx === 0 ? now : prevStart + lengthSeconds;
-    prevStart = startsAtOrAfter
-    console.log("idx", idx, startsAtOrAfter)
+    const startsAtOrAfter = idx === 0 ? now : prevStart + lengthSeconds;
+    prevStart = startsAtOrAfter;
+    console.log("idx", idx, startsAtOrAfter);
     const autoIssuances = stage.autoIssuance.map((autoIssuance) => ({
       chainId: extra.chainId,
       count: parseUnits(autoIssuance.amount, 18),
@@ -90,8 +95,15 @@ export function parseDeployData(
        * @see https://github.com/rev-net/revnet-core/blob/main/src/structs/REVAutoIssuance.sol
        */
       autoIssuances,
-      splitPercent: // to be change to array of splits
-        stage.splits.reduce((sum, split) => sum + (Number(split.percentage) || 0), 0),
+      // to be change to array of splits
+      splitPercent: stage.splits.reduce(
+        (sum, split) => sum + (Number(split.percentage) || 0),
+        0
+      ),
+      /**
+       * @see src/structs/JBSplit.sol
+       */
+      splits: [],
       initialIssuance:
         stage.initialIssuance && stage.initialIssuance !== ""
           ? parseUnits(`${stage.initialIssuance}`, 18)
