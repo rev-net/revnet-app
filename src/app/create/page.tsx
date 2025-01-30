@@ -45,7 +45,7 @@ export default function Page() {
         chainId,
         suckerDeployerConfig: suckerDeployerConfig,
       });
-
+      console.log("deployData::", deployData);
       try {
         const encodedData = encodeFunctionData({
           abi: revDeployerAbi, // ABI of the contract
