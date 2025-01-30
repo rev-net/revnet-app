@@ -179,7 +179,7 @@ export function AddStageDialog({
                     2. Splits
                   </div>
                   <p className="text-zinc-600 text-md pb-3 mt-1">
-                    Optionally, split a percentage of the {commaNumber(values.initialIssuance)}
+                    Optionally, split a percentage of the {commaNumber(values.initialIssuance)} {" "}
                     {revnetTokenSymbol} issued per {" "} {nativeTokenSymbol}. The total amount {" "}
                     split will be fixed during this stage.
                   </p>
@@ -233,9 +233,6 @@ export function AddStageDialog({
                           >
                            add split +
                           </Button>
-                          <div className="text-sm font-medium text-zinc-500 mt-2">
-                            
-                          </div>
                         </div>
                       )}
                     />
@@ -323,6 +320,7 @@ export function AddStageDialog({
                               className="h-9"
                               suffix={`${revnetTokenSymbol}`}
                               required
+                              width="w-56"
                             />
                             <label
                               htmlFor={`autoIssuance.${index}.beneficiary`}
@@ -464,6 +462,7 @@ export function AddStageDialog({
                       min="0"
                       type="number"
                       description="How many days after the previous stage should this stage start?"
+                      width="w-32"
                     />
                     <NotesSection>
                       <ul className="list-disc list-inside">

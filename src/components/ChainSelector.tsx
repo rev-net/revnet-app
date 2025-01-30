@@ -12,6 +12,7 @@ import { sortChains } from "@/lib/utils";
 
 interface ChainSelectorProps {
   value: JBChainId;
+  initialValue?: JBChainId;
   onChange: (chainId: JBChainId) => void;
   disabled?: boolean;
   options?: JBChainId[];

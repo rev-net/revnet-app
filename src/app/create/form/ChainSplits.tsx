@@ -3,6 +3,7 @@ import { RevnetFormData } from "../types";
 import { ChainLogo } from "@/components/ChainLogo";
 import { JB_CHAINS } from "juice-sdk-core";
 import { Field } from "./Fields";
+import { Field as FormikField } from "formik";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { twJoin } from "tailwind-merge";
@@ -61,6 +62,14 @@ export function ChainSplits({ disabled = false }: { disabled?: boolean }) {
                         disabled={disabled}
                         required
                         address
+                      />
+                      <FormikField
+                        id={`stages.${selectedStageIdx}.splits.${splitIndex}.beneficiary[${chainIndex}].chainId`}
+                        name={`stages.${selectedStageIdx}.splits.${splitIndex}.beneficiary[${chainIndex}].chainId`}
+                        value={chainId}
+                        type="number"
+                        disabled
+                        // hidden
                       />
                     </div>
                   ))}

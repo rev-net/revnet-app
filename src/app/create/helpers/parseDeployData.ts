@@ -4,14 +4,16 @@ import {
   CashOutTaxRate,
   JBChainId,
   jbProjectDeploymentAddresses,
+  JBSplit,
   NATIVE_CURRENCY_ID,
   NATIVE_TOKEN,
   NATIVE_TOKEN_DECIMALS,
-  ReservedPercent,
+  SplitPortion,
+  SPLITS_TOTAL_PERCENT,
   WeightCutPercent,
 } from "juice-sdk-core";
 import { revDeployerAbi, revLoansAddress } from "revnet-sdk";
-import { Address, ContractFunctionParameters, parseUnits } from "viem";
+import { Address, ContractFunctionParameters, parseUnits, zeroAddress } from "viem";
 import { RevnetFormData } from "../types";
 
 export function parseDeployData(
@@ -80,30 +82,42 @@ export function parseDeployData(
     const lengthSeconds = Number(stage.boostDuration) * 86400;
     const startsAtOrAfter = idx === 0 ? now : prevStart + lengthSeconds;
     prevStart = startsAtOrAfter;
-    console.log("idx", idx, startsAtOrAfter);
     const autoIssuances = stage.autoIssuance.map((autoIssuance) => ({
       chainId: extra.chainId,
       count: parseUnits(autoIssuance.amount, 18),
       beneficiary: autoIssuance.beneficiary as Address,
     }));
 
+    const splits = stage.splits.map((split) => {
+      console.log("split::", split);
+      console.log("extra.chainId::", extra.chainId);
+      console.log("stageIdx::", idx);
+      const beneficiary = split.beneficiary.find(
+        (b) => Number(b.chainId) === extra.chainId
+      )?.address as Address;
+      const percent = Math.round((Number(split.percentage) * SPLITS_TOTAL_PERCENT) / 100);
+
+      if (!beneficiary) throw new Error("Beneficiary not found");
+      return {
+        preferAddToBalance: false,
+        lockedUntil: 0,
+        percent: percent,
+        projectId: 0n,
+        beneficiary,
+        hook: zeroAddress,
+      };
+    });
+
+    const splitPercent = stage.splits.reduce(
+      (sum, split) => sum + (Number(split.percentage) || 0),
+      0
+    ) * 100;
+
     return {
       startsAtOrAfter,
-      /**
-       * REVAutoIssuance[]
-       *
-       * @see https://github.com/rev-net/revnet-core/blob/main/src/structs/REVAutoIssuance.sol
-       */
       autoIssuances,
-      // to be change to array of splits
-      splitPercent: stage.splits.reduce(
-        (sum, split) => sum + (Number(split.percentage) || 0),
-        0
-      ),
-      /**
-       * @see src/structs/JBSplit.sol
-       */
-      splits: [],
+      splitPercent,
+      splits,
       initialIssuance:
         stage.initialIssuance && stage.initialIssuance !== ""
           ? parseUnits(`${stage.initialIssuance}`, 18)
