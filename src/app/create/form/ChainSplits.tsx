@@ -20,7 +20,7 @@ export function ChainSplits({ disabled = false }: { disabled?: boolean }) {
       </h2>
       <FieldArray
         name="stages"
-        render={() => (
+        render={(arrayHelpers) => (
           <div>
             <div className="flex gap-4 mb-4">
               {values.stages.map((_, idx) => (
@@ -58,7 +58,7 @@ export function ChainSplits({ disabled = false }: { disabled?: boolean }) {
                         type="text"
                         className="h-9 flex-1"
                         placeholder="0x..."
-                        defaultValue={values.stages[selectedStageIdx]?.splits[splitIndex]?.beneficiary[0]?.address}
+                        defaultValue={values.stages[selectedStageIdx]?.splits?.[splitIndex]?.defaultBeneficiary}
                         disabled={disabled}
                         required
                         address
@@ -68,8 +68,7 @@ export function ChainSplits({ disabled = false }: { disabled?: boolean }) {
                         name={`stages.${selectedStageIdx}.splits.${splitIndex}.beneficiary[${chainIndex}].chainId`}
                         value={chainId}
                         type="number"
-                        disabled
-                        // hidden
+                        hidden
                       />
                     </div>
                   ))}

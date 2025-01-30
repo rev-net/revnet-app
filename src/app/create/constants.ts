@@ -21,7 +21,8 @@ export const defaultStageData: StageData = {
 
   splits: [{
     percentage: "",
-    beneficiary: []
+    defaultBeneficiary: "",
+    beneficiary: [],
   }],
   boostDuration: "",
 };
@@ -59,6 +60,7 @@ export const TEST_FORM_DATA: RevnetFormData = {
       splits: [
         {
           percentage: "6",
+          defaultBeneficiary: "0x1234567890123456789012345678901234567890",
           beneficiary: [
             { chainId: 11155111, address: "0x1234567890123456789012345678901234567890" },
             { chainId: 11155420, address: "0x1234567890123456789012345678901234567890" },
@@ -68,6 +70,7 @@ export const TEST_FORM_DATA: RevnetFormData = {
         },
         {
           percentage: "4",
+          defaultBeneficiary: "0x0987654321098765432109876543210987654321",
           beneficiary: [
             { chainId: 11155111, address: "0x0987654321098765432109876543210987654321" },
             { chainId: 11155420, address: "0x0987654321098765432109876543210987654321" },
@@ -98,6 +101,7 @@ export const TEST_FORM_DATA: RevnetFormData = {
       splits: [
         {
           percentage: "10",
+          defaultBeneficiary: "0x1234567890123456789012345678901234567890",
           beneficiary: [
             { chainId: 11155111, address: "0x1234567890123456789012345678901234567890" },
             { chainId: 11155420, address: "0x1234567890123456789012345678901234567890" },
@@ -128,6 +132,7 @@ export const TEST_FORM_DATA: RevnetFormData = {
       splits: [
         {
           percentage: "5",
+          defaultBeneficiary: "0x1234567890123456789012345678901234567890",
           beneficiary: [
             { chainId: 11155111, address: "0x1234567890123456789012345678901234567890" },
             { chainId: 11155420, address: "0x1234567890123456789012345678901234567890" },
@@ -137,6 +142,7 @@ export const TEST_FORM_DATA: RevnetFormData = {
         },
         {
           percentage: "5",
+          defaultBeneficiary: "0x0987654321098765432109876543210987654321",
           beneficiary: [
             { chainId: 11155111, address: "0x0987654321098765432109876543210987654321" },
             { chainId: 11155420, address: "0x0987654321098765432109876543210987654321" },

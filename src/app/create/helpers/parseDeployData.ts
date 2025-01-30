@@ -92,9 +92,9 @@ export function parseDeployData(
       console.log("split::", split);
       console.log("extra.chainId::", extra.chainId);
       console.log("stageIdx::", idx);
-      const beneficiary = split.beneficiary.find(
-        (b) => Number(b.chainId) === extra.chainId
-      )?.address as Address;
+      const beneficiary = split.beneficiary?.find(
+        (b) => b?.chainId === extra.chainId
+      )?.address || split.defaultBeneficiary;
       const percent = Math.round((Number(split.percentage) * SPLITS_TOTAL_PERCENT) / 100);
 
       if (!beneficiary) throw new Error("Beneficiary not found");
@@ -103,7 +103,7 @@ export function parseDeployData(
         lockedUntil: 0,
         percent: percent,
         projectId: 0n,
-        beneficiary,
+        beneficiary: beneficiary as Address,
         hook: zeroAddress,
       };
     });

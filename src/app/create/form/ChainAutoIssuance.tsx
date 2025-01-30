@@ -46,8 +46,7 @@ export function ChainAutoIssuance({ disabled = false }: { disabled?: boolean }) 
                   </div>
                   <ChainSelector
                     value={issuance.chainId}
-                    initialValue={values.chainIds[0]}
-                    onChange={(chainId) => setFieldValue(`stages.${selectedStageIdx}.autoIssuance.${index}.chainId`, chainId)}
+                    onChange={(chainId) => setFieldValue(`stages.${selectedStageIdx}.autoIssuance.${index}.chainId`, Number(chainId))}
                     options={values.chainIds}
                   />
                 </div>

@@ -205,12 +205,12 @@ export function AddStageDialog({
                                 required
                                 defaultValue="100"
                               />
-                              <label htmlFor={`splits.${index}.beneficiary[0].address`}>
+                              <label htmlFor={`splits.${index}.defaultBeneficiary`}>
                                 to
                               </label>
                               <Field
-                                id={`splits.${index}.beneficiary[0].address`}
-                                name={`splits.${index}.beneficiary[0].address`}
+                                id={`splits.${index}.defaultBeneficiary`}
+                                name={`splits.${index}.defaultBeneficiary`}
                                 className="h-9"
                                 placeholder="0x"
                                 required
@@ -228,7 +228,7 @@ export function AddStageDialog({
                           ))}
                           <Button
                             type="button"
-                            onClick={() => arrayHelpers.push({ percentage: "", beneficiary: "" })}
+                            onClick={() => arrayHelpers.push({ percentage: "", defaultBeneficiary: "" })}
                             className="h-7 mt-3 bg-zinc-100 border border-zinc-200 text-zinc-600 hover:bg-zinc-200 hover:text-zinc-900"
                           >
                            add split +

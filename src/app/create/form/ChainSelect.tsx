@@ -15,7 +15,7 @@ export function ChainSelect({ disabled = false }: { disabled?: boolean }) {
 
   const { values, setFieldValue } = useFormikContext<RevnetFormData>();
 
-  const handleChainSelect = (chainId: number, checked: boolean) => {
+  const handleChainSelect = (chainId: JBChainId, checked: boolean) => {
     setFieldValue(
       "chainIds",
       checked
@@ -88,7 +88,7 @@ export function ChainSelect({ disabled = false }: { disabled?: boolean }) {
                         Number(chain.id) as JBChainId
                       )}
                       onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                        handleChainSelect(Number(chain.id), e.target.checked);
+                        handleChainSelect(chain.id as JBChainId, e.target.checked);
                       }}
                     />
                     {name}
