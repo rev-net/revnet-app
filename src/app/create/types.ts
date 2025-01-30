@@ -11,13 +11,13 @@ export type StageData = {
   autoIssuance: {
     amount: string;
     beneficiary: string;
-    chainId: JBChainId;
+    chainId?: JBChainId;
   }[];
 
   splits: {
     percentage: string;
     defaultBeneficiary: string;
-    beneficiary: {
+    beneficiary?: {
       chainId: JBChainId;
       address: string;
     }[];

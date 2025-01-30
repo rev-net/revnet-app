@@ -3,7 +3,7 @@ import { RevnetFormData } from "../types";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { twJoin } from "tailwind-merge";
-import { formatTokenSymbol } from "@/lib/utils";
+import { formatTokenSymbol, sortChains } from "@/lib/utils";
 import { ChainSelector } from "@/components/ChainSelector";
 import { formatEthAddress } from "juice-sdk-core";
 
@@ -45,7 +45,7 @@ export function ChainAutoIssuance({ disabled = false }: { disabled?: boolean }) 
                     </div>
                   </div>
                   <ChainSelector
-                    value={issuance.chainId}
+                    value={issuance.chainId || sortChains(values.chainIds)[0]}
                     onChange={(chainId) => setFieldValue(`stages.${selectedStageIdx}.autoIssuance.${index}.chainId`, Number(chainId))}
                     options={values.chainIds}
                   />

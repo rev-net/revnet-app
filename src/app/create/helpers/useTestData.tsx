@@ -1,21 +1,29 @@
 import { useFormikContext } from "formik";
 import { useEffect } from "react";
 import { RevnetFormData } from "../types";
-import { TEST_FORM_DATA } from "../constants";
+import { TEST_FORM_DATA, SHORTER_TEST_FORM_DATA } from "../constants";
 
 export function useTestData() {
   const { setValues } = useFormikContext<RevnetFormData>()
   useEffect(() => {
-    const fillTestData = () => {
-      setValues(TEST_FORM_DATA);
+    const fillTestData = (data: RevnetFormData) => {
+      setValues(data);
       console.log("Test data loaded successfully! 🚀");
       console.log("Form fields populated with:");
-      console.dir(TEST_FORM_DATA);
+      console.dir(data);
     };
 
     Object.defineProperty(window, "testdata", {
       get: () => {
-        fillTestData();
+        fillTestData(TEST_FORM_DATA);
+        return "filled.";
+      },
+      configurable: true,
+    });
+
+    Object.defineProperty(window, "testdata2", {
+      get: () => {
+        fillTestData(SHORTER_TEST_FORM_DATA);
         return "filled.";
       },
       configurable: true,
