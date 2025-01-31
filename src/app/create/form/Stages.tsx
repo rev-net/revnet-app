@@ -13,6 +13,7 @@ import { RevnetFormData } from "../types";
 import { AddStageDialog } from "./AddStageDialog";
 import { stageDuration } from "../helpers/stageDuration";
 import { formatTokenSymbol } from "@/lib/utils";
+import { commaNumber } from "@/lib/number";
 
 export function Stages({
   disabled = false
@@ -99,8 +100,7 @@ export function Stages({
                         out tax rate
                       </div>
                       <div>• {stage.splits.reduce((sum, split) => sum + (Number(split.percentage) || 0), 0)}% operator split</div>
-                      {/* change to sum of autoissuance? */}
-                      <div>• {stage.autoIssuance.reduce((sum, autoIssuance) => sum + (Number(autoIssuance.amount) || 0), 0)} {formatTokenSymbol(values.tokenSymbol) ?? "tokens"} auto issuance</div>
+                      <div>• {commaNumber(stage.autoIssuance.reduce((sum, autoIssuance) => sum + (Number(autoIssuance.amount) || 0), 0))} {formatTokenSymbol(values.tokenSymbol) ?? "tokens"} auto issuance</div>
                     </div>
                   </div>
                 ))}
