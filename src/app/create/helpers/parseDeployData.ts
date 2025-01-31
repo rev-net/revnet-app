@@ -83,17 +83,16 @@ export function parseDeployData(
     const lengthSeconds = Number(stage.boostDuration) * 86400;
     const startsAtOrAfter = idx === 0 ? now : prevStart + lengthSeconds;
     prevStart = startsAtOrAfter;
-    const autoIssuances = stage.autoIssuance.map((autoIssuance) => {
-      if (Number(autoIssuance.chainId) !== Number(extra.chainId)) {
-        return undefined;
-      }
-      console.log(`[ AUTOISSUANCE ${idx + 1} ]\n\t\t${autoIssuance.beneficiary} ${autoIssuance.amount}`);
-      return {
-        chainId: autoIssuance.chainId,
+    const autoIssuances = stage.autoIssuance
+      .filter((autoIssuance) => Number(autoIssuance.chainId) === Number(extra.chainId))
+      .map((autoIssuance) => {
+        console.log(`[ AUTOISSUANCE ${idx + 1} ]\n\t\t${autoIssuance.beneficiary} ${autoIssuance.amount}`);
+        return {
+          chainId: autoIssuance.chainId,
         count: parseUnits(autoIssuance.amount, 18),
         beneficiary: autoIssuance.beneficiary as Address,
       };
-    }).filter((autoIssuance) => autoIssuance !== undefined);
+    });
 
     if (autoIssuances.length === 0) {
       console.log("No auto issuance for this stage");
