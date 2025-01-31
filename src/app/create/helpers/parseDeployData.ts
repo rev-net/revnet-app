@@ -49,9 +49,9 @@ export function parseDeployData(
   console.log("======================================================================");
   let prevStart = 0;
   const operator =
-    formData?.operator.find((c) => c.chainId === String(extra.chainId))
+    formData?.operator.find((c) => Number(c.chainId) === Number(extra.chainId))
       ?.address || formData.stages[0].initialOperator;
-
+  console.log(`[ Operator ] ${operator}`);
   const accountingContextsToAccept = [
     {
       token: NATIVE_TOKEN,
@@ -83,19 +83,20 @@ export function parseDeployData(
     const lengthSeconds = Number(stage.boostDuration) * 86400;
     const startsAtOrAfter = idx === 0 ? now : prevStart + lengthSeconds;
     prevStart = startsAtOrAfter;
+    console.log(`[ startsAtOrAfter ] ${new Date(startsAtOrAfter * 1000).toLocaleString()} (${startsAtOrAfter})`);
     const autoIssuances = stage.autoIssuance
       .filter((autoIssuance) => Number(autoIssuance.chainId) === Number(extra.chainId))
-      .map((autoIssuance) => {
-        console.log(`[ AUTOISSUANCE ${idx + 1} ]\n\t\t${autoIssuance.beneficiary} ${autoIssuance.amount}`);
+      .map((autoIssuance, autoIssuanceIdx) => {
+        console.log(`[ AUTOISSUANCE ${autoIssuanceIdx + 1} ]\n\t\t${autoIssuance.beneficiary} ${autoIssuance.amount}`);
         return {
           chainId: autoIssuance.chainId,
-        count: parseUnits(autoIssuance.amount, 18),
-        beneficiary: autoIssuance.beneficiary as Address,
-      };
+          count: parseUnits(autoIssuance.amount, 18),
+          beneficiary: autoIssuance.beneficiary as Address,
+        };
     });
 
     if (autoIssuances.length === 0) {
-      console.log("No auto issuance for this stage");
+      console.log("\t\tNo auto issuance for this stage");
     }
 
     console.log("----------------------------------------------------------------");

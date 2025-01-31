@@ -14,7 +14,7 @@ interface ChainSelectorProps {
   value: JBChainId;
   onChange: (chainId: JBChainId) => void;
   disabled?: boolean;
-  options?: JBChainId[];
+  options: JBChainId[];
 }
 
 export const ChainSelector = ({
@@ -23,9 +23,7 @@ export const ChainSelector = ({
   disabled,
   options,
 }: ChainSelectorProps) => {
-  const chainOptions = options && options.length > 0 ?
-    sortChains(options) :
-    sortChains(Object.keys(JB_CHAINS) as unknown as JBChainId[]);
+  const chainOptions = sortChains(options);
 
   return (
     <Select

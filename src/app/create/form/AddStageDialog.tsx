@@ -119,6 +119,7 @@ export function AddStageDialog({
                     label="1. Issuance"
                     description={`How many ${revnetTokenSymbol} to mint when the revnet receives 1 ${nativeTokenSymbol}.`}
                     suffix={`${revnetTokenSymbol} / ${nativeTokenSymbol}`}
+                    width="w-56"
                   />
 
                   <div>
