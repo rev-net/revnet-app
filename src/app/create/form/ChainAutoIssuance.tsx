@@ -22,18 +22,24 @@ export function ChainAutoIssuance({ disabled = false }: { disabled?: boolean }) 
         render={() => (
           <div>
             <div className="flex gap-4 mb-4">
-              {values.stages.map((_, idx) => (
-                <Button
-                  key={idx}
-                  variant={selectedStageIdx === idx ? "tab-selected" : "bottomline"}
-                  className={twJoin(
-                    "text-md text-zinc-400",
-                    selectedStageIdx === idx && "text-inherit"
-                  )}
-                  onClick={() => setSelectedStageIdx(idx)}
-                >
-                  Stage {idx + 1}
-                </Button>
+              {values.stages.map((stage, idx) => (
+                stage.autoIssuance.length > 0 && (
+                  <Button
+                    key={idx}
+                    variant={selectedStageIdx === idx ? "tab-selected" : "bottomline"}
+                    className={twJoin(
+                      "text-md text-zinc-400",
+                      selectedStageIdx === idx && "text-inherit"
+                    )}
+                    onClick={() => {
+                      setSelectedStageIdx(idx);
+                      console.log(`[ STAGE ${idx + 1} ]`);
+                      console.log(values.stages[idx].autoIssuance);
+                    }}
+                  >
+                    Stage {idx + 1}
+                  </Button>
+                )
               ))}
             </div>
             {values.stages[selectedStageIdx]?.autoIssuance.map((issuance, index) => (
@@ -45,6 +51,7 @@ export function ChainAutoIssuance({ disabled = false }: { disabled?: boolean }) 
                     </div>
                   </div>
                   <ChainSelector
+                    disabled={disabled}
                     value={issuance.chainId || sortChains(values.chainIds)[0]}
                     onChange={(chainId) => setFieldValue(`stages.${selectedStageIdx}.autoIssuance.${index}.chainId`, Number(chainId))}
                     options={values.chainIds}

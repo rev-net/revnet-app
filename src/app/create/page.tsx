@@ -13,6 +13,7 @@ import { parseDeployData } from "./helpers/parseDeployData";
 import { pinProjectMetadata } from "./helpers/pinProjectMetaData";
 import { parseSuckerDeployerConfig } from "./helpers/parseSuckerDeployerConfig";
 import { useToast } from "@/components/ui/use-toast";
+import { format } from "date-fns";
 
 export default function Page() {
   const [isLoadingIpfs, setIsLoadingIpfs] = useState<boolean>(false);
@@ -35,18 +36,20 @@ export default function Page() {
       logoUri: formData.logoUri,
     });
     setIsLoadingIpfs(false);
-
+    console.log("~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~")
+    console.log(`~*~*~*~*~*~*~*~*~*~*~*~*~*~ QUOTE ${format(new Date(), "HH:mm:ss a")} ~*~*~*~*~*~*~*~*~*~*~*~*~*~`);
+    console.log("~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~")
     const writeData = formData.chainIds.map(chainId => {
       // returns empty deployer config until new suckers are deployed
       const suckerDeployerConfig = parseSuckerDeployerConfig();
 
-      const deployData = parseDeployData(formData, {
-        metadataCid,
-        chainId,
-        suckerDeployerConfig: suckerDeployerConfig,
-      });
-      console.log("deployData::", deployData);
       try {
+        const deployData = parseDeployData(formData, {
+          metadataCid,
+          chainId,
+          suckerDeployerConfig: suckerDeployerConfig,
+        });
+
         const encodedData = encodeFunctionData({
           abi: revDeployerAbi, // ABI of the contract
           functionName: "deployFor",

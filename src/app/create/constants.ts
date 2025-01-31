@@ -205,6 +205,7 @@ export const SHORTER_TEST_FORM_DATA: RevnetFormData = {
         {
           amount: "100",
           beneficiary: "0x1234567890123456789012345678901234567890",
+          chainId: 11155111,
         },
       ],
       splits: [

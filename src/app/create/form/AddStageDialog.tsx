@@ -134,6 +134,7 @@ export function AddStageDialog({
                         name="priceCeilingIncreasePercentage"
                         type="number"
                         min="0"
+                        max="100"
                         className="h-9"
                         suffix="%"
                         required

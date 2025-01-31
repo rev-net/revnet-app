@@ -1,7 +1,7 @@
 import { useFormikContext, FieldArray } from "formik";
-import { RevnetFormData } from "../types";
+import type { RevnetFormData, StageData } from "../types";
 import { ChainLogo } from "@/components/ChainLogo";
-import { JB_CHAINS } from "juice-sdk-core";
+import { JB_CHAINS, JBChainId } from "juice-sdk-core";
 import { Field } from "./Fields";
 import { Field as FormikField } from "formik";
 import { Button } from "@/components/ui/button";
@@ -9,18 +9,67 @@ import { useState } from "react";
 import { twJoin } from "tailwind-merge";
 import { sortChains } from "@/lib/utils";
 
-export function ChainSplits({ disabled = false }: { disabled?: boolean }) {
-  const { values } = useFormikContext<RevnetFormData>();
+interface ChainSplitsProps {
+  disabled?: boolean;
+}
+
+export function ChainSplits({ disabled = false }: ChainSplitsProps) {
+  const { values, setFieldValue } = useFormikContext<RevnetFormData>();
   const [selectedStageIdx, setSelectedStageIdx] = useState<number>(0);
+
+  const currentStage = values.stages[selectedStageIdx];
+
+  const initializeBeneficiary = (
+    splitIndex: number,
+    chainId: JBChainId
+  ): void => {
+    const currentBeneficiaries = currentStage.splits[splitIndex].beneficiary ?? [];
+    if (!currentBeneficiaries.find(b => b.chainId === chainId)) {
+      setFieldValue(
+        `stages.${selectedStageIdx}.splits.${splitIndex}.beneficiary`,
+        [
+          ...currentBeneficiaries,
+          {
+            chainId,
+            address: currentStage.splits[splitIndex].defaultBeneficiary || ""
+          }
+        ]
+      );
+    }
+  };
+
+  const handleStageChange = (idx: number): void => {
+    setSelectedStageIdx(idx);
+    // console.log(`Stage ${idx} splits:`, values.stages[idx].splits);
+  };
+
+  const handleBeneficiaryChange = (
+    splitIndex: number,
+    chainId: JBChainId,
+    value: string
+  ): void => {
+    const split = currentStage.splits[splitIndex];
+    const beneficiaryIndex = split.beneficiary?.findIndex(b => b.chainId === chainId) ?? -1;
+
+    if (beneficiaryIndex === -1) {
+      initializeBeneficiary(splitIndex, chainId);
+    }
+
+    setFieldValue(
+      `stages.${selectedStageIdx}.splits.${splitIndex}.beneficiary.${beneficiaryIndex}.address`,
+      value
+    );
+  };
+
+  if (!currentStage) return null;
 
   return (
     <div className="mb-10">
-      <h2 className="text-left text-black-500 mb-4 font-semibold">
-        Splits
-      </h2>
+      <h2 className="text-left text-black-500 mb-4 font-semibold">Splits</h2>
+
       <FieldArray
         name="stages"
-        render={(arrayHelpers) => (
+        render={() => (
           <div>
             <div className="flex gap-4 mb-4">
               {values.stages.map((_, idx) => (
@@ -31,50 +80,71 @@ export function ChainSplits({ disabled = false }: { disabled?: boolean }) {
                     "text-md text-zinc-400",
                     selectedStageIdx === idx && "text-inherit"
                   )}
-                  onClick={() => setSelectedStageIdx(idx)}
+                  onClick={() => handleStageChange(idx)}
+                  type="button"
                 >
                   Stage {idx + 1}
                 </Button>
               ))}
             </div>
 
-            {values.stages[selectedStageIdx]?.splits.map((split, splitIndex) => (
-              <div key={splitIndex} className="mb-8">
-                <div className="flex items-center gap-2 mb-6 text-sm font-semibold">
-                  <div className="text-zinc-500 text-md">
-                    Split {splitIndex + 1} ({split.percentage || "0"}%)
-                  </div>
-                </div>
-                <div className="space-y-3">
-                  {sortChains(values.chainIds).map((chainId, chainIndex) => (
-                    <div key={chainId} className="flex items-center text-md text-zinc-600">
-                      <div className="flex gap-2 items-center w-48 text-sm">
-                        <ChainLogo chainId={chainId} width={25} height={25} />
-                        <div className="text-zinc-400">{JB_CHAINS[chainId].name}</div>
+            <FieldArray
+              name={`stages.${selectedStageIdx}.splits`}
+              render={() => (
+                <div>
+                  {currentStage.splits.map((split, splitIndex) => (
+                    <div key={splitIndex} className="mb-8">
+                      <div className="flex items-center gap-2 mb-6 text-sm font-semibold">
+                        <div className="text-zinc-500 text-md">
+                          Split {splitIndex + 1} ({Number(split.percentage || 0)}%)
+                        </div>
                       </div>
-                      <Field
-                        id={`stages.${selectedStageIdx}.splits.${splitIndex}.beneficiary[${chainIndex}].address`}
-                        name={`stages.${selectedStageIdx}.splits.${splitIndex}.beneficiary[${chainIndex}].address`}
-                        type="text"
-                        className="h-9 flex-1"
-                        placeholder="0x..."
-                        defaultValue={values.stages[selectedStageIdx]?.splits?.[splitIndex]?.defaultBeneficiary}
-                        disabled={disabled}
-                        required
-                        address
-                      />
-                      <FormikField
-                        id={`stages.${selectedStageIdx}.splits.${splitIndex}.beneficiary[${chainIndex}].chainId`}
-                        name={`stages.${selectedStageIdx}.splits.${splitIndex}.beneficiary[${chainIndex}].chainId`}
-                        value={chainId}
-                        type="number"
-                        hidden
-                      />
+
+                      <div className="space-y-3">
+                        {sortChains(values.chainIds).map((chainId) => {
+                          const beneficiary = split.beneficiary?.find(
+                            b => b.chainId === chainId
+                          );
+
+                          return (
+                            <div
+                              key={chainId}
+                              className="flex items-center text-md text-zinc-600"
+                            >
+                              <div className="flex gap-2 items-center w-48 text-sm">
+                                <ChainLogo chainId={chainId} width={25} height={25} />
+                                <div className="text-zinc-400">
+                                  {JB_CHAINS[chainId].name}
+                                </div>
+                              </div>
+
+                              <Field
+                                id={`split-${splitIndex}-chain-${chainId}`}
+                                name={`stages.${selectedStageIdx}.splits.${splitIndex}.beneficiary.${chainId}.address`}
+                                type="text"
+                                className="h-9 flex-1"
+                                placeholder="0x..."
+                                value={beneficiary?.address ?? split.defaultBeneficiary ?? ""}
+                                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                                  handleBeneficiaryChange(
+                                    splitIndex,
+                                    chainId,
+                                    e.target.value
+                                  )
+                                }
+                                disabled={disabled}
+                                required
+                                address
+                              />
+                            </div>
+                          );
+                        })}
+                      </div>
                     </div>
                   ))}
                 </div>
-              </div>
-            ))}
+              )}
+            />
           </div>
         )}
       />

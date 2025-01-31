@@ -2,13 +2,12 @@
 import { createSalt } from "@/lib/number";
 import {
   CashOutTaxRate,
+  JB_CHAINS,
   JBChainId,
   jbProjectDeploymentAddresses,
-  JBSplit,
   NATIVE_CURRENCY_ID,
   NATIVE_TOKEN,
   NATIVE_TOKEN_DECIMALS,
-  SplitPortion,
   SPLITS_TOTAL_PERCENT,
   WeightCutPercent,
 } from "juice-sdk-core";
@@ -45,8 +44,9 @@ export function parseDeployData(
     JSON.stringify(_formData),
     (_, value) => (typeof value === "number" ? String(value) : value)
   );
-  console.log(`formData::${extra.chainId}`);
-  console.dir(formData, { depth: null });
+  console.log("======================================================================");
+  console.log(`\t\t\t\tChainId ${extra.chainId} (${JB_CHAINS[extra.chainId].name})`);
+  console.log("======================================================================");
   let prevStart = 0;
   const operator =
     formData?.operator.find((c) => c.chainId === String(extra.chainId))
@@ -79,25 +79,35 @@ export function parseDeployData(
   ];
 
   const stageConfigurations = formData.stages.map((stage, idx) => {
+    console.log(`~~~~~~~~~~~~~~~~~~~~~~~~~~ Stage ${idx + 1} ~~~~~~~~~~~~~~~~~~~~~~~~~~`);
     const lengthSeconds = Number(stage.boostDuration) * 86400;
     const startsAtOrAfter = idx === 0 ? now : prevStart + lengthSeconds;
     prevStart = startsAtOrAfter;
-    const autoIssuances = stage.autoIssuance.map((autoIssuance) => ({
-      chainId: extra.chainId,
-      count: parseUnits(autoIssuance.amount, 18),
-      beneficiary: autoIssuance.beneficiary as Address,
-    }));
+    const autoIssuances = stage.autoIssuance.map((autoIssuance) => {
+      if (Number(autoIssuance.chainId) !== Number(extra.chainId)) {
+        return undefined;
+      }
+      console.log(`[ AUTOISSUANCE ${idx + 1} ]\n\t\t${autoIssuance.beneficiary} ${autoIssuance.amount}`);
+      return {
+        chainId: autoIssuance.chainId,
+        count: parseUnits(autoIssuance.amount, 18),
+        beneficiary: autoIssuance.beneficiary as Address,
+      };
+    }).filter((autoIssuance) => autoIssuance !== undefined);
 
-    const splits = stage.splits.map((split) => {
-      console.log("split::", split);
-      console.log("extra.chainId::", extra.chainId);
-      console.log("stageIdx::", idx);
-      const beneficiary = split.beneficiary?.find(
-        (b) => b?.chainId === extra.chainId
-      )?.address || split.defaultBeneficiary;
-      const percent = Math.round((Number(split.percentage) * SPLITS_TOTAL_PERCENT) / 100);
+    if (autoIssuances.length === 0) {
+      console.log("No auto issuance for this stage");
+    }
 
+    console.log("----------------------------------------------------------------");
+    const splits = stage.splits.map((split, splitIdx) => {
+      let beneficiary = split.beneficiary?.find((b) => Number(b?.chainId) === Number(extra.chainId))?.address;
+      if (!beneficiary) {
+        beneficiary = split.defaultBeneficiary;
+      }
       if (!beneficiary) throw new Error("Beneficiary not found");
+      const percent = Math.round((Number(split.percentage) * SPLITS_TOTAL_PERCENT) / 100);
+      console.log(`[ SPLIT ${splitIdx + 1} ]\n\t\t${beneficiary} ${split.percentage}%`);
       return {
         preferAddToBalance: false,
         lockedUntil: 0,
@@ -107,7 +117,7 @@ export function parseDeployData(
         hook: zeroAddress,
       };
     });
-
+    console.log("----------------------------------------------------------------");
     const splitPercent = stage.splits.reduce(
       (sum, split) => sum + (Number(split.percentage) || 0),
       0
