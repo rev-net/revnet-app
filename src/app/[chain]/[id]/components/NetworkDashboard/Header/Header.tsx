@@ -66,7 +66,7 @@ export function Header() {
             </div>
           </>
         ) : (
-          <div className="rounded-lg bg-zinc-100 h-36 w-36 flex items-center justify-center">
+          <div className="rounded bg-zinc-100 h-36 w-36 flex items-center justify-center">
             <ForwardIcon className="h-5 w-5 text-zinc-700" />
           </div>
         )}

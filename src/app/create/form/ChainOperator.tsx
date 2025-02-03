@@ -17,7 +17,7 @@ export function ChainOperator({ disabled = false }: { disabled?: boolean }) {
         render={() => (
           <div className="mb-8">
             <div className="text-sm text-zinc-500 mb-4">
-              Confirm the operator's address for each chain.
+              Confirm the operator's address for each chain. Operators can re-route splits within the split limit of each stage, edit the name, logo, and description of the revnet, and deploy the revnet to new chains later on.
             </div>
             <div className="flex mb-2 text-sm font-semibold text-zinc-500">
               <div className="w-48">Chain</div>

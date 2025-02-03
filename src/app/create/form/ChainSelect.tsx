@@ -9,11 +9,22 @@ import { Field as FormikField, useFormikContext } from "formik";
 import { JB_CHAINS, JBChainId } from "juice-sdk-core";
 import { useState } from "react";
 import { RevnetFormData } from "../types";
+import { Divider } from "./Divider";
+import { format } from "date-fns";
+import { Button } from "@/components/ui/button";
+import { PayAndDeploy } from "../buttons/PayAndDeploy";
+import { ChainOperator } from "./ChainOperator";
+import { ChainSplits } from "./ChainSplits";
+import { ChainAutoIssuance } from "./ChainAutoIssuance";
+import { QuoteButton } from "../buttons/QuoteButton";
+import { isFormValid } from "../helpers/isFormValid";
 
-export function ChainSelect({ disabled = false }: { disabled?: boolean }) {
+export function ChainSelect({ disabled = false, validBundle = false, relayrResponse, isLoading = false, reset }: { disabled?: boolean, validBundle?: boolean, relayrResponse?: RelayrPostBundleResponse, isLoading?: boolean, reset: () => void }) {
   const [environment, setEnvironment] = useState("testing");
 
-  const { values, setFieldValue } = useFormikContext<RevnetFormData>();
+  const { values, setFieldValue, submitForm } = useFormikContext<RevnetFormData>();
+
+  const disableQuoteButton = !isFormValid(values) || validBundle;
 
   const handleChainSelect = (chainId: JBChainId, checked: boolean) => {
     setFieldValue(
@@ -26,6 +37,9 @@ export function ChainSelect({ disabled = false }: { disabled?: boolean }) {
 
   const revnetTokenSymbol =
     values.tokenSymbol?.length > 0 ? `$${values.tokenSymbol}` : "token";
+
+  
+    console.log({ values });
 
   return (
     <>
@@ -47,7 +61,7 @@ export function ChainSelect({ disabled = false }: { disabled?: boolean }) {
       </div>
       <div className="md:col-span-2">
         <div className="flex flex-col gap-4">
-          <div className="text-left text-black-500 mb-4 font-semibold">
+          <div className="text-left text-black-500 font-semibold">
             Choose your chains
           </div>
           <div className="max-w-56">
@@ -98,6 +112,60 @@ export function ChainSelect({ disabled = false }: { disabled?: boolean }) {
             )}
           </div>
         </div>
+      {/* Quote and Depoly */}
+      <div className="mt-10">
+        {((values.chainIds.length > 0 && !values.stages[0]?.initialOperator) || values.chainIds.length > 1) && (
+          <>
+            <ChainOperator disabled={validBundle} />
+            <Divider />
+          </>
+        )}
+        {values.chainIds.length > 1 && values.stages.some(stage => stage.splits.length > 0) && (
+          <>
+            <ChainSplits disabled={validBundle} />
+            <Divider />
+          </>
+        )}
+        {values.chainIds.length > 1 && values.stages.some(stage => stage.autoIssuance.length > 0) && (
+          <>
+            <ChainAutoIssuance disabled={validBundle} />
+            <Divider />
+          </>
+        )}
+        <QuoteButton
+          isLoading={isLoading}
+          validBundle={validBundle}
+          disableQuoteButton={disableQuoteButton}
+          onSubmit={submitForm}
+        />
+        {relayrResponse && (
+          <div className="flex flex-col items-start">
+            <div className="text-xs italic mt-2">
+              Quote valid until{" "}
+              {format(
+                relayrResponse.payment_info[0].payment_deadline,
+                "h:mm:ss aaa"
+              )}
+              .
+              <Button
+                variant="link"
+                size="sm"
+                className="italic text-xs px-1"
+                disabled={isLoading}
+                onClick={() => reset()}
+              >
+                clear quote
+              </Button>
+            </div>
+            <div className="mt-4">
+              <PayAndDeploy
+                relayrResponse={relayrResponse}
+                revnetTokenSymbol={revnetTokenSymbol}
+              />
+            </div>
+          </div>
+        )}
+      </div>
       </div>
     </>
   );

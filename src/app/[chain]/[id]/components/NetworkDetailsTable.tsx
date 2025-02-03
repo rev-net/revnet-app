@@ -283,7 +283,19 @@ export function NetworkDetailsTable() {
                                   <li className="flex">
                                     <span className="mr-2">•</span>
                                     <div>
-                                      The operator can change the distribution of the split limit to new destinations at any time.
+                                      Splits apply to both issuance and buybacks.
+                                    </div>
+                                  </li>
+                                  <li className="flex">
+                                    <span className="mr-2">•</span>
+                                    <div>
+                                      You can write and deploy a custom split hook that automatically receives and processes the split {formatTokenSymbol(token)}. See <a className="underline" target="_blank" href="https://docs.juicebox.money/v4/build/hooks/split-hook/"> the docs.</a> 
+                                    </div>
+                                  </li>
+                                  <li className="flex">
+                                    <span className="mr-2">•</span>
+                                    <div>
+                                      If there are splits, the operator can change the distribution of the split limit to new destinations at any time.
                                     </div>
                                   </li>
                                   <li className="flex">
@@ -298,12 +310,6 @@ export function NetworkDetailsTable() {
                                     <span className="mr-2">•</span>
                                     <div>
                                       The operator is set once and is not bound by stages. The operator can hand off this responsibility to another address at any time, or relinquish it altogether.
-                                    </div>
-                                  </li>
-                                  <li className="flex">
-                                    <span className="mr-2">•</span>
-                                    <div>
-                                      You can write and deploy a custom split hook that automatically receives and processes the split {formatTokenSymbol(token)}. See <a className="underline" target="_blank" href="https://docs.juicebox.money/v4/build/hooks/split-hook/"> the docs.</a> 
                                     </div>
                                   </li>
                                   <li className="flex">

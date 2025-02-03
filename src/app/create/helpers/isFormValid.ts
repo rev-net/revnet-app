@@ -16,10 +16,7 @@ export const isFormValid = (values: RevnetFormData) => {
       stage.priceCeilingIncreasePercentage !== undefined &&
       stage.priceCeilingIncreasePercentage !== "" &&
       stage.priceCeilingIncreaseFrequency !== undefined &&
-      stage.priceCeilingIncreaseFrequency !== "" &&
-      (values.stages.indexOf(stage) === 0
-        ? stage.initialOperator && stage.initialOperator !== ""
-        : true)
+      stage.priceCeilingIncreaseFrequency !== ""
     );
   });
 

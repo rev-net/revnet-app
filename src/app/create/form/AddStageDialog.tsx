@@ -110,14 +110,14 @@ export function AddStageDialog({
           >
             {({ values }) => (
               <Form>
-                <div className="pb-10">
+                <div className="pb-6">
                   <FieldGroup
                     id="initialIssuance"
                     name="initialIssuance"
                     min="0"
                     type="number"
-                    label="1. Issuance"
-                    description={`How many ${revnetTokenSymbol} to mint when the revnet receives 1 ${nativeTokenSymbol}.`}
+                    label="1. Paid issuance"
+                    description={`How many ${revnetTokenSymbol} to issue when receiving 1 ${nativeTokenSymbol}.`}
                     suffix={`${revnetTokenSymbol} / ${nativeTokenSymbol}`}
                   />
 
@@ -152,38 +152,6 @@ export function AddStageDialog({
                       />
                       days.
                     </div>
-
-                    <NotesSection>
-                      <div className="text-zinc-600 text-md mt-4 italic">
-                        <ul className="list-disc list-inside space-y-2">
-                          <li className="flex">
-                            <span className="mr-2">•</span>
-                            Decreasing 50% means to double the price – a
-                            halvening effect.
-                          </li>
-                          <li className="flex">
-                            <span className="mr-2">•</span>
-                            If there's a market for {revnetTokenSymbol} /{" "}
-                            {nativeTokenSymbol} offering a better price, all{" "}
-                            {nativeTokenSymbol} paid in will be used to buyback
-                            instead of feeding the revnet. Uniswap is used as
-                            the market.
-                          </li>
-                        </ul>
-                      </div>
-                    </NotesSection>
-                  </div>
-                </div>
-
-                <div className="pb-10">
-                  <div className="block text-md font-semibold leading-6">
-                    2. Splits
-                  </div>
-                  <p className="text-zinc-600 text-md pb-3 mt-1">
-                    Split a percentage of the {commaNumber(values.initialIssuance)} {" "}
-                    {revnetTokenSymbol} issued per {" "} {nativeTokenSymbol}. The total amount {" "}
-                    split will be fixed during this stage.
-                  </p>
                   <div>
                     <FieldArray
                       name="splits"
@@ -194,6 +162,11 @@ export function AddStageDialog({
                               key={index}
                               className="flex gap-2 items-center text-md text-zinc-600 mt-4"
                             >
+                              <label 
+                                className="whitespace-nowrap"
+                                htmlFor={`splits.${index}.amount`}>
+                                {index === 0 ? "Split" : "... and"}
+                              </label>
                               <Field
                                 id={`splits.${index}.percentage`}
                                 name={`splits.${index}.percentage`}
@@ -237,10 +210,16 @@ export function AddStageDialog({
                         </div>
                       )}
                     />
+                  <div className="text-sm font-medium text-zinc-500 mt-4 border-l border-zinc-300 pl-2 py-1 px-1">
+                    Total split limit of {values.splits.reduce((sum, split) => sum + (Number(split.percentage) || 0), 0)}%, payer always receives {100 - values.splits.reduce((sum, split) => sum + (Number(split.percentage) || 0), 0)}%.
                   </div>
+                  {
+                    values.splits.length > 0 && (
                   <div className="mt-4 flex gap-2 items-center text-md text-zinc-600 whitespace-nowrap">
-                    <label htmlFor="priceCeilingIncreasePercentage">
-                      ...operated by
+                    <label 
+                    className="whitespace-nowrap"                              
+                    htmlFor="priceCeilingIncreasePercentage">
+                      ... operated by
                     </label>
                     <Field
                       id="initialOperator"
@@ -261,19 +240,44 @@ export function AddStageDialog({
                           Set the operator in the first stage
                         </TooltipContent>
                       </Tooltip>
-                    )}
+                      )}
+                    </div>
+                  )}
                   </div>
-                  <div className="text-sm font-medium text-zinc-500 mt-4 border-l border-zinc-300 pl-2 py-1 px-1">
-                    Total split limit of {values.splits.reduce((sum, split) => sum + (Number(split.percentage) || 0), 0)}%, payer always receives {100 - values.splits.reduce((sum, split) => sum + (Number(split.percentage) || 0), 0)}%.
-                  </div>
-
                   <NotesSection>
+                      <div className="text-zinc-600 text-md mt-4 italic">
+                        <ul className="list-disc list-inside space-y-2">
+                          <li className="flex">
+                            <span className="mr-2">•</span>
+                            Decreasing 50% means to double the price – a
+                            halvening effect.
+                          </li>
+                          <li className="flex">
+                            <span className="mr-2">•</span>
+                            If there's a market for {revnetTokenSymbol} /{" "}
+                            {nativeTokenSymbol} offering a better price, all{" "}
+                            {nativeTokenSymbol} paid in will be used to buyback
+                            instead of feeding the revnet. Uniswap is used as
+                            the market.
+                          </li>
+                        </ul>
+                      </div>
                     <div className="text-zinc-600 text-md mt-4 italic">
                       <ul className="list-disc list-inside space-y-2">
                         <li className="flex">
                           <span className="mr-2">•</span>
-                          The operator can change the distribution of the split
-                          to new destinations at any time.
+                          Splits apply to both issuance and buybacks.
+                        </li>
+                        <li className="flex">
+                          <span className="mr-2">•</span>
+                          <span>
+                            You can write and deploy a custom split hook that automatically receives and processes the split {revnetTokenSymbol}. See <a className="inline underline" target="_blank" href="https://docs.juicebox.money/v4/build/hooks/split-hook/"> the docs.</a> 
+                          </span>
+                        </li>
+                        <li className="flex">
+                          <span className="mr-2">•</span>
+                          If there are splits, the operator can change the distribution of the split
+                          limit to new destinations at any time.
                         </li>
                         <li className="flex">
                           <span className="mr-2">•</span>
@@ -288,13 +292,10 @@ export function AddStageDialog({
                           another address at any time, or relinquish it
                           altogether.
                         </li>
-                        <li className="flex">
-                          <span className="mr-2">•</span>
-                            You can write and deploy a custom split hook that automatically receives and processes the split {revnetTokenSymbol}. See <a className="underline" target="_blank" href="https://docs.juicebox.money/v4/build/hooks/split-hook/"> the docs.</a> 
-                        </li>
                       </ul>
                     </div>
                   </NotesSection>
+                  </div>
                 </div>
 
                 <div className="pb-8">
@@ -303,7 +304,7 @@ export function AddStageDialog({
                     render={(arrayHelpers) => (
                       <div>
                         <div className="block text-md font-semibold leading-6">
-                          3. Auto issuance
+                          2. Auto issuance
                         </div>
                         <p className="text-md text-zinc-500 mt-3">
                           Automatically issue {revnetTokenSymbol} to specific addresses when
@@ -373,7 +374,7 @@ export function AddStageDialog({
                     id="priceFloorTaxIntensity-group"
                     className="block text-md font-semibold leading-6"
                   >
-                    4. Cash out tax
+                    3. Cash out tax
                   </div>
                   <p className="text-md text-zinc-500 mt-3">
                     The only way for anyone to access {revnetTokenSymbol} revenue is by cashing out or
@@ -414,15 +415,6 @@ export function AddStageDialog({
                         className="mr-1"
                       />
                       Mid (0.5)
-                    </label>
-                    <label>
-                      <FormikField
-                        type="radio"
-                        name="priceFloorTaxIntensity"
-                        value={EXIT_TAX_HIGH}
-                        className="mr-1"
-                      />
-                      High (0.8)
                     </label>
                   </div>
 
@@ -469,12 +461,12 @@ export function AddStageDialog({
                     <FieldGroup
                       id="boostDuration"
                       name="boostDuration"
-                      label="5. Stage Start Day"
+                      label="4. Stage Start Day"
                       suffix="days"
                       min="0"
                       type="number"
                       description="How many days after the previous stage should this stage start?"
-                      // width="w-32" // mobile padding issue
+                      width="w-32" 
                     />
                     <NotesSection>
                       <ul className="list-disc list-inside">

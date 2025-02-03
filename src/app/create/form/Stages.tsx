@@ -99,7 +99,7 @@ export function Stages({
                         {(Number(stage.priceFloorTaxIntensity) || 0) / 100} cash
                         out tax rate
                       </div>
-                      <div>• {stage.splits.reduce((sum, split) => sum + (Number(split.percentage) || 0), 0)}% operator split</div>
+                      <div>• {stage.splits.reduce((sum, split) => sum + (Number(split.percentage) || 0), 0)}% split limit</div>
                       <div>• {commaNumber(stage.autoIssuance.reduce((sum, autoIssuance) => sum + (Number(autoIssuance.amount) || 0), 0))} {formatTokenSymbol(values.tokenSymbol) ?? "tokens"} auto issuance</div>
                     </div>
                   </div>
@@ -107,7 +107,7 @@ export function Stages({
               </div>
             ) : (
               <div className="text-left text-black-500 font-semibold mb-4">
-                Add a stage to get started
+                Add stages
               </div>
             )}
 

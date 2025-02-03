@@ -13,17 +13,9 @@ export const defaultStageData: StageData = {
   priceCeilingIncreaseFrequency: "",
   priceFloorTaxIntensity: EXIT_TAX_LOW,
 
-  autoIssuance: [{
-    amount: "",
-    beneficiary: "",
-    chainId: 11155111,
-  }],
+  autoIssuance: [],
 
-  splits: [{
-    percentage: "",
-    defaultBeneficiary: "",
-    beneficiary: [],
-  }],
+  splits: [],
   boostDuration: "",
 };
 
