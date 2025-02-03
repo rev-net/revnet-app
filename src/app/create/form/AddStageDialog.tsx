@@ -180,7 +180,7 @@ export function AddStageDialog({
                     2. Splits
                   </div>
                   <p className="text-zinc-600 text-md pb-3 mt-1">
-                    Optionally, split a percentage of the {commaNumber(values.initialIssuance)} {" "}
+                    Split a percentage of the {commaNumber(values.initialIssuance)} {" "}
                     {revnetTokenSymbol} issued per {" "} {nativeTokenSymbol}. The total amount {" "}
                     split will be fixed during this stage.
                   </p>

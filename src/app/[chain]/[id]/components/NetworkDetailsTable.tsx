@@ -358,6 +358,12 @@ export function NetworkDetailsTable() {
                                   <li className="flex">
                                     <span className="mr-2">•</span>
                                     <div>
+                                      Loans are an automated source of revenue for {formatTokenSymbol(token)}. By making loans more expensive, a higher cash out tax reduces potential loan revenue.
+                                    </div>
+                                  </li>
+                                  <li className="flex">
+                                    <span className="mr-2">•</span>
+                                    <div>
                                       Given 100 {nativeTokenSymbol} in the revnet, 100 total supply of {formatTokenSymbol(token)}, and 10 {formatTokenSymbol(token)} being cashed out, a tax rate of 0 would yield a cash out value of 10 {nativeTokenSymbol}, 0.2 would yield 8.2 {nativeTokenSymbol}, 0.5 would yield 5.5 {nativeTokenSymbol}, and 0.8 would yield 2.8 {nativeTokenSymbol}.
                                     </div>
                                   </li>
