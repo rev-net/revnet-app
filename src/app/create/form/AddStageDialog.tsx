@@ -245,25 +245,21 @@ export function AddStageDialog({
                   )}
                   </div>
                   <NotesSection>
-                      <div className="text-zinc-600 text-md mt-4 italic">
-                        <ul className="list-disc list-inside space-y-2">
-                          <li className="flex">
-                            <span className="mr-2">•</span>
-                            Decreasing 50% means to double the price – a
-                            halvening effect.
-                          </li>
-                          <li className="flex">
-                            <span className="mr-2">•</span>
-                            If there's a market for {revnetTokenSymbol} /{" "}
-                            {nativeTokenSymbol} offering a better price, all{" "}
-                            {nativeTokenSymbol} paid in will be used to buyback
-                            instead of feeding the revnet. Uniswap is used as
-                            the market.
-                          </li>
-                        </ul>
-                      </div>
                     <div className="text-zinc-600 text-md mt-4 italic">
                       <ul className="list-disc list-inside space-y-2">
+                        <li className="flex">
+                          <span className="mr-2">•</span>
+                          Decreasing 50% means to double the price – a
+                          halvening effect.
+                        </li>
+                        <li className="flex">
+                          <span className="mr-2">•</span>
+                          If there's a market for {revnetTokenSymbol} /{" "}
+                          {nativeTokenSymbol} offering a better price, all{" "}
+                          {nativeTokenSymbol} paid in will be used to buyback
+                          instead of feeding the revnet. Uniswap is used as
+                          the market.
+                        </li>
                         <li className="flex">
                           <span className="mr-2">•</span>
                           Splits apply to both issuance and buybacks.
