@@ -439,7 +439,7 @@ export function AddStageDialog({
 
                         <li className="flex">
                           <span className="mr-2">•</span>
-                            Loans are an automated source of revenue for {nativeTokenSymbol}. By making loans more expensive, a higher cash out tax reduces potential loan revenue.
+                            Loans are an automated source of revenue for {revnetTokenSymbol}. By making loans more expensive, a higher cash out tax reduces potential loan revenue.
                         </li>
                         <li className="flex">
                           <span className="mr-2">•</span>
