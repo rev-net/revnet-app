@@ -6,6 +6,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Field as FormikField, useFormikContext } from "formik";
+import { RelayrPostBundleResponse } from "@/lib/relayr/types";
 import { JB_CHAINS, JBChainId } from "juice-sdk-core";
 import { useState } from "react";
 import { RevnetFormData } from "../types";
