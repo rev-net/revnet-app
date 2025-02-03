@@ -303,7 +303,13 @@ export function NetworkDetailsTable() {
                                   <li className="flex">
                                     <span className="mr-2">•</span>
                                     <div>
-                                      A revnet can have different split destinations on each chain it exists on, but they're all bound by the same total split percentage.
+                                      You can write and deploy a custom split hook that automatically receives and processes the split {formatTokenSymbol(token)}. See <a className="underline" target="_blank" href="https://docs.juicebox.money/v4/build/hooks/split-hook/"> the docs.</a> 
+                                    </div>
+                                  </li>
+                                  <li className="flex">
+                                    <span className="mr-2">•</span>
+                                    <div>
+                                      A revnet can have different split destinations on each chain it exists on, but they're all bound by the same total split limit percentage.
                                     </div>
                                   </li>
                                 </ul>
@@ -337,7 +343,7 @@ export function NetworkDetailsTable() {
                         <div className="max-w-md space-y-2 p-2">
                           <div className="space-y-1">
                             <h3 className="font-bold text-black-500">Cash out tax rate</h3>
-                            <p className="text-md text-black-400">The only way for anyone to access revenue is by cashing out or taking out a loan against their {formatTokenSymbol(token)}. A tax can be added that makes the cost of cashing out and borrowing money more expensive.</p>
+                            <p className="text-md text-black-400">The only way for anyone to access {formatTokenSymbol(token)} revenue is by cashing out or taking out a loan against their {formatTokenSymbol(token)}. A tax can be added that makes the cost of cashing out and borrowing money more expensive.</p>
                             <p className="text-md text-black-400">This can be used to reward {formatTokenSymbol(token)} holders who stick around while others cash out, with the tradeoff of making loans more expensive.</p>
                             <p className="text-md text-black-400">It is expressed as a value from 0 to 1.</p>
                             <div className="text-zinc-600 text-md mt-4">

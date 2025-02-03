@@ -288,6 +288,10 @@ export function AddStageDialog({
                           another address at any time, or relinquish it
                           altogether.
                         </li>
+                        <li className="flex">
+                          <span className="mr-2">•</span>
+                            You can write and deploy a custom split hook that automatically receives and processes the split {revnetTokenSymbol}. See <a className="underline" target="_blank" href="https://docs.juicebox.money/v4/build/hooks/split-hook/"> the docs.</a> 
+                        </li>
                       </ul>
                     </div>
                   </NotesSection>
@@ -372,7 +376,7 @@ export function AddStageDialog({
                     4. Cash out tax
                   </div>
                   <p className="text-md text-zinc-500 mt-3">
-                    The only way for anyone to access revenue is by cashing out or
+                    The only way for anyone to access {revnetTokenSymbol} revenue is by cashing out or
                     taking out a loan against their {revnetTokenSymbol}.
                     A tax can be added that makes cashing
                     out and taking out loans more expensive, while rewarding{" "}
@@ -431,6 +435,11 @@ export function AddStageDialog({
                           cashing out or taking out a loan at any given time,
                           and the more that is left to share between remaining
                           holders who cash out later.
+                        </li>
+
+                        <li className="flex">
+                          <span className="mr-2">•</span>
+                            Loans are an automated source of revenue for {nativeTokenSymbol}. By making loans more expensive, a higher cash out tax reduces potential loan revenue.
                         </li>
                         <li className="flex">
                           <span className="mr-2">•</span>
