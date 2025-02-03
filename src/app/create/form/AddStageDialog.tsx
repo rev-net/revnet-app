@@ -119,7 +119,6 @@ export function AddStageDialog({
                     label="1. Issuance"
                     description={`How many ${revnetTokenSymbol} to mint when the revnet receives 1 ${nativeTokenSymbol}.`}
                     suffix={`${revnetTokenSymbol} / ${nativeTokenSymbol}`}
-                    width="w-56"
                   />
 
                   <div>
@@ -322,7 +321,7 @@ export function AddStageDialog({
                               className="h-9"
                               suffix={`${revnetTokenSymbol}`}
                               required
-                              width="w-72"
+                              // width="w-72" // mobile padding issue
                             />
                             <label
                               htmlFor={`autoIssuance.${index}.beneficiary`}
@@ -466,7 +465,7 @@ export function AddStageDialog({
                       min="0"
                       type="number"
                       description="How many days after the previous stage should this stage start?"
-                      width="w-32"
+                      // width="w-32" // mobile padding issue
                     />
                     <NotesSection>
                       <ul className="list-disc list-inside">
