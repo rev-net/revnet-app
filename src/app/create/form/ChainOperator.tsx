@@ -16,9 +16,12 @@ export function ChainOperator({ disabled = false }: { disabled?: boolean }) {
         name="operator"
         render={() => (
           <div className="mb-8">
+            <div className="text-sm text-zinc-500 mb-4">
+              Confirm the operator's address for each chain.
+            </div>
             <div className="flex mb-2 text-sm font-semibold text-zinc-500">
               <div className="w-48">Chain</div>
-              <div>Operator address</div>
+              <div>Address</div>
             </div>
             {sortChains(values.chainIds).map((chain, chainIndex) => (
               <div key={chainIndex} className="flex items-center text-md text-zinc-600 mt-4">

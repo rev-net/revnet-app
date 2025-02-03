@@ -81,7 +81,9 @@ export function ChainAutoIssuance({ disabled = false }: ChainAutoIssuanceProps) 
       <h2 className="text-left text-black-500 mb-4 font-semibold">
         Auto issuance
       </h2>
-
+      <div className="text-sm text-zinc-500 mb-4">
+        Confirm the chain where each auto issuance will occur.
+      </div>
       <FieldArray
         name="stages"
         render={() => (
@@ -116,7 +118,7 @@ export function ChainAutoIssuance({ disabled = false }: ChainAutoIssuanceProps) 
                       <div className="text-zinc-500 text-md mb-2">
                         {issuance.amount || "0"} {revnetTokenSymbol}
                         {issuance.beneficiary && (
-                          <> • {formatEthAddress(issuance.beneficiary)}</>
+                          <> to {formatEthAddress(issuance.beneficiary)} on: </>
                         )}
                       </div>
                     </div>

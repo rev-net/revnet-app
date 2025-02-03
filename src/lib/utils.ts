@@ -78,7 +78,7 @@ export function formatTokenSymbol(
   token?: JBTokenContextData["token"] | string
 ) {
   if (typeof token === "string") {
-    if (!token) return "$TOKEN";
+    if (!token) return "tokens";
     if (!token.includes("$")) return `$${token}`;
     return token;
   }

@@ -66,7 +66,9 @@ export function ChainSplits({ disabled = false }: ChainSplitsProps) {
   return (
     <div className="mb-10">
       <h2 className="text-left text-black-500 mb-4 font-semibold">Splits</h2>
-
+      <div className="text-sm text-zinc-500 mb-4">
+        Confirm the address for each split on each chain.
+      </div>
       <FieldArray
         name="stages"
         render={() => (
