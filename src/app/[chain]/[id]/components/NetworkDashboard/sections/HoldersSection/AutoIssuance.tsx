@@ -13,7 +13,7 @@ import {
   useJBContractContext,
   useJBTokenContext,
 } from "juice-sdk-react";
-import { useReadRevDeployerUnrealizedAutoIssuanceAmountOf } from "revnet-sdk";
+// import { useReadRevDeployerUnrealizedAutoIssuanceAmountOf } from "revnet-sdk";
 import { formatUnits } from "juice-sdk-core";
 import { formatTokenSymbol } from "@/lib/utils";
 import { commaNumber } from "@/lib/number";
@@ -27,25 +27,25 @@ export function AutoIssuance() {
 
   const autoIssuances = useAutoIssuances();
 
-  const { data: unrealized } = useReadRevDeployerUnrealizedAutoIssuanceAmountOf(
-    {
-      chainId,
-      args: [projectId],
-    }
-  );
+  // const { data: unrealized } = useReadRevDeployerUnrealizedAutoIssuanceAmountOf(
+  //   {
+  //     chainId,
+  //     args: [projectId],
+  //   }
+  // );
 
   const now = Math.floor(new Date().getTime() / 1000);
 
   return (
     <div className="max-h-96 overflow-auto bg-zinc-50 border-zinc-200 border mb-4">
       <div className="flex flex-col p-2">
-        {unrealized && token.data && (
+        {/* {unrealized && token.data && (
           <div className="ml-2 italic">
             Total unrealized auto-issuance tokens:{" "}
             {commaNumber(formatUnits(unrealized, token.data.decimals))}{" "}
             {formatTokenSymbol(token)}
           </div>
-        )}
+        )} */}
         <Table>
           <TableHeader>
             <TableRow>
