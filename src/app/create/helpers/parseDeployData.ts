@@ -51,6 +51,7 @@ export function parseDeployData(
   const operator =
     formData?.operator.find((c) => Number(c.chainId) === Number(extra.chainId))
       ?.address || formData.stages[0].initialOperator;
+  console.log({ operator, extra });
   console.log(`[ Operator ] ${operator}`);
   const accountingContextsToAccept = [
     {

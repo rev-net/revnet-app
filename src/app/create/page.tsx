@@ -28,6 +28,7 @@ export default function Page() {
   const isLoading = isLoadingIpfs || isRelayrLoading;
 
   async function deployProject(formData: RevnetFormData) {
+    console.log({ formData });
     // Upload metadata
     setIsLoadingIpfs(true);
     const metadataCid = await pinProjectMetadata({

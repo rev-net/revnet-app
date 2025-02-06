@@ -4,9 +4,16 @@ import { ChainLogo } from "@/components/ChainLogo";
 import { JB_CHAINS } from "juice-sdk-core";
 import { Field } from "./Fields";
 import { sortChains } from "@/lib/utils";
+import { useEffect } from "react";
 
 export function ChainOperator({ disabled = false }: { disabled?: boolean }) {
   const { values } = useFormikContext<RevnetFormData>();
+  const { setFieldValue } = useFormikContext();
+  useEffect(() => {
+    values.chainIds.forEach((chain, index) => {
+      setFieldValue(`operator.${index}.chainId`, chain);
+    });
+  }, [values.chainIds, setFieldValue]);
   return (
     <>
       <h2 className="text-left text-black-500 mb-4 font-semibold">
@@ -38,16 +45,11 @@ export function ChainOperator({ disabled = false }: { disabled?: boolean }) {
                 <Field
                   id={`operator.${chainIndex}.address`}
                   name={`operator.${chainIndex}.address`}
-                  defaultValue={values.stages[0]?.initialOperator}
+                  defaultValue={values.stages[0]?.initialOperator || ""}
                   className="h-9 w-3/5"
                   placeholder="0x"
                   disabled={disabled}
                   required
-                />
-                <Field
-                  type="hidden"
-                  name={`operator.${chainIndex}.chainId`}
-                  value={chain}
                 />
               </div>
             ))}

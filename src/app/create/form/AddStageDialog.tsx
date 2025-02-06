@@ -177,7 +177,7 @@ export function AddStageDialog({
                                 width="w-28"
                                 suffix="%"
                                 required
-                                defaultValue="100"
+                                value="100"
                               />
                               <label htmlFor={`splits.${index}.defaultBeneficiary`}>
                                 to
@@ -231,7 +231,6 @@ export function AddStageDialog({
                           : "0x"
                       }
                       disabled={stageIdx > 0}
-                      required
                     />
                     {stageIdx > 0 && (
                       <Tooltip>
@@ -457,7 +456,7 @@ export function AddStageDialog({
                     <FieldGroup
                       id="boostDuration"
                       name="boostDuration"
-                      label="4. Stage Start Day"
+                      label="4. Start Time"
                       suffix="days"
                       min="0"
                       type="number"
