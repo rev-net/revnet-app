@@ -42,11 +42,11 @@ export default function Page() {
             <span className="mr-1">Browse:</span>
             <RevLink network="sepolia" id={1} text="NANA" />
             <Pipe />
-            <RevLink network="sepolia" id={2} text="REV" />
+            <RevLink network="sepolia" id={3} text="REV" />
             <Pipe />
-            <RevLink network="sepolia" id={3} text="BAN" />
+            <RevLink network="sepolia" id={4} text="BAN" />
             <Pipe />
-            <RevLink network="sepolia" id={4} text="CPN" />
+            <RevLink network="sepolia" id={2} text="CPN" />
           </div>
         </div>
       </div>
