@@ -73,7 +73,7 @@ export function NetworkDashboard() {
               <div className="pb-5 pt-5 border-b border-zinc-200">
                 <DescriptionSection />
               </div>
-              <div className="pb-5 pt-5 border-b border-zinc-200">
+              <div className="pb-5 pt-5">
                 <ActivityFeed />
               </div>
             </section>

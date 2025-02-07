@@ -184,28 +184,12 @@ export function ActivityFeed() {
       .sort((a, b) => b.timestamp - a.timestamp);
   }, [data]);
 
-  const toggleDropdown = () => {
-    setIsOpen(!isOpen);
-  };
   return (
     <>
       {/* Dropdown Header */}
-      <button
-        type="button"
-        onClick={toggleDropdown}
-        className="flex items-center gap-2 text-left text-black-600"
-      >
-        <div className="flex flex-row space-x-2">
-          <h2 className="text-2xl font-semibold">Activity</h2>
-        </div>
-        <span
-          className={`transform transition-transform font-sm ${
-            isOpen ? "rotate-90" : "rotate-0"
-          }`}
-        >
-          ▶
-        </span>
-      </button>
+      <div className="flex flex-row space-x-2">
+        <h2 className="text-2xl font-semibold">Activity</h2>
+      </div>
       {/* Dropdown Content */}
       {isOpen && (
         <div className="flex flex-col gap-1 mt-8">
