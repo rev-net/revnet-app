@@ -54,27 +54,7 @@ export function PriceSection({ className }: { className?: string }) {
               <div className="flex flex-col border-l border-zinc-300 pl-2">
                 <span>
                   {devTax.formatPercentage().toFixed(4)}%{" "}
-                  <span>of issuance and buybacks to </span>
-                  <Tooltip>
-                    <TooltipTrigger>
-                      <Badge
-                        variant="secondary"
-                        className="border border-visible"
-                      >
-                        <ForwardIcon className="w-4 h-4 mr-1 inline-block" />
-                        Splits 
-                      </Badge>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <EthereumAddress
-                        address={boostRecipient}
-                        short
-                        withEnsName
-                        className="font-medium"
-                      />{" "}
-                      is the split operator and can direct this split
-                    </TooltipContent>
-                  </Tooltip>
+                  <span>of issuance and buybacks to splits.</span>
                 </span>
               </div>
             </li>

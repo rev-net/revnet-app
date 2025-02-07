@@ -136,10 +136,7 @@ export function PayForm() {
           currency={formatTokenSymbol(token)}
         />
         <div className="flex gap-1 p-3 bg-zinc-200 w-full text-md text-zinc-700 overflow-x-auto whitespace-nowrap">
-          <Badge variant="secondary" className="border border-visible">
-            <ForwardIcon className="w-4 h-4 mr-1 inline-block" />
-                Splits
-          </Badge> get {amountC || 0} {formatTokenSymbol(tokenB.symbol)}
+          Splits get {amountC || 0} {formatTokenSymbol(tokenB.symbol)}
         </div>
       </div>
       {/* <div className="flex justify-between gap-3 items-center md:items-start flex-col md:flex-row">

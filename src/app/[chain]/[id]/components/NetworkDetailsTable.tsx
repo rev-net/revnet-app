@@ -232,47 +232,6 @@ export function NetworkDetailsTable() {
                               </span>
                             </div>
                           </div>
-                        </div>
-                      </TooltipContent>
-                    </div>
-                  </Tooltip>
-                </dt>
-                <dd className="text-md leading-6 text-zinc-700 whitespace-nowrap">
-                  {issuance}, cut {selectedStage.weightCutPercent.formatPercentage()}% every{" "}
-                  {(selectedStage.duration / 86400).toString()} days
-                </dd>
-              </div>
-              <div className="sm:col-span-1 sm:px-0 grid grid-cols-2 sm:grid-cols-4">
-                <dt className="text-md font-medium leading-6 text-zinc-900">
-                  <Tooltip>
-                    <div className="flex flex-row space-x-1">
-                      <div>Auto issuance</div>
-                      <TooltipTrigger className="pl-1 text-md text-zinc-500"> [ ? ]
-                      </TooltipTrigger>
-                      <TooltipContent side="right">
-                        <div className="max-w-md space-y-2 p-2">
-                          <div className="space-y-1">
-                            <h3 className="font-bold text-black-500">Auto issuance</h3>
-                            <p className="text-md text-black-400">An amount of {formatTokenSymbol(token)} that is inflated automatically once the stage starts. See the "Owners" table for the breakdown.</p>
-                          </div>
-                        </div>
-                      </TooltipContent>
-                    </div>
-                  </Tooltip>
-                </dt>
-                <dd className="text-md leading-6 text-zinc-700 whitespace-nowrap">
-                  {getAutoIssuancesTotalForStage()} {formatTokenSymbol(token)}
-                </dd>
-              </div>
-              <div className="sm:col-span-1 sm:px-0 grid grid-cols-2 sm:grid-cols-4">
-                <dt className="text-md font-medium leading-6 text-zinc-900">
-                  <Tooltip>
-                    <div className="flex flex-row space-x-1">
-                      <div>Split limit</div>
-                      <TooltipTrigger className="pl-1 text-md text-zinc-500"> [ ? ]
-                      </TooltipTrigger>
-                      <TooltipContent side="right">
-                        <div className="max-w-md space-y-2 p-2">
                           <div className="space-y-1">
                             <h3 className="font-bold text-black-500">Split limit</h3>
                             <p className="text-md text-black-400">Determines how much of {formatTokenSymbol(token)} issuance is set aside to be split among recipients defined by the split operator during a stage.</p>
@@ -328,14 +287,35 @@ export function NetworkDetailsTable() {
                   </Tooltip>
                 </dt>
                 <dd className="text-md leading-6 text-zinc-700 whitespace-nowrap">
+                  {issuance}, cut {selectedStage.weightCutPercent.formatPercentage()}% every{" "}
+                  {(selectedStage.duration / 86400).toString()} days
                   {selectedStageBoost ? (
-                    <div className="text-md leading-6 text-zinc-700">
-                      {reservedPercent?.formatPercentage()}% to <Badge variant="secondary" className="border border-visible">
-                        <ForwardIcon className="w-4 h-4 mr-1 inline-block" />
-                        Splits
-                      </Badge>
-                    </div>
+                    <span className="text-md leading-6 text-zinc-700">
+                      , split limit of {reservedPercent?.formatPercentage()}%.
+                    </span>
                   ) : null}
+                </dd>
+              </div>
+              <div className="sm:col-span-1 sm:px-0 grid grid-cols-2 sm:grid-cols-4">
+                <dt className="text-md font-medium leading-6 text-zinc-900">
+                  <Tooltip>
+                    <div className="flex flex-row space-x-1">
+                      <div>Auto issuance</div>
+                      <TooltipTrigger className="pl-1 text-md text-zinc-500"> [ ? ]
+                      </TooltipTrigger>
+                      <TooltipContent side="right">
+                        <div className="max-w-md space-y-2 p-2">
+                          <div className="space-y-1">
+                            <h3 className="font-bold text-black-500">Auto issuance</h3>
+                            <p className="text-md text-black-400">An amount of {formatTokenSymbol(token)} that is inflated automatically once the stage starts. See the "Owners" table for the breakdown.</p>
+                          </div>
+                        </div>
+                      </TooltipContent>
+                    </div>
+                  </Tooltip>
+                </dt>
+                <dd className="text-md leading-6 text-zinc-700 whitespace-nowrap">
+                  {getAutoIssuancesTotalForStage()} {formatTokenSymbol(token)}
                 </dd>
               </div>
               <div className="sm:col-span-1 sm:px-0 grid grid-cols-2 sm:grid-cols-4">
