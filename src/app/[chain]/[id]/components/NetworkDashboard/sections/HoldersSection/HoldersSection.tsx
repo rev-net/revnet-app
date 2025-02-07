@@ -136,7 +136,7 @@ export function HoldersSection() {
             <div className={participantsView === "all" ? "" : "hidden"}>
               <div className="space-y-4 p-2 pb-0 sm:pb-2">
                 <p className="text-md text-black font-light italic">
-                  {formatTokenSymbol(token)} owners are accounts who either paid in, received splits, received auto issuance, or got them from from someone.
+                  {formatTokenSymbol(token)} owners are accounts who either paid in, received splits, received auto issuance, or traded for them on the secondary market.
                 </p>
               </div>
               <div className="flex sm:flex-row flex-col max-h-140 sm:items-start items-center sm:border-t border-zinc-200">
