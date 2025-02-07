@@ -43,7 +43,7 @@ export function PriceSection({ className }: { className?: string }) {
         <ul className="list-disc list-inside mt-2 space-y-2">
           <li className="flex">
             <div className="flex flex-col border-l border-zinc-300 pl-2">
-              <div className="text-md">Currently issuing {issuance}</div>
+              <div className="text-md">Issuing {issuance}</div>
               <PriceIncreaseCountdown />
             </div>
           </li>
