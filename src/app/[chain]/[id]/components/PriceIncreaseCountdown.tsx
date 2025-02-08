@@ -11,6 +11,7 @@ import { QuestionMarkCircleIcon } from "@heroicons/react/24/outline";
 import {
   RulesetWeight,
   getNextRulesetWeight,
+  ReservedPercent
 } from "juice-sdk-core";
 import { useJBRulesetContext, useJBTokenContext } from "juice-sdk-react";
 
@@ -34,7 +35,7 @@ export function PriceIncreaseCountdown() {
 
   const nextFormattedTokenIssuance = useFormattedTokenIssuance({
     weight: nextWeight,
-    reservedPercent: rulesetMetadata?.data?.reservedPercent
+    reservedPercent: new ReservedPercent(0) //rulesetMetadata?.data?.reservedPercent
   });
 
   if (!timeLeft) return;

@@ -56,7 +56,7 @@ export function UserTokenBalanceCard() {
         </RedeemDialog>
       ) : null}
       <Button variant="outline" disabled={true}>
-        Get a loan (soon)
+        Borrow (soon)
       </Button>
     </div>
   );

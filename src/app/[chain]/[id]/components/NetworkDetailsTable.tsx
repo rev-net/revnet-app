@@ -130,7 +130,7 @@ export function NetworkDetailsTable() {
 
   const issuance = useFormattedTokenIssuance({
     weight: selectedStage?.weight,
-    reservedPercent: selectedStageMetadata?.data?.reservedPercent
+    reservedPercent: new ReservedPercent(0) //selectedStageMetadata?.data?.reservedPercent
   });
 
   const autoIssuances = useAutoIssuances();

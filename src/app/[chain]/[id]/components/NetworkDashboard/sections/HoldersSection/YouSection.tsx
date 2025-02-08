@@ -56,9 +56,9 @@ export function YouSection({ totalSupply }: { totalSupply: bigint }) {
           <Tooltip>
             <TooltipTrigger>
               {!loading && ethPrice
-                ? `$${(
-                    Number(formatEther(redeemQuote ?? 0n)) * ethPrice
-                  ).toFixed(4)}`
+                ? `${(
+                    Number(formatEther(redeemQuote ?? 0n))
+                  ).toFixed(4)} ETH`
                 : "..."}
             </TooltipTrigger>
             <TooltipContent>
@@ -72,9 +72,9 @@ export function YouSection({ totalSupply }: { totalSupply: bigint }) {
       </div>
       <div className="sm:col-span-1 sm:px-0 grid grid-cols-2 sm:grid-cols-4">
         <dt className="text-md font-medium leading-6 text-zinc-900">
-          Current loan potential
+          Current borrow potential
         </dt>
-        <dd className="text-zinc-600">$100.50</dd>
+        <dd className="text-zinc-600">(soon)</dd>
       </div>
     </div>
   );

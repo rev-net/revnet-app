@@ -15,17 +15,20 @@ import {
   useJBTokenContext,
   useSuckersTokenCashOutValue,
 } from "juice-sdk-react";
+import { ReservedPercent } from "juice-sdk-core";
 import { PriceIncreaseCountdown } from "../../PriceIncreaseCountdown";
 
 export function PriceSection({ className }: { className?: string }) {
-  const issuance = useFormattedTokenIssuance();
+  const issuance = useFormattedTokenIssuance({
+    reservedPercent: new ReservedPercent(0)
+  });
 
   const { ruleset, rulesetMetadata } = useJBRulesetContext();
   const { data: ethPrice } = useEtherPrice();
   const { token } = useJBTokenContext();
   const { data: cashOutValue, loading: cashOutLoading } =
     useSuckersTokenCashOutValue({
-      targetCurrency: "usd",
+      targetCurrency: "eth",
     });
   const boostRecipient = useBoostRecipient();
 
@@ -66,7 +69,7 @@ export function PriceSection({ className }: { className?: string }) {
               <div className="text-md">
                 Current {formatTokenSymbol(token)} cash out value of{" "}
                 {!cashOutLoading
-                  ? `$${Number(cashOutValue).toFixed(4)}`
+                  ? `${Number(cashOutValue).toFixed(4)} ETH`
                   : "..."}
                 . Up only.
               </div>
