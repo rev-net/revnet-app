@@ -43,7 +43,7 @@ export function Header() {
 
   return (
     <header>
-      <div className="flex sm:items-center items-end gap-4 sm:mb-6 mb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center items-start gap-4 sm:mb-6 mb-4">
         {logoUri ? (
           <>
             <div className="sm:hidden">
