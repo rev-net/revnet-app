@@ -82,6 +82,8 @@ export function Header() {
             </span>
             <div className="text-sm flex gap-2 items-baseline">
               <h1 className="text-2xl font-medium">{projectName}</h1>
+            </div>
+            <div className="text-sm flex gap-2 items-baseline">
               {suckers?.map((pair) => {
                 if (!pair) return null;
 
