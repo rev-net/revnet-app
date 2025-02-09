@@ -186,13 +186,8 @@ export function ActivityFeed() {
 
   return (
     <>
-      {/* Dropdown Header */}
-      <div className="flex flex-row space-x-2">
-        <h2 className="text-2xl font-semibold">Activity</h2>
-      </div>
-      {/* Dropdown Content */}
       {isOpen && (
-        <div className="flex flex-col gap-1 mt-8">
+        <div className="flex flex-col gap-1">
           {projectEvents && projectEvents.length > 0 ? (
             projectEvents?.map((event) => {
               if (event.payEvent) {
