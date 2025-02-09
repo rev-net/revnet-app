@@ -67,7 +67,7 @@ export function PriceSection({ className }: { className?: string }) {
           <li className="flex">
             <div className="flex flex-col border-l border-zinc-300 pl-2">
               <div className="text-md">
-                Current {formatTokenSymbol(token)} cash out value of{" "}
+                {formatTokenSymbol(token)} cash out value of{" "}
                 {!cashOutLoading
                   ? `${Number(cashOutValue).toFixed(4)} ETH`
                   : "..."}
