@@ -125,7 +125,7 @@ export function HoldersSection() {
               {ownersTab("all", "All")}
               {ownersTab("you", "You")}
               {ownersTab("splits", "Splits")}
-              {ownersTab("autoissuance", "Auto issuance")}
+              {ownersTab("autoissuance", "Auto issue")}
             </div>
 
             {/* ========================= */}
