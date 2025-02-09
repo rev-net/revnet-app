@@ -79,7 +79,7 @@ export function PayForm() {
         <PayInput
           label="Pay"
           type="number"
-          className="border-b border-zinc-300"
+          className="border-b border-zinc-200 border-t border-l border-r"
           onChange={(e) => {
             const valueRaw = e.target.value;
             setAmountA(valueRaw);
@@ -112,6 +112,7 @@ export function PayForm() {
         <PayInput
           label="You get"
           type="number"
+          className="border-r border-l border-zinc-200"
           onChange={(e) => {
             const valueRaw = e.target.value;
             setAmountB(valueRaw);
@@ -135,7 +136,7 @@ export function PayForm() {
           value={amountB}
           currency={formatTokenSymbol(token)}
         />
-        <div className="flex gap-1 p-3 bg-zinc-200 w-full text-md text-zinc-700 overflow-x-auto whitespace-nowrap">
+        <div className="flex gap-1 p-3 bg-zinc-200 border-r border-l border-zinc-300 w-full text-md text-zinc-700 overflow-x-auto whitespace-nowrap">
           Splits get {amountC || 0} {formatTokenSymbol(tokenB.symbol)}
         </div>
       </div>
