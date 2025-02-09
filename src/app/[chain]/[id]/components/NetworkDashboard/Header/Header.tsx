@@ -116,7 +116,7 @@ export function Header() {
               </span>
             </div>
             <div className="sm:text-xl text-lg">
-              <span className="font-medium text-zinc-500">
+              <span className="font-medium text-black-500">
                 {!cashOutLoading
                   ? `$${Number(cashOutValue).toFixed(4)}`
                   : "..."}
