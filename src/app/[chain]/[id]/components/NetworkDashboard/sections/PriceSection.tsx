@@ -56,7 +56,7 @@ export function PriceSection({ className }: { className?: string }) {
             <li className="flex">
               <div className="flex flex-col border-l border-zinc-300 pl-2">
                 <span>
-                  {devTax.formatPercentage().toFixed(4)}%{" "}
+                  {devTax.formatPercentage().toFixed(2)}%{" "}
                   <span>of issuance and buybacks to splits.</span>
                 </span>
               </div>
