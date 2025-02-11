@@ -17,12 +17,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import {
-  defaultStageData,
-  EXIT_TAX_HIGH,
-  EXIT_TAX_LOW,
-  EXIT_TAX_MID,
-  EXIT_TAX_NONE,
-} from "../constants";
+  defaultStageData } from "../constants";
 import { Field, FieldGroup } from "./Fields";
 import {
   Tooltip,
@@ -92,6 +87,24 @@ export function AddStageDialog({
     formikValues.tokenSymbol?.length > 0
       ? `$${formikValues.tokenSymbol}`
       : "tokens";
+  
+    const [value, setValue] = useState(0.2); // Default value matching your example
+
+    // Discrete values matching your radio options
+    const steps = [0, 20, 40, 60, 80];
+    
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const numValue = parseFloat(e.target.value);
+      const closestHalfStep = Math.round(numValue * 20) / 20;
+      console.log({closestHalfStep});
+      setValue(closestHalfStep);
+    };
+  
+    // Calculate example yield based on selected tax rate
+    const calculateYield = (taxRate: number) => {
+      console.log({taxRate});
+      return (Number(((1-(taxRate/100))+((taxRate/100)/10))) * 10).toFixed(1); 
+    };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -379,40 +392,29 @@ export function AddStageDialog({
                     {revnetTokenSymbol} holders who stick around as others cash
                     out.
                   </p>
-                  <div
-                    role="group"
-                    aria-labelledby="priceFloorTaxIntensity-group"
-                    className="flex gap-3 text-md mt-4"
-                  >
-                    <label>
-                      <FormikField
-                        type="radio"
-                        name="priceFloorTaxIntensity"
-                        value={EXIT_TAX_NONE}
-                        className="mr-1"
-                      />
-                      None (0)
-                    </label>
-                    <label>
-                      <FormikField
-                        type="radio"
-                        name="priceFloorTaxIntensity"
-                        value={EXIT_TAX_LOW}
-                        className="mr-1"
-                      />
-                      Low (0.2)
-                    </label>
-                    <label>
-                      <FormikField
-                        type="radio"
-                        name="priceFloorTaxIntensity"
-                        value={EXIT_TAX_MID}
-                        className="mr-1"
-                      />
-                      Mid (0.5)
-                    </label>
+                  <div className="space-y-2 mt-6">
+                    <div className="flex justify-between relative w-full">
+                      {steps.map((step) => (
+                        <span key={Number(step) / 100} className={ Number(step) === 0 ? "text-sm pl-1" : Number(step) === 20 ? "text-sm pl-4" : "text-sm pl-2"}>
+                          {Number(step) / 100}
+                        </span>
+                      ))}
+                    </div>
+                    <input
+                      type="range"
+                      min={0}
+                      max={80}
+                      step={10}
+                      name="priceFloorTaxIntensity"
+                      value={value}
+                      onChange={handleChange}
+                      className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-teal-500"
+                      aria-label="Exit tax percentage"
+                    />
                   </div>
-
+                  <div className="text-sm font-medium text-zinc-500 mt-4 border-l border-zinc-300 pl-2 py-1 px-1">
+                    Cashing out 10% of tokens gets {calculateYield(value)}% of the revnet's {nativeTokenSymbol}.
+                  </div>
                   <NotesSection>
                     <div className="text-zinc-600 text-md mt-4 italic">
                       <ul className="list-disc list-inside space-y-2">

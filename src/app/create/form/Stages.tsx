@@ -96,7 +96,7 @@ export function Stages({
                       </div>
                       •
                       <div>
-                        {(Number(stage.priceFloorTaxIntensity) || 0) / 100} cash
+                        {(Number(stage.priceFloorTaxIntensity) / 100 || 0)} cash
                         out tax rate
                       </div>
                       <div>• {stage.splits.reduce((sum, split) => sum + (Number(split.percentage) || 0), 0)}% split limit</div>

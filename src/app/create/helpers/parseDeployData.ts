@@ -139,8 +139,7 @@ export function parseDeployData(
           WeightCutPercent.parse(stage.priceCeilingIncreasePercentage, 9).value
         ) / 100,
       cashOutTaxRate:
-        Number(CashOutTaxRate.parse(stage.priceFloorTaxIntensity, 4).value) /
-        100, //
+        Number(CashOutTaxRate.parse(stage.priceFloorTaxIntensity, 4).value) / 100, //
       extraMetadata: 0, // ??
     };
   });
