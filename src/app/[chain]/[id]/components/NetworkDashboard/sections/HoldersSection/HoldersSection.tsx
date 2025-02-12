@@ -19,7 +19,6 @@ import { Button } from "@/components/ui/button";
 import { formatTokenSymbol } from "@/lib/utils";
 import { twJoin } from "tailwind-merge";
 import { YouSection } from "./YouSection";
-import { useAccount } from "wagmi";
 import { SplitsSection } from "./SplitsSection";
 import { useOmnichainSubgraphQuery } from "@/graphql/useOmnichainSubgraphQuery";
 import { UserTokenBalanceCard } from "../../../UserTokenBalanceCard/UserTokenBalanceCard";

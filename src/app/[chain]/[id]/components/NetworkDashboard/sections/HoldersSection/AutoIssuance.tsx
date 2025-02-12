@@ -1,4 +1,9 @@
+import { useState, useEffect } from "react";
+import { useWaitForTransactionReceipt } from "wagmi";
 import { format } from "date-fns";
+import { useJBTokenContext } from "juice-sdk-react";
+import { useWriteRevDeployerAutoIssueFor } from "revnet-sdk";
+import { formatUnits } from "juice-sdk-core";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -8,44 +13,37 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  useJBChainId,
-  useJBContractContext,
-  useJBTokenContext,
-} from "juice-sdk-react";
-// import { useReadRevDeployerUnrealizedAutoIssuanceAmountOf } from "revnet-sdk";
-import { formatUnits } from "juice-sdk-core";
 import { formatTokenSymbol } from "@/lib/utils";
 import { commaNumber } from "@/lib/number";
 import { EthereumAddress } from "@/components/EthereumAddress";
 import { useAutoIssuances } from "@/hooks/useAutoIssuances";
+import { toast } from "@/components/ui/use-toast";
 
 export function AutoIssuance() {
-  const { projectId } = useJBContractContext();
-  const chainId = useJBChainId();
   const { token } = useJBTokenContext();
-
   const autoIssuances = useAutoIssuances();
-
-  // const { data: unrealized } = useReadRevDeployerUnrealizedAutoIssuanceAmountOf(
-  //   {
-  //     chainId,
-  //     args: [projectId],
-  //   }
-  // );
-
   const now = Math.floor(new Date().getTime() / 1000);
+  const [autoIssueId, setAutoIssueId] = useState<string | null>(null);
+
+  const { writeContract, isPending, data } = useWriteRevDeployerAutoIssueFor();
+
+  const { isLoading, isSuccess } = useWaitForTransactionReceipt({
+    hash: data,
+  });
+
+  useEffect(() => {
+    if (isSuccess) {
+      toast({
+        title: "Autoissuance distributed!",
+        description: "Transaction has been confirmed.",
+      });
+      setAutoIssueId(null);
+    }
+  }, [isSuccess]);
 
   return (
     <div className="max-h-96 overflow-auto bg-zinc-50 border-zinc-200 border mb-4">
       <div className="flex flex-col p-2">
-        {/* {unrealized && token.data && (
-          <div className="ml-2 italic">
-            Total unrealized auto-issuance tokens:{" "}
-            {commaNumber(formatUnits(unrealized, token.data.decimals))}{" "}
-            {formatTokenSymbol(token)}
-          </div>
-        )} */}
         <Table>
           <TableHeader>
             <TableRow>
@@ -93,7 +91,23 @@ export function AutoIssuance() {
                       format(autoIssuance.startsAt * 1000, "MMM dd, yyyy p")}
                   </TableCell>
                   <TableCell>
-                    <Button disabled={(autoIssuance?.startsAt || 0) >= now}>
+                    <Button
+                      disabled={(autoIssuance?.startsAt || 0) >= now}
+                      loading={
+                        (isPending || isLoading) &&
+                        autoIssueId === autoIssuance.id
+                      }
+                      onClick={() => {
+                        writeContract({
+                          args: [
+                            autoIssuance.revnetId,
+                            autoIssuance.stageId,
+                            autoIssuance.beneficiary,
+                          ],
+                        });
+                        setAutoIssueId(autoIssuance.id);
+                      }}
+                    >
                       Distribute
                     </Button>
                   </TableCell>

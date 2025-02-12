@@ -2,11 +2,9 @@ import {
   MAX_RULESET_COUNT,
   RESERVED_TOKEN_SPLIT_GROUP_ID,
 } from "@/app/constants";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useNativeTokenSymbol } from "@/hooks/useNativeTokenSymbol";
 import { differenceInDays, formatDate } from "date-fns";
-import { ForwardIcon } from "@heroicons/react/24/solid";
 import {
   Tooltip,
   TooltipContent,
@@ -190,7 +188,7 @@ export function NetworkDetailsTable() {
                     key={ruleset.id.toString() + idx}
                     onClick={() => setSelectedStageIdx(idx)}
                   >
-              Stage {idx + 1}
+                    Stage {idx + 1}
                     {idx === currentStageIdx && (
                       <span className="rounded-full h-2 w-2 bg-orange-400 border-[2px] border-orange-200 ml-1"></span>
                     )}

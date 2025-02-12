@@ -20,7 +20,6 @@ import {
 } from "@/components/ui/table";
 import { useBoostRecipient } from "@/hooks/useBoostRecipient";
 import { formatTokenSymbol } from "@/lib/utils";
-import { ForwardIcon } from "@heroicons/react/24/solid";
 import {
   JB_CHAINS,
   SuckerPair,
@@ -66,8 +65,8 @@ export function SplitsSection() {
         : undefined,
       args: ruleset && ruleset?.data ? [projectId] : undefined,
     });
-  console.log("reserveToken", pendingReserveTokenBalance);
-  useEffect(() => {
+
+    useEffect(() => {
     if (chainId && suckers && !suckers.find((s) => s.peerChainId === chainId)) {
       suckers.push({ projectId, peerChainId: chainId });
     }
