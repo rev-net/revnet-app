@@ -34,7 +34,7 @@ export default function Page() {
           <div className="flex gap-4 mt-8">
             <Link href="/create">
               <Button className="md:h-12 h-16 text-xl md:text-xl px-4 flex gap-2 bg-teal-500 hover:bg-teal-600">
-                Design yours
+                Create yours
               </Button>
             </Link>
           </div>
