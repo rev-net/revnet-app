@@ -88,7 +88,7 @@ export function AddStageDialog({
       ? `$${formikValues.tokenSymbol}`
       : "tokens";
   
-    const [value, setValue] = useState(0.2); // Default value matching your example
+    const [value, setValue] = useState(20); // Default value matching your example
 
     // Discrete values matching your radio options
     const steps = [0, 20, 40, 60, 80];
