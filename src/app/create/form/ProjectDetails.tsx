@@ -26,7 +26,7 @@ export function DetailsPage({
         Design and deploy a tokenized revnet for your project
       </h1>
       <div className="md:col-span-1">
-        <h2 className="font-bold text-lg mb-2">1. Look and feel</h2>
+        <h2 className="font-bold text-lg mb-2">1. Look</h2>
       </div>
       <div className="md:col-span-2">
         <div className="grid grid-cols-1 md:grid-cols-[2fr_1fr_2fr] sm:gap-6">
