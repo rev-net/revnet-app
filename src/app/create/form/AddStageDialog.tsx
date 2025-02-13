@@ -497,7 +497,7 @@ export function AddStageDialog({
                     type="submit"
                     className="bg-teal-500 hover:bg-teal-600"
                   >
-                    Save stage
+                    Add stage
                   </Button>
                 </DialogFooter>
               </Form>
