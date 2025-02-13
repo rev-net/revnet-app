@@ -206,7 +206,7 @@ export function AddStageDialog({
                                 width="w-28"
                                 suffix="%"
                                 required
-                                value="100"
+                                placeholder="100"
                               />
                               <label htmlFor={`splits.${index}.defaultBeneficiary`}>
                                 to
