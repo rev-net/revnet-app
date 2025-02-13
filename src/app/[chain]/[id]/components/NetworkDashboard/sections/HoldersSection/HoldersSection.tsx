@@ -74,8 +74,6 @@ export function HoldersSection() {
       };
     }, {} as Record<string, any>) ?? {};
 
-  const hasHolders = participantsData && participantsData.length > 0;
-
   const ownersTab = (view: TableView, label: string) => {
     return (
       <Button

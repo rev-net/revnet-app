@@ -2,7 +2,7 @@ import { RESERVED_TOKEN_SPLIT_GROUP_ID } from "@/app/constants";
 import { ChainLogo } from "@/components/ChainLogo";
 import { EthereumAddress } from "@/components/EthereumAddress";
 import EtherscanLink from "@/components/EtherscanLink";
-import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
@@ -18,10 +18,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { ProjectCreateEventDocument } from "@/generated/graphql";
-import { useOmnichainSubgraphQuery } from "@/graphql/useOmnichainSubgraphQuery";
 import { useBoostRecipient } from "@/hooks/useBoostRecipient";
-import { useGetProjectRulesetIds } from "@/hooks/useGetProjectRulesetIds";
+import { useFetchProjectRulesets } from "@/hooks/useFetchProjectRulesets";
 import { formatTokenSymbol } from "@/lib/utils";
 import {
   JB_CHAINS,
@@ -40,6 +38,7 @@ import {
   useSuckers,
 } from "juice-sdk-react";
 import { useEffect, useState } from "react";
+import { twJoin } from "tailwind-merge";
 import { Address } from "viem";
 
 export function SplitsSection() {
@@ -49,22 +48,23 @@ export function SplitsSection() {
   const { token } = useJBTokenContext();
   const boostRecipient = useBoostRecipient();
   const [selectedSucker, setSelectedSucker] = useState<SuckerPair>();
-  const [selectedSuckerIndex, setSelectedSuckerIndex] = useState<number>(0);
+  const [selectedStageIdx, setSelectedStageIdx] = useState<number>(0);
   const suckersQuery = useSuckers();
   const suckers = suckersQuery.data;
-  const { suckerPairsWithRulesets, isLoading: isLoadingRuleSets } = useGetProjectRulesetIds(suckers);
-  const { data: createData } = useOmnichainSubgraphQuery(ProjectCreateEventDocument, {
-    where: {
-      projectId: Number(projectId),
-    },
-  });
+  const { suckerPairsWithRulesets, isLoading: isLoadingRuleSets } = useFetchProjectRulesets(suckers);
+  const selectedSuckerRulesets = suckerPairsWithRulesets?.find((sucker) => sucker.peerChainId === selectedSucker?.peerChainId)?.rulesets;
+  const nextStageIdx = Math.max(
+    selectedSuckerRulesets?.findIndex((stage) => stage.start > Date.now() / 1000) ?? -1,
+    1 // lower bound should be 1 (the minimum 'next stage' is 1)
+  );
+  const currentStageIdx = nextStageIdx - 1;
   const { data: reservedTokenSplits, isLoading: isLoadingSplits } = useReadJbSplitsSplitsOf({
     chainId: selectedSucker?.peerChainId as JBChainId | undefined,
     args:
-      ruleset && ruleset?.data && selectedSucker && suckerPairsWithRulesets && suckerPairsWithRulesets?.length > 0 && selectedSuckerIndex >= 0
+      ruleset && ruleset?.data && selectedSucker && selectedSuckerRulesets && suckerPairsWithRulesets?.length > 0
         ? [
-            BigInt(suckerPairsWithRulesets.find((sucker) => sucker.peerChainId === selectedSucker?.peerChainId)?.projectId || projectId ),
-            BigInt(suckerPairsWithRulesets.find((sucker) => sucker.peerChainId === selectedSucker?.peerChainId)?.rulesetId || 0),
+            BigInt(selectedSucker?.projectId || projectId),
+            BigInt(selectedSuckerRulesets[selectedStageIdx]?.id || 0),
             RESERVED_TOKEN_SPLIT_GROUP_ID
           ]
         : undefined,
@@ -87,13 +87,9 @@ export function SplitsSection() {
       if (suckers && !selectedSucker) {
         const i = suckers.findIndex((s) => s.peerChainId === chainId);
         setSelectedSucker(suckers[i]);
-        setSelectedSuckerIndex(i);
       }
     }, [suckers, chainId, projectId, selectedSucker]);
-  console.log("suckerPairsWithRulesets", suckerPairsWithRulesets)
-  console.log("selectedSucker", selectedSucker)
-  console.log("pendingReserveTokenBalance", pendingReserveTokenBalance)
-  console.log("createData", createData)
+
   return (
     <>
       <div className="flex space-y-4 pb-0 sm:pb-2">
@@ -130,6 +126,26 @@ export function SplitsSection() {
               ))}
             </SelectContent>
           </Select>
+          <div className="flex gap-4 my-2">
+              {selectedSuckerRulesets?.map((ruleset, idx) => {
+                return (
+                  <Button
+                    variant={selectedStageIdx === idx ? "tab-selected" : "bottomline"}
+                    className={twJoin(
+                      "text-md text-zinc-400",
+                      selectedStageIdx === idx && "text-inherit"
+                    )}
+                    key={ruleset.id.toString() + idx}
+                    onClick={() => setSelectedStageIdx(idx)}
+                  >
+                    Stage {idx + 1}
+                    {idx ===  currentStageIdx && (
+                      <span className="rounded-full h-2 w-2 bg-orange-400 border-[2px] border-orange-200 ml-1"></span>
+                    )}
+                  </Button>
+                );
+              })}
+            </div>
         </div>
       )}
       <div className="flex gap-1 pb-2 pt-2 text-md font-medium border-l border-zinc-200 pl-3">

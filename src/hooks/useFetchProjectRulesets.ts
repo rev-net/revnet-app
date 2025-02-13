@@ -5,12 +5,24 @@ import { readContract } from "@wagmi/core";
 import { MAX_RULESET_COUNT } from "@/app/constants";
 import { wagmiConfig } from "@/lib/wagmiConfig";
 
-type SuckerPairWithRuleset = SuckerPair & {
-  rulesetId: number;
+type RuleSet = {
+  cycleNumber: number;
+  id: number;
+  basedOnId: number;
+  start: number;
+  duration: number;
+  weight: bigint;
+  weightCutPercent: number;
+  approvalHook: `0x${string}`;
+  metadata: bigint;
 };
 
-export function useGetProjectRulesetIds(suckers: SuckerPair[] | undefined | null) {
-  const [suckerPairsWithRulesets, setSuckerPairsWithRulesets] = useState<SuckerPairWithRuleset[] | undefined>(undefined);
+type SuckerPairWithRulesets = SuckerPair & {
+  readonly rulesets: readonly RuleSet[];
+};
+
+export function useFetchProjectRulesets(suckers: SuckerPair[] | undefined | null) {
+  const [suckerPairsWithRulesets, setSuckerPairsWithRulesets] = useState<SuckerPairWithRulesets[] | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<any | null>(null);
 
@@ -29,12 +41,10 @@ export function useGetProjectRulesetIds(suckers: SuckerPair[] | undefined | null
           })
         )
       );
-
       const pairsWithRulesets = suckers.map((sucker, index) => ({
         ...sucker,
-        rulesetId: Number(allRuleSets[index][MAX_RULESET_COUNT - 1].id),
+        rulesets: allRuleSets[index].slice().reverse() as RuleSet[],
       }));
-
       setSuckerPairsWithRulesets(pairsWithRulesets);
     } catch (error) {
       console.error(error);
