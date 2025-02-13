@@ -28,7 +28,7 @@ export default function Page() {
         />
         <span className="sr-only">Revnet</span>
         <div className="text-2xl md:text-2xl mt-8 font-medium text-left">
-          Tokenized revenue for projects on the open internet
+          Tokenized revenue for the open internet
         </div>
         <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
           <div className="flex gap-4 mt-8">
