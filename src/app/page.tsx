@@ -53,7 +53,7 @@ export default function Page() {
       <div className="border border-zinc-100 mt-20"></div>
 
       <div className="mt-8 max-w-prose text-xl text-lg text-left">
-        How it works:
+        How revnets work:
         <ol className="mt-4 list-decimal ml-10 list-outside">
           <li>Set a name, ticker, logo, and description.</li>
           <li>Lock token issuance and cash-out rules in automated stages.</li>
