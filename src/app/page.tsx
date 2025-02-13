@@ -53,9 +53,9 @@ export default function Page() {
       <div className="border border-zinc-100 mt-20"></div>
 
       <div className="mt-8 max-w-prose text-lg text-left">
-        How revnets work:
+        How a revnet works:
         <ol className="mt-4 list-decimal ml-8 sm:ml-10 list-outside">
-          <li>Set a name, token ticker, logo, and description.</li>
+          <li>Set a name, ticker, logo, and description.</li>
           <li>Lock token issuance and cash-out rules in automated stages.</li>
           <li>Deploy on every chain where you collect fees and payments.</li>
           <li>Route revenues to your revnet while welcoming funds from anyone.</li>
