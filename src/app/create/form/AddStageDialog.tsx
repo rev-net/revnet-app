@@ -128,7 +128,7 @@ export function AddStageDialog({
 
                   <div>
                     <div className="block text-md font-semibold leading-6">
-                      1. Paid issuance
+                      1. Issuance
                     </div>
                     <p className="text-md text-zinc-500 mt-3">
                       How many {revnetTokenSymbol} to issue when receiving 1 {nativeTokenSymbol}.
