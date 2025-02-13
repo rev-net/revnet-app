@@ -272,64 +272,10 @@ export function AddStageDialog({
                     </div>
                   )}
                   </div>
-                  <NotesSection>
-                    <div className="text-zinc-600 text-md mt-4 italic">
-                      <ul className="list-disc list-inside space-y-2">
-                        <li className="flex">
-                          <span className="mr-2">•</span>
-                          Decreasing 50% means to double the price – a
-                          halvening effect.
-                        </li>
-                        <li className="flex">
-                          <span className="mr-2">•</span>
-                          If there's a market for {revnetTokenSymbol} /{" "}
-                          {nativeTokenSymbol} offering a better price, all{" "}
-                          {nativeTokenSymbol} paid in will be used to buyback
-                          instead of feeding the revnet. Uniswap is used as
-                          the market.
-                        </li>
-                        <li className="flex">
-                          <span className="mr-2">•</span>
-                          Splits apply to both issuance and buybacks.
-                        </li>
-                        <li className="flex">
-                          <span className="mr-2">•</span>
-                          <span>
-                            You can write and deploy a custom split hook that automatically receives and processes the split {revnetTokenSymbol}. See <a className="inline underline" target="_blank" href="https://docs.juicebox.money/v4/build/hooks/split-hook/"> the docs.</a> 
-                          </span>
-                        </li>
-                        <li className="flex">
-                          <span className="mr-2">•</span>
-                          If there are splits, the operator can change the distribution of the split
-                          limit to new destinations at any time.
-                        </li>
-                        <li className="flex">
-                          <span className="mr-2">•</span>
-                          The operator can be a multisig, a DAO, an LLC, a core
-                          team, an airdrop stockpile, a staking rewards
-                          contract, or some other address.
-                        </li>
-                        <li className="flex">
-                          <span className="mr-2">•</span>
-                          The operator is set once and is not bound by stages.
-                          The operator can hand off this responsibility to
-                          another address at any time, or relinquish it
-                          altogether.
-                        </li>
-                      </ul>
-                    </div>
-                  </NotesSection>
-                  </div>
-                </div>
-
-                <div className="pb-8">
                   <FieldArray
                     name="autoIssuance"
                     render={(arrayHelpers) => (
                       <div>
-                        <div className="block text-md font-semibold leading-6">
-                          2. Auto issuance
-                        </div>
                         <p className="text-md text-zinc-500 mt-3">
                           Automatically issue {revnetTokenSymbol} to specific addresses when
                           the stage starts.
@@ -392,13 +338,62 @@ export function AddStageDialog({
                       </div>
                     )}
                   />
+                  <NotesSection>
+                    <div className="text-zinc-600 text-md mt-4 italic">
+                      <ul className="list-disc list-inside space-y-2">
+                        <li className="flex">
+                          <span className="mr-2">•</span>
+                          Decreasing 50% means to double the price – a
+                          halvening effect.
+                        </li>
+                        <li className="flex">
+                          <span className="mr-2">•</span>
+                          If there's a market for {revnetTokenSymbol} /{" "}
+                          {nativeTokenSymbol} offering a better price, all{" "}
+                          {nativeTokenSymbol} paid in will be used to buyback
+                          instead of feeding the revnet. Uniswap is used as
+                          the market.
+                        </li>
+                        <li className="flex">
+                          <span className="mr-2">•</span>
+                          Splits apply to both issuance and buybacks.
+                        </li>
+                        <li className="flex">
+                          <span className="mr-2">•</span>
+                          <span>
+                            You can write and deploy a custom split hook that automatically receives and processes the split {revnetTokenSymbol}. See <a className="inline underline" target="_blank" href="https://docs.juicebox.money/v4/build/hooks/split-hook/"> the docs.</a> 
+                          </span>
+                        </li>
+                        <li className="flex">
+                          <span className="mr-2">•</span>
+                          If there are splits, the operator can change the distribution of the split
+                          limit to new destinations at any time.
+                        </li>
+                        <li className="flex">
+                          <span className="mr-2">•</span>
+                          The operator can be a multisig, a DAO, an LLC, a core
+                          team, an airdrop stockpile, a staking rewards
+                          contract, or some other address.
+                        </li>
+                        <li className="flex">
+                          <span className="mr-2">•</span>
+                          The operator is set once and is not bound by stages.
+                          The operator can hand off this responsibility to
+                          another address at any time, or relinquish it
+                          altogether.
+                        </li>
+                      </ul>
+                    </div>
+                  </NotesSection>
+                  </div>
                 </div>
+
                 <div className="pb-10">
                   <div
                     id="priceFloorTaxIntensity-group"
                     className="block text-md font-semibold leading-6"
                   >
-                    3. Cash out tax
+                    2. Cash out tax
                   </div>
                   <p className="text-md text-zinc-500 mt-3">
                     The only way for anyone to access {revnetTokenSymbol} revenue is by cashing out or
