@@ -27,7 +27,7 @@ export default function Page() {
           alt="Revnet logo"
         />
         <span className="sr-only">Revnet</span>
-        <div className="text-2xl md:text-2xl mt-8 font-medium text-left">
+        <div className="text-xl md:text-2xl mt-8 font-medium text-left">
           Tokenized revenues and fundraises for projects on the open internet. 100% maintenance-free.
         </div>
         <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
@@ -38,7 +38,7 @@ export default function Page() {
               </Button>
             </Link>
           </div>
-          <div className="flex flex-row mt-8 text-xl md:text-xl text-left gap-1 whitespace-nowrap">
+          <div className="flex flex-row mt-6 text-xl md:text-xl text-left gap-1 whitespace-nowrap">
             <span className="mr-1">Browse:</span>
             <RevLink network="sepolia" id={1} text="NANA" />
             <Pipe />
@@ -52,33 +52,59 @@ export default function Page() {
       </div>
       <div className="border border-zinc-100 mt-20"></div>
 
-      <div className="mt-8 max-w-prose text-xl text-lg text-left">
+      <div className="mt-8 max-w-prose text-lg text-left">
         How revnets work:
-        <ol className="mt-4 list-decimal ml-10 list-outside">
+        <ol className="mt-4 list-decimal ml-8 sm:ml-10 list-outside">
           <li>Set a name, ticker, logo, and description.</li>
           <li>Lock token issuance and cash-out rules in automated stages.</li>
           <li>Deploy on every chain where you collect fees and payments.</li>
           <li>Route revenues to your revnet while welcoming funds from anyone.</li>
         </ol>
       </div>
-      <div className="mt-4 max-w-prose text-l md:text-2xl text-lg text-left">
-        <p className="text-xl">
-          Simple enough for startups, powerful enough for decentralized global orgs and brands.
+      <div className="mt-4 max-w-prose text-lg text-left">
+        <p>
+          Simple enough for startups, powerful enough for global orgs and brands.
         </p>
 
-        <p className="text-xl">
-          Read the memo at {" "}
-          <Link
-            href="https://rev.eth.sucks/memo"
-            target="_blank"
-            rel="noopener norefererr"
-            className="underline"
-          >
-            rev.eth.sucks/memo
-          </Link>.
-        </p>
+      <div>
+        <ul className="list-disc list-outside ml-6 sm:ml-10 mt-4">
+          <li>
+            Read the memo at <Link href="https://rev.eth.sucks/memo" target="_blank" rel="noopener norefererr" className="underline">
+              rev.eth.sucks/memo
+            </Link>.
+          </li>
+          <li>
+            Plan your revnet with the community on <Link href="https://discord.gg/vhVxwh8aD9" target="_blank" rel="noopener norefererr" className="underline">
+              Discord
+            </Link>.
+          </li>
+          <li>
+           Audit this website and the revnet protocol on <Link href="https://github.com/orgs/rev-net/repositories" target="_blank" rel="noopener norefererr" className="underline">
+               Github
+            </Link>.
+          </li>
+          <li>
+            Support the $REV network <Link href="https://revnet.app/sepolia/3" target="_blank" rel="noopener norefererr" className="underline">
+              here
+            </Link>, we run as a revnet ourselves.
+          </li>
+        </ul>
+      </div>
+        {/* <div className="flex">
+          <div className="mt-4 bg-white text-black text-lg">
+            Read the memo at {" "}
+            <Link
+              href="https://rev.eth.sucks/memo"
+              target="_blank"
+              rel="noopener norefererr"
+              className="underline"
+            >
+              rev.eth.sucks/memo
+            </Link>.
+            </div>
+        </div>
         <div className="flex">
-          <div className="mt-8 bg-white text-black text-lg">
+          <div className="bg-white text-black text-lg">
           Plan your revnet with the community <Link href="https://discord.gg/vhVxwh8aD9" className="underline hover:text-black/70">on Discord.
             </Link>
           </div>
@@ -96,7 +122,7 @@ Audit this website and the revnet protocol <Link href="https://github.com/orgs/r
                here,
             </Link>{" "}we run as a revnet ourselves.
           </div>
-        </div>
+        </div> */}
       </div>
     </div>
   );
