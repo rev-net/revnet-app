@@ -52,10 +52,16 @@ export default function Page() {
       </div>
       <div className="border border-zinc-100 mt-20"></div>
 
-      <div className="mt-8 max-w-prose text-l md:text-2xl text-lg text-left">
-        {/* <p className="text-xl">
-          Made for creators, developers, communities, investors, and customers.
-        </p> */}
+      <div className="mt-8 max-w-prose text-xl text-lg text-left">
+        How it works:
+        <ol className="mt-4 list-decimal ml-10 list-outside">
+          <li>Set a name, ticker, logo, and description.</li>
+          <li>Lock token issuance and cash-out rules in automated stages.</li>
+          <li>Deploy on every chain where you collect fees and payments.</li>
+          <li>Route revenues to your revnet while welcoming payments from anyone.</li>
+        </ol>
+      </div>
+      <div className="mt-4 max-w-prose text-l md:text-2xl text-lg text-left">
         <p className="text-xl">
           Simple enough for startups, powerful enough for decentralized global orgs and brands.
         </p>
