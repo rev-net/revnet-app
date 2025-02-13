@@ -133,7 +133,7 @@ export function AddStageDialog({
                     <p className="text-md text-zinc-500 mt-3">
                       How many {revnetTokenSymbol} to issue when receiving 1 {nativeTokenSymbol}.
                     </p>
-                    <div className="flex flex-wrap md:flex-nowrap gap-4 items-center text-md text-zinc-600 mt-4">
+                    <div className="flex flex-wrap md:flex-nowrap gap-4 sm:gap-2 items-center text-md text-zinc-600 mt-4">
                       <div className="w-full sm:w-[200px] lg:w-[200px] xl:w-[200px]">
                         <FieldGroup
                           id="initialIssuance"
