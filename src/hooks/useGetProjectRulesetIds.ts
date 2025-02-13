@@ -10,12 +10,12 @@ type SuckerPairWithRuleset = SuckerPair & {
 };
 
 export function useGetProjectRulesetIds(suckers: SuckerPair[] | undefined | null) {
-  const [suckerPairsWithRulesets, setSuckerPairsWithRulesets] = useState<SuckerPairWithRuleset[]>([]);
+  const [suckerPairsWithRulesets, setSuckerPairsWithRulesets] = useState<SuckerPairWithRuleset[] | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<any | null>(null);
 
   const fetchRuleSets = useCallback(async () => {
-    if (!suckers) return;
+    if (!suckers) return undefined;
     setIsLoading(true);
     try {
       const allRuleSets = await Promise.all(
@@ -45,9 +45,14 @@ export function useGetProjectRulesetIds(suckers: SuckerPair[] | undefined | null
   }, [suckers]);
 
   useEffect(() => {
-    if (!suckers) return;
+    if (!suckers) return undefined;
     fetchRuleSets();
-  }, [suckers, fetchRuleSets]);
+    console.log("ERROR", error)
+  }, [suckers, fetchRuleSets, error]);
 
-  return { suckerPairsWithRulesets, isLoading, error };
+  return {
+    suckerPairsWithRulesets: error ? undefined : suckerPairsWithRulesets,
+    isLoading,
+    error,
+  };
 }

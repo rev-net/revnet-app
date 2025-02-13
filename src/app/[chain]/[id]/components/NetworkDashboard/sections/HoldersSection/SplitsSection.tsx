@@ -18,6 +18,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { ProjectCreateEventDocument } from "@/generated/graphql";
+import { useOmnichainSubgraphQuery } from "@/graphql/useOmnichainSubgraphQuery";
 import { useBoostRecipient } from "@/hooks/useBoostRecipient";
 import { useGetProjectRulesetIds } from "@/hooks/useGetProjectRulesetIds";
 import { formatTokenSymbol } from "@/lib/utils";
@@ -51,10 +53,15 @@ export function SplitsSection() {
   const suckersQuery = useSuckers();
   const suckers = suckersQuery.data;
   const { suckerPairsWithRulesets, isLoading: isLoadingRuleSets } = useGetProjectRulesetIds(suckers);
+  const { data: createData } = useOmnichainSubgraphQuery(ProjectCreateEventDocument, {
+    where: {
+      projectId: Number(projectId),
+    },
+  });
   const { data: reservedTokenSplits, isLoading: isLoadingSplits } = useReadJbSplitsSplitsOf({
     chainId: selectedSucker?.peerChainId as JBChainId | undefined,
     args:
-      ruleset && ruleset?.data && selectedSucker && suckerPairsWithRulesets.length > 0 && selectedSuckerIndex >= 0
+      ruleset && ruleset?.data && selectedSucker && suckerPairsWithRulesets && suckerPairsWithRulesets?.length > 0 && selectedSuckerIndex >= 0
         ? [
             BigInt(suckerPairsWithRulesets.find((sucker) => sucker.peerChainId === selectedSucker?.peerChainId)?.projectId || projectId ),
             BigInt(suckerPairsWithRulesets.find((sucker) => sucker.peerChainId === selectedSucker?.peerChainId)?.rulesetId || 0),
@@ -85,6 +92,8 @@ export function SplitsSection() {
     }, [suckers, chainId, projectId, selectedSucker]);
   console.log("suckerPairsWithRulesets", suckerPairsWithRulesets)
   console.log("selectedSucker", selectedSucker)
+  console.log("pendingReserveTokenBalance", pendingReserveTokenBalance)
+  console.log("createData", createData)
   return (
     <>
       <div className="flex space-y-4 pb-0 sm:pb-2">
@@ -194,7 +203,7 @@ export function SplitsSection() {
                         {formatUnits(BigInt(split.percent), 7)} %
                       </TableCell>
                       <TableCell>
-                        {pendingReserveTokenBalance
+                        {pendingReserveTokenBalance || pendingReserveTokenBalance === 0n
                           ? `
                           ${formatUnits(
                             (pendingReserveTokenBalance *
