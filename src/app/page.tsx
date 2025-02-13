@@ -38,7 +38,7 @@ export default function Page() {
               </Button>
             </Link>
           </div>
-          <div className="flex flex-row mt-6 text-xl md:text-xl text-left gap-1 whitespace-nowrap">
+          <div className="flex flex-row sm:mt-8 text-xl md:text-xl text-left gap-1 whitespace-nowrap">
             <span className="mr-1">Browse:</span>
             <RevLink network="sepolia" id={1} text="NANA" />
             <Pipe />
