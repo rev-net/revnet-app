@@ -41,6 +41,12 @@ export function AutoIssuance() {
     }
   }, [isSuccess]);
 
+  if (autoIssuances?.length === 0) return (
+    <div className="text-center text-zinc-400">
+      No autoissuances
+    </div>
+  );
+
   return (
     <div className="max-h-96 overflow-auto bg-zinc-50 border-zinc-200 border mb-4">
       <div className="flex flex-col p-2">
