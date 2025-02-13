@@ -41,6 +41,7 @@ export function useFetchProjectRulesets(suckers: SuckerPair[] | undefined | null
           })
         )
       );
+      if (allRuleSets.length === 0) return undefined;
       const pairsWithRulesets = suckers.map((sucker, index) => ({
         ...sucker,
         rulesets: allRuleSets[index].slice().reverse() as RuleSet[],

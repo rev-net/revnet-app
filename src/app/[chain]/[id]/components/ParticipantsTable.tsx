@@ -27,6 +27,11 @@ export function ParticipantsTable({
   boostRecipient?: Address;
 }) {
   console.log(participants)
+  if (participants.length === 0) return (
+    <div className="text-center text-zinc-400">
+      No participants found
+    </div>
+  );
   return (
     <Table>
       <TableHeader>

@@ -7,7 +7,6 @@ import { useCountdownToDate } from "@/hooks/useCountdownToDate";
 import { useFormattedTokenIssuance } from "@/hooks/useFormattedTokenIssuance";
 import { useNativeTokenSymbol } from "@/hooks/useNativeTokenSymbol";
 import { formatSeconds } from "@/lib/utils";
-import { QuestionMarkCircleIcon } from "@heroicons/react/24/outline";
 import {
   RulesetWeight,
   getNextRulesetWeight,
@@ -25,7 +24,6 @@ export function PriceIncreaseCountdown() {
     )
   );
   const entryTax = ruleset?.data?.weightCutPercent;
-  const tokenA = { symbol: nativeTokenSymbol, decimals: 18 };
   const nextWeight = new RulesetWeight(
     getNextRulesetWeight({
       weight: ruleset?.data?.weight.value ?? 0n,

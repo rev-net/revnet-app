@@ -58,6 +58,8 @@ export function SplitsSection() {
     1 // lower bound should be 1 (the minimum 'next stage' is 1)
   );
   const currentStageIdx = nextStageIdx - 1;
+  const splitLimit = selectedSuckerRulesets?.[selectedStageIdx]?.weightCutPercent;
+  const splitLimitFormatted = splitLimit ? splitLimit / 10**7 : "0";
   const { data: reservedTokenSplits, isLoading: isLoadingSplits } = useReadJbSplitsSplitsOf({
     chainId: selectedSucker?.peerChainId as JBChainId | undefined,
     args:
@@ -97,6 +99,15 @@ export function SplitsSection() {
           Splits can be adjusted by the Operator at any time, within the permanent split limit of a stage.
         </p>
       </div>
+      <div className="flex gap-1 pb-2 pt-2 text-md font-medium border-l border-zinc-200 pl-3">
+        Operator is{" "}
+        <EtherscanLink
+          value={boostRecipient}
+          type="address"
+          chain={chainId ? JB_CHAINS[chainId].chain : undefined}
+          truncateTo={6}
+        />
+      </div>
       {suckers && suckers.length > 1 && (
         <div className="mt-2 mb-4">
           <div className="text-sm text-zinc-500">See splits on</div>
@@ -127,36 +138,30 @@ export function SplitsSection() {
             </SelectContent>
           </Select>
           <div className="flex gap-4 my-2">
-              {selectedSuckerRulesets?.map((ruleset, idx) => {
-                return (
-                  <Button
-                    variant={selectedStageIdx === idx ? "tab-selected" : "bottomline"}
-                    className={twJoin(
-                      "text-md text-zinc-400",
-                      selectedStageIdx === idx && "text-inherit"
-                    )}
-                    key={ruleset.id.toString() + idx}
-                    onClick={() => setSelectedStageIdx(idx)}
-                  >
-                    Stage {idx + 1}
-                    {idx ===  currentStageIdx && (
-                      <span className="rounded-full h-2 w-2 bg-orange-400 border-[2px] border-orange-200 ml-1"></span>
-                    )}
-                  </Button>
-                );
-              })}
-            </div>
+            {selectedSuckerRulesets?.map((ruleset, idx) => {
+              return (
+                <Button
+                  variant={selectedStageIdx === idx ? "tab-selected" : "bottomline"}
+                  className={twJoin(
+                    "text-md text-zinc-400",
+                    selectedStageIdx === idx && "text-inherit"
+                  )}
+                  key={ruleset.id.toString() + idx}
+                  onClick={() => setSelectedStageIdx(idx)}
+                >
+                  Stage {idx + 1}
+                  {idx ===  currentStageIdx && (
+                    <span className="rounded-full h-2 w-2 bg-orange-400 border-[2px] border-orange-200 ml-1"></span>
+                  )}
+                </Button>
+              );
+            })}
+          </div>
+          <div className="text-md text-zinc-400">
+            The split limit for this stage is {splitLimitFormatted}%
+          </div>
         </div>
       )}
-      <div className="flex gap-1 pb-2 pt-2 text-md font-medium border-l border-zinc-200 pl-3">
-        Operator is{" "}
-        <EtherscanLink
-          value={boostRecipient}
-          type="address"
-          chain={chainId ? JB_CHAINS[chainId].chain : undefined}
-          truncateTo={6}
-        />
-      </div>
       <div className="max-h-96 overflow-auto bg-zinc-50 rounded-tr-md rounded-br-md  border-zinc-200 border mb-4">
         <div className="flex flex-col p-2">
           <Table>
