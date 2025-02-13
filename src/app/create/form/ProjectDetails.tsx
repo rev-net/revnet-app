@@ -61,7 +61,7 @@ export function DetailsPage({
         <FieldGroup
           id="description"
           name="description"
-          label="Description"
+          label="About"
           component="textarea"
           rows={2}
           className="max-w-lg"
