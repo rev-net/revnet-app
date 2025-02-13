@@ -58,7 +58,7 @@ export default function Page() {
           <li>Set a name, ticker, logo, and description.</li>
           <li>Lock token issuance and cash-out rules in automated stages.</li>
           <li>Deploy on every chain where you collect fees and payments.</li>
-          <li>Route revenues to your revnet while welcoming payments from anyone.</li>
+          <li>Route revenues to your revnet while welcoming funds from anyone.</li>
         </ol>
       </div>
       <div className="mt-4 max-w-prose text-l md:text-2xl text-lg text-left">
