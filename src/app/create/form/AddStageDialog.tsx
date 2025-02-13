@@ -124,48 +124,56 @@ export function AddStageDialog({
             {({ values }) => (
               <Form>
                 <div className="pb-6">
-                  <FieldGroup
-                    id="initialIssuance"
-                    name="initialIssuance"
-                    min="0"
-                    type="number"
-                    label="1. Paid issuance"
-                    description={`How many ${revnetTokenSymbol} to issue when receiving 1 ${nativeTokenSymbol}.`}
-                    placeholder="10000"
-                    suffix={`${revnetTokenSymbol} / ${nativeTokenSymbol}`}
-                  />
 
                   <div>
-                    <div className="flex gap-2 items-center text-md text-zinc-600">
-                      <label
-                        htmlFor="priceCeilingIncreasePercentage"
-                        className="whitespace-nowrap"
-                      >
-                        ... cut by
-                      </label>
-                      <Field
-                        id="priceCeilingIncreasePercentage"
-                        name="priceCeilingIncreasePercentage"
-                        type="number"
-                        min="0"
-                        max="100"
-                        className="h-9"
-                        suffix="%"
-                        required
-                      />
-                      <label htmlFor="priceCeilingIncreaseFrequency">
-                        every
-                      </label>
-                      <Field
-                        id="priceCeilingIncreaseFrequency"
-                        name="priceCeilingIncreaseFrequency"
-                        className="h-9"
-                        type="number"
-                        min="0"
-                        required
-                      />
-                      days.
+                    <div className="block text-md font-semibold leading-6">
+                      1. Paid issuance
                     </div>
+                    <p className="text-md text-zinc-500 mt-3">
+                      How many {revnetTokenSymbol} to issue when receiving 1 {nativeTokenSymbol}.
+                    </p>
+                    <div className="flex flex-wrap md:flex-nowrap gap-2 items-center text-md text-zinc-600 mt-4">
+                      <div className="min-w-[200px]">
+                        <FieldGroup
+                          id="initialIssuance"
+                          name="initialIssuance"
+                          min="0"
+                          type="number"
+                          placeholder="10000"
+                          suffix={`${revnetTokenSymbol} / ${nativeTokenSymbol}`}
+                        />
+                      </div>
+                      <div className="flex items-center gap-2 w-full md:w-auto">
+                        <label
+                          htmlFor="priceCeilingIncreasePercentage"
+                          className="whitespace-nowrap"
+                        >
+                          cut by
+                        </label>
+                        <Field
+                          id="priceCeilingIncreasePercentage"
+                          name="priceCeilingIncreasePercentage"
+                          type="number"
+                          min="0"
+                          max="100"
+                          className="h-9"
+                          suffix="%"
+                          required
+                        />
+                        <label htmlFor="priceCeilingIncreaseFrequency">
+                          every
+                        </label>
+                        <Field
+                          id="priceCeilingIncreaseFrequency"
+                          name="priceCeilingIncreaseFrequency"
+                          className="h-9"
+                          type="number"
+                          min="0"
+                          required
+                        />
+                        days.
+                      </div>
+                      </div>
                   <div>
                     <FieldArray
                       name="splits"
@@ -409,7 +417,7 @@ export function AddStageDialog({
                       name="priceFloorTaxIntensity"
                       value={value}
                       onChange={handleChange}
-                      className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-teal-500"
+                      className="w-full h-2 bg-gray-200 appearance-none cursor-pointer accent-teal-500"
                       aria-label="Exit tax percentage"
                     />
                   </div>

@@ -58,7 +58,7 @@ export function FieldGroup(
   }
 ) {
   return (
-    <div className={twMerge("mb-5", props.className)}>
+    <div className={twMerge("mb-2", props.className)}>
       <label
         htmlFor={props.name}
         className="block text-md font-semibold leading-6 mb-1"
