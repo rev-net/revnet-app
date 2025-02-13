@@ -277,8 +277,7 @@ export function AddStageDialog({
                     render={(arrayHelpers) => (
                       <div>
                         <p className="text-md text-zinc-500 mt-3">
-                          Automatically issue {revnetTokenSymbol} to specific addresses when
-                          the stage starts.
+                          Optionally, auto-issue {revnetTokenSymbol} when the stage starts.
                         </p>
                         {values.autoIssuance?.map((_, index) => (
                           <div
