@@ -99,15 +99,6 @@ export function SplitsSection() {
           Splits can be adjusted by the Operator at any time, within the permanent split limit of a stage.
         </p>
       </div>
-      <div className="flex gap-1 pb-2 pt-2 text-md font-medium border-l border-zinc-200 pl-3">
-        Operator is{" "}
-        <EtherscanLink
-          value={boostRecipient}
-          type="address"
-          chain={chainId ? JB_CHAINS[chainId].chain : undefined}
-          truncateTo={6}
-        />
-      </div>
       {suckers && suckers.length > 1 && (
         <div className="mt-2 mb-4">
           <div className="text-sm text-zinc-500">See splits on</div>
@@ -137,6 +128,15 @@ export function SplitsSection() {
               ))}
             </SelectContent>
           </Select>
+          <div className="text-sm font-medium text-zinc-500 mt-4 border-l border-zinc-300 pl-2 py-1 px-1">
+            Operator is currently{" "}
+            <EtherscanLink
+              value={boostRecipient}
+              type="address"
+              chain={chainId ? JB_CHAINS[chainId].chain : undefined}
+              truncateTo={6}
+            />
+          </div>
           <div className="flex gap-4 my-2">
             {selectedSuckerRulesets?.map((ruleset, idx) => {
               return (
@@ -157,7 +157,7 @@ export function SplitsSection() {
               );
             })}
           </div>
-          <div className="text-md text-zinc-400">
+          <div className="text-sm font-medium text-zinc-500 mt-4">
             The split limit for this stage is {splitLimitFormatted}%
           </div>
         </div>
@@ -221,7 +221,8 @@ export function SplitsSection() {
                         </div>
                       </TableCell>
                       <TableCell>
-                        {formatUnits(BigInt(split.percent), 7)} %
+                        {formatUnits(BigInt(split.percent * Number(splitLimitFormatted) / 100), 7)}%
+                        <span className="text-zinc-500 ml-2">({formatUnits(BigInt(split.percent), 7)}% of limit)</span>
                       </TableCell>
                       <TableCell>
                         {pendingReserveTokenBalance || pendingReserveTokenBalance === 0n
