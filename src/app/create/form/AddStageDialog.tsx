@@ -329,11 +329,12 @@ export function AddStageDialog({
                         >
                           add auto issuance +
                         </Button>
-                        <div className="text-sm font-medium text-zinc-500 mt-4 border-l border-zinc-300 pl-2 py-1 px-1">
+                        { values.autoIssuance.length > 0 && <div className="text-sm font-medium text-zinc-500 mt-4 border-l border-zinc-300 pl-2 py-1 px-1">
                           Total auto issuance of {" "}
                           {commaNumber(values.autoIssuance?.reduce((sum, issuance) => sum + (Number(issuance.amount) || 0), 0))}
                           {" "}{revnetTokenSymbol}.
                         </div>
+                        }
                       </div>
                     )}
                   />
