@@ -131,6 +131,7 @@ export function AddStageDialog({
                     type="number"
                     label="1. Paid issuance"
                     description={`How many ${revnetTokenSymbol} to issue when receiving 1 ${nativeTokenSymbol}.`}
+                    placeholder="10000"
                     suffix={`${revnetTokenSymbol} / ${nativeTokenSymbol}`}
                   />
 
