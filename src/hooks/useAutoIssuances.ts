@@ -26,8 +26,6 @@ export function useAutoIssuances() {
   });
 
   const autoIssuances = useMemo(() => {
-    console.log("AUTOISSUANCES")
-    console.log(autoIssuancesData)
     return autoIssuancesData?.storeAutoIssuanceAmountEvents.map((autoIssuance) => {
       const rulesetIndex =
         rulesets?.findIndex((r) => String(r.id) === autoIssuance.stageId) || 0;

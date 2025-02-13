@@ -40,7 +40,7 @@ export function AutoIssuance() {
       setAutoIssueId(null);
     }
   }, [isSuccess]);
-
+  console.log("autoIssuances", autoIssuances)
   return (
     <div className="max-h-96 overflow-auto bg-zinc-50 border-zinc-200 border mb-4">
       <div className="flex flex-col p-2">

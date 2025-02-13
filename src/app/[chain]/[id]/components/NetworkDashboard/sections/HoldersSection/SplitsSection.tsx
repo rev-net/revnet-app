@@ -19,6 +19,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useBoostRecipient } from "@/hooks/useBoostRecipient";
+import { useGetProjectRulesetIds } from "@/hooks/useGetProjectRulesetIds";
 import { formatTokenSymbol } from "@/lib/utils";
 import {
   JB_CHAINS,
@@ -46,13 +47,19 @@ export function SplitsSection() {
   const { token } = useJBTokenContext();
   const boostRecipient = useBoostRecipient();
   const [selectedSucker, setSelectedSucker] = useState<SuckerPair>();
+  const [selectedSuckerIndex, setSelectedSuckerIndex] = useState<number>(0);
   const suckersQuery = useSuckers();
   const suckers = suckersQuery.data;
-  const { data: reservedTokenSplits, isLoading } = useReadJbSplitsSplitsOf({
+  const { suckerPairsWithRulesets, isLoading: isLoadingRuleSets } = useGetProjectRulesetIds(suckers);
+  const { data: reservedTokenSplits, isLoading: isLoadingSplits } = useReadJbSplitsSplitsOf({
     chainId: selectedSucker?.peerChainId as JBChainId | undefined,
     args:
-      ruleset && ruleset?.data
-        ? [projectId, BigInt(ruleset.data.id), RESERVED_TOKEN_SPLIT_GROUP_ID]
+      ruleset && ruleset?.data && selectedSucker && suckerPairsWithRulesets.length > 0 && selectedSuckerIndex >= 0
+        ? [
+            BigInt(suckerPairsWithRulesets.find((sucker) => sucker.peerChainId === selectedSucker?.peerChainId)?.projectId || projectId ),
+            BigInt(suckerPairsWithRulesets.find((sucker) => sucker.peerChainId === selectedSucker?.peerChainId)?.rulesetId || 0),
+            RESERVED_TOKEN_SPLIT_GROUP_ID
+          ]
         : undefined,
   });
   const { data: pendingReserveTokenBalance } =
@@ -67,15 +74,17 @@ export function SplitsSection() {
     });
 
     useEffect(() => {
-    if (chainId && suckers && !suckers.find((s) => s.peerChainId === chainId)) {
-      suckers.push({ projectId, peerChainId: chainId });
-    }
-    if (suckers && !selectedSucker) {
-      const i = suckers.findIndex((s) => s.peerChainId === chainId);
-      setSelectedSucker(suckers[i]);
-    }
-  }, [suckers, chainId, projectId, selectedSucker]);
-
+      if (chainId && suckers && !suckers.find((s) => s.peerChainId === chainId)) {
+        suckers.push({ projectId, peerChainId: chainId });
+      }
+      if (suckers && !selectedSucker) {
+        const i = suckers.findIndex((s) => s.peerChainId === chainId);
+        setSelectedSucker(suckers[i]);
+        setSelectedSuckerIndex(i);
+      }
+    }, [suckers, chainId, projectId, selectedSucker]);
+  console.log("suckerPairsWithRulesets", suckerPairsWithRulesets)
+  console.log("selectedSucker", selectedSucker)
   return (
     <>
       <div className="flex space-y-4 pb-0 sm:pb-2">
@@ -134,7 +143,7 @@ export function SplitsSection() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {isLoading ? (
+              {isLoadingRuleSets || isLoadingSplits ? (
                 <TableRow>
                   <TableCell colSpan={2} className="text-center">
                     Loading...
