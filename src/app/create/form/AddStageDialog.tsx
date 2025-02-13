@@ -114,7 +114,7 @@ export function AddStageDialog({
         <DialogHeader>
           <DialogTitle>Add stage</DialogTitle>
         </DialogHeader>
-        <div className="my-8">
+        <div className="mt-8">
           <Formik
             initialValues={{ ...(initialValues ?? defaultStageData) }}
             onSubmit={(newValues) => {
@@ -133,7 +133,7 @@ export function AddStageDialog({
                     <p className="text-md text-zinc-500 mt-3">
                       How many {revnetTokenSymbol} to issue when receiving 1 {nativeTokenSymbol}.
                     </p>
-                    <div className="flex flex-wrap md:flex-nowrap gap-4 sm:gap-2 items-center text-md text-zinc-600 mt-4">
+                    <div className="flex flex-wrap md:flex-nowrap gap-4 sm:gap-2 items-center text-md text-zinc-600 mt-2">
                       <div className="w-full sm:w-[200px] lg:w-[200px] xl:w-[200px]">
                         <FieldGroup
                           id="initialIssuance"
@@ -239,9 +239,11 @@ export function AddStageDialog({
                         </div>
                       )}
                     />
-                  <div className="text-sm font-medium text-zinc-500 mt-4 border-l border-zinc-300 pl-2 py-1 px-1">
-                    Total split limit of {values.splits.reduce((sum, split) => sum + (Number(split.percentage) || 0), 0)}%, payer always receives {100 - values.splits.reduce((sum, split) => sum + (Number(split.percentage) || 0), 0)}% of issuance.
-                  </div>
+                    {
+                      values.splits.length > 0  && <div className="text-sm font-medium text-zinc-500 mt-4 border-l border-zinc-300 pl-2 py-1 px-1">
+                        Total split limit of {values.splits.reduce((sum, split) => sum + (Number(split.percentage) || 0), 0)}%, payer always receives {100 - values.splits.reduce((sum, split) => sum + (Number(split.percentage) || 0), 0)}% of issuance.
+                      </div>
+                    }
                   {
                     values.splits.length > 0 && (
                   <div className="mt-4 flex gap-2 items-center text-md text-zinc-600 whitespace-nowrap">
@@ -276,7 +278,7 @@ export function AddStageDialog({
                     name="autoIssuance"
                     render={(arrayHelpers) => (
                       <div>
-                        <p className="text-md text-zinc-500 mt-3">
+                        <p className="text-md text-zinc-500 mt-5">
                           Optionally, auto-issue {revnetTokenSymbol} when the stage starts.
                         </p>
                         {values.autoIssuance?.map((_, index) => (
