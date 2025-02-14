@@ -200,6 +200,83 @@ export enum Aggregation_Interval {
   hour = 'hour'
 }
 
+export type AutoIssueEvent = {
+  beneficiary: Scalars['Bytes']['output'];
+  caller: Scalars['Bytes']['output'];
+  count: Scalars['BigInt']['output'];
+  id: Scalars['ID']['output'];
+  revnetId: Scalars['BigInt']['output'];
+  stageId: Scalars['BigInt']['output'];
+};
+
+export type AutoIssueEvent_Filter = {
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<AutoIssueEvent_Filter>>>;
+  beneficiary?: InputMaybe<Scalars['Bytes']['input']>;
+  beneficiary_contains?: InputMaybe<Scalars['Bytes']['input']>;
+  beneficiary_gt?: InputMaybe<Scalars['Bytes']['input']>;
+  beneficiary_gte?: InputMaybe<Scalars['Bytes']['input']>;
+  beneficiary_in?: InputMaybe<Array<Scalars['Bytes']['input']>>;
+  beneficiary_lt?: InputMaybe<Scalars['Bytes']['input']>;
+  beneficiary_lte?: InputMaybe<Scalars['Bytes']['input']>;
+  beneficiary_not?: InputMaybe<Scalars['Bytes']['input']>;
+  beneficiary_not_contains?: InputMaybe<Scalars['Bytes']['input']>;
+  beneficiary_not_in?: InputMaybe<Array<Scalars['Bytes']['input']>>;
+  caller?: InputMaybe<Scalars['Bytes']['input']>;
+  caller_contains?: InputMaybe<Scalars['Bytes']['input']>;
+  caller_gt?: InputMaybe<Scalars['Bytes']['input']>;
+  caller_gte?: InputMaybe<Scalars['Bytes']['input']>;
+  caller_in?: InputMaybe<Array<Scalars['Bytes']['input']>>;
+  caller_lt?: InputMaybe<Scalars['Bytes']['input']>;
+  caller_lte?: InputMaybe<Scalars['Bytes']['input']>;
+  caller_not?: InputMaybe<Scalars['Bytes']['input']>;
+  caller_not_contains?: InputMaybe<Scalars['Bytes']['input']>;
+  caller_not_in?: InputMaybe<Array<Scalars['Bytes']['input']>>;
+  count?: InputMaybe<Scalars['BigInt']['input']>;
+  count_gt?: InputMaybe<Scalars['BigInt']['input']>;
+  count_gte?: InputMaybe<Scalars['BigInt']['input']>;
+  count_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
+  count_lt?: InputMaybe<Scalars['BigInt']['input']>;
+  count_lte?: InputMaybe<Scalars['BigInt']['input']>;
+  count_not?: InputMaybe<Scalars['BigInt']['input']>;
+  count_not_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
+  id?: InputMaybe<Scalars['ID']['input']>;
+  id_gt?: InputMaybe<Scalars['ID']['input']>;
+  id_gte?: InputMaybe<Scalars['ID']['input']>;
+  id_in?: InputMaybe<Array<Scalars['ID']['input']>>;
+  id_lt?: InputMaybe<Scalars['ID']['input']>;
+  id_lte?: InputMaybe<Scalars['ID']['input']>;
+  id_not?: InputMaybe<Scalars['ID']['input']>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']['input']>>;
+  or?: InputMaybe<Array<InputMaybe<AutoIssueEvent_Filter>>>;
+  revnetId?: InputMaybe<Scalars['BigInt']['input']>;
+  revnetId_gt?: InputMaybe<Scalars['BigInt']['input']>;
+  revnetId_gte?: InputMaybe<Scalars['BigInt']['input']>;
+  revnetId_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
+  revnetId_lt?: InputMaybe<Scalars['BigInt']['input']>;
+  revnetId_lte?: InputMaybe<Scalars['BigInt']['input']>;
+  revnetId_not?: InputMaybe<Scalars['BigInt']['input']>;
+  revnetId_not_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
+  stageId?: InputMaybe<Scalars['BigInt']['input']>;
+  stageId_gt?: InputMaybe<Scalars['BigInt']['input']>;
+  stageId_gte?: InputMaybe<Scalars['BigInt']['input']>;
+  stageId_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
+  stageId_lt?: InputMaybe<Scalars['BigInt']['input']>;
+  stageId_lte?: InputMaybe<Scalars['BigInt']['input']>;
+  stageId_not?: InputMaybe<Scalars['BigInt']['input']>;
+  stageId_not_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
+};
+
+export enum AutoIssueEvent_OrderBy {
+  beneficiary = 'beneficiary',
+  caller = 'caller',
+  count = 'count',
+  id = 'id',
+  revnetId = 'revnetId',
+  stageId = 'stageId'
+}
+
 export type BlockChangedFilter = {
   number_gte: Scalars['Int']['input'];
 };
@@ -4213,6 +4290,8 @@ export type Query = {
   _meta: Maybe<_Meta_>;
   addToBalanceEvent: Maybe<AddToBalanceEvent>;
   addToBalanceEvents: Array<AddToBalanceEvent>;
+  autoIssueEvent: Maybe<AutoIssueEvent>;
+  autoIssueEvents: Array<AutoIssueEvent>;
   burnEvent: Maybe<BurnEvent>;
   burnEvents: Array<BurnEvent>;
   cashOutEvent: Maybe<CashOutEvent>;
@@ -4283,6 +4362,24 @@ export type QueryAddToBalanceEventsArgs = {
   skip?: InputMaybe<Scalars['Int']['input']>;
   subgraphError?: _SubgraphErrorPolicy_;
   where?: InputMaybe<AddToBalanceEvent_Filter>;
+};
+
+
+export type QueryAutoIssueEventArgs = {
+  block?: InputMaybe<Block_Height>;
+  id: Scalars['ID']['input'];
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type QueryAutoIssueEventsArgs = {
+  block?: InputMaybe<Block_Height>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<AutoIssueEvent_OrderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
+  subgraphError?: _SubgraphErrorPolicy_;
+  where?: InputMaybe<AutoIssueEvent_Filter>;
 };
 
 
@@ -4791,6 +4888,8 @@ export type Subscription = {
   _meta: Maybe<_Meta_>;
   addToBalanceEvent: Maybe<AddToBalanceEvent>;
   addToBalanceEvents: Array<AddToBalanceEvent>;
+  autoIssueEvent: Maybe<AutoIssueEvent>;
+  autoIssueEvents: Array<AutoIssueEvent>;
   burnEvent: Maybe<BurnEvent>;
   burnEvents: Array<BurnEvent>;
   cashOutEvent: Maybe<CashOutEvent>;
@@ -4860,6 +4959,24 @@ export type SubscriptionAddToBalanceEventsArgs = {
   skip?: InputMaybe<Scalars['Int']['input']>;
   subgraphError?: _SubgraphErrorPolicy_;
   where?: InputMaybe<AddToBalanceEvent_Filter>;
+};
+
+
+export type SubscriptionAutoIssueEventArgs = {
+  block?: InputMaybe<Block_Height>;
+  id: Scalars['ID']['input'];
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type SubscriptionAutoIssueEventsArgs = {
+  block?: InputMaybe<Block_Height>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<AutoIssueEvent_OrderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
+  subgraphError?: _SubgraphErrorPolicy_;
+  where?: InputMaybe<AutoIssueEvent_Filter>;
 };
 
 
@@ -5662,9 +5779,21 @@ export type StoreAutoIssuanceAmountEventsQueryVariables = Exact<{
 
 export type StoreAutoIssuanceAmountEventsQuery = { storeAutoIssuanceAmountEvents: Array<{ id: string, revnetId: any, beneficiary: any, count: any, stageId: any, caller: any }> };
 
+export type AutoIssueEventsQueryVariables = Exact<{
+  where?: InputMaybe<AutoIssueEvent_Filter>;
+  orderBy?: InputMaybe<AutoIssueEvent_OrderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+export type AutoIssueEventsQuery = { autoIssueEvents: Array<{ id: string, revnetId: any, stageId: any, beneficiary: any, count: any, caller: any }> };
+
 
 export const ParticipantsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"Participants"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"where"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Participant_filter"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"first"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"skip"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"orderBy"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Participant_orderBy"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"orderDirection"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"OrderDirection"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"participants"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"where"},"value":{"kind":"Variable","name":{"kind":"Name","value":"where"}}},{"kind":"Argument","name":{"kind":"Name","value":"first"},"value":{"kind":"Variable","name":{"kind":"Name","value":"first"}}},{"kind":"Argument","name":{"kind":"Name","value":"skip"},"value":{"kind":"Variable","name":{"kind":"Name","value":"skip"}}},{"kind":"Argument","name":{"kind":"Name","value":"orderBy"},"value":{"kind":"Variable","name":{"kind":"Name","value":"orderBy"}}},{"kind":"Argument","name":{"kind":"Name","value":"orderDirection"},"value":{"kind":"Variable","name":{"kind":"Name","value":"orderDirection"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"wallet"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}},{"kind":"Field","name":{"kind":"Name","value":"volume"}},{"kind":"Field","name":{"kind":"Name","value":"lastPaidTimestamp"}},{"kind":"Field","name":{"kind":"Name","value":"balance"}},{"kind":"Field","name":{"kind":"Name","value":"stakedBalance"}},{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]} as unknown as DocumentNode<ParticipantsQuery, ParticipantsQueryVariables>;
 export const ProjectsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"Projects"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"where"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Project_filter"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"first"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"skip"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"projects"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"where"},"value":{"kind":"Variable","name":{"kind":"Name","value":"where"}}},{"kind":"Argument","name":{"kind":"Name","value":"first"},"value":{"kind":"Variable","name":{"kind":"Name","value":"first"}}},{"kind":"Argument","name":{"kind":"Name","value":"skip"},"value":{"kind":"Variable","name":{"kind":"Name","value":"skip"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"projectId"}},{"kind":"Field","name":{"kind":"Name","value":"metadataUri"}},{"kind":"Field","name":{"kind":"Name","value":"handle"}},{"kind":"Field","name":{"kind":"Name","value":"contributorsCount"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}}]}}]}}]} as unknown as DocumentNode<ProjectsQuery, ProjectsQueryVariables>;
 export const ProjectCreateEventDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"ProjectCreateEvent"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"where"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"ProjectEvent_filter"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"projectEvents"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"where"},"value":{"kind":"Variable","name":{"kind":"Name","value":"where"}}},{"kind":"Argument","name":{"kind":"Name","value":"first"},"value":{"kind":"IntValue","value":"1"}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"projectCreateEvent"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"txHash"}},{"kind":"Field","name":{"kind":"Name","value":"timestamp"}}]}}]}}]}}]} as unknown as DocumentNode<ProjectCreateEventQuery, ProjectCreateEventQueryVariables>;
 export const ProjectEventsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"ProjectEvents"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"where"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"ProjectEvent_filter"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"orderBy"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"ProjectEvent_orderBy"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"orderDirection"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"OrderDirection"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"first"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"skip"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"projectEvents"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"where"},"value":{"kind":"Variable","name":{"kind":"Name","value":"where"}}},{"kind":"Argument","name":{"kind":"Name","value":"orderBy"},"value":{"kind":"Variable","name":{"kind":"Name","value":"orderBy"}}},{"kind":"Argument","name":{"kind":"Name","value":"orderDirection"},"value":{"kind":"Variable","name":{"kind":"Name","value":"orderDirection"}}},{"kind":"Argument","name":{"kind":"Name","value":"first"},"value":{"kind":"Variable","name":{"kind":"Name","value":"first"}}},{"kind":"Argument","name":{"kind":"Name","value":"skip"},"value":{"kind":"Variable","name":{"kind":"Name","value":"skip"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"timestamp"}},{"kind":"Field","name":{"kind":"Name","value":"payEvent"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"amount"}},{"kind":"Field","name":{"kind":"Name","value":"beneficiary"}},{"kind":"Field","name":{"kind":"Name","value":"note"}},{"kind":"Field","name":{"kind":"Name","value":"timestamp"}},{"kind":"Field","name":{"kind":"Name","value":"feeFromProject"}},{"kind":"Field","name":{"kind":"Name","value":"beneficiaryTokenCount"}},{"kind":"Field","name":{"kind":"Name","value":"from"}},{"kind":"Field","name":{"kind":"Name","value":"txHash"}},{"kind":"Field","name":{"kind":"Name","value":"amountUSD"}},{"kind":"Field","name":{"kind":"Name","value":"caller"}},{"kind":"Field","name":{"kind":"Name","value":"distributionFromProjectId"}},{"kind":"Field","name":{"kind":"Name","value":"projectId"}},{"kind":"Field","name":{"kind":"Name","value":"project"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"projectId"}},{"kind":"Field","name":{"kind":"Name","value":"handle"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"cashOutEvent"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"timestamp"}},{"kind":"Field","name":{"kind":"Name","value":"txHash"}},{"kind":"Field","name":{"kind":"Name","value":"from"}},{"kind":"Field","name":{"kind":"Name","value":"beneficiary"}},{"kind":"Field","name":{"kind":"Name","value":"reclaimAmount"}},{"kind":"Field","name":{"kind":"Name","value":"cashOutCount"}},{"kind":"Field","name":{"kind":"Name","value":"metadata"}},{"kind":"Field","name":{"kind":"Name","value":"project"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"projectId"}},{"kind":"Field","name":{"kind":"Name","value":"handle"}}]}}]}}]}}]}}]} as unknown as DocumentNode<ProjectEventsQuery, ProjectEventsQueryVariables>;
 export const StoreAutoIssuanceAmountEventsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"StoreAutoIssuanceAmountEvents"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"where"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"StoreAutoIssuanceAmountEvent_filter"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"orderBy"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"StoreAutoIssuanceAmountEvent_orderBy"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"orderDirection"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"OrderDirection"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"first"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"skip"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"storeAutoIssuanceAmountEvents"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"where"},"value":{"kind":"Variable","name":{"kind":"Name","value":"where"}}},{"kind":"Argument","name":{"kind":"Name","value":"orderBy"},"value":{"kind":"Variable","name":{"kind":"Name","value":"orderBy"}}},{"kind":"Argument","name":{"kind":"Name","value":"orderDirection"},"value":{"kind":"Variable","name":{"kind":"Name","value":"orderDirection"}}},{"kind":"Argument","name":{"kind":"Name","value":"first"},"value":{"kind":"Variable","name":{"kind":"Name","value":"first"}}},{"kind":"Argument","name":{"kind":"Name","value":"skip"},"value":{"kind":"Variable","name":{"kind":"Name","value":"skip"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"revnetId"}},{"kind":"Field","name":{"kind":"Name","value":"beneficiary"}},{"kind":"Field","name":{"kind":"Name","value":"count"}},{"kind":"Field","name":{"kind":"Name","value":"stageId"}},{"kind":"Field","name":{"kind":"Name","value":"caller"}}]}}]}}]} as unknown as DocumentNode<StoreAutoIssuanceAmountEventsQuery, StoreAutoIssuanceAmountEventsQueryVariables>;
+export const AutoIssueEventsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"AutoIssueEvents"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"where"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"AutoIssueEvent_filter"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"orderBy"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"AutoIssueEvent_orderBy"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"orderDirection"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"OrderDirection"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"first"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"skip"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"autoIssueEvents"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"where"},"value":{"kind":"Variable","name":{"kind":"Name","value":"where"}}},{"kind":"Argument","name":{"kind":"Name","value":"orderBy"},"value":{"kind":"Variable","name":{"kind":"Name","value":"orderBy"}}},{"kind":"Argument","name":{"kind":"Name","value":"orderDirection"},"value":{"kind":"Variable","name":{"kind":"Name","value":"orderDirection"}}},{"kind":"Argument","name":{"kind":"Name","value":"first"},"value":{"kind":"Variable","name":{"kind":"Name","value":"first"}}},{"kind":"Argument","name":{"kind":"Name","value":"skip"},"value":{"kind":"Variable","name":{"kind":"Name","value":"skip"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"revnetId"}},{"kind":"Field","name":{"kind":"Name","value":"stageId"}},{"kind":"Field","name":{"kind":"Name","value":"beneficiary"}},{"kind":"Field","name":{"kind":"Name","value":"count"}},{"kind":"Field","name":{"kind":"Name","value":"caller"}}]}}]}}]} as unknown as DocumentNode<AutoIssueEventsQuery, AutoIssueEventsQueryVariables>;

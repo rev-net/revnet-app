@@ -1,0 +1,22 @@
+query AutoIssueEvents(
+  $where: AutoIssueEvent_filter
+  $orderBy: AutoIssueEvent_orderBy
+  $orderDirection: OrderDirection
+  $first: Int
+  $skip: Int
+) {
+  autoIssueEvents(
+    where: $where
+    orderBy: $orderBy
+    orderDirection: $orderDirection
+    first: $first
+    skip: $skip
+  ) {
+    id
+    revnetId
+    stageId
+    beneficiary
+    count
+    caller
+  }
+}
