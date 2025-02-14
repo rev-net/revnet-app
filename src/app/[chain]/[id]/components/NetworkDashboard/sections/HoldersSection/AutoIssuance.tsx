@@ -19,6 +19,7 @@ import { EthereumAddress } from "@/components/EthereumAddress";
 import { useAutoIssuances } from "@/hooks/useAutoIssuances";
 import { toast } from "@/components/ui/use-toast";
 import EtherscanLink from "@/components/EtherscanLink";
+import { CheckIcon } from "lucide-react";
 
 export function AutoIssuance() {
   const { token } = useJBTokenContext();
@@ -99,12 +100,13 @@ export function AutoIssuance() {
                   </TableCell>
                   <TableCell>
                     {autoIssuance.distributed ? (
-                      <div className="text-zinc-400">
+                      <div className="text-zinc-400 flex flex-row gap-2 items-center">
                         <EtherscanLink
                           value={autoIssuance.distributedTxn}
                           type="tx"
                           truncateTo={4}
                         />
+                        <CheckIcon className="w-4 h-4 text-teal-500" />
                       </div>
                     ) : (
                     <Button
