@@ -4,6 +4,7 @@ import { JBChainId, jbRulesetsAbi, jbRulesetsAddress } from "juice-sdk-react";
 import { readContract } from "@wagmi/core";
 import { MAX_RULESET_COUNT } from "@/app/constants";
 import { wagmiConfig } from "@/lib/wagmiConfig";
+import { decodeRulesetMetadata, RulesetMetadata } from "@/lib/utils";
 
 type RuleSet = {
   cycleNumber: number;
@@ -14,7 +15,7 @@ type RuleSet = {
   weight: bigint;
   weightCutPercent: number;
   approvalHook: `0x${string}`;
-  metadata: bigint;
+  metadata: RulesetMetadata;
 };
 
 type SuckerPairWithRulesets = SuckerPair & {
@@ -44,7 +45,10 @@ export function useFetchProjectRulesets(suckers: SuckerPair[] | undefined | null
       if (allRuleSets.length === 0) return undefined;
       const pairsWithRulesets = suckers.map((sucker, index) => ({
         ...sucker,
-        rulesets: allRuleSets[index].slice().reverse() as RuleSet[],
+        rulesets: allRuleSets[index].slice().reverse().map((ruleset) => ({
+          ...ruleset,
+          metadata: decodeRulesetMetadata(ruleset.metadata),
+        })),
       }));
       setSuckerPairsWithRulesets(pairsWithRulesets);
     } catch (error) {

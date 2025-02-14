@@ -1,11 +1,16 @@
 import { chainSortOrder } from "@/app/constants";
 import { clsx, type ClassValue } from "clsx";
 import { formatDuration, intervalToDuration } from "date-fns";
-import { JBRulesetData, JB_CHAINS } from "juice-sdk-core";
 import { JBChainId, JBTokenContextData } from "juice-sdk-react";
 import { twMerge } from "tailwind-merge";
-import { Chain, formatEther } from "viem";
+import { Address, Chain, formatEther } from "viem";
 import { mainnet } from "viem/chains";
+import {
+  JBRulesetData,
+  JB_CHAINS,
+  ReservedPercent,
+  CashOutTaxRate,
+} from "juice-sdk-core";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -112,4 +117,66 @@ export function sortChains(chainIds: JBChainId[]): JBChainId[] {
     const bOrder = chainSortOrder.get(b) ?? 0;
     return aOrder - bOrder;
   });
+}
+
+/**
+ * Ruleset metadata
+ * @see https://github.com/Bananapus/nana-core/blob/main/src/libraries/JBRulesetMetadataResolver.sol
+ */
+export type RulesetMetadata = {
+  reservedPercent: ReservedPercent;      // bits 4-19
+  cashOutTaxRate: CashOutTaxRate;       // bits 20-35
+  baseCurrency: number;         // bits 36-67
+  pausePay: boolean;            // bit 68
+  pauseCreditTransfers: boolean;// bit 69
+  allowOwnerMinting: boolean;   // bit 70
+  allowSetCustomToken: boolean; // bit 71
+  allowTerminalMigration: boolean; // bit 72
+  allowSetTerminals: boolean;   // bit 73
+  allowSetController: boolean;  // bit 74
+  allowAddAccountingContext: boolean; // bit 75
+  allowAddPriceFeed: boolean;   // bit 76
+  ownerMustSendPayouts: boolean;// bit 77
+  holdFees: boolean;            // bit 78
+  useTotalSurplusForCashOuts: boolean; // bit 79
+  useDataHookForPay: boolean;   // bit 80
+  useDataHookForCashOut: boolean; // bit 81
+  dataHook: Address;            // bits 82-241
+  metadata: number;             // bits 242-255
+};
+
+/**
+ * Decodes packed ruleset metadata into its constituent parts
+ * @param packed The packed uint256 metadata value
+ * @returns Decoded metadata object
+ * @see https://github.com/Bananapus/nana-core/blob/main/src/libraries/JBRulesetMetadataResolver.sol
+ */
+export function decodeRulesetMetadata(packed: bigint): RulesetMetadata {
+  return {
+    reservedPercent: new ReservedPercent(Number((packed >> 4n) & ((1n << 16n) - 1n))),
+    cashOutTaxRate: new CashOutTaxRate(Number((packed >> 20n) & ((1n << 16n) - 1n))),
+    baseCurrency: Number((packed >> 36n) & ((1n << 32n) - 1n)),
+
+    // Boolean flags
+    pausePay: Boolean((packed >> 68n) & 1n),
+    pauseCreditTransfers: Boolean((packed >> 69n) & 1n),
+    allowOwnerMinting: Boolean((packed >> 70n) & 1n),
+    allowSetCustomToken: Boolean((packed >> 71n) & 1n),
+    allowTerminalMigration: Boolean((packed >> 72n) & 1n),
+    allowSetTerminals: Boolean((packed >> 73n) & 1n),
+    allowSetController: Boolean((packed >> 74n) & 1n),
+    allowAddAccountingContext: Boolean((packed >> 75n) & 1n),
+    allowAddPriceFeed: Boolean((packed >> 76n) & 1n),
+    ownerMustSendPayouts: Boolean((packed >> 77n) & 1n),
+    holdFees: Boolean((packed >> 78n) & 1n),
+    useTotalSurplusForCashOuts: Boolean((packed >> 79n) & 1n),
+    useDataHookForPay: Boolean((packed >> 80n) & 1n),
+    useDataHookForCashOut: Boolean((packed >> 81n) & 1n),
+
+    // Address
+    dataHook: `0x${((packed >> 82n) & ((1n << 160n) - 1n)).toString(16).padStart(40, "0")}` as Address,
+
+    // Final metadata (14 bits)
+    metadata: Number((packed >> 242n) & ((1n << 14n) - 1n))
+  };
 }

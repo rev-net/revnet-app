@@ -58,8 +58,7 @@ export function SplitsSection() {
     1 // lower bound should be 1 (the minimum 'next stage' is 1)
   );
   const currentStageIdx = nextStageIdx - 1;
-  const splitLimit = selectedSuckerRulesets?.[selectedStageIdx]?.weightCutPercent;
-  const splitLimitFormatted = splitLimit ? splitLimit / 10**7 : "0";
+  const splitLimit = selectedSuckerRulesets?.[selectedStageIdx]?.metadata.reservedPercent.formatPercentage();
   const { data: reservedTokenSplits, isLoading: isLoadingSplits } = useReadJbSplitsSplitsOf({
     chainId: selectedSucker?.peerChainId as JBChainId | undefined,
     args:
@@ -158,7 +157,7 @@ export function SplitsSection() {
             })}
           </div>
           <div className="text-sm font-medium text-zinc-500 mt-4">
-            The split limit for this stage is {splitLimitFormatted}%
+            The split limit for this stage is {splitLimit}%
           </div>
         </div>
       )}
@@ -221,7 +220,7 @@ export function SplitsSection() {
                         </div>
                       </TableCell>
                       <TableCell>
-                        {formatUnits(BigInt(split.percent * Number(splitLimitFormatted) / 100), 7)}%
+                        {formatUnits(BigInt(split.percent * Number(splitLimit) / 100), 7)}%
                         <span className="text-zinc-500 ml-2">({formatUnits(BigInt(split.percent), 7)}% of limit)</span>
                       </TableCell>
                       <TableCell>
