@@ -18,6 +18,7 @@ import { commaNumber } from "@/lib/number";
 import { EthereumAddress } from "@/components/EthereumAddress";
 import { useAutoIssuances } from "@/hooks/useAutoIssuances";
 import { toast } from "@/components/ui/use-toast";
+import EtherscanLink from "@/components/EtherscanLink";
 
 export function AutoIssuance() {
   const { token } = useJBTokenContext();
@@ -97,6 +98,15 @@ export function AutoIssuance() {
                       format(autoIssuance.startsAt * 1000, "MMM dd, yyyy p")}
                   </TableCell>
                   <TableCell>
+                    {autoIssuance.distributed ? (
+                      <div className="text-zinc-400">
+                        <EtherscanLink
+                          value={autoIssuance.distributedTxn}
+                          type="tx"
+                          truncateTo={4}
+                        />
+                      </div>
+                    ) : (
                     <Button
                       disabled={(autoIssuance?.startsAt || 0) >= now}
                       loading={
@@ -115,7 +125,8 @@ export function AutoIssuance() {
                       }}
                     >
                       Distribute
-                    </Button>
+                      </Button>
+                    )}
                   </TableCell>
                 </TableRow>
               ))}
