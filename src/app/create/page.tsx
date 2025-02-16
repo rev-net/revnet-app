@@ -4,11 +4,13 @@ import { Nav } from "@/components/layout/Nav";
 import { useToast } from "@/components/ui/use-toast";
 import { useDeployRevnetRelay } from "@/lib/relayr/hooks/useDeployRevnetRelay";
 import { Formik } from "formik";
+import { readErc2771ForwarderNonces } from "juice-sdk-core";
+import { erc2771ForwarderAbi } from "juice-sdk-react";
 import { useState } from "react";
 import { revDeployerAbi, revDeployerAddress } from "revnet-sdk";
 import { encodeFunctionData } from "viem";
 import { sepolia } from "viem/chains";
-import { useAccount, useSignTypedData } from "wagmi";
+import { useAccount, useConfig, useSignTypedData } from "wagmi";
 import { DEFAULT_FORM_DATA } from "./constants";
 import { DeployRevnetForm } from "./form/DeployRevnetForm";
 import { parseDeployData } from "./helpers/parseDeployData";
@@ -25,8 +27,8 @@ export default function Page() {
     isLoading: isRelayrLoading,
     reset,
   } = useDeployRevnetRelay();
-
-  const { signTypedData, data: signedData } = useSignTypedData();
+  const config = useConfig();
+  const { signTypedData } = useSignTypedData();
   const { address } = useAccount();
   const { write: deployRevnet } = useDeployRevnetRelay();
 
@@ -46,20 +48,28 @@ export default function Page() {
     if (!address) return;
     const suckerDeployerConfig = parseSuckerDeployerConfig();
 
+    /**
+     *  1. Build revnet data
+     */
     const deployData = parseDeployData(formData, {
       metadataCid,
       chainId: sepolia.id,
       suckerDeployerConfig: suckerDeployerConfig,
     });
-
-    debugger;
-
     const encodedData = encodeFunctionData({
       abi: revDeployerAbi, // ABI of the contract
       functionName: "deployFor",
       args: deployData,
     });
 
+    /**
+     *  2. Sign a ForwardRequest
+     */
+    const deadline = Date.now() + 3600 * 48 * 1000;
+    const nonce = await readErc2771ForwarderNonces(config, {
+      chainId: sepolia.id, // TODO do for each chain
+      args: [address],
+    });
     signTypedData(
       {
         primaryType: "ForwardRequest",
@@ -100,18 +110,40 @@ export default function Page() {
           to: revDeployerAddress[sepolia.id],
           value: 0n,
           gas: 0n,
-          deadline: 0,
-          nonce: 0n,
+          deadline,
+          nonce,
           data: encodedData,
         },
       },
       {
-        onSuccess: (d) => {
-          console.log("encoded!", d);
+        onSuccess: (signature) => {
+          /**
+           *  3. Build ERC2771Forwarder.execute call data
+           *     Includes the signature from the previous step
+           */
+          const executeData = encodeFunctionData({
+            abi: erc2771ForwarderAbi, // ABI of the contract
+            functionName: "execute",
+            args: [
+              {
+                from: address,
+                to: revDeployerAddress[sepolia.id],
+                value: 0n,
+                gas: 0n,
+                deadline,
+                data: encodedData,
+                signature,
+              },
+            ],
+          });
+
+          /**
+           *  4. Send to Relayr
+           */
           deployRevnet([
             {
               chain: sepolia.id,
-              data: d,
+              data: executeData,
             },
           ]);
         },
