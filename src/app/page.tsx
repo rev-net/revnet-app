@@ -28,7 +28,7 @@ export default function Page() {
         />
         <span className="sr-only">Revnet</span>
         <div className="text-xl md:text-2xl mt-8 font-medium text-left">
-          Tokenized revenues and fundraises. 100% autonomous. No back doors.
+          Tokenized revenues and fundraises. 100% autonomous, no back doors.
         </div>
         <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
           <div className="flex gap-4 mt-8">
