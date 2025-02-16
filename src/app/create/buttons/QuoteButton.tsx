@@ -8,12 +8,17 @@ type ButtonContentType = {
   className: string;
 };
 
-const getButtonContent = (isLoading: boolean, validBundle: boolean): ButtonContentType => {
+const getButtonContent = (
+  isLoading: boolean,
+  validBundle: boolean
+): ButtonContentType => {
   if (isLoading) {
     return {
       text: "Get quote",
-      icon: <FastForwardIcon className="h-4 w-4 fill-transparent ml-2 animate-spin" />,
-      className: "opacity-70"
+      icon: (
+        <FastForwardIcon className="h-4 w-4 fill-transparent ml-2 animate-spin" />
+      ),
+      className: "opacity-70",
     };
   }
 
@@ -21,21 +26,21 @@ const getButtonContent = (isLoading: boolean, validBundle: boolean): ButtonConte
     return {
       text: "Quote complete",
       icon: <CheckCircle className="h-4 w-4 text-emerald-500 ml-2" />,
-      className: "bg-emerald-50"
+      className: "bg-emerald-50",
     };
   }
 
   return {
     text: "Get quote",
     icon: <FastForwardIcon className="h-4 w-4 fill-transparent ml-2" />,
-    className: ""
+    className: "",
   };
 };
 
 interface QuoteButtonProps {
   isLoading: boolean;
   validBundle: boolean;
-  disableQuoteButton: boolean;
+  disableQuoteButton?: boolean;
   onSubmit: () => void;
 }
 
@@ -43,9 +48,8 @@ export function QuoteButton({
   isLoading,
   validBundle,
   disableQuoteButton,
-  onSubmit
+  onSubmit,
 }: QuoteButtonProps) {
-
   const buttonContent = getButtonContent(isLoading, validBundle);
 
   return (
