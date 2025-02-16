@@ -1,16 +1,17 @@
 import { useCallback, useState } from "react";
 import { RelayrPostBundleResponse } from "../types";
 import { API, DASHBOARD } from "../constants";
+import { erc2771ForwarderAddress, JBChainId } from "juice-sdk-react";
 
 type DeployRevnetRelayArgs = {
   data: `0x${string}`;
-  chain: number;
-  deployer: string;
+  chain: JBChainId;
 };
 
 export function useDeployRevnetRelay() {
   const [isLoading, setIsLoading] = useState(false);
-  const [relayrResponse, setRelayrResponse] = useState<RelayrPostBundleResponse>();
+  const [relayrResponse, setRelayrResponse] =
+    useState<RelayrPostBundleResponse>();
   const [error, setError] = useState<Error>();
 
   const reset = useCallback(() => {
@@ -23,11 +24,11 @@ export function useDeployRevnetRelay() {
     setIsLoading(true);
     setError(undefined);
 
-    const transactions = args.map(ct => {
+    const transactions = args.map((ct) => {
       return {
         chain: ct.chain,
         data: ct.data,
-        target: ct.deployer,
+        target: erc2771ForwarderAddress[ct.chain],
         value: "0",
       };
     });
@@ -41,10 +42,11 @@ export function useDeployRevnetRelay() {
         body: JSON.stringify({
           transactions,
           virtual_nonce_mode: "Disabled",
-        })
+        }),
       });
 
       if (!response.ok) {
+        console.error("Relayr ERROR:: ", response);
         const errorMessage = await response.text();
         throw new Error(errorMessage);
       }
@@ -66,6 +68,6 @@ export function useDeployRevnetRelay() {
     response: relayrResponse,
     error,
     isLoading,
-    reset
+    reset,
   };
 }

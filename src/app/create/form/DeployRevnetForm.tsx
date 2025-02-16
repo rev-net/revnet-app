@@ -14,7 +14,6 @@ export function DeployRevnetForm({
   reset: () => void;
   isLoading: boolean;
 }) {
-
   // type `testdata` into console to fill form with TEST_FORM_DATA
   // can remove on mainnet deploy
   useTestData();
@@ -29,7 +28,13 @@ export function DeployRevnetForm({
       <Stages disabled={validBundle} />
       <Divider />
 
-      <ChainSelect isLoading={isLoading} relayrResponse={relayrResponse} reset={reset} disabled={validBundle} />
+      <ChainSelect
+        isLoading={isLoading}
+        relayrResponse={relayrResponse}
+        validBundle={validBundle}
+        reset={reset}
+        disabled={validBundle}
+      />
     </div>
   );
 }
