@@ -65,7 +65,9 @@ export default function Page() {
     /**
      *  2. Sign a ForwardRequest
      */
-    const deadline = Date.now() + 3600 * 48 * 1000;
+    const deadline = Number(
+      ((Date.now() + 3600 * 48 * 1000) / 1000).toFixed(0)
+    );
     const nonce = await readErc2771ForwarderNonces(config, {
       chainId: sepolia.id, // TODO do for each chain
       args: [address],
@@ -121,7 +123,11 @@ export default function Page() {
           data: encodedData,
         },
       },
+
       {
+        onError: (e) => {
+          console.error(e);
+        },
         onSuccess: (signature) => {
           /**
            *  3. Build ERC2771Forwarder.execute call data
