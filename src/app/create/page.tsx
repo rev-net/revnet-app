@@ -4,29 +4,162 @@ import { Nav } from "@/components/layout/Nav";
 import { useToast } from "@/components/ui/use-toast";
 import { useDeployRevnetRelay } from "@/lib/relayr/hooks/useDeployRevnetRelay";
 import { Formik } from "formik";
-import { readErc2771ForwarderNonces } from "juice-sdk-core";
+import { JBChainId, readErc2771ForwarderNonces } from "juice-sdk-core";
 import { erc2771ForwarderAbi, erc2771ForwarderAddress } from "juice-sdk-react";
 import { useState } from "react";
 import { revDeployerAbi, revDeployerAddress } from "revnet-sdk";
-import { encodeFunctionData } from "viem";
-import { sepolia } from "viem/chains";
-import { useAccount, useConfig, useSignTypedData } from "wagmi";
+import { Address, encodeFunctionData, Hash } from "viem";
+import { useAccount, useConfig, useSignTypedData, useSwitchChain } from "wagmi";
 import { DEFAULT_FORM_DATA } from "./constants";
 import { DeployRevnetForm } from "./form/DeployRevnetForm";
 import { parseDeployData } from "./helpers/parseDeployData";
 import { parseSuckerDeployerConfig } from "./helpers/parseSuckerDeployerConfig";
 import { pinProjectMetadata } from "./helpers/pinProjectMetaData";
 import { RevnetFormData } from "./types";
-import { reset } from "viem/actions";
+import { sepolia } from "viem/chains";
+
+type ERC2771ForwardRequestData = {
+  from: Address;
+  to: Address;
+  value: bigint;
+  gas: bigint;
+  data: Hash;
+};
+
+function useSignErc2771ForwardRequest() {
+  const { switchChain } = useSwitchChain();
+  const { address } = useAccount();
+  const config = useConfig();
+  const { signTypedData } = useSignTypedData();
+
+  async function sign(
+    messageData: ERC2771ForwardRequestData,
+    chainId: JBChainId
+  ) {
+    switchChain({ chainId });
+
+    return new Promise<Hash>(async (resolve, reject) => {
+      if (!address) return;
+
+      // 48hrs
+      const deadline = Number(
+        ((Date.now() + 3600 * 48 * 1000) / 1000).toFixed(0)
+      );
+
+      const nonce = await readErc2771ForwarderNonces(config, {
+        chainId,
+        args: [address],
+      });
+
+      signTypedData(
+        {
+          domain: {
+            name: "Juicebox",
+            chainId,
+            verifyingContract: erc2771ForwarderAddress[chainId],
+            version: "1",
+          },
+          primaryType: "ForwardRequest",
+          types: {
+            ForwardRequest: [
+              {
+                name: "from",
+                type: "address",
+              },
+              {
+                name: "to",
+                type: "address",
+              },
+              {
+                name: "value",
+                type: "uint256",
+              },
+              {
+                name: "gas",
+                type: "uint256",
+              },
+              {
+                name: "nonce",
+                type: "uint256",
+              },
+              {
+                name: "deadline",
+                type: "uint48",
+              },
+              {
+                name: "data",
+                type: "bytes",
+              },
+            ],
+          },
+          message: { ...messageData, deadline, nonce },
+        },
+        {
+          onSuccess: (signature) => {
+            const executeFnEncodedData = encodeFunctionData({
+              abi: erc2771ForwarderAbi, // ABI of the contract
+              functionName: "execute",
+              args: [
+                {
+                  ...messageData,
+                  deadline,
+                  signature,
+                },
+              ],
+            });
+
+            resolve(executeFnEncodedData);
+          },
+          onError: (e) => {
+            reject(e);
+          },
+        }
+      );
+    });
+  }
+
+  return {
+    sign,
+  };
+}
+
+function useGetRelayrTransactions() {
+  const { deployRevnet } = useDeployRevnetRelay();
+  const { sign } = useSignErc2771ForwardRequest();
+
+  async function generateTxData(
+    data: { chainId: JBChainId; data: ERC2771ForwardRequestData }[]
+  ) {
+    if (!data) return;
+
+    /**
+     * Prompt user to sign transactions for each chain
+     */
+    const txDataRequest = [];
+    for (const d of data) {
+      const signedData = await sign(d.data, d.chainId);
+      txDataRequest.push({
+        chain: d.chainId,
+        data: signedData,
+      });
+    }
+    debugger;
+    return await deployRevnet.mutateAsync(txDataRequest);
+  }
+
+  return {
+    generateTxData,
+    deployRevnet,
+  };
+}
 
 export default function Page() {
   const [isLoadingIpfs, setIsLoadingIpfs] = useState<boolean>(false);
   const { toast } = useToast();
 
-  const config = useConfig();
-  const { signTypedData } = useSignTypedData();
+  const { deployRevnet, generateTxData } = useGetRelayrTransactions();
+
   const { address } = useAccount();
-  const { deployRevnet } = useDeployRevnetRelay();
 
   const isLoading = isLoadingIpfs || deployRevnet.isPending;
 
@@ -44,118 +177,30 @@ export default function Page() {
     if (!address) return;
     const suckerDeployerConfig = parseSuckerDeployerConfig();
 
-    /**
-     *  1. Build revnet data
-     */
-    const deployData = parseDeployData(formData, {
-      metadataCid,
-      chainId: sepolia.id,
-      suckerDeployerConfig: suckerDeployerConfig,
-    });
-    const encodedData = encodeFunctionData({
-      abi: revDeployerAbi, // ABI of the contract
-      functionName: "deployFor",
-      args: deployData,
-    });
+    await generateTxData(
+      formData.chainIds.map((chainId) => {
+        const deployData = parseDeployData(formData, {
+          metadataCid,
+          chainId,
+          suckerDeployerConfig: suckerDeployerConfig,
+        });
+        const encodedData = encodeFunctionData({
+          abi: revDeployerAbi, // ABI of the contract
+          functionName: "deployFor",
+          args: deployData,
+        });
 
-    /**
-     *  2. Sign a ForwardRequest
-     */
-    const deadline = Number(
-      ((Date.now() + 3600 * 48 * 1000) / 1000).toFixed(0)
-    );
-    const nonce = await readErc2771ForwarderNonces(config, {
-      chainId: sepolia.id, // TODO do for each chain
-      args: [address],
-    });
-    signTypedData(
-      {
-        domain: {
-          name: "Juicebox",
-          chainId: sepolia.id,
-          verifyingContract: erc2771ForwarderAddress[sepolia.id],
-          version: "1",
-        },
-        primaryType: "ForwardRequest",
-        types: {
-          ForwardRequest: [
-            {
-              name: "from",
-              type: "address",
-            },
-            {
-              name: "to",
-              type: "address",
-            },
-            {
-              name: "value",
-              type: "uint256",
-            },
-            {
-              name: "gas",
-              type: "uint256",
-            },
-            {
-              name: "nonce",
-              type: "uint256",
-            },
-            {
-              name: "deadline",
-              type: "uint48",
-            },
-            {
-              name: "data",
-              type: "bytes",
-            },
-          ],
-        },
-        message: {
-          from: address,
-          to: revDeployerAddress[sepolia.id],
-          value: 0n,
-          gas: 1_000_000n,
-          deadline,
-          nonce,
-          data: encodedData,
-        },
-      },
-
-      {
-        onError: (e) => {
-          console.error(e);
-        },
-        onSuccess: (signature) => {
-          /**
-           *  3. Build ERC2771Forwarder.execute call data
-           *     Includes the signature from the previous step
-           */
-          const executeData = encodeFunctionData({
-            abi: erc2771ForwarderAbi, // ABI of the contract
-            functionName: "execute",
-            args: [
-              {
-                from: address,
-                to: revDeployerAddress[sepolia.id],
-                value: 0n,
-                gas: 1_000_000n,
-                deadline,
-                data: encodedData,
-                signature,
-              },
-            ],
-          });
-
-          /**
-           *  4. Send to Relayr
-           */
-          deployRevnet.mutateAsync([
-            {
-              chain: sepolia.id,
-              data: executeData,
-            },
-          ]);
-        },
-      }
+        return {
+          data: {
+            from: address,
+            to: revDeployerAddress[chainId],
+            value: 0n,
+            gas: 1_000_000n,
+            data: encodedData,
+          },
+          chainId,
+        };
+      })
     );
   }
 
