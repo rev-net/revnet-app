@@ -47,7 +47,7 @@ export function HoldersSection() {
   });
 
   const participantsData = participantsQuery.data?.flatMap((d) =>
-    d.value.response.participants.map((p) => ({
+    d.value.response?.participants.map((p) => ({
       ...p,
       chainId: d.value.chainId,
     }))
