@@ -35,7 +35,7 @@ const getButtonContent = (isLoading: boolean, validBundle: boolean): ButtonConte
 interface QuoteButtonProps {
   isLoading: boolean;
   validBundle: boolean;
-  disableQuoteButton: boolean;
+  disableQuoteButton?: boolean;
   onSubmit: () => void;
 }
 
