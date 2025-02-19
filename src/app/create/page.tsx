@@ -5,7 +5,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { useDeployRevnetRelay } from "@/lib/relayr/hooks/useDeployRevnetRelay";
 import { Formik } from "formik";
 import { readErc2771ForwarderNonces } from "juice-sdk-core";
-import { erc2771ForwarderAbi } from "juice-sdk-react";
+import { erc2771ForwarderAbi, erc2771ForwarderAddress } from "juice-sdk-react";
 import { useState } from "react";
 import { revDeployerAbi, revDeployerAddress } from "revnet-sdk";
 import { encodeFunctionData } from "viem";
@@ -72,6 +72,12 @@ export default function Page() {
     });
     signTypedData(
       {
+        domain: {
+            name: "Juicebox",
+            chainId: sepolia.id,
+            verifyingContract: erc2771ForwarderAddress[sepolia.id],
+            version: "1",
+        },
         primaryType: "ForwardRequest",
         types: {
           ForwardRequest: [
@@ -109,7 +115,7 @@ export default function Page() {
           from: address,
           to: revDeployerAddress[sepolia.id],
           value: 0n,
-          gas: 0n,
+          gas: 1_000_000n,
           deadline,
           nonce,
           data: encodedData,
@@ -129,7 +135,7 @@ export default function Page() {
                 from: address,
                 to: revDeployerAddress[sepolia.id],
                 value: 0n,
-                gas: 0n,
+                gas: 1_000_000n,
                 deadline,
                 data: encodedData,
                 signature,
