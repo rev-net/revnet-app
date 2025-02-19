@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
@@ -5,27 +6,48 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Field as FormikField, useFormikContext } from "formik";
 import { RelayrPostBundleResponse } from "@/lib/relayr/types";
+import { format } from "date-fns";
+import { Field as FormikField, useFormikContext } from "formik";
 import { JB_CHAINS, JBChainId } from "juice-sdk-core";
 import { useState } from "react";
-import { RevnetFormData } from "../types";
-import { Divider } from "./Divider";
-import { format } from "date-fns";
-import { Button } from "@/components/ui/button";
 import { PayAndDeploy } from "../buttons/PayAndDeploy";
+import { QuoteButton } from "../buttons/QuoteButton";
+import { RevnetFormData } from "../types";
+import { ChainAutoIssuance } from "./ChainAutoIssuance";
 import { ChainOperator } from "./ChainOperator";
 import { ChainSplits } from "./ChainSplits";
-import { ChainAutoIssuance } from "./ChainAutoIssuance";
-import { QuoteButton } from "../buttons/QuoteButton";
-import { isFormValid } from "../helpers/isFormValid";
+import { Divider } from "./Divider";
+import {
+  arbitrumSepolia,
+  baseSepolia,
+  optimismSepolia,
+  sepolia,
+} from "viem/chains";
 
-export function ChainSelect({ disabled = false, validBundle = false, relayrResponse, isLoading = false, reset }: { disabled?: boolean, validBundle?: boolean, relayrResponse?: RelayrPostBundleResponse, isLoading?: boolean, reset: () => void }) {
+const TESTNETS: JBChainId[] = [
+  sepolia.id,
+  arbitrumSepolia.id,
+  optimismSepolia.id,
+  baseSepolia.id,
+];
+
+export function ChainSelect({
+  disabled = false,
+  validBundle = false,
+  relayrResponse,
+  isLoading = false,
+  reset,
+}: {
+  disabled?: boolean;
+  validBundle?: boolean;
+  relayrResponse?: RelayrPostBundleResponse;
+  isLoading?: boolean;
+  reset: () => void;
+}) {
   const [environment, setEnvironment] = useState("testing");
-
-  const { values, setFieldValue, submitForm } = useFormikContext<RevnetFormData>();
-
-  const disableQuoteButton = !isFormValid(values) || validBundle;
+  const { values, setFieldValue, submitForm } =
+    useFormikContext<RevnetFormData>();
 
   const handleChainSelect = (chainId: JBChainId, checked: boolean) => {
     setFieldValue(
@@ -38,9 +60,6 @@ export function ChainSelect({ disabled = false, validBundle = false, relayrRespo
 
   const revnetTokenSymbol =
     values.tokenSymbol?.length > 0 ? `$${values.tokenSymbol}` : "token";
-
-  
-    console.log({ values });
 
   return (
     <>
@@ -91,82 +110,93 @@ export function ChainSelect({ disabled = false, validBundle = false, relayrRespo
               <p>...</p> //TODO with production chainnames
             ) : (
               <>
-                {Object.values(JB_CHAINS).map(({ chain, name }) => (
-                  <label key={chain.id} className="flex items-center gap-2">
-                    <FormikField
-                      type="checkbox"
-                      name="chainIds"
-                      value={chain.id}
-                      disabled={disabled}
-                      className="disabled:opacity-50"
-                      checked={values.chainIds.includes(
-                        Number(chain.id) as JBChainId
-                      )}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                        handleChainSelect(chain.id as JBChainId, e.target.checked);
-                      }}
-                    />
-                    {name}
-                  </label>
-                ))}
+                {Object.values(JB_CHAINS)
+                  .filter(({ chain }) =>
+                    TESTNETS.includes(chain.id as JBChainId)
+                  )
+                  .map(({ chain, name }) => (
+                    <label key={chain.id} className="flex items-center gap-2">
+                      <FormikField
+                        type="checkbox"
+                        name="chainIds"
+                        value={chain.id}
+                        disabled={disabled}
+                        className="disabled:opacity-50"
+                        checked={values.chainIds.includes(
+                          Number(chain.id) as JBChainId
+                        )}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                          handleChainSelect(
+                            chain.id as JBChainId,
+                            e.target.checked
+                          );
+                        }}
+                      />
+                      {name}
+                    </label>
+                  ))}
               </>
             )}
           </div>
         </div>
-      {/* Quote and Depoly */}
-      <div className="mt-10">
-        {((values.chainIds.length > 0 && !values.stages[0]?.initialOperator) || values.chainIds.length > 1) && (
-          <>
-            <ChainOperator disabled={validBundle} />
-            <Divider />
-          </>
-        )}
-        {values.chainIds.length > 1 && values.stages.some(stage => stage.splits.length > 0) && (
-          <>
-            <ChainSplits disabled={validBundle} />
-            <Divider />
-          </>
-        )}
-        {values.chainIds.length > 1 && values.stages.some(stage => stage.autoIssuance.length > 0) && (
-          <>
-            <ChainAutoIssuance disabled={validBundle} />
-            <Divider />
-          </>
-        )}
-        <QuoteButton
-          isLoading={isLoading}
-          validBundle={validBundle}
-          disableQuoteButton={disableQuoteButton}
-          onSubmit={submitForm}
-        />
-        {relayrResponse && (
-          <div className="flex flex-col items-start">
-            <div className="text-xs italic mt-2">
-              Quote valid until{" "}
-              {format(
-                relayrResponse.payment_info[0].payment_deadline,
-                "h:mm:ss aaa"
-              )}
-              .
-              <Button
-                variant="link"
-                size="sm"
-                className="italic text-xs px-1"
-                disabled={isLoading}
-                onClick={() => reset()}
-              >
-                clear quote
-              </Button>
+        {/* Quote and Depoly */}
+        <div className="mt-10">
+          {((values.chainIds.length > 0 &&
+            !values.stages[0]?.initialOperator) ||
+            values.chainIds.length > 1) && (
+            <>
+              <ChainOperator disabled={validBundle} />
+              <Divider />
+            </>
+          )}
+          {values.chainIds.length > 1 &&
+            values.stages.some((stage) => stage.splits.length > 0) && (
+              <>
+                <ChainSplits disabled={validBundle} />
+                <Divider />
+              </>
+            )}
+          {values.chainIds.length > 1 &&
+            values.stages.some((stage) => stage.autoIssuance.length > 0) && (
+              <>
+                <ChainAutoIssuance disabled={validBundle} />
+                <Divider />
+              </>
+            )}
+
+          <QuoteButton
+            isLoading={isLoading}
+            validBundle={validBundle}
+            onSubmit={submitForm}
+          />
+          {relayrResponse && (
+            <div className="flex flex-col items-start">
+              <div className="text-xs italic mt-2">
+                Quote valid until{" "}
+                {format(
+                  relayrResponse.payment_info[0].payment_deadline,
+                  "h:mm:ss aaa"
+                )}
+                .
+                <Button
+                  variant="link"
+                  size="sm"
+                  className="italic text-xs px-1"
+                  disabled={isLoading}
+                  onClick={() => reset()}
+                >
+                  clear quote
+                </Button>
+              </div>
+              <div className="mt-4">
+                <PayAndDeploy
+                  relayrResponse={relayrResponse}
+                  revnetTokenSymbol={revnetTokenSymbol}
+                />
+              </div>
             </div>
-            <div className="mt-4">
-              <PayAndDeploy
-                relayrResponse={relayrResponse}
-                revnetTokenSymbol={revnetTokenSymbol}
-              />
-            </div>
-          </div>
-        )}
-      </div>
+          )}
+        </div>
       </div>
     </>
   );
