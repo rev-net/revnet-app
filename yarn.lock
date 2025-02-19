@@ -6265,10 +6265,10 @@ juice-sdk-core@^1.0.3-beta:
     bs58 "^5.0.0"
     fpnum "^1.0.0"
 
-juice-sdk-react@^1.0.2-beta:
-  version "1.0.2-beta"
-  resolved "https://registry.yarnpkg.com/juice-sdk-react/-/juice-sdk-react-1.0.2-beta.tgz#fef4a409bb0b19c919ca3a9130c3f1e0f77d2e23"
-  integrity sha512-L0djgWyT3Kdh1wKaMdLGCUXulyR43Zt0VUqg9GsMEkuo3CB1ht7OgrUVipSJKjPO19NjWGxMsUf2FFUtfo3JLA==
+juice-sdk-react@^1.0.3-beta:
+  version "1.0.3-beta"
+  resolved "https://registry.yarnpkg.com/juice-sdk-react/-/juice-sdk-react-1.0.3-beta.tgz#046a4e036805587d171179d07123451bc051c953"
+  integrity sha512-/9x+rut6On3GdroNdVicCx2Z+nnadJC7PGgnRSn+85gLN4BgEVJfSLZW+xCmX0W5626gsvqacz0lwaGKPFIZOw==
 
 keccak@^3.0.3:
   version "3.0.4"
