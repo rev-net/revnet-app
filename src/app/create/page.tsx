@@ -17,22 +17,18 @@ import { parseDeployData } from "./helpers/parseDeployData";
 import { parseSuckerDeployerConfig } from "./helpers/parseSuckerDeployerConfig";
 import { pinProjectMetadata } from "./helpers/pinProjectMetaData";
 import { RevnetFormData } from "./types";
+import { reset } from "viem/actions";
 
 export default function Page() {
   const [isLoadingIpfs, setIsLoadingIpfs] = useState<boolean>(false);
   const { toast } = useToast();
-  const {
-    write,
-    response,
-    isLoading: isRelayrLoading,
-    reset,
-  } = useDeployRevnetRelay();
+
   const config = useConfig();
   const { signTypedData } = useSignTypedData();
   const { address } = useAccount();
-  const { write: deployRevnet } = useDeployRevnetRelay();
+  const { deployRevnet } = useDeployRevnetRelay();
 
-  const isLoading = isLoadingIpfs || isRelayrLoading;
+  const isLoading = isLoadingIpfs || deployRevnet.isPending;
 
   async function deployProject(formData: RevnetFormData) {
     console.log({ formData });
@@ -75,10 +71,10 @@ export default function Page() {
     signTypedData(
       {
         domain: {
-            name: "Juicebox",
-            chainId: sepolia.id,
-            verifyingContract: erc2771ForwarderAddress[sepolia.id],
-            version: "1",
+          name: "Juicebox",
+          chainId: sepolia.id,
+          verifyingContract: erc2771ForwarderAddress[sepolia.id],
+          version: "1",
         },
         primaryType: "ForwardRequest",
         types: {
@@ -152,7 +148,7 @@ export default function Page() {
           /**
            *  4. Send to Relayr
            */
-          deployRevnet([
+          deployRevnet.mutateAsync([
             {
               chain: sepolia.id,
               data: executeData,
@@ -183,9 +179,8 @@ export default function Page() {
         }}
       >
         <DeployRevnetForm
-          relayrResponse={response}
+          relayrResponse={deployRevnet.data}
           isLoading={isLoading}
-          reset={reset}
         />
       </Formik>
     </>
