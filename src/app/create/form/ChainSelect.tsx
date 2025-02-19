@@ -18,6 +18,19 @@ import { ChainAutoIssuance } from "./ChainAutoIssuance";
 import { ChainOperator } from "./ChainOperator";
 import { ChainSplits } from "./ChainSplits";
 import { Divider } from "./Divider";
+import {
+  arbitrumSepolia,
+  baseSepolia,
+  optimismSepolia,
+  sepolia,
+} from "viem/chains";
+
+const TESTNETS: JBChainId[] = [
+  sepolia.id,
+  arbitrumSepolia.id,
+  optimismSepolia.id,
+  baseSepolia.id,
+];
 
 export function ChainSelect({
   disabled = false,
@@ -97,27 +110,31 @@ export function ChainSelect({
               <p>...</p> //TODO with production chainnames
             ) : (
               <>
-                {Object.values(JB_CHAINS).map(({ chain, name }) => (
-                  <label key={chain.id} className="flex items-center gap-2">
-                    <FormikField
-                      type="checkbox"
-                      name="chainIds"
-                      value={chain.id}
-                      disabled={disabled}
-                      className="disabled:opacity-50"
-                      checked={values.chainIds.includes(
-                        Number(chain.id) as JBChainId
-                      )}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                        handleChainSelect(
-                          chain.id as JBChainId,
-                          e.target.checked
-                        );
-                      }}
-                    />
-                    {name}
-                  </label>
-                ))}
+                {Object.values(JB_CHAINS)
+                  .filter(({ chain }) =>
+                    TESTNETS.includes(chain.id as JBChainId)
+                  )
+                  .map(({ chain, name }) => (
+                    <label key={chain.id} className="flex items-center gap-2">
+                      <FormikField
+                        type="checkbox"
+                        name="chainIds"
+                        value={chain.id}
+                        disabled={disabled}
+                        className="disabled:opacity-50"
+                        checked={values.chainIds.includes(
+                          Number(chain.id) as JBChainId
+                        )}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                          handleChainSelect(
+                            chain.id as JBChainId,
+                            e.target.checked
+                          );
+                        }}
+                      />
+                      {name}
+                    </label>
+                  ))}
               </>
             )}
           </div>
