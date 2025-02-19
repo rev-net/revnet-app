@@ -3,14 +3,14 @@ import { erc2771ForwarderAddress, JBChainId } from "juice-sdk-react";
 import { API } from "../constants";
 import { RelayrPostBundleResponse } from "../types";
 
-type DeployRevnetRelayArgs = {
-  data: `0x${string}`;
-  chain: JBChainId;
-};
-
-export function useDeployRevnetRelay() {
-  const deployRevnet = useMutation({
-    mutationFn: async (args: DeployRevnetRelayArgs[]) => {
+export function useRequestRelayrQuote() {
+  return useMutation({
+    mutationFn: async (
+      args: {
+        data: `0x${string}`;
+        chain: JBChainId;
+      }[]
+    ) => {
       const transactions = args.map((ct) => {
         return {
           chain: ct.chain,
@@ -40,8 +40,4 @@ export function useDeployRevnetRelay() {
       return (await response.json()) as RelayrPostBundleResponse;
     },
   });
-
-  return {
-    deployRevnet,
-  };
 }
