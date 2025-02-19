@@ -24,6 +24,7 @@ import {
   optimismSepolia,
   sepolia,
 } from "viem/chains";
+import { useDeployRevnetRelay } from "@/lib/relayr/hooks/useDeployRevnetRelay";
 
 const TESTNETS: JBChainId[] = [
   sepolia.id,
@@ -37,17 +38,17 @@ export function ChainSelect({
   validBundle = false,
   relayrResponse,
   isLoading = false,
-  reset,
 }: {
   disabled?: boolean;
   validBundle?: boolean;
   relayrResponse?: RelayrPostBundleResponse;
   isLoading?: boolean;
-  reset: () => void;
 }) {
   const [environment, setEnvironment] = useState("testing");
   const { values, setFieldValue, submitForm } =
     useFormikContext<RevnetFormData>();
+
+  const { deployRevnet } = useDeployRevnetRelay();
 
   const handleChainSelect = (chainId: JBChainId, checked: boolean) => {
     setFieldValue(
@@ -183,7 +184,7 @@ export function ChainSelect({
                   size="sm"
                   className="italic text-xs px-1"
                   disabled={isLoading}
-                  onClick={() => reset()}
+                  onClick={() => deployRevnet.reset()}
                 >
                   clear quote
                 </Button>

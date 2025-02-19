@@ -174,7 +174,7 @@ export function ActivityFeed() {
   const projectEvents = useMemo(() => {
     return data
       ?.flatMap((d) => {
-        return d.value.response?.projectEvents.map((e) => {
+        return d.value?.response?.projectEvents.map((e) => {
           return {
             ...e,
             chainId: d.value.chainId,

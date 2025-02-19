@@ -7,14 +7,11 @@ import { useTestData } from "../helpers/useTestData";
 
 export function DeployRevnetForm({
   relayrResponse,
-  reset,
   isLoading,
 }: {
   relayrResponse?: RelayrPostBundleResponse;
-  reset: () => void;
   isLoading: boolean;
 }) {
-
   // type `testdata` into console to fill form with TEST_FORM_DATA
   // can remove on mainnet deploy
   useTestData();
@@ -29,7 +26,12 @@ export function DeployRevnetForm({
       <Stages disabled={validBundle} />
       <Divider />
 
-      <ChainSelect isLoading={isLoading} relayrResponse={relayrResponse} reset={reset} disabled={validBundle} />
+      <ChainSelect
+        isLoading={isLoading}
+        relayrResponse={relayrResponse}
+        validBundle={validBundle}
+        disabled={validBundle}
+      />
     </div>
   );
 }
