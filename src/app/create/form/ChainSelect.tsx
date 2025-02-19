@@ -24,7 +24,7 @@ import {
   optimismSepolia,
   sepolia,
 } from "viem/chains";
-import { useDeployRevnetRelay } from "@/lib/relayr/hooks/useDeployRevnetRelay";
+import { useRequestRelayrQuote } from "@/lib/relayr/hooks/useRequestRelayrQuote";
 
 const TESTNETS: JBChainId[] = [
   sepolia.id,
@@ -48,7 +48,7 @@ export function ChainSelect({
   const { values, setFieldValue, submitForm } =
     useFormikContext<RevnetFormData>();
 
-  const { deployRevnet } = useDeployRevnetRelay();
+  const requestRelayrQuote = useRequestRelayrQuote();
 
   const handleChainSelect = (chainId: JBChainId, checked: boolean) => {
     setFieldValue(
@@ -184,7 +184,7 @@ export function ChainSelect({
                   size="sm"
                   className="italic text-xs px-1"
                   disabled={isLoading}
-                  onClick={() => deployRevnet.reset()}
+                  onClick={() => requestRelayrQuote.reset()}
                 >
                   clear quote
                 </Button>

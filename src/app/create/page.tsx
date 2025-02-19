@@ -2,7 +2,6 @@
 
 import { Nav } from "@/components/layout/Nav";
 import { useToast } from "@/components/ui/use-toast";
-import { useDeployRevnetRelay } from "@/lib/relayr/hooks/useDeployRevnetRelay";
 import { Formik } from "formik";
 import { JBChainId, readErc2771ForwarderNonces } from "juice-sdk-core";
 import { erc2771ForwarderAbi, erc2771ForwarderAddress } from "juice-sdk-react";
@@ -16,7 +15,7 @@ import { parseDeployData } from "./helpers/parseDeployData";
 import { parseSuckerDeployerConfig } from "./helpers/parseSuckerDeployerConfig";
 import { pinProjectMetadata } from "./helpers/pinProjectMetaData";
 import { RevnetFormData } from "./types";
-import { sepolia } from "viem/chains";
+import { useRequestRelayrQuote } from "@/lib/relayr/hooks/useRequestRelayrQuote";
 
 type ERC2771ForwardRequestData = {
   from: Address;
@@ -124,7 +123,7 @@ function useSignErc2771ForwardRequest() {
 }
 
 function useGetRelayrTransactions() {
-  const { deployRevnet } = useDeployRevnetRelay();
+  const requestRelayrQuote = useRequestRelayrQuote();
   const { sign } = useSignErc2771ForwardRequest();
 
   async function generateTxData(
@@ -143,13 +142,13 @@ function useGetRelayrTransactions() {
         data: signedData,
       });
     }
-    debugger;
-    return await deployRevnet.mutateAsync(txDataRequest);
+
+    return await requestRelayrQuote.mutateAsync(txDataRequest);
   }
 
   return {
     generateTxData,
-    deployRevnet,
+    requestRelayrQuote,
   };
 }
 
@@ -157,11 +156,11 @@ export default function Page() {
   const [isLoadingIpfs, setIsLoadingIpfs] = useState<boolean>(false);
   const { toast } = useToast();
 
-  const { deployRevnet, generateTxData } = useGetRelayrTransactions();
+  const { requestRelayrQuote, generateTxData } = useGetRelayrTransactions();
 
   const { address } = useAccount();
 
-  const isLoading = isLoadingIpfs || deployRevnet.isPending;
+  const isLoading = isLoadingIpfs || requestRelayrQuote.isPending;
 
   async function deployProject(formData: RevnetFormData) {
     console.log({ formData });
@@ -224,7 +223,7 @@ export default function Page() {
         }}
       >
         <DeployRevnetForm
-          relayrResponse={deployRevnet.data}
+          relayrResponse={requestRelayrQuote.data}
           isLoading={isLoading}
         />
       </Formik>
