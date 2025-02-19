@@ -6257,18 +6257,18 @@ json5@^2.2.3:
     object.assign "^4.1.4"
     object.values "^1.1.6"
 
-juice-sdk-core@^14.1.0-alpha:
-  version "14.1.0-alpha"
-  resolved "https://registry.yarnpkg.com/juice-sdk-core/-/juice-sdk-core-14.1.0-alpha.tgz#e7f6a7be3b493b575787802e6c9d4f0b2ce5b8ad"
-  integrity sha512-fUOLYesvgE1VQ4lrDY4KV3KKI0gYwTzBtYU4U4DamZqJOBFUPvvIUVu0xnBsGsFE2a90CTd6ZtzTMPtdvSs0Jg==
+juice-sdk-core@^1.0.3-beta:
+  version "1.0.3-beta"
+  resolved "https://registry.yarnpkg.com/juice-sdk-core/-/juice-sdk-core-1.0.3-beta.tgz#fa8fb21cdf2e291d09a4d5687119315ce4573663"
+  integrity sha512-f812f9e6EPYRWvVLb3+UaUcIKihMBqaPI0Zq9ar+30WUMAi9ePRNYSTK09C2yBqIs3RBtIcDaGoeqUcSYfJm4g==
   dependencies:
     bs58 "^5.0.0"
     fpnum "^1.0.0"
 
-juice-sdk-react@^14.1.0-alpha:
-  version "14.1.0-alpha"
-  resolved "https://registry.yarnpkg.com/juice-sdk-react/-/juice-sdk-react-14.1.0-alpha.tgz#71bda70694d196cc875582d450816facebfee496"
-  integrity sha512-emhx10Eg4ygIY1iZCTxpKR++9fPNpDH+fQwIHsnKAYKgZ7tiKnJoMv/XmCSgvzaM2nhmMCciODqAnFnIpyStAA==
+juice-sdk-react@^1.0.2-beta:
+  version "1.0.2-beta"
+  resolved "https://registry.yarnpkg.com/juice-sdk-react/-/juice-sdk-react-1.0.2-beta.tgz#fef4a409bb0b19c919ca3a9130c3f1e0f77d2e23"
+  integrity sha512-L0djgWyT3Kdh1wKaMdLGCUXulyR43Zt0VUqg9GsMEkuo3CB1ht7OgrUVipSJKjPO19NjWGxMsUf2FFUtfo3JLA==
 
 keccak@^3.0.3:
   version "3.0.4"
@@ -7588,10 +7588,10 @@ reusify@^1.0.4:
   resolved "https://registry.npmjs.org/reusify/-/reusify-1.0.4.tgz"
   integrity sha512-U9nH88a3fc/ekCF1l0/UP1IosiuIjyTh7hBvXVMHYgVcfGvt897Xguj2UOLDeI5BG2m7/uwyaLVT6fbtCwTyzw==
 
-revnet-sdk@^6.0.0-alpha:
-  version "6.0.0-alpha"
-  resolved "https://registry.npmjs.org/revnet-sdk/-/revnet-sdk-6.0.0-alpha.tgz"
-  integrity sha512-r/K/Gp6HexuPG7MCHWfl76DCFgK6YaOtuRLojE6uuR2vFsrJ4Xl/pv2K0YqnWBgG+DbDq+R5yDmiWYKyF0dd5Q==
+revnet-sdk@^1.0.1-beta:
+  version "1.0.1-beta"
+  resolved "https://registry.yarnpkg.com/revnet-sdk/-/revnet-sdk-1.0.1-beta.tgz#d83a5ccf7b57baf9190b3182a80b27c32b63d3f7"
+  integrity sha512-jdTnVqZ3RohlWI83y0E1LtoLnt47JZHKRHc7kbucv5zdR/uL7/o7SrXrk92OBT+6TGiV5Tx2XgMwfnaAyW92Ng==
 
 rfdc@^1.3.0:
   version "1.4.1"
