@@ -140,6 +140,7 @@ function useGetRelayrTransactions() {
       txDataRequest.push({
         chain: d.chainId,
         data: signedData,
+        value: "0",
       });
     }
 

@@ -9,6 +9,7 @@ export function useRequestRelayrQuote() {
       args: {
         data: `0x${string}`;
         chain: JBChainId;
+        value: string;
       }[]
     ) => {
       const transactions = args.map((ct) => {
@@ -16,7 +17,7 @@ export function useRequestRelayrQuote() {
           chain: ct.chain,
           data: ct.data,
           target: erc2771ForwarderAddress[ct.chain],
-          value: "0",
+          value: ct.value,
         };
       });
 
