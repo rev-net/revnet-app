@@ -1,11 +1,25 @@
 import { Button } from "@/components/ui/button";
+import { JB_CHAINS } from "juice-sdk-core";
 import Image from "next/image";
 import Link from "next/link";
+import { mainnet } from "viem/chains";
 
-const RevLink = ({ network, id, text }: { network: string; id: number; text: string }) => {
+const RevLink = ({
+  network,
+  id,
+  text,
+}: {
+  network: string;
+  id: number;
+  text: string;
+}) => {
   return (
     <span>
-      $<Link href={`/${network}/${id}`} className="underline hover:text-black/70">
+      $
+      <Link
+        href={`/${network}:${id}`}
+        className="underline hover:text-black/70"
+      >
         {text}
       </Link>
     </span>
@@ -14,7 +28,7 @@ const RevLink = ({ network, id, text }: { network: string; id: number; text: str
 
 const Pipe = () => {
   return <div className="text-zinc-300">{" | "}</div>;
-}
+};
 
 export default function Page() {
   return (
@@ -40,13 +54,13 @@ export default function Page() {
           </div>
           <div className="flex flex-row sm:mt-8 text-xl md:text-xl text-left gap-1 whitespace-nowrap">
             <span className="mr-1">Browse:</span>
-            <RevLink network="sepolia" id={1} text="NANA" />
+            <RevLink network={JB_CHAINS[mainnet.id].slug} id={1} text="NANA" />
             <Pipe />
-            <RevLink network="sepolia" id={3} text="REV" />
+            <RevLink network={JB_CHAINS[mainnet.id].slug} id={3} text="REV" />
             <Pipe />
-            <RevLink network="sepolia" id={4} text="BAN" />
+            <RevLink network={JB_CHAINS[mainnet.id].slug} id={4} text="BAN" />
             <Pipe />
-            <RevLink network="sepolia" id={2} text="CPN" />
+            <RevLink network={JB_CHAINS[mainnet.id].slug} id={2} text="CPN" />
           </div>
         </div>
       </div>
@@ -58,38 +72,69 @@ export default function Page() {
           <li>Set a name, ticker, logo, and description.</li>
           <li>Lock token issuance and cash-out rules in automated stages.</li>
           <li>Deploy on every chain where you collect fees and payments.</li>
-          <li>Route revenues to your revnet while welcoming funds from anyone.</li>
+          <li>
+            Route revenues to your revnet while welcoming funds from anyone.
+          </li>
         </ol>
       </div>
       <div className="mt-4 max-w-prose text-lg text-left">
         <p>
-          Simple enough for startups, powerful enough for global orgs and brands.
+          Simple enough for startups, powerful enough for global orgs and
+          brands.
         </p>
 
-      <div>
-        <ul className="list-disc list-outside ml-6 sm:ml-10 mt-4">
-          <li>
-            Read the memo at <Link href="https://rev.eth.sucks/memo" target="_blank" rel="noopener norefererr" className="underline">
-              rev.eth.sucks/memo
-            </Link>.
-          </li>
-          <li>
-            Plan your revnet with the community on <Link href="https://discord.gg/vhVxwh8aD9" target="_blank" rel="noopener norefererr" className="underline">
-              Discord
-            </Link>.
-          </li>
-          <li>
-           Audit this website and the revnet protocol on <Link href="https://github.com/orgs/rev-net/repositories" target="_blank" rel="noopener norefererr" className="underline">
-               Github
-            </Link>.
-          </li>
-          <li>
-            Support the $REV network <Link href="https://revnet.app/sepolia/3" target="_blank" rel="noopener norefererr" className="underline">
-              here
-            </Link>, we run as a revnet ourselves.
-          </li>
-        </ul>
-      </div>
+        <div>
+          <ul className="list-disc list-outside ml-6 sm:ml-10 mt-4">
+            <li>
+              Read the memo at{" "}
+              <Link
+                href="https://rev.eth.sucks/memo"
+                target="_blank"
+                rel="noopener norefererr"
+                className="underline"
+              >
+                rev.eth.sucks/memo
+              </Link>
+              .
+            </li>
+            <li>
+              Plan your revnet with the community on{" "}
+              <Link
+                href="https://discord.gg/vhVxwh8aD9"
+                target="_blank"
+                rel="noopener norefererr"
+                className="underline"
+              >
+                Discord
+              </Link>
+              .
+            </li>
+            <li>
+              Audit this website and the revnet protocol on{" "}
+              <Link
+                href="https://github.com/orgs/rev-net/repositories"
+                target="_blank"
+                rel="noopener norefererr"
+                className="underline"
+              >
+                Github
+              </Link>
+              .
+            </li>
+            <li>
+              Support the $REV network{" "}
+              <Link
+                href="https://revnet.app/sepolia/3"
+                target="_blank"
+                rel="noopener norefererr"
+                className="underline"
+              >
+                here
+              </Link>
+              , we run as a revnet ourselves.
+            </li>
+          </ul>
+        </div>
         {/* <div className="flex">
           <div className="mt-4 bg-white text-black text-lg">
             Read the memo at {" "}

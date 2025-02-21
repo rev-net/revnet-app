@@ -6,11 +6,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { RelayrPostBundleResponse } from "@/lib/relayr/types";
 import { format } from "date-fns";
 import { Field as FormikField, useFormikContext } from "formik";
 import { JB_CHAINS, JBChainId } from "juice-sdk-core";
+import { RelayrPostBundleResponse, useGetRelayrTxQuote } from "juice-sdk-react";
 import { useState } from "react";
+import {
+  arbitrumSepolia,
+  baseSepolia,
+  optimismSepolia,
+  sepolia,
+} from "viem/chains";
 import { PayAndDeploy } from "../buttons/PayAndDeploy";
 import { QuoteButton } from "../buttons/QuoteButton";
 import { RevnetFormData } from "../types";
@@ -18,13 +24,6 @@ import { ChainAutoIssuance } from "./ChainAutoIssuance";
 import { ChainOperator } from "./ChainOperator";
 import { ChainSplits } from "./ChainSplits";
 import { Divider } from "./Divider";
-import {
-  arbitrumSepolia,
-  baseSepolia,
-  optimismSepolia,
-  sepolia,
-} from "viem/chains";
-import { useRequestRelayrQuote } from "@/lib/relayr/hooks/useRequestRelayrQuote";
 
 const TESTNETS: JBChainId[] = [
   sepolia.id,
@@ -48,7 +47,7 @@ export function ChainSelect({
   const { values, setFieldValue, submitForm } =
     useFormikContext<RevnetFormData>();
 
-  const requestRelayrQuote = useRequestRelayrQuote();
+  const getRelayrTxQuote = useGetRelayrTxQuote();
 
   const handleChainSelect = (chainId: JBChainId, checked: boolean) => {
     setFieldValue(
@@ -184,7 +183,7 @@ export function ChainSelect({
                   size="sm"
                   className="italic text-xs px-1"
                   disabled={isLoading}
-                  onClick={() => requestRelayrQuote.reset()}
+                  onClick={() => getRelayrTxQuote.reset()}
                 >
                   clear quote
                 </Button>

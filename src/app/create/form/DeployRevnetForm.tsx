@@ -1,9 +1,9 @@
-import { RelayrPostBundleResponse } from "@/lib/relayr/types";
 import { Divider } from "./Divider";
 import { DetailsPage } from "./ProjectDetails";
 import { Stages } from "./Stages";
 import { ChainSelect } from "./ChainSelect";
 import { useTestData } from "../helpers/useTestData";
+import { RelayrPostBundleResponse } from "juice-sdk-react";
 
 export function DeployRevnetForm({
   relayrResponse,

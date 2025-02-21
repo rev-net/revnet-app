@@ -25,7 +25,7 @@ export function GoToProjectButton({
     ? Number(data.logs[0].topics[1])
     : undefined;
   const chain = JB_CHAINS[chainId].slug
-  const projectUrl = `/${chain}/${projectId}`;
+  const projectUrl = `/${chain}:${projectId}`;
   return (
     <div className="max-w-fit">
       <Link

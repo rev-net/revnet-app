@@ -9,12 +9,15 @@ import {
 } from "@/components/ui/select";
 import { useToast } from "@/components/ui/use-toast";
 import { useTokenA } from "@/hooks/useTokenA";
-import { useGetRelayrBundle } from "@/lib/relayr/hooks/useGetRelayrBundle";
-import { usePayRelayr } from "@/lib/relayr/hooks/usePayRelayr";
-import { RelayrPostBundleResponse } from "@/lib/relayr/types";
 import { formatHexEther } from "@/lib/utils";
 import { JB_CHAINS } from "juice-sdk-core";
-import { JBChainId } from "juice-sdk-react";
+import {
+  ChainPayment,
+  JBChainId,
+  RelayrPostBundleResponse,
+  useGetRelayrTxBundle,
+  useSendRelayrTx,
+} from "juice-sdk-react";
 import {
   CheckCircle,
   CircleDashedIcon,
@@ -53,8 +56,8 @@ export function PayAndDeploy({
 }: PaymentAndDeploySectionProps) {
   const [paymentIndex, setPaymentIndex] = useState<number>(0);
   const [payIsProcessing, setPayIsProcessing] = useState(false);
-  const { pay } = usePayRelayr();
-  const { startPolling, response: bundleResponse } = useGetRelayrBundle();
+  const { sendRelayrTx } = useSendRelayrTx();
+  const { startPolling, response: bundleResponse } = useGetRelayrTxBundle();
   const { toast } = useToast();
   const { symbol } = useTokenA();
 
@@ -72,14 +75,16 @@ export function PayAndDeploy({
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            {relayrResponse.payment_info.map((payment, index) => {
-              return (
-                <SelectItem value={String(index)} key={payment.chain}>
-                  {formatHexEther(payment?.amount)} {symbol} on{" "}
-                  {JB_CHAINS[payment.chain].name}
-                </SelectItem>
-              );
-            })}
+            {(relayrResponse.payment_info as ChainPayment[]).map(
+              (payment, index) => {
+                return (
+                  <SelectItem value={String(index)} key={payment.chain}>
+                    {formatHexEther(payment?.amount)} {symbol} on{" "}
+                    {JB_CHAINS[payment.chain as JBChainId].name}
+                  </SelectItem>
+                );
+              }
+            )}
           </SelectContent>
         </Select>
       </div>
@@ -92,7 +97,7 @@ export function PayAndDeploy({
           onClick={async () => {
             setPayIsProcessing(true);
             try {
-              await pay?.(relayrResponse.payment_info[paymentIndex]);
+              await sendRelayrTx?.(relayrResponse.payment_info[paymentIndex]);
               startPolling(relayrResponse.bundle_uuid);
             } catch (e: any) {
               setPayIsProcessing(false);
