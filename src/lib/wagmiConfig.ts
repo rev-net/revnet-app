@@ -12,7 +12,7 @@ import {
 import { createConfig, http, fallback } from "wagmi";
 
 const defaultConfig = getDefaultConfig({
-  chains: [sepolia, optimismSepolia, baseSepolia, arbitrumSepolia],
+  chains: [mainnet, optimism, arbitrum, base, sepolia, optimismSepolia, baseSepolia, arbitrumSepolia],
   appName: "REVNET",
   walletConnectProjectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID!,
   transports: {
