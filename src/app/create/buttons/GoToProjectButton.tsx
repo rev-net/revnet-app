@@ -1,10 +1,9 @@
 import { Button } from "@/components/ui/button";
-import { JB_CHAINS, JB_CHAIN_SLUGS } from "juice-sdk-core";
+import { JB_CHAINS } from "juice-sdk-core";
 import { JBChainId } from "juice-sdk-react";
 import { FastForwardIcon } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
-import { sepolia } from "viem/chains";
 import { useTransactionReceipt } from "wagmi";
 
 export function GoToProjectButton({
@@ -24,7 +23,7 @@ export function GoToProjectButton({
   const projectId = data?.logs[0]?.topics[1]
     ? Number(data.logs[0].topics[1])
     : undefined;
-  const chain = JB_CHAINS[chainId].slug
+  const chain = JB_CHAINS[chainId].slug;
   const projectUrl = `/${chain}:${projectId}`;
   return (
     <div className="max-w-fit">
