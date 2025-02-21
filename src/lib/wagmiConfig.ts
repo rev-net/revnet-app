@@ -47,7 +47,7 @@ const defaultConfig = getDefaultConfig({
     ]),
     [arbitrum.id]: fallback([
       http("https://arb.g.alchemy.com/v2/Y7igjs135LhJTJbYavxq9WlhuAZQVn03"),
-      http(`https://arbitrum-sepolia.infura.io/v3/${process.env.NEXT_PUBLIC_INFURA_ID}`),
+      http(`https://arbitrum.infura.io/v3/${process.env.NEXT_PUBLIC_INFURA_ID}`),
     ]),
   },
 });
