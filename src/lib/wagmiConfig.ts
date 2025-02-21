@@ -1,7 +1,11 @@
 import { getDefaultConfig } from "connectkit";
 import {
+  arbitrum,
   arbitrumSepolia,
+  base,
   baseSepolia,
+  mainnet,
+  optimism,
   optimismSepolia,
   sepolia,
 } from "viem/chains";
@@ -26,6 +30,23 @@ const defaultConfig = getDefaultConfig({
     ]),
     [arbitrumSepolia.id]: fallback([
       http("https://arb-sepolia.g.alchemy.com/v2/Y7igjs135LhJTJbYavxq9WlhuAZQVn03"),
+      http(`https://arbitrum-sepolia.infura.io/v3/${process.env.NEXT_PUBLIC_INFURA_ID}`),
+    ]),
+
+    [mainnet.id]: fallback([
+      http("https://mainnet.g.alchemy.com/v2/Y7igjs135LhJTJbYavxq9WlhuAZQVn03"),
+      http(`https://mainnet.infura.io/v3/${process.env.NEXT_PUBLIC_INFURA_ID}`),
+    ]),
+    [optimism.id]: fallback([
+      http("https://opt.g.alchemy.com/v2/Y7igjs135LhJTJbYavxq9WlhuAZQVn03"),
+      http(`https://optimism.infura.io/v3/${process.env.NEXT_PUBLIC_INFURA_ID}`),
+    ]),
+    [base.id]: fallback([
+      http(`https://api.developer.coinbase.com/rpc/v1/base/${process.env.NEXT_PUBLIC_BASE_ID}`),
+      http("https://base.g.alchemy.com/v2/Y7igjs135LhJTJbYavxq9WlhuAZQVn03"),
+    ]),
+    [arbitrum.id]: fallback([
+      http("https://arb.g.alchemy.com/v2/Y7igjs135LhJTJbYavxq9WlhuAZQVn03"),
       http(`https://arbitrum-sepolia.infura.io/v3/${process.env.NEXT_PUBLIC_INFURA_ID}`),
     ]),
   },
