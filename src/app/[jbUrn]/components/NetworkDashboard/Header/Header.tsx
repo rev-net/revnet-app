@@ -93,7 +93,7 @@ export function Header() {
                   <Link
                     className="underline"
                     key={networkSlug}
-                    href={`/${networkSlug}/${pair.projectId}`}
+                    href={`/${networkSlug}:${pair.projectId}`}
                   >
                     <ChainLogo
                       chainId={pair.peerChainId as JBChainId}
