@@ -10,7 +10,7 @@ import { useAccount } from "wagmi";
 import { DEFAULT_FORM_DATA } from "./constants";
 import { DeployRevnetForm } from "./form/DeployRevnetForm";
 import { parseDeployData } from "./helpers/parseDeployData";
-import { parseSuckerDeployerConfig } from "./helpers/parseSuckerDeployerConfig";
+import { parseSuckerDeployerConfig } from "juice-sdk-core";
 import { pinProjectMetadata } from "./helpers/pinProjectMetaData";
 import { RevnetFormData } from "./types";
 import { useGetRelayrTxQuote } from "juice-sdk-react";
