@@ -26,6 +26,12 @@ export default function Page() {
 
   async function deployProject(formData: RevnetFormData) {
     console.log({ formData });
+
+    if (!address) {
+      console.warn("no wallet connected, aborting deploy");
+      return;
+    }
+
     // Upload metadata
     setIsLoadingIpfs(true);
     const metadataCid = await pinProjectMetadata({
@@ -35,34 +41,37 @@ export default function Page() {
     });
     setIsLoadingIpfs(false);
 
-    if (!address) return;
-    const suckerDeployerConfig = parseSuckerDeployerConfig();
+    const relayrTransactions = formData.chainIds.map((chainId) => {
+      const suckerDeployerConfig = parseSuckerDeployerConfig(
+        chainId,
+        formData.chainIds
+      );
+      const deployData = parseDeployData(formData, {
+        metadataCid,
+        chainId,
+        suckerDeployerConfig,
+      });
+      const encodedData = encodeFunctionData({
+        abi: revDeployerAbi, // ABI of the contract
+        functionName: "deployFor",
+        args: deployData,
+      });
 
-    await getRelayrTxQuote(
-      formData.chainIds.map((chainId) => {
-        const deployData = parseDeployData(formData, {
-          metadataCid,
-          chainId,
-          suckerDeployerConfig: suckerDeployerConfig,
-        });
-        const encodedData = encodeFunctionData({
-          abi: revDeployerAbi, // ABI of the contract
-          functionName: "deployFor",
-          args: deployData,
-        });
+      console.log("create::deploy calldata", chainId, encodedData);
 
-        return {
-          data: {
-            from: address,
-            to: revDeployerAddress[chainId],
-            value: 0n,
-            gas: 1_000_000n,
-            data: encodedData,
-          },
-          chainId,
-        };
-      })
-    );
+      return {
+        data: {
+          from: address,
+          to: revDeployerAddress[chainId],
+          value: 0n,
+          gas: 1_000_000n,
+          data: encodedData,
+        },
+        chainId,
+      };
+    });
+
+    await getRelayrTxQuote(relayrTransactions);
   }
 
   return (
