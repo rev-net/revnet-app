@@ -4,7 +4,9 @@ import { Providers } from "./Providers";
 import { NetworkDashboard } from "./components/NetworkDashboard/NetworkDashboard";
 
 export default function Page({ params }: { params: { jbUrn: string } }) {
-  const { projectId, chainId } = jbUrn(decodeURIComponent(params.jbUrn));
+  const { projectId, chainId } = jbUrn(decodeURIComponent(params.jbUrn)) ?? {};
+  if (!projectId || !chainId) return null;
+
   return (
     <Providers chainId={chainId} projectId={projectId}>
       <Nav />
