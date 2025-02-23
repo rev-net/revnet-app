@@ -3,6 +3,8 @@
 import { Nav } from "@/components/layout/Nav";
 import { useToast } from "@/components/ui/use-toast";
 import { Formik } from "formik";
+import { parseSuckerDeployerConfig } from "juice-sdk-core";
+import { useGetRelayrTxQuote } from "juice-sdk-react";
 import { useState } from "react";
 import { revDeployerAbi, revDeployerAddress } from "revnet-sdk";
 import { encodeFunctionData } from "viem";
@@ -10,10 +12,8 @@ import { useAccount } from "wagmi";
 import { DEFAULT_FORM_DATA } from "./constants";
 import { DeployRevnetForm } from "./form/DeployRevnetForm";
 import { parseDeployData } from "./helpers/parseDeployData";
-import { parseSuckerDeployerConfig } from "juice-sdk-core";
 import { pinProjectMetadata } from "./helpers/pinProjectMetaData";
 import { RevnetFormData } from "./types";
-import { useGetRelayrTxQuote } from "juice-sdk-react";
 
 export default function Page() {
   const [isLoadingIpfs, setIsLoadingIpfs] = useState<boolean>(false);
@@ -64,7 +64,7 @@ export default function Page() {
           from: address,
           to: revDeployerAddress[chainId],
           value: 0n,
-          gas: 1_000_000n,
+          gas: 1_000_000n * BigInt(formData.chainIds.length),
           data: encodedData,
         },
         chainId,
