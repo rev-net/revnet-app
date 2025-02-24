@@ -13,15 +13,18 @@ export function PayOnSelect() {
   const suckersQuery = useSuckers();
   const chainId = useJBChainId();
   const suckers = suckersQuery.data;
-  const [selectedSucker, setSelectedSucker] = useState<SuckerPair | undefined>(undefined);
+  const [selectedSucker, setSelectedSucker] = useState<SuckerPair | undefined>(suckers?.find(sucker => chainId === sucker.peerChainId));
+
+  useEffect(() => {
+    const defaultSucker = suckers?.find(sucker => chainId === sucker.peerChainId);
+    setSelectedSucker(defaultSucker);
+  }, [suckers, chainId]);
 
   useEffect(() => {
     console.log("suckers", suckers);
     console.log("selectedSucker", selectedSucker);
     console.log("chainId", chainId);
-    const defaultSucker = suckers?.find(sucker => chainId === sucker.peerChainId);
-    setSelectedSucker(defaultSucker);
-  }, [suckers, chainId, selectedSucker]);
+  }, [suckers, selectedSucker, chainId]);
 
   if (!suckers || !selectedSucker) {
     return null;
