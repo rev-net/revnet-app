@@ -32,3 +32,6 @@ export const chainIdToLogo = {
 };
 
 export const BACKED_BY_TOKENS = ["ETH", "USDC"] as const;
+
+export const JB_CURRENCY_ETH = 1;
+export const JB_CURRENCY_USD = 2;

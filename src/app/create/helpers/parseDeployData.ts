@@ -14,6 +14,7 @@ import {
 import { revDeployerAbi, revLoansAddress } from "revnet-sdk";
 import { Address, ContractFunctionParameters, parseUnits, zeroAddress } from "viem";
 import { RevnetFormData } from "../types";
+import { JB_CURRENCY_ETH } from "@/app/constants";
 
 export function parseDeployData(
   _formData: RevnetFormData,
@@ -153,7 +154,7 @@ export function parseDeployData(
         uri: extra.metadataCid,
         salt: createSalt(),
       },
-      baseCurrency: Number(BigInt(NATIVE_TOKEN)),
+      baseCurrency: JB_CURRENCY_ETH,
       splitOperator: operator as Address,
       stageConfigurations,
       loans: revLoansAddress[extra.chainId as JBChainId] as Address,
