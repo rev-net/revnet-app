@@ -64,7 +64,7 @@ export function ChainAutoIssuance({ disabled = false }: ChainAutoIssuanceProps) 
   };
 
   const getStagesWithAutoIssuance = () => {
-    return values.stages.filter(stage => 
+    return values.stages.filter(stage =>
       Array.isArray(stage.autoIssuance) && stage.autoIssuance.length > 0
     );
   };

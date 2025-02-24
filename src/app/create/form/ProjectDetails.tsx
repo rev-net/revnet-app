@@ -12,7 +12,7 @@ export function DetailsPage({
 }) {
   const { setFieldValue } =
     useFormikContext<RevnetFormData>();
-  
+
   const [tokenSymbol, setTokenSymbol] = useState("TOKEN");
 
   // Set Formik field value on component mount

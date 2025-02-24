@@ -24,10 +24,10 @@ export function ChainOperator({ disabled = false }: { disabled?: boolean }) {
         render={() => (
           <div className="mb-8">
             <div className="text-sm text-zinc-500">
-              Confirm the operator's address for each chain. 
+              Confirm the operator's address for each chain.
             </div>
             <div className="text-sm text-zinc-500">
-              Operators can re-route splits within the split limit of each stage and edit the name, logo, and description of the revnet. 
+              Operators can re-route splits within the split limit of each stage and edit the name, logo, and description of the revnet.
             </div>
             <div className="text-sm text-zinc-500 mb-4">
               If the operator is the same address that initially deploys the revnet now, it can deploy the revnet to new chains later on.

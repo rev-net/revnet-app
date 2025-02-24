@@ -246,7 +246,7 @@ export function NetworkDetailsTable() {
                                   <li className="flex">
                                     <span className="mr-2">•</span>
                                     <div>
-                                      You can write and deploy a custom split hook that automatically receives and processes the split {formatTokenSymbol(token)}. See <a className="underline" target="_blank" href="https://docs.juicebox.money/v4/build/hooks/split-hook/"> the docs.</a> 
+                                      You can write and deploy a custom split hook that automatically receives and processes the split {formatTokenSymbol(token)}. See <a className="underline" target="_blank" href="https://docs.juicebox.money/v4/build/hooks/split-hook/"> the docs.</a>
                                     </div>
                                   </li>
                                   <li className="flex">

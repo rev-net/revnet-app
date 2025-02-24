@@ -88,23 +88,23 @@ export function AddStageDialog({
     formikValues.tokenSymbol?.length > 0
       ? `$${formikValues.tokenSymbol}`
       : "tokens";
-  
+
     const [value, setValue] = useState(20); // Default value matching your example
 
     // Discrete values matching your radio options
     const steps = [0, 20, 40, 60, 80];
-    
+
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       const numValue = parseFloat(e.target.value);
       const closestHalfStep = Math.round(numValue * 20) / 20;
       console.log({closestHalfStep});
       setValue(closestHalfStep);
     };
-  
+
     // Calculate example yield based on selected tax rate
     const calculateYield = (taxRate: number) => {
       console.log({taxRate});
-      return (Number(((1-(taxRate/100))+((taxRate/100)/10))) * 10).toFixed(1); 
+      return (Number(((1-(taxRate/100))+((taxRate/100)/10))) * 10).toFixed(1);
     };
 
   return (
@@ -191,7 +191,7 @@ export function AddStageDialog({
                               key={index}
                               className="flex gap-2 items-center text-md text-zinc-600 mt-4"
                             >
-                              <label 
+                              <label
                                 className="whitespace-nowrap"
                                 htmlFor={`splits.${index}.amount`}>
                                 {index === 0 ? "Split" : "... and"}
@@ -247,8 +247,8 @@ export function AddStageDialog({
                   {
                     values.splits.length > 0 && (
                   <div className="mt-4 flex gap-2 items-center text-md text-zinc-600 whitespace-nowrap">
-                    <label 
-                    className="whitespace-nowrap"                              
+                    <label
+                    className="whitespace-nowrap"
                     htmlFor="priceCeilingIncreasePercentage">
                       ... operated by
                     </label>
@@ -363,7 +363,7 @@ export function AddStageDialog({
                         <li className="flex">
                           <span className="mr-2">•</span>
                           <span>
-                            You can write and deploy a custom split hook that automatically receives and processes the split {revnetTokenSymbol}. See <a className="inline underline" target="_blank" href="https://docs.juicebox.money/v4/build/hooks/split-hook/"> the docs.</a> 
+                            You can write and deploy a custom split hook that automatically receives and processes the split {revnetTokenSymbol}. See <a className="inline underline" target="_blank" href="https://docs.juicebox.money/v4/build/hooks/split-hook/"> the docs.</a>
                           </span>
                         </li>
                         <li className="flex">
@@ -476,7 +476,7 @@ export function AddStageDialog({
                       min="0"
                       type="number"
                       description="How many days after the previous stage should this stage start?"
-                      width="w-32" 
+                      width="w-32"
                     />
                     <NotesSection>
                       <ul className="list-disc list-inside">
