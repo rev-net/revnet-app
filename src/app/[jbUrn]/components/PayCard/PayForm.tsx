@@ -28,16 +28,12 @@ export function PayForm() {
   const {
     contracts: { primaryNativeTerminal },
   } = useJBContractContext();
-  const { ruleset, rulesetMetadata } = useJBRulesetContext();
+  const { ruleset, rulesetMetadata} = useJBRulesetContext();
 
   const tokenB = token?.data;
 
-  if (token.isLoading) {
+  if (token.isLoading || ruleset.isLoading || rulesetMetadata.isLoading || !tokenB) {
     return "Loading...";
-  }
-
-  if (!ruleset?.data || !rulesetMetadata?.data || !tokenB) {
-    return "Something went wrong";
   }
 
   const _amountA = {

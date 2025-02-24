@@ -34,6 +34,7 @@ import {
 import { useEffect, useState } from "react";
 import { Address } from "viem";
 import { useAccount, useWaitForTransactionReceipt } from "wagmi";
+import { useSelectedSucker } from "./SelectedSuckerContext";
 
 export function PayDialog({
   amountA,
@@ -61,7 +62,7 @@ export function PayDialog({
     data,
   } = useWriteJbMultiTerminalPay();
   const chainId = useJBChainId();
-  const [selectedSucker, setSelectedSucker] = useState<SuckerPair>();
+  const { selectedSucker, setSelectedSucker } = useSelectedSucker();
   const txHash = data;
   const { isLoading: isTxLoading, isSuccess } = useWaitForTransactionReceipt({
     hash: txHash,
@@ -91,7 +92,7 @@ export function PayDialog({
       const i = suckers.findIndex((s) => s.peerChainId === chainId);
       setSelectedSucker(suckers[i]);
     }
-  }, [suckers, chainId, projectId, selectedSucker]);
+  }, [suckers, chainId, projectId, selectedSucker, setSelectedSucker]);
 
   const handlePay = () => {
     if (!primaryNativeTerminal?.data || !address || !selectedSucker) {

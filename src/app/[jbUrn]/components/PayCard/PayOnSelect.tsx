@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { JB_CHAINS, SuckerPair } from "juice-sdk-core";
 import { JBChainId, useJBChainId, useSuckers } from "juice-sdk-react";
+import { useSelectedSucker } from "./SelectedSuckerContext";
 import {
   Select,
   SelectTrigger,
@@ -13,15 +14,12 @@ export function PayOnSelect() {
   const suckersQuery = useSuckers();
   const chainId = useJBChainId();
   const suckers = suckersQuery.data;
-  const [selectedSucker, setSelectedSucker] = useState<SuckerPair | undefined>({
-    peerChainId: chainId,
-    projectId: 0n,
-  });
+  const { selectedSucker, setSelectedSucker } = useSelectedSucker();
 
   useEffect(() => {
     const defaultSucker = suckers?.find(sucker => chainId === sucker.peerChainId);
     setSelectedSucker(defaultSucker);
-  }, [suckers, chainId]);
+  }, [suckers, chainId, setSelectedSucker]);
 
   if (!suckers || suckers.length <= 1) {
     return null;
