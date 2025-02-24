@@ -23,7 +23,7 @@ export function PayOnSelect() {
     setSelectedSucker(defaultSucker);
   }, [suckers, chainId]);
 
-  if (suckers?.length === 0) {
+  if (!suckers || suckers.length <= 1) {
     return null;
   }
 
