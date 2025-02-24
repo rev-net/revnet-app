@@ -23,6 +23,7 @@ export function PayOnSelect() {
   if (!suckers || !selectedSucker) {
     console.log("suckers", suckers);
     console.log("selectedSucker", selectedSucker);
+    console.log("chainId", chainId);
     return null;
   }
 
