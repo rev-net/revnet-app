@@ -13,7 +13,10 @@ export function PayOnSelect() {
   const suckersQuery = useSuckers();
   const chainId = useJBChainId();
   const suckers = suckersQuery.data;
-  const [selectedSucker, setSelectedSucker] = useState<SuckerPair | undefined>(suckers?.find(sucker => chainId === sucker.peerChainId));
+  const [selectedSucker, setSelectedSucker] = useState<SuckerPair | undefined>({
+    peerChainId: chainId,
+    projectId: 0n,
+  });
 
   useEffect(() => {
     const defaultSucker = suckers?.find(sucker => chainId === sucker.peerChainId);
@@ -25,10 +28,6 @@ export function PayOnSelect() {
     console.log("selectedSucker", selectedSucker);
     console.log("chainId", chainId);
   }, [suckers, selectedSucker, chainId]);
-
-  if (!suckers || !selectedSucker) {
-    return null;
-  }
 
   return (
     <div className="flex flex-row items-center gap-1">
