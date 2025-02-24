@@ -16,7 +16,7 @@ export function PayOnSelect() {
   const [selectedSucker, setSelectedSucker] = useState<SuckerPair | undefined>(undefined);
 
   useEffect(() => {
-    const defaultSucker = suckers?.find(sucker => chainId === sucker.peerChainId);
+    const defaultSucker = suckers?.find(sucker => String(chainId) === String(sucker.peerChainId));
     setSelectedSucker(defaultSucker);
   }, [suckers, chainId]);
 
