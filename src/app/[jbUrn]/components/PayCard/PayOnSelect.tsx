@@ -16,14 +16,14 @@ export function PayOnSelect() {
   const [selectedSucker, setSelectedSucker] = useState<SuckerPair | undefined>(undefined);
 
   useEffect(() => {
-    const defaultSucker = suckers?.find(sucker => String(chainId) === String(sucker.peerChainId));
-    setSelectedSucker(defaultSucker);
-  }, [suckers, chainId]);
-
-  if (!suckers || !selectedSucker) {
     console.log("suckers", suckers);
     console.log("selectedSucker", selectedSucker);
     console.log("chainId", chainId);
+    const defaultSucker = suckers?.find(sucker => chainId === sucker.peerChainId);
+    setSelectedSucker(defaultSucker);
+  }, [suckers, chainId, selectedSucker]);
+
+  if (!suckers || !selectedSucker) {
     return null;
   }
 

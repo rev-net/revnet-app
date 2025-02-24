@@ -190,7 +190,7 @@ export function ActivityFeed() {
         <div className="flex flex-col gap-1">
           {projectEvents && projectEvents.length > 0 ? (
             projectEvents?.map((event) => {
-              if (event.payEvent) {
+              if (event?.payEvent) {
                 return (
                   <PayActivityItem
                     key={event.id}
@@ -199,7 +199,7 @@ export function ActivityFeed() {
                   />
                 );
               }
-              if (event.cashOutEvent) {
+              if (event?.cashOutEvent) {
                 return (
                   <RedeemActivityItem
                     key={event.id}

@@ -85,7 +85,7 @@ export function PayDialog({
 
   useEffect(() => {
     if (chainId && suckers && !suckers.find((s) => s.peerChainId === chainId)) {
-      suckers.push({ projectId, peerChainId: chainId });
+      suckers.push({ peerChainId: chainId, projectId });
     }
     if (suckers && !selectedSucker) {
       const i = suckers.findIndex((s) => s.peerChainId === chainId);
