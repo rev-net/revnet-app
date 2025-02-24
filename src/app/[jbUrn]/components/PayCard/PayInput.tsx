@@ -1,16 +1,18 @@
 import * as React from "react";
 
 import { cn } from "@/lib/utils";
+import { PayOnSelect } from "./PayOnSelect";
 
 export interface PayInputProps
   extends React.InputHTMLAttributes<HTMLInputElement> {
   label: string;
+  withPayOnSelect?: boolean;
   currency?: string;
   inputClassName?: string;
 }
 
 const PayInput = React.forwardRef<HTMLInputElement, PayInputProps>(
-  ({ className, inputClassName, label, type, currency, ...props }, ref) => {
+  ({ className, inputClassName, label, type, currency, withPayOnSelect, ...props }, ref) => {
     return (
       <div
         className={cn(
@@ -19,9 +21,14 @@ const PayInput = React.forwardRef<HTMLInputElement, PayInputProps>(
         )}
       >
         <div className="flex flex-col">
-          <label className="text-md text-black-700">
-            {label}
-          </label>
+          <div className="flex flex-row gap-1">
+            <label className="text-md text-black-700">
+              {label}
+            </label>
+            {withPayOnSelect && (
+              <PayOnSelect />
+            )}
+          </div>
           <input
             type={type}
             className={cn(

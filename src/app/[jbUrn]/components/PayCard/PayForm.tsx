@@ -1,43 +1,24 @@
-import { ButtonWithWallet } from "@/components/ButtonWithWallet";
-import { EthereumAddress } from "@/components/EthereumAddress";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { useBoostRecipient } from "@/hooks/useBoostRecipient";
 import { useTokenA } from "@/hooks/useTokenA";
-import {
-  ArrowDownIcon,
-  ArrowRightIcon,
-  ForwardIcon,
-} from "@heroicons/react/24/solid";
 import { FixedInt } from "fpnum";
 import { getTokenAToBQuote, getTokenBtoAQuote } from "juice-sdk-core";
 import {
-  FieldArray,
-  FieldAttributes,
-  Form,
-  Formik,
   Field,
-  useFormikContext,
+  Formik,
 } from "formik";
 import {
   useJBContractContext,
   useJBRulesetContext,
   useJBTokenContext,
 } from "juice-sdk-react";
-import { memo, useState } from "react";
+import { useState } from "react";
 import { formatUnits, parseEther, parseUnits } from "viem";
 import { PayDialog } from "./PayDialog";
 import { PayInput } from "./PayInput";
 import { formatTokenSymbol } from "@/lib/utils";
-import { Badge } from "@/components/ui/badge";
 
 export function PayForm() {
   const tokenA = useTokenA();
   const { token } = useJBTokenContext();
-  const boostRecipient = useBoostRecipient();
   const [memo, setMemo] = useState<string>();
 
   const [amountA, setAmountA] = useState<string>("");
@@ -45,7 +26,6 @@ export function PayForm() {
   const [amountC, setAmountC] = useState<string>("");
 
   const {
-    projectId,
     contracts: { primaryNativeTerminal },
   } = useJBContractContext();
   const { ruleset, rulesetMetadata } = useJBRulesetContext();
@@ -55,8 +35,6 @@ export function PayForm() {
   if (!ruleset?.data || !rulesetMetadata?.data || !tokenB) {
     return "Something went wrong";
   }
-
-  const devTax = rulesetMetadata?.data?.reservedPercent;
 
   const _amountA = {
     amount: new FixedInt(parseEther(amountA), tokenA.decimals),
@@ -77,6 +55,7 @@ export function PayForm() {
     <div>
       <div className="flex justify-center items-center flex-col">
         <PayInput
+          withPayOnSelect
           label="Pay"
           type="number"
           className="border-b border-zinc-200 border-t border-l border-r"
@@ -140,22 +119,6 @@ export function PayForm() {
           Splits get {amountC || 0} {formatTokenSymbol(tokenB.symbol)}
         </div>
       </div>
-      {/* <div className="flex justify-between gap-3 items-center md:items-start flex-col md:flex-row">
-          <div className="flex flex-col gap-2 text-sm items-center md:items-start">
-            <div>
-              1 {token?.symbol} = <Ether wei={ethQuote} />
-            </div>
-
-            {secondsUntilNextCycle ? (
-              <div className="gap-1 text-orange-600 text-xs flex items-center font-medium">
-                <ClockIcon className="w-4 h-4" />
-                {entryTax.toPercentage()}% increase scheduled in{" "}
-                {formatSeconds(secondsUntilNextCycle)}
-              </div>
-            ) : null}
-          </div>
-
-        </div> */}
 
       <div className="flex flex-row">
         <Formik
