@@ -39,7 +39,7 @@ const defaultConfig = getDefaultConfig({
     ]),
     [optimism.id]: fallback([
       http("https://opt-mainnet.g.alchemy.com/v2/Y7igjs135LhJTJbYavxq9WlhuAZQVn03"),
-      http(`https://optimism.infura.io/v3/${process.env.NEXT_PUBLIC_INFURA_ID}`),
+      http(`https://optimism-mainnet.infura.io/v3/${process.env.NEXT_PUBLIC_INFURA_ID}`),
     ]),
     [base.id]: fallback([
       http(`https://api.developer.coinbase.com/rpc/v1/base/${process.env.NEXT_PUBLIC_BASE_ID}`),
@@ -47,7 +47,7 @@ const defaultConfig = getDefaultConfig({
     ]),
     [arbitrum.id]: fallback([
       http("https://arb-mainnet.g.alchemy.com/v2/Y7igjs135LhJTJbYavxq9WlhuAZQVn03"),
-      http(`https://arbitrum.infura.io/v3/${process.env.NEXT_PUBLIC_INFURA_ID}`),
+      http(`https://arbitrum-mainnet.infura.io/v3/${process.env.NEXT_PUBLIC_INFURA_ID}`),
     ]),
   },
 });
