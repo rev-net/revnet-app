@@ -23,11 +23,9 @@ export function PayOnSelect() {
     setSelectedSucker(defaultSucker);
   }, [suckers, chainId]);
 
-  useEffect(() => {
-    console.log("suckers", suckers);
-    console.log("selectedSucker", selectedSucker);
-    console.log("chainId", chainId);
-  }, [suckers, selectedSucker, chainId]);
+  if (suckers?.length === 0) {
+    return null;
+  }
 
   return (
     <div className="flex flex-row items-center gap-1">
