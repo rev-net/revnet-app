@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { JB_CHAINS, jbUrn, SuckerPair } from "juice-sdk-core";
+import { JB_CHAINS, SuckerPair } from "juice-sdk-core";
 import { JBChainId, useJBChainId, useSuckers } from "juice-sdk-react";
 import {
   Select,
@@ -20,7 +20,11 @@ export function PayOnSelect() {
     setSelectedSucker(defaultSucker);
   }, [suckers, chainId]);
 
-  if (!suckers || !selectedSucker) return null;
+  if (!suckers || !selectedSucker) {
+    console.log("suckers", suckers);
+    console.log("selectedSucker", selectedSucker);
+    return null;
+  }
 
   return (
     <div className="flex flex-row items-center gap-1">

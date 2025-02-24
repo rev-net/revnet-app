@@ -33,7 +33,7 @@ export function PayForm() {
   const tokenB = token?.data;
 
   if (!ruleset?.data || !rulesetMetadata?.data || !tokenB) {
-    return "Something went wrong";
+    return "Loading...";
   }
 
   const _amountA = {
