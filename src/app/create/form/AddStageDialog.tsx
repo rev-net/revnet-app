@@ -345,7 +345,7 @@ export function AddStageDialog({
                       <ul className="list-disc list-inside space-y-2">
                         <li className="flex">
                           <span className="mr-2">•</span>
-                          Decreasing 50% means to double the price – a
+                          Cutting issuance by 50% means to double the price – a
                           halvening effect.
                         </li>
                         <li className="flex">
