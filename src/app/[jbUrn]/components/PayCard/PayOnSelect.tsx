@@ -27,14 +27,14 @@ export function PayOnSelect() {
 
   return (
     <div className="flex flex-row items-center gap-1">
-      <span className="text-sm text-zinc-500">on</span>
+      <span className="text-md text-black-700">on</span>
       <Select
         onValueChange={(value: string) => {
           setSelectedSucker(suckers?.find(sucker => sucker.peerChainId === value) || undefined)
         }}
         defaultValue={selectedSucker?.peerChainId}
       >
-        <SelectTrigger className="underline bg-transparent border-none p-0 h-auto">
+        <SelectTrigger className="underline bg-transparent border-none p-0 h-auto text-md text-black-700">
           <SelectValue placeholder="Select a chain" />
         </SelectTrigger>
         <SelectContent>
