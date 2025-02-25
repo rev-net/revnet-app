@@ -40,7 +40,7 @@ export function PayOnSelect() {
         <SelectContent>
           {suckers?.map((sucker) => (
             <SelectItem key={sucker.peerChainId} value={sucker.peerChainId}>
-              {JB_CHAINS[sucker.peerChainId as JBChainId]?.name.toLowerCase()}
+              {JB_CHAINS[sucker.peerChainId as JBChainId]?.name}
             </SelectItem>
           ))}
         </SelectContent>
