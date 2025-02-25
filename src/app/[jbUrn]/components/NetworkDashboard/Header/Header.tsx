@@ -115,14 +115,14 @@ export function Header() {
                 {contributorsCount === 1 ? "owner" : "owners"}
               </span>
             </div>
-            <div className="sm:text-xl text-lg">
+            {/* <div className="sm:text-xl text-lg">
               <span className="font-medium text-black-500">
                 {!cashOutLoading
                   ? `$${Number(cashOutValue).toFixed(4)}`
                   : "..."}
               </span>{" "}
               <span className="text-zinc-500">cash out value</span>
-            </div>
+            </div> */}
           </div>
         </div>
       </div>
