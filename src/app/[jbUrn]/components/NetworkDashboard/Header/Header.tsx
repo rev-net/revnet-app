@@ -10,15 +10,17 @@ import { ForwardIcon } from "@heroicons/react/24/solid";
 import { JB_CHAINS, SuckerPair } from "juice-sdk-core";
 import {
   JBChainId,
+  useJBChainId,
   useJBContractContext,
   useJBProjectMetadataContext,
   useJBTokenContext,
   useSuckers,
-  useSuckersTokenCashOutValue,
+  useReadJbTokensTotalSupplyOf,
 } from "juice-sdk-react";
 import Image from "next/image";
 import Link from "next/link";
 import { TvlDatum } from "./TvlDatum";
+import { formatUnits } from "viem";
 
 export function Header() {
   const { projectId } = useJBContractContext();
@@ -35,11 +37,17 @@ export function Header() {
   const suckers = suckersQuery.data;
   const { contributorsCount } = projects?.projects?.[0] ?? {};
   const { name: projectName, logoUri } = metadata?.data ?? {};
+  const chainId = useJBChainId();
 
-  const { data: cashOutValue, loading: cashOutLoading } =
-    useSuckersTokenCashOutValue({
-      targetCurrency: "usd",
-    });
+  const { data: totalTokenSupply } = useReadJbTokensTotalSupplyOf({
+    chainId,
+    args: [projectId],
+  });
+
+  const totalSupplyFormatted =
+  totalTokenSupply && token?.data
+    ? formatUnits(totalTokenSupply, token.data.decimals)
+    : null;
 
   return (
     <header>
@@ -114,6 +122,12 @@ export function Header() {
               <span className="text-zinc-500">
                 {contributorsCount === 1 ? "owner" : "owners"}
               </span>
+            </div>
+            <div className="sm:text-xl text-lg">
+              <span className="font-medium text-black-500">
+                {`$${Number(totalSupplyFormatted).toFixed(4)}`}
+              </span>{" "}
+              <span className="text-zinc-500">{formatTokenSymbol(token)} outstanding</span>
             </div>
             {/* <div className="sm:text-xl text-lg">
               <span className="font-medium text-black-500">
