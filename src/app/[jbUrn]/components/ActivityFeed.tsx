@@ -43,6 +43,7 @@ function PayActivityItem(
   const { token } = useJBTokenContext();
   const chainId = payEvent.chainId;
   const chain = JB_CHAINS[chainId].chain;
+
   if (!token?.data || !payEvent) return null;
 
   const activityItemData = {
@@ -84,6 +85,7 @@ function PayActivityItem(
           withEnsAvatar
           avatarProps={{ size: "sm" }}
           short
+          chain={chain}
         />
         <div className="flex items-center gap-1">
           <span>

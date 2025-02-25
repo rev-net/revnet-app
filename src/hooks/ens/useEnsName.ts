@@ -11,12 +11,11 @@ const ENS_IDEAS_BASE_URL = "https://api.ensideas.com";
  * NOTE: only works on mainnet.
  */
 async function resolveAddressEnsIdeas(addressOrEnsName: string) {
-  const response: { data: { name: string | null; address: string } } =
-    await fetch(`${ENS_IDEAS_BASE_URL}/ens/resolve/${addressOrEnsName}`).then(
-      (res) => res.json()
-    );
+  const response: { name: string | null; address: string } = await fetch(
+    `${ENS_IDEAS_BASE_URL}/ens/resolve/${addressOrEnsName}`
+  ).then((res) => res.json());
 
-  return response.data;
+  return response;
 }
 
 /**
@@ -52,7 +51,7 @@ export function useEnsName(
   const publicClient = usePublicClient({ chainId });
 
   return useQuery({
-    queryKey: ["ensName", address],
+    queryKey: ["ensName", address, chainId],
     queryFn: async () => {
       if (!address || !isAddress(address)) return null;
       if (!publicClient) {
@@ -60,7 +59,6 @@ export function useEnsName(
       }
 
       const data = await resolveAddress(address, { chainId, publicClient });
-
       return data.name;
     },
     enabled,
