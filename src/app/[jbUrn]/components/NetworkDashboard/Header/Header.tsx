@@ -125,7 +125,7 @@ export function Header() {
             </div>
             <div className="sm:text-xl text-lg">
               <span className="font-medium text-black-500">
-                {`$${Number(totalSupplyFormatted).toFixed(4)}`}
+                {`${Number(totalSupplyFormatted).toFixed(4)}`}
               </span>{" "}
               <span className="text-zinc-500">{formatTokenSymbol(token)} outstanding</span>
             </div>
