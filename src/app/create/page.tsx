@@ -3,7 +3,7 @@
 import { Nav } from "@/components/layout/Nav";
 import { useToast } from "@/components/ui/use-toast";
 import { Formik } from "formik";
-import { parseSuckerDeployerConfig } from "juice-sdk-core";
+import { createSalt, parseSuckerDeployerConfig } from "juice-sdk-core";
 import { useGetRelayrTxQuote } from "juice-sdk-react";
 import { useState } from "react";
 import { revDeployerAbi, revDeployerAddress } from "revnet-sdk";
@@ -41,6 +41,8 @@ export default function Page() {
     });
     setIsLoadingIpfs(false);
 
+    const salt = createSalt();
+
     const relayrTransactions = formData.chainIds.map((chainId) => {
       const suckerDeployerConfig = parseSuckerDeployerConfig(
         chainId,
@@ -50,6 +52,7 @@ export default function Page() {
         metadataCid,
         chainId,
         suckerDeployerConfig,
+        salt,
       });
       const encodedData = encodeFunctionData({
         abi: revDeployerAbi, // ABI of the contract
@@ -57,7 +60,7 @@ export default function Page() {
         args: deployData,
       });
 
-      console.log("create::deploy calldata", chainId, encodedData);
+      console.log("create::deploy calldata", chainId, encodedData, deployData);
 
       return {
         data: {

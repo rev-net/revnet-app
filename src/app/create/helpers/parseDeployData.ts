@@ -1,7 +1,7 @@
 // https://github.com/rev-net/revnet-core/blob/main/script/Deploy.s.sol
-import { createSalt } from "@/lib/number";
 import {
   CashOutTaxRate,
+  createSalt,
   JB_CHAINS,
   JBChainId,
   jbProjectDeploymentAddresses,
@@ -12,7 +12,12 @@ import {
   WeightCutPercent,
 } from "juice-sdk-core";
 import { revDeployerAbi, revLoansAddress } from "revnet-sdk";
-import { Address, ContractFunctionParameters, parseUnits, zeroAddress } from "viem";
+import {
+  Address,
+  ContractFunctionParameters,
+  parseUnits,
+  zeroAddress,
+} from "viem";
 import { RevnetFormData } from "../types";
 import { JB_CURRENCY_ETH } from "@/app/constants";
 
@@ -31,8 +36,12 @@ export function parseDeployData(
           minBridgeAmount: bigint;
         }[];
       }[];
+      /**
+       * UNUSED
+       */
       salt: `0x${string}`;
     };
+    salt: `0x${string}`;
   }
 ): ContractFunctionParameters<
   typeof revDeployerAbi,
@@ -45,9 +54,15 @@ export function parseDeployData(
     JSON.stringify(_formData),
     (_, value) => (typeof value === "number" ? String(value) : value)
   );
-  console.log("======================================================================");
-  console.log(`\t\t\t\tChainId ${extra.chainId} (${JB_CHAINS[extra.chainId].name})`);
-  console.log("======================================================================");
+  console.log(
+    "======================================================================"
+  );
+  console.log(
+    `\t\t\t\tChainId ${extra.chainId} (${JB_CHAINS[extra.chainId].name})`
+  );
+  console.log(
+    "======================================================================"
+  );
   let prevStart = 0;
   const operator =
     formData?.operator.find((c) => Number(c.chainId) === Number(extra.chainId))
@@ -81,35 +96,55 @@ export function parseDeployData(
   ];
 
   const stageConfigurations = formData.stages.map((stage, idx) => {
-    console.log(`~~~~~~~~~~~~~~~~~~~~~~~~~~ Stage ${idx + 1} ~~~~~~~~~~~~~~~~~~~~~~~~~~`);
+    console.log(
+      `~~~~~~~~~~~~~~~~~~~~~~~~~~ Stage ${idx + 1} ~~~~~~~~~~~~~~~~~~~~~~~~~~`
+    );
     const lengthSeconds = Number(stage.boostDuration) * 86400;
     const startsAtOrAfter = idx === 0 ? now : prevStart + lengthSeconds;
     prevStart = startsAtOrAfter;
-    console.log(`[ startsAtOrAfter ] ${new Date(startsAtOrAfter * 1000).toLocaleString()} (${startsAtOrAfter})`);
+    console.log(
+      `[ startsAtOrAfter ] ${new Date(
+        startsAtOrAfter * 1000
+      ).toLocaleString()} (${startsAtOrAfter})`
+    );
     const autoIssuances = stage.autoIssuance
-      .filter((autoIssuance) => Number(autoIssuance.chainId) === Number(extra.chainId))
+      .filter(
+        (autoIssuance) => Number(autoIssuance.chainId) === Number(extra.chainId)
+      )
       .map((autoIssuance, autoIssuanceIdx) => {
-        console.log(`[ AUTOISSUANCE ${autoIssuanceIdx + 1} ]\n\t\t${autoIssuance.beneficiary} ${autoIssuance.amount}`);
+        console.log(
+          `[ AUTOISSUANCE ${autoIssuanceIdx + 1} ]\n\t\t${
+            autoIssuance.beneficiary
+          } ${autoIssuance.amount}`
+        );
         return {
           chainId: autoIssuance.chainId,
           count: parseUnits(autoIssuance.amount, 18),
           beneficiary: autoIssuance.beneficiary as Address,
         };
-    });
+      });
 
     if (autoIssuances.length === 0) {
       console.log("\t\tNo auto issuance for this stage");
     }
 
-    console.log("----------------------------------------------------------------");
+    console.log(
+      "----------------------------------------------------------------"
+    );
     const splits = stage.splits.map((split, splitIdx) => {
-      let beneficiary = split.beneficiary?.find((b) => Number(b?.chainId) === Number(extra.chainId))?.address;
+      let beneficiary = split.beneficiary?.find(
+        (b) => Number(b?.chainId) === Number(extra.chainId)
+      )?.address;
       if (!beneficiary) {
         beneficiary = split.defaultBeneficiary;
       }
       if (!beneficiary) throw new Error("Beneficiary not found");
-      const percent = Math.round((Number(split.percentage) * SPLITS_TOTAL_PERCENT) / 100);
-      console.log(`[ SPLIT ${splitIdx + 1} ]\n\t\t${beneficiary} ${split.percentage}%`);
+      const percent = Math.round(
+        (Number(split.percentage) * SPLITS_TOTAL_PERCENT) / 100
+      );
+      console.log(
+        `[ SPLIT ${splitIdx + 1} ]\n\t\t${beneficiary} ${split.percentage}%`
+      );
       return {
         preferAddToBalance: false,
         lockedUntil: 0,
@@ -119,11 +154,14 @@ export function parseDeployData(
         hook: zeroAddress,
       };
     });
-    console.log("----------------------------------------------------------------");
-    const splitPercent = stage.splits.reduce(
-      (sum, split) => sum + (Number(split.percentage) || 0),
-      0
-    ) * 100;
+    console.log(
+      "----------------------------------------------------------------"
+    );
+    const splitPercent =
+      stage.splits.reduce(
+        (sum, split) => sum + (Number(split.percentage) || 0),
+        0
+      ) * 100;
 
     return {
       startsAtOrAfter,
@@ -140,7 +178,8 @@ export function parseDeployData(
           WeightCutPercent.parse(stage.priceCeilingIncreasePercentage, 9).value
         ) / 100,
       cashOutTaxRate:
-        Number(CashOutTaxRate.parse(stage.priceFloorTaxIntensity, 4).value) / 100, //
+        Number(CashOutTaxRate.parse(stage.priceFloorTaxIntensity, 4).value) /
+        100, //
       extraMetadata: 0, // ??
     };
   });
@@ -152,7 +191,7 @@ export function parseDeployData(
         name: formData.name,
         ticker: formData.tokenSymbol,
         uri: extra.metadataCid,
-        salt: createSalt(),
+        salt: extra.salt,
       },
       baseCurrency: JB_CURRENCY_ETH,
       splitOperator: operator as Address,
@@ -176,7 +215,7 @@ export function parseDeployData(
     },
     {
       deployerConfigurations: extra.suckerDeployerConfig.deployerConfigurations,
-      salt: extra.suckerDeployerConfig.salt,
+      salt: extra.salt,
     },
   ];
 }

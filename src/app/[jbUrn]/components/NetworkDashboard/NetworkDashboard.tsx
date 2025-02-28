@@ -18,7 +18,6 @@ import { HoldersSection } from "./sections/HoldersSection/HoldersSection";
 
 export function NetworkDashboard() {
   const { contracts } = useJBContractContext();
-
   const { token } = useJBTokenContext();
   const { metadata } = useJBProjectMetadataContext();
   // set title
