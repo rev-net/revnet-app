@@ -3,31 +3,29 @@
 import { ChainLogo } from "@/components/ChainLogo";
 import EtherscanLink from "@/components/EtherscanLink";
 import { ProjectsDocument } from "@/generated/graphql";
-import { useSubgraphQuery } from "@/graphql/useSubgraphQuery";
 import { ipfsUriToGatewayUrl } from "@/lib/ipfs";
 import { formatTokenSymbol } from "@/lib/utils";
 import { ForwardIcon } from "@heroicons/react/24/solid";
-import { JB_CHAINS, SuckerPair } from "juice-sdk-core";
+import { JB_CHAINS } from "juice-sdk-core";
 import {
   JBChainId,
-  useJBChainId,
   useJBContractContext,
   useJBProjectMetadataContext,
   useJBTokenContext,
   useSuckers,
-  useReadJbTokensTotalSupplyOf,
 } from "juice-sdk-react";
 import Image from "next/image";
 import Link from "next/link";
 import { TvlDatum } from "./TvlDatum";
+import { useOmnichainSubgraphQuery } from "@/graphql/useOmnichainSubgraphQuery";
+import { useTotalOutstandingTokens } from "@/hooks/useTotalOutstandingTokens";
 import { formatUnits } from "viem";
-
 export function Header() {
   const { projectId } = useJBContractContext();
   const { metadata } = useJBProjectMetadataContext();
   const { token } = useJBTokenContext();
 
-  const { data: projects } = useSubgraphQuery(ProjectsDocument, {
+  const { data: projects } = useOmnichainSubgraphQuery(ProjectsDocument, {
     where: {
       projectId: Number(projectId),
     },
@@ -35,19 +33,17 @@ export function Header() {
   });
   const suckersQuery = useSuckers();
   const suckers = suckersQuery.data;
-  const { contributorsCount } = projects?.projects?.[0] ?? {};
   const { name: projectName, logoUri } = metadata?.data ?? {};
-  const chainId = useJBChainId();
 
-  const { data: totalTokenSupply } = useReadJbTokensTotalSupplyOf({
-    chainId,
-    args: [projectId],
-  });
+  const contributorsCount = projects?.reduce((acc, project) => {
+    return acc + (project.value?.response?.projects?.[0]?.contributorsCount ?? 0);
+  }, 0);
 
+  const totalSupply = useTotalOutstandingTokens();
   const totalSupplyFormatted =
-  totalTokenSupply && token?.data
-    ? formatUnits(totalTokenSupply, token.data.decimals)
-    : null;
+    totalSupply && token?.data
+      ? formatUnits(totalSupply, token.data.decimals)
+      : null;
 
   return (
     <header>
