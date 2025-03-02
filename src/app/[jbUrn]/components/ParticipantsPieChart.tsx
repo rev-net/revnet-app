@@ -67,21 +67,21 @@ export function ParticipantsPieChart({
   participants: (Participant & { chains: JBChainId[] })[];
 }) {
   const pieChartData = useMemo(() => {
-    return participants.map((participant, idx) => {
+    return participants?.map((participant, idx) => {
       return {
-        address: participant.wallet.id,
+        address: participant?.wallet?.id,
         balanceFormatted: new JBProjectToken(
-          BigInt(participant.balance)
+          BigInt(participant?.balance)
         ).toFloat(),
-        balance: new JBProjectToken(BigInt(participant.balance)),
+        balance: new JBProjectToken(BigInt(participant?.balance)),
         fill: COLORS[idx % COLORS.length],
       };
     });
   }, [participants]);
 
   // TODO maybe can remove this when balance=0 bug fixed in subgraph
-  const totalBalance = participants.reduce(
-    (acc, participant) => acc + BigInt(participant.balance),
+  const totalBalance = participants?.reduce(
+    (acc, participant) => acc + BigInt(participant?.balance),
     BigInt(0)
   );
   if (totalBalance === 0n) return null;

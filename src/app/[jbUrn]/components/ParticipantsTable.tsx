@@ -12,24 +12,22 @@ import { Participant } from "@/generated/graphql";
 import { formatPortion, formatTokenSymbol } from "@/lib/utils";
 import { formatUnits } from "juice-sdk-core";
 import { JBChainId } from "juice-sdk-react";
-import { Address, isAddressEqual } from "viem";
-import { UseTokenReturnType, useAccount } from "wagmi";
+import { Address } from "viem";
+import { UseTokenReturnType } from "wagmi";
 
 export function ParticipantsTable({
   participants,
   token,
   totalSupply,
-  boostRecipient,
 }: {
   participants: (Participant & { chains: JBChainId[] })[];
   token: UseTokenReturnType["data"] | null;
   totalSupply: bigint;
-  boostRecipient?: Address;
 }) {
-  console.log(participants)
+
   if (participants.length === 0) return (
     <div className="text-center text-zinc-400">
-      No owners yet. Pay in to become an owner. 
+      No owners yet. Pay in to become an owner.
     </div>
   );
   return (
@@ -44,12 +42,12 @@ export function ParticipantsTable({
       </TableHeader>
       <TableBody>
         {participants.map((participant) => (
-          <TableRow key={participant.wallet.id}>
+          <TableRow key={participant?.wallet?.id}>
             <TableCell>
               <div className="flex flex-col sm:flex-row gap-2 items-center pr-10">
                 <div className="hidden sm:flex">
                   <EthereumAddress
-                    address={participant.wallet.id as Address}
+                    address={participant?.wallet?.id as Address}
                     short
                     withEnsAvatar
                     withEnsName
@@ -57,7 +55,7 @@ export function ParticipantsTable({
                 </div>
                 <div className="flex sm:hidden">
                   <EthereumAddress
-                    address={participant.wallet.id as Address}
+                    address={participant?.wallet?.id as Address}
                     short
                     withEnsAvatar
                     avatarProps={{ size: "sm" }}

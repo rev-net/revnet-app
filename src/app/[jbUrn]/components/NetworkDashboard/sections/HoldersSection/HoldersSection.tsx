@@ -10,7 +10,6 @@ import {
   useJBContractContext,
   useJBTokenContext,
 } from "juice-sdk-react";
-import { useBoostRecipient } from "@/hooks/useBoostRecipient";
 import { useTotalOutstandingTokens } from "@/hooks/useTotalOutstandingTokens";
 import { useState } from "react";
 import { ParticipantsPieChart } from "../../../ParticipantsPieChart";
@@ -32,7 +31,6 @@ export function HoldersSection() {
   const [isOpen, setIsOpen] = useState(false);
   const { projectId } = useJBContractContext();
   const { token } = useJBTokenContext();
-  const boostRecipient = useBoostRecipient();
 
   const totalOutstandingTokens = useTotalOutstandingTokens();
 
@@ -55,6 +53,7 @@ export function HoldersSection() {
 
   const participantsDataAggregate =
     participantsData?.reduce((acc, participant) => {
+      if (!participant) return acc;
       const existingParticipant = acc[participant.wallet.id];
       return {
         ...acc,
@@ -150,7 +149,6 @@ export function HoldersSection() {
                       participants={Object.values(participantsDataAggregate)}
                       token={token?.data}
                       totalSupply={totalOutstandingTokens}
-                      boostRecipient={boostRecipient}
                     />
                   </div>
                 </div>

@@ -20,14 +20,18 @@ export function useTotalOutstandingTokens() {
     orderDirection: OrderDirection.desc,
     where: {
       projectId: Number(projectId),
-      balance_gt: "0",
       wallet_not: zeroAddress,
     },
   });
 
-  const omnichainTotalSupply = data?.reduce((acc, participant) => {
-    return acc + (BigInt(participant.value?.response?.participants?.[0]?.balance ?? 0n));
-  }, 0n);
+  const omnichainTotalSupply = data?.reduce((acc, contribution) => {
+    const participants = contribution.value?.response?.participants || [];
+    const chainTotal = participants.reduce(
+      (chainAcc, participant) => chainAcc + BigInt(participant?.balance || 0),
+      0n
+    );
+    return acc + chainTotal;
+  }, 0n) || 0n;
 
   const { data: tokensReserved } =
     useReadJbControllerPendingReservedTokenBalanceOf({
@@ -36,7 +40,8 @@ export function useTotalOutstandingTokens() {
       args: [projectId],
     });
 
-  const totalOutstandingTokens = omnichainTotalSupply ?? 0n;
+  // Add the reserved tokens to the total outstanding tokens
+  const totalOutstandingTokens = omnichainTotalSupply + (tokensReserved || 0n);
 
   return totalOutstandingTokens;
 }
