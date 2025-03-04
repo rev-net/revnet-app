@@ -29,4 +29,4 @@ export const useSelectedSucker = () => {
     throw new Error("useSelectedSucker must be used within a SelectedSuckerProvider");
   }
   return context;
-}; 
+};
