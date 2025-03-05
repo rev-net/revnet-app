@@ -20,6 +20,7 @@ import { TvlDatum } from "./TvlDatum";
 import { useOmnichainSubgraphQuery } from "@/graphql/useOmnichainSubgraphQuery";
 import { useTotalOutstandingTokens } from "@/hooks/useTotalOutstandingTokens";
 import { formatUnits } from "viem";
+import { prettyNumber } from "@/lib/number";
 export function Header() {
   const { projectId } = useJBContractContext();
   const { metadata } = useJBProjectMetadataContext();
@@ -121,7 +122,7 @@ export function Header() {
             </div>
             <div className="sm:text-xl text-lg">
               <span className="font-medium text-black-500">
-                {`${Number(totalSupplyFormatted).toFixed(4)}`}
+                {`${prettyNumber(totalSupplyFormatted ?? 0)}`}
               </span>{" "}
               <span className="text-zinc-500">{formatTokenSymbol(token)} outstanding</span>
             </div>
