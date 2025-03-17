@@ -1,8 +1,7 @@
 "use client";
 
 import { OPEN_IPFS_GATEWAY_HOSTNAME } from "@/lib/ipfs";
-import { JBProjectProvider } from "juice-sdk-react";
-import { JBChainId } from "juice-sdk-react/dist/contexts/JBChainContext/JBChainContext";
+import { JBProjectProvider, JBChainId } from "juice-sdk-react";
 
 export function Providers({
   children,
