@@ -12,6 +12,10 @@ import { JB_CHAINS, JBChainId } from "juice-sdk-core";
 import { RelayrPostBundleResponse, useGetRelayrTxQuote } from "juice-sdk-react";
 import { useState } from "react";
 import {
+  mainnet,
+  optimism,
+  base,
+  arbitrum,
   arbitrumSepolia,
   baseSepolia,
   optimismSepolia,
@@ -32,6 +36,13 @@ const TESTNETS: JBChainId[] = [
   baseSepolia.id,
 ];
 
+const MAINNETS: JBChainId[] = [
+  mainnet.id,
+  optimism.id,
+  base.id,
+  arbitrum.id,
+];
+
 export function ChainSelect({
   disabled = false,
   validBundle = false,
@@ -43,7 +54,7 @@ export function ChainSelect({
   relayrResponse?: RelayrPostBundleResponse;
   isLoading?: boolean;
 }) {
-  const [environment, setEnvironment] = useState("testing");
+  const [environment, setEnvironment] = useState("production");
   const { values, setFieldValue, submitForm } =
     useFormikContext<RevnetFormData>();
 
@@ -89,25 +100,51 @@ export function ChainSelect({
               onValueChange={(v) => {
                 setEnvironment(v);
               }}
-              defaultValue="testing"
+              defaultValue="production"
               disabled={disabled}
             >
               <SelectTrigger className="col-span-1">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
+                <SelectItem value="production" key="production">
+                  Production
+                </SelectItem>
                 <SelectItem value="testing" key="testing">
                   Testnets
-                </SelectItem>
-                <SelectItem value="production" key="production" disabled>
-                  Production (coming soon)
                 </SelectItem>
               </SelectContent>
             </Select>
           </div>
           <div className="flex flex-wrap gap-6 mt-4">
             {environment === "production" ? (
-              <p>...</p> //TODO with production chainnames
+              <>
+                {Object.values(JB_CHAINS)
+                  .filter(({ chain }) =>
+                    MAINNETS.includes(chain.id as JBChainId)
+                  )
+                  .map(({ chain, name }) => (
+                    <label key={chain.id} className="flex items-center gap-2">
+                      <FormikField
+                        type="checkbox"
+                        name="chainIds"
+                        value={chain.id}
+                        disabled={disabled}
+                        className="disabled:opacity-50"
+                        checked={values.chainIds.includes(
+                          Number(chain.id) as JBChainId
+                        )}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                          handleChainSelect(
+                            chain.id as JBChainId,
+                            e.target.checked
+                          );
+                        }}
+                      />
+                      {name}
+                    </label>
+                  ))}
+              </>
             ) : (
               <>
                 {Object.values(JB_CHAINS)
