@@ -94,7 +94,7 @@ function PayActivityItem(
           </span>
         </div>
       </div>
-      <div className="text-lg text-black-500 font-medium ml-7 pb-4">
+      <div className="text-lg text-black-500 font-medium ml-8 pb-4">
         {activityItemData.memo}
       </div>
     </div>
