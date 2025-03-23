@@ -38,7 +38,7 @@
     "graphql": "^16.8.0",
     "graphql-tag": "^2.0.0",
     "juice-sdk-core": "^1.7.2-beta",
-    "juice-sdk-react": "^1.7.3-beta",
+    "juice-sdk-react": "^1.7.4-beta",
     "lucide-react": "^0.395.0",
     "next": "^14.2.4",
     "react": "^18.2.0",
