@@ -170,7 +170,7 @@ export function ActivityFeed() {
     orderBy: ProjectEvent_OrderBy.timestamp,
     orderDirection: OrderDirection.desc,
     where: {
-      projectId: Number(projectId),
+      projectId: Number(projectId)
     },
   });
   const projectEvents = useMemo(() => {

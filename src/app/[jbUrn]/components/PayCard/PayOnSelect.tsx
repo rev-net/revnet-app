@@ -35,7 +35,7 @@ export function PayOnSelect() {
         defaultValue={selectedSucker?.peerChainId}
       >
         <SelectTrigger className="underline bg-transparent border-none p-0 h-auto text-md text-black-700">
-          <SelectValue placeholder="Select a chain" />
+          <SelectValue placeholder="pick a chain" />
         </SelectTrigger>
         <SelectContent>
           {suckers?.map((sucker) => (
