@@ -89,17 +89,10 @@ export function AddStageDialog({
       ? `$${formikValues.tokenSymbol}`
       : "tokens";
 
-    const [value, setValue] = useState(20); // Default value matching your example
+    const [cashOutTax, setCashOutTax] = useState(20); // Default value matching your example
 
     // Discrete values matching your radio options
     const steps = [0, 20, 40, 60, 80];
-
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-      const numValue = parseFloat(e.target.value);
-      const closestHalfStep = Math.round(numValue * 20) / 20;
-      console.log({closestHalfStep});
-      setValue(closestHalfStep);
-    };
 
     // Calculate example yield based on selected tax rate
     const calculateYield = (taxRate: number) => {
@@ -242,6 +235,11 @@ export function AddStageDialog({
                     {
                       values.splits.length > 0  && <div className="text-sm font-medium text-zinc-500 mt-4 border-l border-zinc-300 pl-2 py-1 px-1">
                         Total split limit of {values.splits.reduce((sum, split) => sum + (Number(split.percentage) || 0), 0)}%, payer always receives {100 - values.splits.reduce((sum, split) => sum + (Number(split.percentage) || 0), 0)}% of issuance.
+                      </div>
+                    }
+                    {
+                      values.splits.length == 0 && <div className="text-sm font-medium text-zinc-500 mt-4 border-l border-zinc-300 pl-2 py-1 px-1">
+                        Without splits, the payer always receives 100% of issuance.
                       </div>
                     }
                   {
@@ -419,14 +417,19 @@ export function AddStageDialog({
                       max={80}
                       step={10}
                       name="priceFloorTaxIntensity"
-                      value={value}
-                      onChange={handleChange}
+                      value={cashOutTax}
+                      onChange={(e: any) => {
+                        const numValue = parseFloat(e.target.value);
+                        const closestHalfStep = Math.round(numValue * 20) / 20;
+                        setCashOutTax(closestHalfStep);
+                        values.priceFloorTaxIntensity = String(closestHalfStep);
+                      }}
                       className="w-full h-2 bg-gray-200 appearance-none cursor-pointer accent-teal-500"
                       aria-label="Exit tax percentage"
                     />
                   </div>
                   <div className="text-sm font-medium text-zinc-500 mt-4 border-l border-zinc-300 pl-2 py-1 px-1">
-                    Cashing out 10% of {revnetTokenSymbol} gets {calculateYield(value)}% of the revnet's {nativeTokenSymbol}.
+                    Cashing out 10% of {revnetTokenSymbol} gets {calculateYield(cashOutTax)}% of the revnet's {nativeTokenSymbol}.
                   </div>
                   <NotesSection>
                     <div className="text-zinc-600 text-md mt-4 italic">
@@ -497,7 +500,7 @@ export function AddStageDialog({
                     type="submit"
                     className="bg-teal-500 hover:bg-teal-600"
                   >
-                    Add stage
+                    Save stage
                   </Button>
                 </DialogFooter>
               </Form>
