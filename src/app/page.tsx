@@ -121,7 +121,7 @@ export default function Page() {
             <li>
               Support the $REV network{" "}
               <Link
-                href="https://revnet.app/sepolia/3"
+                href="/eth:3"
                 target="_blank"
                 rel="noopener norefererr"
                 className="underline"
