@@ -1,5 +1,5 @@
 import { Address, isAddress, PublicClient } from "viem";
-import { sepolia } from "viem/chains";
+import { sepolia, mainnet } from "viem/chains";
 import { useChainId, usePublicClient } from "wagmi";
 import { useQuery } from "wagmi/query";
 
@@ -47,7 +47,7 @@ export function useEnsName(
   address: string | undefined,
   { enabled }: { enabled?: boolean } = {}
 ) {
-  const chainId = useChainId();
+  const chainId = mainnet.id;
   const publicClient = usePublicClient({ chainId });
 
   return useQuery({

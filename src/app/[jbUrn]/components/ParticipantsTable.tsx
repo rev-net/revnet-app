@@ -9,6 +9,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Participant } from "@/generated/graphql";
+import { prettyNumber } from "@/lib/number";
 import { formatPortion, formatTokenSymbol } from "@/lib/utils";
 import { formatUnits } from "juice-sdk-core";
 import { JBChainId } from "juice-sdk-react";
@@ -44,7 +45,7 @@ export function ParticipantsTable({
         {participants.map((participant) => (
           <TableRow key={participant?.wallet?.id}>
             <TableCell>
-              <div className="flex flex-col sm:flex-row gap-2 items-center pr-10">
+              <div className="flex flex-col sm:flex-row gap-2 items-center">
                 <div className="hidden sm:flex">
                   <EthereumAddress
                     address={participant?.wallet?.id as Address}
@@ -65,10 +66,10 @@ export function ParticipantsTable({
               </div>
             </TableCell>
             {token ? (
-              <TableCell className="whitespace-nowrap">
-                {formatUnits(participant.balance, token.decimals, {
-                  fractionDigits: 8,
-                })}{" "}
+              <TableCell className="whitespace-nowrap pr-20">
+                {prettyNumber(formatUnits(participant.balance, token.decimals, {
+                  fractionDigits: 3,
+                }))} {" "}
                 {formatTokenSymbol(token.symbol)} {" | "}
                 <span className="font-bold">
                   {participant.balance
@@ -78,7 +79,7 @@ export function ParticipantsTable({
                 </span>
               </TableCell>
             ) : null}
-            <TableCell className="whitespace-nowrap">
+            <TableCell className="whitespace-nowrap pr-20">
               <div className="flex items-center gap-1">
                 {participant.chains.map((chain) => (
                   <ChainLogo
@@ -91,7 +92,7 @@ export function ParticipantsTable({
               </div>
             </TableCell>
             <TableCell className="whitespace-nowrap">
-              {formatUnits(participant.volume, 18, { fractionDigits: 64 })} ETH
+              {formatUnits(participant.volume, 18, { fractionDigits: 3 })} ETH
             </TableCell>
           </TableRow>
         ))}
