@@ -66,7 +66,7 @@ export function ParticipantsTable({
               </div>
             </TableCell>
             {token ? (
-              <TableCell className="whitespace-nowrap pr-20">
+              <TableCell className="whitespace-nowrap pr-14">
                 {prettyNumber(formatUnits(participant.balance, token.decimals, {
                   fractionDigits: 3,
                 }))} {" "}

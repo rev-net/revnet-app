@@ -73,7 +73,7 @@ export function formatEthAddress(
  */
 export function formatPortion(numerator: bigint, denominator: bigint) {
   if (numerator === 0n || denominator === 0n) return 0;
-  return parseFloat(((numerator * 1000n) / denominator).toString()) / 10;
+  return parseFloat(((numerator * 100000n) / denominator).toString()) / 1000;
 }
 
 /**
