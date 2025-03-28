@@ -1,10 +1,11 @@
-import { Button } from "@/components/ui/button";
+import { ButtonWithWallet } from "@/components/ButtonWithWallet";
 import { useToast } from "@/components/ui/use-toast";
 import {
   useJBContractContext,
   useWriteJbControllerSendReservedTokensToSplitsOf,
+  useJBChainId,
 } from "juice-sdk-react";
-import { useChainId, useWaitForTransactionReceipt } from "wagmi";
+import { useWaitForTransactionReceipt } from "wagmi";
 
 export function DistributeReservedTokensButton() {
   const { toast } = useToast();
@@ -12,7 +13,7 @@ export function DistributeReservedTokensButton() {
     projectId,
     contracts: { controller },
   } = useJBContractContext();
-  const chainId = useChainId();
+  const chainId = useJBChainId();
 
   const { writeContract, isPending, data } =
     useWriteJbControllerSendReservedTokensToSplitsOf({
@@ -34,9 +35,10 @@ export function DistributeReservedTokensButton() {
   });
 
   return (
-    <Button
+    <ButtonWithWallet
       variant="outline"
       loading={isPending || isTxLoading}
+      targetChainId={chainId}
       onClick={() => {
         if (!controller.data) {
           return;
@@ -54,6 +56,6 @@ export function DistributeReservedTokensButton() {
       }}
     >
       Distribute pending splits
-    </Button>
+    </ButtonWithWallet>
   );
 }
