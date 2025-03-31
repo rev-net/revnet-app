@@ -120,12 +120,12 @@ export function Header() {
                 {contributorsCount === 1 ? "owner" : "owners"}
               </span>
             </div>
-            <div className="sm:text-xl text-lg">
+            {/* <div className="sm:text-xl text-lg">
               <span className="font-medium text-black-500">
                 {`${prettyNumber(totalSupplyFormatted ?? 0)}`}
               </span>{" "}
               <span className="text-zinc-500">{formatTokenSymbol(token)} outstanding</span>
-            </div>
+            </div> */}
             {/* <div className="sm:text-xl text-lg">
               <span className="font-medium text-black-500">
                 {!cashOutLoading
