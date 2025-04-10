@@ -25,7 +25,7 @@ export async function GET() {
         "homeUrl": `${externalBaseUrl}`,
         "imageUrl": `${externalBaseUrl}/assets/img/discover_revenue_tokens.png`,
         "buttonTitle": "Discover Revenue Tokens",
-        "splashImageUrl": `${externalBaseUrl}/assets/img/small-bw.svg`,
+        "splashImageUrl": `${externalBaseUrl}/assets/img/small-bw-200x200.png`,
         "splashBackgroundColor": "#ffffff",
       }
     };

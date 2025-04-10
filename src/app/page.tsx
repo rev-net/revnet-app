@@ -51,13 +51,6 @@ export default function Page() {
     <div className="container mt-40 pr-[1.5rem] pl-[1.5rem] sm:pr-[2rem] sm:pl-[2rem] sm:px-8">
       {user?.pfp && (
         <div className="flex items-center mb-4">
-          <Image
-            src={user.pfp}
-            alt="Farcaster PFP"
-            width={48}
-            height={48}
-            className="rounded-full mr-2"
-          />
           <span className="text-lg">Hello {user.userName}!</span>
         </div>
       )}
