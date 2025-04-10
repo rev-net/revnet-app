@@ -988,6 +988,11 @@
     eventemitter3 "^5.0.1"
     ox "^0.4.4"
 
+"@farcaster/frame-wagmi-connector@^0.0.22":
+  version "0.0.22"
+  resolved "https://registry.npmjs.org/@farcaster/frame-wagmi-connector/-/frame-wagmi-connector-0.0.22.tgz"
+  integrity sha512-CVWvezX/K3MoXrG3nJI1ifC3FYlNaoDVKstFLQ7KtF2nOaZ7bW7yXkI4lsFRHBVekdtN3X7dIFrbC6n6EmKYqw==
+
 "@floating-ui/core@^1.0.0":
   version "1.6.2"
   dependencies:
@@ -2563,7 +2568,7 @@
     "@walletconnect/ethereum-provider" "2.19.2"
     cbw-sdk "npm:@coinbase/wallet-sdk@3.9.3"
 
-"@wagmi/core@2.16.7":
+"@wagmi/core@^2.14.1", "@wagmi/core@2.16.7":
   version "2.16.7"
   resolved "https://registry.npmjs.org/@wagmi/core/-/core-2.16.7.tgz"
   integrity sha512-Kpgrw6OXV0VBhDs4toQVKQ0NK5yUO6uxEqnvRGjNjbO85d93Gbfsp5BlxSLeWq6iVMSBFSitdl5i9W7b1miq1g==
@@ -7600,7 +7605,7 @@ victory-vendor@^36.6.8:
     d3-time "^3.0.0"
     d3-timer "^3.0.1"
 
-viem@^2.1.1, viem@^2.14.1, viem@^2.22.9, viem@2.x:
+viem@^2.1.1, viem@^2.14.1, viem@^2.21.55, viem@^2.22.9, viem@2.x:
   version "2.26.1"
   resolved "https://registry.npmjs.org/viem/-/viem-2.26.1.tgz"
   integrity sha512-bGRLLTHlmk9OEF9lvtAIv6eqQe9vIVDOWowBI05GM3npIwDD7WeTryBE8QeJZXb0ZTpDU/4Gf4iAWKZApKC4KQ==

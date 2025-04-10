@@ -10,11 +10,16 @@ import {
   sepolia,
 } from "viem/chains";
 import { createConfig, http, fallback } from "wagmi";
+import { farcasterFrame as miniAppConnector } from "@farcaster/frame-wagmi-connector"
+
 
 const defaultConfig = getDefaultConfig({
   chains: [mainnet, optimism, arbitrum, base, sepolia, optimismSepolia, baseSepolia, arbitrumSepolia],
   appName: "REVNET",
   walletConnectProjectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID!,
+  connectors: [
+    miniAppConnector()
+  ],
   transports: {
     [sepolia.id]: fallback([
       http(`https://sepolia.infura.io/v3/${process.env.NEXT_PUBLIC_INFURA_ID}`),
