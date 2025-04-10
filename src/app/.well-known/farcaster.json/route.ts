@@ -21,7 +21,7 @@ export async function GET() {
       "frame": {
         "name": "Revnet",
         "version": "1",
-        "iconUrl": `${externalBaseUrl}/assets/img/small-bw-200x200.png`,
+        "iconUrl": `${externalBaseUrl}/assets/img/icon-64x64.png`,
         "homeUrl": `${externalBaseUrl}`,
         "imageUrl": `${externalBaseUrl}/assets/img/discover_revenue_tokens.png`,
         "buttonTitle": "Discover Revenue Tokens",
