@@ -3,6 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { twMerge } from "tailwind-merge";
 import "./globals.css";
 import { Providers } from "./providers";
+import { externalBaseUrl } from "@/app/constants";
 
 import localFont from "next/font/local";
 
@@ -34,6 +35,14 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
+      <head>
+        <link rel="icon" href="/assets/img/small-bw.svg" />
+        <link rel="apple-touch-icon" href="/assets/img/small-bw.svg" />
+        <meta
+          name="fc:frame"
+          content={`{"version":"next","imageUrl":"${externalBaseUrl}/assets/img/discover_revenue_tokens.png","button":{"title":"Discover Revenue Tokens","action":{"type":"launch_frame","name":"Revnet","url":"${externalBaseUrl}","splashImageUrl":"${externalBaseUrl}/assets/img/small-bw.svg","splashBackgroundColor":"#ffffff"}}}`}
+        />
+      </head>
       <body
         className={twMerge(
           simplonNorm.variable,
