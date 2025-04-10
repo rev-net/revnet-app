@@ -1,8 +1,11 @@
+"use client";
 import { Button } from "@/components/ui/button";
 import { JB_CHAINS } from "juice-sdk-core";
 import Image from "next/image";
 import Link from "next/link";
 import { mainnet } from "viem/chains";
+import { sdk } from "@farcaster/frame-sdk";
+import { use, useEffect, useState } from "react";
 
 const RevLink = ({
   network,
@@ -31,8 +34,33 @@ const Pipe = () => {
 };
 
 export default function Page() {
+  const [user, setUser] = useState<{ fid: number; pfp: string, userName: string } | null>(null);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      await sdk.actions.ready();
+      const ctx = await (await sdk.context);
+      if (ctx?.user) {
+        setUser({ fid: ctx.user.fid, pfp: ctx.user.pfpUrl || "", userName: ctx.user.username || "" });
+      }
+    };
+    fetchUser();
+  }, []);
+
   return (
     <div className="container mt-40 pr-[1.5rem] pl-[1.5rem] sm:pr-[2rem] sm:pl-[2rem] sm:px-8">
+      {user?.pfp && (
+        <div className="flex items-center mb-4">
+          <Image
+            src={user.pfp}
+            alt="Farcaster PFP"
+            width={48}
+            height={48}
+            className="rounded-full mr-2"
+          />
+          <span className="text-lg">Hello {user.userName}!</span>
+        </div>
+      )}
       <div className="flex flex-col items-left justify-left">
         <Image
           src="/assets/img/revnet-full-bw.svg"
@@ -132,39 +160,6 @@ export default function Page() {
             </li>
           </ul>
         </div>
-        {/* <div className="flex">
-          <div className="mt-4 bg-white text-black text-lg">
-            Read the memo at {" "}
-            <Link
-              href="https://rev.eth.sucks/memo"
-              target="_blank"
-              rel="noopener norefererr"
-              className="underline"
-            >
-              rev.eth.sucks/memo
-            </Link>.
-            </div>
-        </div>
-        <div className="flex">
-          <div className="bg-white text-black text-lg">
-          Plan your revnet with the community <Link href="https://discord.gg/vhVxwh8aD9" className="underline hover:text-black/70">on Discord.
-            </Link>
-          </div>
-        </div>
-        <div className="flex">
-          <div className="bg-white text-black text-lg">
-Audit this website and the revnet protocol <Link href="https://github.com/orgs/rev-net/repositories" className="underline hover:text-black/70">
-               on Github.
-            </Link>
-          </div>
-        </div>
-        <div className="flex mb-40">
-          <div className="bg-white text-black text-lg">
-    Support the $REV network <Link href="https://revnet.app/sepolia/3" className="underline hover:text-black/70">
-               here,
-            </Link>{" "}we run as a revnet ourselves.
-          </div>
-        </div> */}
       </div>
     </div>
   );

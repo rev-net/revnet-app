@@ -35,3 +35,8 @@ export const BACKED_BY_TOKENS = ["ETH", "USDC"] as const;
 
 export const JB_CURRENCY_ETH = 1;
 export const JB_CURRENCY_USD = 2;
+
+export const isProduction = process.env.NODE_ENV === "production";
+export const externalBaseUrl = isProduction
+  ? "https://app.revnet.eth.sucks"
+  : "https://147585e1f72a.ngrok.app";

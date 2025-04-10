@@ -24,3 +24,7 @@
 ::selection {
   background: theme('colors.orange.200');
 }
+
+body {
+  background-color: white;
+}
