@@ -1,17 +1,19 @@
-import {
-  useJBProjectMetadataContext,
-} from "juice-sdk-react";
-import { useState } from "react";
-import DOMPurify from "dompurify"
+"use client";
 
-DOMPurify.addHook("afterSanitizeAttributes", function(node) {
-  if (node.tagName === "A") {
-    node.setAttribute("target", "_blank");
-    node.setAttribute("rel", "noopener noreferrer");
-  }
-});
+import { useEffect, useState } from "react";
+import DOMPurify from "dompurify"
+import { useJBProjectMetadataContext } from "juice-sdk-react";
 
 const RichPreview = ({ source }: { source: string }) => {
+  useEffect(() => {
+    DOMPurify.addHook("afterSanitizeAttributes", function(node) {
+      if (node.tagName === "A") {
+        node.setAttribute("target", "_blank");
+        node.setAttribute("rel", "noopener noreferrer");
+      }
+    });
+  }, []);
+
   if (!source?.trim()) {
     return null;
   }

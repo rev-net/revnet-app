@@ -27,6 +27,7 @@ export async function GET() {
         "buttonTitle": "Discover Revenue Tokens",
         "splashImageUrl": `${externalBaseUrl}/assets/img/small-bw-200x200.png`,
         "splashBackgroundColor": "#ffffff",
+        "webhookUrl": `https://webhooks.pingem.xyz/f/41ium`,
       }
     };
     return NextResponse.json(manifest);

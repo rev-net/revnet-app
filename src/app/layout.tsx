@@ -3,7 +3,9 @@ import { Toaster } from "@/components/ui/toaster";
 import { twMerge } from "tailwind-merge";
 import "./globals.css";
 import { Providers } from "./providers";
-import { externalBaseUrl } from "@/app/constants";
+import { headers } from "next/headers";
+import type { Metadata } from "next";
+
 
 import localFont from "next/font/local";
 
@@ -24,9 +26,7 @@ const simplonMono = localFont({
   variable: "--font-simplon-mono",
 });
 
-export const metadata = {
-  title: "REVNET",
-};
+export const revalidate = 300;
 
 export default function RootLayout({
   children,
@@ -38,10 +38,6 @@ export default function RootLayout({
       <head>
         <link rel="icon" href="/assets/img/small-bw.svg" />
         <link rel="apple-touch-icon" href="/assets/img/small-bw.svg" />
-        <meta
-          name="fc:frame"
-          content={`{"version":"next","imageUrl":"${externalBaseUrl}/assets/img/discover_revenue_tokens.png","button":{"title":"Discover Revenue Tokens","action":{"type":"launch_frame","name":"Revnet","url":"${externalBaseUrl}","splashImageUrl":"${externalBaseUrl}/assets/img/small-bw-200x200.png","splashBackgroundColor":"#ffffff"}}}`}
-        />
       </head>
       <body
         className={twMerge(
@@ -59,4 +55,38 @@ export default function RootLayout({
       </body>
     </html>
   );
+}
+
+
+export async function generateMetadata(): Promise<Metadata> {
+  const headersList = headers();
+  const host = headersList.get("host");
+  const proto = headersList.get("x-forwarded-proto") || "http";
+  const origin = `${proto}://${host}`;
+
+  const frame = {
+    version: "next",
+    imageUrl: `${origin}/assets/img/discover_revenue_tokens.png`,
+    button: {
+      title: "Discover revenue tokens",
+      action: {
+        type: "launch_frame",
+        name: "Revnet",
+        url: `${origin}/`,
+        splashImageUrl: `${origin}/assets/img/small-bw-200x200.png`,
+        splashBackgroundColor: "#ffffff",
+      },
+    },
+  };
+
+  return {
+    title: "Revnet",
+    openGraph: {
+      title: "Revnet",
+      description: "Explore onchain revenue networks",
+    },
+    other: {
+      "fc:frame": JSON.stringify(frame),
+    },
+  };
 }
