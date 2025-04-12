@@ -84,6 +84,22 @@ export async function generateMetadata(): Promise<Metadata> {
     openGraph: {
       title: "Revnet",
       description: "Explore onchain revenue networks",
+      url: origin,
+      images: [
+        {
+          url: `${origin}/assets/img/discover_revenue_tokens.png`,
+          width: 1200,
+          height: 630,
+          alt: "Revnet preview image",
+        },
+      ],
+      type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: "Revnet",
+      description: "Explore onchain revenue networks",
+      images: [`${origin}/assets/img/discover_revenue_tokens.png`],
     },
     other: {
       "fc:frame": JSON.stringify(frame),

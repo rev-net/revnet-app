@@ -39,6 +39,22 @@ export async function generateMetadata({
     openGraph: {
       title: "Revnet",
       description: "Explore onchain revenue networks",
+      url: url.href,
+      images: [
+        {
+          url: imgUrl,
+          width: 1200,
+          height: 630,
+          alt: "Revnet preview image",
+        },
+      ],
+      type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: "Revnet",
+      description: "Explore onchain revenue networks",
+      images: [imgUrl],
     },
     other: {
       "fc:frame": JSON.stringify(frame),
