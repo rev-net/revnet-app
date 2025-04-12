@@ -64,15 +64,21 @@ export async function generateMetadata(): Promise<Metadata> {
   const proto = headersList.get("x-forwarded-proto") || "http";
   const origin = `${proto}://${host}`;
 
+  // For the root layout, our fullPath is '/'
+  const fullPath = "/";
+  const url = new URL(fullPath, origin);
+
+  const imgUrl = `${origin}/assets/img/discover_revenue_tokens.png`;
+
   const frame = {
     version: "next",
-    imageUrl: `${origin}/assets/img/discover_revenue_tokens.png`,
+    imageUrl: imgUrl,
     button: {
       title: "Discover revenue tokens",
       action: {
         type: "launch_frame",
         name: "Revnet",
-        url: `${origin}/`,
+        url: url.href,
         splashImageUrl: `${origin}/assets/img/small-bw-200x200.png`,
         splashBackgroundColor: "#ffffff",
       },
@@ -84,6 +90,22 @@ export async function generateMetadata(): Promise<Metadata> {
     openGraph: {
       title: "Revnet",
       description: "Explore onchain revenue networks",
+      url: url.href,
+      images: [
+        {
+          url: imgUrl,
+          width: 1200,
+          height: 630,
+          alt: "Revnet preview image",
+        },
+      ],
+      type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: "Revnet",
+      description: "Explore onchain revenue networks",
+      images: [imgUrl],
     },
     other: {
       "fc:frame": JSON.stringify(frame),
