@@ -8,26 +8,22 @@ export async function generateMetadata({
 }: {
   params: { slug?: string[] };
 }): Promise<Metadata> {
-  console.log("generateMetadata params:", params.slug);
-  //console.log("🧠 Full context in generateMetadata:", context);
 
   const headersList = headers();
   const host = headersList.get("host");
   const proto = headersList.get("x-forwarded-proto") || "http";
   const origin = `${proto}://${host}`;
-
   const slugPath = decodeURIComponent(params?.slug?.join("/") ?? "");
   const fullPath = `/${slugPath}`;
   const url = new URL(fullPath, origin);
 
   let imgUrl = `${origin}/assets/img/discover_revenue_tokens.png`;
 
-
   const frame = {
     version: "next",
     imageUrl: imgUrl,
     button: {
-      title: `Support project ${fullPath}`,
+      title: `Support project ${fullPath}`, // TODO: pass in project name after testing
       action: {
         type: "launch_frame",
         name: "Revnet",

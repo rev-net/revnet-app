@@ -60,7 +60,7 @@ export default function Page({ params }: { params: { slug?: string[] } }) {
       <Nav />
       {user?.pfp && (
         <div className="flex items-center mb-4">
-          <span className="text-lg">Hello {user.userName}!</span>
+          <span className="px-4 text-lg">Hello {user.userName}!</span>
         </div>
       )}
       <NetworkDashboard />
