@@ -39,7 +39,17 @@ export default function Page() {
   useEffect(() => {
     const fetchUser = async () => {
       await sdk.actions.ready();
-      const ctx = await (await sdk.context);
+
+      try {
+        await sdk.actions.addFrame();
+      } catch (error) {
+        if (error){
+          console.log("User rejected the mini app addition or domain manifest JSON is invalid");
+          // Handle the rejection here
+        }
+      }
+
+      const ctx = (await sdk.context);
       if (ctx?.user) {
         setUser({ fid: ctx.user.fid, pfp: ctx.user.pfpUrl || "", userName: ctx.user.username || "" });
       }

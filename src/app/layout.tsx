@@ -68,7 +68,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const fullPath = "/";
   const url = new URL(fullPath, origin);
 
-  const imgUrl = `${origin}/assets/img/discover_revenue_tokens.png`;
+  const imgUrl = `${origin}/assets/img/anachronistic1-1.png`;
 
   const frame = {
     version: "next",
