@@ -30,7 +30,11 @@ export function useOmnichainSubgraphQuery<TResult, TVariables>(
       : [chainId?.toString(), currentChainSubgraphUrl];
 
   return useQuery({
-    queryKey: [(document.definitions[0] as any).name.value, variables],
+    queryKey: [
+      (document.definitions[0] as any).name.value,
+      variables,
+      suckerSubgraphUrls.map((c) => c[0]).join(","),
+    ],
     queryFn: async ({ queryKey }) => {
       return Promise.allSettled(
         resolvedSubgraphUrls.map(async ([chainId, url]) => {
