@@ -4,11 +4,25 @@ import { Nav } from "@/components/layout/Nav";
 import { JB_CHAINS, JBChainId, jbUrn } from "juice-sdk-core";
 import { Providers } from "./Providers";
 import { NetworkDashboard } from "./components/NetworkDashboard/NetworkDashboard";
+import { sdk } from "@farcaster/frame-sdk";
 
 export default function Page({ params }: { params: { slug?: string[] } }) {
   const [projectId, setProjectId] = useState<bigint | undefined>(undefined);
   const [chainId, setChainId] = useState<JBChainId | undefined>(undefined);
   const [notFound, setNotFound] = useState(false);
+
+  const [user, setUser] = useState<{ fid: number; pfp: string, userName: string } | null>(null);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      await sdk.actions.ready();
+      const ctx = await (await sdk.context);
+      if (ctx?.user) {
+        setUser({ fid: ctx.user.fid, pfp: ctx.user.pfpUrl || "", userName: ctx.user.username || "" });
+      }
+    };
+    fetchUser();
+  }, []);
 
   useEffect(() => {
     try {
@@ -44,6 +58,11 @@ export default function Page({ params }: { params: { slug?: string[] } }) {
   return (
     <Providers chainId={chainId} projectId={projectId}>
       <Nav />
+      {user?.pfp && (
+        <div className="flex items-center mb-4">
+          <span className="px-4 text-lg">Hello {user.userName}!</span>
+        </div>
+      )}
       <NetworkDashboard />
     </Providers>
   );
