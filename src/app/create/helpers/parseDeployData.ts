@@ -238,7 +238,7 @@ export function parseDeployData(
           preventOverspending: false,
         },
       },
-      salt: createSalt(),
+      salt: extra.salt,
       splitOperatorCanAdjustTiers: true,
       splitOperatorCanUpdateMetadata: true,
       splitOperatorCanMint: true,
