@@ -1,8 +1,4 @@
-import {
-  NATIVE_CURRENCY_ID,
-  NATIVE_TOKEN,
-  NATIVE_TOKEN_DECIMALS,
-} from "juice-sdk-core";
+import { NATIVE_TOKEN, NATIVE_TOKEN_DECIMALS } from "juice-sdk-core";
 import {
   useJBChainId,
   useJBContractContext,
@@ -25,11 +21,11 @@ export function useNativeTokenSurplus() {
         {
           token: NATIVE_TOKEN,
           decimals: NATIVE_TOKEN_DECIMALS,
-          currency: NATIVE_CURRENCY_ID,
+          currency: 61166,
         },
       ],
       BigInt(NATIVE_TOKEN_DECIMALS),
-      BigInt(NATIVE_CURRENCY_ID),
+      BigInt(61166),
     ],
   });
 }

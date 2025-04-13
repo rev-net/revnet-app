@@ -2,10 +2,10 @@
 import {
   CashOutTaxRate,
   createSalt,
+  ETH_CURRENCY_ID,
   JB_CHAINS,
   JBChainId,
   jbProjectDeploymentAddresses,
-  NATIVE_CURRENCY_ID,
   NATIVE_TOKEN,
   NATIVE_TOKEN_DECIMALS,
   SPLITS_TOTAL_PERCENT,
@@ -19,7 +19,7 @@ import {
   zeroAddress,
 } from "viem";
 import { RevnetFormData } from "../types";
-import { JB_CURRENCY_ETH } from "@/app/constants";
+import { jbPricesAddress } from "juice-sdk-react";
 
 export function parseDeployData(
   _formData: RevnetFormData,
@@ -46,7 +46,7 @@ export function parseDeployData(
 ): ContractFunctionParameters<
   typeof revDeployerAbi,
   "nonpayable",
-  "deployFor"
+  "deployWith721sFor"
 >["args"] {
   const now = Math.floor(Date.now() / 1000);
   // hack: stringfy numbers
@@ -58,7 +58,7 @@ export function parseDeployData(
     "======================================================================"
   );
   console.log(
-    `\t\t\t\tChainId ${extra.chainId} (${JB_CHAINS[extra.chainId].name})`
+    `\t\t\t\tChainId ${extra.chainId} (${JB_CHAINS[extra.chainId]?.name})`
   );
   console.log(
     "======================================================================"
@@ -73,7 +73,7 @@ export function parseDeployData(
     {
       token: NATIVE_TOKEN,
       decimals: NATIVE_TOKEN_DECIMALS,
-      currency: NATIVE_CURRENCY_ID,
+      currency: 61166,
     },
   ];
 
@@ -193,7 +193,7 @@ export function parseDeployData(
         uri: extra.metadataCid,
         salt: extra.salt,
       },
-      baseCurrency: JB_CURRENCY_ETH,
+      baseCurrency: ETH_CURRENCY_ID,
       splitOperator: operator as Address,
       stageConfigurations,
       loans: revLoansAddress[extra.chainId as JBChainId] as Address,
@@ -217,5 +217,33 @@ export function parseDeployData(
       deployerConfigurations: extra.suckerDeployerConfig.deployerConfigurations,
       salt: extra.salt,
     },
+    {
+      baseline721HookConfiguration: {
+        name: formData.name,
+        symbol: formData.tokenSymbol,
+        baseUri: "",
+        tokenUriResolver: zeroAddress,
+        contractUri: "",
+        tiersConfig: {
+          tiers: [],
+          currency: 61166,
+          decimals: 18,
+          prices: jbPricesAddress[extra.chainId as JBChainId],
+        },
+        reserveBeneficiary: zeroAddress,
+        flags: {
+          noNewTiersWithReserves: false,
+          noNewTiersWithVotes: false,
+          noNewTiersWithOwnerMinting: false,
+          preventOverspending: false,
+        },
+      },
+      salt: createSalt(),
+      splitOperatorCanAdjustTiers: true,
+      splitOperatorCanUpdateMetadata: true,
+      splitOperatorCanMint: true,
+      splitOperatorCanIncreaseDiscountPercent: true,
+    },
+    [],
   ];
 }
