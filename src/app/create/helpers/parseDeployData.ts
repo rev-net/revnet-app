@@ -226,7 +226,7 @@ export function parseDeployData(
         contractUri: "",
         tiersConfig: {
           tiers: [],
-          currency: 61166,
+          currency: 1,
           decimals: 18,
           prices: jbPricesAddress[extra.chainId as JBChainId],
         },
