@@ -56,7 +56,7 @@ export default function Page() {
       });
       const encodedData = encodeFunctionData({
         abi: revDeployerAbi, // ABI of the contract
-        functionName: "deployFor",
+        functionName: "deployWith721sFor",
         args: deployData,
       });
 

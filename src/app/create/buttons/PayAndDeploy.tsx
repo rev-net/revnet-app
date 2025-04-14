@@ -30,6 +30,7 @@ import {
 import { useState } from "react";
 import { twMerge } from "tailwind-merge";
 import { GoToProjectButton } from "./GoToProjectButton";
+import { Hash } from "viem";
 
 interface PaymentAndDeploySectionProps {
   relayrResponse: RelayrPostBundleResponse;
@@ -145,10 +146,10 @@ export function PayAndDeploy({
                     <div>{statusToIcon(txn.status.state)}</div>
                     <div>{txn.status.state}</div>
                   </div>
-                  {txn?.status?.data?.hash ? (
+                  {"hash" in (txn?.status?.data ?? {}) ? (
                     <div className="flex flex-row space-x-1 items-center">
                       <EtherscanLink
-                        value={txn?.status?.data?.hash}
+                        value={(txn?.status?.data as { hash: Hash })?.hash}
                         type="tx"
                         chain={JB_CHAINS[txn.request.chain as JBChainId].chain}
                         truncateTo={6}
@@ -162,7 +163,10 @@ export function PayAndDeploy({
               )
           )}
           <GoToProjectButton
-            txHash={bundleResponse.transactions[0].status?.data?.hash}
+            txHash={
+              (bundleResponse.transactions[0].status?.data as { hash: Hash })
+                ?.hash
+            }
             chainId={bundleResponse.transactions[0].request.chain}
           />
         </div>
