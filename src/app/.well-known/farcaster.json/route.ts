@@ -23,7 +23,7 @@ export async function GET() {
         "version": "1",
         "iconUrl": `${externalBaseUrl}/assets/img/icon-64x64.png`,
         "homeUrl": `${externalBaseUrl}`,
-        "imageUrl": `${externalBaseUrl}/assets/img/discover_revenue_tokens.png`,
+        "imageUrl": `${externalBaseUrl}/assets/img/anachronistic1-1.png`,
         "buttonTitle": "Discover Revenue Tokens",
         "splashImageUrl": `${externalBaseUrl}/assets/img/small-bw-200x200.png`,
         "splashBackgroundColor": "#ffffff",

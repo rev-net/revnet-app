@@ -91,11 +91,53 @@ export async function generateMetadata({
   const fullPath = `/${slugPath}`;
   const url = new URL(fullPath, origin);
 
+  if (!slugPath) {
+    return {
+      title: "Revnet",
+      openGraph: {
+        title: "Revnet",
+        description: "Explore onchain revenue networks",
+        url: url.href,
+        images: [
+          {
+            url: `${origin}/assets/img/anachronistic1-1.png`,
+            width: 1200,
+            height: 800,
+            alt: "Revnet preview image",
+          },
+        ],
+        type: "website",
+      },
+      twitter: {
+        card: "summary_large_image",
+        title: "Revnet",
+        description: "Explore onchain revenue networks",
+        images: [`${origin}/assets/img/anachronistic1-1.png`],
+      },
+      other: {
+        "fc:frame": JSON.stringify({
+          version: "next",
+          imageUrl: `${origin}/assets/img/anachronistic1-1.png`,
+          button: {
+            title: "Support project",
+            action: {
+              type: "launch_frame",
+              name: "Revnet",
+              url: url.href,
+              splashImageUrl: `${origin}/assets/img/small-bw-200x200.png`,
+              splashBackgroundColor: "#ffffff",
+            },
+          },
+        }),
+      },
+    };
+  }
+
   // Fetch project metadata using the slugPath as the handle
   const project = slugPath ? await getProjectMetadata(slugPath) : null;
   const projectName = project ? project.handle : "project";
 
-  let imgUrl = project?.logoUri || `${origin}/assets/img/discover_revenue_tokens.png`;
+  let imgUrl = project?.logoUri || `${origin}/assets/img/anachronistic1-1.png`;
 
   const frame = {
     version: "next",
@@ -122,7 +164,7 @@ export async function generateMetadata({
         {
           url: imgUrl,
           width: 1200,
-          height: 630,
+          height: 800,
           alt: "Revnet preview image",
         },
       ],

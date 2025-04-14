@@ -1,5 +1,4 @@
 import { ChainLogo } from "@/components/ChainLogo";
-import { EthereumAddress } from "@/components/EthereumAddress";
 import EtherscanLink from "@/components/EtherscanLink";
 import {
   CashOutEvent,
@@ -19,6 +18,8 @@ import {
 } from "juice-sdk-react";
 import { useMemo, useState } from "react";
 import { Address } from "viem";
+import FarcasterAvatar from "@/components/FarcasterAvatar";
+import { FarcasterProfilesProvider } from "@/components/FarcasterAvatarContext";
 
 type PayActivityItemData = {
   id: string;
@@ -38,7 +39,7 @@ function PayActivityItem(
     | "timestamp"
     | "txHash"
     | "note"
-  > & { chainId: JBChainId }
+  > & { chainId: JBChainId; identity?: any }
 ) {
   const { token } = useJBTokenContext();
   const chainId = payEvent.chainId;
@@ -79,10 +80,9 @@ function PayActivityItem(
         </div>
       </div>
       <div className="flex items-center gap-1 text-md flex-wrap">
-        <EthereumAddress
-          address={activityItemData.beneficiary}
-          withEnsName
-          withEnsAvatar
+        <FarcasterAvatar
+          address={activityItemData.beneficiary as Address}
+          withAvatar
           avatarProps={{ size: "sm" }}
           short
           chain={chain}
@@ -105,7 +105,7 @@ function RedeemActivityItem(
   cashOutEvent: Pick<
     CashOutEvent,
     "reclaimAmount" | "beneficiary" | "txHash" | "timestamp" | "cashOutCount"
-  > & { chainId: JBChainId }
+  > & { chainId: JBChainId; identity?: any }
 ) {
   const { token } = useJBTokenContext();
   if (!token?.data || !cashOutEvent) return null;
@@ -144,10 +144,9 @@ function RedeemActivityItem(
         </div>
       </div>
       <div className="flex items-center pb-4 gap-1 text-md flex-wrap">
-        <EthereumAddress
-          address={activityItemData.beneficiary}
-          withEnsName
-          withEnsAvatar
+        <FarcasterAvatar
+          address={activityItemData.beneficiary as Address}
+          withAvatar
           avatarProps={{ size: "sm" }}
           short
         />
@@ -187,7 +186,9 @@ export function ActivityFeed() {
   }, [data]);
 
   return (
-    <>
+    <FarcasterProfilesProvider addresses={projectEvents?.flatMap((e) =>
+      e?.payEvent || e?.cashOutEvent ? [e?.payEvent?.beneficiary || e?.cashOutEvent?.beneficiary] : []
+    ) ?? []}>
       {isOpen && (
         <div className="flex flex-col gap-1">
           {projectEvents && projectEvents.length > 0 ? (
@@ -218,6 +219,6 @@ export function ActivityFeed() {
           )}
         </div>
       )}
-    </>
+    </FarcasterProfilesProvider>
   );
 }
