@@ -15,5 +15,6 @@ module.exports = {
         pathname: "**", // allow all paths
       },
     ],
+    unoptimized: true,
   },
 };
