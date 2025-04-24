@@ -6,6 +6,7 @@ import {
   ActivityEventsDocument,
   CashOutTokensEvent,
   PayEvent,
+  ProjectDocument,
 } from "@/generated/graphql";
 import { useBendystrawQuery } from "@/graphql/useBendystrawQuery";
 import { formatTokenSymbol } from "@/lib/utils";
@@ -13,6 +14,7 @@ import { formatDistance } from "date-fns";
 import { Ether, JB_CHAINS, JBProjectToken } from "juice-sdk-core";
 import {
   JBChainId,
+  useJBChainId,
   useJBContractContext,
   useJBTokenContext,
 } from "juice-sdk-react";
@@ -161,13 +163,19 @@ function RedeemActivityItem(
 
 export function ActivityFeed() {
   const { projectId } = useJBContractContext();
+  const chainId = useJBChainId();
   const [isOpen, setIsOpen] = useState(true);
+
+  const { data: project } = useBendystrawQuery(ProjectDocument, {
+    chainId: Number(chainId),
+    projectId: Number(projectId),
+  });
 
   const { data: activityEvents } = useBendystrawQuery(ActivityEventsDocument, {
     orderBy: "timestamp",
     orderDirection: "desc",
     where: {
-      projectId: Number(projectId),
+      suckerGroupId: project?.project?.suckerGroupId,
       OR: [{ payEvent_not: null }, { cashOutTokensEvent_not: null }],
     },
   });
