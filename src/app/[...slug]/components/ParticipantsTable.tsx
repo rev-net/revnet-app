@@ -43,12 +43,12 @@ export function ParticipantsTable({
       </TableHeader>
       <TableBody>
         {participants.map((participant) => (
-          <TableRow key={participant?.wallet?.id}>
+          <TableRow key={participant?.address}>
             <TableCell>
               <div className="flex flex-col sm:flex-row gap-2 items-center">
                 <div className="hidden sm:flex">
                   <EthereumAddress
-                    address={participant?.wallet?.id as Address}
+                    address={participant?.address as Address}
                     short
                     withEnsAvatar
                     withEnsName
@@ -56,7 +56,7 @@ export function ParticipantsTable({
                 </div>
                 <div className="flex sm:hidden">
                   <EthereumAddress
-                    address={participant?.wallet?.id as Address}
+                    address={participant?.address as Address}
                     short
                     withEnsAvatar
                     avatarProps={{ size: "sm" }}
@@ -67,15 +67,17 @@ export function ParticipantsTable({
             </TableCell>
             {token ? (
               <TableCell className="whitespace-nowrap pr-14">
-                {prettyNumber(formatUnits(participant.balance, token.decimals, {
-                  fractionDigits: 3,
-                }))} {" "}
+                {prettyNumber(
+                  formatUnits(participant.balance, token.decimals, {
+                    fractionDigits: 3,
+                  })
+                )}{" "}
                 {formatTokenSymbol(token.symbol)} {" | "}
                 <span className="font-bold">
                   {participant.balance
                     ? formatPortion(BigInt(participant.balance), totalSupply)
                     : 0}
-              %
+                  %
                 </span>
               </TableCell>
             ) : null}

@@ -2,7 +2,9 @@
 
 import { ChainLogo } from "@/components/ChainLogo";
 import EtherscanLink from "@/components/EtherscanLink";
-import { ProjectsDocument } from "@/generated/graphql";
+import { ParticipantsDocument } from "@/generated/graphql";
+import { useBendystrawQuery } from "@/graphql/useBendystrawQuery";
+// import { useTotalOutstandingTokens } from "@/hooks/useTotalOutstandingTokens";
 import { ipfsUriToGatewayUrl } from "@/lib/ipfs";
 import { formatTokenSymbol } from "@/lib/utils";
 import { ForwardIcon } from "@heroicons/react/24/solid";
@@ -17,34 +19,29 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import { TvlDatum } from "./TvlDatum";
-import { useOmnichainSubgraphQuery } from "@/graphql/useOmnichainSubgraphQuery";
-import { useTotalOutstandingTokens } from "@/hooks/useTotalOutstandingTokens";
-import { formatUnits } from "viem";
-import { prettyNumber } from "@/lib/number";
 export function Header() {
   const { projectId } = useJBContractContext();
   const { metadata } = useJBProjectMetadataContext();
   const { token } = useJBTokenContext();
 
-  const { data: projects } = useOmnichainSubgraphQuery(ProjectsDocument, {
+  const { data: participants } = useBendystrawQuery(ParticipantsDocument, {
     where: {
       projectId: Number(projectId),
+      balance_gt: 0,
     },
-    first: 1,
   });
+
   const suckersQuery = useSuckers();
   const suckers = suckersQuery.data;
   const { name: projectName, logoUri } = metadata?.data ?? {};
 
-  const contributorsCount = projects?.reduce((acc, project) => {
-    return acc + (project.value?.response?.projects?.[0]?.contributorsCount ?? 0);
-  }, 0);
+  const contributorsCount = participants?.participants.totalCount;
 
-  const totalSupply = useTotalOutstandingTokens();
-  const totalSupplyFormatted =
-    totalSupply && token?.data
-      ? formatUnits(totalSupply, token.data.decimals)
-      : null;
+  // const totalSupply = useTotalOutstandingTokens();
+  // const totalSupplyFormatted =
+  //   totalSupply && token?.data
+  //     ? formatUnits(totalSupply, token.data.decimals)
+  //     : null;
 
   return (
     <header>

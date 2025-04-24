@@ -69,7 +69,7 @@ export function ParticipantsPieChart({
   const pieChartData = useMemo(() => {
     return participants?.map((participant, idx) => {
       return {
-        address: participant?.wallet?.id,
+        address: participant?.address,
         balanceFormatted: new JBProjectToken(
           BigInt(participant?.balance)
         ).toFloat(),

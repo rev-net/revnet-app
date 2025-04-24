@@ -1,13 +1,13 @@
 import { ChainLogo } from "@/components/ChainLogo";
 import EtherscanLink from "@/components/EtherscanLink";
+import FarcasterAvatar from "@/components/FarcasterAvatar";
+import { FarcasterProfilesProvider } from "@/components/FarcasterAvatarContext";
 import {
-  CashOutEvent,
-  OrderDirection,
+  ActivityEventsDocument,
+  CashOutTokensEvent,
   PayEvent,
-  ProjectEvent_OrderBy,
-  ProjectEventsDocument,
 } from "@/generated/graphql";
-import { useOmnichainSubgraphQuery } from "@/graphql/useOmnichainSubgraphQuery";
+import { useBendystrawQuery } from "@/graphql/useBendystrawQuery";
 import { formatTokenSymbol } from "@/lib/utils";
 import { formatDistance } from "date-fns";
 import { Ether, JB_CHAINS, JBProjectToken } from "juice-sdk-core";
@@ -16,10 +16,8 @@ import {
   useJBContractContext,
   useJBTokenContext,
 } from "juice-sdk-react";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { Address } from "viem";
-import FarcasterAvatar from "@/components/FarcasterAvatar";
-import { FarcasterProfilesProvider } from "@/components/FarcasterAvatarContext";
 
 type PayActivityItemData = {
   id: string;
@@ -35,10 +33,10 @@ function PayActivityItem(
     PayEvent,
     | "amount"
     | "beneficiary"
-    | "beneficiaryTokenCount"
+    | "newlyIssuedTokenCount"
     | "timestamp"
     | "txHash"
-    | "note"
+    | "memo"
   > & { chainId: JBChainId; identity?: any }
 ) {
   const { token } = useJBTokenContext();
@@ -51,9 +49,9 @@ function PayActivityItem(
     amount: new Ether(BigInt(payEvent.amount)),
     beneficiary: payEvent.beneficiary,
     beneficiaryTokenCount: new JBProjectToken(
-      BigInt(payEvent.beneficiaryTokenCount)
+      BigInt(payEvent.newlyIssuedTokenCount)
     ),
-    memo: payEvent.note,
+    memo: payEvent.memo,
   };
 
   const formattedDate = formatDistance(payEvent.timestamp * 1000, new Date(), {
@@ -103,7 +101,7 @@ function PayActivityItem(
 
 function RedeemActivityItem(
   cashOutEvent: Pick<
-    CashOutEvent,
+    CashOutTokensEvent,
     "reclaimAmount" | "beneficiary" | "txHash" | "timestamp" | "cashOutCount"
   > & { chainId: JBChainId; identity?: any }
 ) {
@@ -165,49 +163,48 @@ export function ActivityFeed() {
   const { projectId } = useJBContractContext();
   const [isOpen, setIsOpen] = useState(true);
 
-  const { data } = useOmnichainSubgraphQuery(ProjectEventsDocument, {
-    orderBy: ProjectEvent_OrderBy.timestamp,
-    orderDirection: OrderDirection.desc,
+  const { data: activityEvents } = useBendystrawQuery(ActivityEventsDocument, {
+    orderBy: "timestamp",
+    orderDirection: "desc",
     where: {
-      projectId: Number(projectId)
+      projectId: Number(projectId),
+      OR: [{ payEvent_not: null }, { cashOutTokensEvent_not: null }],
     },
   });
-  const projectEvents = useMemo(() => {
-    return data
-      ?.flatMap((d) => {
-        return d.value?.response?.projectEvents.map((e) => {
-          return {
-            ...e,
-            chainId: d.value.chainId,
-          };
-        });
-      })
-      .sort((a, b) => b.timestamp - a.timestamp);
-  }, [data]);
 
   return (
-    <FarcasterProfilesProvider addresses={projectEvents?.flatMap((e) =>
-      e?.payEvent || e?.cashOutEvent ? [e?.payEvent?.beneficiary || e?.cashOutEvent?.beneficiary] : []
-    ) ?? []}>
+    <FarcasterProfilesProvider
+      addresses={
+        activityEvents?.activityEvents.items?.flatMap((e) =>
+          e?.payEvent || e?.cashOutTokensEvent
+            ? [
+                (e?.payEvent?.beneficiary ||
+                  e?.cashOutTokensEvent?.beneficiary) as `0x${string}`,
+              ]
+            : []
+        ) ?? []
+      }
+    >
       {isOpen && (
         <div className="flex flex-col gap-1">
-          {projectEvents && projectEvents.length > 0 ? (
-            projectEvents?.map((event) => {
+          {activityEvents?.activityEvents.items &&
+          activityEvents.activityEvents.items.length > 0 ? (
+            activityEvents.activityEvents.items?.map((event) => {
               if (event?.payEvent) {
                 return (
                   <PayActivityItem
                     key={event.id}
-                    chainId={event.chainId}
+                    chainId={event.chainId as JBChainId}
                     {...event.payEvent}
                   />
                 );
               }
-              if (event?.cashOutEvent) {
+              if (event?.cashOutTokensEvent) {
                 return (
                   <RedeemActivityItem
                     key={event.id}
-                    chainId={event.chainId}
-                    {...event.cashOutEvent}
+                    chainId={event.chainId as JBChainId}
+                    {...event.cashOutTokensEvent}
                   />
                 );
               }
