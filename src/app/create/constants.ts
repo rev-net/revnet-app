@@ -2,10 +2,10 @@ import { RevnetFormData, StageData } from "./types";
 
 export const defaultStageData: StageData = {
   initialOperator: "",
-  initialIssuance: "",
+  initialIssuance: "10000",
 
-  priceCeilingIncreasePercentage: "",
-  priceCeilingIncreaseFrequency: "",
+  priceCeilingIncreasePercentage: "10",
+  priceCeilingIncreaseFrequency: "30",
   priceFloorTaxIntensity: "20",
 
   autoIssuance: [],

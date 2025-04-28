@@ -81,7 +81,7 @@ export function AddStageDialog({
   const { values: formikValues } = useFormikContext<RevnetFormData>();
 
   const [open, setOpen] = useState(false);
-  const [initialIssuance, setInitialIssuance] = useState("10000");
+  const [initialIssuance, setInitialIssuance] = useState(10000);
   const nativeTokenSymbol = useNativeTokenSymbol();
 
   const revnetTokenSymbol =
@@ -89,7 +89,7 @@ export function AddStageDialog({
       ? `$${formikValues.tokenSymbol}`
       : "tokens";
 
-    const [cashOutTax, setCashOutTax] = useState(20); // Default value matching your example
+    const [cashOutTax, setCashOutTax] = useState(20); // Default to 0.2
 
     // Discrete values matching your radio options
     const steps = [0, 20, 40, 60, 80];
@@ -137,7 +137,7 @@ export function AddStageDialog({
                           value={initialIssuance}
                           onChange={(e: any) => {
                             setInitialIssuance(e.target.value);
-                            values.initialIssuance = e.target.value;
+                            values.initialIssuance = String(e.target.value);
                           }}
                           suffix={`${revnetTokenSymbol} / ${nativeTokenSymbol}`}
                         />
