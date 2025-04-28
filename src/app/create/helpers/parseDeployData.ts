@@ -128,6 +128,11 @@ export function parseDeployData(
     console.log(
       "----------------------------------------------------------------"
     );
+    const splitPercent =
+      stage.splits.reduce(
+        (sum, split) => sum + (Number(split.percentage) || 0),
+        0
+      ) * 100;
     const splits = stage.splits.map((split, splitIdx) => {
       let beneficiary = split.beneficiary?.find(
         (b) => Number(b?.chainId) === Number(extra.chainId)
@@ -137,7 +142,7 @@ export function parseDeployData(
       }
       if (!beneficiary) throw new Error("Beneficiary not found");
       const percent = Math.round(
-        (Number(split.percentage) * SPLITS_TOTAL_PERCENT) / 100
+        (Number(split.percentage) * SPLITS_TOTAL_PERCENT) / splitPercent
       );
       console.log(
         `[ SPLIT ${splitIdx + 1} ]\n\t\t${beneficiary} ${split.percentage}%`
@@ -154,11 +159,6 @@ export function parseDeployData(
     console.log(
       "----------------------------------------------------------------"
     );
-    const splitPercent =
-      stage.splits.reduce(
-        (sum, split) => sum + (Number(split.percentage) || 0),
-        0
-      ) * 100;
 
     return {
       startsAtOrAfter,
