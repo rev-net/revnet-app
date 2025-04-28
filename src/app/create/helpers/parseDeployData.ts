@@ -108,9 +108,6 @@ export function parseDeployData(
       ).toLocaleString()} (${startsAtOrAfter})`
     );
     const autoIssuances = stage.autoIssuance
-      .filter(
-        (autoIssuance) => Number(autoIssuance.chainId) === Number(extra.chainId)
-      )
       .map((autoIssuance, autoIssuanceIdx) => {
         console.log(
           `[ AUTOISSUANCE ${autoIssuanceIdx + 1} ]\n\t\t${
