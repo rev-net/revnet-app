@@ -54,6 +54,9 @@ export default function Page() {
         suckerDeployerConfig,
         salt,
       });
+      
+      console.log({deployData});
+
       const encodedData = encodeFunctionData({
         abi: revDeployerAbi, // ABI of the contract
         functionName: "deployWith721sFor",
