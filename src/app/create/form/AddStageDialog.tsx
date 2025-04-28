@@ -137,7 +137,7 @@ export function AddStageDialog({
                           value={initialIssuance}
                           onChange={(e: any) => {
                             setInitialIssuance(e.target.value);
-                            values.initialIssuance = String(e.target.value);
+                            values.initialIssuance = e.target.value;
                           }}
                           suffix={`${revnetTokenSymbol} / ${nativeTokenSymbol}`}
                         />
