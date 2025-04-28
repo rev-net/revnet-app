@@ -112,7 +112,7 @@ export function parseDeployData(
         console.log(
           `[ AUTOISSUANCE ${autoIssuanceIdx + 1} ]\n\t\t${
             autoIssuance.beneficiary
-          } ${autoIssuance.amount}`
+          } ${autoIssuance.amount} ${autoIssuance.chainId}`
         );
         return {
           chainId: autoIssuance.chainId,
