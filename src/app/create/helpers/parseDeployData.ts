@@ -116,7 +116,7 @@ export function parseDeployData(
         );
         return {
           chainId: autoIssuance.chainId,
-          count: parseUnits(autoIssuance.amount, 18),
+          count: autoIssuance.amount ? parseUnits(autoIssuance.amount, 18) : 0n,
           beneficiary: autoIssuance.beneficiary as Address,
         };
       });
