@@ -22,15 +22,21 @@ export function ChainAutoIssuance({ disabled = false }: ChainAutoIssuanceProps) 
   useEffect(() => {
     if (!currentStage) return;
 
-    // Auto-fix any missing chainId when component mounts or selectedStageIdx changes
-    const patchedAutoIssuance = currentStage.autoIssuance?.map(issuance => {
+    const autoIssuance = currentStage.autoIssuance ?? [];
+
+    const patchedAutoIssuance = autoIssuance.map(issuance => {
       if (issuance.chainId === undefined) {
         return { ...issuance, chainId: initChainId };
       }
       return issuance;
     });
 
-    if (patchedAutoIssuance) {
+    // Only update if patched array is different
+    const isDifferent = autoIssuance.some((issuance, idx) => {
+      return issuance.chainId !== patchedAutoIssuance[idx].chainId;
+    });
+
+    if (isDifferent) {
       setFieldValue(`stages.${selectedStageIdx}.autoIssuance`, patchedAutoIssuance);
     }
   }, [currentStage, initChainId, selectedStageIdx, setFieldValue]);
@@ -92,7 +98,7 @@ export function ChainAutoIssuance({ disabled = false }: ChainAutoIssuanceProps) 
   const hasAutoIssuance = stagesWithAutoIssuance.length > 0;
 
   if (!hasAutoIssuance) return null;
-  
+
   return (
     <div className="mb-10">
       <h2 className="text-left text-black-500 mb-4 font-semibold">

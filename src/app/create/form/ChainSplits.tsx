@@ -136,7 +136,6 @@ export function ChainSplits({ disabled = false }: ChainSplitsProps) {
                                 }
                                 disabled={disabled}
                                 required
-                                address
                               />
                             </div>
                           );
