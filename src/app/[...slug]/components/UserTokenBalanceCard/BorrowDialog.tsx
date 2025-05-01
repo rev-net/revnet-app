@@ -21,21 +21,13 @@ import {
 } from "@/components/ui/select";
 import { FixedInt } from "fpnum";
 import {
-  DEFAULT_METADATA,
   JB_CHAINS,
   JBProjectToken,
   NATIVE_TOKEN,
   NATIVE_TOKEN_DECIMALS,
   jbPermissionsAbi,
-  readJbPermissionsHasPermission
 } from "juice-sdk-core";
 
-const jbPermissionsAddress: Record<number, `0x${string}`> = {
-  8453: "0xF5CA295dc286A176E35eBB7833031Fd95550eb14", // Base Mainnet
-  1: "0xF5CA295dc286A176E35eBB7833031Fd95550eb14", // Ethereum Mainnet
-  10: "0xF5CA295dc286A176E35eBB7833031Fd95550eb14", // Optimism Mainnet
-  42161: "0xF5CA295dc286A176E35eBB7833031Fd95550eb14", // Arbitrum Mainnet
-};
 
 import {
   JBChainId,
@@ -44,11 +36,16 @@ import {
   useSuckersUserTokenBalance,
   useTokenCashOutQuoteEth,
 } from "juice-sdk-react";
-import { revLoansAddress } from "revnet-sdk";
-import { useReadRevLoansBorrowableAmountFrom, useWriteRevLoansBorrowFrom, useReadRevLoansLoanOf } from "revnet-sdk";
+import {
+  revLoansAddress,
+  useReadRevLoansBorrowableAmountFrom,
+  useWriteRevLoansBorrowFrom,
+  useReadRevLoansController,
+  useReadRevDeployerPermissions,
+} from "revnet-sdk";
 import { useWalletClient } from "wagmi";
 import { PropsWithChildren, useState, useEffect } from "react";
-import { Address, parseUnits, encodeAbiParameters } from "viem";
+import { Address, encodeAbiParameters } from "viem";
 import { useAccount, useWaitForTransactionReceipt } from "wagmi";
 
 export function BorrowDialog({
@@ -76,18 +73,15 @@ export function BorrowDialog({
   const { data: balances } = useSuckersUserTokenBalance();
   const rawBalance =
     balances?.find((b) => BigInt(b.projectId) === projectId)?.balance.value ?? 0n;
-  //const userTokenBalanceForProject = rawBalance / 10n ** 18n;
   const userTokenBalanceForProject = rawBalance;
-
-  console.log("📥 User collateral count:", userTokenBalanceForProject.toString());
-
   const [cashOutChainId, setCashOutChainId] = useState<string>();
-  console.log(
-    "💎 Selected chainId:",
-    cashOutChainId,
-    " ",
-    "User token balance:",          projectId,
-    userTokenBalanceForProject);
+  const { data: controllerAddress } = useReadRevLoansController({
+    chainId: cashOutChainId ? Number(cashOutChainId) as JBChainId : undefined,
+  });
+
+  const { data: resolvedPermissionsAddress } = useReadRevDeployerPermissions({
+    chainId: cashOutChainId ? Number(cashOutChainId) as JBChainId : undefined,
+  });
 
   const {
     data: borrowableAmount,
@@ -104,26 +98,8 @@ export function BorrowDialog({
         ] as const
       : undefined,
   });
-  console.log("💥 borrowableAmountFrom error:", borrowableError);
-  console.log(
-    "💎 Borrowable amount KMAC:", borrowableAmount?.toString());
-  useEffect(() => {
-    if (!cashOutChainId && !disabled && (balances?.length ?? 0) > 0) {
-      const chainWithTokens = balances?.find((b) => b.balance.value > 0n);
-      if (chainWithTokens) {
-        setCashOutChainId(chainWithTokens.chainId.toString());
-      }
-    }
-  }, [balances, cashOutChainId, disabled]);
 
-  useEffect(() => {
-    if (
-      cashOutChainId &&
-      !JB_CHAINS[Number(cashOutChainId) as JBChainId]?.chain // ?? terminal
-    ) {
-      console.warn("Selected chain may not have a valid terminal");
-    }
-  }, [cashOutChainId]);
+
 
   const redeemAmountBN = redeemAmount
     ? JBProjectToken.parse(redeemAmount, 18).value
@@ -147,14 +123,6 @@ export function BorrowDialog({
     data,
   } = useWriteRevLoansBorrowFrom();
 
-  // After borrowing, fetch the loan details if loanId is available
-  const loanId = data ? BigInt(data) : undefined;
-
-  const { data: loanData } = useReadRevLoansLoanOf({
-    chainId: Number(cashOutChainId) as JBChainId,
-    args: [loanId ?? 0n],
-  });
-
   const txHash = data;
   const { isLoading: isTxLoading, isSuccess } = useWaitForTransactionReceipt({
     hash: txHash,
@@ -175,7 +143,6 @@ export function BorrowDialog({
 
   const lockMonths = loanDuration;
   const feePercent = Number(calcPrepaidFee(Number(lockMonths)));
-  console.log("📈 Calculated feePercent:", feePercent);
   const clampedFee = Math.min(Math.max(feePercent, 0), 100);
   const adjustedRedeemQuote = redeemQuote
     ? (redeemQuote * BigInt(100 - clampedFee)) / 100n
@@ -202,8 +169,8 @@ export function BorrowDialog({
       <DialogContent className="max-w-lg">
         <DialogHeader>
           <DialogTitle>Snag a loan</DialogTitle>
-          <DialogDescription>
-            <div className="my-4">
+          <DialogDescription asChild>
+            <section className="my-4">
               {isSuccess ? (
                 <div>
                   <div className="mb-3 font-medium">Success! Loan created.</div>
@@ -229,7 +196,7 @@ export function BorrowDialog({
 
                   <div className="grid w-full gap-1.5">
                     <Label htmlFor="amount" className="text-zinc-900">
-                      Pledge collateral
+                    Collateral Amount (tokens)
                     </Label>
                     <div className="grid grid-cols-7 gap-2">
                       <div className="col-span-4">
@@ -244,16 +211,7 @@ export function BorrowDialog({
                               if (/^\d*\.?\d*$/.test(value)) {
                                 setRedeemAmount(value);
                                 const floatVal = parseFloat(value);
-                                if (!isNaN(floatVal)) {
-                                  const newRedeemAmountBN = JBProjectToken.parse(value, 18).value;
-                                }
-                                if (
-                                  !isNaN(floatVal) &&
-                                  borrowableAmount !== undefined &&
-                                  floatVal > Number(borrowableAmount) / 1e18
-                                ) {
-                                  console.warn("🔴 Input exceeds borrowable amount");
-                                }
+                                // Removed unused calculation and warning for exceeding borrowable amount.
                               }
                             }}
                           />
@@ -352,7 +310,7 @@ export function BorrowDialog({
                   ) : null}
                 </>
               )}
-            </div>
+            </section>
           </DialogDescription>
           <DialogFooter>
             {!isSuccess ? (
@@ -376,11 +334,6 @@ export function BorrowDialog({
                     [BigInt(prepaidFeePercent)]
                   );
 
-                  console.log("📝 user input redeemAmount:", redeemAmount);
-                  console.log("🔢 requested tokenCount:", redeemAmountBN.toString());
-                  console.log("💰 capped tokenCount:", cappedRedeemAmountBN.toString());
-                  console.log("📊 borrowableAmount:", borrowableAmount?.toString());
-
                   const args = [
                     projectId,
                     {
@@ -392,9 +345,6 @@ export function BorrowDialog({
                     address as `0x${string}`,
                     BigInt(feePercent),
                   ] as const;
-
-                  // Logging for checking borrowable amount context just before the hook is used.
-                  console.log("💎 Checking borrowableAmount for project", projectId.toString(), "with", userTokenBalanceForProject.toString(), "collateral");
 
                   // Guard the contract write execution by checking if borrowableAmount exists and is greater than 0n.
                   if (!borrowableAmount || borrowableAmount === 0n) {
@@ -410,23 +360,13 @@ export function BorrowDialog({
                     permissionIds: permissionIds as readonly number[],
                   };
 
-                  console.log("🔐 Granting burn permission to", permissionsData.operator);
-
                   await walletClient?.writeContract({
                     account: address,
-                    address: jbPermissionsAddress[Number(cashOutChainId) as JBChainId],
+                    address: resolvedPermissionsAddress as `0x${string}`,
                     abi: jbPermissionsAbi,
                     functionName: "setPermissionsFor",
                     args: [address as `0x${string}`, permissionsData],
                   });
-
-                  console.log("✅ Permission granted!");
-                  // ---- End permission logic ----
-
-                  console.log("⏩ redeem args", args);
-                  console.log("🏁 writeContract ready?", !!writeContract);
-                  console.log("📦 args", args);
-                  console.log("🔗 chainId", cashOutChainId);
 
                   writeContract?.({
                     chainId: Number(cashOutChainId) as JBChainId,

@@ -50,7 +50,7 @@
     "react-dom": "^18.2.0",
     "react-is": "^18.2.0",
     "recharts": "^2.10.4",
-    "revnet-sdk": "^1.0.1-beta",
+    "revnet-sdk": "^1.1.0-beta",
     "tailwind-merge": "^2.2.0",
     "tailwindcss-animate": "^1.0.6",
     "viem": "^2.22.9",

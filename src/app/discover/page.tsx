@@ -49,7 +49,7 @@ export default function Page() {
   useEffect(() => {
     const fetchUser = async () => {
       await sdk.actions.ready();
-
+      // TODO - check if context exist of not and if the user is already in the frame
       try {
         await sdk.actions.addFrame();
       } catch (error) {
