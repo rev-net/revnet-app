@@ -9,6 +9,7 @@ import {
   useSuckersUserTokenBalance,
 } from "juice-sdk-react";
 import { RedeemDialog } from "./RedeemDialog";
+import { BorrowDialog } from "./BorrowDialog";
 
 export function UserTokenBalanceCard() {
   const {
@@ -55,9 +56,19 @@ export function UserTokenBalanceCard() {
           </Button>
         </RedeemDialog>
       ) : null}
-      <Button variant="outline" disabled={true}>
-        Borrow (soon)
-      </Button>
+      {token?.data?.symbol && creditBalance && primaryNativeTerminal.data ? (
+        <BorrowDialog
+          projectId={projectId}
+          creditBalance={creditBalance}
+          tokenSymbol={tokenSymbol}
+          primaryTerminalEth={primaryNativeTerminal.data}
+        >
+          <Button variant="outline" disabled={creditBalance.value === 0n}>
+            Snag a loan
+          </Button>
+        </BorrowDialog>
+    ) : null}
+
     </div>
   );
 }
