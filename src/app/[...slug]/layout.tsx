@@ -20,40 +20,83 @@ function truncate(str: string, max = 32): string {
   return str.length > max ? str.slice(0, max - 1) + "…" : str;
 }
 
+function buildMetadata({
+  title,
+  description,
+  imageUrl,
+  url,
+  frame,
+}: {
+  title: string;
+  description: string;
+  imageUrl: string;
+  url: string;
+  frame?: object;
+}): Metadata {
+  return {
+    title,
+    openGraph: {
+      title,
+      description,
+      url,
+      images: [{ url: imageUrl, width: 1200, height: 800, alt: `${title} preview image` }],
+      type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [imageUrl],
+    },
+    other: frame ? { "fc:frame": JSON.stringify(frame) } : {},
+  };
+}
+
 async function getProjectMetadata(slug: string): Promise<{ handle: string; logoUri?: string } | null> {
-  const urn = jbUrn(slug);
-  if (!urn?.projectId || !urn?.chainId || !JB_CHAINS[urn.chainId]) {
-    throw new Error("Invalid URN");
-  }
-  if (!(urn.chainId in SUBGRAPH_URLS)) {
-    console.error("No valid subgraph URL for chain: " + urn.chainId);
-    return null;
-  }
-
-  const chainId = Number(urn.chainId) as keyof typeof SUBGRAPH_URLS;
-
-  const subgraphUrl = SUBGRAPH_URLS[chainId];
-  if (!subgraphUrl) {
-    console.error("Subgraph URL is undefined for chain: " + urn.chainId);
-    return null;
-  }
-
-  const query = `
-    query Projects($projectId: Int!) {
-      projects(where: { projectId: $projectId }, first: 1, skip: 0) {
-        projectId
-        metadataUri
-        handle
-        contributorsCount
-        createdAt
-      }
-    }
-  `;
-
-  const variables = { projectId: Number(urn.projectId) };
-
   try {
+    if (process.env.NODE_ENV === "development") {
+      console.log("Fetching project metadata for slug:", slug);
+    }
+    const cleanSlug = slug.split("?")[0]?.trim();
+    if (!cleanSlug || typeof cleanSlug !== "string" || !cleanSlug.includes(":")) {
+      throw new Error("Missing or malformed slug");
+    }
+
+    const urn = jbUrn(decodeURIComponent(cleanSlug));
+    if (!urn?.projectId || !urn?.chainId || !JB_CHAINS[urn.chainId]) {
+      throw new Error("Invalid URN");
+    }
+    if (!(urn.chainId in SUBGRAPH_URLS)) {
+      console.error("No valid subgraph URL for chain: " + urn.chainId);
+      return null;
+    }
+
+    const chainId = Number(urn.chainId) as keyof typeof SUBGRAPH_URLS;
+    const subgraphUrl = SUBGRAPH_URLS[chainId];
+    if (!subgraphUrl) {
+      console.error("Subgraph URL is undefined for chain: " + urn.chainId);
+      return null;
+    }
+
+    const query = `
+      query Projects($projectId: Int!) {
+        projects(where: { projectId: $projectId }, first: 1, skip: 0) {
+          projectId
+          metadataUri
+          handle
+          contributorsCount
+          createdAt
+        }
+      }
+    `;
+
+    const variables = { projectId: Number(urn.projectId) };
+
     const data = await request<ProjectsQueryResult>(subgraphUrl, query, variables);
+    if (!data.projects.length) {
+      console.warn("No project found for projectId", urn.projectId);
+      return { handle: "project" };
+    }
     const project = data.projects[0];
     if (!project.handle && project.metadataUri?.startsWith("ipfs://")) {
       const ipfsHash = project.metadataUri.replace("ipfs://", "");
@@ -73,7 +116,7 @@ async function getProjectMetadata(slug: string): Promise<{ handle: string; logoU
     }
     return { handle: project.handle ?? "project" };
   } catch (err) {
-    console.error("Failed to fetch project metadata:", err);
+    console.warn("getProjectMetadata error:", err);
     return null;
   }
 }
@@ -88,50 +131,31 @@ export async function generateMetadata({
   const proto = headersList.get("x-forwarded-proto") || "http";
   const origin = `${proto}://${host}`;
   const slugPath = decodeURIComponent(params?.slug?.join("/") ?? "");
-  const fullPath = `/${slugPath}`;
-  const url = new URL(fullPath, origin);
 
-  if (!slugPath) {
-    return {
-      title: "Revnet",
-      openGraph: {
-        title: "Revnet",
-        description: "Explore onchain revenue networks",
-        url: url.href,
-        images: [
-          {
-            url: `${origin}/assets/img/anachronistic1-1.png`,
-            width: 1200,
-            height: 800,
-            alt: "Revnet preview image",
-          },
-        ],
-        type: "website",
-      },
-      twitter: {
-        card: "summary_large_image",
-        title: "Revnet",
-        description: "Explore onchain revenue networks",
-        images: [`${origin}/assets/img/anachronistic1-1.png`],
-      },
-      other: {
-        "fc:frame": JSON.stringify({
-          version: "next",
-          imageUrl: `${origin}/assets/img/anachronistic1-1.png`,
-          button: {
-            title: "Support project",
-            action: {
-              type: "launch_frame",
-              name: "Revnet",
-              url: url.href,
-              splashImageUrl: `${origin}/assets/img/small-bw-200x200.png`,
-              splashBackgroundColor: "#ffffff",
-            },
-          },
-        }),
+  if (!slugPath.includes(":")) {
+    const url = new URL(`/${slugPath}`, origin);
+    const title = "Revnet";
+    const description = "Explore onchain revenue networks";
+    const imageUrl = `${origin}/assets/img/anachronistic1-1.png`;
+    const frame = {
+      version: "next",
+      imageUrl,
+      button: {
+        title: "Support project",
+        action: {
+          type: "launch_frame",
+          name: "Revnet",
+          url: url.href,
+          splashImageUrl: `${origin}/assets/img/small-bw-200x200.png`,
+          splashBackgroundColor: "#ffffff",
+        },
       },
     };
+    return buildMetadata({ title, description, imageUrl, url: url.href, frame });
   }
+
+  const fullPath = `/${slugPath}`;
+  const url = new URL(fullPath, origin);
 
   // Fetch project metadata using the slugPath as the handle
   const project = slugPath ? await getProjectMetadata(slugPath) : null;
@@ -154,32 +178,13 @@ export async function generateMetadata({
     },
   };
 
-  return {
+  return buildMetadata({
     title: "Revnet",
-    openGraph: {
-      title: "Revnet",
-      description: "Explore onchain revenue networks",
-      url: url.href,
-      images: [
-        {
-          url: imgUrl,
-          width: 1200,
-          height: 800,
-          alt: "Revnet preview image",
-        },
-      ],
-      type: "website",
-    },
-    twitter: {
-      card: "summary_large_image",
-      title: "Revnet",
-      description: "Explore onchain revenue networks",
-      images: [imgUrl],
-    },
-    other: {
-      "fc:frame": JSON.stringify(frame),
-    },
-  };
+    description: "Explore onchain revenue networks",
+    imageUrl: imgUrl,
+    url: url.href,
+    frame,
+  });
 }
 
 export default function SlugLayout({ children }: { children: React.ReactNode }) {

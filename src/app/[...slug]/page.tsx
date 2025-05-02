@@ -11,48 +11,54 @@ export default function Page({ params }: { params: { slug?: string[] } }) {
   const [chainId, setChainId] = useState<JBChainId | undefined>(undefined);
   const [notFound, setNotFound] = useState(false);
 
-  const [user, setUser] = useState<{ fid: number; pfp: string, userName: string } | null>(null);
+  const [user, setUser] = useState<{ fid: number; pfp: string; userName: string } | null>(null);
 
   useEffect(() => {
+    if (user) return;
     const fetchUser = async () => {
       await sdk.actions.ready();
       const ctx = await (await sdk.context);
-      if (ctx?.user) {
+      if (ctx && ctx.user && typeof ctx.user.fid === "number") {
         setUser({ fid: ctx.user.fid, pfp: ctx.user.pfpUrl || "", userName: ctx.user.username || "" });
       }
     };
     fetchUser();
-  }, []);
+  }, [user]);
 
   useEffect(() => {
     try {
-      let decoded = "";
-      try {
-        decoded = decodeURIComponent(params.slug?.[0] ?? "");
-      } catch (e) {
-        console.error("Failed to decode slug", params.slug?.[0]);
+      const raw = params.slug?.[0];
+      if (!raw || typeof raw !== "string") {
+        throw new Error("Missing or invalid slug param");
       }
+
+      // Sanitize input by removing query strings and trimming whitespace
+      const sanitizedSlug = raw.split("?")[0].trim();
+
+      const decoded = decodeURIComponent(sanitizedSlug);
       const urn = jbUrn(decoded);
+
       if (!urn?.projectId || !urn?.chainId || !JB_CHAINS[urn.chainId]) {
-        throw new Error("Invalid URN");
+        throw new Error("Invalid URN format or unknown chain");
       }
+
       setProjectId(urn.projectId);
       setChainId(urn.chainId);
+      setNotFound(false);
     } catch (error) {
+      console.warn("URN decoding error:", error);
       setNotFound(true);
+      setProjectId(undefined);
+      setChainId(undefined);
     }
   }, [params.slug]);
 
-  if (notFound) {
+  if (notFound || !projectId || !chainId) {
     return (
       <div className="h-screen w-screen flex items-center justify-center">
-        Not found
+        {notFound ? "Not found" : "Loading..."}
       </div>
     );
-  }
-
-  if (!projectId || !chainId) {
-    return null;
   }
 
   return (
