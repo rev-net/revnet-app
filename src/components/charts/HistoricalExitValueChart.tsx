@@ -1,91 +1,62 @@
-// import {
-//   OrderDirection,
-//   PayEvent_OrderBy,
-//   usePayEventsQuery,
-// } from "@/generated/graphql";
-// import { formatEther, getTokenCashOutQuoteEth } from "juice-sdk-core";
-// import { Line, LineChart, XAxis, YAxis } from "recharts";
-// import { parseEther } from "viem";
+import {
+  OrderDirection,
+  PayEvent_OrderBy,
+  usePayEventsQuery,
+} from "@/generated/graphql";
+import { formatEther, getTokenCashOutQuoteEth } from "juice-sdk-core";
+import { Line, LineChart, XAxis, YAxis } from "recharts";
+import { parseEther } from "viem";
 
-// /**
-//  * NOTE assumes reserved rate is constant. Applicable to revnets, not jb projects in general.
-//  */
+/**
+ * NOTE assumes reserved rate is constant. Applicable to revnets, not jb projects in general.
+ */
 
-// export function HistoricalExitValueChart({
-//   projectId,
-//   reservedPercent,
-//   cashOutTaxRate,
-// }: {
-//   projectId: bigint;
-//   reservedPercent: bigint;
-//   cashOutTaxRate: bigint;
-// }) {
-//   const { data: payEvents } = usePayEventsQuery({
-//     variables: {
-//       where: {
-//         projectId: Number(projectId),
-//       },
-//       orderBy: PayEvent_OrderBy.id,
-//       orderDirection: OrderDirection.desc,
-//     },
-//   });
+export function LoanValueChart({
+  projectId,
+  reservedPercent,
+  cashOutTaxRate,
+}: {
+  projectId: bigint;
+  reservedPercent: bigint;
+  cashOutTaxRate: bigint;
+}) {
+  const principal = parseEther("1"); // 1 ETH loan
+  const totalSupply = parseEther("1000"); // example token supply
+  const overflowWei = parseEther("1000"); // example overflow
+  const tokensReserved = 0n;
 
-//   type Datapoint = {
-//     totalSupply: bigint;
-//     totalEth: bigint;
-//     id: bigint;
-//   };
-//   console.log({ payEvents });
+  // Simulate cost of loan over durations 0 to 10 years
+  const loanCosts = Array.from({ length: 11 }, (_, year) => {
+    const quote = getTokenCashOutQuoteEth(principal, {
+      totalSupply,
+      overflowWei,
+      cashOutTaxRate,
+      tokensReserved,
+    });
 
-//   const historicalTokenSupply = [...(payEvents?.payEvents ?? [])]
-//     ?.reverse()
-//     .reduce((acc: Datapoint[], payEvent, idx) => {
-//       const beneficiaryTokenCount = BigInt(payEvent.beneficiaryTokenCount);
-//       const boostTokenCount = 0n;
-//       const totalNewTokenCount = beneficiaryTokenCount + boostTokenCount;
+    // Example fee scaling linearly with years, modify if needed
+    const prepaidFeePercent = 5n * BigInt(year);
+    const fee = (principal * prepaidFeePercent) / 100n;
+    const totalCost = principal + fee;
 
-//       const totalNewEth = BigInt(payEvent.amount);
+    return {
+      year,
+      cost: parseFloat(formatEther(totalCost)),
+    };
+  });
 
-//       const cum = {
-//         totalSupply:
-//           acc.length > 0
-//             ? acc[idx - 1].totalSupply + totalNewTokenCount
-//             : totalNewTokenCount,
-//         totalEth:
-//           acc.length > 0 ? acc[idx - 1].totalEth + totalNewEth : totalNewEth,
-//         id: BigInt(payEvent.id),
-//       };
-
-//       return [...acc, cum];
-//     }, []);
-
-//   const historicalTokenExitValue = historicalTokenSupply?.map(
-//     ({ totalSupply, totalEth, id }) => {
-//       const quote = getTokenCashOutQuoteEth(parseEther("1"), {
-//         totalSupply,
-//         overflowWei: totalEth,
-//         cashOutTaxRate,
-//         tokensReserved: 0n, // TODO update
-//       });
-
-//       console.log({ totalEth, totalSupply, quote, id });
-
-//       return { exitValue: parseFloat(formatEther(quote)), id };
-//     }
-//   );
-
-//   return (
-//     <div>
-//       <LineChart width={800} height={200} data={historicalTokenExitValue}>
-//         <Line
-//           type="monotone"
-//           dataKey="exitValue"
-//           stroke="#16a34a"
-//           strokeWidth={2}
-//         />
-//         <XAxis dataKey="id" />
-//         <YAxis dataKey="exitValue" />
-//       </LineChart>
-//     </div>
-//   );
-// }
+  return (
+    <div>
+      <LineChart width={800} height={200} data={loanCosts}>
+        <Line
+          type="monotone"
+          dataKey="cost"
+          stroke="#16a34a"
+          strokeWidth={2}
+        />
+        <XAxis dataKey="year" label={{ value: "Loan Duration (Years)", position: "insideBottom", offset: -5 }} />
+        <YAxis dataKey="cost" label={{ value: "Loan Cost (ETH)", angle: -90, position: "insideLeft" }} />
+      </LineChart>
+    </div>
+  );
+}
