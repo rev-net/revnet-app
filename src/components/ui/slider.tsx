@@ -17,7 +17,7 @@ const Slider = React.forwardRef<
     {...props}
   >
     <RadixSlider.Track className="relative h-1 w-full grow overflow-hidden rounded-full bg-zinc-200 dark:bg-zinc-700">
-      <RadixSlider.Range className="absolute h-full bg-black dark:bg-white" />
+      <RadixSlider.Range className="absolute h-full bg-zinc-500 dark:bg-zinc-400" />
     </RadixSlider.Track>
     <RadixSlider.Thumb className="block h-4 w-4 rounded-full border border-black bg-white shadow transition-colors focus:outline-none focus:ring-2 focus:ring-black disabled:pointer-events-none disabled:opacity-50 dark:border-white dark:bg-black" />
   </RadixSlider.Root>

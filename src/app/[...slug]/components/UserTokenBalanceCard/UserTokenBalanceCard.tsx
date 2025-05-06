@@ -9,7 +9,7 @@ import {
   useSuckersUserTokenBalance,
 } from "juice-sdk-react";
 import { RedeemDialog } from "./RedeemDialog";
-import { BorrowDialog } from "./BorrowDialog2";
+import { BorrowDialog } from "./BorrowDialog";
 
 export function UserTokenBalanceCard() {
   const {
