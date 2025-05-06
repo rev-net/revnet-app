@@ -101,7 +101,7 @@ async function getProjectMetadata(slug: string): Promise<{ handle: string; logoU
     if (!project.handle && project.metadataUri?.startsWith("ipfs://")) {
       const ipfsHash = project.metadataUri.replace("ipfs://", "");
       try {
-        const metadataRes = await fetch(`https://ipfs.io/ipfs/${ipfsHash}`);
+        const metadataRes = await fetch(`https://${process.env.NEXT_PUBLIC_INFURA_IPFS_HOSTNAME}/ipfs/${ipfsHash}`);
         const metadata = await metadataRes.json();
         return {
           handle: metadata.name ?? "project",
