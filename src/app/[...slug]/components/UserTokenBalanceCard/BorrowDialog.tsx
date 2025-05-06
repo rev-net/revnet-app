@@ -87,31 +87,6 @@ function useHasBorrowPermission({
   return hasPermission;
 }
 
-// Collapsible ToggleSection component
-function ToggleSection({
-  title,
-  children,
-  defaultOpen = false,
-}: {
-  title: string;
-  children: React.ReactNode;
-  defaultOpen?: boolean;
-}) {
-  const [open, setOpen] = useState(defaultOpen);
-  return (
-    <div className="border border-zinc-200 rounded-md mb-4">
-      <button
-        type="button"
-        onClick={() => setOpen((v) => !v)}
-        className="w-full flex items-center justify-between px-4 py-2 bg-zinc-100 hover:bg-zinc-200 text-sm font-medium text-zinc-700 rounded-t-md"
-      >
-        <span>{title}</span>
-        <span>{open ? "−" : "+"}</span>
-      </button>
-      {open && <div className="p-4">{children}</div>}
-    </div>
-  );
-}
 
 export function BorrowDialog({
   projectId,
@@ -141,6 +116,7 @@ export function BorrowDialog({
   const [collateralAmount, setCollateralAmount] = useState("");
   const [prepaidPercent, setPrepaidPercent] = useState("2.5");
   const [borrowableAmount, setBorrowableAmount] = useState(0);
+  const [rawBorrowableAmount, setRawBorrowableAmount] = useState(0);
   const [borrowStatus, setBorrowStatus] = useState<BorrowState>("idle");
 
   const [cashOutChainId, setCashOutChainId] = useState<string>();
@@ -152,29 +128,14 @@ export function BorrowDialog({
   const {
     contracts: { primaryNativeTerminal },
   } = useJBContractContext();
-
   const { address } = useAccount();
   const { data: walletClient } = useWalletClient();
   const { data: balances } = useSuckersUserTokenBalance();
-
-  const rawBalance =
-    balances?.find((b) => BigInt(b.projectId) === projectId)?.balance.value ?? 0n;
-  const userTokenBalanceForProject = rawBalance;
-
   const { data: resolvedPermissionsAddress } = useReadRevDeployerPermissions({
     chainId: cashOutChainId ? Number(cashOutChainId) as JBChainId : undefined,
   });
 
-  const { data: totalCollateralRaw } = useReadRevLoansTotalCollateralOf({
-    chainId: cashOutChainId ? Number(cashOutChainId) as JBChainId : undefined,
-    args: cashOutChainId ? [projectId] : undefined,
-  });
-
-  useEffect(() => {
-    if (totalCollateralRaw !== undefined) {
-      const totalCollateralEth = Number(totalCollateralRaw) / 1e18;
-    }
-  }, [totalCollateralRaw]);
+const userProjectTokenBalance = balances?.find((b) => BigInt(b.projectId) === projectId)?.balance.value ?? 0n;
 
   const selectedBalance = balances?.find(
     (b) => b.chainId === Number(cashOutChainId)
@@ -189,7 +150,7 @@ export function BorrowDialog({
     args: cashOutChainId
       ? [
           projectId,
-          userTokenBalanceForProject,
+          userProjectTokenBalance,
           BigInt(NATIVE_TOKEN_DECIMALS),
           61166n,
         ] as const
@@ -257,61 +218,73 @@ export function BorrowDialog({
   useEffect(() => {
     if (!collateralAmount || isNaN(Number(collateralAmount))) {
       setBorrowableAmount(0);
+      setRawBorrowableAmount(0);
       return;
     }
 
-    const percent = Number(collateralAmount) / (Number(userTokenBalanceForProject) / 1e18);
+    const percent = Number(collateralAmount) / (Number(userProjectTokenBalance) / 1e18);
     const estimatedRaw = borrowableAmountRaw ? Number(borrowableAmountRaw) / 1e18 : 0;
     const adjusted = estimatedRaw * percent;
     const afterNetworkFee = adjusted * 0.95;
     setBorrowableAmount(afterNetworkFee);
-  }, [collateralAmount, userTokenBalanceForProject, borrowableAmountRaw]);
+    setRawBorrowableAmount(adjusted);
+  }, [collateralAmount, userProjectTokenBalance, borrowableAmountRaw]);
 
-
-  // Generate fee curve data with actual bug behavior
+  // Generate fee curve data with correct repayment logic
   const generateFeeData = () => {
-    const MAX_YEARS = 10;
-    const prepaidDuration = (parseInt(prepaidPercent) / 50) * MAX_YEARS;
-    const prepaidAmount = borrowableAmount * (parseInt(prepaidPercent) / 100);
-    const unprepaidAmount = borrowableAmount - prepaidAmount;
+    const MAX_YEARS = 10; // Can we get this from the contract?
+    const prepaidFraction = parseFloat(prepaidPercent) / 100;
+    const prepaidDuration = (prepaidFraction / 0.5) * MAX_YEARS;
+
+    // Use the pre-network-fee borrowable amount for all fee calculations
+    const rawBorrowable = rawBorrowableAmount;
+    const prepaidFee = rawBorrowable * prepaidFraction;
+    const fixedFee = rawBorrowable * 0.05;
+    const decayingPortion = rawBorrowable - prepaidFee;
+    const received = borrowableAmount - fixedFee - prepaidFee;
 
     const data = [];
-    for (let year = 0; year <= MAX_YEARS; year += 0.1) { // Finer granularity
-      let totalCost;
 
-      if (year < prepaidDuration) {
-        // During prepaid period, only the original amount (no additional fees)
-        totalCost = borrowableAmount;
-      } else if (year < MAX_YEARS) {
-        // After prepaid but before liquidation
-        const timeAfterPrepaid = year - prepaidDuration;
+    for (let year = 0; year <= MAX_YEARS; year += 0.1) {
+      let variableFee = 0;
+
+      if (year > prepaidDuration && year <= MAX_YEARS) {
+        const elapsedAfterPrepaid = year - prepaidDuration;
         const remainingTime = MAX_YEARS - prepaidDuration;
-        const feeRate = timeAfterPrepaid / remainingTime;
-        const fullSourceFeeAmount = unprepaidAmount * feeRate;
-
-        // This is the bug! amountInFull should just be loan.amount
-        // But the code adds fullSourceFeeAmount to it
-        const amountInFull = borrowableAmount + fullSourceFeeAmount;
-
-        // Calculate the proportional fee using the buggy calculation
-        const additionalFee = (fullSourceFeeAmount * borrowableAmount) / amountInFull;
-        totalCost = borrowableAmount + additionalFee;
-      } else {
-        // At or after liquidation, full unprepaid amount is lost
-        totalCost = borrowableAmount + unprepaidAmount;
+        const percentElapsed = elapsedAfterPrepaid / remainingTime;
+        variableFee = decayingPortion * percentElapsed;
+      } else if (year > MAX_YEARS) {
+        variableFee = decayingPortion;
       }
 
+      // Clamp the variableFee so totalCost never exceeds the raw borrowable amount
+      const clampedVariableFee = Math.min(variableFee, decayingPortion);
+      const loanCost = fixedFee + clampedVariableFee;
+
       data.push({
-        year: year,
-        totalCost: totalCost
+        year,
+        totalCost: loanCost,
       });
     }
+
+    // Debug log for fee chart data and variables
+    console.log("Fee chart data debug:", {
+      rawBorrowable,
+      prepaidFee,
+      fixedFee,
+      decayingPortion,
+      data,
+    });
+
     return data;
   };
 
   const feeData = generateFeeData();
 
-  const prepaidMonths = (parseInt(prepaidPercent || "0") / 50 * 10) * 12;
+  // Calculate prepaidMonths using local variables, not window.__prepaidDuration
+  const prepaidFraction = parseFloat(prepaidPercent) / 100;
+  const prepaidDuration = (prepaidFraction / 0.5) * 10;
+  const prepaidMonths = prepaidDuration * 12;
   const displayYears = Math.floor(prepaidMonths / 12);
   const displayMonths = Math.round(prepaidMonths % 12);
 
@@ -509,7 +482,7 @@ export function BorrowDialog({
                       />
                       <YAxis
                         label={{
-                          value: "Total Cost (ETH)",
+                          value: "Total Cost to Repay (ETH)",
                           angle: -90,
                           position: "insideLeft",
                           offset: 0,
@@ -519,7 +492,10 @@ export function BorrowDialog({
                         tick={false}
                       />
                       <Tooltip
-                        formatter={(value: number, name: string) => [`${value.toFixed(6)} ETH`, "Total Cost"]}
+                        formatter={(value: number) => [
+                          `${value.toFixed(6)} ETH`,
+                          `Loan Cost (from full loan: ${(rawBorrowableAmount || 0).toFixed(4)} ETH)`
+                        ]}
                         labelFormatter={(label: number) => {
                           const months = Math.round(label * 12);
                           const years = Math.floor(months / 12);
@@ -542,6 +518,9 @@ export function BorrowDialog({
                   {displayYears > 0
                     ? `${displayYears} year${displayYears > 1 ? "s" : ""}${displayMonths > 0 ? ` and ${displayMonths} month${displayMonths > 1 ? "s" : ""}` : ""}`
                     : `${displayMonths} month${displayMonths > 1 ? "s" : ""}`}
+                </p>
+                <p className="text-xs text-center text-zinc-500 mt-1">
+                  Based on full loan amount before fixed fee: {(rawBorrowableAmount || 0).toFixed(6)} ETH
                 </p>
               </div>
             )}
@@ -634,6 +613,9 @@ export function BorrowDialog({
                     address as `0x${string}`,
                     BigInt(feeBasisPoints),
                   ] as const;
+
+                  // Log the contract args before calling writeContract
+                  console.log("Borrow contract args:", args);
 
                   if (!writeContract) {
                     console.error("writeContract is not available");
