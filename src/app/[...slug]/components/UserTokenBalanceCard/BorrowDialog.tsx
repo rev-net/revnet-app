@@ -56,7 +56,17 @@ function useHasBorrowPermission({
 
   useEffect(() => {
     async function checkPermission() {
-      if (!address || !chainId || !resolvedPermissionsAddress) return;
+      // Temporarily skipping permission check – always grant
+      return;
+      /*
+      if (
+        !address ||
+        !chainId ||
+        !resolvedPermissionsAddress ||
+        !revLoansAddress[chainId as JBChainId]
+      ) {
+        return;
+      }
 
       try {
         const result = await readContract({
@@ -79,6 +89,7 @@ function useHasBorrowPermission({
         console.error("Permission check failed:", err);
         setHasPermission(undefined);
       }
+      */
     }
 
     checkPermission();
