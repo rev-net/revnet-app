@@ -49,7 +49,7 @@ import {
             <span>More upfront cost</span>
           </div>
         </div>
-        <div className="h-64">
+        <div className="h-64 min-h-[250px]">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={feeData}>
               <CartesianGrid strokeDasharray="3 3" />
@@ -76,15 +76,6 @@ import {
                 formatter={(value: number, name: string, props) => {
                   const repayAmount = (grossBorrowedEth || 0) + value;
                   const netToPay = repayAmount - ethToWallet;
-
-                  console.log("Tooltip chart point:", {
-                    year: props?.payload?.year,
-                    repayAmount,
-                    netToPay,
-                    borrowed: grossBorrowedEth,
-                    prepaid: ethToWallet,
-                  });
-
                   if (props?.payload?.year >= 9.99) {
                     return [
                       "—",

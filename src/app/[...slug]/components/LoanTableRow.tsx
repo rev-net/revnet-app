@@ -26,16 +26,6 @@ import {
     collateralCount: bigint;
     tokenSymbol: string;
   }) {
-    /* const { data: totalBorrowed } = useReadRevLoansTotalBorrowedFrom({
-      chainId,
-      args: [revnetId, terminalAddress, tokenAddress],
-    });
-
-    const { data: loanCount } = useReadRevLoansNumberOfLoansFor({
-      chainId,
-      args: [revnetId],
-    }); */
-
     const { data: borrowableAmount } = useReadRevLoansBorrowableAmountFrom({
       chainId,
       args: [revnetId, collateralCount, BigInt(decimals), currency],
@@ -46,8 +36,6 @@ import {
         <div className="text-sm text-left font-medium text-zinc-600">{JB_CHAINS[chainId].name}</div>
         <div className="text-right">{(Number(collateralCount) / 1e18).toFixed(5)}</div>
         <div className="text-right">{borrowableAmount !== undefined ? `${(Number(borrowableAmount) / 1e18).toFixed(5)}` : "—"}</div>
-      {/*   <div>{loanCount !== undefined ? loanCount.toString() : "—"}</div>
-        <div>{totalBorrowed !== undefined ? `${(Number(totalBorrowed) / 1e18).toFixed(4)}` : "—"}</div> */}
-      </div>
+       </div>
     );
   }

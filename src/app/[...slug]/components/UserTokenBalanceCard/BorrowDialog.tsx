@@ -1,23 +1,3 @@
-/**
- * -----------------------------
- * 📌 Key State & Computed Values
- * -----------------------------
- *
- * collateralAmount: string
- *    - User-entered collateral input (in token units, e.g. "5.0")
- *
- * prepaidPercent: string
- *    - Percentage of interest paid upfront (e.g. "2.5" for 2.5%)
- *
- * ethToWallet: number
- *    - ETH sent to user after deducting fixed loan processing fee
- *
- * grossBorrowedEth: number
- *    - Total ETH borrowed based on user input before prepaid/fixed fees
- *
- * borrowStatus: "idle" | "checking" | "granting-permission" | "permission-granted" | "waiting-signature" | "pending" | "success" | "error"
- *    - Tracks lifecycle of the borrow transaction UI state (todo radix ui button)
- * */
 import { PropsWithChildren, useEffect, useState } from "react";
 import { useAccount, useWaitForTransactionReceipt } from "wagmi";
 import { useWalletClient } from "wagmi";
@@ -160,12 +140,11 @@ export function BorrowDialog({
   const { data: resolvedPermissionsAddress } = useReadRevDeployerPermissions({
     chainId: cashOutChainId ? Number(cashOutChainId) as JBChainId : undefined,
   });
-  console.log("sucker balances:", balances);
   const userProjectTokenBalance = balances?.find(
     (b) =>
       BigInt(b.projectId) === projectId &&
       b.chainId === Number(cashOutChainId)
-  )?.balance.value ?? 0n;  console.log("userProjectTokenBalance:", userProjectTokenBalance);
+  )?.balance.value ?? 0n;
   const selectedBalance = balances?.find(
     (b) => b.chainId === Number(cashOutChainId)
   );
@@ -241,28 +220,17 @@ export function BorrowDialog({
 
   useEffect(() => {
     if (!collateralAmount || isNaN(Number(collateralAmount))) {
-      console.error("Invalid collateral amount");
       setEthToWallet(0);
       setGrossBorrowedEth(0);
       return;
     }
     // for ux buttons 25 50 75 100
-    console.log("userProjectTokenBalance amount:", (Number(userProjectTokenBalance) / 1e18));
     const percent = Number(collateralAmount) / (Number(userProjectTokenBalance) / 1e18);
     const estimatedRaw = borrowableAmountRaw ? Number(borrowableAmountRaw) / 1e18 : 0;
     const adjusted = estimatedRaw * percent;
     const afterNetworkFee = adjusted * ( 1 - FIXEDLOANFEES); // get from onchain?
     setEthToWallet(afterNetworkFee);
     setGrossBorrowedEth(adjusted);
-    console.log({
-      collateralAmount,
-      userProjectTokenBalance,
-      borrowableAmountRaw,
-      percent,
-      estimatedRaw,
-      adjusted,
-      FIXEDLOANFEES
-    });
 
     // --- Insert prepaid fee SDK calculation ---
     if (borrowableAmountRaw && prepaidPercent) {
@@ -270,12 +238,6 @@ export function BorrowDialog({
       const feeBpsBigInt = calcPrepaidFee(monthsToPrepay); // SDK returns bps as bigint
       const feeBps = Number(feeBpsBigInt);
       const fee = (borrowableAmountRaw * BigInt(feeBps)) / 1000n;
-      console.log("calcPrepaidFee SDK result:", {
-        monthsToPrepay,
-        feeBps,
-        fee: fee.toString(),
-        feeEth: Number(fee) / 1e18,
-      });
     }
   }, [collateralAmount, userProjectTokenBalance, borrowableAmountRaw]);
 
@@ -288,14 +250,12 @@ export function BorrowDialog({
     const feeBps = Number(calcPrepaidFee(monthsToPrepay));
     const prepaidFee = (grossBorrowedEth * feeBps) / 1000;
     const prepaidDuration = monthsToPrepay / 12;
-    console.log("Prepaid fee via SDK:", { monthsToPrepay, feeBps, prepaidFee, prepaidDuration });
 
     // Use the pre-network-fee borrowable amount for all fee calculations
     const rawBorrowable = grossBorrowedEth;
     const fixedFee = rawBorrowable * FIXEDLOANFEES; // 0.035 (2.5 nana, 1 rev, was 0.05 const onchain?
     const decayingPortion = rawBorrowable - prepaidFee;
     const received = ethToWallet - fixedFee - prepaidFee;
-    console.log("Received amount:", received);
     const data = [];
 
     for (let year = 0; year <= MAX_YEARS; year += 0.1) {
@@ -319,16 +279,6 @@ export function BorrowDialog({
         totalCost: loanCost,
       });
     }
-
-    // Debug log for fee chart data and variables
-    console.log("Fee chart data debug:", {
-      rawBorrowable,
-      prepaidFee,
-      fixedFee,
-      decayingPortion,
-      data,
-    });
-
     return data;
   };
 
@@ -541,7 +491,6 @@ export function BorrowDialog({
                   }
 
                   const feeBasisPoints = Math.round(parseFloat(prepaidPercent) * 10);
-                  console.log("Fee basis points:", feeBasisPoints);
                   if (!userHasPermission) {
                     setBorrowStatus("granting-permission");
                     await walletClient.writeContract({
@@ -564,9 +513,7 @@ export function BorrowDialog({
                   }
 
                   const collateralBigInt = BigInt(Math.floor(Number(collateralAmount) * 1e18));
-                  console.log("Collateral (user input):", collateralAmount);
-                  console.log("Collateral (converted to wei):", collateralBigInt.toString());
-                  const args = [
+                   const args = [
                     projectId,
                     {
                       token: "0x000000000000000000000000000000000000EEEe", // get from terminals base token
@@ -577,9 +524,6 @@ export function BorrowDialog({
                     address as `0x${string}`,
                     BigInt(feeBasisPoints),
                   ] as const;
-
-                  // Log the contract args before calling writeContract
-                  console.log("Borrow contract args:", args);
 
                   if (!writeContract) {
                     console.error("writeContract is not available");

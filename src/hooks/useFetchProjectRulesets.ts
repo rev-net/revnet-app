@@ -62,7 +62,7 @@ export function useFetchProjectRulesets(suckers: SuckerPair[] | undefined | null
   useEffect(() => {
     if (!suckers) return undefined;
     fetchRuleSets();
-    console.log("ERROR", error)
+    // console.log("ERROR", error)
   }, [suckers, fetchRuleSets, error]);
 
   return {
