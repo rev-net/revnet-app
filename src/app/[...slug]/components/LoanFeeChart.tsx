@@ -75,14 +75,19 @@ import {
               <Tooltip
                 formatter={(value: number, name: string, props) => {
                   const repayAmount = (grossBorrowedEth || 0) + value;
+                  const netToPay = repayAmount - ethToWallet;
+
                   console.log("Tooltip chart point:", {
                     year: props?.payload?.year,
                     repayAmount,
-                    borrowed: grossBorrowedEth
+                    netToPay,
+                    borrowed: grossBorrowedEth,
+                    prepaid: ethToWallet,
                   });
+
                   return [
-                    `${collateralAmount} ${tokenSymbol}`,
-                    `Pay ${repayAmount.toFixed(6)} ETH to reclaim: `,
+                    `${netToPay.toFixed(6)} ETH`,
+                    `Remaining to repay gross loan for ${collateralAmount} ${tokenSymbol}`,
                   ];
                 }}
                 labelFormatter={(label: number) => {
