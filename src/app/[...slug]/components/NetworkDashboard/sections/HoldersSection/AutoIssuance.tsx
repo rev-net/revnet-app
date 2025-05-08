@@ -71,14 +71,14 @@ export function AutoIssuance() {
                     <div className="flex flex-col sm:flex-row text-sm">
                       <div className="flex flex-col sm:flex-row text-sm">
                         <EthereumAddress
-                          address={autoIssuance.beneficiary}
+                          address={autoIssuance.beneficiary as `0x${string}`}
                           short
                           withEnsAvatar
                           withEnsName
                           className="hidden sm:block"
                         />
                         <EthereumAddress
-                          address={autoIssuance.beneficiary}
+                          address={autoIssuance.beneficiary as `0x${string}`}
                           short
                           avatarProps={{ size: "sm" }}
                           withEnsAvatar
@@ -118,9 +118,9 @@ export function AutoIssuance() {
                       onClick={() => {
                         writeContract({
                           args: [
-                            autoIssuance.revnetId,
+                            BigInt(autoIssuance.projectId),
                             autoIssuance.stageId,
-                            autoIssuance.beneficiary,
+                            autoIssuance.beneficiary as `0x${string}`,
                           ],
                         });
                         setAutoIssueId(autoIssuance.id);

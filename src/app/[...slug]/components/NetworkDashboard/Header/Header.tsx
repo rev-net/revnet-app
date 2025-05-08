@@ -2,13 +2,20 @@
 
 import { ChainLogo } from "@/components/ChainLogo";
 import EtherscanLink from "@/components/EtherscanLink";
-import { ProjectsDocument } from "@/generated/graphql";
+import {
+  ParticipantsDocument,
+  ProjectDocument,
+  SuckerGroupDocument,
+} from "@/generated/graphql";
+import { useBendystrawQuery } from "@/graphql/useBendystrawQuery";
+// import { useTotalOutstandingTokens } from "@/hooks/useTotalOutstandingTokens";
 import { ipfsUriToGatewayUrl } from "@/lib/ipfs";
 import { formatTokenSymbol } from "@/lib/utils";
 import { ForwardIcon } from "@heroicons/react/24/solid";
 import { JB_CHAINS } from "juice-sdk-core";
 import {
   JBChainId,
+  useJBChainId,
   useJBContractContext,
   useJBProjectMetadataContext,
   useJBTokenContext,
@@ -17,34 +24,48 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import { TvlDatum } from "./TvlDatum";
-import { useOmnichainSubgraphQuery } from "@/graphql/useOmnichainSubgraphQuery";
-import { useTotalOutstandingTokens } from "@/hooks/useTotalOutstandingTokens";
-import { formatUnits } from "viem";
-import { prettyNumber } from "@/lib/number";
+import { useMemo } from "react";
 export function Header() {
   const { projectId } = useJBContractContext();
+  const chainId = useJBChainId();
   const { metadata } = useJBProjectMetadataContext();
   const { token } = useJBTokenContext();
 
-  const { data: projects } = useOmnichainSubgraphQuery(ProjectsDocument, {
-    where: {
-      projectId: Number(projectId),
-    },
-    first: 1,
+  const project = useBendystrawQuery(ProjectDocument, {
+    chainId: Number(chainId),
+    projectId: Number(projectId),
   });
+  const suckerGroup = useBendystrawQuery(SuckerGroupDocument, {
+    id: project.data?.project?.suckerGroupId ?? "",
+  });
+
+  const { data: participants } = useBendystrawQuery(ParticipantsDocument, {
+    where: {
+      suckerGroupId: suckerGroup.data?.suckerGroup?.id,
+      balance_gt: 0,
+    },
+  });
+
+  const contributorsCount = useMemo(() => {
+    // de-dupe participants who are on multiple chains
+    const participantWallets = participants?.participants.items.reduce(
+      (acc, curr) =>
+        acc.includes(curr.address) ? acc : [...acc, curr.address],
+      [] as string[]
+    );
+
+    return participantWallets?.length;
+  }, [participants?.participants]);
+
   const suckersQuery = useSuckers();
   const suckers = suckersQuery.data;
   const { name: projectName, logoUri } = metadata?.data ?? {};
 
-  const contributorsCount = projects?.reduce((acc, project) => {
-    return acc + (project.value?.response?.projects?.[0]?.contributorsCount ?? 0);
-  }, 0);
-
-  const totalSupply = useTotalOutstandingTokens();
-  const totalSupplyFormatted =
-    totalSupply && token?.data
-      ? formatUnits(totalSupply, token.data.decimals)
-      : null;
+  // const totalSupply = useTotalOutstandingTokens();
+  // const totalSupplyFormatted =
+  //   totalSupply && token?.data
+  //     ? formatUnits(totalSupply, token.data.decimals)
+  //     : null;
 
   return (
     <header>

@@ -1,0 +1,54 @@
+query ActivityEvents(
+  $where: activityEventFilter
+  $orderBy: String
+  $orderDirection: String
+) {
+  activityEvents(
+    where: $where
+    orderBy: $orderBy
+    orderDirection: $orderDirection
+    limit: 1000
+    # TODO implement paging
+  ) {
+    items {
+      id
+      chainId
+      timestamp
+      payEvent {
+        id
+        amount
+        beneficiary
+        memo
+        timestamp
+        feeFromProject
+        newlyIssuedTokenCount
+        from
+        txHash
+        amountUsd
+        caller
+        distributionFromProjectId
+        projectId
+        project {
+          id
+          projectId
+          handle
+        }
+      }
+      cashOutTokensEvent {
+        id
+        timestamp
+        txHash
+        from
+        beneficiary
+        reclaimAmount
+        cashOutCount
+        metadata
+        project {
+          id
+          projectId
+          handle
+        }
+      }
+    }
+  }
+}
