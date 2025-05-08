@@ -1,3 +1,23 @@
+/**
+ * -----------------------------
+ * 📌 Key State & Computed Values
+ * -----------------------------
+ *
+ * collateralAmount: string
+ *    - User-entered collateral input (in token units, e.g. "5.0")
+ *
+ * prepaidPercent: string
+ *    - Percentage of interest paid upfront (e.g. "2.5" for 2.5%)
+ *
+ * ethToWallet: number
+ *    - ETH sent to user after deducting fixed loan processing fee
+ *
+ * grossBorrowedEth: number
+ *    - Total ETH borrowed based on user input before prepaid/fixed fees
+ *
+ * borrowStatus: "idle" | "checking" | "granting-permission" | "permission-granted" | "waiting-signature" | "pending" | "success" | "error"
+ *    - Tracks lifecycle of the borrow transaction UI state (todo radix ui button)
+ * */
 import { PropsWithChildren, useEffect, useState } from "react";
 import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { useAccount, useWaitForTransactionReceipt } from "wagmi";
@@ -39,6 +59,7 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@
 import { LoanTableRow } from "./LoanTableRow";
 import { ButtonWithWallet } from "@/components/ButtonWithWallet";
 import { encodeAbiParameters } from "viem";
+const FIXEDLOANFEES = 0.035; // TODO: get from onchain
 
 
 function useHasBorrowPermission({
@@ -126,8 +147,8 @@ export function BorrowDialog({
 
   const [collateralAmount, setCollateralAmount] = useState("");
   const [prepaidPercent, setPrepaidPercent] = useState("2.5");
-  const [borrowableAmount, setBorrowableAmount] = useState(0);
-  const [rawBorrowableAmount, setRawBorrowableAmount] = useState(0);
+  const [ethToWallet, setEthToWallet] = useState(0);
+  const [grossBorrowedEth, setGrossBorrowedEth] = useState(0);
   const [borrowStatus, setBorrowStatus] = useState<BorrowState>("idle");
 
   const [cashOutChainId, setCashOutChainId] = useState<string>();
@@ -145,9 +166,12 @@ export function BorrowDialog({
   const { data: resolvedPermissionsAddress } = useReadRevDeployerPermissions({
     chainId: cashOutChainId ? Number(cashOutChainId) as JBChainId : undefined,
   });
-
-const userProjectTokenBalance = balances?.find((b) => BigInt(b.projectId) === projectId)?.balance.value ?? 0n;
-
+  console.log("sucker balances:", balances);
+  const userProjectTokenBalance = balances?.find(
+    (b) =>
+      BigInt(b.projectId) === projectId &&
+      b.chainId === Number(cashOutChainId)
+  )?.balance.value ?? 0n;  console.log("userProjectTokenBalance:", userProjectTokenBalance);
   const selectedBalance = balances?.find(
     (b) => b.chainId === Number(cashOutChainId)
   );
@@ -214,6 +238,14 @@ const userProjectTokenBalance = balances?.find((b) => BigInt(b.projectId) === pr
     }
   }, [txHash, isTxLoading, isSuccess]);
 
+  // Auto-clear success status after 5 seconds
+  useEffect(() => {
+    if (borrowStatus === "success") {
+      const timeout = setTimeout(() => setBorrowStatus("idle"), 5000);
+      return () => clearTimeout(timeout);
+    }
+  }, [borrowStatus]);
+
   const loading = isWriteLoading || isTxLoading;
 
   // Update collateralAmount to full balance when cashOutChainId changes
@@ -228,32 +260,45 @@ const userProjectTokenBalance = balances?.find((b) => BigInt(b.projectId) === pr
 
   useEffect(() => {
     if (!collateralAmount || isNaN(Number(collateralAmount))) {
-      setBorrowableAmount(0);
-      setRawBorrowableAmount(0);
+      console.error("Invalid collateral amount");
+      setEthToWallet(0);
+      setGrossBorrowedEth(0);
       return;
     }
-
+    // for ux buttons 25 50 75 100
+    console.log("userProjectTokenBalance amount:", (Number(userProjectTokenBalance) / 1e18));
     const percent = Number(collateralAmount) / (Number(userProjectTokenBalance) / 1e18);
     const estimatedRaw = borrowableAmountRaw ? Number(borrowableAmountRaw) / 1e18 : 0;
     const adjusted = estimatedRaw * percent;
-    const afterNetworkFee = adjusted * 0.95;
-    setBorrowableAmount(afterNetworkFee);
-    setRawBorrowableAmount(adjusted);
+    const afterNetworkFee = adjusted * ( 1 - FIXEDLOANFEES); // get from onchain?
+    setEthToWallet(afterNetworkFee);
+    setGrossBorrowedEth(adjusted);
+    console.log({
+      collateralAmount,
+      userProjectTokenBalance,
+      borrowableAmountRaw,
+      percent,
+      estimatedRaw,
+      adjusted,
+      FIXEDLOANFEES
+    });
+
   }, [collateralAmount, userProjectTokenBalance, borrowableAmountRaw]);
 
   // Generate fee curve data with correct repayment logic
   const generateFeeData = () => {
     const MAX_YEARS = 10; // Can we get this from the contract?
     const prepaidFraction = parseFloat(prepaidPercent) / 100;
+    console.log("Prepaid fraction:", prepaidFraction);
     const prepaidDuration = (prepaidFraction / 0.5) * MAX_YEARS;
 
     // Use the pre-network-fee borrowable amount for all fee calculations
-    const rawBorrowable = rawBorrowableAmount;
+    const rawBorrowable = grossBorrowedEth;
     const prepaidFee = rawBorrowable * prepaidFraction;
-    const fixedFee = rawBorrowable * 0.05;
+    const fixedFee = rawBorrowable * FIXEDLOANFEES; // 0.035 (2.5 nana, 1 rev, was 0.05 const onchain?
     const decayingPortion = rawBorrowable - prepaidFee;
-    const received = borrowableAmount - fixedFee - prepaidFee;
-
+    const received = ethToWallet - fixedFee - prepaidFee;
+    console.log("Received amount:", received);
     const data = [];
 
     for (let year = 0; year <= MAX_YEARS; year += 0.1) {
@@ -304,7 +349,7 @@ const userProjectTokenBalance = balances?.find((b) => BigInt(b.projectId) === pr
     if (!open) {
       setCollateralAmount("");
       setPrepaidPercent("2.5");
-      setBorrowableAmount(0);
+      setEthToWallet(0);
       setBorrowStatus("idle");
       setCashOutChainId(undefined);
     }
@@ -432,19 +477,24 @@ const userProjectTokenBalance = balances?.find((b) => BigInt(b.projectId) === pr
                 </div>
               </div>
             </div>
-            {/* You'll Receive section - always visible, above the Fee Structure Over Time button */}
-            <div className="mb-2 p-3 bg-zinc-50 rounded-md border border-zinc-200">
-              <h3 className="text-sm font-medium text-zinc-700 mb-1">You'll Receive</h3>
-              <p className="font-semibold text-md text-zinc-500 leading-tight">
-                {borrowableAmount > 0
-                  ? (borrowableAmount - (borrowableAmount * (parseFloat(prepaidPercent) / 100))).toFixed(8)
-                  : "0.00000000"}{" "}
-                ETH
-              </p>
-              <p className="text-xs text-zinc-600 mt-1">
-                Borrowing {borrowableAmount.toFixed(8)} ETH minus {prepaidPercent}% prepaid fee
-              </p>
-            </div>
+            {/* Receipt-style breakdown - always visible, above the Fee Structure Over Time button */}
+            {collateralAmount && !isNaN(Number(collateralAmount)) && (
+              <div className="mb-2 p-3 bg-zinc-50 rounded-md border border-zinc-200">
+                <h3 className="text-sm font-medium text-zinc-700 mb-1">Simulated Loan</h3>
+                <div className="space-y-1 text-sm text-zinc-600">
+                  <p><span className="font-semibold">{collateralAmount}</span> {tokenSymbol} provided as collateral</p>
+                  <p><span className="font-semibold">3.5%</span> loan processing fee applied</p>
+                  <p><span className="font-semibold">{ethToWallet.toFixed(8)}</span> ETH borrowed</p>
+                  <p><span className="font-semibold">{prepaidPercent}%</span> prepaid interest (fee)</p>
+                  <p><span className="font-semibold">
+                    {(ethToWallet * (1 - parseFloat(prepaidPercent) / 100)).toFixed(8)}
+                  </span> ETH sent to your wallet</p>
+                </div>
+                <p className="text-xs text-zinc-500 mt-1">
+                  (Actual amount may vary slightly.)
+                </p>
+              </div>
+            )}
             {/* Fee Structure Over Time toggleable chart */}
             <button
               type="button"
@@ -489,7 +539,7 @@ const userProjectTokenBalance = balances?.find((b) => BigInt(b.projectId) === pr
                         type="number"
                         domain={[0, 10]}
                         ticks={[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]}
-                        tickFormatter={(year) => `${year}y`}
+                        tickFormatter={(year) => `${year}`}
                       />
                       <YAxis
                         label={{
@@ -503,10 +553,19 @@ const userProjectTokenBalance = balances?.find((b) => BigInt(b.projectId) === pr
                         tick={false}
                       />
                       <Tooltip
-                        formatter={(value: number) => [
-                          `${value.toFixed(6)} ETH`,
-                          `Loan Cost (from full loan: ${(rawBorrowableAmount || 0).toFixed(4)} ETH)`
-                        ]}
+                        formatter={(value: number, name: string, props) => {
+                        const interest = value;
+                        const totalRepay = ethToWallet + interest;
+                        console.log("Tooltip chart point:", {
+                          year: props?.payload?.year,
+                          repayAmount: totalRepay,
+                          interest: interest,
+                          borrowed: ethToWallet
+                        });
+                  return [
+                    `${props?.payload?.year} years`,
+                        `Repay ~${(ethToWallet - interest).toFixed(6)} ETH to reclaim ${collateralAmount} ${tokenSymbol}`,                  ];
+                        }}
                         labelFormatter={(label: number) => {
                           const months = Math.round(label * 12);
                           const years = Math.floor(months / 12);
@@ -524,14 +583,14 @@ const userProjectTokenBalance = balances?.find((b) => BigInt(b.projectId) === pr
                     </LineChart>
                   </ResponsiveContainer>
                 </div>
-                <p className="text-sm text-gray-600 mt-2 text-center">
+                <p className="text-sm text-gray-600 mt-3 text-center">
                   Fees increase after{" "}
                   {displayYears > 0
                     ? `${displayYears} year${displayYears > 1 ? "s" : ""}${displayMonths > 0 ? ` and ${displayMonths} month${displayMonths > 1 ? "s" : ""}` : ""}`
                     : `${displayMonths} month${displayMonths > 1 ? "s" : ""}`}
                 </p>
                 <p className="text-xs text-center text-zinc-500 mt-1">
-                  Based on full loan amount before fixed fee: {(rawBorrowableAmount || 0).toFixed(6)} ETH
+                  Based on the loan amount after the processing fee: {(grossBorrowedEth || 0).toFixed(6)} ETH
                 </p>
               </div>
             )}
@@ -590,8 +649,8 @@ const userProjectTokenBalance = balances?.find((b) => BigInt(b.projectId) === pr
                     return;
                   }
 
-                  const feeBasisPoints = Math.round(parseFloat(prepaidPercent) * 100);
-
+                  const feeBasisPoints = Math.round(parseFloat(prepaidPercent) * 10);
+                  console.log("Fee basis points:", feeBasisPoints);
                   if (!userHasPermission) {
                     setBorrowStatus("granting-permission");
                     await walletClient.writeContract({
@@ -613,14 +672,17 @@ const userProjectTokenBalance = balances?.find((b) => BigInt(b.projectId) === pr
                     setBorrowStatus("permission-granted");
                   }
 
+                  const collateralBigInt = BigInt(Math.floor(Number(collateralAmount) * 1e18));
+                  console.log("Collateral (user input):", collateralAmount);
+                  console.log("Collateral (converted to wei):", collateralBigInt.toString());
                   const args = [
                     projectId,
                     {
-                      token: "0x000000000000000000000000000000000000EEEe",
+                      token: "0x000000000000000000000000000000000000EEEe", // get from terminals base token
                       terminal: primaryNativeTerminal.data as `0x${string}`,
                     },
                     0n,
-                    BigInt(Math.floor(Number(collateralAmount) * 1e18)),
+                    collateralBigInt,
                     address as `0x${string}`,
                     BigInt(feeBasisPoints),
                   ] as const;
