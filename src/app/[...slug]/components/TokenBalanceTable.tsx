@@ -1,6 +1,6 @@
 import { ChainLogo } from "@/components/ChainLogo";
 import { JBChainId } from "juice-sdk-react";
-import { LoanTableRow } from "../components/UserTokenBalanceCard/LoanTableRow";
+import { LoanTableRow } from "./LoanTableRow";
 
 export function TokenBalanceTable({
   balances,

@@ -63,13 +63,13 @@ import {
               />
               <YAxis
                 label={{
-                  value: "Total Repayment (ETH)",
+                  value: "Collateral decay %",
                   angle: -90,
                   position: "insideLeft",
                   offset: 0,
                   style: { textAnchor: "middle" }
                 }}
-                domain={[0, (dataMax: number) => dataMax * 1.4]}
+                domain={[0, (dataMax: number) => dataMax]}
                 tick={false}
               />
               <Tooltip
@@ -85,12 +85,21 @@ import {
                     prepaid: ethToWallet,
                   });
 
+                  if (props?.payload?.year >= 9.99) {
+                    return [
+                      "—",
+                      "No collateral can be reclaimed at this time",
+                    ];
+                  }
                   return [
-                    `${netToPay.toFixed(6)} ETH`,
-                    `Remaining to repay gross loan for ${collateralAmount} ${tokenSymbol}`,
+                    `${collateralAmount} ${tokenSymbol}`,
+                    `Interest of ${netToPay.toFixed(6)} ETH for full collateral: `,
                   ];
                 }}
                 labelFormatter={(label: number) => {
+                  if (label >= 9.99) {
+                    return "Final period – no collateral will be returned";
+                  }
                   const months = Math.round(label * 12);
                   const years = Math.floor(months / 12);
                   const remMonths = months % 12;
