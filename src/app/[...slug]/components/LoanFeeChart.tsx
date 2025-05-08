@@ -63,7 +63,7 @@ import {
               />
               <YAxis
                 label={{
-                  value: "Total Cost to Repay (ETH)",
+                  value: "Total Repayment (ETH)",
                   angle: -90,
                   position: "insideLeft",
                   offset: 0,
@@ -74,17 +74,15 @@ import {
               />
               <Tooltip
                 formatter={(value: number, name: string, props) => {
-                  const interest = value;
-                  const repayAmount = (grossBorrowedEth || 0) + interest;
+                  const repayAmount = (grossBorrowedEth || 0) + value;
                   console.log("Tooltip chart point:", {
                     year: props?.payload?.year,
                     repayAmount,
-                    interest,
                     borrowed: grossBorrowedEth
                   });
                   return [
-                    `${repayAmount.toFixed(6)} ETH`,
-                    `Repay this to reclaim ${collateralAmount} ${tokenSymbol} — includes ~${interest.toFixed(6)} ETH interest`,
+                    `${collateralAmount} ${tokenSymbol}`,
+                    `Pay ${repayAmount.toFixed(6)} ETH to reclaim: `,
                   ];
                 }}
                 labelFormatter={(label: number) => {
@@ -109,9 +107,6 @@ import {
           {displayYears > 0
             ? `${displayYears} year${displayYears > 1 ? "s" : ""}${displayMonths > 0 ? ` and ${displayMonths} month${displayMonths > 1 ? "s" : ""}` : ""}`
             : `${displayMonths} month${displayMonths > 1 ? "s" : ""}`}
-        </p>
-        <p className="text-xs text-center text-zinc-500 mt-1">
-          Based on the loan amount after the processing fee: {(grossBorrowedEth || 0).toFixed(6)} ETH
         </p>
       </div>
     );

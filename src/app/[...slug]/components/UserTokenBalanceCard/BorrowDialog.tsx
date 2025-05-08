@@ -266,7 +266,7 @@ export function BorrowDialog({
 
     // --- Insert prepaid fee SDK calculation ---
     if (borrowableAmountRaw && prepaidPercent) {
-      const monthsToPrepay = parseFloat(prepaidPercent) * 1.2; // Example conversion
+      const monthsToPrepay = (parseFloat(prepaidPercent) / 50) * 120;
       const feeBpsBigInt = calcPrepaidFee(monthsToPrepay); // SDK returns bps as bigint
       const feeBps = Number(feeBpsBigInt);
       const fee = (borrowableAmountRaw * BigInt(feeBps)) / 1000n;
@@ -282,13 +282,16 @@ export function BorrowDialog({
   // Generate fee curve data with correct repayment logic
   const generateFeeData = () => {
     const MAX_YEARS = 10; // Can we get this from the contract?
-    const prepaidFraction = parseFloat(prepaidPercent) / 100;
-    console.log("Prepaid fraction:", prepaidFraction);
-    const prepaidDuration = (prepaidFraction / 0.5) * MAX_YEARS;
+
+    // New prepaidFee and prepaidDuration calculation using SDK
+    const monthsToPrepay = (parseFloat(prepaidPercent) / 50) * 120;
+    const feeBps = Number(calcPrepaidFee(monthsToPrepay));
+    const prepaidFee = (grossBorrowedEth * feeBps) / 1000;
+    const prepaidDuration = monthsToPrepay / 12;
+    console.log("Prepaid fee via SDK:", { monthsToPrepay, feeBps, prepaidFee, prepaidDuration });
 
     // Use the pre-network-fee borrowable amount for all fee calculations
     const rawBorrowable = grossBorrowedEth;
-    const prepaidFee = rawBorrowable * prepaidFraction;
     const fixedFee = rawBorrowable * FIXEDLOANFEES; // 0.035 (2.5 nana, 1 rev, was 0.05 const onchain?
     const decayingPortion = rawBorrowable - prepaidFee;
     const received = ethToWallet - fixedFee - prepaidFee;
@@ -331,10 +334,9 @@ export function BorrowDialog({
 
   const feeData = generateFeeData();
 
-  // Calculate prepaidMonths using local variables, not window.__prepaidDuration
-  const prepaidFraction = parseFloat(prepaidPercent) / 100;
-  const prepaidDuration = (prepaidFraction / 0.5) * 10;
-  const prepaidMonths = prepaidDuration * 12;
+  // Calculate prepaidMonths using new prepaidDuration logic
+  const monthsToPrepay = (parseFloat(prepaidPercent) / 50) * 120;
+  const prepaidMonths = monthsToPrepay;
   const displayYears = Math.floor(prepaidMonths / 12);
   const displayMonths = Math.round(prepaidMonths % 12);
 
