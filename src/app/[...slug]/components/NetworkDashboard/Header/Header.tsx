@@ -2,7 +2,11 @@
 
 import { ChainLogo } from "@/components/ChainLogo";
 import EtherscanLink from "@/components/EtherscanLink";
-import { ParticipantsDocument } from "@/generated/graphql";
+import {
+  ParticipantsDocument,
+  ProjectDocument,
+  SuckerGroupDocument,
+} from "@/generated/graphql";
 import { useBendystrawQuery } from "@/graphql/useBendystrawQuery";
 // import { useTotalOutstandingTokens } from "@/hooks/useTotalOutstandingTokens";
 import { ipfsUriToGatewayUrl } from "@/lib/ipfs";
@@ -11,6 +15,7 @@ import { ForwardIcon } from "@heroicons/react/24/solid";
 import { JB_CHAINS } from "juice-sdk-core";
 import {
   JBChainId,
+  useJBChainId,
   useJBContractContext,
   useJBProjectMetadataContext,
   useJBTokenContext,
@@ -19,23 +24,42 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import { TvlDatum } from "./TvlDatum";
+import { useMemo } from "react";
 export function Header() {
   const { projectId } = useJBContractContext();
+  const chainId = useJBChainId();
   const { metadata } = useJBProjectMetadataContext();
   const { token } = useJBTokenContext();
 
+  const project = useBendystrawQuery(ProjectDocument, {
+    chainId: Number(chainId),
+    projectId: Number(projectId),
+  });
+  const suckerGroup = useBendystrawQuery(SuckerGroupDocument, {
+    id: project.data?.project?.suckerGroupId ?? "",
+  });
+
   const { data: participants } = useBendystrawQuery(ParticipantsDocument, {
     where: {
-      projectId: Number(projectId),
+      suckerGroupId: suckerGroup.data?.suckerGroup?.id,
       balance_gt: 0,
     },
   });
 
+  const contributorsCount = useMemo(() => {
+    // de-dupe participants who are on multiple chains
+    const participantWallets = participants?.participants.items.reduce(
+      (acc, curr) =>
+        acc.includes(curr.address) ? acc : [...acc, curr.address],
+      [] as string[]
+    );
+
+    return participantWallets?.length;
+  }, [participants?.participants]);
+
   const suckersQuery = useSuckers();
   const suckers = suckersQuery.data;
   const { name: projectName, logoUri } = metadata?.data ?? {};
-
-  const contributorsCount = participants?.participants.totalCount;
 
   // const totalSupply = useTotalOutstandingTokens();
   // const totalSupplyFormatted =

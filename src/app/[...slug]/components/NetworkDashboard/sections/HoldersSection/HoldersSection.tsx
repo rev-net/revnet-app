@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { ParticipantsDocument, ProjectDocument } from "@/generated/graphql";
 import { useBendystrawQuery } from "@/graphql/useBendystrawQuery";
-// import { useTotalOutstandingTokens } from "@/hooks/useTotalOutstandingTokens";
+import { useTotalOutstandingTokens } from "@/hooks/useTotalOutstandingTokens";
 import { formatTokenSymbol } from "@/lib/utils";
 import {
   useJBChainId,
@@ -28,9 +28,7 @@ export function HoldersSection() {
   const { projectId } = useJBContractContext();
   const { token } = useJBTokenContext();
 
-  // TODO replace with `useSuckersNativeTokenSurplus`?
-  const totalOutstandingTokens = BigInt(69420);
-  // const totalOutstandingTokens = useTotalOutstandingTokens();
+  const totalOutstandingTokens = useTotalOutstandingTokens();
 
   const project = useBendystrawQuery(ProjectDocument, {
     projectId: Number(projectId),
@@ -42,6 +40,7 @@ export function HoldersSection() {
     orderDirection: "desc",
     where: {
       suckerGroupId: project.data?.project?.suckerGroupId,
+      balance_gt: 0,
     },
   });
 

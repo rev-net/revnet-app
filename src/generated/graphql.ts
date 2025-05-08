@@ -57,6 +57,8 @@ export type Query = {
   nftTiers: NftTierPage;
   nfts: NftPage;
   participant: Maybe<Participant>;
+  participantSnapshot: Maybe<ParticipantSnapshot>;
+  participantSnapshots: ParticipantSnapshotPage;
   participants: ParticipantPage;
   payEvent: Maybe<PayEvent>;
   payEvents: PayEventPage;
@@ -65,6 +67,8 @@ export type Query = {
   project: Maybe<Project>;
   projectCreateEvent: Maybe<ProjectCreateEvent>;
   projectCreateEvents: ProjectCreateEventPage;
+  projectMoment: Maybe<ProjectMoment>;
+  projectMoments: ProjectMomentPage;
   projects: ProjectPage;
   sendPayoutToSplitEvent: Maybe<SendPayoutToSplitEvent>;
   sendPayoutToSplitEvents: SendPayoutToSplitEventPage;
@@ -281,6 +285,23 @@ export type QueryParticipantArgs = {
 };
 
 
+export type QueryParticipantSnapshotArgs = {
+  address: Scalars['String']['input'];
+  chainId: Scalars['Float']['input'];
+  projectId: Scalars['Float']['input'];
+};
+
+
+export type QueryParticipantSnapshotsArgs = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<Scalars['String']['input']>;
+  orderDirection?: InputMaybe<Scalars['String']['input']>;
+  where?: InputMaybe<ParticipantSnapshotFilter>;
+};
+
+
 export type QueryParticipantsArgs = {
   after?: InputMaybe<Scalars['String']['input']>;
   before?: InputMaybe<Scalars['String']['input']>;
@@ -342,6 +363,23 @@ export type QueryProjectCreateEventsArgs = {
   orderBy?: InputMaybe<Scalars['String']['input']>;
   orderDirection?: InputMaybe<Scalars['String']['input']>;
   where?: InputMaybe<ProjectCreateEventFilter>;
+};
+
+
+export type QueryProjectMomentArgs = {
+  block: Scalars['Float']['input'];
+  chainId: Scalars['Float']['input'];
+  projectId: Scalars['Float']['input'];
+};
+
+
+export type QueryProjectMomentsArgs = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<Scalars['String']['input']>;
+  orderDirection?: InputMaybe<Scalars['String']['input']>;
+  where?: InputMaybe<ProjectMomentFilter>;
 };
 
 
@@ -2395,6 +2433,114 @@ export type ParticipantPage = {
   totalCount: Scalars['Int']['output'];
 };
 
+export type ParticipantSnapshot = {
+  address: Scalars['String']['output'];
+  balance: Scalars['BigInt']['output'];
+  block: Scalars['Int']['output'];
+  chainId: Scalars['Int']['output'];
+  creditBalance: Scalars['BigInt']['output'];
+  erc20Balance: Scalars['BigInt']['output'];
+  projectId: Scalars['Int']['output'];
+  suckerGroupId: Maybe<Scalars['String']['output']>;
+  volume: Scalars['BigInt']['output'];
+  volumeUsd: Scalars['BigInt']['output'];
+};
+
+export type ParticipantSnapshotFilter = {
+  AND?: InputMaybe<Array<InputMaybe<ParticipantSnapshotFilter>>>;
+  OR?: InputMaybe<Array<InputMaybe<ParticipantSnapshotFilter>>>;
+  address?: InputMaybe<Scalars['String']['input']>;
+  address_contains?: InputMaybe<Scalars['String']['input']>;
+  address_ends_with?: InputMaybe<Scalars['String']['input']>;
+  address_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  address_not?: InputMaybe<Scalars['String']['input']>;
+  address_not_contains?: InputMaybe<Scalars['String']['input']>;
+  address_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  address_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  address_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  address_starts_with?: InputMaybe<Scalars['String']['input']>;
+  balance?: InputMaybe<Scalars['BigInt']['input']>;
+  balance_gt?: InputMaybe<Scalars['BigInt']['input']>;
+  balance_gte?: InputMaybe<Scalars['BigInt']['input']>;
+  balance_in?: InputMaybe<Array<InputMaybe<Scalars['BigInt']['input']>>>;
+  balance_lt?: InputMaybe<Scalars['BigInt']['input']>;
+  balance_lte?: InputMaybe<Scalars['BigInt']['input']>;
+  balance_not?: InputMaybe<Scalars['BigInt']['input']>;
+  balance_not_in?: InputMaybe<Array<InputMaybe<Scalars['BigInt']['input']>>>;
+  block?: InputMaybe<Scalars['Int']['input']>;
+  block_gt?: InputMaybe<Scalars['Int']['input']>;
+  block_gte?: InputMaybe<Scalars['Int']['input']>;
+  block_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  block_lt?: InputMaybe<Scalars['Int']['input']>;
+  block_lte?: InputMaybe<Scalars['Int']['input']>;
+  block_not?: InputMaybe<Scalars['Int']['input']>;
+  block_not_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  chainId?: InputMaybe<Scalars['Int']['input']>;
+  chainId_gt?: InputMaybe<Scalars['Int']['input']>;
+  chainId_gte?: InputMaybe<Scalars['Int']['input']>;
+  chainId_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  chainId_lt?: InputMaybe<Scalars['Int']['input']>;
+  chainId_lte?: InputMaybe<Scalars['Int']['input']>;
+  chainId_not?: InputMaybe<Scalars['Int']['input']>;
+  chainId_not_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  creditBalance?: InputMaybe<Scalars['BigInt']['input']>;
+  creditBalance_gt?: InputMaybe<Scalars['BigInt']['input']>;
+  creditBalance_gte?: InputMaybe<Scalars['BigInt']['input']>;
+  creditBalance_in?: InputMaybe<Array<InputMaybe<Scalars['BigInt']['input']>>>;
+  creditBalance_lt?: InputMaybe<Scalars['BigInt']['input']>;
+  creditBalance_lte?: InputMaybe<Scalars['BigInt']['input']>;
+  creditBalance_not?: InputMaybe<Scalars['BigInt']['input']>;
+  creditBalance_not_in?: InputMaybe<Array<InputMaybe<Scalars['BigInt']['input']>>>;
+  erc20Balance?: InputMaybe<Scalars['BigInt']['input']>;
+  erc20Balance_gt?: InputMaybe<Scalars['BigInt']['input']>;
+  erc20Balance_gte?: InputMaybe<Scalars['BigInt']['input']>;
+  erc20Balance_in?: InputMaybe<Array<InputMaybe<Scalars['BigInt']['input']>>>;
+  erc20Balance_lt?: InputMaybe<Scalars['BigInt']['input']>;
+  erc20Balance_lte?: InputMaybe<Scalars['BigInt']['input']>;
+  erc20Balance_not?: InputMaybe<Scalars['BigInt']['input']>;
+  erc20Balance_not_in?: InputMaybe<Array<InputMaybe<Scalars['BigInt']['input']>>>;
+  projectId?: InputMaybe<Scalars['Int']['input']>;
+  projectId_gt?: InputMaybe<Scalars['Int']['input']>;
+  projectId_gte?: InputMaybe<Scalars['Int']['input']>;
+  projectId_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  projectId_lt?: InputMaybe<Scalars['Int']['input']>;
+  projectId_lte?: InputMaybe<Scalars['Int']['input']>;
+  projectId_not?: InputMaybe<Scalars['Int']['input']>;
+  projectId_not_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  suckerGroupId?: InputMaybe<Scalars['String']['input']>;
+  suckerGroupId_contains?: InputMaybe<Scalars['String']['input']>;
+  suckerGroupId_ends_with?: InputMaybe<Scalars['String']['input']>;
+  suckerGroupId_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  suckerGroupId_not?: InputMaybe<Scalars['String']['input']>;
+  suckerGroupId_not_contains?: InputMaybe<Scalars['String']['input']>;
+  suckerGroupId_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  suckerGroupId_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  suckerGroupId_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  suckerGroupId_starts_with?: InputMaybe<Scalars['String']['input']>;
+  volume?: InputMaybe<Scalars['BigInt']['input']>;
+  volumeUsd?: InputMaybe<Scalars['BigInt']['input']>;
+  volumeUsd_gt?: InputMaybe<Scalars['BigInt']['input']>;
+  volumeUsd_gte?: InputMaybe<Scalars['BigInt']['input']>;
+  volumeUsd_in?: InputMaybe<Array<InputMaybe<Scalars['BigInt']['input']>>>;
+  volumeUsd_lt?: InputMaybe<Scalars['BigInt']['input']>;
+  volumeUsd_lte?: InputMaybe<Scalars['BigInt']['input']>;
+  volumeUsd_not?: InputMaybe<Scalars['BigInt']['input']>;
+  volumeUsd_not_in?: InputMaybe<Array<InputMaybe<Scalars['BigInt']['input']>>>;
+  volume_gt?: InputMaybe<Scalars['BigInt']['input']>;
+  volume_gte?: InputMaybe<Scalars['BigInt']['input']>;
+  volume_in?: InputMaybe<Array<InputMaybe<Scalars['BigInt']['input']>>>;
+  volume_lt?: InputMaybe<Scalars['BigInt']['input']>;
+  volume_lte?: InputMaybe<Scalars['BigInt']['input']>;
+  volume_not?: InputMaybe<Scalars['BigInt']['input']>;
+  volume_not_in?: InputMaybe<Array<InputMaybe<Scalars['BigInt']['input']>>>;
+};
+
+export type ParticipantSnapshotPage = {
+  items: Array<ParticipantSnapshot>;
+  pageInfo: PageInfo;
+  totalCount: Scalars['Int']['output'];
+};
+
 export type PayEvent = {
   amount: Scalars['BigInt']['output'];
   amountUsd: Scalars['BigInt']['output'];
@@ -2623,27 +2769,36 @@ export type Project = {
   burnEvents: Maybe<BurnEventPage>;
   cashOutTokensEvents: Maybe<CashOutTokensEventPage>;
   chainId: Scalars['Int']['output'];
-  contributorsCount: Scalars['Int']['output'];
+  coverImageUri: Maybe<Scalars['String']['output']>;
   createdAt: Scalars['Int']['output'];
   createdWithinTrendingWindow: Maybe<Scalars['Boolean']['output']>;
   creator: Scalars['String']['output'];
   deployErc20Events: Maybe<DeployErc20EventPage>;
   deployer: Scalars['String']['output'];
+  description: Maybe<Scalars['String']['output']>;
+  discord: Maybe<Scalars['String']['output']>;
+  domain: Maybe<Scalars['String']['output']>;
   handle: Maybe<Scalars['String']['output']>;
   id: Scalars['String']['output'];
+  infoUri: Maybe<Scalars['String']['output']>;
+  logoUri: Maybe<Scalars['String']['output']>;
   metadata: Maybe<Scalars['JSON']['output']>;
   metadataUri: Maybe<Scalars['String']['output']>;
   mintNftEvents: Maybe<MintNftEventPage>;
   mintTokensEvents: Maybe<MintTokensEventPage>;
+  name: Maybe<Scalars['String']['output']>;
   nftHooks: Maybe<NftHookPage>;
   nfts: Maybe<NftPage>;
   nftsMintedCount: Scalars['Int']['output'];
   owner: Scalars['String']['output'];
   participants: Maybe<ParticipantPage>;
+  payDisclosure: Maybe<Scalars['String']['output']>;
   payEvents: Maybe<PayEventPage>;
   paymentsCount: Scalars['Int']['output'];
   permissionHolders: Maybe<PermissionHolderPage>;
   projectId: Scalars['Int']['output'];
+  projectMoments: Maybe<ProjectMomentPage>;
+  projectTagline: Maybe<Scalars['String']['output']>;
   redeemCount: Scalars['Int']['output'];
   redeemVolume: Scalars['BigInt']['output'];
   redeemVolumeUsd: Scalars['BigInt']['output'];
@@ -2653,11 +2808,16 @@ export type Project = {
   sendReservedTokensToSplitsEvents: Maybe<SendReservedTokensToSplitsEventPage>;
   suckerGroup: Maybe<SuckerGroup>;
   suckerGroupId: Maybe<Scalars['String']['output']>;
+  tags: Maybe<Array<Scalars['String']['output']>>;
+  telegram: Maybe<Scalars['String']['output']>;
   tokenSupply: Scalars['BigInt']['output'];
+  tokens: Maybe<Array<Scalars['String']['output']>>;
   trendingPaymentsCount: Scalars['Int']['output'];
   trendingScore: Scalars['BigInt']['output'];
   trendingVolume: Scalars['BigInt']['output'];
+  twitter: Maybe<Scalars['String']['output']>;
   useAllowanceEvents: Maybe<UseAllowanceEventPage>;
+  version: Maybe<Scalars['Int']['output']>;
   volume: Scalars['BigInt']['output'];
   volumeUsd: Scalars['BigInt']['output'];
 };
@@ -2770,6 +2930,16 @@ export type ProjectPermissionHoldersArgs = {
   orderBy?: InputMaybe<Scalars['String']['input']>;
   orderDirection?: InputMaybe<Scalars['String']['input']>;
   where?: InputMaybe<PermissionHolderFilter>;
+};
+
+
+export type ProjectProjectMomentsArgs = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<Scalars['String']['input']>;
+  orderDirection?: InputMaybe<Scalars['String']['input']>;
+  where?: InputMaybe<ProjectMomentFilter>;
 };
 
 
@@ -2936,14 +3106,16 @@ export type ProjectFilter = {
   chainId_lte?: InputMaybe<Scalars['Int']['input']>;
   chainId_not?: InputMaybe<Scalars['Int']['input']>;
   chainId_not_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
-  contributorsCount?: InputMaybe<Scalars['Int']['input']>;
-  contributorsCount_gt?: InputMaybe<Scalars['Int']['input']>;
-  contributorsCount_gte?: InputMaybe<Scalars['Int']['input']>;
-  contributorsCount_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
-  contributorsCount_lt?: InputMaybe<Scalars['Int']['input']>;
-  contributorsCount_lte?: InputMaybe<Scalars['Int']['input']>;
-  contributorsCount_not?: InputMaybe<Scalars['Int']['input']>;
-  contributorsCount_not_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  coverImageUri?: InputMaybe<Scalars['String']['input']>;
+  coverImageUri_contains?: InputMaybe<Scalars['String']['input']>;
+  coverImageUri_ends_with?: InputMaybe<Scalars['String']['input']>;
+  coverImageUri_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  coverImageUri_not?: InputMaybe<Scalars['String']['input']>;
+  coverImageUri_not_contains?: InputMaybe<Scalars['String']['input']>;
+  coverImageUri_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  coverImageUri_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  coverImageUri_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  coverImageUri_starts_with?: InputMaybe<Scalars['String']['input']>;
   createdAt?: InputMaybe<Scalars['Int']['input']>;
   createdAt_gt?: InputMaybe<Scalars['Int']['input']>;
   createdAt_gte?: InputMaybe<Scalars['Int']['input']>;
@@ -2976,6 +3148,36 @@ export type ProjectFilter = {
   deployer_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   deployer_not_starts_with?: InputMaybe<Scalars['String']['input']>;
   deployer_starts_with?: InputMaybe<Scalars['String']['input']>;
+  description?: InputMaybe<Scalars['String']['input']>;
+  description_contains?: InputMaybe<Scalars['String']['input']>;
+  description_ends_with?: InputMaybe<Scalars['String']['input']>;
+  description_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  description_not?: InputMaybe<Scalars['String']['input']>;
+  description_not_contains?: InputMaybe<Scalars['String']['input']>;
+  description_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  description_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  description_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  description_starts_with?: InputMaybe<Scalars['String']['input']>;
+  discord?: InputMaybe<Scalars['String']['input']>;
+  discord_contains?: InputMaybe<Scalars['String']['input']>;
+  discord_ends_with?: InputMaybe<Scalars['String']['input']>;
+  discord_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  discord_not?: InputMaybe<Scalars['String']['input']>;
+  discord_not_contains?: InputMaybe<Scalars['String']['input']>;
+  discord_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  discord_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  discord_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  discord_starts_with?: InputMaybe<Scalars['String']['input']>;
+  domain?: InputMaybe<Scalars['String']['input']>;
+  domain_contains?: InputMaybe<Scalars['String']['input']>;
+  domain_ends_with?: InputMaybe<Scalars['String']['input']>;
+  domain_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  domain_not?: InputMaybe<Scalars['String']['input']>;
+  domain_not_contains?: InputMaybe<Scalars['String']['input']>;
+  domain_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  domain_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  domain_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  domain_starts_with?: InputMaybe<Scalars['String']['input']>;
   handle?: InputMaybe<Scalars['String']['input']>;
   handle_contains?: InputMaybe<Scalars['String']['input']>;
   handle_ends_with?: InputMaybe<Scalars['String']['input']>;
@@ -2996,6 +3198,26 @@ export type ProjectFilter = {
   id_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   id_not_starts_with?: InputMaybe<Scalars['String']['input']>;
   id_starts_with?: InputMaybe<Scalars['String']['input']>;
+  infoUri?: InputMaybe<Scalars['String']['input']>;
+  infoUri_contains?: InputMaybe<Scalars['String']['input']>;
+  infoUri_ends_with?: InputMaybe<Scalars['String']['input']>;
+  infoUri_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  infoUri_not?: InputMaybe<Scalars['String']['input']>;
+  infoUri_not_contains?: InputMaybe<Scalars['String']['input']>;
+  infoUri_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  infoUri_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  infoUri_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  infoUri_starts_with?: InputMaybe<Scalars['String']['input']>;
+  logoUri?: InputMaybe<Scalars['String']['input']>;
+  logoUri_contains?: InputMaybe<Scalars['String']['input']>;
+  logoUri_ends_with?: InputMaybe<Scalars['String']['input']>;
+  logoUri_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  logoUri_not?: InputMaybe<Scalars['String']['input']>;
+  logoUri_not_contains?: InputMaybe<Scalars['String']['input']>;
+  logoUri_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  logoUri_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  logoUri_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  logoUri_starts_with?: InputMaybe<Scalars['String']['input']>;
   metadataUri?: InputMaybe<Scalars['String']['input']>;
   metadataUri_contains?: InputMaybe<Scalars['String']['input']>;
   metadataUri_ends_with?: InputMaybe<Scalars['String']['input']>;
@@ -3006,6 +3228,16 @@ export type ProjectFilter = {
   metadataUri_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   metadataUri_not_starts_with?: InputMaybe<Scalars['String']['input']>;
   metadataUri_starts_with?: InputMaybe<Scalars['String']['input']>;
+  name?: InputMaybe<Scalars['String']['input']>;
+  name_contains?: InputMaybe<Scalars['String']['input']>;
+  name_ends_with?: InputMaybe<Scalars['String']['input']>;
+  name_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  name_not?: InputMaybe<Scalars['String']['input']>;
+  name_not_contains?: InputMaybe<Scalars['String']['input']>;
+  name_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  name_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  name_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  name_starts_with?: InputMaybe<Scalars['String']['input']>;
   nftsMintedCount?: InputMaybe<Scalars['Int']['input']>;
   nftsMintedCount_gt?: InputMaybe<Scalars['Int']['input']>;
   nftsMintedCount_gte?: InputMaybe<Scalars['Int']['input']>;
@@ -3024,6 +3256,16 @@ export type ProjectFilter = {
   owner_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   owner_not_starts_with?: InputMaybe<Scalars['String']['input']>;
   owner_starts_with?: InputMaybe<Scalars['String']['input']>;
+  payDisclosure?: InputMaybe<Scalars['String']['input']>;
+  payDisclosure_contains?: InputMaybe<Scalars['String']['input']>;
+  payDisclosure_ends_with?: InputMaybe<Scalars['String']['input']>;
+  payDisclosure_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  payDisclosure_not?: InputMaybe<Scalars['String']['input']>;
+  payDisclosure_not_contains?: InputMaybe<Scalars['String']['input']>;
+  payDisclosure_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  payDisclosure_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  payDisclosure_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  payDisclosure_starts_with?: InputMaybe<Scalars['String']['input']>;
   paymentsCount?: InputMaybe<Scalars['Int']['input']>;
   paymentsCount_gt?: InputMaybe<Scalars['Int']['input']>;
   paymentsCount_gte?: InputMaybe<Scalars['Int']['input']>;
@@ -3040,6 +3282,16 @@ export type ProjectFilter = {
   projectId_lte?: InputMaybe<Scalars['Int']['input']>;
   projectId_not?: InputMaybe<Scalars['Int']['input']>;
   projectId_not_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  projectTagline?: InputMaybe<Scalars['String']['input']>;
+  projectTagline_contains?: InputMaybe<Scalars['String']['input']>;
+  projectTagline_ends_with?: InputMaybe<Scalars['String']['input']>;
+  projectTagline_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  projectTagline_not?: InputMaybe<Scalars['String']['input']>;
+  projectTagline_not_contains?: InputMaybe<Scalars['String']['input']>;
+  projectTagline_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  projectTagline_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  projectTagline_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  projectTagline_starts_with?: InputMaybe<Scalars['String']['input']>;
   redeemCount?: InputMaybe<Scalars['Int']['input']>;
   redeemCount_gt?: InputMaybe<Scalars['Int']['input']>;
   redeemCount_gte?: InputMaybe<Scalars['Int']['input']>;
@@ -3074,6 +3326,20 @@ export type ProjectFilter = {
   suckerGroupId_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   suckerGroupId_not_starts_with?: InputMaybe<Scalars['String']['input']>;
   suckerGroupId_starts_with?: InputMaybe<Scalars['String']['input']>;
+  tags?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  tags_has?: InputMaybe<Scalars['String']['input']>;
+  tags_not?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  tags_not_has?: InputMaybe<Scalars['String']['input']>;
+  telegram?: InputMaybe<Scalars['String']['input']>;
+  telegram_contains?: InputMaybe<Scalars['String']['input']>;
+  telegram_ends_with?: InputMaybe<Scalars['String']['input']>;
+  telegram_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  telegram_not?: InputMaybe<Scalars['String']['input']>;
+  telegram_not_contains?: InputMaybe<Scalars['String']['input']>;
+  telegram_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  telegram_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  telegram_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  telegram_starts_with?: InputMaybe<Scalars['String']['input']>;
   tokenSupply?: InputMaybe<Scalars['BigInt']['input']>;
   tokenSupply_gt?: InputMaybe<Scalars['BigInt']['input']>;
   tokenSupply_gte?: InputMaybe<Scalars['BigInt']['input']>;
@@ -3082,6 +3348,10 @@ export type ProjectFilter = {
   tokenSupply_lte?: InputMaybe<Scalars['BigInt']['input']>;
   tokenSupply_not?: InputMaybe<Scalars['BigInt']['input']>;
   tokenSupply_not_in?: InputMaybe<Array<InputMaybe<Scalars['BigInt']['input']>>>;
+  tokens?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  tokens_has?: InputMaybe<Scalars['String']['input']>;
+  tokens_not?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  tokens_not_has?: InputMaybe<Scalars['String']['input']>;
   trendingPaymentsCount?: InputMaybe<Scalars['Int']['input']>;
   trendingPaymentsCount_gt?: InputMaybe<Scalars['Int']['input']>;
   trendingPaymentsCount_gte?: InputMaybe<Scalars['Int']['input']>;
@@ -3106,6 +3376,24 @@ export type ProjectFilter = {
   trendingVolume_lte?: InputMaybe<Scalars['BigInt']['input']>;
   trendingVolume_not?: InputMaybe<Scalars['BigInt']['input']>;
   trendingVolume_not_in?: InputMaybe<Array<InputMaybe<Scalars['BigInt']['input']>>>;
+  twitter?: InputMaybe<Scalars['String']['input']>;
+  twitter_contains?: InputMaybe<Scalars['String']['input']>;
+  twitter_ends_with?: InputMaybe<Scalars['String']['input']>;
+  twitter_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  twitter_not?: InputMaybe<Scalars['String']['input']>;
+  twitter_not_contains?: InputMaybe<Scalars['String']['input']>;
+  twitter_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  twitter_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  twitter_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  twitter_starts_with?: InputMaybe<Scalars['String']['input']>;
+  version?: InputMaybe<Scalars['Int']['input']>;
+  version_gt?: InputMaybe<Scalars['Int']['input']>;
+  version_gte?: InputMaybe<Scalars['Int']['input']>;
+  version_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  version_lt?: InputMaybe<Scalars['Int']['input']>;
+  version_lte?: InputMaybe<Scalars['Int']['input']>;
+  version_not?: InputMaybe<Scalars['Int']['input']>;
+  version_not_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
   volume?: InputMaybe<Scalars['BigInt']['input']>;
   volumeUsd?: InputMaybe<Scalars['BigInt']['input']>;
   volumeUsd_gt?: InputMaybe<Scalars['BigInt']['input']>;
@@ -3122,6 +3410,93 @@ export type ProjectFilter = {
   volume_lte?: InputMaybe<Scalars['BigInt']['input']>;
   volume_not?: InputMaybe<Scalars['BigInt']['input']>;
   volume_not_in?: InputMaybe<Array<InputMaybe<Scalars['BigInt']['input']>>>;
+};
+
+export type ProjectMoment = {
+  balance: Scalars['BigInt']['output'];
+  block: Scalars['Int']['output'];
+  chainId: Scalars['Int']['output'];
+  project: Maybe<Project>;
+  projectId: Scalars['Int']['output'];
+  timestamp: Scalars['Int']['output'];
+  trendingScore: Scalars['BigInt']['output'];
+  volume: Scalars['BigInt']['output'];
+  volumeUsd: Scalars['BigInt']['output'];
+};
+
+export type ProjectMomentFilter = {
+  AND?: InputMaybe<Array<InputMaybe<ProjectMomentFilter>>>;
+  OR?: InputMaybe<Array<InputMaybe<ProjectMomentFilter>>>;
+  balance?: InputMaybe<Scalars['BigInt']['input']>;
+  balance_gt?: InputMaybe<Scalars['BigInt']['input']>;
+  balance_gte?: InputMaybe<Scalars['BigInt']['input']>;
+  balance_in?: InputMaybe<Array<InputMaybe<Scalars['BigInt']['input']>>>;
+  balance_lt?: InputMaybe<Scalars['BigInt']['input']>;
+  balance_lte?: InputMaybe<Scalars['BigInt']['input']>;
+  balance_not?: InputMaybe<Scalars['BigInt']['input']>;
+  balance_not_in?: InputMaybe<Array<InputMaybe<Scalars['BigInt']['input']>>>;
+  block?: InputMaybe<Scalars['Int']['input']>;
+  block_gt?: InputMaybe<Scalars['Int']['input']>;
+  block_gte?: InputMaybe<Scalars['Int']['input']>;
+  block_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  block_lt?: InputMaybe<Scalars['Int']['input']>;
+  block_lte?: InputMaybe<Scalars['Int']['input']>;
+  block_not?: InputMaybe<Scalars['Int']['input']>;
+  block_not_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  chainId?: InputMaybe<Scalars['Int']['input']>;
+  chainId_gt?: InputMaybe<Scalars['Int']['input']>;
+  chainId_gte?: InputMaybe<Scalars['Int']['input']>;
+  chainId_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  chainId_lt?: InputMaybe<Scalars['Int']['input']>;
+  chainId_lte?: InputMaybe<Scalars['Int']['input']>;
+  chainId_not?: InputMaybe<Scalars['Int']['input']>;
+  chainId_not_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  projectId?: InputMaybe<Scalars['Int']['input']>;
+  projectId_gt?: InputMaybe<Scalars['Int']['input']>;
+  projectId_gte?: InputMaybe<Scalars['Int']['input']>;
+  projectId_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  projectId_lt?: InputMaybe<Scalars['Int']['input']>;
+  projectId_lte?: InputMaybe<Scalars['Int']['input']>;
+  projectId_not?: InputMaybe<Scalars['Int']['input']>;
+  projectId_not_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  timestamp?: InputMaybe<Scalars['Int']['input']>;
+  timestamp_gt?: InputMaybe<Scalars['Int']['input']>;
+  timestamp_gte?: InputMaybe<Scalars['Int']['input']>;
+  timestamp_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  timestamp_lt?: InputMaybe<Scalars['Int']['input']>;
+  timestamp_lte?: InputMaybe<Scalars['Int']['input']>;
+  timestamp_not?: InputMaybe<Scalars['Int']['input']>;
+  timestamp_not_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  trendingScore?: InputMaybe<Scalars['BigInt']['input']>;
+  trendingScore_gt?: InputMaybe<Scalars['BigInt']['input']>;
+  trendingScore_gte?: InputMaybe<Scalars['BigInt']['input']>;
+  trendingScore_in?: InputMaybe<Array<InputMaybe<Scalars['BigInt']['input']>>>;
+  trendingScore_lt?: InputMaybe<Scalars['BigInt']['input']>;
+  trendingScore_lte?: InputMaybe<Scalars['BigInt']['input']>;
+  trendingScore_not?: InputMaybe<Scalars['BigInt']['input']>;
+  trendingScore_not_in?: InputMaybe<Array<InputMaybe<Scalars['BigInt']['input']>>>;
+  volume?: InputMaybe<Scalars['BigInt']['input']>;
+  volumeUsd?: InputMaybe<Scalars['BigInt']['input']>;
+  volumeUsd_gt?: InputMaybe<Scalars['BigInt']['input']>;
+  volumeUsd_gte?: InputMaybe<Scalars['BigInt']['input']>;
+  volumeUsd_in?: InputMaybe<Array<InputMaybe<Scalars['BigInt']['input']>>>;
+  volumeUsd_lt?: InputMaybe<Scalars['BigInt']['input']>;
+  volumeUsd_lte?: InputMaybe<Scalars['BigInt']['input']>;
+  volumeUsd_not?: InputMaybe<Scalars['BigInt']['input']>;
+  volumeUsd_not_in?: InputMaybe<Array<InputMaybe<Scalars['BigInt']['input']>>>;
+  volume_gt?: InputMaybe<Scalars['BigInt']['input']>;
+  volume_gte?: InputMaybe<Scalars['BigInt']['input']>;
+  volume_in?: InputMaybe<Array<InputMaybe<Scalars['BigInt']['input']>>>;
+  volume_lt?: InputMaybe<Scalars['BigInt']['input']>;
+  volume_lte?: InputMaybe<Scalars['BigInt']['input']>;
+  volume_not?: InputMaybe<Scalars['BigInt']['input']>;
+  volume_not_in?: InputMaybe<Array<InputMaybe<Scalars['BigInt']['input']>>>;
+};
+
+export type ProjectMomentPage = {
+  items: Array<ProjectMoment>;
+  pageInfo: PageInfo;
+  totalCount: Scalars['Int']['output'];
 };
 
 export type ProjectPage = {
@@ -4025,6 +4400,7 @@ export type SuckerGroup = {
   addresses: Array<Scalars['String']['output']>;
   id: Scalars['String']['output'];
   projects: Maybe<ProjectPage>;
+  tokenSupply: Scalars['BigInt']['output'];
 };
 
 
@@ -4058,6 +4434,14 @@ export type SuckerGroupFilter = {
   projects_has?: InputMaybe<Scalars['String']['input']>;
   projects_not?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   projects_not_has?: InputMaybe<Scalars['String']['input']>;
+  tokenSupply?: InputMaybe<Scalars['BigInt']['input']>;
+  tokenSupply_gt?: InputMaybe<Scalars['BigInt']['input']>;
+  tokenSupply_gte?: InputMaybe<Scalars['BigInt']['input']>;
+  tokenSupply_in?: InputMaybe<Array<InputMaybe<Scalars['BigInt']['input']>>>;
+  tokenSupply_lt?: InputMaybe<Scalars['BigInt']['input']>;
+  tokenSupply_lte?: InputMaybe<Scalars['BigInt']['input']>;
+  tokenSupply_not?: InputMaybe<Scalars['BigInt']['input']>;
+  tokenSupply_not_in?: InputMaybe<Array<InputMaybe<Scalars['BigInt']['input']>>>;
 };
 
 export type SuckerGroupPage = {
@@ -4377,6 +4761,13 @@ export type AutoIssueEventsQueryVariables = Exact<{
 
 export type AutoIssueEventsQuery = { autoIssueEvents: { items: Array<{ id: string, projectId: number, stageId: any, beneficiary: string, count: any, caller: string }> } };
 
+export type SuckerGroupQueryVariables = Exact<{
+  id: Scalars['String']['input'];
+}>;
+
+
+export type SuckerGroupQuery = { suckerGroup: { id: string, tokenSupply: any } | null };
+
 
 export const ActivityEventsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"ActivityEvents"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"where"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"activityEventFilter"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"orderBy"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"orderDirection"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"activityEvents"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"where"},"value":{"kind":"Variable","name":{"kind":"Name","value":"where"}}},{"kind":"Argument","name":{"kind":"Name","value":"orderBy"},"value":{"kind":"Variable","name":{"kind":"Name","value":"orderBy"}}},{"kind":"Argument","name":{"kind":"Name","value":"orderDirection"},"value":{"kind":"Variable","name":{"kind":"Name","value":"orderDirection"}}},{"kind":"Argument","name":{"kind":"Name","value":"limit"},"value":{"kind":"IntValue","value":"1000"}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"chainId"}},{"kind":"Field","name":{"kind":"Name","value":"timestamp"}},{"kind":"Field","name":{"kind":"Name","value":"payEvent"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"amount"}},{"kind":"Field","name":{"kind":"Name","value":"beneficiary"}},{"kind":"Field","name":{"kind":"Name","value":"memo"}},{"kind":"Field","name":{"kind":"Name","value":"timestamp"}},{"kind":"Field","name":{"kind":"Name","value":"feeFromProject"}},{"kind":"Field","name":{"kind":"Name","value":"newlyIssuedTokenCount"}},{"kind":"Field","name":{"kind":"Name","value":"from"}},{"kind":"Field","name":{"kind":"Name","value":"txHash"}},{"kind":"Field","name":{"kind":"Name","value":"amountUsd"}},{"kind":"Field","name":{"kind":"Name","value":"caller"}},{"kind":"Field","name":{"kind":"Name","value":"distributionFromProjectId"}},{"kind":"Field","name":{"kind":"Name","value":"projectId"}},{"kind":"Field","name":{"kind":"Name","value":"project"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"projectId"}},{"kind":"Field","name":{"kind":"Name","value":"handle"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"cashOutTokensEvent"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"timestamp"}},{"kind":"Field","name":{"kind":"Name","value":"txHash"}},{"kind":"Field","name":{"kind":"Name","value":"from"}},{"kind":"Field","name":{"kind":"Name","value":"beneficiary"}},{"kind":"Field","name":{"kind":"Name","value":"reclaimAmount"}},{"kind":"Field","name":{"kind":"Name","value":"cashOutCount"}},{"kind":"Field","name":{"kind":"Name","value":"metadata"}},{"kind":"Field","name":{"kind":"Name","value":"project"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"projectId"}},{"kind":"Field","name":{"kind":"Name","value":"handle"}}]}}]}}]}}]}}]}}]} as unknown as DocumentNode<ActivityEventsQuery, ActivityEventsQueryVariables>;
 export const ParticipantsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"Participants"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"where"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"participantFilter"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"orderBy"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"orderDirection"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"participants"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"where"},"value":{"kind":"Variable","name":{"kind":"Name","value":"where"}}},{"kind":"Argument","name":{"kind":"Name","value":"orderBy"},"value":{"kind":"Variable","name":{"kind":"Name","value":"orderBy"}}},{"kind":"Argument","name":{"kind":"Name","value":"orderDirection"},"value":{"kind":"Variable","name":{"kind":"Name","value":"orderDirection"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"totalCount"}},{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"chainId"}},{"kind":"Field","name":{"kind":"Name","value":"address"}},{"kind":"Field","name":{"kind":"Name","value":"volume"}},{"kind":"Field","name":{"kind":"Name","value":"lastPaidTimestamp"}},{"kind":"Field","name":{"kind":"Name","value":"balance"}},{"kind":"Field","name":{"kind":"Name","value":"erc20Balance"}},{"kind":"Field","name":{"kind":"Name","value":"creditBalance"}}]}}]}}]}}]} as unknown as DocumentNode<ParticipantsQuery, ParticipantsQueryVariables>;
@@ -4385,3 +4776,4 @@ export const ProjectsDocument = {"kind":"Document","definitions":[{"kind":"Opera
 export const ProjectCreateEventDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"ProjectCreateEvent"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"where"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"projectCreateEventFilter"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"projectCreateEvents"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"where"},"value":{"kind":"Variable","name":{"kind":"Name","value":"where"}}},{"kind":"Argument","name":{"kind":"Name","value":"limit"},"value":{"kind":"IntValue","value":"1"}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"txHash"}},{"kind":"Field","name":{"kind":"Name","value":"timestamp"}}]}}]}}]}}]} as unknown as DocumentNode<ProjectCreateEventQuery, ProjectCreateEventQueryVariables>;
 export const StoreAutoIssuanceAmountEventsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"StoreAutoIssuanceAmountEvents"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"where"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"storeAutoIssuanceAmountEventFilter"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"orderBy"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"orderDirection"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"storeAutoIssuanceAmountEvents"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"where"},"value":{"kind":"Variable","name":{"kind":"Name","value":"where"}}},{"kind":"Argument","name":{"kind":"Name","value":"orderBy"},"value":{"kind":"Variable","name":{"kind":"Name","value":"orderBy"}}},{"kind":"Argument","name":{"kind":"Name","value":"orderDirection"},"value":{"kind":"Variable","name":{"kind":"Name","value":"orderDirection"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"projectId"}},{"kind":"Field","name":{"kind":"Name","value":"beneficiary"}},{"kind":"Field","name":{"kind":"Name","value":"count"}},{"kind":"Field","name":{"kind":"Name","value":"stageId"}},{"kind":"Field","name":{"kind":"Name","value":"caller"}}]}}]}}]}}]} as unknown as DocumentNode<StoreAutoIssuanceAmountEventsQuery, StoreAutoIssuanceAmountEventsQueryVariables>;
 export const AutoIssueEventsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"AutoIssueEvents"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"where"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"autoIssueEventFilter"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"orderBy"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"orderDirection"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"autoIssueEvents"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"where"},"value":{"kind":"Variable","name":{"kind":"Name","value":"where"}}},{"kind":"Argument","name":{"kind":"Name","value":"orderBy"},"value":{"kind":"Variable","name":{"kind":"Name","value":"orderBy"}}},{"kind":"Argument","name":{"kind":"Name","value":"orderDirection"},"value":{"kind":"Variable","name":{"kind":"Name","value":"orderDirection"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"projectId"}},{"kind":"Field","name":{"kind":"Name","value":"stageId"}},{"kind":"Field","name":{"kind":"Name","value":"beneficiary"}},{"kind":"Field","name":{"kind":"Name","value":"count"}},{"kind":"Field","name":{"kind":"Name","value":"caller"}}]}}]}}]}}]} as unknown as DocumentNode<AutoIssueEventsQuery, AutoIssueEventsQueryVariables>;
+export const SuckerGroupDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"SuckerGroup"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"suckerGroup"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"tokenSupply"}}]}}]}}]} as unknown as DocumentNode<SuckerGroupQuery, SuckerGroupQueryVariables>;
