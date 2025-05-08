@@ -1,32 +1,38 @@
-import { useMemo } from "react";
-import { useSubgraphQuery } from "@/graphql/useSubgraphQuery";
-import {
-  useJBChainId,
-  useJBContractContext,
-  useReadJbRulesetsAllOf
-} from "juice-sdk-react";
+import { MAX_RULESET_COUNT } from "@/app/constants";
 import {
   AutoIssueEventsDocument,
   StoreAutoIssuanceAmountEventsDocument,
 } from "@/generated/graphql";
-import { MAX_RULESET_COUNT } from "@/app/constants";
+import { useBendystrawQuery } from "@/graphql/useBendystrawQuery";
+import {
+  useJBChainId,
+  useJBContractContext,
+  useReadJbRulesetsAllOf,
+} from "juice-sdk-react";
+import { useMemo } from "react";
 
 export function useAutoIssuances() {
   const { projectId } = useJBContractContext();
 
   const chainId = useJBChainId();
 
-  const { data: autoIssuancesData } = useSubgraphQuery(
+  const { data: autoIssuancesData } = useBendystrawQuery(
     StoreAutoIssuanceAmountEventsDocument,
     {
-      where: { revnetId: String(projectId) },
+      where: {
+        projectId: Number(projectId),
+        chainId,
+      },
     }
   );
 
-  const { data: autoIssueEventsQuery } = useSubgraphQuery(
+  const { data: autoIssueEventsQuery } = useBendystrawQuery(
     AutoIssueEventsDocument,
     {
-      where: { revnetId: String(projectId) },
+      where: {
+        projectId: Number(projectId),
+        chainId,
+      },
     }
   );
 
@@ -36,33 +42,35 @@ export function useAutoIssuances() {
   });
 
   const autoIssuances = useMemo(() => {
-    return autoIssuancesData?.storeAutoIssuanceAmountEvents.map((autoIssuance) => {
-      const rulesetIndex =
-        rulesets?.findIndex((r) => String(r.id) === autoIssuance.stageId) || 0;
+    return autoIssuancesData?.storeAutoIssuanceAmountEvents.items.map(
+      (autoIssuance) => {
+        const rulesetIndex =
+          rulesets?.findIndex((r) => String(r.id) === autoIssuance.stageId) ||
+          0;
 
-        const distributed = autoIssueEventsQuery?.autoIssueEvents.find(
-        (event) => {
-          return (
-            event.stageId === autoIssuance.stageId &&
-            event.beneficiary === autoIssuance.beneficiary &&
-            event.count === autoIssuance.count
-          )
+        const distributed = autoIssueEventsQuery?.autoIssueEvents.items.find(
+          (event) => {
+            return (
+              event.stageId === autoIssuance.stageId &&
+              event.beneficiary === autoIssuance.beneficiary &&
+              event.count === autoIssuance.count
+            );
+          }
+        );
+
+        let distributedTxn: string | undefined = undefined;
+        if (distributed) {
+          distributedTxn = distributed.id.split("-")[1];
         }
-      );
-
-      let distributedTxn: string | undefined = undefined;
-      if (distributed) {
-        distributedTxn = distributed.id.split("-")[1];
+        return {
+          ...autoIssuance,
+          startsAt: rulesets?.[rulesetIndex]?.start,
+          stage: (rulesets?.length || 0) - rulesetIndex,
+          distributed: distributed !== undefined,
+          distributedTxn,
+        };
       }
-      return {
-        ...autoIssuance,
-        startsAt: rulesets?.[rulesetIndex]
-        ?.start,
-        stage: (rulesets?.length || 0) - rulesetIndex,
-        distributed: distributed !== undefined,
-        distributedTxn,
-      };
-    });
+    );
   }, [autoIssuancesData, rulesets, autoIssueEventsQuery]);
   return autoIssuances;
 }

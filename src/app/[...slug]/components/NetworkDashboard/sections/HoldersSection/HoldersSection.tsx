@@ -1,64 +1,58 @@
+import { Button } from "@/components/ui/button";
+import { ParticipantsDocument, ProjectDocument } from "@/generated/graphql";
+import { useBendystrawQuery } from "@/graphql/useBendystrawQuery";
+// import { useTotalOutstandingTokens } from "@/hooks/useTotalOutstandingTokens";
+import { formatTokenSymbol } from "@/lib/utils";
 import {
-  OrderDirection,
-  Participant,
-  Participant_OrderBy,
-  ParticipantsDocument,
-} from "@/generated/graphql";
-import { ParticipantsTable } from "../../../ParticipantsTable";
-import {
-  JBChainId,
+  useJBChainId,
   useJBContractContext,
   useJBTokenContext,
 } from "juice-sdk-react";
-import { useTotalOutstandingTokens } from "@/hooks/useTotalOutstandingTokens";
 import { useState } from "react";
-import { ParticipantsPieChart } from "../../../ParticipantsPieChart";
-import { zeroAddress } from "viem";
-import { Button } from "@/components/ui/button";
-import { formatTokenSymbol } from "@/lib/utils";
 import { twJoin } from "tailwind-merge";
-import { YouSection } from "./YouSection";
-import { SplitsSection } from "./SplitsSection";
-import { useOmnichainSubgraphQuery } from "@/graphql/useOmnichainSubgraphQuery";
-import { UserTokenBalanceCard } from "../../../UserTokenBalanceCard/UserTokenBalanceCard";
 import { DistributeReservedTokensButton } from "../../../DistributeReservedTokensButton";
+import { ParticipantsPieChart } from "../../../ParticipantsPieChart";
+import { ParticipantsTable } from "../../../ParticipantsTable";
+import { UserTokenBalanceCard } from "../../../UserTokenBalanceCard/UserTokenBalanceCard";
 import { AutoIssuance } from "./AutoIssuance";
+import { SplitsSection } from "./SplitsSection";
+import { YouSection } from "./YouSection";
 
 type TableView = "you" | "all" | "splits" | "autoissuance";
 
 export function HoldersSection() {
+  const chainId = useJBChainId();
+
   const [participantsView, setParticipantsView] = useState<TableView>("all");
   const [isOpen, setIsOpen] = useState(false);
   const { projectId } = useJBContractContext();
   const { token } = useJBTokenContext();
 
-  const totalOutstandingTokens = useTotalOutstandingTokens();
+  // TODO replace with `useSuckersNativeTokenSurplus`?
+  const totalOutstandingTokens = BigInt(69420);
+  // const totalOutstandingTokens = useTotalOutstandingTokens();
 
-  const participantsQuery = useOmnichainSubgraphQuery(ParticipantsDocument, {
-    orderBy: Participant_OrderBy.balance,
-    orderDirection: OrderDirection.desc,
+  const project = useBendystrawQuery(ProjectDocument, {
+    projectId: Number(projectId),
+    chainId: Number(chainId),
+  });
+
+  const participantsQuery = useBendystrawQuery(ParticipantsDocument, {
+    orderBy: "balance",
+    orderDirection: "desc",
     where: {
-      projectId: Number(projectId),
-      balance_gt: "0", // TODO is this a subgraph bug?
-      wallet_not: zeroAddress,
+      suckerGroupId: project.data?.project?.suckerGroupId,
     },
   });
 
-  const participantsData = participantsQuery.data?.flatMap((d) =>
-    d.value?.response?.participants.map((p) => ({
-      ...p,
-      chainId: d.value.chainId,
-    }))
-  ) as (Participant & { chainId: JBChainId })[];
-
   const participantsDataAggregate =
-    participantsData?.reduce((acc, participant) => {
+    participantsQuery.data?.participants.items?.reduce((acc, participant) => {
       if (!participant) return acc;
-      const existingParticipant = acc[participant.wallet.id];
+      const existingParticipant = acc[participant.address];
       return {
         ...acc,
-        [participant.wallet.id]: {
-          wallet: participant.wallet,
+        [participant.address]: {
+          address: participant.address,
           balance:
             BigInt(existingParticipant?.balance ?? 0) +
             BigInt(participant.balance ?? 0),
@@ -66,7 +60,7 @@ export function HoldersSection() {
             BigInt(existingParticipant?.volume ?? 0) +
             BigInt(participant.volume ?? 0),
           chains: [
-            ...(acc[participant.wallet.id]?.chains ?? []),
+            ...(acc[participant.address]?.chains ?? []),
             participant.chainId,
           ],
         },

@@ -1,6 +1,6 @@
-query ProjectCreateEvent($where: ProjectEvent_filter) {
-  projectEvents(where: $where, first: 1) {
-    projectCreateEvent {
+query ProjectCreateEvent($where: projectCreateEventFilter) {
+  projectCreateEvents(where: $where, limit: 1) {
+    items {
       txHash
       timestamp
     }
