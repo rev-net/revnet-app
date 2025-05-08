@@ -21,6 +21,8 @@ import {
   revLoansAddress,
   calcPrepaidFee,
 } from "revnet-sdk";
+import { PermissionHolderPage } from "@/generated/graphql";
+import { useBendystrawQuery } from "@/graphql/useBendystrawQuery";
 import { FixedInt } from "fpnum";
 import {
   Dialog,
@@ -37,6 +39,7 @@ import { ButtonWithWallet } from "@/components/ButtonWithWallet";
 import { SimulatedLoanCard } from "../SimulatedLoanCard";
 import { LoanFeeChart } from "../LoanFeeChart";
 import { TokenBalanceTable } from "../TokenBalanceTable";
+import { P } from "@upstash/redis/zmscore-CjoCv9kz";
 const FIXEDLOANFEES = 0.035; // TODO: get from onchain?
 
 
@@ -165,13 +168,19 @@ export function BorrowDialog({
       : undefined,
   });
 
-  // --- Permission Check for Borrowing not implemented yet ---
-  const userHasPermission = useHasBorrowPermission({
-    address: address as `0x${string}`,
-    projectId,
-    chainId: cashOutChainId ? Number(cashOutChainId) : undefined,
-    resolvedPermissionsAddress: resolvedPermissionsAddress as `0x${string}`,
+  console.log("revLoansAddress opperatpr", revLoansAddress[Number(cashOutChainId) as JBChainId],);
+  console.log("resolvedPermissionsAddress", resolvedPermissionsAddress);
+// --- GraphQL Permission Query ---
+const { data: permissionsData } = useBendystrawQuery(PermissionHolderPage, {
+    chainId: Number(cashOutChainId),
+    projectId: Number(projectId),
+    account: resolvedPermissionsAddress,
+    operator: revLoansAddress[Number(cashOutChainId) as JBChainId],
+
   });
+console.log("permissionsData", permissionsData);
+const userHasPermission =
+  permissionsData?.permissionsData?.permissions?.includes("BORROW") ?? undefined;
 
   const {
     writeContract,
