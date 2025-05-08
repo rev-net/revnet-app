@@ -19,7 +19,6 @@
  *    - Tracks lifecycle of the borrow transaction UI state (todo radix ui button)
  * */
 import { PropsWithChildren, useEffect, useState } from "react";
-import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { useAccount, useWaitForTransactionReceipt } from "wagmi";
 import { useWalletClient } from "wagmi";
 import { Label } from "@/components/ui/label";
@@ -38,11 +37,9 @@ import {
 import {
   useReadRevLoansBorrowableAmountFrom,
   useReadRevDeployerPermissions,
-  useReadRevLoansTotalCollateralOf,
   useWriteRevLoansBorrowFrom,
-  useReadRevLoansController,
-  useReadRevDeployerHasMintPermissionFor,
   revLoansAddress,
+  calcPrepaidFee,
 } from "revnet-sdk";
 import { FixedInt } from "fpnum";
 import {
@@ -56,10 +53,11 @@ import {
 } from "@/components/ui/dialog";
 import { ChainLogo } from "@/components/ChainLogo";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
-import { LoanTableRow } from "./LoanTableRow";
 import { ButtonWithWallet } from "@/components/ButtonWithWallet";
-import { encodeAbiParameters } from "viem";
-const FIXEDLOANFEES = 0.035; // TODO: get from onchain
+import { SimulatedLoanCard } from "../SimulatedLoanCard";
+import { LoanFeeChart } from "../LoanFeeChart";
+import { TokenBalanceTable } from "../TokenBalanceTable";
+const FIXEDLOANFEES = 0.035; // TODO: get from onchain?
 
 
 function useHasBorrowPermission({
@@ -75,6 +73,7 @@ function useHasBorrowPermission({
 }) {
   const [hasPermission, setHasPermission] = useState<boolean | undefined>();
 
+  // TODO: add from peris snippet
   useEffect(() => {
     async function checkPermission() {
       // Temporarily skipping permission check – always grant
@@ -119,7 +118,6 @@ function useHasBorrowPermission({
   return hasPermission;
 }
 
-
 export function BorrowDialog({
   projectId,
   creditBalance,
@@ -150,13 +148,9 @@ export function BorrowDialog({
   const [ethToWallet, setEthToWallet] = useState(0);
   const [grossBorrowedEth, setGrossBorrowedEth] = useState(0);
   const [borrowStatus, setBorrowStatus] = useState<BorrowState>("idle");
-
   const [cashOutChainId, setCashOutChainId] = useState<string>();
-  // Show/hide fee chart state
   const [showChart, setShowChart] = useState(false);
-  // Show/hide important info section
   const [showInfo, setShowInfo] = useState(false);
-
   const {
     contracts: { primaryNativeTerminal },
   } = useJBContractContext();
@@ -192,27 +186,14 @@ export function BorrowDialog({
       : undefined,
   });
 
-  // --- Permission Check for Borrowing ---
+  // --- Permission Check for Borrowing not implemented yet ---
   const userHasPermission = useHasBorrowPermission({
     address: address as `0x${string}`,
     projectId,
     chainId: cashOutChainId ? Number(cashOutChainId) : undefined,
     resolvedPermissionsAddress: resolvedPermissionsAddress as `0x${string}`,
   });
-  // --- Write and Transaction Hooks for Borrowing ---
-  {/*
-    function borrowFrom(
-    uint256 revnetId,
-    REVLoanSource calldata source,
-    uint256 minBorrowAmount,
-    uint256 collateralCount,
-    address payable beneficiary,
-    uint256 prepaidFeePercent
-)
-    public
-    override
-    returns (uint256 loanId, REVLoan memory);
-  */}
+
   const {
     writeContract,
     isPending: isWriteLoading,
@@ -238,7 +219,7 @@ export function BorrowDialog({
     }
   }, [txHash, isTxLoading, isSuccess]);
 
-  // Auto-clear success status after 5 seconds
+  // Auto-clear success status after 5 seconds. Can we move into the button
   useEffect(() => {
     if (borrowStatus === "success") {
       const timeout = setTimeout(() => setBorrowStatus("idle"), 5000);
@@ -283,6 +264,19 @@ export function BorrowDialog({
       FIXEDLOANFEES
     });
 
+    // --- Insert prepaid fee SDK calculation ---
+    if (borrowableAmountRaw && prepaidPercent) {
+      const monthsToPrepay = parseFloat(prepaidPercent) * 1.2; // Example conversion
+      const feeBpsBigInt = calcPrepaidFee(monthsToPrepay); // SDK returns bps as bigint
+      const feeBps = Number(feeBpsBigInt);
+      const fee = (borrowableAmountRaw * BigInt(feeBps)) / 1000n;
+      console.log("calcPrepaidFee SDK result:", {
+        monthsToPrepay,
+        feeBps,
+        fee: fee.toString(),
+        feeEth: Number(fee) / 1e18,
+      });
+    }
   }, [collateralAmount, userProjectTokenBalance, borrowableAmountRaw]);
 
   // Generate fee curve data with correct repayment logic
@@ -369,39 +363,15 @@ export function BorrowDialog({
         </DialogHeader>
         {/* Main dialog content (inputs, preview, chart, actions) */}
         <div>
-          {/* Left side - Inputs */}
           <div>
             {/* Network selector and collateral input, new layout */}
             <div className="grid w-full gap-1.5">
-              {/* Available Balances Table - restyled */}
-              <div className="mb-5 w-full max-w-md">
-                <span className="text-sm text-black font-medium">Your {tokenSymbol}</span>
-                <div className="mt-1 border border-zinc-200 p-3 bg-zinc-50 rounded-md">
-                  <div className="grid grid-cols-3 gap-3 text-right text-sm font-bold text-zinc-600 mb-1">
-                    <div></div>
-                    <div>Holding ({tokenSymbol})</div>
-                    <div>Borrowable (ETH)</div>
-                  </div>
-                  <div className="flex flex-col gap-2 sm:gap-0">
-                    {balances?.map((balance, index) => (
-                      <LoanTableRow
-                        key={index}
-                        index={index}
-                        revnetId={projectId}
-                        chainId={balance.chainId}
-                        terminalAddress={primaryNativeTerminal.data as `0x${string}`}
-                        // terminalAddress={"0x50C8f58DAa6E92E2a8E4AeC5e530B717B4B1FfB3"}
-                        tokenAddress={"0x000000000000000000000000000000000000EEEe"}
-                        decimals={18}
-                        currency={61166n}
-                        collateralCount={balance.balance.value}
-                        tokenSymbol={tokenSymbol}
-                        // If LoanTableRow uses grid-cols-5, it should be updated to grid-cols-3
-                      />
-                    ))}
-                  </div>
-                </div>
-              </div>
+              <TokenBalanceTable
+                balances={balances}
+                projectId={projectId}
+                tokenSymbol={tokenSymbol}
+                terminalAddress={primaryNativeTerminal.data as `0x${string}`}
+              />
               <div className="grid grid-cols-7 gap-2">
                 <div className="col-span-4">
                   <Label htmlFor="collateral-amount" className="block text-gray-700 text-sm font-bold">
@@ -477,23 +447,14 @@ export function BorrowDialog({
                 </div>
               </div>
             </div>
-            {/* Receipt-style breakdown - always visible, above the Fee Structure Over Time button */}
+
             {collateralAmount && !isNaN(Number(collateralAmount)) && (
-              <div className="mb-2 p-3 bg-zinc-50 rounded-md border border-zinc-200">
-                <h3 className="text-sm font-medium text-zinc-700 mb-1">Simulated Loan</h3>
-                <div className="space-y-1 text-sm text-zinc-600">
-                  <p><span className="font-semibold">{collateralAmount}</span> {tokenSymbol} provided as collateral</p>
-                  <p><span className="font-semibold">3.5%</span> loan processing fee applied</p>
-                  <p><span className="font-semibold">{ethToWallet.toFixed(8)}</span> ETH borrowed</p>
-                  <p><span className="font-semibold">{prepaidPercent}%</span> prepaid interest (fee)</p>
-                  <p><span className="font-semibold">
-                    {(ethToWallet * (1 - parseFloat(prepaidPercent) / 100)).toFixed(8)}
-                  </span> ETH sent to your wallet</p>
-                </div>
-                <p className="text-xs text-zinc-500 mt-1">
-                  (Actual amount may vary slightly.)
-                </p>
-              </div>
+              <SimulatedLoanCard
+                collateralAmount={collateralAmount}
+                tokenSymbol={tokenSymbol}
+                ethToWallet={ethToWallet}
+                prepaidPercent={prepaidPercent}
+              />
             )}
             {/* Fee Structure Over Time toggleable chart */}
             <button
@@ -509,90 +470,17 @@ export function BorrowDialog({
               </span>
             </button>
             {showChart && (
-              <div className="mt-2">
-                {/* Prepaid Fee Slider */}
-                <div className="mt-2 mb-2">
-                  <label className="block text-gray-700 text-sm font-bold mb-2">
-                    Prepaid Fee: {prepaidPercent}%
-                  </label>
-                  <input
-                    type="range"
-                    min="2.5"
-                    max="50"
-                    step="2.5"
-                    value={prepaidPercent}
-                    onChange={(e) => setPrepaidPercent(e.target.value)}
-                    className="w-full"
-                  />
-                  <div className="flex justify-between text-xs text-gray-500">
-                    <span>Less upfront cost</span>
-                    <span>More upfront cost</span>
-                  </div>
-                </div>
-                <div className="h-64">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={feeData}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis
-                        dataKey="year"
-                        label={{ value: "Time (years)", position: "insideBottom", offset: -5 }}
-                        type="number"
-                        domain={[0, 10]}
-                        ticks={[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]}
-                        tickFormatter={(year) => `${year}`}
-                      />
-                      <YAxis
-                        label={{
-                          value: "Total Cost to Repay (ETH)",
-                          angle: -90,
-                          position: "insideLeft",
-                          offset: 0,
-                          style: { textAnchor: "middle" }
-                        }}
-                        domain={[0, (dataMax: number) => dataMax * 1.4]}
-                        tick={false}
-                      />
-                      <Tooltip
-                        formatter={(value: number, name: string, props) => {
-                        const interest = value;
-                        const totalRepay = ethToWallet + interest;
-                        console.log("Tooltip chart point:", {
-                          year: props?.payload?.year,
-                          repayAmount: totalRepay,
-                          interest: interest,
-                          borrowed: ethToWallet
-                        });
-                  return [
-                    `${props?.payload?.year} years`,
-                        `Repay ~${(ethToWallet - interest).toFixed(6)} ETH to reclaim ${collateralAmount} ${tokenSymbol}`,                  ];
-                        }}
-                        labelFormatter={(label: number) => {
-                          const months = Math.round(label * 12);
-                          const years = Math.floor(months / 12);
-                          const remMonths = months % 12;
-                          return `${months} months (${years}y ${remMonths}m)`;
-                        }}
-                      />
-                      <Line
-                        type="monotone"
-                        dataKey="totalCost"
-                        stroke="#71717a"
-                        strokeWidth={2}
-                        dot={false}
-                      />
-                    </LineChart>
-                  </ResponsiveContainer>
-                </div>
-                <p className="text-sm text-gray-600 mt-3 text-center">
-                  Fees increase after{" "}
-                  {displayYears > 0
-                    ? `${displayYears} year${displayYears > 1 ? "s" : ""}${displayMonths > 0 ? ` and ${displayMonths} month${displayMonths > 1 ? "s" : ""}` : ""}`
-                    : `${displayMonths} month${displayMonths > 1 ? "s" : ""}`}
-                </p>
-                <p className="text-xs text-center text-zinc-500 mt-1">
-                  Based on the loan amount after the processing fee: {(grossBorrowedEth || 0).toFixed(6)} ETH
-                </p>
-              </div>
+              <LoanFeeChart
+                prepaidPercent={prepaidPercent}
+                setPrepaidPercent={setPrepaidPercent}
+                feeData={feeData}
+                ethToWallet={ethToWallet}
+                grossBorrowedEth={grossBorrowedEth}
+                collateralAmount={collateralAmount}
+                tokenSymbol={tokenSymbol}
+                displayYears={displayYears}
+                displayMonths={displayMonths}
+              />
             )}
             {/* Important Info toggleable section */}
             <button
