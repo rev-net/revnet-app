@@ -8,7 +8,6 @@ import {
   jbPermissionsAbi,
   NATIVE_TOKEN_DECIMALS,
 } from "juice-sdk-core";
-import { readContract, waitForTransactionReceipt } from "@wagmi/core";
 import {
   JBChainId,
   useJBContractContext,
@@ -21,7 +20,7 @@ import {
   revLoansAddress,
   calcPrepaidFee,
 } from "revnet-sdk";
-import { PermissionHolderPage } from "@/generated/graphql";
+import { HasPermissionDocument } from "@/generated/graphql";
 import { useBendystrawQuery } from "@/graphql/useBendystrawQuery";
 import { FixedInt } from "fpnum";
 import {
@@ -39,7 +38,6 @@ import { ButtonWithWallet } from "@/components/ButtonWithWallet";
 import { SimulatedLoanCard } from "../SimulatedLoanCard";
 import { LoanFeeChart } from "../LoanFeeChart";
 import { TokenBalanceTable } from "../TokenBalanceTable";
-import { P } from "@upstash/redis/zmscore-CjoCv9kz";
 const FIXEDLOANFEES = 0.035; // TODO: get from onchain?
 
 
@@ -48,57 +46,30 @@ function useHasBorrowPermission({
   projectId,
   chainId,
   resolvedPermissionsAddress,
+  skip,
 }: {
   address?: `0x${string}`;
   projectId: bigint;
   chainId?: number;
   resolvedPermissionsAddress?: `0x${string}`;
+  skip?: boolean;
 }) {
-  const [hasPermission, setHasPermission] = useState<boolean | undefined>();
-
-  // TODO: add from peris snippet
-  useEffect(() => {
-    async function checkPermission() {
-      // Temporarily skipping permission check – always grant
-      return;
-      /*
-      if (
-        !address ||
-        !chainId ||
-        !resolvedPermissionsAddress ||
-        !revLoansAddress[chainId as JBChainId]
-      ) {
-        return;
-      }
-
-      try {
-        const result = await readContract({
-          address: resolvedPermissionsAddress,
-          abi: jbPermissionsAbi,
-          functionName: "hasPermission",
-          args: [
-            revLoansAddress[chainId as JBChainId],
-            address,
-            projectId,
-            1,
-            true,
-            true,
-          ],
-          chainId,
-        });
-
-        setHasPermission(result as boolean);
-      } catch (err) {
-        console.error("Permission check failed:", err);
-        setHasPermission(undefined);
-      }
-      */
-    }
-
-    checkPermission();
-  }, [address, chainId, projectId, resolvedPermissionsAddress]);
-
-  return hasPermission;
+  const operator = chainId ? revLoansAddress[chainId as JBChainId] : undefined;
+  const querySkip =
+    skip ||
+    !address ||
+    !projectId ||
+    !chainId ||
+    !resolvedPermissionsAddress ||
+    !operator;
+  const { data } = useBendystrawQuery(HasPermissionDocument, {
+    skip: querySkip,
+    account: address as string,
+    chainId: chainId as number,
+    projectId: Number(projectId),
+    operator: operator as string,
+  });
+  return data?.permissionHolder?.permissions?.includes(1) ?? undefined;
 }
 
 export function BorrowDialog({
@@ -124,6 +95,8 @@ export function BorrowDialog({
     | "waiting-signature"
     | "pending"
     | "success"
+    | "error-permission-denied"
+    | "error-loan-canceled"
     | "error";
 
   const [collateralAmount, setCollateralAmount] = useState("");
@@ -134,6 +107,16 @@ export function BorrowDialog({
   const [cashOutChainId, setCashOutChainId] = useState<string>();
   const [showChart, setShowChart] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
+  const [showingWaitingMessage, setShowingWaitingMessage] = useState(false);
+  // Delayed display of waiting for signature message
+  useEffect(() => {
+    if (borrowStatus === "waiting-signature") {
+      const timeout = setTimeout(() => setShowingWaitingMessage(true), 250);
+      return () => clearTimeout(timeout);
+    } else {
+      setShowingWaitingMessage(false);
+    }
+  }, [borrowStatus]);
   const {
     contracts: { primaryNativeTerminal },
   } = useJBContractContext();
@@ -168,19 +151,6 @@ export function BorrowDialog({
       : undefined,
   });
 
-  console.log("revLoansAddress opperatpr", revLoansAddress[Number(cashOutChainId) as JBChainId],);
-  console.log("resolvedPermissionsAddress", resolvedPermissionsAddress);
-// --- GraphQL Permission Query ---
-const { data: permissionsData } = useBendystrawQuery(PermissionHolderPage, {
-    chainId: Number(cashOutChainId),
-    projectId: Number(projectId),
-    account: resolvedPermissionsAddress,
-    operator: revLoansAddress[Number(cashOutChainId) as JBChainId],
-
-  });
-console.log("permissionsData", permissionsData);
-const userHasPermission =
-  permissionsData?.permissionsData?.permissions?.includes("BORROW") ?? undefined;
 
   const {
     writeContract,
@@ -207,9 +177,9 @@ const userHasPermission =
     }
   }, [txHash, isTxLoading, isSuccess]);
 
-  // Auto-clear success status after 5 seconds. Can we move into the button
+  // Auto-clear status after 5 seconds for terminal states
   useEffect(() => {
-    if (borrowStatus === "success") {
+    if (["success", "error", "error-permission-denied", "error-loan-canceled"].includes(borrowStatus)) {
       const timeout = setTimeout(() => setBorrowStatus("idle"), 5000);
       return () => clearTimeout(timeout);
     }
@@ -309,6 +279,15 @@ const userHasPermission =
       setCashOutChainId(undefined);
     }
   };
+
+  // Move useHasBorrowPermission to top-level of component
+  const userHasPermission = useHasBorrowPermission({
+    address: address as `0x${string}`,
+    projectId,
+    chainId: cashOutChainId ? Number(cashOutChainId) : undefined,
+    resolvedPermissionsAddress: resolvedPermissionsAddress as `0x${string}`,
+    skip: false,
+  });
 
   return (
     <Dialog onOpenChange={handleOpenChange}>
@@ -473,10 +452,12 @@ const userHasPermission =
                   {borrowStatus === "checking" && "Checking permissions..."}
                   {borrowStatus === "granting-permission" && "Granting permission..."}
                   {borrowStatus === "permission-granted" && "Permission granted. Borrowing..."}
-                  {borrowStatus === "waiting-signature" && "Waiting for wallet confirmation..."}
+                  {showingWaitingMessage && "Waiting for wallet confirmation..."}
                   {borrowStatus === "pending" && "Borrowing..."}
                   {borrowStatus === "success" && "Loan successfully issued!"}
-                  {borrowStatus === "error" && "Something went wrong or was canceled."}
+                  {borrowStatus === "error-permission-denied" && "Permission was not granted. Please approve to proceed."}
+                  {borrowStatus === "error-loan-canceled" && "Loan creation was canceled."}
+                  {borrowStatus === "error" && "Something went wrong."}
                 </p>
               )}
             </div>
@@ -502,27 +483,33 @@ const userHasPermission =
                   const feeBasisPoints = Math.round(parseFloat(prepaidPercent) * 10);
                   if (!userHasPermission) {
                     setBorrowStatus("granting-permission");
-                    await walletClient.writeContract({
-                      account: address,
-                      address: resolvedPermissionsAddress as `0x${string}`,
-                      abi: jbPermissionsAbi,
-                      functionName: "setPermissionsFor",
-                      args: [
-                        address as `0x${string}`,
-                        {
-                          operator: revLoansAddress[Number(cashOutChainId) as JBChainId],
-                          projectId,
-                          permissionIds: [1],
-                        },
-                      ],
-                    });
-                    setBorrowStatus("permission-granted");
+                    try {
+                      await walletClient.writeContract({
+                        account: address,
+                        address: resolvedPermissionsAddress as `0x${string}`,
+                        abi: jbPermissionsAbi,
+                        functionName: "setPermissionsFor",
+                        args: [
+                          address as `0x${string}`,
+                          {
+                            operator: revLoansAddress[Number(cashOutChainId) as JBChainId],
+                            projectId,
+                            permissionIds: [1],
+                          },
+                        ],
+                      });
+                      setBorrowStatus("permission-granted");
+                    } catch (err) {
+                      setBorrowStatus("error-permission-denied");
+                      setTimeout(() => setBorrowStatus("idle"), 5000);
+                      return;
+                    }
                   } else {
                     setBorrowStatus("permission-granted");
                   }
 
                   const collateralBigInt = BigInt(Math.floor(Number(collateralAmount) * 1e18));
-                   const args = [
+                  const args = [
                     projectId,
                     {
                       token: "0x000000000000000000000000000000000000EEEe", // get from terminals base token
@@ -540,8 +527,8 @@ const userHasPermission =
                     return;
                   }
 
-                  setBorrowStatus("waiting-signature");
                   try {
+                    setBorrowStatus("waiting-signature");
                     await writeContract({
                       chainId: Number(cashOutChainId) as JBChainId,
                       args,
@@ -549,7 +536,8 @@ const userHasPermission =
                     // setBorrowStatus("pending"); // REMOVED: now managed by useEffect
                   } catch (err) {
                     console.warn("User rejected or tx failed", err);
-                    setBorrowStatus("error");
+                    setBorrowStatus("error-loan-canceled");
+                    setTimeout(() => setBorrowStatus("idle"), 5000);
                     return;
                   }
                 } catch (err) {
