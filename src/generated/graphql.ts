@@ -38,6 +38,8 @@ export type Query = {
   addToBalanceEvents: AddToBalanceEventPage;
   autoIssueEvent: Maybe<AutoIssueEvent>;
   autoIssueEvents: AutoIssueEventPage;
+  borrowLoanEvent: Maybe<BorrowLoanEvent>;
+  borrowLoanEvents: BorrowLoanEventPage;
   burnEvent: Maybe<BurnEvent>;
   burnEvents: BurnEventPage;
   cashOutTokensEvent: Maybe<CashOutTokensEvent>;
@@ -46,6 +48,10 @@ export type Query = {
   decorateBannyEvents: DecorateBannyEventPage;
   deployErc20Event: Maybe<DeployErc20Event>;
   deployErc20Events: DeployErc20EventPage;
+  liquidateLoanEvent: Maybe<LiquidateLoanEvent>;
+  liquidateLoanEvents: LiquidateLoanEventPage;
+  loan: Maybe<Loan>;
+  loans: LoanPage;
   mintNftEvent: Maybe<MintNftEvent>;
   mintNftEvents: MintNftEventPage;
   mintTokensEvent: Maybe<MintTokensEvent>;
@@ -70,6 +76,10 @@ export type Query = {
   projectMoment: Maybe<ProjectMoment>;
   projectMoments: ProjectMomentPage;
   projects: ProjectPage;
+  reallocateLoanEvent: Maybe<ReallocateLoanEvent>;
+  reallocateLoanEvents: ReallocateLoanEventPage;
+  repayLoanEvent: Maybe<RepayLoanEvent>;
+  repayLoanEvents: RepayLoanEventPage;
   sendPayoutToSplitEvent: Maybe<SendPayoutToSplitEvent>;
   sendPayoutToSplitEvents: SendPayoutToSplitEventPage;
   sendPayoutsEvent: Maybe<SendPayoutsEvent>;
@@ -138,6 +148,21 @@ export type QueryAutoIssueEventsArgs = {
 };
 
 
+export type QueryBorrowLoanEventArgs = {
+  id: Scalars['String']['input'];
+};
+
+
+export type QueryBorrowLoanEventsArgs = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<Scalars['String']['input']>;
+  orderDirection?: InputMaybe<Scalars['String']['input']>;
+  where?: InputMaybe<BorrowLoanEventFilter>;
+};
+
+
 export type QueryBurnEventArgs = {
   id: Scalars['String']['input'];
 };
@@ -195,6 +220,37 @@ export type QueryDeployErc20EventsArgs = {
   orderBy?: InputMaybe<Scalars['String']['input']>;
   orderDirection?: InputMaybe<Scalars['String']['input']>;
   where?: InputMaybe<DeployErc20EventFilter>;
+};
+
+
+export type QueryLiquidateLoanEventArgs = {
+  id: Scalars['String']['input'];
+};
+
+
+export type QueryLiquidateLoanEventsArgs = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<Scalars['String']['input']>;
+  orderDirection?: InputMaybe<Scalars['String']['input']>;
+  where?: InputMaybe<LiquidateLoanEventFilter>;
+};
+
+
+export type QueryLoanArgs = {
+  chainId: Scalars['Float']['input'];
+  id: Scalars['BigInt']['input'];
+};
+
+
+export type QueryLoansArgs = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<Scalars['String']['input']>;
+  orderDirection?: InputMaybe<Scalars['String']['input']>;
+  where?: InputMaybe<LoanFilter>;
 };
 
 
@@ -393,6 +449,36 @@ export type QueryProjectsArgs = {
 };
 
 
+export type QueryReallocateLoanEventArgs = {
+  id: Scalars['String']['input'];
+};
+
+
+export type QueryReallocateLoanEventsArgs = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<Scalars['String']['input']>;
+  orderDirection?: InputMaybe<Scalars['String']['input']>;
+  where?: InputMaybe<ReallocateLoanEventFilter>;
+};
+
+
+export type QueryRepayLoanEventArgs = {
+  id: Scalars['String']['input'];
+};
+
+
+export type QueryRepayLoanEventsArgs = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<Scalars['String']['input']>;
+  orderDirection?: InputMaybe<Scalars['String']['input']>;
+  where?: InputMaybe<RepayLoanEventFilter>;
+};
+
+
 export type QuerySendPayoutToSplitEventArgs = {
   id: Scalars['String']['input'];
 };
@@ -547,6 +633,7 @@ export type QueryWalletsArgs = {
 export type ActivityEvent = {
   addToBalanceEvent: Maybe<AddToBalanceEvent>;
   autoIssueEvent: Maybe<AutoIssueEvent>;
+  borrowLoanEvent: Maybe<BorrowLoanEvent>;
   burnEvent: Maybe<BurnEvent>;
   cashOutTokensEvent: Maybe<CashOutTokensEvent>;
   chainId: Scalars['Int']['output'];
@@ -554,11 +641,14 @@ export type ActivityEvent = {
   deployErc20Event: Maybe<DeployErc20Event>;
   from: Scalars['String']['output'];
   id: Scalars['String']['output'];
+  liquidateLoanEvent: Maybe<LiquidateLoanEvent>;
   mintNftEvent: Maybe<MintNftEvent>;
   mintTokensEvent: Maybe<MintTokensEvent>;
   payEvent: Maybe<PayEvent>;
   projectCreateEvent: Maybe<ProjectCreateEvent>;
   projectId: Scalars['Int']['output'];
+  reallocateLoanEvent: Maybe<ReallocateLoanEvent>;
+  repayLoanEvent: Maybe<RepayLoanEvent>;
   sendPayoutToSplitEvent: Maybe<SendPayoutToSplitEvent>;
   sendPayoutsEvent: Maybe<SendPayoutsEvent>;
   sendReservedTokensToSplitEvent: Maybe<SendReservedTokensToSplitEvent>;
@@ -593,6 +683,16 @@ export type ActivityEventFilter = {
   autoIssueEvent_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   autoIssueEvent_not_starts_with?: InputMaybe<Scalars['String']['input']>;
   autoIssueEvent_starts_with?: InputMaybe<Scalars['String']['input']>;
+  borrowLoanEvent?: InputMaybe<Scalars['String']['input']>;
+  borrowLoanEvent_contains?: InputMaybe<Scalars['String']['input']>;
+  borrowLoanEvent_ends_with?: InputMaybe<Scalars['String']['input']>;
+  borrowLoanEvent_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  borrowLoanEvent_not?: InputMaybe<Scalars['String']['input']>;
+  borrowLoanEvent_not_contains?: InputMaybe<Scalars['String']['input']>;
+  borrowLoanEvent_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  borrowLoanEvent_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  borrowLoanEvent_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  borrowLoanEvent_starts_with?: InputMaybe<Scalars['String']['input']>;
   burnEvent?: InputMaybe<Scalars['String']['input']>;
   burnEvent_contains?: InputMaybe<Scalars['String']['input']>;
   burnEvent_ends_with?: InputMaybe<Scalars['String']['input']>;
@@ -661,6 +761,16 @@ export type ActivityEventFilter = {
   id_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   id_not_starts_with?: InputMaybe<Scalars['String']['input']>;
   id_starts_with?: InputMaybe<Scalars['String']['input']>;
+  liquidateLoanEvent?: InputMaybe<Scalars['String']['input']>;
+  liquidateLoanEvent_contains?: InputMaybe<Scalars['String']['input']>;
+  liquidateLoanEvent_ends_with?: InputMaybe<Scalars['String']['input']>;
+  liquidateLoanEvent_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  liquidateLoanEvent_not?: InputMaybe<Scalars['String']['input']>;
+  liquidateLoanEvent_not_contains?: InputMaybe<Scalars['String']['input']>;
+  liquidateLoanEvent_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  liquidateLoanEvent_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  liquidateLoanEvent_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  liquidateLoanEvent_starts_with?: InputMaybe<Scalars['String']['input']>;
   mintNftEvent?: InputMaybe<Scalars['String']['input']>;
   mintNftEvent_contains?: InputMaybe<Scalars['String']['input']>;
   mintNftEvent_ends_with?: InputMaybe<Scalars['String']['input']>;
@@ -709,6 +819,26 @@ export type ActivityEventFilter = {
   projectId_lte?: InputMaybe<Scalars['Int']['input']>;
   projectId_not?: InputMaybe<Scalars['Int']['input']>;
   projectId_not_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  reallocateLoanEvent?: InputMaybe<Scalars['String']['input']>;
+  reallocateLoanEvent_contains?: InputMaybe<Scalars['String']['input']>;
+  reallocateLoanEvent_ends_with?: InputMaybe<Scalars['String']['input']>;
+  reallocateLoanEvent_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  reallocateLoanEvent_not?: InputMaybe<Scalars['String']['input']>;
+  reallocateLoanEvent_not_contains?: InputMaybe<Scalars['String']['input']>;
+  reallocateLoanEvent_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  reallocateLoanEvent_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  reallocateLoanEvent_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  reallocateLoanEvent_starts_with?: InputMaybe<Scalars['String']['input']>;
+  repayLoanEvent?: InputMaybe<Scalars['String']['input']>;
+  repayLoanEvent_contains?: InputMaybe<Scalars['String']['input']>;
+  repayLoanEvent_ends_with?: InputMaybe<Scalars['String']['input']>;
+  repayLoanEvent_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  repayLoanEvent_not?: InputMaybe<Scalars['String']['input']>;
+  repayLoanEvent_not_contains?: InputMaybe<Scalars['String']['input']>;
+  repayLoanEvent_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  repayLoanEvent_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  repayLoanEvent_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  repayLoanEvent_starts_with?: InputMaybe<Scalars['String']['input']>;
   sendPayoutToSplitEvent?: InputMaybe<Scalars['String']['input']>;
   sendPayoutToSplitEvent_contains?: InputMaybe<Scalars['String']['input']>;
   sendPayoutToSplitEvent_ends_with?: InputMaybe<Scalars['String']['input']>;
@@ -1050,6 +1180,179 @@ export type AutoIssueEventFilter = {
 
 export type AutoIssueEventPage = {
   items: Array<AutoIssueEvent>;
+  pageInfo: PageInfo;
+  totalCount: Scalars['Int']['output'];
+};
+
+export type BorrowLoanEvent = {
+  beneficiary: Scalars['String']['output'];
+  borrowAmount: Scalars['BigInt']['output'];
+  caller: Scalars['String']['output'];
+  chainId: Scalars['Int']['output'];
+  collateral: Scalars['BigInt']['output'];
+  from: Scalars['String']['output'];
+  id: Scalars['String']['output'];
+  logIndex: Scalars['Int']['output'];
+  prepaidDuration: Scalars['Int']['output'];
+  prepaidFeePercent: Scalars['Int']['output'];
+  project: Maybe<Project>;
+  projectId: Scalars['Int']['output'];
+  sourceFeeAmount: Scalars['BigInt']['output'];
+  terminal: Scalars['String']['output'];
+  timestamp: Scalars['Int']['output'];
+  token: Scalars['String']['output'];
+  txHash: Scalars['String']['output'];
+};
+
+export type BorrowLoanEventFilter = {
+  AND?: InputMaybe<Array<InputMaybe<BorrowLoanEventFilter>>>;
+  OR?: InputMaybe<Array<InputMaybe<BorrowLoanEventFilter>>>;
+  beneficiary?: InputMaybe<Scalars['String']['input']>;
+  beneficiary_contains?: InputMaybe<Scalars['String']['input']>;
+  beneficiary_ends_with?: InputMaybe<Scalars['String']['input']>;
+  beneficiary_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  beneficiary_not?: InputMaybe<Scalars['String']['input']>;
+  beneficiary_not_contains?: InputMaybe<Scalars['String']['input']>;
+  beneficiary_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  beneficiary_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  beneficiary_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  beneficiary_starts_with?: InputMaybe<Scalars['String']['input']>;
+  borrowAmount?: InputMaybe<Scalars['BigInt']['input']>;
+  borrowAmount_gt?: InputMaybe<Scalars['BigInt']['input']>;
+  borrowAmount_gte?: InputMaybe<Scalars['BigInt']['input']>;
+  borrowAmount_in?: InputMaybe<Array<InputMaybe<Scalars['BigInt']['input']>>>;
+  borrowAmount_lt?: InputMaybe<Scalars['BigInt']['input']>;
+  borrowAmount_lte?: InputMaybe<Scalars['BigInt']['input']>;
+  borrowAmount_not?: InputMaybe<Scalars['BigInt']['input']>;
+  borrowAmount_not_in?: InputMaybe<Array<InputMaybe<Scalars['BigInt']['input']>>>;
+  caller?: InputMaybe<Scalars['String']['input']>;
+  caller_contains?: InputMaybe<Scalars['String']['input']>;
+  caller_ends_with?: InputMaybe<Scalars['String']['input']>;
+  caller_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  caller_not?: InputMaybe<Scalars['String']['input']>;
+  caller_not_contains?: InputMaybe<Scalars['String']['input']>;
+  caller_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  caller_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  caller_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  caller_starts_with?: InputMaybe<Scalars['String']['input']>;
+  chainId?: InputMaybe<Scalars['Int']['input']>;
+  chainId_gt?: InputMaybe<Scalars['Int']['input']>;
+  chainId_gte?: InputMaybe<Scalars['Int']['input']>;
+  chainId_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  chainId_lt?: InputMaybe<Scalars['Int']['input']>;
+  chainId_lte?: InputMaybe<Scalars['Int']['input']>;
+  chainId_not?: InputMaybe<Scalars['Int']['input']>;
+  chainId_not_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  collateral?: InputMaybe<Scalars['BigInt']['input']>;
+  collateral_gt?: InputMaybe<Scalars['BigInt']['input']>;
+  collateral_gte?: InputMaybe<Scalars['BigInt']['input']>;
+  collateral_in?: InputMaybe<Array<InputMaybe<Scalars['BigInt']['input']>>>;
+  collateral_lt?: InputMaybe<Scalars['BigInt']['input']>;
+  collateral_lte?: InputMaybe<Scalars['BigInt']['input']>;
+  collateral_not?: InputMaybe<Scalars['BigInt']['input']>;
+  collateral_not_in?: InputMaybe<Array<InputMaybe<Scalars['BigInt']['input']>>>;
+  from?: InputMaybe<Scalars['String']['input']>;
+  from_contains?: InputMaybe<Scalars['String']['input']>;
+  from_ends_with?: InputMaybe<Scalars['String']['input']>;
+  from_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  from_not?: InputMaybe<Scalars['String']['input']>;
+  from_not_contains?: InputMaybe<Scalars['String']['input']>;
+  from_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  from_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  from_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  from_starts_with?: InputMaybe<Scalars['String']['input']>;
+  id?: InputMaybe<Scalars['String']['input']>;
+  id_contains?: InputMaybe<Scalars['String']['input']>;
+  id_ends_with?: InputMaybe<Scalars['String']['input']>;
+  id_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  id_not?: InputMaybe<Scalars['String']['input']>;
+  id_not_contains?: InputMaybe<Scalars['String']['input']>;
+  id_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  id_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  id_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  id_starts_with?: InputMaybe<Scalars['String']['input']>;
+  logIndex?: InputMaybe<Scalars['Int']['input']>;
+  logIndex_gt?: InputMaybe<Scalars['Int']['input']>;
+  logIndex_gte?: InputMaybe<Scalars['Int']['input']>;
+  logIndex_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  logIndex_lt?: InputMaybe<Scalars['Int']['input']>;
+  logIndex_lte?: InputMaybe<Scalars['Int']['input']>;
+  logIndex_not?: InputMaybe<Scalars['Int']['input']>;
+  logIndex_not_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  prepaidDuration?: InputMaybe<Scalars['Int']['input']>;
+  prepaidDuration_gt?: InputMaybe<Scalars['Int']['input']>;
+  prepaidDuration_gte?: InputMaybe<Scalars['Int']['input']>;
+  prepaidDuration_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  prepaidDuration_lt?: InputMaybe<Scalars['Int']['input']>;
+  prepaidDuration_lte?: InputMaybe<Scalars['Int']['input']>;
+  prepaidDuration_not?: InputMaybe<Scalars['Int']['input']>;
+  prepaidDuration_not_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  prepaidFeePercent?: InputMaybe<Scalars['Int']['input']>;
+  prepaidFeePercent_gt?: InputMaybe<Scalars['Int']['input']>;
+  prepaidFeePercent_gte?: InputMaybe<Scalars['Int']['input']>;
+  prepaidFeePercent_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  prepaidFeePercent_lt?: InputMaybe<Scalars['Int']['input']>;
+  prepaidFeePercent_lte?: InputMaybe<Scalars['Int']['input']>;
+  prepaidFeePercent_not?: InputMaybe<Scalars['Int']['input']>;
+  prepaidFeePercent_not_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  projectId?: InputMaybe<Scalars['Int']['input']>;
+  projectId_gt?: InputMaybe<Scalars['Int']['input']>;
+  projectId_gte?: InputMaybe<Scalars['Int']['input']>;
+  projectId_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  projectId_lt?: InputMaybe<Scalars['Int']['input']>;
+  projectId_lte?: InputMaybe<Scalars['Int']['input']>;
+  projectId_not?: InputMaybe<Scalars['Int']['input']>;
+  projectId_not_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  sourceFeeAmount?: InputMaybe<Scalars['BigInt']['input']>;
+  sourceFeeAmount_gt?: InputMaybe<Scalars['BigInt']['input']>;
+  sourceFeeAmount_gte?: InputMaybe<Scalars['BigInt']['input']>;
+  sourceFeeAmount_in?: InputMaybe<Array<InputMaybe<Scalars['BigInt']['input']>>>;
+  sourceFeeAmount_lt?: InputMaybe<Scalars['BigInt']['input']>;
+  sourceFeeAmount_lte?: InputMaybe<Scalars['BigInt']['input']>;
+  sourceFeeAmount_not?: InputMaybe<Scalars['BigInt']['input']>;
+  sourceFeeAmount_not_in?: InputMaybe<Array<InputMaybe<Scalars['BigInt']['input']>>>;
+  terminal?: InputMaybe<Scalars['String']['input']>;
+  terminal_contains?: InputMaybe<Scalars['String']['input']>;
+  terminal_ends_with?: InputMaybe<Scalars['String']['input']>;
+  terminal_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  terminal_not?: InputMaybe<Scalars['String']['input']>;
+  terminal_not_contains?: InputMaybe<Scalars['String']['input']>;
+  terminal_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  terminal_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  terminal_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  terminal_starts_with?: InputMaybe<Scalars['String']['input']>;
+  timestamp?: InputMaybe<Scalars['Int']['input']>;
+  timestamp_gt?: InputMaybe<Scalars['Int']['input']>;
+  timestamp_gte?: InputMaybe<Scalars['Int']['input']>;
+  timestamp_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  timestamp_lt?: InputMaybe<Scalars['Int']['input']>;
+  timestamp_lte?: InputMaybe<Scalars['Int']['input']>;
+  timestamp_not?: InputMaybe<Scalars['Int']['input']>;
+  timestamp_not_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  token?: InputMaybe<Scalars['String']['input']>;
+  token_contains?: InputMaybe<Scalars['String']['input']>;
+  token_ends_with?: InputMaybe<Scalars['String']['input']>;
+  token_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  token_not?: InputMaybe<Scalars['String']['input']>;
+  token_not_contains?: InputMaybe<Scalars['String']['input']>;
+  token_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  token_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  token_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  token_starts_with?: InputMaybe<Scalars['String']['input']>;
+  txHash?: InputMaybe<Scalars['String']['input']>;
+  txHash_contains?: InputMaybe<Scalars['String']['input']>;
+  txHash_ends_with?: InputMaybe<Scalars['String']['input']>;
+  txHash_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  txHash_not?: InputMaybe<Scalars['String']['input']>;
+  txHash_not_contains?: InputMaybe<Scalars['String']['input']>;
+  txHash_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  txHash_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  txHash_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  txHash_starts_with?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type BorrowLoanEventPage = {
+  items: Array<BorrowLoanEvent>;
   pageInfo: PageInfo;
   totalCount: Scalars['Int']['output'];
 };
@@ -1583,6 +1886,270 @@ export type DeployErc20EventFilter = {
 
 export type DeployErc20EventPage = {
   items: Array<DeployErc20Event>;
+  pageInfo: PageInfo;
+  totalCount: Scalars['Int']['output'];
+};
+
+export type LiquidateLoanEvent = {
+  borrowAmount: Scalars['BigInt']['output'];
+  caller: Scalars['String']['output'];
+  chainId: Scalars['Int']['output'];
+  collateral: Scalars['BigInt']['output'];
+  from: Scalars['String']['output'];
+  id: Scalars['String']['output'];
+  logIndex: Scalars['Int']['output'];
+  project: Maybe<Project>;
+  projectId: Scalars['Int']['output'];
+  timestamp: Scalars['Int']['output'];
+  txHash: Scalars['String']['output'];
+};
+
+export type LiquidateLoanEventFilter = {
+  AND?: InputMaybe<Array<InputMaybe<LiquidateLoanEventFilter>>>;
+  OR?: InputMaybe<Array<InputMaybe<LiquidateLoanEventFilter>>>;
+  borrowAmount?: InputMaybe<Scalars['BigInt']['input']>;
+  borrowAmount_gt?: InputMaybe<Scalars['BigInt']['input']>;
+  borrowAmount_gte?: InputMaybe<Scalars['BigInt']['input']>;
+  borrowAmount_in?: InputMaybe<Array<InputMaybe<Scalars['BigInt']['input']>>>;
+  borrowAmount_lt?: InputMaybe<Scalars['BigInt']['input']>;
+  borrowAmount_lte?: InputMaybe<Scalars['BigInt']['input']>;
+  borrowAmount_not?: InputMaybe<Scalars['BigInt']['input']>;
+  borrowAmount_not_in?: InputMaybe<Array<InputMaybe<Scalars['BigInt']['input']>>>;
+  caller?: InputMaybe<Scalars['String']['input']>;
+  caller_contains?: InputMaybe<Scalars['String']['input']>;
+  caller_ends_with?: InputMaybe<Scalars['String']['input']>;
+  caller_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  caller_not?: InputMaybe<Scalars['String']['input']>;
+  caller_not_contains?: InputMaybe<Scalars['String']['input']>;
+  caller_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  caller_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  caller_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  caller_starts_with?: InputMaybe<Scalars['String']['input']>;
+  chainId?: InputMaybe<Scalars['Int']['input']>;
+  chainId_gt?: InputMaybe<Scalars['Int']['input']>;
+  chainId_gte?: InputMaybe<Scalars['Int']['input']>;
+  chainId_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  chainId_lt?: InputMaybe<Scalars['Int']['input']>;
+  chainId_lte?: InputMaybe<Scalars['Int']['input']>;
+  chainId_not?: InputMaybe<Scalars['Int']['input']>;
+  chainId_not_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  collateral?: InputMaybe<Scalars['BigInt']['input']>;
+  collateral_gt?: InputMaybe<Scalars['BigInt']['input']>;
+  collateral_gte?: InputMaybe<Scalars['BigInt']['input']>;
+  collateral_in?: InputMaybe<Array<InputMaybe<Scalars['BigInt']['input']>>>;
+  collateral_lt?: InputMaybe<Scalars['BigInt']['input']>;
+  collateral_lte?: InputMaybe<Scalars['BigInt']['input']>;
+  collateral_not?: InputMaybe<Scalars['BigInt']['input']>;
+  collateral_not_in?: InputMaybe<Array<InputMaybe<Scalars['BigInt']['input']>>>;
+  from?: InputMaybe<Scalars['String']['input']>;
+  from_contains?: InputMaybe<Scalars['String']['input']>;
+  from_ends_with?: InputMaybe<Scalars['String']['input']>;
+  from_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  from_not?: InputMaybe<Scalars['String']['input']>;
+  from_not_contains?: InputMaybe<Scalars['String']['input']>;
+  from_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  from_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  from_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  from_starts_with?: InputMaybe<Scalars['String']['input']>;
+  id?: InputMaybe<Scalars['String']['input']>;
+  id_contains?: InputMaybe<Scalars['String']['input']>;
+  id_ends_with?: InputMaybe<Scalars['String']['input']>;
+  id_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  id_not?: InputMaybe<Scalars['String']['input']>;
+  id_not_contains?: InputMaybe<Scalars['String']['input']>;
+  id_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  id_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  id_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  id_starts_with?: InputMaybe<Scalars['String']['input']>;
+  logIndex?: InputMaybe<Scalars['Int']['input']>;
+  logIndex_gt?: InputMaybe<Scalars['Int']['input']>;
+  logIndex_gte?: InputMaybe<Scalars['Int']['input']>;
+  logIndex_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  logIndex_lt?: InputMaybe<Scalars['Int']['input']>;
+  logIndex_lte?: InputMaybe<Scalars['Int']['input']>;
+  logIndex_not?: InputMaybe<Scalars['Int']['input']>;
+  logIndex_not_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  projectId?: InputMaybe<Scalars['Int']['input']>;
+  projectId_gt?: InputMaybe<Scalars['Int']['input']>;
+  projectId_gte?: InputMaybe<Scalars['Int']['input']>;
+  projectId_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  projectId_lt?: InputMaybe<Scalars['Int']['input']>;
+  projectId_lte?: InputMaybe<Scalars['Int']['input']>;
+  projectId_not?: InputMaybe<Scalars['Int']['input']>;
+  projectId_not_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  timestamp?: InputMaybe<Scalars['Int']['input']>;
+  timestamp_gt?: InputMaybe<Scalars['Int']['input']>;
+  timestamp_gte?: InputMaybe<Scalars['Int']['input']>;
+  timestamp_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  timestamp_lt?: InputMaybe<Scalars['Int']['input']>;
+  timestamp_lte?: InputMaybe<Scalars['Int']['input']>;
+  timestamp_not?: InputMaybe<Scalars['Int']['input']>;
+  timestamp_not_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  txHash?: InputMaybe<Scalars['String']['input']>;
+  txHash_contains?: InputMaybe<Scalars['String']['input']>;
+  txHash_ends_with?: InputMaybe<Scalars['String']['input']>;
+  txHash_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  txHash_not?: InputMaybe<Scalars['String']['input']>;
+  txHash_not_contains?: InputMaybe<Scalars['String']['input']>;
+  txHash_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  txHash_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  txHash_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  txHash_starts_with?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type LiquidateLoanEventPage = {
+  items: Array<LiquidateLoanEvent>;
+  pageInfo: PageInfo;
+  totalCount: Scalars['Int']['output'];
+};
+
+export type Loan = {
+  beneficiary: Scalars['String']['output'];
+  borrowAmount: Scalars['BigInt']['output'];
+  chainId: Scalars['Int']['output'];
+  collateral: Scalars['BigInt']['output'];
+  createdAt: Scalars['Int']['output'];
+  id: Scalars['BigInt']['output'];
+  owner: Scalars['String']['output'];
+  prepaidDuration: Scalars['Int']['output'];
+  prepaidFeePercent: Scalars['Int']['output'];
+  project: Maybe<Project>;
+  projectId: Scalars['Int']['output'];
+  sourceFeeAmount: Scalars['BigInt']['output'];
+  terminal: Scalars['String']['output'];
+  token: Scalars['String']['output'];
+  tokenUri: Maybe<Scalars['String']['output']>;
+};
+
+export type LoanFilter = {
+  AND?: InputMaybe<Array<InputMaybe<LoanFilter>>>;
+  OR?: InputMaybe<Array<InputMaybe<LoanFilter>>>;
+  beneficiary?: InputMaybe<Scalars['String']['input']>;
+  beneficiary_contains?: InputMaybe<Scalars['String']['input']>;
+  beneficiary_ends_with?: InputMaybe<Scalars['String']['input']>;
+  beneficiary_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  beneficiary_not?: InputMaybe<Scalars['String']['input']>;
+  beneficiary_not_contains?: InputMaybe<Scalars['String']['input']>;
+  beneficiary_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  beneficiary_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  beneficiary_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  beneficiary_starts_with?: InputMaybe<Scalars['String']['input']>;
+  borrowAmount?: InputMaybe<Scalars['BigInt']['input']>;
+  borrowAmount_gt?: InputMaybe<Scalars['BigInt']['input']>;
+  borrowAmount_gte?: InputMaybe<Scalars['BigInt']['input']>;
+  borrowAmount_in?: InputMaybe<Array<InputMaybe<Scalars['BigInt']['input']>>>;
+  borrowAmount_lt?: InputMaybe<Scalars['BigInt']['input']>;
+  borrowAmount_lte?: InputMaybe<Scalars['BigInt']['input']>;
+  borrowAmount_not?: InputMaybe<Scalars['BigInt']['input']>;
+  borrowAmount_not_in?: InputMaybe<Array<InputMaybe<Scalars['BigInt']['input']>>>;
+  chainId?: InputMaybe<Scalars['Int']['input']>;
+  chainId_gt?: InputMaybe<Scalars['Int']['input']>;
+  chainId_gte?: InputMaybe<Scalars['Int']['input']>;
+  chainId_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  chainId_lt?: InputMaybe<Scalars['Int']['input']>;
+  chainId_lte?: InputMaybe<Scalars['Int']['input']>;
+  chainId_not?: InputMaybe<Scalars['Int']['input']>;
+  chainId_not_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  collateral?: InputMaybe<Scalars['BigInt']['input']>;
+  collateral_gt?: InputMaybe<Scalars['BigInt']['input']>;
+  collateral_gte?: InputMaybe<Scalars['BigInt']['input']>;
+  collateral_in?: InputMaybe<Array<InputMaybe<Scalars['BigInt']['input']>>>;
+  collateral_lt?: InputMaybe<Scalars['BigInt']['input']>;
+  collateral_lte?: InputMaybe<Scalars['BigInt']['input']>;
+  collateral_not?: InputMaybe<Scalars['BigInt']['input']>;
+  collateral_not_in?: InputMaybe<Array<InputMaybe<Scalars['BigInt']['input']>>>;
+  createdAt?: InputMaybe<Scalars['Int']['input']>;
+  createdAt_gt?: InputMaybe<Scalars['Int']['input']>;
+  createdAt_gte?: InputMaybe<Scalars['Int']['input']>;
+  createdAt_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  createdAt_lt?: InputMaybe<Scalars['Int']['input']>;
+  createdAt_lte?: InputMaybe<Scalars['Int']['input']>;
+  createdAt_not?: InputMaybe<Scalars['Int']['input']>;
+  createdAt_not_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  id?: InputMaybe<Scalars['BigInt']['input']>;
+  id_gt?: InputMaybe<Scalars['BigInt']['input']>;
+  id_gte?: InputMaybe<Scalars['BigInt']['input']>;
+  id_in?: InputMaybe<Array<InputMaybe<Scalars['BigInt']['input']>>>;
+  id_lt?: InputMaybe<Scalars['BigInt']['input']>;
+  id_lte?: InputMaybe<Scalars['BigInt']['input']>;
+  id_not?: InputMaybe<Scalars['BigInt']['input']>;
+  id_not_in?: InputMaybe<Array<InputMaybe<Scalars['BigInt']['input']>>>;
+  owner?: InputMaybe<Scalars['String']['input']>;
+  owner_contains?: InputMaybe<Scalars['String']['input']>;
+  owner_ends_with?: InputMaybe<Scalars['String']['input']>;
+  owner_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  owner_not?: InputMaybe<Scalars['String']['input']>;
+  owner_not_contains?: InputMaybe<Scalars['String']['input']>;
+  owner_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  owner_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  owner_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  owner_starts_with?: InputMaybe<Scalars['String']['input']>;
+  prepaidDuration?: InputMaybe<Scalars['Int']['input']>;
+  prepaidDuration_gt?: InputMaybe<Scalars['Int']['input']>;
+  prepaidDuration_gte?: InputMaybe<Scalars['Int']['input']>;
+  prepaidDuration_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  prepaidDuration_lt?: InputMaybe<Scalars['Int']['input']>;
+  prepaidDuration_lte?: InputMaybe<Scalars['Int']['input']>;
+  prepaidDuration_not?: InputMaybe<Scalars['Int']['input']>;
+  prepaidDuration_not_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  prepaidFeePercent?: InputMaybe<Scalars['Int']['input']>;
+  prepaidFeePercent_gt?: InputMaybe<Scalars['Int']['input']>;
+  prepaidFeePercent_gte?: InputMaybe<Scalars['Int']['input']>;
+  prepaidFeePercent_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  prepaidFeePercent_lt?: InputMaybe<Scalars['Int']['input']>;
+  prepaidFeePercent_lte?: InputMaybe<Scalars['Int']['input']>;
+  prepaidFeePercent_not?: InputMaybe<Scalars['Int']['input']>;
+  prepaidFeePercent_not_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  projectId?: InputMaybe<Scalars['Int']['input']>;
+  projectId_gt?: InputMaybe<Scalars['Int']['input']>;
+  projectId_gte?: InputMaybe<Scalars['Int']['input']>;
+  projectId_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  projectId_lt?: InputMaybe<Scalars['Int']['input']>;
+  projectId_lte?: InputMaybe<Scalars['Int']['input']>;
+  projectId_not?: InputMaybe<Scalars['Int']['input']>;
+  projectId_not_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  sourceFeeAmount?: InputMaybe<Scalars['BigInt']['input']>;
+  sourceFeeAmount_gt?: InputMaybe<Scalars['BigInt']['input']>;
+  sourceFeeAmount_gte?: InputMaybe<Scalars['BigInt']['input']>;
+  sourceFeeAmount_in?: InputMaybe<Array<InputMaybe<Scalars['BigInt']['input']>>>;
+  sourceFeeAmount_lt?: InputMaybe<Scalars['BigInt']['input']>;
+  sourceFeeAmount_lte?: InputMaybe<Scalars['BigInt']['input']>;
+  sourceFeeAmount_not?: InputMaybe<Scalars['BigInt']['input']>;
+  sourceFeeAmount_not_in?: InputMaybe<Array<InputMaybe<Scalars['BigInt']['input']>>>;
+  terminal?: InputMaybe<Scalars['String']['input']>;
+  terminal_contains?: InputMaybe<Scalars['String']['input']>;
+  terminal_ends_with?: InputMaybe<Scalars['String']['input']>;
+  terminal_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  terminal_not?: InputMaybe<Scalars['String']['input']>;
+  terminal_not_contains?: InputMaybe<Scalars['String']['input']>;
+  terminal_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  terminal_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  terminal_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  terminal_starts_with?: InputMaybe<Scalars['String']['input']>;
+  token?: InputMaybe<Scalars['String']['input']>;
+  tokenUri?: InputMaybe<Scalars['String']['input']>;
+  tokenUri_contains?: InputMaybe<Scalars['String']['input']>;
+  tokenUri_ends_with?: InputMaybe<Scalars['String']['input']>;
+  tokenUri_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  tokenUri_not?: InputMaybe<Scalars['String']['input']>;
+  tokenUri_not_contains?: InputMaybe<Scalars['String']['input']>;
+  tokenUri_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  tokenUri_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  tokenUri_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  tokenUri_starts_with?: InputMaybe<Scalars['String']['input']>;
+  token_contains?: InputMaybe<Scalars['String']['input']>;
+  token_ends_with?: InputMaybe<Scalars['String']['input']>;
+  token_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  token_not?: InputMaybe<Scalars['String']['input']>;
+  token_not_contains?: InputMaybe<Scalars['String']['input']>;
+  token_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  token_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  token_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  token_starts_with?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type LoanPage = {
+  items: Array<Loan>;
   pageInfo: PageInfo;
   totalCount: Scalars['Int']['output'];
 };
@@ -3494,6 +4061,259 @@ export type ProjectPage = {
   totalCount: Scalars['Int']['output'];
 };
 
+export type ReallocateLoanEvent = {
+  caller: Scalars['String']['output'];
+  chainId: Scalars['Int']['output'];
+  from: Scalars['String']['output'];
+  id: Scalars['String']['output'];
+  loanId: Scalars['BigInt']['output'];
+  logIndex: Scalars['Int']['output'];
+  project: Maybe<Project>;
+  projectId: Scalars['Int']['output'];
+  reallocatedLoanId: Scalars['BigInt']['output'];
+  removedCollateralCount: Scalars['BigInt']['output'];
+  timestamp: Scalars['Int']['output'];
+  txHash: Scalars['String']['output'];
+};
+
+export type ReallocateLoanEventFilter = {
+  AND?: InputMaybe<Array<InputMaybe<ReallocateLoanEventFilter>>>;
+  OR?: InputMaybe<Array<InputMaybe<ReallocateLoanEventFilter>>>;
+  caller?: InputMaybe<Scalars['String']['input']>;
+  caller_contains?: InputMaybe<Scalars['String']['input']>;
+  caller_ends_with?: InputMaybe<Scalars['String']['input']>;
+  caller_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  caller_not?: InputMaybe<Scalars['String']['input']>;
+  caller_not_contains?: InputMaybe<Scalars['String']['input']>;
+  caller_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  caller_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  caller_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  caller_starts_with?: InputMaybe<Scalars['String']['input']>;
+  chainId?: InputMaybe<Scalars['Int']['input']>;
+  chainId_gt?: InputMaybe<Scalars['Int']['input']>;
+  chainId_gte?: InputMaybe<Scalars['Int']['input']>;
+  chainId_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  chainId_lt?: InputMaybe<Scalars['Int']['input']>;
+  chainId_lte?: InputMaybe<Scalars['Int']['input']>;
+  chainId_not?: InputMaybe<Scalars['Int']['input']>;
+  chainId_not_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  from?: InputMaybe<Scalars['String']['input']>;
+  from_contains?: InputMaybe<Scalars['String']['input']>;
+  from_ends_with?: InputMaybe<Scalars['String']['input']>;
+  from_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  from_not?: InputMaybe<Scalars['String']['input']>;
+  from_not_contains?: InputMaybe<Scalars['String']['input']>;
+  from_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  from_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  from_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  from_starts_with?: InputMaybe<Scalars['String']['input']>;
+  id?: InputMaybe<Scalars['String']['input']>;
+  id_contains?: InputMaybe<Scalars['String']['input']>;
+  id_ends_with?: InputMaybe<Scalars['String']['input']>;
+  id_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  id_not?: InputMaybe<Scalars['String']['input']>;
+  id_not_contains?: InputMaybe<Scalars['String']['input']>;
+  id_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  id_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  id_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  id_starts_with?: InputMaybe<Scalars['String']['input']>;
+  loanId?: InputMaybe<Scalars['BigInt']['input']>;
+  loanId_gt?: InputMaybe<Scalars['BigInt']['input']>;
+  loanId_gte?: InputMaybe<Scalars['BigInt']['input']>;
+  loanId_in?: InputMaybe<Array<InputMaybe<Scalars['BigInt']['input']>>>;
+  loanId_lt?: InputMaybe<Scalars['BigInt']['input']>;
+  loanId_lte?: InputMaybe<Scalars['BigInt']['input']>;
+  loanId_not?: InputMaybe<Scalars['BigInt']['input']>;
+  loanId_not_in?: InputMaybe<Array<InputMaybe<Scalars['BigInt']['input']>>>;
+  logIndex?: InputMaybe<Scalars['Int']['input']>;
+  logIndex_gt?: InputMaybe<Scalars['Int']['input']>;
+  logIndex_gte?: InputMaybe<Scalars['Int']['input']>;
+  logIndex_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  logIndex_lt?: InputMaybe<Scalars['Int']['input']>;
+  logIndex_lte?: InputMaybe<Scalars['Int']['input']>;
+  logIndex_not?: InputMaybe<Scalars['Int']['input']>;
+  logIndex_not_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  projectId?: InputMaybe<Scalars['Int']['input']>;
+  projectId_gt?: InputMaybe<Scalars['Int']['input']>;
+  projectId_gte?: InputMaybe<Scalars['Int']['input']>;
+  projectId_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  projectId_lt?: InputMaybe<Scalars['Int']['input']>;
+  projectId_lte?: InputMaybe<Scalars['Int']['input']>;
+  projectId_not?: InputMaybe<Scalars['Int']['input']>;
+  projectId_not_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  reallocatedLoanId?: InputMaybe<Scalars['BigInt']['input']>;
+  reallocatedLoanId_gt?: InputMaybe<Scalars['BigInt']['input']>;
+  reallocatedLoanId_gte?: InputMaybe<Scalars['BigInt']['input']>;
+  reallocatedLoanId_in?: InputMaybe<Array<InputMaybe<Scalars['BigInt']['input']>>>;
+  reallocatedLoanId_lt?: InputMaybe<Scalars['BigInt']['input']>;
+  reallocatedLoanId_lte?: InputMaybe<Scalars['BigInt']['input']>;
+  reallocatedLoanId_not?: InputMaybe<Scalars['BigInt']['input']>;
+  reallocatedLoanId_not_in?: InputMaybe<Array<InputMaybe<Scalars['BigInt']['input']>>>;
+  removedCollateralCount?: InputMaybe<Scalars['BigInt']['input']>;
+  removedCollateralCount_gt?: InputMaybe<Scalars['BigInt']['input']>;
+  removedCollateralCount_gte?: InputMaybe<Scalars['BigInt']['input']>;
+  removedCollateralCount_in?: InputMaybe<Array<InputMaybe<Scalars['BigInt']['input']>>>;
+  removedCollateralCount_lt?: InputMaybe<Scalars['BigInt']['input']>;
+  removedCollateralCount_lte?: InputMaybe<Scalars['BigInt']['input']>;
+  removedCollateralCount_not?: InputMaybe<Scalars['BigInt']['input']>;
+  removedCollateralCount_not_in?: InputMaybe<Array<InputMaybe<Scalars['BigInt']['input']>>>;
+  timestamp?: InputMaybe<Scalars['Int']['input']>;
+  timestamp_gt?: InputMaybe<Scalars['Int']['input']>;
+  timestamp_gte?: InputMaybe<Scalars['Int']['input']>;
+  timestamp_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  timestamp_lt?: InputMaybe<Scalars['Int']['input']>;
+  timestamp_lte?: InputMaybe<Scalars['Int']['input']>;
+  timestamp_not?: InputMaybe<Scalars['Int']['input']>;
+  timestamp_not_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  txHash?: InputMaybe<Scalars['String']['input']>;
+  txHash_contains?: InputMaybe<Scalars['String']['input']>;
+  txHash_ends_with?: InputMaybe<Scalars['String']['input']>;
+  txHash_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  txHash_not?: InputMaybe<Scalars['String']['input']>;
+  txHash_not_contains?: InputMaybe<Scalars['String']['input']>;
+  txHash_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  txHash_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  txHash_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  txHash_starts_with?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type ReallocateLoanEventPage = {
+  items: Array<ReallocateLoanEvent>;
+  pageInfo: PageInfo;
+  totalCount: Scalars['Int']['output'];
+};
+
+export type RepayLoanEvent = {
+  caller: Scalars['String']['output'];
+  chainId: Scalars['Int']['output'];
+  collateralCountToReturn: Scalars['BigInt']['output'];
+  from: Scalars['String']['output'];
+  id: Scalars['String']['output'];
+  loanId: Scalars['BigInt']['output'];
+  logIndex: Scalars['Int']['output'];
+  paidOffLoanId: Scalars['BigInt']['output'];
+  project: Maybe<Project>;
+  projectId: Scalars['Int']['output'];
+  repayBorrowAmount: Scalars['BigInt']['output'];
+  timestamp: Scalars['Int']['output'];
+  txHash: Scalars['String']['output'];
+};
+
+export type RepayLoanEventFilter = {
+  AND?: InputMaybe<Array<InputMaybe<RepayLoanEventFilter>>>;
+  OR?: InputMaybe<Array<InputMaybe<RepayLoanEventFilter>>>;
+  caller?: InputMaybe<Scalars['String']['input']>;
+  caller_contains?: InputMaybe<Scalars['String']['input']>;
+  caller_ends_with?: InputMaybe<Scalars['String']['input']>;
+  caller_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  caller_not?: InputMaybe<Scalars['String']['input']>;
+  caller_not_contains?: InputMaybe<Scalars['String']['input']>;
+  caller_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  caller_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  caller_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  caller_starts_with?: InputMaybe<Scalars['String']['input']>;
+  chainId?: InputMaybe<Scalars['Int']['input']>;
+  chainId_gt?: InputMaybe<Scalars['Int']['input']>;
+  chainId_gte?: InputMaybe<Scalars['Int']['input']>;
+  chainId_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  chainId_lt?: InputMaybe<Scalars['Int']['input']>;
+  chainId_lte?: InputMaybe<Scalars['Int']['input']>;
+  chainId_not?: InputMaybe<Scalars['Int']['input']>;
+  chainId_not_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  collateralCountToReturn?: InputMaybe<Scalars['BigInt']['input']>;
+  collateralCountToReturn_gt?: InputMaybe<Scalars['BigInt']['input']>;
+  collateralCountToReturn_gte?: InputMaybe<Scalars['BigInt']['input']>;
+  collateralCountToReturn_in?: InputMaybe<Array<InputMaybe<Scalars['BigInt']['input']>>>;
+  collateralCountToReturn_lt?: InputMaybe<Scalars['BigInt']['input']>;
+  collateralCountToReturn_lte?: InputMaybe<Scalars['BigInt']['input']>;
+  collateralCountToReturn_not?: InputMaybe<Scalars['BigInt']['input']>;
+  collateralCountToReturn_not_in?: InputMaybe<Array<InputMaybe<Scalars['BigInt']['input']>>>;
+  from?: InputMaybe<Scalars['String']['input']>;
+  from_contains?: InputMaybe<Scalars['String']['input']>;
+  from_ends_with?: InputMaybe<Scalars['String']['input']>;
+  from_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  from_not?: InputMaybe<Scalars['String']['input']>;
+  from_not_contains?: InputMaybe<Scalars['String']['input']>;
+  from_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  from_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  from_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  from_starts_with?: InputMaybe<Scalars['String']['input']>;
+  id?: InputMaybe<Scalars['String']['input']>;
+  id_contains?: InputMaybe<Scalars['String']['input']>;
+  id_ends_with?: InputMaybe<Scalars['String']['input']>;
+  id_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  id_not?: InputMaybe<Scalars['String']['input']>;
+  id_not_contains?: InputMaybe<Scalars['String']['input']>;
+  id_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  id_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  id_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  id_starts_with?: InputMaybe<Scalars['String']['input']>;
+  loanId?: InputMaybe<Scalars['BigInt']['input']>;
+  loanId_gt?: InputMaybe<Scalars['BigInt']['input']>;
+  loanId_gte?: InputMaybe<Scalars['BigInt']['input']>;
+  loanId_in?: InputMaybe<Array<InputMaybe<Scalars['BigInt']['input']>>>;
+  loanId_lt?: InputMaybe<Scalars['BigInt']['input']>;
+  loanId_lte?: InputMaybe<Scalars['BigInt']['input']>;
+  loanId_not?: InputMaybe<Scalars['BigInt']['input']>;
+  loanId_not_in?: InputMaybe<Array<InputMaybe<Scalars['BigInt']['input']>>>;
+  logIndex?: InputMaybe<Scalars['Int']['input']>;
+  logIndex_gt?: InputMaybe<Scalars['Int']['input']>;
+  logIndex_gte?: InputMaybe<Scalars['Int']['input']>;
+  logIndex_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  logIndex_lt?: InputMaybe<Scalars['Int']['input']>;
+  logIndex_lte?: InputMaybe<Scalars['Int']['input']>;
+  logIndex_not?: InputMaybe<Scalars['Int']['input']>;
+  logIndex_not_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  paidOffLoanId?: InputMaybe<Scalars['BigInt']['input']>;
+  paidOffLoanId_gt?: InputMaybe<Scalars['BigInt']['input']>;
+  paidOffLoanId_gte?: InputMaybe<Scalars['BigInt']['input']>;
+  paidOffLoanId_in?: InputMaybe<Array<InputMaybe<Scalars['BigInt']['input']>>>;
+  paidOffLoanId_lt?: InputMaybe<Scalars['BigInt']['input']>;
+  paidOffLoanId_lte?: InputMaybe<Scalars['BigInt']['input']>;
+  paidOffLoanId_not?: InputMaybe<Scalars['BigInt']['input']>;
+  paidOffLoanId_not_in?: InputMaybe<Array<InputMaybe<Scalars['BigInt']['input']>>>;
+  projectId?: InputMaybe<Scalars['Int']['input']>;
+  projectId_gt?: InputMaybe<Scalars['Int']['input']>;
+  projectId_gte?: InputMaybe<Scalars['Int']['input']>;
+  projectId_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  projectId_lt?: InputMaybe<Scalars['Int']['input']>;
+  projectId_lte?: InputMaybe<Scalars['Int']['input']>;
+  projectId_not?: InputMaybe<Scalars['Int']['input']>;
+  projectId_not_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  repayBorrowAmount?: InputMaybe<Scalars['BigInt']['input']>;
+  repayBorrowAmount_gt?: InputMaybe<Scalars['BigInt']['input']>;
+  repayBorrowAmount_gte?: InputMaybe<Scalars['BigInt']['input']>;
+  repayBorrowAmount_in?: InputMaybe<Array<InputMaybe<Scalars['BigInt']['input']>>>;
+  repayBorrowAmount_lt?: InputMaybe<Scalars['BigInt']['input']>;
+  repayBorrowAmount_lte?: InputMaybe<Scalars['BigInt']['input']>;
+  repayBorrowAmount_not?: InputMaybe<Scalars['BigInt']['input']>;
+  repayBorrowAmount_not_in?: InputMaybe<Array<InputMaybe<Scalars['BigInt']['input']>>>;
+  timestamp?: InputMaybe<Scalars['Int']['input']>;
+  timestamp_gt?: InputMaybe<Scalars['Int']['input']>;
+  timestamp_gte?: InputMaybe<Scalars['Int']['input']>;
+  timestamp_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  timestamp_lt?: InputMaybe<Scalars['Int']['input']>;
+  timestamp_lte?: InputMaybe<Scalars['Int']['input']>;
+  timestamp_not?: InputMaybe<Scalars['Int']['input']>;
+  timestamp_not_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  txHash?: InputMaybe<Scalars['String']['input']>;
+  txHash_contains?: InputMaybe<Scalars['String']['input']>;
+  txHash_ends_with?: InputMaybe<Scalars['String']['input']>;
+  txHash_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  txHash_not?: InputMaybe<Scalars['String']['input']>;
+  txHash_not_contains?: InputMaybe<Scalars['String']['input']>;
+  txHash_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  txHash_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  txHash_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  txHash_starts_with?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type RepayLoanEventPage = {
+  items: Array<RepayLoanEvent>;
+  pageInfo: PageInfo;
+  totalCount: Scalars['Int']['output'];
+};
+
 export type SendPayoutToSplitEvent = {
   amount: Scalars['BigInt']['output'];
   amountUsd: Scalars['BigInt']['output'];
@@ -4701,6 +5521,21 @@ export type ActivityEventsQueryVariables = Exact<{
 
 export type ActivityEventsQuery = { activityEvents: { items: Array<{ id: string, chainId: number, timestamp: number, payEvent: { id: string, amount: any, beneficiary: string, memo: string | null, timestamp: number, feeFromProject: number | null, newlyIssuedTokenCount: any, from: string, txHash: string, amountUsd: any, caller: string, distributionFromProjectId: number | null, projectId: number, project: { id: string, projectId: number, handle: string | null } | null } | null, cashOutTokensEvent: { id: string, timestamp: number, txHash: string, from: string, beneficiary: string, reclaimAmount: any, cashOutCount: any, metadata: string, project: { id: string, projectId: number, handle: string | null } | null } | null }> } };
 
+export type LoansByAccountQueryVariables = Exact<{
+  owner: Scalars['String']['input'];
+}>;
+
+
+export type LoansByAccountQuery = { loans: { items: Array<{ borrowAmount: any, collateral: any, prepaidDuration: number, projectId: number, terminal: string, token: string, chainId: number, createdAt: number }> } };
+
+export type LoansDetailsByAccountQueryVariables = Exact<{
+  owner: Scalars['String']['input'];
+  projectId: Scalars['Int']['input'];
+}>;
+
+
+export type LoansDetailsByAccountQuery = { loans: { items: Array<{ borrowAmount: any, collateral: any, prepaidDuration: number, createdAt: number, projectId: number, terminal: string, token: string, chainId: number }> } };
+
 export type ParticipantsQueryVariables = Exact<{
   where?: InputMaybe<ParticipantFilter>;
   orderBy?: InputMaybe<Scalars['String']['input']>;
@@ -4769,6 +5604,8 @@ export type SuckerGroupQuery = { suckerGroup: { id: string, tokenSupply: any } |
 
 
 export const ActivityEventsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"ActivityEvents"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"where"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"activityEventFilter"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"orderBy"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"orderDirection"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"activityEvents"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"where"},"value":{"kind":"Variable","name":{"kind":"Name","value":"where"}}},{"kind":"Argument","name":{"kind":"Name","value":"orderBy"},"value":{"kind":"Variable","name":{"kind":"Name","value":"orderBy"}}},{"kind":"Argument","name":{"kind":"Name","value":"orderDirection"},"value":{"kind":"Variable","name":{"kind":"Name","value":"orderDirection"}}},{"kind":"Argument","name":{"kind":"Name","value":"limit"},"value":{"kind":"IntValue","value":"1000"}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"chainId"}},{"kind":"Field","name":{"kind":"Name","value":"timestamp"}},{"kind":"Field","name":{"kind":"Name","value":"payEvent"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"amount"}},{"kind":"Field","name":{"kind":"Name","value":"beneficiary"}},{"kind":"Field","name":{"kind":"Name","value":"memo"}},{"kind":"Field","name":{"kind":"Name","value":"timestamp"}},{"kind":"Field","name":{"kind":"Name","value":"feeFromProject"}},{"kind":"Field","name":{"kind":"Name","value":"newlyIssuedTokenCount"}},{"kind":"Field","name":{"kind":"Name","value":"from"}},{"kind":"Field","name":{"kind":"Name","value":"txHash"}},{"kind":"Field","name":{"kind":"Name","value":"amountUsd"}},{"kind":"Field","name":{"kind":"Name","value":"caller"}},{"kind":"Field","name":{"kind":"Name","value":"distributionFromProjectId"}},{"kind":"Field","name":{"kind":"Name","value":"projectId"}},{"kind":"Field","name":{"kind":"Name","value":"project"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"projectId"}},{"kind":"Field","name":{"kind":"Name","value":"handle"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"cashOutTokensEvent"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"timestamp"}},{"kind":"Field","name":{"kind":"Name","value":"txHash"}},{"kind":"Field","name":{"kind":"Name","value":"from"}},{"kind":"Field","name":{"kind":"Name","value":"beneficiary"}},{"kind":"Field","name":{"kind":"Name","value":"reclaimAmount"}},{"kind":"Field","name":{"kind":"Name","value":"cashOutCount"}},{"kind":"Field","name":{"kind":"Name","value":"metadata"}},{"kind":"Field","name":{"kind":"Name","value":"project"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"projectId"}},{"kind":"Field","name":{"kind":"Name","value":"handle"}}]}}]}}]}}]}}]}}]} as unknown as DocumentNode<ActivityEventsQuery, ActivityEventsQueryVariables>;
+export const LoansByAccountDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"LoansByAccount"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"owner"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"loans"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"where"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"owner"},"value":{"kind":"Variable","name":{"kind":"Name","value":"owner"}}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"borrowAmount"}},{"kind":"Field","name":{"kind":"Name","value":"collateral"}},{"kind":"Field","name":{"kind":"Name","value":"prepaidDuration"}},{"kind":"Field","name":{"kind":"Name","value":"projectId"}},{"kind":"Field","name":{"kind":"Name","value":"terminal"}},{"kind":"Field","name":{"kind":"Name","value":"token"}},{"kind":"Field","name":{"kind":"Name","value":"chainId"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}}]}}]}}]}}]} as unknown as DocumentNode<LoansByAccountQuery, LoansByAccountQueryVariables>;
+export const LoansDetailsByAccountDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"LoansDetailsByAccount"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"owner"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"projectId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"loans"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"where"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"owner"},"value":{"kind":"Variable","name":{"kind":"Name","value":"owner"}}},{"kind":"ObjectField","name":{"kind":"Name","value":"projectId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"projectId"}}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"borrowAmount"}},{"kind":"Field","name":{"kind":"Name","value":"collateral"}},{"kind":"Field","name":{"kind":"Name","value":"prepaidDuration"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"projectId"}},{"kind":"Field","name":{"kind":"Name","value":"terminal"}},{"kind":"Field","name":{"kind":"Name","value":"token"}},{"kind":"Field","name":{"kind":"Name","value":"chainId"}}]}}]}}]}}]} as unknown as DocumentNode<LoansDetailsByAccountQuery, LoansDetailsByAccountQueryVariables>;
 export const ParticipantsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"Participants"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"where"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"participantFilter"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"orderBy"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"orderDirection"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"participants"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"where"},"value":{"kind":"Variable","name":{"kind":"Name","value":"where"}}},{"kind":"Argument","name":{"kind":"Name","value":"orderBy"},"value":{"kind":"Variable","name":{"kind":"Name","value":"orderBy"}}},{"kind":"Argument","name":{"kind":"Name","value":"orderDirection"},"value":{"kind":"Variable","name":{"kind":"Name","value":"orderDirection"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"totalCount"}},{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"chainId"}},{"kind":"Field","name":{"kind":"Name","value":"address"}},{"kind":"Field","name":{"kind":"Name","value":"volume"}},{"kind":"Field","name":{"kind":"Name","value":"lastPaidTimestamp"}},{"kind":"Field","name":{"kind":"Name","value":"balance"}},{"kind":"Field","name":{"kind":"Name","value":"erc20Balance"}},{"kind":"Field","name":{"kind":"Name","value":"creditBalance"}}]}}]}}]}}]} as unknown as DocumentNode<ParticipantsQuery, ParticipantsQueryVariables>;
 export const HasPermissionDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"HasPermission"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"account"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"chainId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Float"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"projectId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Float"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"operator"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"permissionHolder"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"account"},"value":{"kind":"Variable","name":{"kind":"Name","value":"account"}}},{"kind":"Argument","name":{"kind":"Name","value":"chainId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"chainId"}}},{"kind":"Argument","name":{"kind":"Name","value":"projectId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"projectId"}}},{"kind":"Argument","name":{"kind":"Name","value":"operator"},"value":{"kind":"Variable","name":{"kind":"Name","value":"operator"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"permissions"}}]}}]}}]} as unknown as DocumentNode<HasPermissionQuery, HasPermissionQueryVariables>;
 export const ProjectDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"Project"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"projectId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Float"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"chainId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Float"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"project"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"projectId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"projectId"}}},{"kind":"Argument","name":{"kind":"Name","value":"chainId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"chainId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"projectId"}},{"kind":"Field","name":{"kind":"Name","value":"metadataUri"}},{"kind":"Field","name":{"kind":"Name","value":"handle"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"suckerGroupId"}}]}}]}}]} as unknown as DocumentNode<ProjectQuery, ProjectQueryVariables>;

@@ -38,6 +38,9 @@ import { ButtonWithWallet } from "@/components/ButtonWithWallet";
 import { SimulatedLoanCard } from "../SimulatedLoanCard";
 import { LoanFeeChart } from "../LoanFeeChart";
 import { TokenBalanceTable } from "../TokenBalanceTable";
+import { LoanDetailsTable } from "../LoansDetailsTable";
+import { Button } from "@/components/ui/button";
+import { twJoin } from "tailwind-merge";
 const FIXEDLOANFEES = 0.035; // TODO: get from onchain?
 
 
@@ -108,6 +111,7 @@ export function BorrowDialog({
   const [showChart, setShowChart] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
   const [showingWaitingMessage, setShowingWaitingMessage] = useState(false);
+  const [selectedTab, setSelectedTab] = useState<"borrow" | "outstanding">("borrow");
   // Delayed display of waiting for signature message
   useEffect(() => {
     if (borrowStatus === "waiting-signature") {
@@ -118,7 +122,7 @@ export function BorrowDialog({
     }
   }, [borrowStatus]);
   const {
-    contracts: { primaryNativeTerminal },
+    contracts: { primaryNativeTerminal, controller, splits, rulesets },
   } = useJBContractContext();
   const { address } = useAccount();
   const { data: walletClient } = useWalletClient();
@@ -301,8 +305,21 @@ export function BorrowDialog({
             </section>
           </DialogDescription>
         </DialogHeader>
+        {/* Tab UI */}
+        <div className="flex gap-4 mb-4">
+          {["borrow", "outstanding"].map((tab) => (
+            <Button
+              key={tab}
+              variant={selectedTab === tab ? "tab-selected" : "bottomline"}
+              className={twJoin("text-md text-zinc-400", selectedTab === tab && "text-inherit")}
+              onClick={() => setSelectedTab(tab as "borrow" | "outstanding")}
+            >
+              {tab === "borrow" ? "Borrow" : "Outstanding"}
+            </Button>
+          ))}
+        </div>
         {/* Main dialog content (inputs, preview, chart, actions) */}
-        <div>
+        {selectedTab === "borrow" && (
           <div>
             {/* Network selector and collateral input, new layout */}
             <div className="grid w-full gap-1.5">
@@ -311,6 +328,9 @@ export function BorrowDialog({
                 projectId={projectId}
                 tokenSymbol={tokenSymbol}
                 terminalAddress={primaryNativeTerminal.data as `0x${string}`}
+                address={address as `0x${string}`}
+                columns={["chain", "holding", "borrowable"]}
+
               />
               <div className="grid grid-cols-7 gap-2">
                 <div className="col-span-4">
@@ -443,113 +463,126 @@ export function BorrowDialog({
                 <p>• Rules determine {tokenSymbol} issuance when payments are recieved</p>
               </div>
             )}
-          </div>
-          {/* Borrow Button and Status Message - horizontally aligned */}
-          <DialogFooter className="flex flex-row items-center justify-between w-full gap-4">
-            <div className="flex-1 text-left">
-              {borrowStatus !== "idle" && (
-                <p className="text-sm text-zinc-600">
-                  {borrowStatus === "checking" && "Checking permissions..."}
-                  {borrowStatus === "granting-permission" && "Granting permission..."}
-                  {borrowStatus === "permission-granted" && "Permission granted. Borrowing..."}
-                  {showingWaitingMessage && "Waiting for wallet confirmation..."}
-                  {borrowStatus === "pending" && "Borrowing..."}
-                  {borrowStatus === "success" && "Loan successfully issued!"}
-                  {borrowStatus === "error-permission-denied" && "Permission was not granted. Please approve to proceed."}
-                  {borrowStatus === "error-loan-canceled" && "Loan creation was canceled."}
-                  {borrowStatus === "error" && "Something went wrong."}
-                </p>
-              )}
-            </div>
-            <ButtonWithWallet
-              targetChainId={cashOutChainId ? Number(cashOutChainId) as JBChainId : undefined}
-              loading={false}
-              onClick={async () => {
-                try {
-                  setBorrowStatus("checking");
+            {/* Borrow Button and Status Message - horizontally aligned */}
+            <DialogFooter className="flex flex-row items-center justify-between w-full gap-4">
+              <div className="flex-1 text-left">
+                {borrowStatus !== "idle" && (
+                  <p className="text-sm text-zinc-600">
+                    {borrowStatus === "checking" && "Checking permissions..."}
+                    {borrowStatus === "granting-permission" && "Granting permission..."}
+                    {borrowStatus === "permission-granted" && "Permission granted. Borrowing..."}
+                    {showingWaitingMessage && "Waiting for wallet confirmation..."}
+                    {borrowStatus === "pending" && "Borrowing..."}
+                    {borrowStatus === "success" && "Loan successfully issued!"}
+                    {borrowStatus === "error-permission-denied" && "Permission was not granted. Please approve to proceed."}
+                    {borrowStatus === "error-loan-canceled" && "Loan creation was canceled."}
+                    {borrowStatus === "error" && "Something went wrong."}
+                  </p>
+                )}
+              </div>
+              <ButtonWithWallet
+                targetChainId={cashOutChainId ? Number(cashOutChainId) as JBChainId : undefined}
+                loading={false}
+                onClick={async () => {
+                  try {
+                    setBorrowStatus("checking");
 
-                  if (
-                    !walletClient ||
-                    !primaryNativeTerminal?.data ||
-                    !address ||
-                    !borrowableAmountRaw ||
-                    !resolvedPermissionsAddress
-                  ) {
-                    console.error("Missing required data");
-                    setBorrowStatus("error");
-                    return;
-                  }
+                    if (
+                      !walletClient ||
+                      !primaryNativeTerminal?.data ||
+                      !address ||
+                      !borrowableAmountRaw ||
+                      !resolvedPermissionsAddress
+                    ) {
+                      console.error("Missing required data");
+                      setBorrowStatus("error");
+                      return;
+                    }
 
-                  const feeBasisPoints = Math.round(parseFloat(prepaidPercent) * 10);
-                  if (!userHasPermission) {
-                    setBorrowStatus("granting-permission");
-                    try {
-                      await walletClient.writeContract({
-                        account: address,
-                        address: resolvedPermissionsAddress as `0x${string}`,
-                        abi: jbPermissionsAbi,
-                        functionName: "setPermissionsFor",
-                        args: [
-                          address as `0x${string}`,
-                          {
-                            operator: revLoansAddress[Number(cashOutChainId) as JBChainId],
-                            projectId,
-                            permissionIds: [1],
-                          },
-                        ],
-                      });
+                    const feeBasisPoints = Math.round(parseFloat(prepaidPercent) * 10);
+                    if (!userHasPermission) {
+                      setBorrowStatus("granting-permission");
+                      try {
+                        await walletClient.writeContract({
+                          account: address,
+                          address: resolvedPermissionsAddress as `0x${string}`,
+                          abi: jbPermissionsAbi,
+                          functionName: "setPermissionsFor",
+                          args: [
+                            address as `0x${string}`,
+                            {
+                              operator: revLoansAddress[Number(cashOutChainId) as JBChainId],
+                              projectId,
+                              permissionIds: [1],
+                            },
+                          ],
+                        });
+                        setBorrowStatus("permission-granted");
+                      } catch (err) {
+                        setBorrowStatus("error-permission-denied");
+                        setTimeout(() => setBorrowStatus("idle"), 5000);
+                        return;
+                      }
+                    } else {
                       setBorrowStatus("permission-granted");
+                    }
+
+                    const collateralBigInt = BigInt(Math.floor(Number(collateralAmount) * 1e18));
+                    const args = [
+                      projectId,
+                      {
+                        token: "0x000000000000000000000000000000000000EEEe", // get from terminals base token
+                        terminal: primaryNativeTerminal.data as `0x${string}`,
+                      },
+                      0n,
+                      collateralBigInt,
+                      address as `0x${string}`,
+                      BigInt(feeBasisPoints),
+                    ] as const;
+
+                    if (!writeContract) {
+                      console.error("writeContract is not available");
+                      setBorrowStatus("error");
+                      return;
+                    }
+
+                    try {
+                      setBorrowStatus("waiting-signature");
+                      await writeContract({
+                        chainId: Number(cashOutChainId) as JBChainId,
+                        args,
+                      });
+                      // setBorrowStatus("pending"); // REMOVED: now managed by useEffect
                     } catch (err) {
-                      setBorrowStatus("error-permission-denied");
+                      console.warn("User rejected or tx failed", err);
+                      setBorrowStatus("error-loan-canceled");
                       setTimeout(() => setBorrowStatus("idle"), 5000);
                       return;
                     }
-                  } else {
-                    setBorrowStatus("permission-granted");
-                  }
-
-                  const collateralBigInt = BigInt(Math.floor(Number(collateralAmount) * 1e18));
-                  const args = [
-                    projectId,
-                    {
-                      token: "0x000000000000000000000000000000000000EEEe", // get from terminals base token
-                      terminal: primaryNativeTerminal.data as `0x${string}`,
-                    },
-                    0n,
-                    collateralBigInt,
-                    address as `0x${string}`,
-                    BigInt(feeBasisPoints),
-                  ] as const;
-
-                  if (!writeContract) {
-                    console.error("writeContract is not available");
-                    setBorrowStatus("error");
-                    return;
-                  }
-
-                  try {
-                    setBorrowStatus("waiting-signature");
-                    await writeContract({
-                      chainId: Number(cashOutChainId) as JBChainId,
-                      args,
-                    });
-                    // setBorrowStatus("pending"); // REMOVED: now managed by useEffect
                   } catch (err) {
-                    console.warn("User rejected or tx failed", err);
-                    setBorrowStatus("error-loan-canceled");
-                    setTimeout(() => setBorrowStatus("idle"), 5000);
-                    return;
+                    console.error(err);
+                    setBorrowStatus("error");
                   }
-                } catch (err) {
-                  console.error(err);
-                  setBorrowStatus("error");
-                }
-              }}
-            >
-              Borrow some ETH
-            </ButtonWithWallet>
-          </DialogFooter>
-        </div>
+                }}
+              >
+                Borrow some ETH
+              </ButtonWithWallet>
+            </DialogFooter>
+          </div>
+        )}
+        {selectedTab === "outstanding" && (
+          <>
+            <TokenBalanceTable
+              balances={balances}
+              projectId={projectId}
+              tokenSymbol={tokenSymbol}
+              terminalAddress={primaryNativeTerminal.data as `0x${string}`}
+              address={address as `0x${string}`}
+              columns={["chain", "debt", "collateral"]}
+            />
+              <LoanDetailsTable address={address as `0x${string}`} revnetId={projectId} />
+               </>
+        )}
       </DialogContent>
     </Dialog>
   );
