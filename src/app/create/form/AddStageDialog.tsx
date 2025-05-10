@@ -81,7 +81,7 @@ export function AddStageDialog({
   const { values: formikValues } = useFormikContext<RevnetFormData>();
 
   const [open, setOpen] = useState(false);
-  const [initialIssuance, setInitialIssuance] = useState("10000");
+  const [initialIssuance, setInitialIssuance] = useState(initialValues?.initialIssuance || "10000");
   const nativeTokenSymbol = useNativeTokenSymbol();
 
   const revnetTokenSymbol =
