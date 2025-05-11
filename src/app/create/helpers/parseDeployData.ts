@@ -142,7 +142,7 @@ export function parseDeployData(
       }
       if (!beneficiary) throw new Error("Beneficiary not found");
       const percent = Math.round(
-        (Number(split.percentage) * SPLITS_TOTAL_PERCENT) / splitPercent
+        (Number(split.percentage) * 100 * SPLITS_TOTAL_PERCENT) / splitPercent
       );
       console.log(
         `[ SPLIT ${splitIdx + 1} ]\n\t\t${beneficiary} ${split.percentage}%`
@@ -156,6 +156,7 @@ export function parseDeployData(
         hook: zeroAddress,
       };
     });
+    console.log({SPLITS_TOTAL_PERCENT, splitPercent, splits});
     console.log(
       "----------------------------------------------------------------"
     );
