@@ -89,7 +89,7 @@ export function AddStageDialog({
       ? `$${formikValues.tokenSymbol}`
       : "tokens";
 
-    const [cashOutTax, setCashOutTax] = useState(20); // Default to 0.2
+    const [cashOutTax, setCashOutTax] = useState(initialValues?.priceFloorTaxIntensity || 20); // Default to 0.2
 
     // Discrete values matching your radio options
     const steps = [0, 20, 40, 60, 80];
