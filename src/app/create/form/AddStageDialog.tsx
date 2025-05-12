@@ -429,7 +429,7 @@ export function AddStageDialog({
                     />
                   </div>
                   <div className="text-sm font-medium text-zinc-500 mt-4 border-l border-zinc-300 pl-2 py-1 px-1">
-                    Cashing out 10% of {revnetTokenSymbol} gets {calculateYield(cashOutTax)}% of the revnet's {nativeTokenSymbol}.
+                    Cashing out 10% of {revnetTokenSymbol} gets {calculateYield(Number(cashOutTax))}% of the revnet's {nativeTokenSymbol}.
                   </div>
                   <NotesSection>
                     <div className="text-zinc-600 text-md mt-4 italic">
