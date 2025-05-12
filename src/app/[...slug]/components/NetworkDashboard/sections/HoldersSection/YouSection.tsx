@@ -29,8 +29,6 @@ export function YouSection({ totalSupply }: { totalSupply: bigint }) {
 
   const redeemQuote = redeemQuoteQuery?.data ?? 0n;
 
-  console.log("redeemQuote", redeemQuoteQuery);
-
   return (
     <div className="grid grid-cols-1 gap-x-8 overflow-x-scrolltext-md gap-1">
       {/* Left Column */}
@@ -70,12 +68,13 @@ export function YouSection({ totalSupply }: { totalSupply: bigint }) {
           </Tooltip>
         </dd>
       </div>
+      {/* comment out for now until sucker of bendystraw
       <div className="sm:col-span-1 sm:px-0 grid grid-cols-2 sm:grid-cols-4">
         <dt className="text-md font-medium leading-6 text-zinc-900">
           Current borrow potential
         </dt>
         <dd className="text-zinc-600">(soon)</dd>
-      </div>
+      </div> */}
     </div>
   );
 }

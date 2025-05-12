@@ -1,0 +1,29 @@
+query LoansByAccount($owner: String!) {
+  loans(where: { owner: $owner }) {
+    items {
+      borrowAmount
+      collateral
+      prepaidDuration
+      projectId
+      terminal
+      token
+      chainId
+      createdAt
+    }
+  }
+}
+
+query LoansDetailsByAccount($owner: String!, $projectId: Int!) {
+  loans(where: { owner: $owner, projectId: $projectId }) {
+    items {
+      borrowAmount
+      collateral
+      prepaidDuration
+      createdAt
+      projectId
+      terminal
+      token
+      chainId
+    }
+  }
+}
