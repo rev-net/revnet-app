@@ -81,7 +81,7 @@ export function AddStageDialog({
   const { values: formikValues } = useFormikContext<RevnetFormData>();
 
   const [open, setOpen] = useState(false);
-  const [initialIssuance, setInitialIssuance] = useState("10000");
+  const [initialIssuance, setInitialIssuance] = useState(initialValues?.initialIssuance || "10000");
   const nativeTokenSymbol = useNativeTokenSymbol();
 
   const revnetTokenSymbol =
@@ -89,7 +89,7 @@ export function AddStageDialog({
       ? `$${formikValues.tokenSymbol}`
       : "tokens";
 
-    const [cashOutTax, setCashOutTax] = useState(20); // Default to 0.2
+    const [cashOutTax, setCashOutTax] = useState(initialValues?.priceFloorTaxIntensity || 20); // Default to 0.2
 
     // Discrete values matching your radio options
     const steps = [0, 20, 40, 60, 80];
@@ -429,7 +429,7 @@ export function AddStageDialog({
                     />
                   </div>
                   <div className="text-sm font-medium text-zinc-500 mt-4 border-l border-zinc-300 pl-2 py-1 px-1">
-                    Cashing out 10% of {revnetTokenSymbol} gets {calculateYield(cashOutTax)}% of the revnet's {nativeTokenSymbol}.
+                    Cashing out 10% of {revnetTokenSymbol} gets {calculateYield(Number(cashOutTax))}% of the revnet's {nativeTokenSymbol}.
                   </div>
                   <NotesSection>
                     <div className="text-zinc-600 text-md mt-4 italic">
