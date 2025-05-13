@@ -109,8 +109,10 @@ export function TokenBalanceTable({
 
   return (
     <div className="w-full max-w-md mb-5">
-      <span className="text-sm text-black font-medium">Your {tokenSymbol}</span>
-      <div className="mt-1 max-h-96 overflow-auto bg-zinc-50 rounded-md border border-zinc-200">
+        <label className="block text-gray-700 text-sm font-bold mb-1">
+          Your {tokenSymbol}
+        </label>
+        <div className="mt-1 max-h-96 overflow-auto bg-zinc-50 rounded-md border border-zinc-200">
         <Table>
           <TableHeader>
             <TableRow>
