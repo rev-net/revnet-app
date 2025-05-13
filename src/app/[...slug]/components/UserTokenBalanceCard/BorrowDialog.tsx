@@ -2,6 +2,7 @@ import { PropsWithChildren, useEffect, useState } from "react";
 import { useAccount, useWaitForTransactionReceipt } from "wagmi";
 import { useWalletClient } from "wagmi";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 
 import {
   JB_CHAINS,
@@ -19,6 +20,7 @@ import {
   useWriteRevLoansBorrowFrom,
   revLoansAddress,
   calcPrepaidFee,
+  useWriteRevLoansRepayLoan,
 } from "revnet-sdk";
 import { HasPermissionDocument } from "@/generated/graphql";
 import { useBendystrawQuery } from "@/graphql/useBendystrawQuery";
@@ -41,6 +43,7 @@ import { TokenBalanceTable } from "../TokenBalanceTable";
 import { LoanDetailsTable } from "../LoansDetailsTable";
 import { Button } from "@/components/ui/button";
 import { twJoin } from "tailwind-merge";
+import { LoanSelectDropdown } from "../LoanSelectDropdown";
 const FIXEDLOANFEES = 0.035; // TODO: get from onchain?
 
 
@@ -103,6 +106,8 @@ export function BorrowDialog({
     | "error";
 
   const [collateralAmount, setCollateralAmount] = useState("");
+  const [repayAmount, setRepayAmount] = useState("");
+  const [collateralToReturn, setCollateralToReturn] = useState("");
   const [prepaidPercent, setPrepaidPercent] = useState("2.5");
   const [ethToWallet, setEthToWallet] = useState(0);
   const [grossBorrowedEth, setGrossBorrowedEth] = useState(0);
@@ -111,8 +116,35 @@ export function BorrowDialog({
   const [showChart, setShowChart] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
   const [showingWaitingMessage, setShowingWaitingMessage] = useState(false);
-  const [selectedTab, setSelectedTab] = useState<"borrow" | "outstanding">("borrow");
-  // Delayed display of waiting for signature message
+  const [selectedTab, setSelectedTab] = useState<"borrow" | "outstanding" | "repay">("borrow");
+  const [selectedLoanId, setSelectedLoanId] = useState<string | null>(null);
+  const [selectedLoan, setSelectedLoan] = useState<any | null>(null);
+  const [showLoanDetailsTable, setShowLoanDetailsTable] = useState(true);
+  // Repay transaction status tracking
+  type RepayState = "idle" | "waiting-signature" | "pending" | "success" | "error";
+  const [repayStatus, setRepayStatus] = useState<RepayState>("idle");
+  const [repayTxHash, setRepayTxHash] = useState<`0x${string}` | undefined>();
+  const { writeContractAsync: repayLoanAsync, isPending: isRepaying } = useWriteRevLoansRepayLoan();
+  // Repay tx status tracking using wagmi
+  const { isLoading: isRepayTxLoading, isSuccess: isRepaySuccess } = useWaitForTransactionReceipt({
+    hash: repayTxHash,
+  });
+
+  useEffect(() => {
+    if (isRepayTxLoading) {
+      setRepayStatus("pending");
+    } else if (isRepaySuccess) {
+      setRepayStatus("success");
+    }
+  }, [isRepayTxLoading, isRepaySuccess]);
+
+  useEffect(() => {
+    if (repayStatus === "success" || repayStatus === "error") {
+      const timeout = setTimeout(() => setRepayStatus("idle"), 5000);
+      return () => clearTimeout(timeout);
+    }
+  }, [repayStatus]);
+
   useEffect(() => {
     if (borrowStatus === "waiting-signature") {
       const timeout = setTimeout(() => setShowingWaitingMessage(true), 250);
@@ -121,6 +153,7 @@ export function BorrowDialog({
       setShowingWaitingMessage(false);
     }
   }, [borrowStatus]);
+
   const {
     contracts: { primaryNativeTerminal, controller, splits, rulesets },
   } = useJBContractContext();
@@ -130,6 +163,51 @@ export function BorrowDialog({
   const { data: resolvedPermissionsAddress } = useReadRevDeployerPermissions({
     chainId: cashOutChainId ? Number(cashOutChainId) as JBChainId : undefined,
   });
+
+  const {
+    data: estimatedRepayAmountForCollateral,
+    isLoading: isEstimatingRepayment,
+  } = useReadRevLoansBorrowableAmountFrom({
+    chainId: selectedLoan?.chainId,
+    args: selectedLoan
+      ? [
+          projectId,
+          BigInt(selectedLoan.collateral),
+          BigInt(NATIVE_TOKEN_DECIMALS),
+          61166n,
+        ]
+      : undefined,
+  });
+
+  // Collateral to return logic for repay tab
+  const remainingCollateral = selectedLoan && collateralToReturn
+    ? BigInt(selectedLoan.collateral) - BigInt(Math.floor(Number(collateralToReturn) * 1e18))
+    : undefined;
+
+  const {
+    data: estimatedNewBorrowableAmount,
+  } = useReadRevLoansBorrowableAmountFrom({
+    chainId: selectedLoan?.chainId,
+    args:
+      selectedLoan && remainingCollateral !== undefined
+        ? [
+            projectId,
+            remainingCollateral,
+            BigInt(NATIVE_TOKEN_DECIMALS),
+            61166n,
+          ]
+        : undefined,
+  });
+
+  // Recalculate repayAmount when collateralToReturn, estimatedNewBorrowableAmount, or selectedLoan changes
+  useEffect(() => {
+    if (!selectedLoan || !collateralToReturn || estimatedNewBorrowableAmount === undefined) return;
+
+    const correctedBorrowAmount = BigInt(selectedLoan.borrowAmount);
+    const repayAmountWei = correctedBorrowAmount - estimatedNewBorrowableAmount;
+    setRepayAmount((Number(repayAmountWei) / 1e18).toFixed(6));
+  }, [collateralToReturn, estimatedNewBorrowableAmount, selectedLoan]);
+
   const userProjectTokenBalance = balances?.find(
     (b) =>
       BigInt(b.projectId) === projectId &&
@@ -169,6 +247,7 @@ export function BorrowDialog({
   });
 
   // Track transaction status based on useWaitForTransactionReceipt
+
   useEffect(() => {
     if (!txHash) return;
 
@@ -307,14 +386,16 @@ export function BorrowDialog({
         </DialogHeader>
         {/* Tab UI */}
         <div className="flex gap-4 mb-4">
-          {["borrow", "outstanding"].map((tab) => (
+          {["borrow", "repay"].map((tab) => (
             <Button
               key={tab}
               variant={selectedTab === tab ? "tab-selected" : "bottomline"}
               className={twJoin("text-md text-zinc-400", selectedTab === tab && "text-inherit")}
-              onClick={() => setSelectedTab(tab as "borrow" | "outstanding")}
+              onClick={() => setSelectedTab(tab as "borrow" | "repay")}
             >
-              {tab === "borrow" ? "Borrow" : "Outstanding"}
+              {tab === "borrow"
+                ? "Borrow"
+                : "Repay"}
             </Button>
           ))}
         </div>
@@ -330,7 +411,6 @@ export function BorrowDialog({
                 terminalAddress={primaryNativeTerminal.data as `0x${string}`}
                 address={address as `0x${string}`}
                 columns={["chain", "holding", "borrowable"]}
-
               />
               <div className="grid grid-cols-7 gap-2">
                 <div className="col-span-4">
@@ -570,18 +650,170 @@ export function BorrowDialog({
             </DialogFooter>
           </div>
         )}
-        {selectedTab === "outstanding" && (
-          <>
-            <TokenBalanceTable
-              balances={balances}
-              projectId={projectId}
-              tokenSymbol={tokenSymbol}
-              terminalAddress={primaryNativeTerminal.data as `0x${string}`}
-              address={address as `0x${string}`}
-              columns={["chain", "debt", "collateral"]}
-            />
-              <LoanDetailsTable address={address as `0x${string}`} revnetId={projectId} />
-               </>
+        {selectedTab === "repay" && (
+          <div className="text-sm text-zinc-700 space-y-4">
+            {/* Toggle button for showing/hiding LoanDetailsTable */}
+            <button
+              type="button"
+              onClick={() => setShowLoanDetailsTable(!showLoanDetailsTable)}
+              className="flex items-center gap-2 text-left block text-gray-700 text-sm font-bold mb-2 mt-2"
+            >
+              <span>Select Loan to Repay</span>
+              <span
+                className={`transform transition-transform ${showLoanDetailsTable ? "rotate-90" : "rotate-0"}`}
+              >
+                ▶
+              </span>
+            </button>
+            {/* LoanDetailsTable for repay tab */}
+            {showLoanDetailsTable && (
+              <LoanDetailsTable
+                address={address as `0x${string}`}
+                revnetId={projectId}
+                onSelectLoan={(id, loan) => {
+                  setSelectedLoanId(id);
+                  setSelectedLoan(loan);
+                  // Use borrowAmount as is (already in wei)
+                  const correctBorrowAmount = BigInt(loan.borrowAmount);
+                  setRepayAmount((Number(correctBorrowAmount) / 1e18).toString());
+                  setCollateralToReturn((Number(loan.collateral) / 1e18).toString());
+                  setShowLoanDetailsTable(false);
+                }}
+              />
+            )}
+            {/* Repayment collateral and amount selector */}
+            <div className="grid grid-cols-7 gap-2">
+              <div className="col-span-4">
+                <Label htmlFor="collateral-to-return" className="block text-gray-700 text-sm font-bold mb-1">
+                  Collateral to Return ({tokenSymbol})
+                </Label>
+                <Input
+                  id="collateral-to-return"
+                  type="number"
+                  step="1"
+                  value={collateralToReturn}
+                  onChange={(e) => setCollateralToReturn(e.target.value)}
+                  placeholder="Enter collateral amount to return"
+                />
+                <Label className="block text-gray-700 text-sm font-bold mb-1 mt-4">
+                  Amount to Repay
+                </Label>
+                <Label className="block px-3 py-2 h-10 bg-white text-sm text-zinc-900">
+                  {repayAmount || "0.00"}
+                </Label>
+                <div className="flex gap-1 mt-2">
+                  {[10, 25, 50].map((pct) => (
+                    <button
+                      key={pct}
+                      type="button"
+                      onClick={async () => {
+                        if (selectedLoan) {
+                          const collateralInTokens = Number(selectedLoan.collateral) / 1e18;
+                          const portion = collateralInTokens * (pct / 100);
+                          setCollateralToReturn(portion.toString());
+
+                          const remainingCollateral = BigInt(selectedLoan.collateral) - BigInt(Math.floor(portion * 1e18));
+                          // TODO review this
+                          // Fetch new borrowable amount for the remaining collateral
+                          const result = await fetch(
+                            `/api/borrowableAmount?projectId=${projectId.toString()}&collateral=${remainingCollateral.toString()}&chainId=${selectedLoan.chainId}`
+                          ).then(res => res.json());
+
+                          const newBorrowableAmount = BigInt(result.borrowableAmount);
+                          const repayAmountWei = BigInt(selectedLoan.borrowAmount) - newBorrowableAmount;
+                          setRepayAmount((Number(repayAmountWei) / 1e18).toFixed(6));
+                        }
+                      }}
+                      className="h-10 px-3 text-sm text-zinc-700 border border-zinc-300 rounded-md bg-white hover:bg-zinc-100"
+                    >
+                      {pct}%
+                    </button>
+                  ))}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (selectedLoan) {
+                        const maxCollateral = Number(selectedLoan.collateral) / 1e18;
+                        setCollateralToReturn(maxCollateral.toString());
+                        const repay = Number(selectedLoan.borrowAmount) / 1e18;
+                        setRepayAmount(repay.toFixed(6));
+                      }
+                    }}
+                    className="h-10 px-3 text-sm text-zinc-700 border border-zinc-300 rounded-md bg-white hover:bg-zinc-100"
+                  >
+                    Max
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Submit Button tx*/}
+            <div className="flex flex-col items-end pt-2">
+              <ButtonWithWallet
+                targetChainId={selectedLoan?.chainId}
+                loading={isRepaying || repayStatus === "waiting-signature" || repayStatus === "pending"}
+                onClick={async () => {
+                  if (!repayLoanAsync || !selectedLoan || !address) return;
+                  // TODO Confirm ok - Guard clause for repayAmount and estimate
+                  if (
+                    estimatedNewBorrowableAmount === undefined &&
+                    (repayAmount === "" || isNaN(Number(repayAmount)))
+                  ) {
+                    console.error("Cannot submit repay tx — repayAmount and estimate both invalid.");
+                    return;
+                  }
+                  try {
+                    const correctedBorrowAmount = BigInt(selectedLoan.borrowAmount);
+                    // Calculate maxRepay using estimatedNewBorrowableAmount and collateralToReturn
+                    const maxRepay =
+                      estimatedNewBorrowableAmount !== undefined
+                        ? BigInt(selectedLoan.borrowAmount) - estimatedNewBorrowableAmount + 10n
+                        : !isNaN(Number(repayAmount))
+                          ? BigInt(Math.floor(Number(repayAmount) * 1e18)) + 10n
+                          : 0n;
+                    const repayArgs = [
+                      selectedLoan.id,
+                      maxRepay,
+                      BigInt(Math.floor(Number(collateralToReturn) * 1e18)),
+                      address as `0x${string}`,
+                      {
+                        sigDeadline: 0n,
+                        amount: 0n,
+                        expiration: 0,
+                        nonce: 0,
+                        signature: "0x",
+                      },
+                    ] as const;
+                    setRepayStatus("waiting-signature");
+                    try {
+                      const tx = await repayLoanAsync({
+                        chainId: selectedLoan.chainId,
+                        args: repayArgs,
+                        value: maxRepay,
+                      });
+                      setRepayTxHash(tx);
+                    } catch (e) {
+                      setRepayStatus("error");
+                      console.error("Repayment failed:", e);
+                    }
+                  } catch (e) {
+                    setRepayStatus("error");
+                    console.error("Repayment failed:", e);
+                  }
+                }}
+              >
+                Repay Loan
+              </ButtonWithWallet>
+              {repayStatus !== "idle" && (
+                <p className="text-sm text-zinc-600 mt-2">
+                  {repayStatus === "waiting-signature" && "Waiting for wallet confirmation..."}
+                  {repayStatus === "pending" && "Repayment pending..."}
+                  {repayStatus === "success" && "Repayment successful!"}
+                  {repayStatus === "error" && "Something went wrong during repayment."}
+                </p>
+              )}
+            </div>
+          </div>
         )}
       </DialogContent>
     </Dialog>
