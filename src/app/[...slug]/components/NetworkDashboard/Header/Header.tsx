@@ -44,6 +44,7 @@ export function Header() {
       suckerGroupId: suckerGroup.data?.suckerGroup?.id,
       balance_gt: 0,
     },
+    limit: 1000 // TODO will break once more than 1000 participants exist
   });
 
   const contributorsCount = useMemo(() => {

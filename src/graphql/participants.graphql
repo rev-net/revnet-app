@@ -2,11 +2,13 @@ query Participants(
   $where: participantFilter
   $orderBy: String
   $orderDirection: String
+  $limit: Int
 ) {
   participants(
     where: $where
     orderBy: $orderBy
     orderDirection: $orderDirection
+    limit: $limit
   ) {
     totalCount
     items {
