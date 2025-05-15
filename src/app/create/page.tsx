@@ -15,7 +15,7 @@ import { parseDeployData } from "./helpers/parseDeployData";
 import { pinProjectMetadata } from "./helpers/pinProjectMetaData";
 import { RevnetFormData } from "./types";
 import { wagmiConfig } from "@/lib/wagmiConfig";
-import { getPublicClient } from '@wagmi/core'
+import { getPublicClient } from "@wagmi/core"
 
 export default function Page() {
   const [isLoadingIpfs, setIsLoadingIpfs] = useState<boolean>(false);

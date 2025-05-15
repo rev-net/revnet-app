@@ -14,7 +14,7 @@ import { safe } from "wagmi/connectors";
 import { farcasterFrame as miniAppConnector } from "@farcaster/frame-wagmi-connector"
 
 const safeConnector = safe({
-  allowedDomains: [/app.safe.global$/],
+  allowedDomains: [/^app\.safe\.global$/],
   debug: true,
   shimDisconnect: true,
 });
