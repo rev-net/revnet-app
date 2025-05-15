@@ -183,26 +183,26 @@ export const SHORTER_TEST_FORM_DATA: RevnetFormData = {
   tokenSymbol: "DONUTS",
   stages: [
     {
-      initialOperator: "0x1234567890123456789012345678901234567890",
-      initialIssuance: "100",
-      priceCeilingIncreasePercentage: "50",
-      priceCeilingIncreaseFrequency: "30",
+      initialOperator: "0xDf087B724174A3E4eD2338C0798193932E851F1b",
+      initialIssuance: "50",
+      priceCeilingIncreasePercentage: "5",
+      priceCeilingIncreaseFrequency: "0.01",
       priceFloorTaxIntensity: "20",
       autoIssuance: [
         {
           amount: "100",
-          beneficiary: "0x1234567890123456789012345678901234567890",
+          beneficiary: "0xDf087B724174A3E4eD2338C0798193932E851F1b",
           chainId: 11155111,
         },
       ],
       splits: [
         {
-          percentage: "10",
-          defaultBeneficiary: "0x1234567890123456789012345678901234567890",
+          percentage: "25",
+          defaultBeneficiary: "0x8b80755C441d355405CA7571443Bb9247B77Ec16",
         },
         {
-          percentage: "90",
-          defaultBeneficiary: "0x1234567890123456789012345678901234567890",
+          percentage: "25",
+          defaultBeneficiary: "0xDf087B724174A3E4eD2338C0798193932E851F1b",
         },
       ],
       boostDuration: "0",

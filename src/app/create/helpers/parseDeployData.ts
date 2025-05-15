@@ -100,7 +100,7 @@ export function parseDeployData(
       `~~~~~~~~~~~~~~~~~~~~~~~~~~ Stage ${idx + 1} ~~~~~~~~~~~~~~~~~~~~~~~~~~`
     );
     const lengthSeconds = Number(stage.boostDuration) * 86400;
-    const startsAtOrAfter = idx === 0 ? now : prevStart + lengthSeconds;
+    const startsAtOrAfter = idx === 0 ? now + 300 : prevStart + lengthSeconds;
     prevStart = startsAtOrAfter;
     console.log(
       `[ startsAtOrAfter ] ${new Date(

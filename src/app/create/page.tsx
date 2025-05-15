@@ -54,7 +54,7 @@ export default function Page() {
         suckerDeployerConfig,
         salt,
       });
-      
+
       console.log({deployData});
 
       const encodedData = encodeFunctionData({
@@ -70,7 +70,7 @@ export default function Page() {
           from: address,
           to: revDeployerAddress[chainId],
           value: 0n,
-          gas: 1_000_000n * BigInt(formData.chainIds.length),
+          gas: 2_000_000n * BigInt(formData.chainIds.length),
           data: encodedData,
         },
         chainId,
