@@ -81,7 +81,6 @@ export function BorrowDialog({
     | "reallocation-pending";
 
   const [collateralAmount, setCollateralAmount] = useState("");
-  const [borrowedEth, setBorrowedEth] = useState<string | null>(null);
   const [repayAmount, setRepayAmount] = useState("");
   const [collateralToReturn, setCollateralToReturn] = useState("");
   const [prepaidPercent, setPrepaidPercent] = useState("2.5");
@@ -108,7 +107,6 @@ export function BorrowDialog({
 
   // Used for estimating how much ETH could be borrowed if both
   // the existing loan's collateral and new collateral were combined into one.
-  // ⚠️ Only used for SDK estimation — do not pass this to the contract directly.
   // --- Reallocation borrowable amount estimation ---
   const totalReallocationCollateral =
     internalSelectedLoan && collateralAmount
