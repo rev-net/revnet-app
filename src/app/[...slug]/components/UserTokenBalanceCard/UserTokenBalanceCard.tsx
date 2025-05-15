@@ -64,7 +64,7 @@ export function UserTokenBalanceCard() {
           primaryTerminalEth={primaryNativeTerminal.data}
         >
           <Button variant="outline" disabled={creditBalance.value === 0n}>
-            Snag a loan
+            Borrow
           </Button>
         </BorrowDialog>
     ) : null}
