@@ -14,6 +14,8 @@ import { DeployRevnetForm } from "./form/DeployRevnetForm";
 import { parseDeployData } from "./helpers/parseDeployData";
 import { pinProjectMetadata } from "./helpers/pinProjectMetaData";
 import { RevnetFormData } from "./types";
+import { wagmiConfig } from "@/lib/wagmiConfig";
+import { getPublicClient } from '@wagmi/core'
 
 export default function Page() {
   const [isLoadingIpfs, setIsLoadingIpfs] = useState<boolean>(false);
@@ -43,39 +45,57 @@ export default function Page() {
 
     const salt = createSalt();
 
-    const relayrTransactions = formData.chainIds.map((chainId) => {
-      const suckerDeployerConfig = parseSuckerDeployerConfig(
-        chainId,
-        formData.chainIds
-      );
-      const deployData = parseDeployData(formData, {
-        metadataCid,
-        chainId,
-        suckerDeployerConfig,
-        salt,
-      });
-      
-      console.log({deployData});
+    const relayrTransactions = [];
+    for (const chainId of formData.chainIds) {
+        const suckerDeployerConfig = parseSuckerDeployerConfig(
+            chainId,
+            formData.chainIds
+        );
+        const deployData = parseDeployData(formData, {
+            metadataCid,
+            chainId,
+            suckerDeployerConfig,
+            salt,
+        });
 
-      const encodedData = encodeFunctionData({
-        abi: revDeployerAbi, // ABI of the contract
-        functionName: "deployWith721sFor",
-        args: deployData,
-      });
+        console.log({deployData});
 
-      console.log("create::deploy calldata", chainId, encodedData, deployData);
+        const encodedData = encodeFunctionData({
+            abi: revDeployerAbi, // ABI of the contract
+            functionName: "deployWith721sFor",
+            args: deployData,
+        });
 
-      return {
-        data: {
-          from: address,
-          to: revDeployerAddress[chainId],
-          value: 0n,
-          gas: 1_000_000n * BigInt(formData.chainIds.length),
-          data: encodedData,
-        },
-        chainId,
-      };
-    });
+        const publicClient = getPublicClient(wagmiConfig, {
+            chainId: chainId
+        })
+
+        if (!publicClient) {
+            throw new Error("Public client not available");
+        }
+
+        // Estimate gas for the transaction if it were to be send directly to the revDeployer.
+        const gasEstimate = await publicClient.estimateContractGas({
+            address: revDeployerAddress[chainId],
+            abi: revDeployerAbi,
+            functionName: "deployWith721sFor",
+            args: deployData,
+        });
+
+        console.log("create::deploy calldata", chainId, gasEstimate, encodedData, deployData);
+
+        relayrTransactions.push({
+            data: {
+                from: address,
+                to: revDeployerAddress[chainId],
+                value: 0n,
+                // Use the estimated gas but add a buffer for the trustedForwarder.
+                gas: gasEstimate + BigInt(120_000n),
+                data: encodedData,
+            },
+            chainId,
+        });
+    }
 
     await getRelayrTxQuote(relayrTransactions);
   }
