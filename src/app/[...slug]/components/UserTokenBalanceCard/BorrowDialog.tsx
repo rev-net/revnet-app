@@ -46,6 +46,7 @@ import { LoanTabsHeader } from "./LoanTabsHeader";
 import { ImportantInfo } from "./ImportantInfo";
 
 const FIXEDLOANFEES = 0.035; // TODO: get from onchain?
+const showAddOnCollateralSection = false; // Set to false to hide this section
 
 export function BorrowDialog({
   projectId,
@@ -54,12 +55,16 @@ export function BorrowDialog({
   primaryTerminalEth,
   disabled,
   children,
+  selectedLoan,
+  defaultTab,
 }: PropsWithChildren<{
   projectId: bigint;
   creditBalance: FixedInt<number>;
   tokenSymbol: string;
   primaryTerminalEth: string;
   disabled?: boolean;
+  selectedLoan?: any;
+  defaultTab?: "borrow" | "repay";
 }>) {
   // State management
   type BorrowState =
@@ -88,9 +93,16 @@ export function BorrowDialog({
   const [showInfo, setShowInfo] = useState(false);
   const [showOtherCollateral, setShowOtherCollateral] = useState(false);
   const [showingWaitingMessage, setShowingWaitingMessage] = useState(false);
-  const [selectedTab, setSelectedTab] = useState<"borrow" | "repay" >("borrow");
+  const [selectedTab, setSelectedTab] = useState<"borrow" | "repay">(defaultTab ?? "borrow");
+
+  // Sync defaultTab with selectedTab if defaultTab changes
+  useEffect(() => {
+    if (defaultTab && defaultTab !== selectedTab) {
+      setSelectedTab(defaultTab);
+    }
+  }, [defaultTab]);
   const [selectedLoanId, setSelectedLoanId] = useState<string | null>(null);
-  const [selectedLoan, setSelectedLoan] = useState<any | null>(null);
+  const [internalSelectedLoan, setInternalSelectedLoan] = useState<any | null>(selectedLoan ?? null);
   const [showLoanDetailsTable, setShowLoanDetailsTable] = useState(true);
   const [showRefinanceLoanDetailsTable, setShowRefinanceLoanDetailsTable] = useState(true);
 
@@ -99,8 +111,8 @@ export function BorrowDialog({
   // ⚠️ Only used for SDK estimation — do not pass this to the contract directly.
   // --- Reallocation borrowable amount estimation ---
   const totalReallocationCollateral =
-    selectedLoan && collateralAmount
-      ? BigInt(selectedLoan.collateral) + BigInt(Math.floor(Number(collateralAmount) * 1e18))
+    internalSelectedLoan && collateralAmount
+      ? BigInt(internalSelectedLoan.collateral) + BigInt(Math.floor(Number(collateralAmount) * 1e18))
       : undefined;
 
   const { data: selectedLoanReallocAmount } = useReadRevLoansBorrowableAmountFrom({
@@ -118,10 +130,10 @@ export function BorrowDialog({
   // --- Current borrowable amount on selected collateral ---
   const { data: currentBorrowableOnSelectedCollateral } = useReadRevLoansBorrowableAmountFrom({
     chainId: cashOutChainId ? Number(cashOutChainId) as JBChainId : undefined,
-    args: selectedLoan
+    args: internalSelectedLoan
       ? [
           projectId,
-          BigInt(selectedLoan.collateral),
+          BigInt(internalSelectedLoan.collateral),
           BigInt(NATIVE_TOKEN_DECIMALS),
           61166n,
         ]
@@ -129,49 +141,42 @@ export function BorrowDialog({
   });
 
 const netAvailableToBorrow =
-  selectedTab === "borrow" && selectedLoanReallocAmount !== undefined
-    ? selectedLoanReallocAmount - BigInt(selectedLoan.borrowAmount)
+  selectedTab === "borrow" && selectedLoanReallocAmount !== undefined && internalSelectedLoan
+    ? selectedLoanReallocAmount - BigInt(internalSelectedLoan.borrowAmount)
     : 0n;
 
 // --- Overcollateralization buffer calculation and debug log ---
 const isOvercollateralized =
   selectedLoanReallocAmount !== undefined &&
-  BigInt(selectedLoan?.borrowAmount ?? 0) < selectedLoanReallocAmount;
+  BigInt(internalSelectedLoan?.borrowAmount ?? 0) < selectedLoanReallocAmount;
 
 const extraCollateralBuffer = isOvercollateralized
-  ? selectedLoanReallocAmount - BigInt(selectedLoan?.borrowAmount ?? 0)
+  ? selectedLoanReallocAmount - BigInt(internalSelectedLoan?.borrowAmount ?? 0)
   : 0n;
 
 // --- Collateral headroom calculation and debug log ---
 const collateralHeadroom =
-  currentBorrowableOnSelectedCollateral !== undefined && selectedLoan
-    ? currentBorrowableOnSelectedCollateral - BigInt(selectedLoan.borrowAmount)
+  currentBorrowableOnSelectedCollateral !== undefined && internalSelectedLoan
+    ? currentBorrowableOnSelectedCollateral - BigInt(internalSelectedLoan.borrowAmount)
     : 0n;
 
 // --- Collateral count to transfer calculation for display ---
-const collateralCountToTransfer = selectedLoan && currentBorrowableOnSelectedCollateral
+const collateralCountToTransfer = internalSelectedLoan && currentBorrowableOnSelectedCollateral
   ? BigInt(
       Math.floor(
         Number(collateralHeadroom) /
-          (Number(currentBorrowableOnSelectedCollateral) / Number(selectedLoan.collateral))
+          (Number(currentBorrowableOnSelectedCollateral) / Number(internalSelectedLoan.collateral))
       )
     )
   : BigInt(0);
 
   useEffect(() => {
-    if (currentBorrowableOnSelectedCollateral !== undefined && selectedLoan?.borrowAmount !== undefined) {
+    if (currentBorrowableOnSelectedCollateral !== undefined && internalSelectedLoan?.borrowAmount !== undefined) {
       const netAvailableBorrowETH =
-        Number(currentBorrowableOnSelectedCollateral - BigInt(selectedLoan.borrowAmount)) / 1e18;
-      console.log("📊 Existing Loan Collateral Debug", {
-        loanId: selectedLoan.id,
-        chainId: selectedLoan.chainId,
-        "today’s ETH value of old collateral": Number(currentBorrowableOnSelectedCollateral) / 1e18,
-        existingBorrowedETH: Number(selectedLoan.borrowAmount) / 1e18,
-        headroomETH: netAvailableBorrowETH,
-        netAvailableBorrowETH,
-      });
+        Number(currentBorrowableOnSelectedCollateral - BigInt(internalSelectedLoan.borrowAmount)) / 1e18;
+      // Debug log here
     }
-  }, [currentBorrowableOnSelectedCollateral, selectedLoan]);
+  }, [currentBorrowableOnSelectedCollateral, internalSelectedLoan]);
 
   // Reset showLoanDetailsTable or showRefinanceLoanDetailsTable when switching tabs
   useEffect(() => {
@@ -179,6 +184,7 @@ const collateralCountToTransfer = selectedLoan && currentBorrowableOnSelectedCol
       setShowLoanDetailsTable(true);
     }
   }, [selectedTab]);
+
   // Repay transaction status tracking
   type RepayState = "idle" | "waiting-signature" | "pending" | "success" | "error";
   const [repayStatus, setRepayStatus] = useState<RepayState>("idle");
@@ -227,11 +233,11 @@ const collateralCountToTransfer = selectedLoan && currentBorrowableOnSelectedCol
     data: estimatedRepayAmountForCollateral,
     isLoading: isEstimatingRepayment,
   } = useReadRevLoansBorrowableAmountFrom({
-    chainId: selectedLoan?.chainId,
-    args: selectedLoan
+    chainId: internalSelectedLoan?.chainId,
+    args: internalSelectedLoan
       ? [
           projectId,
-          BigInt(selectedLoan.collateral),
+          BigInt(internalSelectedLoan.collateral),
           BigInt(JB_TOKEN_DECIMALS), // TODO confirm this is correct
           61166n,
         ]
@@ -239,16 +245,16 @@ const collateralCountToTransfer = selectedLoan && currentBorrowableOnSelectedCol
   });
 
   // Collateral to return logic for repay tab
-  const remainingCollateral = selectedLoan && collateralToReturn
-    ? BigInt(selectedLoan.collateral) - BigInt(Math.floor(Number(collateralToReturn) * 1e18))
+  const remainingCollateral = internalSelectedLoan && collateralToReturn
+    ? BigInt(internalSelectedLoan.collateral) - BigInt(Math.floor(Number(collateralToReturn) * 1e18))
     : undefined;
 
   const {
     data: estimatedNewBorrowableAmount,
   } = useReadRevLoansBorrowableAmountFrom({
-    chainId: selectedLoan?.chainId,
+    chainId: internalSelectedLoan?.chainId,
     args:
-      selectedLoan && remainingCollateral !== undefined
+      internalSelectedLoan && remainingCollateral !== undefined
         ? [
             projectId,
             remainingCollateral,
@@ -260,12 +266,12 @@ const collateralCountToTransfer = selectedLoan && currentBorrowableOnSelectedCol
 
   // Recalculate repayAmount when collateralToReturn, estimatedNewBorrowableAmount, or selectedLoan changes
   useEffect(() => {
-    if (!selectedLoan || !collateralToReturn || estimatedNewBorrowableAmount === undefined) return;
+    if (!internalSelectedLoan || !collateralToReturn || estimatedNewBorrowableAmount === undefined) return;
 
-    const correctedBorrowAmount = BigInt(selectedLoan.borrowAmount);
+    const correctedBorrowAmount = BigInt(internalSelectedLoan.borrowAmount);
     const repayAmountWei = correctedBorrowAmount - estimatedNewBorrowableAmount;
     setRepayAmount((Number(repayAmountWei) / 1e18).toFixed(6));
-  }, [collateralToReturn, estimatedNewBorrowableAmount, selectedLoan]);
+  }, [collateralToReturn, estimatedNewBorrowableAmount, internalSelectedLoan]);
 
   const userProjectTokenBalance = balances?.find(
     (b) =>
@@ -311,8 +317,7 @@ const collateralCountToTransfer = selectedLoan && currentBorrowableOnSelectedCol
     hash: txHash,
   });
 
-  // Track transaction status based on useWaitForTransactionReceipt
-
+  // TODO:  surely i missed a helper util here
   useEffect(() => {
     if (!txHash) return;
 
@@ -493,8 +498,8 @@ const feeData = generateFeeData({ grossBorrowedEth, ethToWallet, prepaidPercent 
             {(() => {
               // Calculate effectiveBorrowableAmount and simulation values
               const effectiveBorrowableAmount =
-                selectedLoan && showOtherCollateral && selectedLoanReallocAmount
-                  ? selectedLoanReallocAmount - BigInt(selectedLoan.borrowAmount)
+                internalSelectedLoan && showOtherCollateral && selectedLoanReallocAmount
+                  ? selectedLoanReallocAmount - BigInt(internalSelectedLoan.borrowAmount)
                   : borrowableAmountRaw;
               const simulatedEthToWallet = effectiveBorrowableAmount
                 ? Number(effectiveBorrowableAmount) / 1e18 * (1 - FIXEDLOANFEES)
@@ -541,58 +546,62 @@ const feeData = generateFeeData({ grossBorrowedEth, ethToWallet, prepaidPercent 
                 displayMonths={displayMonths}
               />
             )}
-            {/* Additional Collateral toggleable section */}
-            <button
-              type="button"
-              onClick={() => setShowOtherCollateral(!showOtherCollateral)}
-              className="flex items-center gap-2 text-left block text-gray-700 text-sm font-bold mb-2 mt-4"
-            >
-              <span>Add on Collateral (optional)</span>
-              <span
-                className={`transform transition-transform ${showOtherCollateral ? "rotate-90" : "rotate-0"}`}
-              >
-                ▶
-              </span>
-            </button>
-            {showOtherCollateral && (
-              <LoanDetailsTable
-                revnetId={BigInt(projectId)}
-                address={address ?? ""}
-                chainId={cashOutChainId ? Number(cashOutChainId) : undefined}
-                onSelectLoan={(loanId, loanData) => setSelectedLoan(loanData)}
-              />
-            )}
-            {selectedLoan && showOtherCollateral && (
-              <div className="text-sm text-zinc-700 mt-4 space-y-1">
-                <div className="flex justify-between items-center">
-                  <p>
-                    Using <b>{Number(collateralCountToTransfer) / 1e18}</b> {tokenSymbol} of appreciated collateral.
-                  </p>
-                  <button
-                    onClick={() => setSelectedLoan(null)}
-                    className="text-xs text-red-600 hover:underline ml-4"
+            {/* Additional Collateral toggleable section (conditionally rendered) */}
+            {showAddOnCollateralSection && (
+              <>
+                <button
+                  type="button"
+                  onClick={() => setShowOtherCollateral(!showOtherCollateral)}
+                  className="flex items-center gap-2 text-left block text-gray-700 text-sm font-bold mb-2 mt-4"
+                >
+                  <span>Add on Collateral (optional)</span>
+                  <span
+                    className={`transform transition-transform ${showOtherCollateral ? "rotate-90" : "rotate-0"}`}
                   >
-                    Remove
-                  </button>
-                </div>
-                <p>Adding <b>{collateralAmount}</b> {tokenSymbol} more.</p>
-                <p>
-                  Existing Borrowed: <b>{Number(selectedLoan.borrowAmount) / 1e18}</b> ETH
-                </p>
-                <p>
-                  Collateral Headroom: <b>{Number(collateralHeadroom) / 1e18}</b> ETH
-                </p>
-                <p>
-                  New Borrowable Amount:{" "}
-                  <b>
-                    {selectedLoanReallocAmount && selectedLoan
-                      ? Number(selectedLoanReallocAmount - BigInt(selectedLoan.borrowAmount)) / 1e18
-                      : 0}{" "}
-                    ETH
-                  </b>{" "}
-                  after fees.
-                </p>
-              </div>
+                    ▶
+                  </span>
+                </button>
+                {showOtherCollateral && (
+                  <LoanDetailsTable
+                    revnetId={BigInt(projectId)}
+                    address={address ?? ""}
+                    chainId={cashOutChainId ? Number(cashOutChainId) : 0}
+                    onSelectLoan={(loanId, loanData) => setInternalSelectedLoan(loanData)}
+                  />
+                )}
+                {internalSelectedLoan && showOtherCollateral && (
+                  <div className="text-sm text-zinc-700 mt-4 space-y-1">
+                    <div className="flex justify-between items-center">
+                      <p>
+                        Using <b>{Number(collateralCountToTransfer) / 1e18}</b> {tokenSymbol} of appreciated collateral.
+                      </p>
+                      <button
+                        onClick={() => setInternalSelectedLoan(null)}
+                        className="text-xs text-red-600 hover:underline ml-4"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                    <p>Adding <b>{collateralAmount}</b> {tokenSymbol} more.</p>
+                    <p>
+                      Existing Borrowed: <b>{Number(internalSelectedLoan.borrowAmount) / 1e18}</b> ETH
+                    </p>
+                    <p>
+                      Collateral Headroom: <b>{Number(collateralHeadroom) / 1e18}</b> ETH
+                    </p>
+                    <p>
+                      New Borrowable Amount:{" "}
+                      <b>
+                        {selectedLoanReallocAmount && internalSelectedLoan
+                          ? Number(selectedLoanReallocAmount - BigInt(internalSelectedLoan.borrowAmount)) / 1e18
+                          : 0}{" "}
+                        ETH
+                      </b>{" "}
+                      after fees.
+                    </p>
+                  </div>
+                )}
+              </>
             )}
             {/* Important Info toggleable section */}
             <button
@@ -630,12 +639,12 @@ const feeData = generateFeeData({ grossBorrowedEth, ethToWallet, prepaidPercent 
               {/* Single borrow button for both reallocation and standard borrowing */}
               <ButtonWithWallet
                 targetChainId={cashOutChainId ? Number(cashOutChainId) as JBChainId : undefined}
-                loading={selectedLoan && collateralAmount && !isNaN(Number(collateralAmount)) ? isReallocating : false}
+                loading={internalSelectedLoan && collateralAmount && !isNaN(Number(collateralAmount)) ? isReallocating : false}
                 onClick={async () => {
-                  if (selectedLoan && collateralAmount && !isNaN(Number(collateralAmount))) {
+                  if (internalSelectedLoan && collateralAmount && !isNaN(Number(collateralAmount))) {
                     // Reallocation path
                     if (
-                      !selectedLoan ||
+                      !internalSelectedLoan ||
                       !primaryNativeTerminal?.data ||
                       !cashOutChainId ||
                       !address ||
@@ -646,11 +655,11 @@ const feeData = generateFeeData({ grossBorrowedEth, ethToWallet, prepaidPercent 
                       return;
                     }
 
-                    const collateralCountToTransfer = selectedLoan && currentBorrowableOnSelectedCollateral
+                    const collateralCountToTransfer = internalSelectedLoan && currentBorrowableOnSelectedCollateral
                       ? BigInt(
                           Math.floor(
                             Number(collateralHeadroom) /
-                              (Number(currentBorrowableOnSelectedCollateral) / Number(selectedLoan.collateral))
+                              (Number(currentBorrowableOnSelectedCollateral) / Number(internalSelectedLoan.collateral))
                           )
                         )
                       : BigInt(0);
@@ -662,7 +671,7 @@ const feeData = generateFeeData({ grossBorrowedEth, ethToWallet, prepaidPercent 
                       setBorrowStatus("waiting-signature");
                       // 🔁 Reallocation TX Debug log
                       console.log("🔁 Reallocation TX Debug", {
-                        loanId: selectedLoan.id,
+                        loanId: internalSelectedLoan.id,
                         collateralCountToTransfer,
                         token: "0x000000000000000000000000000000000000EEEe",
                         terminal: primaryNativeTerminal.data,
@@ -671,7 +680,7 @@ const feeData = generateFeeData({ grossBorrowedEth, ethToWallet, prepaidPercent 
                         beneficiary: address,
                         feePercent,
                         args: [
-                          selectedLoan.id,
+                          internalSelectedLoan.id,
                           collateralCountToTransfer,
                           {
                             token: "0x000000000000000000000000000000000000EEEe",
@@ -686,7 +695,7 @@ const feeData = generateFeeData({ grossBorrowedEth, ethToWallet, prepaidPercent 
                       await reallocateCollateralAsync({
                         chainId: Number(cashOutChainId) as JBChainId,
                         args: [
-                          selectedLoan.id,
+                          internalSelectedLoan.id,
                           collateralCountToTransfer,
                           {
                             token: "0x000000000000000000000000000000000000EEEe",
@@ -785,7 +794,7 @@ const feeData = generateFeeData({ grossBorrowedEth, ethToWallet, prepaidPercent 
                   }
                 }}
               >
-                {selectedLoan && collateralAmount && !isNaN(Number(collateralAmount))
+                {internalSelectedLoan && collateralAmount && !isNaN(Number(collateralAmount))
                   ? "Reallocate + Borrow"
                   : "Borrow some ETH"}
               </ButtonWithWallet>
@@ -815,7 +824,7 @@ const feeData = generateFeeData({ grossBorrowedEth, ethToWallet, prepaidPercent 
                 onSelectLoan={(id, loan) => {
                   // Set selected loan and its details
                   setSelectedLoanId(id);
-                  setSelectedLoan(loan);
+                  setInternalSelectedLoan(loan);
                   // Use borrowAmount as is (already in wei)
                   const correctBorrowAmount = BigInt(loan.borrowAmount);
                   setRepayAmount((Number(correctBorrowAmount) / 1e18).toString());
@@ -849,24 +858,24 @@ const feeData = generateFeeData({ grossBorrowedEth, ethToWallet, prepaidPercent 
                     <button
                       key={pct}
                       type="button"
-                      onClick={async () => {
-                        if (selectedLoan) {
-                          const collateralInTokens = Number(selectedLoan.collateral) / 1e18;
-                          const portion = collateralInTokens * (pct / 100);
-                          setCollateralToReturn(portion.toString());
+                  onClick={async () => {
+                    if (internalSelectedLoan) {
+                      const collateralInTokens = Number(internalSelectedLoan.collateral) / 1e18;
+                      const portion = collateralInTokens * (pct / 100);
+                      setCollateralToReturn(portion.toString());
 
-                          const remainingCollateral = BigInt(selectedLoan.collateral) - BigInt(Math.floor(portion * 1e18));
-                          // TODO review this
-                          // Fetch new borrowable amount for the remaining collateral
-                          const result = await fetch(
-                            `/api/borrowableAmount?projectId=${projectId.toString()}&collateral=${remainingCollateral.toString()}&chainId=${selectedLoan.chainId}`
-                          ).then(res => res.json());
+                      const remainingCollateral = BigInt(internalSelectedLoan.collateral) - BigInt(Math.floor(portion * 1e18));
+                      // TODO review this
+                      // Fetch new borrowable amount for the remaining collateral
+                      const result = await fetch(
+                        `/api/borrowableAmount?projectId=${projectId.toString()}&collateral=${remainingCollateral.toString()}&chainId=${internalSelectedLoan.chainId}`
+                      ).then(res => res.json());
 
-                          const newBorrowableAmount = BigInt(result.borrowableAmount);
-                          const repayAmountWei = BigInt(selectedLoan.borrowAmount) - newBorrowableAmount;
-                          setRepayAmount((Number(repayAmountWei) / 1e18).toFixed(6));
-                        }
-                      }}
+                      const newBorrowableAmount = BigInt(result.borrowableAmount);
+                      const repayAmountWei = BigInt(internalSelectedLoan.borrowAmount) - newBorrowableAmount;
+                      setRepayAmount((Number(repayAmountWei) / 1e18).toFixed(6));
+                    }
+                  }}
                       className="h-10 px-3 text-sm text-zinc-700 border border-zinc-300 rounded-md bg-white hover:bg-zinc-100"
                     >
                       {pct}%
@@ -875,10 +884,10 @@ const feeData = generateFeeData({ grossBorrowedEth, ethToWallet, prepaidPercent 
                   <button
                     type="button"
                     onClick={() => {
-                      if (selectedLoan) {
-                        const maxCollateral = Number(selectedLoan.collateral) / 1e18;
+                      if (internalSelectedLoan) {
+                        const maxCollateral = Number(internalSelectedLoan.collateral) / 1e18;
                         setCollateralToReturn(maxCollateral.toString());
-                        const repay = Number(selectedLoan.borrowAmount) / 1e18;
+                        const repay = Number(internalSelectedLoan.borrowAmount) / 1e18;
                         setRepayAmount(repay.toFixed(6));
                       }
                     }}
@@ -893,22 +902,21 @@ const feeData = generateFeeData({ grossBorrowedEth, ethToWallet, prepaidPercent 
             {/* Submit Button tx*/}
             <div className="flex flex-col items-end pt-2">
               <ButtonWithWallet
-                targetChainId={selectedLoan?.chainId}
+                targetChainId={internalSelectedLoan?.chainId}
                 loading={isRepaying || repayStatus === "waiting-signature" || repayStatus === "pending"}
                 onClick={async () => {
-                  if (!repayLoanAsync || !selectedLoan || !address) return;
+                  if (!repayLoanAsync || !internalSelectedLoan || !address) return;
                   try {
-                    const correctedBorrowAmount = BigInt(selectedLoan.borrowAmount);
+                    const correctedBorrowAmount = BigInt(internalSelectedLoan.borrowAmount);
                     // Calculate maxRepay using estimatedNewBorrowableAmount and collateralToReturn
-                    if (!collateralToReturn || isNaN(Number(collateralToReturn)) || selectedLoan.borrowAmount === undefined) {
-                      console.error("Invalid repay data", { collateralToReturn, selectedLoan });
+                    if (!collateralToReturn || isNaN(Number(collateralToReturn)) || internalSelectedLoan.borrowAmount === undefined) {
                       setRepayStatus("error");
                       return;
                     }
 
                     const repayArgs = [
-                      selectedLoan.id,
-                      BigInt(selectedLoan.borrowAmount),
+                      internalSelectedLoan.id,
+                      BigInt(internalSelectedLoan.borrowAmount),
                       BigInt(Math.floor(Number(collateralToReturn) * 1e18)),
                       address as `0x${string}`,
                       {
@@ -921,20 +929,10 @@ const feeData = generateFeeData({ grossBorrowedEth, ethToWallet, prepaidPercent 
                     ] as const;
                     setRepayStatus("waiting-signature");
                     try {
-                      // 🧾 Repay TX Debug log
-                      console.log("🧾 Repay TX Debug", {
-                        selectedLoanId: selectedLoan.id,
-                        borrowAmount: selectedLoan.borrowAmount,
-                        collateralToReturn,
-                        borrower: address,
-                        repayArgs,
-                        chainId: selectedLoan.chainId,
-                        value: selectedLoan?.borrowAmount,
-                      });
                       const tx = await repayLoanAsync({
-                        chainId: selectedLoan.chainId,
+                        chainId: internalSelectedLoan.chainId,
                         args: repayArgs,
-                        value: selectedLoan?.borrowAmount,
+                        value: internalSelectedLoan?.borrowAmount,
                       });
                       setRepayTxHash(tx);
                     } catch (e) {

@@ -47,11 +47,12 @@ export function LoanDetailsTable({
   if (!data?.loans?.items) return null;
 
   const now = Math.floor(Date.now() / 1000);
-  const filteredLoans = chainId
-    ? data.loans.items.filter((loan) => Number(loan.chainId) === chainId)
-    : data.loans.items;
+  const filteredLoans =
+    chainId && chainId !== 0
+      ? data.loans.items.filter((loan) => Number(loan.chainId) === chainId)
+      : data.loans.items;
   if (!filteredLoans.length)
-    return <div className="text-sm text-gray-500">No loans found</div>;
+    return <div className="text-sm text-gray-500 mt-2">You have no loans</div>;
 
   const sortedLoans = [...filteredLoans].sort((a, b) => {
     const timeA = a.prepaidDuration - (now - Number(a.createdAt));
