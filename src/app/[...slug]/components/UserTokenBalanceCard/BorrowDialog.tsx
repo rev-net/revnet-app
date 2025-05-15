@@ -46,7 +46,7 @@ import { LoanTabsHeader } from "./LoanTabsHeader";
 import { ImportantInfo } from "./ImportantInfo";
 
 const FIXEDLOANFEES = 0.035; // TODO: get from onchain?
-const showAddOnCollateralSection = false; // Set to false to hide this section
+const showAddOnCollateralSection = true; // Set to false to hide this section
 
 export function BorrowDialog({
   projectId,
@@ -567,11 +567,11 @@ const feeData = generateFeeData({ grossBorrowedEth, ethToWallet, prepaidPercent 
                     onSelectLoan={(loanId, loanData) => setInternalSelectedLoan(loanData)}
                   />
                 )}
-                {internalSelectedLoan && showOtherCollateral && (
+               {internalSelectedLoan && showOtherCollateral && (
                   <div className="text-sm text-zinc-700 mt-4 space-y-1">
                     <div className="flex justify-between items-center">
                       <p>
-                        Using <b>{Number(collateralCountToTransfer) / 1e18}</b> {tokenSymbol} of appreciated collateral.
+                        You're reusing <b>{(Number(collateralCountToTransfer) / 1e18).toFixed(6)}</b> {tokenSymbol} of appreciated collateral-
                       </p>
                       <button
                         onClick={() => setInternalSelectedLoan(null)}
@@ -580,19 +580,28 @@ const feeData = generateFeeData({ grossBorrowedEth, ethToWallet, prepaidPercent 
                         Remove
                       </button>
                     </div>
-                    <p>Adding <b>{collateralAmount}</b> {tokenSymbol} more.</p>
                     <p>
-                      Existing Borrowed: <b>{Number(internalSelectedLoan.borrowAmount) / 1e18}</b> ETH
+                      which has gained <b>{(Number(collateralHeadroom) / 1e18).toFixed(6)}</b> ETH in value.
                     </p>
+                    <p>You're also adding <b>{collateralAmount}</b> {tokenSymbol} new collateral to the loan.</p>
                     <p>
-                      Collateral Headroom: <b>{Number(collateralHeadroom) / 1e18}</b> ETH
+                      Existing borrowed: <b>{(Number(internalSelectedLoan.borrowAmount) / 1e18).toFixed(6)}</b> ETH
                     </p>
+
+                    {selectedLoanReallocAmount &&
+                      internalSelectedLoan &&
+                      BigInt(selectedLoanReallocAmount) <= BigInt(internalSelectedLoan.borrowAmount) && (
+                        <p className="text-red-600 text-sm font-medium">
+                          ⚠️ Borrowable amount must exceed existing borrowed amount.
+                        </p>
+                    )}
+
                     <p>
-                      New Borrowable Amount:{" "}
+                      Updated borrowable amount:{" "}
                       <b>
                         {selectedLoanReallocAmount && internalSelectedLoan
-                          ? Number(selectedLoanReallocAmount - BigInt(internalSelectedLoan.borrowAmount)) / 1e18
-                          : 0}{" "}
+                          ? (Number(selectedLoanReallocAmount - BigInt(internalSelectedLoan.borrowAmount)) / 1e18).toFixed(6)
+                          : "0.000000"}{" "}
                         ETH
                       </b>{" "}
                       after fees.
@@ -667,6 +676,18 @@ const feeData = generateFeeData({ grossBorrowedEth, ethToWallet, prepaidPercent 
 
                     try {
                       setBorrowStatus("waiting-signature");
+                      // Print all call fields being passed into the transaction before the reallocateCollateralAsync call
+                      console.log("Reallocate Loan TX args", {
+                        chainId: Number(cashOutChainId),
+                        loanId: internalSelectedLoan.id,
+                        collateralCountToTransfer,
+                        token: "0x000000000000000000000000000000000000EEEe",
+                        terminal: primaryNativeTerminal.data,
+                        minBorrowAmount,
+                        collateralCountToAdd,
+                        beneficiary: address,
+                        feePercent
+                      });
                       // 🔁 Reallocation TX Debug log
                       console.log("🔁 Reallocation TX Debug", {
                         loanId: internalSelectedLoan.id,
