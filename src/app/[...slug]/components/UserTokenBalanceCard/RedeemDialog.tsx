@@ -83,11 +83,9 @@ export function RedeemDialog({
   const { isLoading: isTxLoading, isSuccess } = useWaitForTransactionReceipt({
     hash: txHash,
   });
-  console.log("cashout chainid", cashOutChainId);
   const { data: redeemQuote } = useTokenCashOutQuoteEth(redeemAmountBN, {
     chainId: Number(cashOutChainId) as JBChainId,
   });
-  console.log("redeem quote", redeemQuote);
   const loading = isWriteLoading || isTxLoading;
   const selectedBalance = balances?.find(
     (b) => b.chainId === Number(cashOutChainId)
