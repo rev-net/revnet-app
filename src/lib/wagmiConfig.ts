@@ -13,6 +13,11 @@ import { createConfig, http, fallback } from "wagmi";
 import { safe } from "wagmi/connectors";
 import { farcasterFrame as miniAppConnector } from "@farcaster/frame-wagmi-connector"
 
+const safeConnector = safe({
+  allowedDomains: [/app.safe.global$/],
+  debug: true,
+});
+
 export const wagmiConfig = createConfig(
   getDefaultConfig({
     chains: [mainnet, optimism, arbitrum, base, sepolia, optimismSepolia, baseSepolia, arbitrumSepolia],
@@ -22,7 +27,7 @@ export const wagmiConfig = createConfig(
       chains: [mainnet, optimism, arbitrum, base, sepolia, optimismSepolia, baseSepolia, arbitrumSepolia],
       appName: "REVNET",
       walletConnectProjectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID!,
-    }).connectors ?? []).concat(miniAppConnector(), safe()),
+    }).connectors ?? []).concat(miniAppConnector(), safeConnector),
     transports: {
       [sepolia.id]: fallback([
         http(`https://sepolia.infura.io/v3/${process.env.NEXT_PUBLIC_INFURA_ID}`),
