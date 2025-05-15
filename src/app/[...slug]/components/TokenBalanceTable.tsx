@@ -71,6 +71,7 @@ export function TokenBalanceTable({
   terminalAddress,
   address,
   columns = ["chain", "holding", "borrowable", "debt", "collateral"],
+  onSelectRow,
 }: {
   balances: {
     chainId: number;
@@ -83,6 +84,7 @@ export function TokenBalanceTable({
   terminalAddress: `0x${string}`;
   address: string;
   columns?: Array<"chain" | "holding" | "borrowable" | "debt" | "collateral">;
+  onSelectRow?: (balance: { chainId: number; balance: { value: bigint } }) => void;
 }) {
   const { data } = useBendystrawQuery(LoansByAccountDocument, {
     owner: address,
@@ -110,7 +112,7 @@ export function TokenBalanceTable({
   return (
     <div className="w-full max-w-md mb-5">
         <label className="block text-gray-700 text-sm font-bold mb-1">
-          Your {tokenSymbol}
+          Your {tokenSymbol} - select to borrow against them
         </label>
         <div className="mt-1 max-h-96 overflow-auto bg-zinc-50 rounded-md border border-zinc-200">
         <Table>
@@ -129,7 +131,11 @@ export function TokenBalanceTable({
               const summary = loanSummary[chainId];
 
               return (
-                <TableRow key={index} className="h-auto">
+                <TableRow
+                  key={index}
+                  className="h-auto cursor-pointer hover:bg-zinc-100"
+                  onClick={() => onSelectRow?.(balance)}
+                >
                   <TokenBalanceRow
                     chainId={chainId}
                     balanceValue={balance.balance.value}
