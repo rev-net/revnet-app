@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { useEffect, useState, useRef } from "react";
+import { useState, useRef } from "react";
 import { useTokenA } from "@/hooks/useTokenA";
 import { formatTokenSymbol } from "@/lib/utils";
 import { JBProjectToken } from "juice-sdk-core";
@@ -12,9 +12,7 @@ import {
 import { RedeemDialog } from "./RedeemDialog";
 import { BorrowDialog } from "./BorrowDialog";
 import { LoanDetailsTable } from "../LoansDetailsTable";
-import { ad } from "@upstash/redis/zmscore-CjoCv9kz";
 import { useAccount } from "wagmi";
-import { Label } from "recharts";
 
 export function UserTokenBalanceCard() {
   const {
@@ -39,22 +37,6 @@ export function UserTokenBalanceCard() {
   return (
     <>
       <div className="flex flex-row gap-2 mt-2">
-        {/* <div>
-          <div>
-            <div className="text-lg overflow-auto mb-1 flex gap-1 items-center">
-              <span>You own</span> <UserTokenBalanceDatum />
-            </div>
-          </div>
-          {creditBalance && creditBalanceRedemptionQuote ? (
-            <div className="text-xs text-zinc-500">
-              ≈{" "}
-              {formatUnits(creditBalanceRedemptionQuote, tokenA.decimals, {
-                fractionDigits: 8,
-              })}{" "}
-              {tokenA.symbol}
-            </div>
-          ) : null}
-        </div> */}
         {token?.data?.symbol && creditBalance && primaryNativeTerminal.data ? (
           <RedeemDialog
             projectId={projectId}
