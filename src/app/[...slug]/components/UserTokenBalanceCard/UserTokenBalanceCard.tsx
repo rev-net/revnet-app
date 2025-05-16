@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useTokenA } from "@/hooks/useTokenA";
 import { formatTokenSymbol } from "@/lib/utils";
 import { JBProjectToken } from "juice-sdk-core";
@@ -34,6 +34,12 @@ export function UserTokenBalanceCard() {
   const [activeTab, setActiveTab] = useState<"borrow" | "repay">("borrow");
   const borrowDialogTriggerRef = useRef<HTMLButtonElement | null>(null);
 
+  useEffect(() => {
+    if (activeTab === "repay" && selectedLoan) {
+      borrowDialogTriggerRef.current?.click();
+    }
+  }, [activeTab, selectedLoan]);
+
   return (
     <>
       <div className="flex flex-row gap-2 mt-2">
@@ -62,7 +68,11 @@ export function UserTokenBalanceCard() {
               ref={borrowDialogTriggerRef}
               variant="outline"
               disabled={creditBalance.value === 0n}
-              onClick={() => setActiveTab("borrow")}
+              onClick={(e) => {
+                if (!(e.detail === 0)) {
+                  setActiveTab("borrow");
+                }
+              }}
             >
               Get a loan
             </Button>
@@ -79,7 +89,6 @@ export function UserTokenBalanceCard() {
           onSelectLoan={(loanId, loanData) => {
             setSelectedLoan(loanData);
             setActiveTab("repay");
-            borrowDialogTriggerRef.current?.click();
           }}
         />
       </>
