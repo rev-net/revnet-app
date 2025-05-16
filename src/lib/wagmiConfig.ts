@@ -16,7 +16,10 @@ export const wagmiConfig = createConfig({
     chains: [mainnet, optimism, arbitrum, base, sepolia, optimismSepolia, baseSepolia, arbitrumSepolia],
     connectors: [
       miniAppConnector(),
-      safe(),
+      safe({
+        allowedDomains: [/^app\.safe\.global$/],
+        shimDisconnect: true,
+      }),
       walletConnect({
         projectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID!,
         showQrModal: false,
