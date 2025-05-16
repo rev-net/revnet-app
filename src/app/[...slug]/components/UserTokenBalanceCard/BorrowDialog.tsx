@@ -46,7 +46,7 @@ import { LoanTabsHeader } from "./LoanTabsHeader";
 import { ImportantInfo } from "./ImportantInfo";
 
 const FIXEDLOANFEES = 0.035; // TODO: get from onchain?
-const showAddOnCollateralSection = true; // Set to false to hide this section
+const showAddOnCollateralSection = false; // Set to false to hide this section
 
 export function BorrowDialog({
   projectId,
