@@ -12,14 +12,17 @@ import { createConfig, http, fallback } from "wagmi";
 import { safe, walletConnect } from "wagmi/connectors";
 import { farcasterFrame as miniAppConnector } from "@farcaster/frame-wagmi-connector"
 
+const safeConnector = safe({
+  allowedDomains: [/^app\.safe\.global$/],
+  debug: true,
+  shimDisconnect: true,
+});
+
 export const wagmiConfig = createConfig({
     chains: [mainnet, optimism, arbitrum, base, sepolia, optimismSepolia, baseSepolia, arbitrumSepolia],
     connectors: [
       miniAppConnector(),
-      safe({
-        allowedDomains: [/^app\.safe\.global$/],
-        shimDisconnect: true,
-      }),
+      safeConnector,
       walletConnect({
         projectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID!,
         showQrModal: false,
