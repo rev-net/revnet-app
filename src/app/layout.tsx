@@ -38,6 +38,7 @@ export default function RootLayout({
       <head>
         <link rel="icon" href="/assets/img/small-bw.svg" />
         <link rel="apple-touch-icon" href="/assets/img/small-bw.svg" />
+        <meta name="permissions-policy" content="clipboard-write=*" />
       </head>
       <body
         className={twMerge(
