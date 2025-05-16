@@ -1,4 +1,3 @@
-import { getDefaultConfig } from "connectkit";
 import {
   arbitrum,
   arbitrumSepolia,
@@ -10,7 +9,7 @@ import {
   sepolia,
 } from "viem/chains";
 import { createConfig, http, fallback } from "wagmi";
-import { safe } from "wagmi/connectors";
+import { safe, walletConnect } from "wagmi/connectors";
 import { farcasterFrame as miniAppConnector } from "@farcaster/frame-wagmi-connector"
 
 const safeConnector = safe({
@@ -19,16 +18,22 @@ const safeConnector = safe({
   shimDisconnect: true,
 });
 
-export const wagmiConfig = createConfig(
-  getDefaultConfig({
+export const wagmiConfig = createConfig({
     chains: [mainnet, optimism, arbitrum, base, sepolia, optimismSepolia, baseSepolia, arbitrumSepolia],
-    appName: "REVNET",
-    walletConnectProjectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID!,
-    connectors: (getDefaultConfig({
-      chains: [mainnet, optimism, arbitrum, base, sepolia, optimismSepolia, baseSepolia, arbitrumSepolia],
-      appName: "REVNET",
-      walletConnectProjectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID!,
-    }).connectors ?? []).concat(miniAppConnector(), safeConnector),
+    connectors: [
+      miniAppConnector(),
+      safeConnector,
+      walletConnect({
+        projectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID!,
+        showQrModal: false,
+        metadata: {
+          name: "REVNET",
+          description: "Tokenize revenues and fundraises. 100% autonomous.",
+          url: "https://app.revnet.eth.sucks",
+          icons: ["https://app.revnet.eth.sucks/assets/img/small-bw.svg"],
+        },
+      }),
+    ],
     transports: {
       [sepolia.id]: fallback([
         http(`https://sepolia.infura.io/v3/${process.env.NEXT_PUBLIC_INFURA_ID}`),
@@ -64,5 +69,4 @@ export const wagmiConfig = createConfig(
         http("https://arb-mainnet.g.alchemy.com/v2/Y7igjs135LhJTJbYavxq9WlhuAZQVn03"),
       ]),
     },
-  })
-);
+  });
