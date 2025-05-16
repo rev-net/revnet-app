@@ -24,7 +24,11 @@ export function useBendystrawQuery<TResult, TVariables>(
     queryFn: async ({ queryKey }) => {
       if (!url) throw new Error("No subgraph url");
 
-      return request(url, document, queryKey[1] ? queryKey[1] : undefined);
+      return request(
+        `${url}/graphql`,
+        document,
+        queryKey[1] ? queryKey[1] : undefined
+      );
     },
   });
 }
