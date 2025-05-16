@@ -62,6 +62,7 @@ export function UserTokenBalanceCard() {
               ref={borrowDialogTriggerRef}
               variant="outline"
               disabled={creditBalance.value === 0n}
+              onClick={() => setActiveTab("borrow")}
             >
               Get a loan
             </Button>
