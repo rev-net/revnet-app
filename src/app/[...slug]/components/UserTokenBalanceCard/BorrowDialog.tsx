@@ -716,41 +716,7 @@ const feeData = generateFeeData({ grossBorrowedEth, ethToWallet, prepaidPercent 
 
                     try {
                       setBorrowStatus("waiting-signature");
-                      // Print all call fields being passed into the transaction before the reallocateCollateralAsync call
-                      console.log("Reallocate Loan TX args", {
-                        chainId: Number(cashOutChainId),
-                        loanId: internalSelectedLoan.id,
-                        collateralCountToTransfer,
-                        token: "0x000000000000000000000000000000000000EEEe",
-                        terminal: primaryNativeTerminal.data,
-                        minBorrowAmount,
-                        collateralCountToAdd,
-                        beneficiary: address,
-                        feePercent
-                      });
-                      // 🔁 Reallocation TX Debug log
-                      console.log("🔁 Reallocation TX Debug", {
-                        loanId: internalSelectedLoan.id,
-                        collateralCountToTransfer,
-                        token: "0x000000000000000000000000000000000000EEEe",
-                        terminal: primaryNativeTerminal.data,
-                        minBorrowAmount,
-                        collateralCountToAdd,
-                        beneficiary: address,
-                        feePercent,
-                        args: [
-                          internalSelectedLoan.id,
-                          collateralCountToTransfer,
-                          {
-                            token: "0x000000000000000000000000000000000000EEEe",
-                            terminal: primaryNativeTerminal.data as `0x${string}`,
-                          },
-                          minBorrowAmount,
-                          collateralCountToAdd,
-                          address as `0x${string}`,
-                          feePercent,
-                        ],
-                      });
+
                       await reallocateCollateralAsync({
                         chainId: Number(cashOutChainId) as JBChainId,
                         args: [
