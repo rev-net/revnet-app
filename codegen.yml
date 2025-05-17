@@ -1,5 +1,5 @@
 overwrite: true
-schema: ${NEXT_PUBLIC_BENDYSTRAW_URL}
+schema: https://bendystraw.xyz
 documents: 'src/graphql/**/*.graphql'
 generates:
   src/generated/:
