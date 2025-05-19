@@ -98,8 +98,20 @@ async function getProjectMetadata(slug: string): Promise<{ handle: string; logoU
       return { handle: "project" };
     }
     const project = data.projects[0];
-    if (!project.handle && project.metadataUri?.startsWith("ipfs://")) {
-      const ipfsHash = project.metadataUri.replace("ipfs://", "");
+    console.log("Project data:", project);
+    if (!project.handle) {
+      let ipfsHash = "";
+      if (typeof project.metadataUri === "string") {
+        if (project.metadataUri.startsWith("ipfs://")) {
+          ipfsHash = project.metadataUri.replace("ipfs://", "");
+        } else if (/^[A-Za-z0-9]{46,}$/.test(project.metadataUri)) {
+          ipfsHash = project.metadataUri;
+        }
+      }
+      if (!ipfsHash) {
+        console.warn("Invalid metadata URI, skipping IPFS fetch");
+        return { handle: "project" };
+      }
       try {
         const metadataRes = await fetch(`https://${process.env.NEXT_PUBLIC_INFURA_IPFS_HOSTNAME}/ipfs/${ipfsHash}`);
         const metadata = await metadataRes.json();
