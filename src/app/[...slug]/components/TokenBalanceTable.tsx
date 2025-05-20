@@ -49,16 +49,16 @@ function TokenBalanceRow({
         </TableCell>
       )}
       {columns.includes("holding") && (
-        <TableCell className="text-xs py-1 text-right">{formatAmount(balanceValue)}</TableCell>
+        <TableCell className="text-xs py-1 text-right">{formatAmount(balanceValue)} {tokenSymbol}</TableCell>
       )}
       {columns.includes("borrowable") && (
-        <TableCell className="text-xs py-1 text-right">{formatAmount(borrowableAmount)}</TableCell>
+        <TableCell className="text-xs py-1 text-right">{formatAmount(borrowableAmount)} ETH</TableCell>
       )}
       {columns.includes("debt") && (
-        <TableCell className="text-xs py-1 text-right">{formatAmount(summary?.borrowAmount)}</TableCell>
+        <TableCell className="text-xs py-1 text-right">{formatAmount(summary?.borrowAmount)} ETH</TableCell>
       )}
       {columns.includes("collateral") && (
-        <TableCell className="text-xs py-1 text-right">{formatAmount(summary?.collateral)}</TableCell>
+        <TableCell className="text-xs py-1 text-right">{formatAmount(summary?.collateral)} {tokenSymbol}</TableCell>
       )}
     </>
   );
@@ -112,17 +112,17 @@ export function TokenBalanceTable({
   return (
     <div className="w-full max-w-md mb-5">
         <label className="block text-gray-700 text-sm font-bold mb-1">
-          From which chain do you want to get a loan?
+          On which chain?
         </label>
         <div className="mt-1 max-h-96 overflow-auto bg-zinc-50 rounded-md border border-zinc-200">
         <Table>
           <TableHeader>
             <TableRow>
               {columns.includes("chain") && <TableHead className="text-left">Chain</TableHead>}
-              {columns.includes("holding") && <TableHead className="text-right">$REV Balance</TableHead>}
-              {columns.includes("borrowable") && <TableHead className="text-right">ETH Borrowable</TableHead>}
-              {columns.includes("debt") && <TableHead className="text-right">ETH Debt</TableHead>}
-              {columns.includes("collateral") && <TableHead className="text-right">$REV Collateral</TableHead>}
+              {columns.includes("holding") && <TableHead className="text-right">Balance</TableHead>}
+              {columns.includes("borrowable") && <TableHead className="text-right">Borrowable</TableHead>}
+              {columns.includes("debt") && <TableHead className="text-right">Debt</TableHead>}
+              {columns.includes("collateral") && <TableHead className="text-right">Collateral</TableHead>}
             </TableRow>
           </TableHeader>
           <TableBody>

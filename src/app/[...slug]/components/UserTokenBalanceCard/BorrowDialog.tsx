@@ -587,7 +587,7 @@ const feeData = generateFeeData({ grossBorrowedEth, ethToWallet, prepaidPercent 
                     setShowOtherCollateral(next);
                     if (!next) setInternalSelectedLoan(null);
                   }}
-                  className="flex items-center gap-2 text-left block text-gray-700 text-sm font-bold mb-2 mt-4"
+                  className="flex items-center gap-2 text-left block text-gray-700 text-sm font-bold mt-6"
                 >
                   <span>Add on Collateral (optional)</span>
                   <span
