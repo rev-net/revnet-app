@@ -184,3 +184,24 @@ export function decodeRulesetMetadata(packed: bigint): RulesetMetadata {
     metadata: Number((packed >> 242n) & ((1n << 14n) - 1n))
   };
 }
+
+/**
+ * Create a beneficiary set from an address for multiple chains
+ */
+export function makeBeneficiarySet(addr: string, chains: number[]) {
+  return chains.map(chainId => ({ chainId, address: addr }));
+}
+
+/**
+ * Create an operator set from an address for multiple chains
+ */
+export function makeOperatorSet(addr: string, chains: number[]) {
+  return chains.map(chainId => ({ chainId, address: addr }));
+}
+
+/**
+ * Convert human-readable token amount to wei
+ */
+export function toWei(amount: string | number): bigint {
+  return BigInt(Math.floor(Number(amount) * 1e18));
+}

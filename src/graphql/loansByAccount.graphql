@@ -24,6 +24,7 @@ query LoansDetailsByAccount($owner: String!, $projectId: Int!) {
       terminal
       token
       chainId
+      id
     }
   }
 }
