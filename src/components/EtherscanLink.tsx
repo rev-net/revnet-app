@@ -8,7 +8,7 @@ const EtherscanLink: React.FC<
   React.PropsWithChildren<{
     value: string | undefined;
     className?: string;
-    type?: "tx" | "address";
+    type?: "tx" | "address" | "token";
     truncateTo?: number;
     chain?: Chain
   }>

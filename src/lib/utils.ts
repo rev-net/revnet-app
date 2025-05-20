@@ -34,7 +34,7 @@ export function formatSeconds(seconds: number) {
 export function etherscanLink(
   addressOrTxHash: string,
   opts: {
-    type: "address" | "tx";
+    type: "address" | "tx" | "token";
     chain?: Chain;
   }
 ) {
@@ -51,6 +51,8 @@ export function etherscanLink(
       return `https://${baseUrl}/address/${addressOrTxHash}`;
     case "tx":
       return `https://${baseUrl}/tx/${addressOrTxHash}`;
+    case "token":
+      return `https://${baseUrl}/token/${addressOrTxHash}`;
   }
 }
 
