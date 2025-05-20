@@ -18,6 +18,11 @@ export const ChainLogo = ({
       alt={`${JB_CHAINS[chainId].name} Logo`}
       width={width ?? 20}
       height={height ?? 20}
+      style={{
+          minWidth: width ?? 20,
+          minHeight: height ?? 20,
+          flexShrink: 0,
+        }}
     />
   );
 };
