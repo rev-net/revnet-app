@@ -81,8 +81,8 @@ export function UserTokenBalanceCard() {
       </div>
       {address && projectId && chainId ? (
         <>
-        <p className="text-md font-semibold text-zinc-500 mt-4">Your loans</p>
         <LoanDetailsTable
+          title="Your loans"
           revnetId={projectId}
           address={address}
           chainId={0}
