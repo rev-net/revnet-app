@@ -4,7 +4,7 @@ import {
 } from "revnet-sdk";
 import { useBendystrawQuery } from "@/graphql/useBendystrawQuery";
 import { LoansByAccountDocument } from "@/generated/graphql";
-import { useMemo } from "react";
+import { useEffect, useRef } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 function TokenBalanceRow({
@@ -71,7 +71,9 @@ export function TokenBalanceTable({
   terminalAddress,
   address,
   columns = ["chain", "holding", "borrowable", "debt", "collateral"],
-  onSelectRow,
+  selectedChainId,
+  onCheckRow,
+  onAutoselectRow,
 }: {
   balances: {
     chainId: number;
@@ -84,7 +86,9 @@ export function TokenBalanceTable({
   terminalAddress: `0x${string}`;
   address: string;
   columns?: Array<"chain" | "holding" | "borrowable" | "debt" | "collateral">;
-  onSelectRow?: (balance: { chainId: number; balance: { value: bigint } }) => void;
+  selectedChainId?: number;
+  onCheckRow?: (chainId: number, checked: boolean) => void;
+  onAutoselectRow?: (chainId: number) => void;
 }) {
   const { data } = useBendystrawQuery(LoansByAccountDocument, {
     owner: address,
@@ -107,6 +111,31 @@ export function TokenBalanceTable({
 
   const loanSummary = summarizeLoansByChain(data?.loans?.items);
 
+  // Auto-select the first selectable row if more than one row and no selection exists
+  const firstSelectable = balances?.find(({ chainId, balance }) => {
+    const summary = loanSummary[chainId];
+    return (
+      balance.value > 0n ||
+      (summary?.borrowAmount && summary.borrowAmount > 0n) ||
+      (summary?.collateral && summary.collateral > 0n)
+    );
+  });
+
+  const hasAutoselected = useRef(false);
+
+  useEffect(() => {
+    // Only auto-select if there's a selectable row, no selection, and we haven't yet auto-selected
+    if (
+      firstSelectable &&
+      (typeof selectedChainId === "undefined" || selectedChainId === null) &&
+      !hasAutoselected.current
+    ) {
+      hasAutoselected.current = true;
+      // Only call onAutoselectRow, which should be responsible for syncing all related state
+      onAutoselectRow?.(firstSelectable.chainId);
+    }
+  }, [firstSelectable, selectedChainId, onAutoselectRow]);
+
   if (!balances || balances.length === 0) return null;
 
   return (
@@ -118,6 +147,7 @@ export function TokenBalanceTable({
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead className="w-4" />
               {columns.includes("chain") && <TableHead className="text-left">Chain</TableHead>}
               {columns.includes("holding") && <TableHead className="text-right">Balance</TableHead>}
               {columns.includes("borrowable") && <TableHead className="text-right">Borrowable</TableHead>}
@@ -130,12 +160,28 @@ export function TokenBalanceTable({
               const chainId = balance.chainId as JBChainId;
               const summary = loanSummary[chainId];
 
+              const hasAnyBalance =
+                balance.balance.value > 0n ||
+                (summary?.borrowAmount && summary.borrowAmount > 0n) ||
+                (summary?.collateral && summary.collateral > 0n);
+
+              if (!hasAnyBalance) return null;
+
+              const checked = selectedChainId === chainId;
+
               return (
                 <TableRow
                   key={index}
-                  className="h-auto cursor-pointer hover:bg-zinc-100"
-                  onClick={() => onSelectRow?.(balance)}
+                  className="h-auto"
                 >
+                  <TableCell className="text-xs py-1 text-center">
+                    <input
+                      type="radio"
+                      name="chain"
+                      checked={checked}
+                      onChange={() => onCheckRow?.(chainId, true)}
+                    />
+                  </TableCell>
                   <TokenBalanceRow
                     chainId={chainId}
                     balanceValue={balance.balance.value}
