@@ -2,7 +2,20 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: Request) {
-  const url = process.env.NEXT_PUBLIC_BENDYSTRAW_URL?.replace(/\/$/, "") + "/graphql";
+  const baseUrl = process.env.NEXT_PUBLIC_BENDYSTRAW_URL?.replace(/\/$/, "") + "/graphql";
+  const { searchParams } = new URL(req.url);
+  const chainId = parseInt(searchParams.get("chainId") ?? "");
+  const projectId = parseInt(searchParams.get("projectId") ?? "");
+  const publicBase = req.headers.get("host")?.startsWith("f1ae7ffc33f8.ngrok.app")
+    ? "https://f1ae7ffc33f8.ngrok.app"
+    : "https://revnet.eth.sucks";
+  const publicUrl = `${publicBase}/api/shields/projectFunding?chainId=${chainId}&projectId=${projectId}`;
+
+  if (isNaN(chainId) || isNaN(projectId)) {
+    return NextResponse.json({ error: "Missing or invalid chainId/projectId" }, { status: 400 });
+  }
+
+  const url = baseUrl;
 
   console.log("✅ HIT: /api/shields/projectFunding", url);
 
@@ -12,7 +25,7 @@ export async function GET(req: Request) {
 
   const query = `
     query MyQuery {
-      project(chainId: 8453, projectId: 53) {
+      project(chainId: ${chainId}, projectId: ${projectId}) {
         id
         balance
         chainId
@@ -22,6 +35,8 @@ export async function GET(req: Request) {
       }
     }
   `;
+
+  console.log("🔍 GraphQL Query:", query);
 
   try {
     const res = await fetch(url, {
@@ -45,7 +60,7 @@ export async function GET(req: Request) {
       message: `${balance.toFixed(2)} ETH • ${supporters} supporters`,
       color: balance > 1 ? "green" : balance > 0.1 ? "yellow" : "red",
       logoSvg,
-      badgeUrl: "https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Ff1ae7ffc33f8.ngrok.app%2Fapi%2Fshields%2FprojectFunding&query=%24.message&label=Our%20Revnet"
+      badgeUrl: `https://img.shields.io/badge/dynamic/json?url=${encodeURIComponent(publicUrl)}&query=%24.message&label=Our%20Revnet`
     });
   } catch (err: any) {
     return NextResponse.json({ error: "Unexpected error", details: err.message }, { status: 500 });
