@@ -54,7 +54,7 @@ export function LoanDetailsTable({
       ? data.loans.items.filter((loan) => Number(loan.chainId) === chainId)
       : data.loans.items;
   if (!filteredLoans.length)
-    return <div className="text-sm text-gray-500 mt-4">You have no loans</div>;
+    return null;
 
   const sortedLoans = [...filteredLoans].sort((a, b) => {
     const timeA = a.prepaidDuration - (now - Number(a.createdAt));
@@ -63,45 +63,43 @@ export function LoanDetailsTable({
   });
   return (
     <>
-      {title && (
-        <p className="text-md font-semibold text-zinc-500 mt-4">{title}</p>
-      )}
+      {title && <p className="text-md font-semibold text-zinc-500 mt-4">{title}</p>}
       <div className="grid max-w-md gap-1.5 mt-4 max-h-96 overflow-auto bg-zinc-50 rounded-md border border-zinc-200">
-        <table className="w-full text-xs">
-          <thead className="sticky top-0 z-10 bg-zinc-50 text-left font-semibold text-zinc-600 border-b border-zinc-200">
-            <tr>
-              <th className="px-2 py-1 text-left">Chain</th>
-              <th className="px-2 py-1 text-right">Borrowed ETH</th>
-              <th className="px-2 py-1 text-right">Collateral</th>
-              <th className="px-2 py-1 text-right">Fees Increase In</th>
-            </tr>
-          </thead>
-          <tbody>
-            {sortedLoans.map((loan, idx) => {
-              return (
-                <tr
-                  key={idx}
-                  onClick={() => onSelectLoan?.(loan.id, loan)}
-                  className="border-b border-zinc-100 h-auto cursor-pointer hover:bg-zinc-100"
-                >
-                  <td className="px-2 py-1 text-left">{JB_CHAINS[loan.chainId as JBChainId]?.name || loan.chainId}</td>
-                  <td className="px-2 py-1 text-right">
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <span>{(Number(loan.borrowAmount) / 1e18).toFixed(6)}</span>
-                      </TooltipTrigger>
-                      <TooltipContent>Loan ID: {loan.id?.toString() ?? "Unavailable"}</TooltipContent>
-                    </Tooltip>
-                  </td>
-                  <td className="px-2 py-1 text-right">{(Number(loan.collateral) / 1e18).toFixed(6)}</td>
-                  <td className="px-2 py-1 text-right">
-                    {formatDuration(loan.prepaidDuration - (Math.floor(Date.now() / 1000) - Number(loan.createdAt)))}
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+      <table className="w-full text-xs">
+        <thead className="sticky top-0 z-10 bg-zinc-50 text-left font-semibold text-zinc-600 border-b border-zinc-200">
+          <tr>
+            <th className="px-2 py-1 text-left">Chain</th>
+            <th className="px-2 py-1 text-right">Borrowed ETH</th>
+            <th className="px-2 py-1 text-right">Collateral</th>
+            <th className="px-2 py-1 text-right">Fees Increase In</th>
+          </tr>
+        </thead>
+        <tbody>
+          {sortedLoans.map((loan, idx) => {
+            return (
+              <tr
+                key={idx}
+                onClick={() => onSelectLoan?.(loan.id, loan)}
+                className="border-b border-zinc-100 h-auto cursor-pointer hover:bg-zinc-100"
+              >
+                <td className="px-2 py-1 text-left">{JB_CHAINS[loan.chainId as JBChainId]?.name || loan.chainId}</td>
+                <td className="px-2 py-1 text-right">
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <span>{(Number(loan.borrowAmount) / 1e18).toFixed(6)}</span>
+                    </TooltipTrigger>
+                    <TooltipContent>Loan ID: {loan.id?.toString() ?? "Unavailable"}</TooltipContent>
+                  </Tooltip>
+                </td>
+                <td className="px-2 py-1 text-right">{(Number(loan.collateral) / 1e18).toFixed(6)}</td>
+                <td className="px-2 py-1 text-right">
+                  {formatDuration(loan.prepaidDuration - (Math.floor(Date.now() / 1000) - Number(loan.createdAt)))}
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
       </div>
     </>
   );
