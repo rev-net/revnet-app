@@ -90,7 +90,6 @@ export function UserTokenBalanceCard() {
             setSelectedLoan(loanData);
             setActiveTab("repay");
           }}
-          title="Your Loans"
         />
       </>
     ) : null}

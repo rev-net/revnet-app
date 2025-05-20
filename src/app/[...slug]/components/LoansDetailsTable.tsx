@@ -54,7 +54,7 @@ export function LoanDetailsTable({
       ? data.loans.items.filter((loan) => Number(loan.chainId) === chainId)
       : data.loans.items;
   if (!filteredLoans.length)
-    return;
+    return null;
 
   const sortedLoans = [...filteredLoans].sort((a, b) => {
     const timeA = a.prepaidDuration - (now - Number(a.createdAt));
