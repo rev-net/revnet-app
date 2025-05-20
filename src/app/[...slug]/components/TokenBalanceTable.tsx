@@ -33,14 +33,6 @@ function TokenBalanceRow({
     return value !== undefined ? (Number(value) / 1e18).toFixed(5) : "—";
   }
 
-  const hasAnyBalance =
-    balanceValue > 0n ||
-    (borrowableAmount && borrowableAmount > 0n) ||
-    (summary?.borrowAmount && summary.borrowAmount > 0n) ||
-    (summary?.collateral && summary.collateral > 0n);
-
-  if (!hasAnyBalance) return null;
-
   return (
     <>
       {columns.includes("chain") && (
@@ -72,6 +64,8 @@ export function TokenBalanceTable({
   address,
   columns = ["chain", "holding", "borrowable", "debt", "collateral"],
   onSelectRow,
+  selectedChainId,
+  onCheckRow,
 }: {
   balances: {
     chainId: number;
@@ -85,6 +79,8 @@ export function TokenBalanceTable({
   address: string;
   columns?: Array<"chain" | "holding" | "borrowable" | "debt" | "collateral">;
   onSelectRow?: (balance: { chainId: number; balance: { value: bigint } }) => void;
+  selectedChainId?: number;
+  onCheckRow?: (chainId: number, checked: boolean) => void;
 }) {
   const { data } = useBendystrawQuery(LoansByAccountDocument, {
     owner: address,
@@ -118,6 +114,7 @@ export function TokenBalanceTable({
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead className="w-4" />
               {columns.includes("chain") && <TableHead className="text-left">Chain</TableHead>}
               {columns.includes("holding") && <TableHead className="text-right">Holding</TableHead>}
               {columns.includes("borrowable") && <TableHead className="text-right">Borrowable (ETH)</TableHead>}
@@ -130,12 +127,22 @@ export function TokenBalanceTable({
               const chainId = balance.chainId as JBChainId;
               const summary = loanSummary[chainId];
 
+              const hasAnyBalance =
+                balance.balance.value > 0n ||
+                (summary?.borrowAmount && summary.borrowAmount > 0n) ||
+                (summary?.collateral && summary.collateral > 0n);
+
+              if (!hasAnyBalance) return null;
+
               return (
-                <TableRow
-                  key={index}
-                  className="h-auto cursor-pointer hover:bg-zinc-100"
-                  onClick={() => onSelectRow?.(balance)}
-                >
+                <TableRow key={index} className="h-auto hover:bg-zinc-100">
+                  <TableCell className="px-2 py-1">
+                    <input
+                      type="checkbox"
+                      checked={selectedChainId === chainId}
+                      onChange={(e) => onCheckRow?.(chainId, e.target.checked)}
+                    />
+                  </TableCell>
                   <TokenBalanceRow
                     chainId={chainId}
                     balanceValue={balance.balance.value}

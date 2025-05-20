@@ -81,6 +81,7 @@ export function BorrowDialog({
     | "reallocation-pending";
 
   const [collateralAmount, setCollateralAmount] = useState("");
+  const [selectedChainId, setSelectedChainId] = useState<number | null>(null);
   const [repayAmount, setRepayAmount] = useState("");
   const [collateralToReturn, setCollateralToReturn] = useState("");
   const [prepaidPercent, setPrepaidPercent] = useState("2.5");
@@ -459,11 +460,19 @@ const feeData = generateFeeData({ grossBorrowedEth, ethToWallet, prepaidPercent 
                 terminalAddress={primaryNativeTerminal.data as `0x${string}`}
                 address={address as `0x${string}`}
                 columns={["chain", "holding", "borrowable"]}
-                onSelectRow={(balance) => {
-                  const chainStr = balance.chainId.toString();
-                  const collateral = Number(balance.balance.value) / 1e18;
-                  setCashOutChainId(chainStr);
-                  setCollateralAmount(collateral.toFixed(6));
+                selectedChainId={selectedChainId ?? undefined}
+                onCheckRow={(chainId, checked) => {
+                  if (checked) {
+                    const selected = balances?.find((b) => b.chainId === chainId);
+                    const collateral = selected ? Number(selected.balance.value) / 1e18 : 0;
+                    setSelectedChainId(chainId);
+                    setCashOutChainId(chainId.toString());
+                    setCollateralAmount(collateral.toFixed(6));
+                  } else {
+                    setSelectedChainId(null);
+                    setCashOutChainId(undefined);
+                    setCollateralAmount("");
+                  }
                 }}
               />
               <div className="grid grid-cols-7 gap-2">
