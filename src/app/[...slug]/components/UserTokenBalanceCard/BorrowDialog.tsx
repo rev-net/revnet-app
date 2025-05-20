@@ -81,6 +81,7 @@ export function BorrowDialog({
     | "reallocation-pending";
 
   const [collateralAmount, setCollateralAmount] = useState("");
+  const [selectedChainId, setSelectedChainId] = useState<number | null>(null);
   const [repayAmount, setRepayAmount] = useState("");
   const [collateralToReturn, setCollateralToReturn] = useState("");
   const [prepaidPercent, setPrepaidPercent] = useState("2.5");
@@ -100,7 +101,6 @@ export function BorrowDialog({
       setSelectedTab(defaultTab);
     }
   }, [defaultTab]);
-  const [selectedLoanId, setSelectedLoanId] = useState<string | null>(null);
   const [internalSelectedLoan, setInternalSelectedLoan] = useState<any | null>(selectedLoan ?? null);
   const [showLoanDetailsTable, setShowLoanDetailsTable] = useState(true);
   const [showRefinanceLoanDetailsTable, setShowRefinanceLoanDetailsTable] = useState(true);
@@ -356,21 +356,6 @@ const collateralCountToTransfer = internalSelectedLoan && currentBorrowableOnSel
 
   const loading = isWriteLoading || isTxLoading;
 
-  // Update collateralAmount based on selectedTab and balances/selectedBalance
-  useEffect(() => {
-    if (selectedTab === "borrow" && balances?.length === 1) {
-      const sole = balances[0];
-      const chainStr = sole.chainId.toString();
-      setCashOutChainId(chainStr);
-      const value = Number(sole.balance.value) / 1e18;
-      setCollateralAmount(value.toFixed(6));
-    } else if (selectedTab === "borrow" && selectedBalance) {
-      const maxValue = Number(selectedBalance.balance.value) / 1e18;
-      setCollateralAmount(maxValue.toFixed(6));
-    } else if (selectedTab === "borrow") {
-      setCollateralAmount("");
-    }
-  }, [selectedTab, balances, selectedBalance]);
 
   useEffect(() => {
     if (!collateralAmount || isNaN(Number(collateralAmount))) {
@@ -417,10 +402,10 @@ const feeData = generateFeeData({ grossBorrowedEth, ethToWallet, prepaidPercent 
     setRepayAmount("");
     setCollateralToReturn("");
     setInternalSelectedLoan(null);
-    setSelectedLoanId(null);
     setShowLoanDetailsTable(true);
     setShowRefinanceLoanDetailsTable(true);
     setShowOtherCollateral(false); // ✅ Hide add-on collateral
+    setSelectedChainId(null); // Reset chain selection on close
   }
 };
 
@@ -438,7 +423,7 @@ const feeData = generateFeeData({ grossBorrowedEth, ethToWallet, prepaidPercent 
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="max-w-2xl">
         <DialogHeader>
-          <DialogTitle>Get a Loan</DialogTitle>
+          <DialogTitle>Process a Loan</DialogTitle>
           <DialogDescription asChild>
             <section className="my-4">
               {/* Dialog description content here, "Important Info" toggle moved below Fee Structure Over Time */}
@@ -459,17 +444,28 @@ const feeData = generateFeeData({ grossBorrowedEth, ethToWallet, prepaidPercent 
                 terminalAddress={primaryNativeTerminal.data as `0x${string}`}
                 address={address as `0x${string}`}
                 columns={["chain", "holding", "borrowable"]}
-                onSelectRow={(balance) => {
-                  const chainStr = balance.chainId.toString();
-                  const collateral = Number(balance.balance.value) / 1e18;
-                  setCashOutChainId(chainStr);
+                selectedChainId={selectedChainId ?? undefined}
+                onCheckRow={(chainId) => {
+                  const selected = balances?.find((b) => b.chainId === chainId);
+                  const collateral = selected ? Number(selected.balance.value) / 1e18 : 0;
+                  setSelectedChainId(chainId);
+                  setCashOutChainId(chainId.toString());
                   setCollateralAmount(collateral.toFixed(6));
+                  setInternalSelectedLoan(null);
+                }}
+                onAutoselectRow={(chainId) => {
+                  const selected = balances?.find((b) => b.chainId === chainId);
+                  const collateral = selected ? Number(selected.balance.value) / 1e18 : 0;
+                  setSelectedChainId(chainId);
+                  setCashOutChainId(chainId.toString());
+                  setCollateralAmount(collateral.toFixed(6));
+                  setInternalSelectedLoan(null);
                 }}
               />
               <div className="grid grid-cols-7 gap-2">
                 <div className="col-span-4">
                   <Label htmlFor="collateral-amount" className="block text-gray-700 text-sm font-bold">
-                    How much $REV do you want to use as collateral?
+                    Collateralize from
                   </Label>
                 </div>
               </div>
@@ -587,7 +583,7 @@ const feeData = generateFeeData({ grossBorrowedEth, ethToWallet, prepaidPercent 
                     setShowOtherCollateral(next);
                     if (!next) setInternalSelectedLoan(null);
                   }}
-                  className="flex items-center gap-2 text-left block text-gray-700 text-sm font-bold mt-6"
+                  className="flex items-center gap-2 text-left block text-gray-700 text-sm font-bold mb-2 mt-4"
                 >
                   <span>Add on Collateral (optional)</span>
                   <span
@@ -603,6 +599,7 @@ const feeData = generateFeeData({ grossBorrowedEth, ethToWallet, prepaidPercent 
                     address={address ?? ""}
                     chainId={cashOutChainId ? Number(cashOutChainId) : 0}
                     onSelectLoan={(loanId, loanData) => setInternalSelectedLoan(loanData)}
+                    selectedLoanId={internalSelectedLoan?.id}
                   />
                 )}
                {internalSelectedLoan && showOtherCollateral && (
@@ -842,11 +839,10 @@ const feeData = generateFeeData({ grossBorrowedEth, ethToWallet, prepaidPercent 
             </button>
             {showLoanDetailsTable && (
               <LoanDetailsTable
-                key={`${repayTxHash ?? "repay"}-${repayStatus}-${collateralToReturn}`}
+                key="repay-loan-table"
                 address={address as `0x${string}`}
                 revnetId={projectId}
                 onSelectLoan={(id, loan) => {
-                  setSelectedLoanId(id);
                   setInternalSelectedLoan(loan);
                   const correctBorrowAmount = BigInt(loan.borrowAmount);
                   setRepayAmount((Number(correctBorrowAmount) / 1e18).toString());

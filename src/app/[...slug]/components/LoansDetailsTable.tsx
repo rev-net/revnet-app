@@ -20,27 +20,20 @@ function formatDuration(seconds: number): string {
   return parts.length ? parts.join(" ") : "0m";
 }
 
-function formatTimeRemaining(createdAt: number, prepaidDuration: number): string {
-  const endTimestamp = createdAt + prepaidDuration;
-  const secondsRemaining = endTimestamp - Math.floor(Date.now() / 1000);
-  const days = Math.floor(secondsRemaining / (60 * 60 * 24));
-  const hours = Math.floor((secondsRemaining % (60 * 60 * 24)) / (60 * 60));
-  if (secondsRemaining <= 0) return "Expired";
-  return `${days}d ${hours}h left`;
-}
-
 export function LoanDetailsTable({
   revnetId,
   address,
   onSelectLoan,
   chainId,
   title,
+  selectedLoanId,
 }: {
   revnetId: bigint;
   address: string;
   onSelectLoan?: (loanId: string, loanData: any) => void;
   chainId?: number;
   title?: string;
+  selectedLoanId?: string;
 }) {
   const { data } = useBendystrawQuery(LoansDetailsByAccountDocument, {
     owner: address,
@@ -68,6 +61,7 @@ export function LoanDetailsTable({
       <table className="w-full text-xs">
         <thead className="sticky top-0 z-10 bg-zinc-50 text-left font-semibold text-zinc-600 border-b border-zinc-200">
           <tr>
+            <th className="px-2 py-1 w-4" />
             <th className="px-2 py-1 text-left">Chain</th>
             <th className="px-2 py-1 text-right">Borrowed ETH</th>
             <th className="px-2 py-1 text-right">Collateral</th>
@@ -75,13 +69,22 @@ export function LoanDetailsTable({
           </tr>
         </thead>
         <tbody>
-          {sortedLoans.map((loan, idx) => {
+          {sortedLoans.map((loan) => {
             return (
               <tr
-                key={idx}
-                onClick={() => onSelectLoan?.(loan.id, loan)}
-                className="border-b border-zinc-100 h-auto cursor-pointer hover:bg-zinc-100"
+                key={loan.id}
+                className={`border-b border-zinc-100 h-auto hover:bg-zinc-100 ${
+                  selectedLoanId === loan.id ? "bg-zinc-100" : ""
+                }`}
               >
+                <td className="px-2 py-1 text-left">
+                  <input
+                    type="radio"
+                    name="selectedLoan"
+                    checked={selectedLoanId === loan.id}
+                    onChange={() => onSelectLoan?.(loan.id, loan)}
+                  />
+                </td>
                 <td className="px-2 py-1 text-left">{JB_CHAINS[loan.chainId as JBChainId]?.name || loan.chainId}</td>
                 <td className="px-2 py-1 text-right">
                   <Tooltip>
