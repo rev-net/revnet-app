@@ -40,7 +40,11 @@ export function etherscanLink(
 ) {
   const { type, chain = mainnet } = opts;
 
-  const baseUrl = JB_CHAINS[chain.id as JBChainId].etherscanHostname;
+  const chainId = chain.id as JBChainId;
+  const baseUrl =
+    chainId === 10
+      ? "optimistic.etherscan.io"
+      : JB_CHAINS[chainId].etherscanHostname;
 
   switch (type) {
     case "address":

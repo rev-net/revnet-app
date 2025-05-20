@@ -1,3 +1,5 @@
+import { sdk } from "@farcaster/frame-sdk";
+import Image from "next/image";
 import { ChainLogo } from "@/components/ChainLogo";
 import EtherscanLink from "@/components/EtherscanLink";
 import FarcasterAvatar from "@/components/FarcasterAvatar";
@@ -18,7 +20,7 @@ import {
   useJBContractContext,
   useJBTokenContext,
 } from "juice-sdk-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Address } from "viem";
 
 type PayActivityItemData = {
@@ -42,8 +44,19 @@ function PayActivityItem(
   > & { chainId: JBChainId; identity?: any }
 ) {
   const { token } = useJBTokenContext();
+  const composeCast = sdk.actions.composeCast;
   const chainId = payEvent.chainId;
   const chain = JB_CHAINS[chainId].chain;
+
+  const [isMiniApp, setIsMiniApp] = useState(false);
+
+  useEffect(() => {
+    const checkMiniApp = async () => {
+      const result = await sdk.isInMiniApp();
+      setIsMiniApp(result);
+    };
+    checkMiniApp();
+  }, []);
 
   if (!token?.data || !payEvent) return null;
 
@@ -56,9 +69,18 @@ function PayActivityItem(
     memo: payEvent.memo,
   };
 
+  // Compose Farcaster handle or fallback to address
+  const handle = payEvent.identity?.username
+    ? `@${payEvent.identity.username}`
+    : `${payEvent.beneficiary.slice(0, 6)}…`;
+
+  const shareText = `⏩ ${handle} paid ${activityItemData.amount.format(4)} ETH and received ${activityItemData.beneficiaryTokenCount?.format(2)} ${token.data?.symbol} — "${activityItemData.memo}"`;
+
   const formattedDate = formatDistance(payEvent.timestamp * 1000, new Date(), {
     addSuffix: true,
   });
+
+  const embedUrl = typeof window !== "undefined" ? window.location.href : "";
 
   return (
     <div className="border-b border-zinc-200 pb-2 mb-1">
@@ -94,9 +116,27 @@ function PayActivityItem(
           </span>
         </div>
       </div>
-      <div className="text-lg text-black-500 font-medium ml-8 pb-4">
-        {activityItemData.memo}
-      </div>
+      {activityItemData.memo && (
+        <div className="ml-8 pb-4">
+          {isMiniApp ? (
+            <button
+              onClick={() =>
+                composeCast({
+                  text: shareText,
+                  embeds: [embedUrl],
+                })
+              }
+              className="text-lg text-black-500 font-medium text-left hover:underline"
+            >
+              {activityItemData.memo}
+            </button>
+          ) : (
+            <div className="text-lg text-black-500 font-medium">
+              {activityItemData.memo}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
@@ -108,6 +148,18 @@ function RedeemActivityItem(
   > & { chainId: JBChainId; identity?: any }
 ) {
   const { token } = useJBTokenContext();
+  const composeCast = sdk.actions.composeCast;
+
+  const [isMiniApp, setIsMiniApp] = useState(false);
+
+  useEffect(() => {
+    const checkMiniApp = async () => {
+      const result = await sdk.isInMiniApp();
+      setIsMiniApp(result);
+    };
+    checkMiniApp();
+  }, []);
+
   if (!token?.data || !cashOutEvent) return null;
 
   const activityItemData = {
@@ -116,6 +168,12 @@ function RedeemActivityItem(
     cashOutCount: new JBProjectToken(BigInt(cashOutEvent.cashOutCount)),
   };
 
+  const handle = cashOutEvent.identity?.username
+    ? `@${cashOutEvent.identity.username}`
+    : `${cashOutEvent.beneficiary.slice(0, 6)}…`;
+
+  const shareText = `⏩ ${handle} redeemed ${activityItemData.cashOutCount?.format(2)} ${token.data.symbol} for ${activityItemData.amount.format(4)} ETH`;
+
   const formattedDate = formatDistance(
     cashOutEvent.timestamp * 1000,
     new Date(),
@@ -123,6 +181,8 @@ function RedeemActivityItem(
       addSuffix: true,
     }
   );
+
+  const embedUrl = typeof window !== "undefined" ? window.location.href : "";
 
   return (
     <div className="border-b border-zinc-200 pb-2 mb-1">
@@ -157,6 +217,7 @@ function RedeemActivityItem(
           </span>
         </div>
       </div>
+      
     </div>
   );
 }
