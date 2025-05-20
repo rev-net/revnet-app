@@ -112,17 +112,17 @@ export function TokenBalanceTable({
   return (
     <div className="w-full max-w-md mb-5">
         <label className="block text-gray-700 text-sm font-bold mb-1">
-          Your {tokenSymbol} - select to borrow against them
+          From which chain do you want to get a loan?
         </label>
         <div className="mt-1 max-h-96 overflow-auto bg-zinc-50 rounded-md border border-zinc-200">
         <Table>
           <TableHeader>
             <TableRow>
               {columns.includes("chain") && <TableHead className="text-left">Chain</TableHead>}
-              {columns.includes("holding") && <TableHead className="text-right">Holding</TableHead>}
-              {columns.includes("borrowable") && <TableHead className="text-right">Borrowable (ETH)</TableHead>}
-              {columns.includes("debt") && <TableHead className="text-right">Debt (ETH)</TableHead>}
-              {columns.includes("collateral") && <TableHead className="text-right">Collateral</TableHead>}
+              {columns.includes("holding") && <TableHead className="text-right">$REV Balance</TableHead>}
+              {columns.includes("borrowable") && <TableHead className="text-right">ETH Borrowable</TableHead>}
+              {columns.includes("debt") && <TableHead className="text-right">ETH Debt</TableHead>}
+              {columns.includes("collateral") && <TableHead className="text-right">$REV Collateral</TableHead>}
             </TableRow>
           </TableHeader>
           <TableBody>

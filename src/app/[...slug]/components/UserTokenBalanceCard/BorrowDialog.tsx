@@ -438,7 +438,7 @@ const feeData = generateFeeData({ grossBorrowedEth, ethToWallet, prepaidPercent 
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="max-w-2xl">
         <DialogHeader>
-          <DialogTitle>Process a Loan</DialogTitle>
+          <DialogTitle>Get a Loan</DialogTitle>
           <DialogDescription asChild>
             <section className="my-4">
               {/* Dialog description content here, "Important Info" toggle moved below Fee Structure Over Time */}
@@ -469,7 +469,7 @@ const feeData = generateFeeData({ grossBorrowedEth, ethToWallet, prepaidPercent 
               <div className="grid grid-cols-7 gap-2">
                 <div className="col-span-4">
                   <Label htmlFor="collateral-amount" className="block text-gray-700 text-sm font-bold">
-                    Collateralize from
+                    How much $REV do you want to use as collateral?
                   </Label>
                 </div>
               </div>
