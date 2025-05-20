@@ -82,6 +82,7 @@ export function UserTokenBalanceCard() {
       {address && projectId && chainId ? (
         <>
         <LoanDetailsTable
+          title="Your loans"
           revnetId={projectId}
           address={address}
           chainId={0}
