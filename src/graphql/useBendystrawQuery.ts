@@ -7,9 +7,13 @@ import { arbitrum, base, mainnet, optimism } from "viem/chains";
 const bendystrawUrl = process.env.NEXT_PUBLIC_BENDYSTRAW_URL;
 const testnetBendystrawUrl = process.env.NEXT_PUBLIC_TESTNET_BENDYSTRAW_URL;
 
+import { useEffect } from "react";
+
 export function useBendystrawQuery<TResult, TVariables>(
   document: TypedDocumentNode<TResult, TVariables>,
-  ...[variables]: TVariables extends Record<string, never> ? [] : [TVariables]
+  ...[variables, options]: TVariables extends Record<string, never>
+    ? [undefined?, { pollInterval?: number; enabled?: boolean }?]
+    : [TVariables, { pollInterval?: number; enabled?: boolean }?]
 ): UseQueryResult<TResult> {
   const chainId = useJBChainId();
 
@@ -19,7 +23,7 @@ export function useBendystrawQuery<TResult, TVariables>(
 
   const url = isMainnet ? bendystrawUrl : testnetBendystrawUrl;
 
-  return useQuery({
+  const query = useQuery({
     queryKey: [(document.definitions[0] as any).name.value, variables],
     queryFn: async ({ queryKey }) => {
       if (!url) throw new Error("No subgraph url");
@@ -31,4 +35,16 @@ export function useBendystrawQuery<TResult, TVariables>(
       );
     },
   });
+
+  useEffect(() => {
+    if (!options?.pollInterval) return;
+
+    const interval = setInterval(() => {
+      query.refetch();
+    }, options.pollInterval);
+
+    return () => clearInterval(interval);
+  }, [options?.pollInterval, query.refetch]);
+
+  return query;
 }

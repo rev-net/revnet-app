@@ -98,7 +98,6 @@ async function getProjectMetadata(slug: string): Promise<{ handle: string; logoU
       return { handle: "project" };
     }
     const project = data.projects[0];
-    console.log("Project data:", project);
     if (!project.handle) {
       let ipfsHash = "";
       if (typeof project.metadataUri === "string") {

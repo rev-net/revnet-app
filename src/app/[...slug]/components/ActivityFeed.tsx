@@ -171,14 +171,25 @@ export function ActivityFeed() {
     projectId: Number(projectId),
   });
 
-  const { data: activityEvents } = useBendystrawQuery(ActivityEventsDocument, {
-    orderBy: "timestamp",
-    orderDirection: "desc",
-    where: {
-      suckerGroupId: project?.project?.suckerGroupId,
-      OR: [{ payEvent_not: null }, { cashOutTokensEvent_not: null }],
+  const suckerGroupId = project?.project?.suckerGroupId;
+
+  const { data: activityEvents } = useBendystrawQuery(
+    ActivityEventsDocument,
+    {
+      orderBy: "timestamp",
+      orderDirection: "desc",
+      where: suckerGroupId
+        ? {
+            suckerGroupId,
+            OR: [{ payEvent_not: null }, { cashOutTokensEvent_not: null }],
+          }
+        : undefined,
     },
-  });
+    {
+      pollInterval: 5000,
+      enabled: !!suckerGroupId,
+    }
+  );
 
   return (
     <FarcasterProfilesProvider
