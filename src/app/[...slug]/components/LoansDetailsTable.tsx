@@ -34,11 +34,13 @@ export function LoanDetailsTable({
   address,
   onSelectLoan,
   chainId,
+  title,
 }: {
   revnetId: bigint;
   address: string;
   onSelectLoan?: (loanId: string, loanData: any) => void;
   chainId?: number;
+  title?: string;
 }) {
   const { data } = useBendystrawQuery(LoansDetailsByAccountDocument, {
     owner: address,
@@ -52,7 +54,7 @@ export function LoanDetailsTable({
       ? data.loans.items.filter((loan) => Number(loan.chainId) === chainId)
       : data.loans.items;
   if (!filteredLoans.length)
-    return <div className="text-sm text-gray-500 mt-2">You have no loans</div>;
+    return;
 
   const sortedLoans = [...filteredLoans].sort((a, b) => {
     const timeA = a.prepaidDuration - (now - Number(a.createdAt));
@@ -60,7 +62,9 @@ export function LoanDetailsTable({
     return timeA - timeB;
   });
   return (
-    <div className="grid max-w-md gap-1.5 mt-4 max-h-96 overflow-auto bg-zinc-50 rounded-md border border-zinc-200">
+    <>
+      {title && <p className="text-md font-semibold text-zinc-500 mt-4">{title}</p>}
+      <div className="grid max-w-md gap-1.5 mt-4 max-h-96 overflow-auto bg-zinc-50 rounded-md border border-zinc-200">
       <table className="w-full text-xs">
         <thead className="sticky top-0 z-10 bg-zinc-50 text-left font-semibold text-zinc-600 border-b border-zinc-200">
           <tr>
@@ -96,6 +100,7 @@ export function LoanDetailsTable({
           })}
         </tbody>
       </table>
-    </div>
+      </div>
+    </>
   );
 }

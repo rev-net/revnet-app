@@ -81,7 +81,6 @@ export function UserTokenBalanceCard() {
       </div>
       {address && projectId && chainId ? (
         <>
-        <p className="text-md font-semibold text-zinc-500 mt-4">Your loans</p>
         <LoanDetailsTable
           revnetId={projectId}
           address={address}
@@ -90,6 +89,7 @@ export function UserTokenBalanceCard() {
             setSelectedLoan(loanData);
             setActiveTab("repay");
           }}
+          title="Your Loans"
         />
       </>
     ) : null}
