@@ -3,16 +3,13 @@
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { wagmiConfig } from "@/lib/wagmiConfig";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ConnectKitProvider, type Theme as ConnectKitTheme } from "connectkit"; // Import ConnectKit's Theme type
+import { ConnectKitProvider } from "connectkit";
 import * as React from "react";
 import { WagmiProvider } from "wagmi";
-import { ThemeProvider as NextThemesProvider, useTheme } from 'next-themes'; // Import and alias
+import { ThemeProvider as NextThemesProvider, useTheme } from 'next-themes';
 
-// This helper component will consume the theme from NextThemesProvider
-// and correctly pass it to ConnectKitProvider.
-// It also handles the mounting logic to ensure `resolvedTheme` is available.
 function ThemedProviders({ children }: { children: React.ReactNode }) {
-  const { resolvedTheme } = useTheme(); // from next-themes
+  const { resolvedTheme } = useTheme();
   const [mounted, setMounted] = React.useState(false);
 
   React.useEffect(() => {
@@ -27,11 +24,14 @@ function ThemedProviders({ children }: { children: React.ReactNode }) {
     );
   }
 
+  const connectKitMode = (resolvedTheme === 'light' || resolvedTheme === 'dark')
+    ? resolvedTheme
+    : 'auto';
+
   return (
     <ConnectKitProvider
       theme="auto"
-      // Dynamically set ConnectKit's mode based on the resolved theme from next-themes
-      mode={resolvedTheme as ConnectKitTheme || 'auto'} // Cast and provide a fallback
+      mode={connectKitMode}
     >
       <TooltipProvider delayDuration={200} skipDelayDuration={100}>
         {children}
@@ -45,7 +45,6 @@ export function Providers({ children }: { children: React.ReactNode }) {
   const [appMounted, setAppMounted] = React.useState(false);
   React.useEffect(() => setAppMounted(true), []);
 
-  // It's good practice to create the queryClient instance once.
   const [queryClient] = React.useState(() => new QueryClient());
 
   return (
