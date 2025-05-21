@@ -12,7 +12,9 @@
     "lint": "next lint",
     "export": "next export",
     "ts:compile": "tsc",
-    "generate:gql": "DOTENV_CONFIG_PATH=./.env.local graphql-code-generator --config codegen.yml -r dotenv/config"
+    "generate:gql": "DOTENV_CONFIG_PATH=./.env.local graphql-code-generator --config codegen.yml -r dotenv/config",
+    "format:write": "prettier --write \"**/*.{js,jsx,ts,tsx,json,css,scss}\"",
+    "format:check": "prettier --check \"**/*.{js,jsx,ts,tsx,json,css,scss}\""
   },
   "dependencies": {
     "@farcaster/frame-node": "^0.0.20",
@@ -73,7 +75,10 @@
     "dotenv": "^16.3.1",
     "eslint": "^8",
     "eslint-config-next": "^14.2.4",
+    "eslint-config-prettier": "^10.1.5",
     "postcss": "^8.4.33",
+    "prettier": "^3.5.3",
+    "prettier-plugin-tailwindcss": "^0.6.11",
     "tailwindcss": "^3.4.1",
     "typescript": "^5.0.4"
   },
