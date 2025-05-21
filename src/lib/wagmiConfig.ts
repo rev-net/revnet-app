@@ -9,7 +9,7 @@ import {
   sepolia,
 } from "viem/chains";
 import { createConfig, http, fallback } from "wagmi";
-import { safe, walletConnect } from "wagmi/connectors";
+import { coinbaseWallet, safe, walletConnect } from "wagmi/connectors";
 import { farcasterFrame as miniAppConnector } from "@farcaster/frame-wagmi-connector"
 
 const safeConnector = safe({
@@ -23,6 +23,10 @@ export const wagmiConfig = createConfig({
     connectors: [
       miniAppConnector(),
       safeConnector,
+      coinbaseWallet({
+        appName: "REVNET",
+        appLogoUrl: "https://app.revnet.eth.sucks/assets/img/small-bw.svg",
+      }),
       walletConnect({
         projectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID!,
         showQrModal: false,
