@@ -542,6 +542,8 @@ const feeData = generateFeeData({ grossBorrowedEth, ethToWallet, prepaidPercent 
                     tokenSymbol={tokenSymbol}
                     ethToWallet={simulatedEthToWallet}
                     prepaidPercent={prepaidPercent}
+                    grossBorrowedEth={simulatedGrossBorrowedEth}
+                    feeData={feeData}
                   />
                 );
               }

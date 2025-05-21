@@ -1,6 +1,6 @@
 import { chainSortOrder } from "@/app/constants";
 import { clsx, type ClassValue } from "clsx";
-import { formatDuration, intervalToDuration } from "date-fns";
+import { Duration, formatDuration, intervalToDuration } from "date-fns";
 import { JBChainId, JBTokenContextData } from "juice-sdk-react";
 import { twMerge } from "tailwind-merge";
 import { Address, Chain, formatEther } from "viem";
@@ -16,18 +16,26 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function formatSeconds(seconds: number) {
-  const duration = intervalToDuration({ start: 0, end: seconds * 1000 }); // convert seconds to milliseconds
+export function formatSeconds(seconds: number, precision = 2, compact = false) {
+  const duration = intervalToDuration({ start: 0, end: seconds * 1000 });
+
+  const fullFormat = (
+    seconds > 31536000
+      ? ["years", "months", "days"]
+      : seconds > 2592000
+      ? ["months", "days", "hours"]
+      : seconds > 86400
+      ? ["days", "hours", "minutes"]
+      : seconds > 3600
+      ? ["hours", "minutes", "seconds"]
+      : ["minutes", "seconds"]
+  ) as (keyof Duration)[];
+
+  const format = fullFormat.slice(0, precision);
+
   return formatDuration(duration, {
-    format:
-      seconds > 2592000 // if greater than 30 days, only show 'months'
-        ? ["months", "days"]
-        : seconds > 86400 // if greater than a day, only show 'days'
-        ? ["days", "hours"]
-        : seconds > 3600 // if greater than an hour, only show 'hours' and 'minutes'
-        ? ["hours", "minutes"]
-        : ["minutes", "seconds"],
-    delimiter: ", ",
+    format,
+    delimiter: compact ? "" : ", ",
   });
 }
 

@@ -2,23 +2,7 @@ import { JB_CHAINS, JBChainId } from "juice-sdk-core";
 import { useBendystrawQuery } from "@/graphql/useBendystrawQuery";
 import { LoansDetailsByAccountDocument } from "@/generated/graphql";
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
-
-function formatDuration(seconds: number): string {
-  const minutes = Math.floor(seconds / 60) % 60;
-  const hours = Math.floor(seconds / 3600) % 24;
-  const days = Math.floor(seconds / (3600 * 24)) % 30;
-  const months = Math.floor(seconds / (3600 * 24 * 30)) % 12;
-  const years = Math.floor(seconds / (3600 * 24 * 30 * 12));
-
-  const parts = [];
-  if (years) parts.push(`${years}y`);
-  if (months) parts.push(`${months}mo`);
-  if (days) parts.push(`${days}d`);
-  if (hours) parts.push(`${hours}h`);
-  if (minutes) parts.push(`${minutes}m`);
-
-  return parts.length ? parts.join(" ") : "0m";
-}
+import { formatSeconds } from "@/lib/utils";
 
 export function LoanDetailsTable({
   revnetId,
@@ -71,8 +55,7 @@ export function LoanDetailsTable({
         <tbody>
           {sortedLoans.map((loan) => {
             return (
-              <tr
-                key={loan.id}
+              <tr key={`${loan.id}-${loan.createdAt}`}
                 className={`border-b border-zinc-100 h-auto hover:bg-zinc-100 ${
                   selectedLoanId === loan.id ? "bg-zinc-100" : ""
                 }`}
@@ -89,14 +72,14 @@ export function LoanDetailsTable({
                 <td className="px-2 py-1 text-right">
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <span>{(Number(loan.borrowAmount) / 1e18).toFixed(6)}</span>
+                      <span>{(Number(loan.borrowAmount) / 1e18).toFixed(4)}</span>
                     </TooltipTrigger>
                     <TooltipContent>Loan ID: {loan.id?.toString() ?? "Unavailable"}</TooltipContent>
                   </Tooltip>
                 </td>
-                <td className="px-2 py-1 text-right">{(Number(loan.collateral) / 1e18).toFixed(6)}</td>
+                <td className="px-2 py-1 text-right">{(Number(loan.collateral) / 1e18).toFixed(4)}</td>
                 <td className="px-2 py-1 text-right">
-                  {formatDuration(loan.prepaidDuration - (Math.floor(Date.now() / 1000) - Number(loan.createdAt)))}
+                  {formatSeconds(Math.max(0, loan.prepaidDuration - (now - Number(loan.createdAt))))}
                 </td>
               </tr>
             );
