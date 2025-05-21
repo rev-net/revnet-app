@@ -1,4 +1,5 @@
 "use client";
+import { Nav } from "@/components/layout/Nav";
 import { Button } from "@/components/ui/button";
 import ThemedImage from '@/components/ThemedImage';
 import { JB_CHAINS } from "juice-sdk-core";
@@ -59,6 +60,8 @@ export default function Page() {
   }, []);
 
   return (
+    <>
+    <Nav/>
     <div className="container mt-40 pr-[1.5rem] pl-[1.5rem] sm:pr-[2rem] sm:pl-[2rem] sm:px-8">
       {user?.pfp && (
         <div className="flex items-center mb-4">
@@ -80,7 +83,7 @@ export default function Page() {
         <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
           <div className="flex gap-4 mt-8">
             <Link href="/create">
-              <Button className="md:h-12 h-16 text-xl md:text-xl px-4 flex gap-2 bg-teal-500 hover:bg-teal-600">
+              <Button className="md:h-12 h-16 text-xl md:text-xl px-4 flex gap-2 bg-teal-500 hover:bg-teal-600 dark:bg-indigo-700 dark:hover:bg-indigo-500 dark:text-teal-100">
                 Create yours
               </Button>
             </Link>
@@ -167,5 +170,6 @@ export default function Page() {
         </div>
       </div>
     </div>
+    </>
   );
 }
