@@ -102,7 +102,7 @@ export default function Page() {
         <ol className="mt-4 list-decimal ml-8 sm:ml-10 list-outside">
           <li>Set a name, ticker, logo, and description.</li>
           <li>Lock token issuance and cash-out rules in automated stages.</li>
-          <li>Collect, process, and tokenize payments from anyone, on any chain.</li>
+          <li>Collect, process, and tokenize payments from anyone, across all chains.</li>
         </ol>
       </div>
       <div className="mt-4 max-w-prose text-lg text-left">
