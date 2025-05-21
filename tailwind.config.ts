@@ -21,6 +21,11 @@ module.exports = {
         sans: ["var(--font-simplon-norm)", ...defaultTheme.fontFamily.sans],
         mono: ["var(--font-simplon-mono)", ...defaultTheme.fontFamily.mono],
       },
+      colors: {
+        'custom-purple': 'oklch(89.4% 0.057 293.283)',
+        'deep-purple': 'oklch(0.2056 0.0361 316.59)',
+        'custom-peach': 'oklch(0.7618 0.1455 39.18)',
+      },
       keyframes: {
         "accordion-down": {
           from: { height: 0 },
