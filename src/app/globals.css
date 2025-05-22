@@ -11,6 +11,11 @@
     margin: 0;
     -moz-appearance: textfield !important;
   }
+
+  a {@apply dark:hover:text-custom-peach;}
+  hr {@apply dark:border-gray-700;}
+  nav {@apply dark:border-gray-500;}
+  h1 {@apply text-custom-peach;}
 }
 
 @layer components {

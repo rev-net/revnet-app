@@ -1,5 +1,7 @@
 "use client";
+import { Nav } from "@/components/layout/Nav";
 import { Button } from "@/components/ui/button";
+import ThemedImage from '@/components/ThemedImage';
 import { JB_CHAINS } from "juice-sdk-core";
 import Image from "next/image";
 import Link from "next/link";
@@ -58,6 +60,8 @@ export default function Page() {
   }, []);
 
   return (
+    <>
+    <Nav/>
     <div className="container mt-40 pr-[1.5rem] pl-[1.5rem] sm:pr-[2rem] sm:pl-[2rem] sm:px-8">
       {user?.pfp && (
         <div className="flex items-center mb-4">
@@ -65,20 +69,21 @@ export default function Page() {
         </div>
       )}
       <div className="flex flex-col items-left justify-left">
-        <Image
-          src="/assets/img/revnet-full-bw.svg"
+        <ThemedImage
+          lightSrc="/assets/img/revnet-full-bw.svg"
+          darkSrc="/assets/img/Rev-dark.svg"
           width={840}
           height={240}
           alt="Revnet logo"
         />
         <span className="sr-only">Revnet</span>
-        <div className="text-xl md:text-2xl mt-8 font-medium text-left">
+        <h1 className="text-xl md:text-2xl mt-8 font-medium text-left">
           Tokenize revenues and fundraises. 100% autonomous.
-        </div>
+        </h1>
         <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
           <div className="flex gap-4 mt-8">
             <Link href="/create">
-              <Button className="md:h-12 h-16 text-xl md:text-xl px-4 flex gap-2 bg-teal-500 hover:bg-teal-600">
+              <Button className="md:h-12 h-16 text-xl md:text-xl px-4 flex gap-2 bg-teal-500 hover:bg-teal-600 dark:bg-indigo-700 dark:hover:bg-indigo-500 dark:text-teal-100">
                 Create yours
               </Button>
             </Link>
@@ -95,7 +100,7 @@ export default function Page() {
           </div>
         </div>
       </div>
-      <div className="border border-zinc-100 mt-20"></div>
+      <hr className="border border-zinc-100 mt-20"></hr>
 
       <div className="mt-8 max-w-prose text-lg text-left">
         How a revnet works:
@@ -165,5 +170,6 @@ export default function Page() {
         </div>
       </div>
     </div>
+    </>
   );
 }
