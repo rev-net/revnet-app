@@ -6,6 +6,7 @@ import { useBendystrawQuery } from "@/graphql/useBendystrawQuery";
 import { LoansByAccountDocument } from "@/generated/graphql";
 import { useEffect, useRef } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { ChainLogo } from "@/components/ChainLogo";
 
 function TokenBalanceRow({
   chainId,
@@ -44,21 +45,31 @@ function TokenBalanceRow({
   return (
     <>
       {columns.includes("chain") && (
-        <TableCell className="text-left">
-          {JB_CHAINS[chainId]?.name || chainId}
+        <TableCell className="whitespace-nowrap w-32">
+          <div className="flex items-center">
+            <ChainLogo chainId={chainId} width={14} height={14} />
+          </div>
         </TableCell>
       )}
       {columns.includes("holding") && (
-        <TableCell className="text-right">{formatAmount(balanceValue)} {tokenSymbol}</TableCell>
+        <TableCell className="text-right">
+          <span className="whitespace-nowrap">{formatAmount(balanceValue)} {tokenSymbol}</span>
+        </TableCell>
       )}
       {columns.includes("borrowable") && (
-        <TableCell className="text-right">{formatAmount(borrowableAmount)} ETH</TableCell>
+        <TableCell className="text-right">
+          <span className="whitespace-nowrap">{formatAmount(borrowableAmount)} ETH</span>
+        </TableCell>
       )}
       {columns.includes("debt") && (
-        <TableCell className="text-right">{formatAmount(summary?.borrowAmount)} ETH</TableCell>
+        <TableCell className="text-right">
+          <span className="whitespace-nowrap">{formatAmount(summary?.borrowAmount)} ETH</span>
+        </TableCell>
       )}
       {columns.includes("collateral") && (
-        <TableCell className="text-right">{formatAmount(summary?.collateral)} {tokenSymbol}</TableCell>
+        <TableCell className="text-right">
+          <span className="whitespace-nowrap">{formatAmount(summary?.collateral)} {tokenSymbol}</span>
+        </TableCell>
       )}
     </>
   );
@@ -144,60 +155,62 @@ export function TokenBalanceTable({
           On which chain?
         </label>
         <div className="max-h-96 overflow-auto bg-zinc-50 border border-zinc-200">
-          <div className="flex flex-col p-2">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-4" />
-                  {columns.includes("chain") && <TableHead className="text-left">Chain</TableHead>}
-                  {columns.includes("holding") && <TableHead className="text-right">Balance</TableHead>}
-                  {columns.includes("borrowable") && <TableHead className="text-right">Borrowable</TableHead>}
-                  {columns.includes("debt") && <TableHead className="text-right">Debt</TableHead>}
-                  {columns.includes("collateral") && <TableHead className="text-right">Collateral</TableHead>}
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {balances.map((balance, index) => {
-                  const chainId = balance.chainId as JBChainId;
-                  const summary = loanSummary[chainId];
+          <div className="flex flex-col overflow-x-auto">
+            <div className="min-w-full">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-4" />
+                    {columns.includes("chain") && <TableHead className="text-left">Chain</TableHead>}
+                    {columns.includes("holding") && <TableHead className="text-left">Balance</TableHead>}
+                    {columns.includes("borrowable") && <TableHead className="text-left">Borrowable</TableHead>}
+                    {columns.includes("debt") && <TableHead className="text-left">Debt</TableHead>}
+                    {columns.includes("collateral") && <TableHead className="text-left">Collateral</TableHead>}
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {balances.map((balance, index) => {
+                    const chainId = balance.chainId as JBChainId;
+                    const summary = loanSummary[chainId];
 
-                  const hasAnyBalance =
-                    balance.balance.value > 0n ||
-                    (summary?.borrowAmount && summary.borrowAmount > 0n) ||
-                    (summary?.collateral && summary.collateral > 0n);
+                    const hasAnyBalance =
+                      balance.balance.value > 0n ||
+                      (summary?.borrowAmount && summary.borrowAmount > 0n) ||
+                      (summary?.collateral && summary.collateral > 0n);
 
-                  if (!hasAnyBalance) return null;
+                    if (!hasAnyBalance) return null;
 
-                  const checked = selectedChainId === chainId;
+                    const checked = selectedChainId === chainId;
 
-                  return (
-                    <TableRow
-                      key={index}
-                      className={`cursor-pointer hover:bg-zinc-100 ${checked ? "bg-zinc-100" : ""}`}
-                      onClick={() => onCheckRow?.(chainId, true)}
-                    >
-                      <TableCell className="text-center">
-                        <input
-                          type="radio"
-                          name="chain"
-                          checked={checked}
-                          onChange={() => onCheckRow?.(chainId, true)}
+                    return (
+                      <TableRow
+                        key={index}
+                        className={`cursor-pointer hover:bg-zinc-100 ${checked ? "bg-zinc-100" : ""}`}
+                        onClick={() => onCheckRow?.(chainId, true)}
+                      >
+                        <TableCell className="text-center">
+                          <input
+                            type="radio"
+                            name="chain"
+                            checked={checked}
+                            onChange={() => onCheckRow?.(chainId, true)}
+                          />
+                        </TableCell>
+                        <TokenBalanceRow
+                          chainId={chainId}
+                          balanceValue={balance.balance.value}
+                          projectId={projectId}
+                          tokenSymbol={tokenSymbol}
+                          summary={summary}
+                          showHeader={false}
+                          columns={columns}
                         />
-                      </TableCell>
-                      <TokenBalanceRow
-                        chainId={chainId}
-                        balanceValue={balance.balance.value}
-                        projectId={projectId}
-                        tokenSymbol={tokenSymbol}
-                        summary={summary}
-                        showHeader={false}
-                        columns={columns}
-                      />
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </div>
           </div>
         </div>
     </div>
