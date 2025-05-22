@@ -67,10 +67,10 @@ export default function FarcasterAvatar({
 
   useEffect(() => {
     if (isSvg) setUseImgFallback(true);
-  }, [avatarSrc]);
+  }, [avatarSrc, isSvg]);
 
   const avatarElement = useImgFallback ? (
-    <img
+    <Image
       src={avatarSrc}
       alt={profile?.identity ?? address}
       className={twMerge(

@@ -103,7 +103,7 @@ export function FarcasterProfilesProvider({
     };
 
     fetchProfiles();
-  }, [JSON.stringify([...new Set(addresses.map((a) => a.toLowerCase()))].sort())]);
+  }, [JSON.stringify([...new Set(addresses.map((a) => a.toLowerCase()))].sort()), addresses]);
 
   return (
     <FarcasterProfilesContext.Provider value={profiles}>

@@ -99,7 +99,7 @@ export function BorrowDialog({
     if (defaultTab && defaultTab !== selectedTab) {
       setSelectedTab(defaultTab);
     }
-  }, [defaultTab]);
+  }, [defaultTab, selectedTab]);
   const [internalSelectedLoan, setInternalSelectedLoan] = useState<any | null>(selectedLoan ?? null);
   const [showLoanDetailsTable, setShowLoanDetailsTable] = useState(true);
   const [showRefinanceLoanDetailsTable, setShowRefinanceLoanDetailsTable] = useState(true);
@@ -377,7 +377,7 @@ const collateralCountToTransfer = internalSelectedLoan && currentBorrowableOnSel
       const feeBps = Number(feeBpsBigInt);
       const fee = (borrowableAmountRaw * BigInt(feeBps)) / 1000n;
     }
-  }, [collateralAmount, userProjectTokenBalance, borrowableAmountRaw]);
+  }, [collateralAmount, userProjectTokenBalance, borrowableAmountRaw, prepaidPercent]);
 
 
 const feeData = generateFeeData({ grossBorrowedEth, ethToWallet, prepaidPercent });

@@ -44,7 +44,7 @@ export function useBendystrawQuery<TResult, TVariables>(
     }, options.pollInterval);
 
     return () => clearInterval(interval);
-  }, [options?.pollInterval, query.refetch]);
+  }, [options?.pollInterval, query.refetch, query]);
 
   return query;
 }

@@ -66,10 +66,12 @@ export default function Page() {
       )}
       <div className="flex flex-col items-left justify-left">
         <Image
-          src="/assets/img/revnet-full-bw.svg"
-          width={840}
-          height={240}
+          src="/assets/img/revnet-hero.svg"
+          width={940}
+          height={88}
           alt="Revnet logo"
+          quality={85}
+          priority
         />
         <span className="sr-only">Revnet</span>
         <div className="text-xl md:text-2xl mt-8 font-medium text-left">

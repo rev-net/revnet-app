@@ -217,7 +217,6 @@ function RedeemActivityItem(
           </span>
         </div>
       </div>
-      
     </div>
   );
 }
