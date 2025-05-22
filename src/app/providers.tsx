@@ -1,35 +1,26 @@
 "use client";
 
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { wagmiConfig } from "@/lib/wagmiConfig";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ConnectKitProvider } from "connectkit";
-import * as React from "react";
-import { WagmiProvider } from "wagmi";
+import React from 'react';
+import { usePathname } from 'next/navigation';
+import dynamic from 'next/dynamic';
+
+const DynamicAppSpecificProviders = dynamic(
+  () => import('./AppSpecificProviders').then(mod => mod.AppSpecificProviders),
+  {
+    ssr: false,
+    loading: () => null,
+  }
+);
 
 export function Providers({ children }: { children: React.ReactNode }) {
-  const [mounted, setMounted] = React.useState(false);
-  React.useEffect(() => setMounted(true), []);
-  const queryClient = new QueryClient();
+  const pathname = usePathname();
 
-  return (
-    <WagmiProvider config={wagmiConfig}>
-      <QueryClientProvider client={queryClient}>
-        <ConnectKitProvider
-          theme="soft"
-          mode="light"
-          customTheme={{
-            "--ck-font-family": "var(--font-simplon-norm)",
-            "--ck-connectbutton-border-radius": "0",
-            "--ck-accent-color": "#14B8A6",
-            "--ck-accent-text-color": "#ffffff",
-          }}
-        >
-          <TooltipProvider delayDuration={200} skipDelayDuration={100}>
-            {mounted && children}
-          </TooltipProvider>
-        </ConnectKitProvider>
-      </QueryClientProvider>
-    </WagmiProvider>
-  );
+  // Don't load providers for splash
+  const isSplashPage = pathname === '/';
+  if (isSplashPage) {
+    return <>{children}</>;
+  }
+
+  // For all other pages, render the dynamically imported AppSpecificProviders
+  return <DynamicAppSpecificProviders>{children}</DynamicAppSpecificProviders>;
 }
