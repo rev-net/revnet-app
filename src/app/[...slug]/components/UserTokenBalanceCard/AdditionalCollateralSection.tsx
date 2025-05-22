@@ -8,12 +8,14 @@ export function AdditionalCollateralSection({
   cashOutChainId,
   setSelectedLoan,
   borrowedEth,
+  tokenSymbol,
 }: {
   projectId: number;
   address: string;
   cashOutChainId: number;
   setSelectedLoan: (loan: any) => void;
   borrowedEth?: string;
+  tokenSymbol: string;
 }) {
   return (
     <div className="mt-2 text-sm text-gray-700 space-y-1 ml-2 mb-4">
@@ -22,6 +24,7 @@ export function AdditionalCollateralSection({
         revnetId={BigInt(projectId)}
         address={address}
         chainId={cashOutChainId}
+        tokenSymbol={tokenSymbol}
         onSelectLoan={(loanId, loanData) => setSelectedLoan(loanData)}
       />
       {borrowedEth && <p>Borrowed (wei): {borrowedEth}</p>}
