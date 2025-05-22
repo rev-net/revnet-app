@@ -11,6 +11,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { ChainLogo } from "@/components/ChainLogo";
 
 export function LoanDetailsTable({
   revnetId,
@@ -52,14 +53,15 @@ export function LoanDetailsTable({
     <>
       {title && <p className="text-md font-semibold mt-6 mb-4 text-black">{title}</p>}
       <div className="max-h-96 overflow-auto bg-zinc-50 border border-zinc-200">
-        <div className="flex flex-col p-2">
-          <Table>
+        <div className="flex flex-col p-2 overflow-x-auto">
+          <div className="min-w-full">
+            <Table>
             <TableHeader>
               <TableRow>
                 <TableHead>Chain</TableHead>
-                <TableHead className="text-right">Borrowed</TableHead>
-                <TableHead className="text-right">Collateral</TableHead>
-                <TableHead className="text-right">Fees Increase In</TableHead>
+                <TableHead className="text-left pr-4">Borrowed</TableHead>
+                <TableHead className="text-left pr-4">Collateral</TableHead>
+                <TableHead className="text-left pr-6">Fees Increase In</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -69,23 +71,38 @@ export function LoanDetailsTable({
                   className={`cursor-pointer hover:bg-zinc-100 ${selectedLoanId === loan.id ? "bg-zinc-100" : ""}`}
                   onClick={() => onSelectLoan?.(loan.id, loan)}
                 >
-                  <TableCell>{JB_CHAINS[loan.chainId as JBChainId]?.name || loan.chainId}</TableCell>
+                  <TableCell className="whitespace-nowrap">
+                    {(loan.chainId in JB_CHAINS) ? (
+                      <ChainLogo chainId={loan.chainId as JBChainId} width={15} height={15} />
+                    ) : (
+                      <span>{loan.chainId}</span>
+                    )}
+                  </TableCell>
                   <TableCell className="text-right">
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <span>{(Number(loan.borrowAmount) / 1e18).toFixed(4)} ETH</span>
+                        <span className="whitespace-nowrap">
+                          {(Number(loan.borrowAmount) / 1e18).toFixed(4)} ETH
+                        </span>
                       </TooltipTrigger>
                       <TooltipContent>Loan ID: {loan.id?.toString() ?? "Unavailable"}</TooltipContent>
                     </Tooltip>
                   </TableCell>
-                  <TableCell className="text-right">{(Number(loan.collateral) / 1e18).toFixed(4)} {tokenSymbol}</TableCell>
                   <TableCell className="text-right">
-                    {formatSeconds(Math.max(0, loan.prepaidDuration - (now - Number(loan.createdAt))))}
+                    <span className="whitespace-nowrap">
+                      {(Number(loan.collateral) / 1e18).toFixed(4)}&nbsp;{tokenSymbol}
+                    </span>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <span className="whitespace-nowrap">
+                      {formatSeconds(Math.max(0, loan.prepaidDuration - (now - Number(loan.createdAt))))}
+                    </span>
                   </TableCell>
                 </TableRow>
               ))}
             </TableBody>
-          </Table>
+            </Table>
+          </div>
         </div>
       </div>
     </>
