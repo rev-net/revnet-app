@@ -3,7 +3,6 @@ import type { Metadata } from "next";
 import { request } from "graphql-request";
 import { SUBGRAPH_URLS } from "../../graphql/constants";
 import { JB_CHAINS, jbUrn } from "juice-sdk-core";
-import { Providers } from "../providers";
 
 interface ProjectsQueryResult {
   projects: {
@@ -200,5 +199,5 @@ export async function generateMetadata({
 }
 
 export default function SlugLayout({ children }: { children: React.ReactNode }) {
-  return <Providers>{children}</Providers>;
+  return <>{children}</>;
 }

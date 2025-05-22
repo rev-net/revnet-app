@@ -5,7 +5,6 @@ import Link from "next/link";
 // Hardcoding for performance for now.
 const ethSlug = "eth";
 
-// RevLink Component (can stay here or be moved to a separate file if used elsewhere)
 const RevLink = ({
   network,
   id,

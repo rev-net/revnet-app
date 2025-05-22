@@ -46,8 +46,10 @@ export default function RootLayout({
           "bg-zinc-25 text-zinc-950 font-sans min-h-screen tracking-[0.015em]"
         )}
       >
+          <Providers>
           <main className="min-h-screen">{children}</main>
           <Footer />
+          </Providers>
 
         <Toaster />
       </body>
