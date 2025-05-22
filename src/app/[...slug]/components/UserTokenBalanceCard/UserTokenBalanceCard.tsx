@@ -11,6 +11,7 @@ import {
 } from "juice-sdk-react";
 import { RedeemDialog } from "./RedeemDialog";
 import { BorrowDialog } from "./BorrowDialog";
+import { RepayDialog } from "./RepayDialog";
 import { LoanDetailsTable } from "../LoansDetailsTable";
 import { useAccount } from "wagmi";
 
@@ -31,14 +32,8 @@ export function UserTokenBalanceCard() {
   );
 
   const [selectedLoan, setSelectedLoan] = useState<any>(null);
-  const [activeTab, setActiveTab] = useState<"borrow" | "repay">("borrow");
+  const [showRepayDialog, setShowRepayDialog] = useState(false);
   const borrowDialogTriggerRef = useRef<HTMLButtonElement | null>(null);
-
-  useEffect(() => {
-    if (activeTab === "repay" && selectedLoan) {
-      borrowDialogTriggerRef.current?.click();
-    }
-  }, [activeTab, selectedLoan]);
 
   return (
     <>
@@ -61,23 +56,26 @@ export function UserTokenBalanceCard() {
             creditBalance={creditBalance}
             tokenSymbol={tokenSymbol}
             primaryTerminalEth={primaryNativeTerminal.data}
-            selectedLoan={selectedLoan}
-            defaultTab={activeTab}
           >
             <Button
               ref={borrowDialogTriggerRef}
               variant="outline"
               disabled={creditBalance.value === 0n}
-              onClick={(e) => {
-                if (!(e.detail === 0)) {
-                  setActiveTab("borrow");
-                }
-              }}
             >
               Get a loan
             </Button>
           </BorrowDialog>
         ) : null}
+        {selectedLoan && (
+          <RepayDialog
+            projectId={projectId}
+            tokenSymbol={tokenSymbol}
+            address={address || ""}
+            open={showRepayDialog}
+            onOpenChange={setShowRepayDialog}
+            loan={selectedLoan}
+          />
+        )}
       </div>
       {address && projectId && chainId ? (
         <>
@@ -86,9 +84,10 @@ export function UserTokenBalanceCard() {
           revnetId={projectId}
           address={address}
           chainId={0}
+          tokenSymbol={tokenSymbol}
           onSelectLoan={(loanId, loanData) => {
             setSelectedLoan(loanData);
-            setActiveTab("repay");
+            setShowRepayDialog(true);
           }}
         />
       </>

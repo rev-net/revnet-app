@@ -44,21 +44,21 @@ function TokenBalanceRow({
   return (
     <>
       {columns.includes("chain") && (
-        <TableCell className="text-xs py-1 text-left font-medium text-zinc-600">
+        <TableCell className="text-left">
           {JB_CHAINS[chainId]?.name || chainId}
         </TableCell>
       )}
       {columns.includes("holding") && (
-        <TableCell className="text-xs py-1 text-right">{formatAmount(balanceValue)} {tokenSymbol}</TableCell>
+        <TableCell className="text-right">{formatAmount(balanceValue)} {tokenSymbol}</TableCell>
       )}
       {columns.includes("borrowable") && (
-        <TableCell className="text-xs py-1 text-right">{formatAmount(borrowableAmount)} ETH</TableCell>
+        <TableCell className="text-right">{formatAmount(borrowableAmount)} ETH</TableCell>
       )}
       {columns.includes("debt") && (
-        <TableCell className="text-xs py-1 text-right">{formatAmount(summary?.borrowAmount)} ETH</TableCell>
+        <TableCell className="text-right">{formatAmount(summary?.borrowAmount)} ETH</TableCell>
       )}
       {columns.includes("collateral") && (
-        <TableCell className="text-xs py-1 text-right">{formatAmount(summary?.collateral)} {tokenSymbol}</TableCell>
+        <TableCell className="text-right">{formatAmount(summary?.collateral)} {tokenSymbol}</TableCell>
       )}
     </>
   );
@@ -143,60 +143,63 @@ export function TokenBalanceTable({
         <label className="block text-gray-700 text-sm font-bold mb-1">
           On which chain?
         </label>
-        <div className="mt-1 max-h-96 overflow-auto bg-zinc-50 rounded-md border border-zinc-200">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-4" />
-              {columns.includes("chain") && <TableHead className="text-left">Chain</TableHead>}
-              {columns.includes("holding") && <TableHead className="text-right">Balance</TableHead>}
-              {columns.includes("borrowable") && <TableHead className="text-right">Borrowable</TableHead>}
-              {columns.includes("debt") && <TableHead className="text-right">Debt</TableHead>}
-              {columns.includes("collateral") && <TableHead className="text-right">Collateral</TableHead>}
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {balances.map((balance, index) => {
-              const chainId = balance.chainId as JBChainId;
-              const summary = loanSummary[chainId];
-
-              const hasAnyBalance =
-                balance.balance.value > 0n ||
-                (summary?.borrowAmount && summary.borrowAmount > 0n) ||
-                (summary?.collateral && summary.collateral > 0n);
-
-              if (!hasAnyBalance) return null;
-
-              const checked = selectedChainId === chainId;
-
-              return (
-                <TableRow
-                  key={index}
-                  className="h-auto"
-                >
-                  <TableCell className="text-xs py-1 text-center">
-                    <input
-                      type="radio"
-                      name="chain"
-                      checked={checked}
-                      onChange={() => onCheckRow?.(chainId, true)}
-                    />
-                  </TableCell>
-                  <TokenBalanceRow
-                    chainId={chainId}
-                    balanceValue={balance.balance.value}
-                    projectId={projectId}
-                    tokenSymbol={tokenSymbol}
-                    summary={summary}
-                    showHeader={false}
-                    columns={columns}
-                  />
+        <div className="max-h-96 overflow-auto bg-zinc-50 border border-zinc-200">
+          <div className="flex flex-col p-2">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-4" />
+                  {columns.includes("chain") && <TableHead className="text-left">Chain</TableHead>}
+                  {columns.includes("holding") && <TableHead className="text-right">Balance</TableHead>}
+                  {columns.includes("borrowable") && <TableHead className="text-right">Borrowable</TableHead>}
+                  {columns.includes("debt") && <TableHead className="text-right">Debt</TableHead>}
+                  {columns.includes("collateral") && <TableHead className="text-right">Collateral</TableHead>}
                 </TableRow>
-              );
-            })}
-          </TableBody>
-        </Table>
-      </div>
+              </TableHeader>
+              <TableBody>
+                {balances.map((balance, index) => {
+                  const chainId = balance.chainId as JBChainId;
+                  const summary = loanSummary[chainId];
+
+                  const hasAnyBalance =
+                    balance.balance.value > 0n ||
+                    (summary?.borrowAmount && summary.borrowAmount > 0n) ||
+                    (summary?.collateral && summary.collateral > 0n);
+
+                  if (!hasAnyBalance) return null;
+
+                  const checked = selectedChainId === chainId;
+
+                  return (
+                    <TableRow
+                      key={index}
+                      className={`cursor-pointer hover:bg-zinc-100 ${checked ? "bg-zinc-100" : ""}`}
+                      onClick={() => onCheckRow?.(chainId, true)}
+                    >
+                      <TableCell className="text-center">
+                        <input
+                          type="radio"
+                          name="chain"
+                          checked={checked}
+                          onChange={() => onCheckRow?.(chainId, true)}
+                        />
+                      </TableCell>
+                      <TokenBalanceRow
+                        chainId={chainId}
+                        balanceValue={balance.balance.value}
+                        projectId={projectId}
+                        tokenSymbol={tokenSymbol}
+                        summary={summary}
+                        showHeader={false}
+                        columns={columns}
+                      />
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </div>
+        </div>
     </div>
   );
 }

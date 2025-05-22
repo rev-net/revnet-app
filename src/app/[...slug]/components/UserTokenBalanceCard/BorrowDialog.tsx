@@ -42,11 +42,10 @@ import { SimulatedLoanCard } from "../SimulatedLoanCard";
 import { LoanFeeChart } from "../LoanFeeChart";
 import { TokenBalanceTable } from "../TokenBalanceTable";
 import { LoanDetailsTable } from "../LoansDetailsTable";
-import { LoanTabsHeader } from "./LoanTabsHeader";
 import { ImportantInfo } from "./ImportantInfo";
 
 const FIXEDLOANFEES = 0.035; // TODO: get from onchain?
-const showAddOnCollateralSection = true; // Set to false to hide this section
+const showAddOnCollateralSection = false; //true; // Set to false to hide this section
 
 export function BorrowDialog({
   projectId,
@@ -423,15 +422,13 @@ const feeData = generateFeeData({ grossBorrowedEth, ethToWallet, prepaidPercent 
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="max-w-2xl">
         <DialogHeader>
-          <DialogTitle>Process a Loan</DialogTitle>
+          <DialogTitle>New loan</DialogTitle>
           <DialogDescription asChild>
             <section className="my-4">
               {/* Dialog description content here, "Important Info" toggle moved below Fee Structure Over Time */}
             </section>
           </DialogDescription>
         </DialogHeader>
-        {/* Tab UI */}
-        <LoanTabsHeader selectedTab={selectedTab} setSelectedTab={setSelectedTab} />
         {/* Main dialog content (inputs, preview, chart, actions) */}
         {selectedTab === "borrow" && (
           <div>
@@ -465,7 +462,7 @@ const feeData = generateFeeData({ grossBorrowedEth, ethToWallet, prepaidPercent 
               <div className="grid grid-cols-7 gap-2">
                 <div className="col-span-4">
                   <Label htmlFor="collateral-amount" className="block text-gray-700 text-sm font-bold">
-                    Collateralize from
+                    How much {tokenSymbol} do you want to collateralize?
                   </Label>
                 </div>
               </div>
@@ -600,6 +597,7 @@ const feeData = generateFeeData({ grossBorrowedEth, ethToWallet, prepaidPercent 
                     revnetId={BigInt(projectId)}
                     address={address ?? ""}
                     chainId={cashOutChainId ? Number(cashOutChainId) : 0}
+                    tokenSymbol={tokenSymbol}
                     onSelectLoan={(loanId, loanData) => setInternalSelectedLoan(loanData)}
                     selectedLoanId={internalSelectedLoan?.id}
                   />
@@ -621,7 +619,7 @@ const feeData = generateFeeData({ grossBorrowedEth, ethToWallet, prepaidPercent 
                       To access it, you're reusing <b>{(Number(collateralCountToTransfer) / 1e18).toFixed(6)}</b> {tokenSymbol} of that appreciated collateral.
                     </p>
                     <p>
-                      You’re also escrowing <b>{collateralAmount && Number(collateralAmount) > 0 ? collateralAmount : "0"}</b> {tokenSymbol} of new collateral.
+                      You're also escrowing <b>{collateralAmount && Number(collateralAmount) > 0 ? collateralAmount : "0"}</b> {tokenSymbol} of new collateral.
                     </p>
                     <p>
                       Existing borrowed: <b>{(Number(internalSelectedLoan.borrowAmount) / 1e18).toFixed(6)}</b> ETH will be rolled into a new loan.
@@ -819,155 +817,10 @@ const feeData = generateFeeData({ grossBorrowedEth, ethToWallet, prepaidPercent 
                 }}
               >
                 {internalSelectedLoan && collateralAmount && !isNaN(Number(collateralAmount))
-                  ? "Reallocate + Borrow"
-                  : "Borrow some ETH"}
+                  ? "Adjust loan"
+                  : "Open loan"}
               </ButtonWithWallet>
             </DialogFooter>
-          </div>
-        )}
-        {selectedTab === "repay" && (
-          <div className="text-sm text-zinc-700 space-y-4">
-            <button
-              type="button"
-              onClick={() => setShowLoanDetailsTable(!showLoanDetailsTable)}
-              className="flex items-center gap-2 text-left block text-gray-700 text-sm font-bold mb-2 mt-2"
-            >
-              <span>Select Loan to Repay</span>
-              <span
-                className={`transform transition-transform ${showLoanDetailsTable ? "rotate-90" : "rotate-0"}`}
-              >
-                ▶
-              </span>
-            </button>
-            {showLoanDetailsTable && (
-              <LoanDetailsTable
-                key="repay-loan-table"
-                address={address as `0x${string}`}
-                revnetId={projectId}
-                onSelectLoan={(id, loan) => {
-                  setInternalSelectedLoan(loan);
-                  const correctBorrowAmount = BigInt(loan.borrowAmount);
-                  setRepayAmount((Number(correctBorrowAmount) / 1e18).toString());
-                  setCollateralToReturn((Number(loan.collateral) / 1e18).toString());
-                  setShowLoanDetailsTable(false);
-                }}
-              />
-            )}
-            {internalSelectedLoan && (
-              <>
-                <div className="grid grid-cols-7 gap-2">
-                  <div className="col-span-4">
-                    <Label htmlFor="collateral-to-return" className="block text-gray-700 text-sm font-bold mb-1">
-                      Release Collateral ({tokenSymbol})
-                    </Label>
-                    <Input
-                      id="collateral-to-return"
-                      type="number"
-                      step="1"
-                      value={collateralToReturn}
-                      onChange={(e) => setCollateralToReturn(e.target.value)}
-                      placeholder="Enter collateral amount to return"
-                    />
-                    <Label className="block text-gray-700 text-sm font-bold mb-1 mt-4">
-                      Repay Amount
-                    </Label>
-                    <Label className="block px-3 py-2 h-10 bg-white text-sm text-zinc-900">
-                      {repayAmount || "0.00"}
-                    </Label>
-                    <div className="flex gap-1 mt-2">
-                      {[10, 25, 50].map((pct) => (
-                        <button
-                          key={pct}
-                          type="button"
-                          onClick={async () => {
-                            const collateralInTokens = Number(internalSelectedLoan.collateral) / 1e18;
-                            const portion = collateralInTokens * (pct / 100);
-                            setCollateralToReturn(portion.toString());
-
-                            const remainingCollateral = BigInt(internalSelectedLoan.collateral) - BigInt(Math.floor(portion * 1e18));
-                            const result = await fetch(
-                              `/api/borrowableAmount?projectId=${projectId.toString()}&collateral=${remainingCollateral.toString()}&chainId=${internalSelectedLoan.chainId}`
-                            ).then(res => res.json());
-
-                            const newBorrowableAmount = BigInt(result.borrowableAmount);
-                            const repayAmountWei = BigInt(internalSelectedLoan.borrowAmount) - newBorrowableAmount;
-                            setRepayAmount((Number(repayAmountWei) / 1e18).toFixed(6));
-                          }}
-                          className="h-10 px-3 text-sm text-zinc-700 border border-zinc-300 rounded-md bg-white hover:bg-zinc-100"
-                        >
-                          {pct}%
-                        </button>
-                      ))}
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const maxCollateral = Number(internalSelectedLoan.collateral) / 1e18;
-                          setCollateralToReturn(maxCollateral.toString());
-                          const repay = Number(internalSelectedLoan.borrowAmount) / 1e18;
-                          setRepayAmount(repay.toFixed(6));
-                        }}
-                        className="h-10 px-3 text-sm text-zinc-700 border border-zinc-300 rounded-md bg-white hover:bg-zinc-100"
-                      >
-                        Max
-                      </button>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex flex-col items-end pt-2">
-                  <ButtonWithWallet
-                    targetChainId={internalSelectedLoan.chainId}
-                    loading={isRepaying || repayStatus === "waiting-signature" || repayStatus === "pending"}
-                    onClick={async () => {
-                      try {
-                        const correctedBorrowAmount = BigInt(internalSelectedLoan.borrowAmount);
-                        if (!collateralToReturn || isNaN(Number(collateralToReturn))) {
-                          setRepayStatus("error");
-                          return;
-                        }
-
-                        const repayArgs = [
-                          internalSelectedLoan.id,
-                          correctedBorrowAmount,
-                          BigInt(Math.floor(Number(collateralToReturn) * 1e18)),
-                          address as `0x${string}`,
-                          {
-                            sigDeadline: 0n,
-                            amount: 0n,
-                            expiration: 0,
-                            nonce: 0,
-                            signature: "0x",
-                          },
-                        ] as const;
-
-                        setRepayStatus("waiting-signature");
-
-                        const tx = await repayLoanAsync?.({
-                          chainId: internalSelectedLoan.chainId,
-                          args: repayArgs,
-                          value: internalSelectedLoan.borrowAmount,
-                        });
-
-                        setRepayTxHash(tx);
-                      } catch (e) {
-                        setRepayStatus("error");
-                        console.error("Repayment failed:", e);
-                      }
-                    }}
-                  >
-                    Repay Loan
-                  </ButtonWithWallet>
-                  {repayStatus !== "idle" && (
-                    <p className="text-sm text-zinc-600 mt-2">
-                      {repayStatus === "waiting-signature" && "Waiting for wallet confirmation..."}
-                      {repayStatus === "pending" && "Repayment pending..."}
-                      {repayStatus === "success" && "Repayment successful!"}
-                      {repayStatus === "error" && "Something went wrong during repayment."}
-                    </p>
-                  )}
-                </div>
-              </>
-            )}
           </div>
         )}
      </DialogContent>

@@ -3,12 +3,21 @@ import { useBendystrawQuery } from "@/graphql/useBendystrawQuery";
 import { LoansDetailsByAccountDocument } from "@/generated/graphql";
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { formatSeconds } from "@/lib/utils";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 export function LoanDetailsTable({
   revnetId,
   address,
   onSelectLoan,
   chainId,
+  tokenSymbol,
   title,
   selectedLoanId,
 }: {
@@ -16,6 +25,7 @@ export function LoanDetailsTable({
   address: string;
   onSelectLoan?: (loanId: string, loanData: any) => void;
   chainId?: number;
+  tokenSymbol: string;
   title?: string;
   selectedLoanId?: string;
 }) {
@@ -40,52 +50,43 @@ export function LoanDetailsTable({
   });
   return (
     <>
-      {title && <p className="text-md font-semibold text-zinc-500 mt-4">{title}</p>}
-      <div className="grid max-w-md gap-1.5 mt-4 max-h-96 overflow-auto bg-zinc-50 rounded-md border border-zinc-200">
-      <table className="w-full text-xs">
-        <thead className="sticky top-0 z-10 bg-zinc-50 text-left font-semibold text-zinc-600 border-b border-zinc-200">
-          <tr>
-            <th className="px-2 py-1 w-4" />
-            <th className="px-2 py-1 text-left">Chain</th>
-            <th className="px-2 py-1 text-right">Borrowed ETH</th>
-            <th className="px-2 py-1 text-right">Collateral</th>
-            <th className="px-2 py-1 text-right">Fees Increase In</th>
-          </tr>
-        </thead>
-        <tbody>
-          {sortedLoans.map((loan) => {
-            return (
-              <tr key={`${loan.id}-${loan.createdAt}`}
-                className={`border-b border-zinc-100 h-auto hover:bg-zinc-100 ${
-                  selectedLoanId === loan.id ? "bg-zinc-100" : ""
-                }`}
-              >
-                <td className="px-2 py-1 text-left">
-                  <input
-                    type="radio"
-                    name="selectedLoan"
-                    checked={selectedLoanId === loan.id}
-                    onChange={() => onSelectLoan?.(loan.id, loan)}
-                  />
-                </td>
-                <td className="px-2 py-1 text-left">{JB_CHAINS[loan.chainId as JBChainId]?.name || loan.chainId}</td>
-                <td className="px-2 py-1 text-right">
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <span>{(Number(loan.borrowAmount) / 1e18).toFixed(4)}</span>
-                    </TooltipTrigger>
-                    <TooltipContent>Loan ID: {loan.id?.toString() ?? "Unavailable"}</TooltipContent>
-                  </Tooltip>
-                </td>
-                <td className="px-2 py-1 text-right">{(Number(loan.collateral) / 1e18).toFixed(4)}</td>
-                <td className="px-2 py-1 text-right">
-                  {formatSeconds(Math.max(0, loan.prepaidDuration - (now - Number(loan.createdAt))))}
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+      {title && <p className="text-md font-semibold mt-6 mb-4 text-black">{title}</p>}
+      <div className="max-h-96 overflow-auto bg-zinc-50 border border-zinc-200">
+        <div className="flex flex-col p-2">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Chain</TableHead>
+                <TableHead className="text-right">Borrowed</TableHead>
+                <TableHead className="text-right">Collateral</TableHead>
+                <TableHead className="text-right">Fees Increase In</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {sortedLoans.map((loan) => (
+                <TableRow
+                  key={`${loan.id}-${loan.createdAt}`}
+                  className={`cursor-pointer hover:bg-zinc-100 ${selectedLoanId === loan.id ? "bg-zinc-100" : ""}`}
+                  onClick={() => onSelectLoan?.(loan.id, loan)}
+                >
+                  <TableCell>{JB_CHAINS[loan.chainId as JBChainId]?.name || loan.chainId}</TableCell>
+                  <TableCell className="text-right">
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <span>{(Number(loan.borrowAmount) / 1e18).toFixed(4)} ETH</span>
+                      </TooltipTrigger>
+                      <TooltipContent>Loan ID: {loan.id?.toString() ?? "Unavailable"}</TooltipContent>
+                    </Tooltip>
+                  </TableCell>
+                  <TableCell className="text-right">{(Number(loan.collateral) / 1e18).toFixed(4)} {tokenSymbol}</TableCell>
+                  <TableCell className="text-right">
+                    {formatSeconds(Math.max(0, loan.prepaidDuration - (now - Number(loan.createdAt))))}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
       </div>
     </>
   );
