@@ -29,6 +29,7 @@ export async function GET(req: Request) {
 
   let totalBalance = 0;
   const results = [];
+  let projectName = "Revnet"; // default fallback
 
   for (const chainId of chainIds) {
     const suckerIdQuery = `
@@ -53,25 +54,18 @@ export async function GET(req: Request) {
 
       const suckerIdText = await suckerIdRes.text();
       const suckerIdJson = JSON.parse(suckerIdText);
-      const project = suckerIdJson.data?.project;
-      if (!project) {
-        return NextResponse.json({ error: "Project not found on BendyStraw" }, { status: 404 });
-      }
-      const suckerGroupId = project.suckerGroupId;
+      const suckerGroupId = suckerIdJson.data?.project?.suckerGroupId;
       if (!suckerGroupId) {
-        return NextResponse.json({ error: "Missing suckerGroupId in project" }, { status: 404 });
+        return NextResponse.json({ error: "Project not found on BendyStraw" }, { status: 404 });
       }
 
       const surplusQuery = `
       query GetSuckerGroup($id: String!) {
         suckerGroup(id: $id) {
           balance
-          contributorsCount
-          addresses
           volume
           volumeUsd
           projects {
-            totalCount
             items {
               balance
               chainId
@@ -113,6 +107,7 @@ export async function GET(req: Request) {
       const surplusJson = await surplusRes.json();
       const items = surplusJson.data.suckerGroup?.projects?.items ?? [];
 
+      projectName = surplusJson.data.suckerGroup?.projects?.items?.[0]?.name ?? projectName;
       for (const item of items) {
         const itemBalance = parseFloat(item.balance ?? "0") / 1e18;
         totalBalance += itemBalance;
@@ -141,11 +136,13 @@ export async function GET(req: Request) {
 
   const usdTvl = totalBalance * ethPrice;
 
-  const publicBase = req.headers.get("host")?.startsWith("f1ae7ffc33f8.ngrok.app")
-    ? "https://f1ae7ffc33f8.ngrok.app"
-    : "https://revnet.eth.sucks";
+  const host = req.headers.get("host");
+  if (!host) {
+    return NextResponse.json({ error: "Missing host header" }, { status: 500 });
+  }
+  const publicBase = `https://${host}`;
   const publicUrl = `${publicBase}/api/data/shields?projectId=${projectId}${chainIds.length === 1 ? `&chainId=${chainIds[0]}` : ""}`;
-  const badgeUrl = `https://img.shields.io/badge/dynamic/json?url=${encodeURIComponent(publicUrl)}&query=%24.message&label=Revnet%20Contributions`;
+  const badgeUrl = `https://img.shields.io/badge/dynamic/json?url=${encodeURIComponent(publicUrl)}&query=%24.message&label=${encodeURIComponent(projectName)}&cacheSeconds=3600`;
 
   return NextResponse.json({
     label: "Current value",
