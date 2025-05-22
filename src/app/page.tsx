@@ -1,11 +1,13 @@
-"use client";
+// "use client";
 import { Button } from "@/components/ui/button";
-import { JB_CHAINS } from "juice-sdk-core";
+/* import { JB_CHAINS } from "juice-sdk-core"; */
 import Image from "next/image";
 import Link from "next/link";
-import { mainnet } from "viem/chains";
-import { sdk } from "@farcaster/frame-sdk";
-import { use, useEffect, useState } from "react";
+/* import { sdk } from "@farcaster/frame-sdk";
+import { useEffect, useState } from "react"; */
+
+// Hardcoding for performance for now.
+const ethSlug = "eth";
 
 const RevLink = ({
   network,
@@ -34,7 +36,8 @@ const Pipe = () => {
 };
 
 export default function Page() {
-  const [user, setUser] = useState<{ fid: number; pfp: string, userName: string } | null>(null);
+  // This code was only erroring for now.
+  /* const [user, setUser] = useState<{ fid: number; pfp: string, userName: string } | null>(null);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -55,22 +58,21 @@ export default function Page() {
       }
     };
     fetchUser();
-  }, []);
+  }, []); */
 
   return (
     <div className="container mt-40 pr-[1.5rem] pl-[1.5rem] sm:pr-[2rem] sm:pl-[2rem] sm:px-8">
-      {user?.pfp && (
+      {/* {user?.pfp && (
         <div className="flex items-center mb-4">
           <span className="text-lg">Hello {user.userName}!</span>
         </div>
-      )}
+      )} */}
       <div className="flex flex-col items-left justify-left">
         <Image
-          src="/assets/img/revnet-hero.svg"
+          src="/assets/img/hero.webp"
           width={940}
           height={88}
           alt="Revnet logo"
-          quality={85}
           priority
         />
         <span className="sr-only">Revnet</span>
@@ -87,13 +89,13 @@ export default function Page() {
           </div>
           <div className="flex flex-row sm:mt-8 text-xl md:text-xl text-left gap-1 whitespace-nowrap">
             <span className="mr-1">Browse:</span>
-            <RevLink network={JB_CHAINS[mainnet.id].slug} id={1} text="NANA" />
+            <RevLink network={ethSlug} id={1} text="NANA" />
             <Pipe />
-            <RevLink network={JB_CHAINS[mainnet.id].slug} id={3} text="REV" />
+            <RevLink network={ethSlug} id={3} text="REV" />
             <Pipe />
-            <RevLink network={JB_CHAINS[mainnet.id].slug} id={4} text="BAN" />
+            <RevLink network={ethSlug} id={4} text="BAN" />
             <Pipe />
-            <RevLink network={JB_CHAINS[mainnet.id].slug} id={2} text="CPN" />
+            <RevLink network={ethSlug} id={2} text="CPN" />
           </div>
         </div>
       </div>
