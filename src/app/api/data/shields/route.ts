@@ -144,6 +144,8 @@ export async function GET(req: Request) {
   const publicUrl = `${publicBase}/api/data/shields?projectId=${projectId}${chainIds.length === 1 ? `&chainId=${chainIds[0]}` : ""}`;
   const badgeUrl = `https://img.shields.io/badge/dynamic/json?url=${encodeURIComponent(publicUrl)}&query=%24.message&label=${encodeURIComponent(projectName)}&cacheSeconds=3600`;
 
+  const markdown = `[![revnet badge](${badgeUrl})](${publicBase}/base:${projectId})`;
+
   return NextResponse.json({
     label: "Current value",
     message: `${usdTvl.toLocaleString("en-US", { maximumFractionDigits: 0 })} USD • ${totalBalance.toFixed(4)} ETH`,
@@ -152,5 +154,6 @@ export async function GET(req: Request) {
     color: totalBalance > 1 ? "green" : totalBalance > 0.1 ? "yellow" : "red",
     chains: results,
     badgeUrl,
+    markdown,
   });
 }
