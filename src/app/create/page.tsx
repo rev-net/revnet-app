@@ -16,6 +16,8 @@ import { pinProjectMetadata } from "./helpers/pinProjectMetaData";
 import { RevnetFormData } from "./types";
 import { wagmiConfig } from "@/lib/wagmiConfig";
 import { getPublicClient } from "@wagmi/core";
+import { CreateFarcasterFID } from "./buttons/CreateFarcasterFID";
+import { FidProvider } from "./helpers/fidContext";
 
 export default function Page() {
   const [isLoadingIpfs, setIsLoadingIpfs] = useState<boolean>(false);
@@ -101,8 +103,9 @@ export default function Page() {
   }
 
   return (
-    <>
+    <FidProvider>
       <Nav />
+      <CreateFarcasterFID />
       <Formik
         initialValues={DEFAULT_FORM_DATA}
         onSubmit={(formData: RevnetFormData) => {
@@ -121,6 +124,6 @@ export default function Page() {
       >
         <DeployRevnetForm relayrResponse={data} isLoading={isLoading} />
       </Formik>
-    </>
+    </FidProvider>
   );
 }
