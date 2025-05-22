@@ -1,14 +1,11 @@
-// "use client";
 import { Button } from "@/components/ui/button";
-/* import { JB_CHAINS } from "juice-sdk-core"; */
 import Image from "next/image";
 import Link from "next/link";
-/* import { sdk } from "@farcaster/frame-sdk";
-import { useEffect, useState } from "react"; */
 
 // Hardcoding for performance for now.
 const ethSlug = "eth";
 
+// RevLink Component (can stay here or be moved to a separate file if used elsewhere)
 const RevLink = ({
   network,
   id,
@@ -31,42 +28,15 @@ const RevLink = ({
   );
 };
 
+// Pipe Component (can stay here or be moved)
 const Pipe = () => {
   return <div className="text-zinc-300">{" | "}</div>;
 };
 
-export default function Page() {
-  // This code was only erroring for now.
-  /* const [user, setUser] = useState<{ fid: number; pfp: string, userName: string } | null>(null);
-
-  useEffect(() => {
-    const fetchUser = async () => {
-      await sdk.actions.ready();
-
-      try {
-        await sdk.actions.addFrame();
-      } catch (error) {
-        if (error){
-          console.log("User rejected the mini app addition or domain manifest JSON is invalid");
-          // Handle the rejection here
-        }
-      }
-
-      const ctx = (await sdk.context);
-      if (ctx?.user) {
-        setUser({ fid: ctx.user.fid, pfp: ctx.user.pfpUrl || "", userName: ctx.user.username || "" });
-      }
-    };
-    fetchUser();
-  }, []); */
+export default function SplashPage() {
 
   return (
     <div className="container mt-40 pr-[1.5rem] pl-[1.5rem] sm:pr-[2rem] sm:pl-[2rem] sm:px-8">
-      {/* {user?.pfp && (
-        <div className="flex items-center mb-4">
-          <span className="text-lg">Hello {user.userName}!</span>
-        </div>
-      )} */}
       <div className="flex flex-col items-left justify-left">
         <Image
           src="/assets/img/hero.webp"
@@ -99,8 +69,8 @@ export default function Page() {
           </div>
         </div>
       </div>
-      <div className="border border-zinc-100 mt-20"></div>
 
+      <div className="border border-zinc-100 mt-20"></div>
       <div className="mt-8 max-w-prose text-lg text-left">
         How a revnet works:
         <ol className="mt-4 list-decimal ml-8 sm:ml-10 list-outside">
@@ -109,12 +79,12 @@ export default function Page() {
           <li>Collect, process, and tokenize payments from anyone, across all chains.</li>
         </ol>
       </div>
+
       <div className="mt-4 max-w-prose text-lg text-left">
         <p>
           Simple enough for startups, powerful enough for global orgs and
           brands.
         </p>
-
         <div>
           <ul className="list-disc list-outside ml-6 sm:ml-10 mt-4">
             <li>
@@ -122,7 +92,7 @@ export default function Page() {
               <Link
                 href="https://rev.eth.sucks/memo"
                 target="_blank"
-                rel="noopener norefererr"
+                rel="noopener noreferrer"
                 className="underline"
               >
                 rev.eth.sucks/memo
@@ -134,7 +104,7 @@ export default function Page() {
               <Link
                 href="https://discord.gg/vhVxwh8aD9"
                 target="_blank"
-                rel="noopener norefererr"
+                rel="noopener noreferrer"
                 className="underline"
               >
                 Discord
@@ -146,7 +116,7 @@ export default function Page() {
               <Link
                 href="https://github.com/orgs/rev-net/repositories"
                 target="_blank"
-                rel="noopener norefererr"
+                rel="noopener noreferrer"
                 className="underline"
               >
                 Github
@@ -157,8 +127,6 @@ export default function Page() {
               Support the $REV network{" "}
               <Link
                 href="/eth:3"
-                target="_blank"
-                rel="noopener norefererr"
                 className="underline"
               >
                 here
@@ -168,6 +136,7 @@ export default function Page() {
           </ul>
         </div>
       </div>
+
     </div>
   );
 }
