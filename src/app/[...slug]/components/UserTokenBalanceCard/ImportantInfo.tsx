@@ -12,7 +12,7 @@ export function ImportantInfo({
       <p>• Your {collateralAmount || "0"} {tokenSymbol} tokens will be burned as collateral</p>
       <p>• You'll receive an NFT to reclaim them when repaying</p>
       <p>• After 10 years, loan is liquidated and collateral is lost</p>
-      <p>• Rules determine {tokenSymbol} issuance when payments are recieved</p>
+      <p>• Terms determine {tokenSymbol} issuance when payments are recieved</p>
     </div>
   );
 }

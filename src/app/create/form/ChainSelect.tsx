@@ -86,7 +86,7 @@ export function ChainSelect({
           time.
         </p>
         <p className="text-zinc-600 text-lg mt-2">
-          The Operator you set in your revnet's rules will also be able to add
+          The Operator you set in your revnet's terms will also be able to add
           new chains to the revnet later.
         </p>
       </div>

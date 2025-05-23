@@ -173,7 +173,7 @@ export function NetworkDetailsTable() {
           <h3 className="text-md font-semibold mt-4">Current</h3>
           <PriceSection className="mb-2" />
           <h3 className="text-md font-semibold mt-6">All</h3>
-          <div className="mb-2 mt-2 text-black font-light italic">{formatTokenSymbol(token)}'s issuance and cash out rules change automatically in permanent sequential stages.</div>
+          <div className="mb-2 mt-2 text-black font-light italic">{formatTokenSymbol(token)}'s issuance and cash out terms change automatically in permanent sequential stages.</div>
           <div className="mb-2">
 
             <div className="flex gap-4 mb-2">

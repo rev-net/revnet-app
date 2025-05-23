@@ -39,7 +39,7 @@ export function Stages({
           time automatically in stages.
         </p>
         <p className="text-zinc-600 text-lg mt-2">
-          Staged rules can't be edited once deployed.
+          Staged terms can't be edited once deployed.
         </p>
       </div>
       <FieldArray
