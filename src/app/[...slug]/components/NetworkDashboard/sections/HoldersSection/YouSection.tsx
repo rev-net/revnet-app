@@ -7,9 +7,10 @@ import {
 import { formatPortion } from "@/lib/utils";
 import { formatEther } from "juice-sdk-core";
 import {
-  useEtherPrice,
   useSuckersCashOutQuote,
+  useTokenCashOutQuoteEth,
   useSuckersUserTokenBalance,
+  JBChainId,
 } from "juice-sdk-react";
 import { UserTokenBalanceDatum } from "../../../UserTokenBalanceCard/UserTokenBalanceDatum";
 
@@ -23,11 +24,12 @@ export function YouSection({ totalSupply }: { totalSupply: bigint }) {
   // console.log("totalBalance", totalBalance)
 
   const redeemQuoteQuery = useSuckersCashOutQuote(totalBalance);
-  const { data: ethPrice, isLoading: isEthLoading } = useEtherPrice();
   const loading =
-    balanceQuery.isLoading || redeemQuoteQuery.isLoading || isEthLoading;
+    balanceQuery.isLoading || redeemQuoteQuery.isLoading;
 
-  const redeemQuote = redeemQuoteQuery?.data ?? 0n;
+  const { data: redeemQuote } = useTokenCashOutQuoteEth(totalBalance, {
+      chainId: Number(1) as JBChainId,
+    });
 
   return (
     <div className="grid grid-cols-1 gap-x-8 overflow-x-scrolltext-md gap-1">
@@ -53,16 +55,20 @@ export function YouSection({ totalSupply }: { totalSupply: bigint }) {
         <dd className="text-zinc-600">
           <Tooltip>
             <TooltipTrigger>
-              {!loading && ethPrice
+              {/* Lazily putting the approx symbol here */}
+                ~
+              {!loading
                 ? `${(
                     Number(formatEther(redeemQuote ?? 0n))
-                  ).toFixed(4)} ETH`
+                  ).toFixed(8)} ETH`
                 : "..."}
             </TooltipTrigger>
             <TooltipContent>
               <div className="flex flex-col space-y-2">
-                <NativeTokenValue wei={redeemQuote} decimals={8} />
-                <span className="font-medium italic">WIP breakdown</span>
+                {/* Lazily putting the approx symbol here */}
+                ~
+                {redeemQuote ?
+                <NativeTokenValue wei={redeemQuote} decimals={8} /> : "Loading.."}
               </div>
             </TooltipContent>
           </Tooltip>

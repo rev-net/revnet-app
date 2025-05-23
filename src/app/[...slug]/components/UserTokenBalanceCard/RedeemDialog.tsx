@@ -116,7 +116,7 @@ export function RedeemDialog({
                         <div key={index} className="flex justify-between gap-2">
                           {JB_CHAINS[balance.chainId as JBChainId].name}
                           <span className="font-medium">
-                            {balance.balance?.format(6)} {tokenSymbol}
+                            {balance.balance?.format(18)} {tokenSymbol}
                           </span>
                         </div>
                       ))}
@@ -188,10 +188,10 @@ export function RedeemDialog({
 
                   {redeemAmount && redeemAmountBN > 0n && valid ? (
                     <div className="text-base mt-4">
-                      You'll get:{" "}
+                      You'll get ~{" "}
                       {redeemQuote ? (
                         <span className="font-medium">
-                          {/* <NativeTokenValue wei={redeemQuote} decimals={8} /> */}
+                          <NativeTokenValue wei={redeemQuote} decimals={8} />
                         </span>
                       ) : (
                         <>...</>
