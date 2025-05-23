@@ -191,7 +191,7 @@ export function RedeemDialog({
                       You'll get ~{" "}
                       {redeemQuote ? (
                         <span className="font-medium">
-                          <NativeTokenValue wei={redeemQuote} decimals={8} />
+                          <NativeTokenValue wei={((redeemQuote * 975n) / 1000n)} decimals={8} />
                         </span>
                       ) : (
                         <>...</>

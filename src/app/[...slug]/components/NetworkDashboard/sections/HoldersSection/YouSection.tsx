@@ -57,10 +57,10 @@ export function YouSection({ totalSupply }: { totalSupply: bigint }) {
             <TooltipTrigger>
               {/* Lazily putting the approx symbol here */}
                 ~
-              {!loading
+              {redeemQuote
                 ? `${(
-                    Number(formatEther(redeemQuote ?? 0n))
-                  ).toFixed(8)} ETH`
+                    Number(formatEther((redeemQuote * 975n) / 1000n) ?? 0n)
+                  ).toFixed(5)} ETH`
                 : "..."}
             </TooltipTrigger>
             <TooltipContent>
@@ -68,7 +68,7 @@ export function YouSection({ totalSupply }: { totalSupply: bigint }) {
                 {/* Lazily putting the approx symbol here */}
                 ~
                 {redeemQuote ?
-                <NativeTokenValue wei={redeemQuote} decimals={8} /> : "Loading.."}
+                <NativeTokenValue wei={((redeemQuote * 975n) / 1000n)} decimals={18} /> : "Loading.."}
               </div>
             </TooltipContent>
           </Tooltip>
