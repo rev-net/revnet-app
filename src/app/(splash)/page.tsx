@@ -60,11 +60,11 @@ export default function SplashPage() {
 
   return (
     <div className="container mt-40 pr-[1.5rem] pl-[1.5rem] sm:pr-[2rem] sm:pl-[2rem] sm:px-8">
-      {user?.pfp && (
+      {/* {user?.pfp && (
         <div className="flex items-center mb-4">
           <span className="text-lg">Hello {user.userName}!</span>
         </div>
-      )}
+      )} */}
       <div className="flex flex-col items-left justify-left">
         <Image
           src="/assets/img/hero.webp"
