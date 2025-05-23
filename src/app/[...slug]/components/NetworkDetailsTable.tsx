@@ -157,7 +157,7 @@ export function NetworkDetailsTable() {
         className="flex items-center gap-2 text-left text-black-600"
       >
         <div className="flex flex-row space-x-2">
-          <h2 className="text-2xl font-semibold">Rules</h2>
+          <h2 className="text-2xl font-semibold">Terms</h2>
         </div>
         <span
           className={`transform transition-transform font-sm ${

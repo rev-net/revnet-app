@@ -33,9 +33,9 @@ export function Stages({
   return (
     <>
       <div className="md:col-span-1">
-        <h2 className="font-bold text-lg mb-2">2. Rules</h2>
+        <h2 className="font-bold text-lg mb-2">2. Terms</h2>
         <p className="text-zinc-600 text-lg">
-          {revnetTokenSymbolCapitalized} issuance and cash out rules evolve over
+          {revnetTokenSymbolCapitalized} issuance and cash out terms evolve over
           time automatically in stages.
         </p>
         <p className="text-zinc-600 text-lg mt-2">
