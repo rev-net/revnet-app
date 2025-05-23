@@ -1,4 +1,4 @@
-export function SimulatedLoanCard({
+export function LoanSimulateCard({
   collateralAmount,
   tokenSymbol,
   ethToWallet,
@@ -26,8 +26,8 @@ export function SimulatedLoanCard({
             {(ethToWallet * parseFloat(prepaidPercent) / 100).toFixed(8)}
           </span> ETH fees prepaid into {tokenSymbol} revnet</p>
           <p><span className="font-semibold">
-            {totalCost.toFixed(8)}
-          </span> ETH max cost to unlock all collateral before 10 years</p>
+            {maxUnlockCost.toFixed(8)}
+          </span> ETH max repayment required to unlock all collateral before 10 years</p>
         </div>
         <p className="text-xs text-zinc-500 mt-1">Actual amount may vary slightly.</p>
       </div>

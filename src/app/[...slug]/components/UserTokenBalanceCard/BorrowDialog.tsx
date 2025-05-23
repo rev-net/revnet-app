@@ -38,7 +38,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { ButtonWithWallet } from "@/components/ButtonWithWallet";
-import { SimulatedLoanCard } from "../SimulatedLoanCard";
+import { LoanSimulateCard } from "../LoanSimulateCard";
 import { LoanFeeChart } from "../LoanFeeChart";
 import { TokenBalanceTable } from "../TokenBalanceTable";
 import { LoanDetailsTable } from "../LoansDetailsTable";
@@ -534,7 +534,7 @@ const feeData = generateFeeData({ grossBorrowedEth, ethToWallet, prepaidPercent 
 
               if (collateralAmount && !isNaN(Number(collateralAmount))) {
                 return (
-                  <SimulatedLoanCard
+                  <LoanSimulateCard
                     collateralAmount={collateralAmount}
                     tokenSymbol={tokenSymbol}
                     ethToWallet={simulatedEthToWallet}

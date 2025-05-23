@@ -1,5 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type",
+};
+
 type ChainId = 1 | 10 | 8453 | 42161;
 
 const JB_CHAINS: Record<ChainId, { name: string }> = {
@@ -10,6 +16,9 @@ const JB_CHAINS: Record<ChainId, { name: string }> = {
 };
 
 export async function GET(req: Request) {
+  if (req.method === "OPTIONS") {
+    return new NextResponse(null, { status: 200, headers: corsHeaders });
+  }
   const baseUrl = process.env.NEXT_PUBLIC_BENDYSTRAW_URL?.replace(/\/$/, "") + "/graphql";
   const { searchParams } = new URL(req.url);
   const projectId = parseInt(searchParams.get("projectId") ?? "");
@@ -20,11 +29,11 @@ export async function GET(req: Request) {
     : (Object.keys(JB_CHAINS).map(Number) as ChainId[]);
 
   if (!baseUrl) {
-    return NextResponse.json({ error: "Missing BendyStraw URL" }, { status: 500 });
+    return NextResponse.json({ error: "Missing BendyStraw URL" }, { status: 500, headers: corsHeaders });
   }
 
   if (isNaN(projectId)) {
-    return NextResponse.json({ error: "Missing or invalid projectId" }, { status: 400 });
+    return NextResponse.json({ error: "Missing or invalid projectId" }, { status: 400, headers: corsHeaders });
   }
 
   let totalBalance = 0;
@@ -49,14 +58,14 @@ export async function GET(req: Request) {
       });
 
       if (!suckerIdRes.ok) {
-        return NextResponse.json({ error: "Failed to fetch suckerId" }, { status: 500 });
+        return NextResponse.json({ error: "Failed to fetch suckerId" }, { status: 500, headers: corsHeaders });
       }
 
       const suckerIdText = await suckerIdRes.text();
       const suckerIdJson = JSON.parse(suckerIdText);
       const suckerGroupId = suckerIdJson.data?.project?.suckerGroupId;
       if (!suckerGroupId) {
-        return NextResponse.json({ error: "Project not found on BendyStraw" }, { status: 404 });
+        return NextResponse.json({ error: "Project not found on BendyStraw" }, { status: 404, headers: corsHeaders });
       }
 
       const surplusQuery = `
@@ -101,7 +110,7 @@ export async function GET(req: Request) {
       });
 
       if (!surplusRes.ok) {
-        return NextResponse.json({ error: "Failed to fetch nativeTokenSurplus" }, { status: 500 });
+        return NextResponse.json({ error: "Failed to fetch nativeTokenSurplus" }, { status: 500, headers: corsHeaders });
       }
 
       const surplusJson = await surplusRes.json();
@@ -122,7 +131,7 @@ export async function GET(req: Request) {
         });
       }
     } catch (err) {
-      return NextResponse.json({ error: "Error fetching data" }, { status: 500 });
+      return NextResponse.json({ error: "Error fetching data" }, { status: 500, headers: corsHeaders });
     }
   }
 
@@ -138,7 +147,7 @@ export async function GET(req: Request) {
 
   const host = req.headers.get("host");
   if (!host) {
-    return NextResponse.json({ error: "Missing host header" }, { status: 500 });
+    return NextResponse.json({ error: "Missing host header" }, { status: 500, headers: corsHeaders });
   }
   const publicBase = `https://${host}`;
   const publicUrl = `${publicBase}/api/data/shields?projectId=${projectId}${chainIds.length === 1 ? `&chainId=${chainIds[0]}` : ""}`;
@@ -146,14 +155,17 @@ export async function GET(req: Request) {
 
   const markdown = `[![revnet badge](${badgeUrl})](${publicBase}/base:${projectId})`;
 
-  return NextResponse.json({
-    label: "Current value",
-    message: `${usdTvl.toLocaleString("en-US", { maximumFractionDigits: 0 })} USD • ${totalBalance.toFixed(4)} ETH`,
-    tvlUsd: usdTvl,
-    tvlEth: totalBalance,
-    color: totalBalance > 1 ? "green" : totalBalance > 0.1 ? "yellow" : "red",
-    chains: results,
-    badgeUrl,
-    markdown,
-  });
+  return NextResponse.json(
+    {
+      label: "Current value",
+      message: `${usdTvl.toLocaleString("en-US", { maximumFractionDigits: 0 })} USD • ${totalBalance.toFixed(4)} ETH`,
+      tvlUsd: usdTvl,
+      tvlEth: totalBalance,
+      color: totalBalance > 1 ? "green" : totalBalance > 0.1 ? "yellow" : "red",
+      chains: results,
+      badgeUrl,
+      markdown,
+    },
+    { headers: corsHeaders }
+  );
 }
