@@ -1,6 +1,10 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import Link from "next/link";
+import { sdk } from "@farcaster/frame-sdk";
+import { useEffect, useState } from "react";
 
 // Hardcoding for performance for now.
 const ethSlug = "eth";
@@ -33,9 +37,34 @@ const Pipe = () => {
 };
 
 export default function SplashPage() {
+  const [user, setUser] = useState<{ fid: number; pfp: string, userName: string } | null>(null);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      await sdk.actions.ready();
+
+      // Check if running in a Mini App
+      const isMiniApp = await sdk.isInMiniApp()
+
+      if (isMiniApp) {
+        await sdk.actions.addFrame();
+      }
+
+      const ctx = (await sdk.context);
+      if (ctx?.user) {
+        setUser({ fid: ctx.user.fid, pfp: ctx.user.pfpUrl || "", userName: ctx.user.username || "" });
+      }
+    };
+    fetchUser();
+  }, []);
 
   return (
     <div className="container mt-40 pr-[1.5rem] pl-[1.5rem] sm:pr-[2rem] sm:pl-[2rem] sm:px-8">
+      {/* {user?.pfp && (
+        <div className="flex items-center mb-4">
+          <span className="text-lg">Hello {user.userName}!</span>
+        </div>
+      )} */}
       <div className="flex flex-col items-left justify-left">
         <Image
           src="/assets/img/hero.webp"

@@ -7,9 +7,10 @@ import {
 import { formatPortion } from "@/lib/utils";
 import { formatEther } from "juice-sdk-core";
 import {
-  useEtherPrice,
-  useSuckersCashOutQuote,
+  useJBChainId,
+  useTokenCashOutQuoteEth,
   useSuckersUserTokenBalance,
+  JBChainId,
 } from "juice-sdk-react";
 import { UserTokenBalanceDatum } from "../../../UserTokenBalanceCard/UserTokenBalanceDatum";
 
@@ -20,14 +21,12 @@ export function YouSection({ totalSupply }: { totalSupply: bigint }) {
     balances?.reduce((acc, curr) => {
       return acc + curr.balance.value;
     }, 0n) || 0n;
-  // console.log("totalBalance", totalBalance)
 
-  const redeemQuoteQuery = useSuckersCashOutQuote(totalBalance);
-  const { data: ethPrice, isLoading: isEthLoading } = useEtherPrice();
-  const loading =
-    balanceQuery.isLoading || redeemQuoteQuery.isLoading || isEthLoading;
+  const chainId = useJBChainId();
 
-  const redeemQuote = redeemQuoteQuery?.data ?? 0n;
+  const { data: redeemQuote } = useTokenCashOutQuoteEth(totalBalance, {
+      chainId: chainId as JBChainId,
+    });
 
   return (
     <div className="grid grid-cols-1 gap-x-8 overflow-x-scrolltext-md gap-1">
@@ -53,16 +52,20 @@ export function YouSection({ totalSupply }: { totalSupply: bigint }) {
         <dd className="text-zinc-600">
           <Tooltip>
             <TooltipTrigger>
-              {!loading && ethPrice
+              {/* Lazily putting the approx symbol here */}
+                ~
+              {redeemQuote
                 ? `${(
-                    Number(formatEther(redeemQuote ?? 0n))
-                  ).toFixed(4)} ETH`
+                    Number(formatEther((redeemQuote * 975n) / 1000n) ?? 0n)
+                  ).toFixed(5)} ETH`
                 : "..."}
             </TooltipTrigger>
             <TooltipContent>
               <div className="flex flex-col space-y-2">
-                <NativeTokenValue wei={redeemQuote} decimals={8} />
-                <span className="font-medium italic">WIP breakdown</span>
+                {/* Lazily putting the approx symbol here */}
+                ~
+                {redeemQuote ?
+                <NativeTokenValue wei={((redeemQuote * 975n) / 1000n)} decimals={18} /> : "Loading.."}
               </div>
             </TooltipContent>
           </Tooltip>
