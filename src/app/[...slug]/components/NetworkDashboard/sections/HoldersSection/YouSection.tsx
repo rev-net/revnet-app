@@ -7,7 +7,7 @@ import {
 import { formatPortion } from "@/lib/utils";
 import { formatEther } from "juice-sdk-core";
 import {
-  useSuckersCashOutQuote,
+  useJBChainId,
   useTokenCashOutQuoteEth,
   useSuckersUserTokenBalance,
   JBChainId,
@@ -21,14 +21,11 @@ export function YouSection({ totalSupply }: { totalSupply: bigint }) {
     balances?.reduce((acc, curr) => {
       return acc + curr.balance.value;
     }, 0n) || 0n;
-  // console.log("totalBalance", totalBalance)
 
-  const redeemQuoteQuery = useSuckersCashOutQuote(totalBalance);
-  const loading =
-    balanceQuery.isLoading || redeemQuoteQuery.isLoading;
+  const chainId = useJBChainId();
 
   const { data: redeemQuote } = useTokenCashOutQuoteEth(totalBalance, {
-      chainId: Number(1) as JBChainId,
+      chainId: chainId as JBChainId,
     });
 
   return (
