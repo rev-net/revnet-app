@@ -10,7 +10,7 @@ import { Loader2 } from 'lucide-react';
 
 export function TvlDatum() {
   const surplusQuery = useSuckersNativeTokenSurplus();
-  const { data: ethPrice, isLoading: isEthLoading, isError: isEthError } = useEtherPrice();
+  const { data: ethPrice, isLoading: isEthLoading, isError: isEthPriceError } = useEtherPrice();
   const loading = isEthLoading || surplusQuery.isLoading;
   const surpluses = surplusQuery?.data as
     | {
@@ -32,7 +32,7 @@ export function TvlDatum() {
 
   if (loading) return <Loader2 className="animate-spin" size={16} />;
 
-  if (isEthError) return <span className="font-medium text-black-500">
+  if (isEthPriceError) return <span className="font-medium text-black-500">
       Ξ{typeof totalEth !== "undefined" ? 
       Number(formatUnits(totalEth, 18)).toLocaleString("en-US", {
       minimumFractionDigits: 2,
