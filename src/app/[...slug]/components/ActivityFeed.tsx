@@ -1,5 +1,4 @@
 import { sdk } from "@farcaster/frame-sdk";
-import Image from "next/image";
 import { ChainLogo } from "@/components/ChainLogo";
 import EtherscanLink from "@/components/EtherscanLink";
 import FarcasterAvatar from "@/components/FarcasterAvatar";
@@ -22,6 +21,7 @@ import {
 } from "juice-sdk-react";
 import { useState, useEffect } from "react";
 import { Address } from "viem";
+import { Loader2 } from 'lucide-react';
 
 type PayActivityItemData = {
   id: string;
@@ -291,7 +291,7 @@ export function ActivityFeed() {
               return null;
             })
           ) : (
-            <span className="text-zinc-500 text-md">No activity yet.</span>
+            <Loader2 className="animate-spin" size={64} />
           )}
         </div>
       )}
