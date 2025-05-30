@@ -60,15 +60,6 @@ export function RedeemDialog({
   const { data: balances } = useSuckersUserTokenBalance();
   const [cashOutChainId, setCashOutChainId] = useState<string>();
 
-  /**
-   *       address holder,
-        uint256 projectId,
-        address tokenToReclaim,
-        uint256 cashOutCount,
-        uint256 minTokensReclaimed,
-        address payable beneficiary,
-   */
-
   const redeemAmountBN = redeemAmount
     ? JBProjectToken.parse(redeemAmount, 18).value
     : 0n;
@@ -116,7 +107,7 @@ export function RedeemDialog({
                         <div key={index} className="flex justify-between gap-2">
                           {JB_CHAINS[balance.chainId as JBChainId].name}
                           <span className="font-medium">
-                            {balance.balance?.format(18)} {tokenSymbol}
+                            {balance.balance?.format()} {tokenSymbol}
                           </span>
                         </div>
                       ))}

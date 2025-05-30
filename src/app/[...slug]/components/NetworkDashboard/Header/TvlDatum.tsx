@@ -6,10 +6,11 @@ import {
 import { useEtherPrice } from "juice-sdk-react";
 import { formatUnits, JB_CHAINS, NATIVE_TOKEN_DECIMALS } from "juice-sdk-core";
 import { JBChainId, useSuckersNativeTokenSurplus } from "juice-sdk-react";
+import { Loader2 } from 'lucide-react';
 
 export function TvlDatum() {
   const surplusQuery = useSuckersNativeTokenSurplus();
-  const { data: ethPrice, isLoading: isEthLoading } = useEtherPrice();
+  const { data: ethPrice, isLoading: isEthLoading, isError: isEthPriceError } = useEtherPrice();
   const loading = isEthLoading || surplusQuery.isLoading;
   const surpluses = surplusQuery?.data as
     | {
@@ -29,7 +30,17 @@ export function TvlDatum() {
     maximumFractionDigits: 2,
   });
 
-  if (loading) return <>...</>;
+  if (loading) return <Loader2 className="animate-spin" size={16} />;
+
+  if (isEthPriceError) return <span className="font-medium text-black-500">
+      Ξ{typeof totalEth !== "undefined" ? 
+      Number(formatUnits(totalEth, 18)).toLocaleString("en-US", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+      }) : null}
+    </span>;
+
+  if (surplusQuery.isError) return <span>Error Loading Surplus</span>
 
   return (
     <Tooltip>
