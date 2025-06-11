@@ -12,6 +12,7 @@ import {
 import { RedeemDialog } from "./RedeemDialog";
 import { BorrowDialog } from "./BorrowDialog";
 import { RepayDialog } from "./RepayDialog";
+import { SellOnMarketDialog } from "./SellOnMarketDialog";
 import { LoanDetailsTable } from "../LoansDetailsTable";
 import { useAccount } from "wagmi";
 
@@ -65,6 +66,21 @@ export function UserTokenBalanceCard() {
               Get a loan
             </Button>
           </BorrowDialog>
+        ) : null}
+        {token?.data?.symbol && creditBalance && primaryNativeTerminal.data ? (
+          <SellOnMarketDialog
+            projectId={projectId}
+            creditBalance={creditBalance}
+            tokenSymbol={tokenSymbol}
+            primaryTerminalEth={primaryNativeTerminal.data}
+          >
+            <Button
+              variant="outline"
+              disabled={creditBalance.value === 0n}
+            >
+              Sell on market
+            </Button>
+          </SellOnMarketDialog>
         ) : null}
         {selectedLoan && (
           <RepayDialog
