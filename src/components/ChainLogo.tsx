@@ -12,10 +12,11 @@ export const ChainLogo = ({
   width?: number;
   height?: number;
 }) => {
+  const chainName = JB_CHAINS[chainId]?.name ?? `Chain ${chainId}`;
   return (
     <Image
       src={chainIdToLogo[chainId]}
-      alt={`${JB_CHAINS[chainId].name} Logo`}
+      alt={`${chainName} Logo`}
       width={width ?? 20}
       height={height ?? 20}
       style={{

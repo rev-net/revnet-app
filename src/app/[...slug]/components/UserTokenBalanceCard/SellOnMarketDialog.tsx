@@ -35,12 +35,15 @@ import {
   useWriteJbMultiTerminalCashOutTokensOf,
 } from "juice-sdk-react";
 import { PropsWithChildren, useCallback, useEffect, useMemo, useState, useRef } from "react";
-import { Address, parseUnits } from "viem";
+import { Address } from "viem";
 import { useAccount, useWaitForTransactionReceipt, useChainId } from "wagmi";
 import { useUniswapV3Pool } from "@/hooks/useUniswapV3Pool";
 import { useJBTokenContext } from "juice-sdk-react";
 import { Button } from "@/components/ui/button";
 import { mainnet, optimism, base, arbitrum, sepolia, optimismSepolia, baseSepolia, arbitrumSepolia } from "viem/chains";
+import { toast } from "@/components/ui/use-toast";
+import { usePublicClient, useWalletClient } from "wagmi";
+import { useUniswapV3AddLimitOrder } from '@/hooks/useUniswapV3CreateAndSeedPool';
 
 // Explorer URLs for each chain
 const EXPLORER_URLS: Record<number, string> = {
@@ -74,6 +77,8 @@ export function SellOnMarketDialog({
   } = useJBContractContext();
   const { address } = useAccount();
   const chainId = useChainId();
+  const publicClient = usePublicClient();
+  const { data: walletClient } = useWalletClient();
   const { data: balances } = useSuckersUserTokenBalance();
   const [sellChainId, setSellChainId] = useState<string>("");
   const { token } = useJBTokenContext();
@@ -109,8 +114,8 @@ export function SellOnMarketDialog({
   }, [sellAmount]);
 
   const { checkPool, initializePool, isInitializing, isPoolExists, poolAddress, isInitialized } = useUniswapV3Pool(
-    token?.data?.address as Address,
-    sellChainId ? Number(sellChainId) : undefined
+    token?.data?.address as Address || "0x0000000000000000000000000000000000000000",
+    sellChainId ? Number(sellChainId) : 1
   );
 
   const checkPoolExistence = useCallback(async () => {
@@ -130,9 +135,21 @@ export function SellOnMarketDialog({
 
     try {
       setIsCheckingPool(true);
+      setHasUniswapPool(null); // Reset pool state while checking
       const exists = await checkPool();
-      console.log("Pool check result:", { exists, isPoolExists, poolAddress });
-      setHasUniswapPool(exists);
+      console.log("Pool check result:", { exists, isPoolExists, poolAddress, isInitialized });
+      
+      // Update UI state based on pool existence and initialization
+      if (exists) {
+        if (isInitialized) {
+          setHasUniswapPool(true); // Pool exists and is initialized - show sell UI
+        } else {
+          setHasUniswapPool(false); // Pool exists but not initialized - show create pool UI
+        }
+      } else {
+        setHasUniswapPool(null); // No pool exists - show create pool UI
+      }
+      
       lastCheckedRef.current = currentCheck;
     } catch (error) {
       console.error("Error checking pool:", error);
@@ -140,20 +157,29 @@ export function SellOnMarketDialog({
     } finally {
       setIsCheckingPool(false);
     }
-  }, [sellChainId, token?.data?.address, checkPool, isPoolExists, poolAddress]);
+  }, [sellChainId, token?.data?.address, checkPool, isPoolExists, poolAddress, isInitialized]);
 
-  // Update hasUniswapPool when isPoolExists changes
+  // Update hasUniswapPool when isPoolExists or isInitialized changes
   useEffect(() => {
     if (isPoolExists !== undefined) {
       console.log("isPoolExists changed:", isPoolExists);
-      setHasUniswapPool(isPoolExists);
+      if (isPoolExists) {
+        if (isInitialized) {
+          setHasUniswapPool(true); // Pool exists and is initialized - show sell UI
+        } else {
+          setHasUniswapPool(false); // Pool exists but not initialized - show create pool UI
+        }
+      } else {
+        setHasUniswapPool(null); // No pool exists - show create pool UI
+      }
     }
-  }, [isPoolExists]);
+  }, [isPoolExists, isInitialized]);
 
   const handleChainChange = useCallback((chainId: string) => {
     setSellChainId(chainId);
-    setHasUniswapPool(null);
-    lastCheckedRef.current = null;
+    setHasUniswapPool(null); // Reset pool state
+    lastCheckedRef.current = null; // Reset last checked reference
+    setIsCheckingPool(true); // Set checking state before starting the check
     checkPoolExistence();
   }, [checkPoolExistence]);
 
@@ -191,15 +217,46 @@ export function SellOnMarketDialog({
     sellAmountBN > 0n &&
     (selectedBalance?.balance.value ?? 0n) >= sellAmountBN;
 
+  const handleSwitchNetwork = useCallback(async (targetChainId: number) => {
+    if (!walletClient) return;
+    try {
+      await walletClient.switchChain({ id: targetChainId });
+      // Wait for the network switch to complete
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Verify we're on the correct network
+      if (!publicClient) throw new Error("Public client not available");
+      const currentChainId = await publicClient.getChainId();
+      if (currentChainId !== targetChainId) {
+        throw new Error("Failed to switch network");
+      }
+    } catch (error) {
+      console.error("Error switching network:", error);
+      toast({
+        title: "Error switching network",
+        description: "Please try switching networks manually in your wallet",
+        variant: "destructive",
+      });
+    }
+  }, [walletClient, publicClient]);
+
   const handleInitializePool = useCallback(async () => {
     try {
+      // Ensure we're on the correct network first
+      if (!isOnCorrectNetwork && sellChainId) {
+        await handleSwitchNetwork(Number(sellChainId));
+      }
       await initializePool(initialPrice);
       const exists = await checkPool();
       setHasUniswapPool(exists);
     } catch (error) {
       console.error("Error initializing pool:", error);
+      toast({
+        title: "Error creating pool",
+        description: error instanceof Error ? error.message : "Failed to create pool",
+        variant: "destructive",
+      });
     }
-  }, [initializePool, checkPool, isPoolExists, poolAddress, initialPrice]);
+  }, [initializePool, checkPool, isPoolExists, poolAddress, initialPrice, isOnCorrectNetwork, sellChainId, handleSwitchNetwork]);
 
   // Get explorer URL for current chain
   const explorerUrl = useMemo(() => {
@@ -219,6 +276,12 @@ export function SellOnMarketDialog({
       setInitialPrice((Number(cashoutQuote) / 1e18).toString());
     }
   }, [cashoutQuote, initialPrice]);
+
+  const {
+    isLoading: isCreatingPool,
+    error: poolError,
+    addLimitOrder,
+  } = useUniswapV3AddLimitOrder();
 
   return (
     <Dialog open={disabled === true ? false : undefined}>
@@ -245,280 +308,229 @@ export function SellOnMarketDialog({
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Sell {tokenSymbol} on market</DialogTitle>
+          <DialogDescription>
+            Create a liquidity pool or sell your tokens on an existing pool.
+          </DialogDescription>
           <div className="text-sm text-muted-foreground">
             <div className="space-y-2">
               <div className="flex items-center gap-2">
-                <div className="flex-1">
-                  {isOnCorrectNetwork && (
-                    <>
-                      <div className="text-sm font-medium">Uniswap V3 Pool Status</div>
-                      {!sellChainId ? (
-                        <div className="text-sm text-zinc-600">Select a chain to check pool status</div>
-                      ) : isCheckingPool ? (
-                        <div className="text-sm text-zinc-600">Checking pool status...</div>
-                      ) : hasUniswapPool ? (
-                        <div className="space-y-1">
-                          <div className="text-sm text-green-600 flex items-center gap-2">
-                            <span>✓ Pool exists (0.3% fee tier)</span>
-                          </div>
-                          {poolAddress && explorerUrl && (
-                            <div className="text-sm text-zinc-600 pl-6 space-y-1">
-                              <div>
-                                <a 
-                                  href={`${explorerUrl}/address/${poolAddress}`}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="text-blue-600 hover:text-blue-800 hover:underline"
-                                >
-                                  View on Explorer
-                                </a>
-                              </div>
-                              <div>
-                                <a 
-                                  href={`https://app.uniswap.org/pools/${poolAddress}`}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="text-blue-600 hover:text-blue-800 hover:underline"
-                                >
-                                  View on Uniswap
-                                </a>
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      ) : (
-                        <div className="space-y-2">
-                          <div className="text-sm text-amber-600 flex items-center gap-2">
-                            <span>⚠️ No Uniswap V3 Pool found</span>
-                          </div>
-                          <div className="text-sm text-zinc-600 pl-6 space-y-2">
-                            <div>You can:</div>
-                            <div className="space-y-1">
-                              <div>1. Create a new Uniswap pool to enable trading</div>
-                              <div>2. Cash out your tokens or take a loan</div>
-                            </div>
-                          </div>
-                          {isOnCorrectNetwork && (
-                            <Button 
-                              variant="outline" 
-                              size="sm" 
-                              className="ml-6"
-                              onClick={handleInitializePool}
-                              disabled={isInitializing}
-                            >
-                              {isInitializing ? (
-                                <div className="flex items-center gap-2">
-                                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-900"></div>
-                                  Creating Pool...
-                                </div>
-                              ) : (
-                                "Create Uniswap Pool"
-                              )}
-                            </Button>
-                          )}
-                        </div>
-                      )}
-                    </>
-                  )}
-                </div>
+                <ChainLogo chainId={Number(sellChainId) as 1 | 10 | 8453 | 84532 | 42161 | 11155111 | 11155420 | 421614} />
+                <Select
+                  value={sellChainId}
+                  onValueChange={handleChainChange}
+                >
+                  <SelectTrigger className="w-[180px]">
+                    <SelectValue placeholder="Select chain" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {balances?.map((balance) => (
+                      <SelectItem
+                        key={balance.chainId}
+                        value={balance.chainId.toString()}
+                      >
+                        {JB_CHAINS[balance.chainId as JBChainId]?.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {!isOnCorrectNetwork && (
+                  <ButtonWithWallet
+                    onClick={() => {
+                      if (!sellChainId) return;
+                      handleSwitchNetwork(Number(sellChainId));
+                    }}
+                  >
+                    Switch Network
+                  </ButtonWithWallet>
+                )}
               </div>
             </div>
           </div>
         </DialogHeader>
-        <div className="text-sm text-muted-foreground">
-          <div className="my-4">
-            {isSuccess ? (
-              <div>Success! You can close this window.</div>
-            ) : (
-              <>
-                {/* Price Initialization Status */}
-                {isOnCorrectNetwork && hasUniswapPool && poolAddress && !isCheckingPool && !isInitialized && (
-                  <div className="mb-4 p-3 border border-amber-200 bg-amber-50 rounded-md">
-                    <div className="text-sm text-amber-800 font-medium mb-2">
-                      ⚠️ Pool needs price initialization
+
+        {isCheckingPool && (
+          <div className="text-center py-4">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto"></div>
+            <div className="mt-2 text-sm text-muted-foreground">
+              Checking pool status...
+            </div>
+          </div>
+        )}
+
+        {!isCheckingPool && !hasUniswapPool && (
+          <div className="space-y-4">
+            <div className="text-sm">
+              {isPoolExists ? (
+                <>
+                  <p className="mb-2">Add liquidity to the existing pool. Your tokens will be available for sale at the price you specify.</p>
+                  <p className="text-muted-foreground">Current pool price: {(Number(cashoutQuote) / 1e18).toFixed(6)} ETH per token</p>
+                </>
+              ) : (
+                <p>Create a liquidity pool with your tokens. The pool will be initialized with your tokens only, allowing others to add ETH later.</p>
+              )}
+            </div>
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="initialPrice">
+                  {isPoolExists ? "Sell Price (ETH per token)" : "Initial Price (ETH per token)"}
+                </Label>
+                <Input
+                  id="initialPrice"
+                  type="number"
+                  step="any"
+                  min="0"
+                  value={initialPrice}
+                  onChange={(e) => setInitialPrice(e.target.value)}
+                  placeholder="e.g. 0.01"
+                  required
+                />
+                {isPoolExists && (
+                  <>
+                    <div className="text-sm text-muted-foreground mt-1">
+                      Price must be above current pool price: {(Number(cashoutQuote) / 1e18).toFixed(6)} ETH
                     </div>
-                    <div className="text-sm text-amber-700 mb-3">
-                      The pool exists but needs to be initialized with a price before trading can begin.
-                    </div>
-                    <div className="mb-3">
-                      <label htmlFor="initialPrice" className="block text-sm font-medium text-amber-900 mb-1">
-                        Initial Price (ETH per {tokenSymbol})
-                      </label>
-                      <input
-                        id="initialPrice"
-                        type="number"
-                        min="0"
-                        step="any"
-                        value={initialPrice}
-                        onChange={e => setInitialPrice(e.target.value)}
-                        className="w-full rounded border border-amber-300 px-2 py-1 text-amber-900 focus:outline-none focus:ring-2 focus:ring-amber-400"
-                        placeholder="e.g. 0.01"
-                      />
-                    </div>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={handleInitializePool}
-                      disabled={isInitializing || !initialPrice || Number(initialPrice) <= 0}
-                      className="w-full"
-                    >
-                      {isInitializing ? (
-                        <div className="flex items-center justify-center gap-2">
-                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-amber-800"></div>
-                          Initializing Price...
-                        </div>
-                      ) : (
-                        "Initialize Pool Price"
-                      )}
-                    </Button>
+                    {cashoutQuote && initialPrice && (
+                      <div className="text-sm text-muted-foreground mt-1">
+                        {(() => {
+                          const currentPrice = Number(cashoutQuote) / 1e18;
+                          const userPrice = Number(initialPrice);
+                          const priceDiff = Math.abs(userPrice - currentPrice) / currentPrice;
+                          if (priceDiff < 0.01) { // Less than 1% difference
+                            return (
+                              <div className="text-yellow-500">
+                                Warning: Your price is very close to the current price. Consider setting a higher price to ensure your order is filled.
+                              </div>
+                            );
+                          }
+                          return null;
+                        })()}
+                      </div>
+                    )}
+                  </>
+                )}
+                {!isPoolExists && cashoutQuote && (
+                  <div className="text-sm text-muted-foreground mt-1">
+                    Minimum price must be above cashout value: {(Number(cashoutQuote) / 1e18).toFixed(6)} ETH
                   </div>
                 )}
+              </div>
 
-                <div className="mb-5 w-[65%]">
-                  <span className="text-sm text-black font-medium">
-                    {" "}
-                    Your {tokenSymbol}
-                  </span>
-                  <div className="mt-1 border border-zinc-200 p-3 bg-zinc-50">
-                    {balances?.map((balance, index) => (
-                      <div key={index} className="flex justify-between gap-2">
-                        {JB_CHAINS[balance.chainId as JBChainId].name}
-                        <span className="font-medium">
-                          {balance.balance?.format()} {tokenSymbol}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
+              <div>
+                <Label htmlFor="amountToken">
+                  {isPoolExists ? "Amount of Tokens to Add" : "Amount of Tokens in Limit Order"}
+                </Label>
+                <Input
+                  id="amountToken"
+                  type="number"
+                  step="any"
+                  min="0"
+                  value={sellAmount}
+                  onChange={(e) => handleAmountChange(e.target.value)}
+                  placeholder="e.g. 1000"
+                  required
+                />
+              </div>
+
+              <Button
+                onClick={async () => {
+                  try {
+                    if (!cashoutQuote) {
+                      throw new Error("Unable to get cashout value");
+                    }
+                    const minPriceEth = Number(initialPrice);
+                    const cashoutValueEth = Number(cashoutQuote) / 1e18;
+                    
+                    if (minPriceEth <= cashoutValueEth) {
+                      throw new Error(`Price must be above ${isPoolExists ? 'current pool price' : 'cashout value'} (${cashoutValueEth.toFixed(6)} ETH)`);
+                    }
+
+                    await addLimitOrder({
+                      tokenAddress: token?.data?.address as Address,
+                      chainId: Number(sellChainId),
+                      limitPrice: minPriceEth,
+                      amountToken: sellAmountBN,
+                      amountETH: 0n, // No ETH deposit initially
+                      liquidityType: 'limit' // Specify this is a limit order
+                    });
+                    // Refresh pool status after creation
+                    checkPoolExistence();
+                  } catch (error) {
+                    console.error("Error creating pool:", error);
+                    toast({
+                      title: "Error creating pool",
+                      description: error instanceof Error ? error.message : "Failed to create pool",
+                      variant: "destructive",
+                    });
+                  }
+                }}
+                disabled={isCreatingPool || !initialPrice || !sellAmount}
+              >
+                {isCreatingPool 
+                  ? "Processing..." 
+                  : isPoolExists 
+                    ? "Add Liquidity Above Current Price" 
+                    : "Create Pool with Tokens"}
+              </Button>
+
+              {poolError && (
+                <div className="text-red-500 mt-2">
+                  Error: {poolError}
                 </div>
+              )}
+            </div>
+          </div>
+        )}
 
-                <div className="grid w-full gap-1.5">
-                  {/* Hide only the amount input if there is no Uniswap pool and not checking */}
-                  {!(isOnCorrectNetwork && !isCheckingPool && hasUniswapPool === false) && (
-                    <Label htmlFor="amount" className="text-zinc-900">
-                      Amount to sell
-                    </Label>
-                  )}
-                  <div className="grid grid-cols-7 gap-2">
-                    {/* Hide only the input, not the chain selector */}
-                    <div className="col-span-4">
-                      {!(isOnCorrectNetwork && !isCheckingPool && hasUniswapPool === false) && (
-                        <div className="relative">
-                          <Input
-                            id="amount"
-                            name="amount"
-                            value={sellAmount}
-                            onChange={(e) => handleAmountChange(e.target.value)}
-                          />
-                          <div
-                            className={
-                              "pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 z-10"
-                            }
-                          >
-                            <span className="text-zinc-500 sm:text-md">
-                              {tokenSymbol}
-                            </span>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                    <div className="col-span-3">
-                      <Select 
-                        onValueChange={handleChainChange}
-                        value={sellChainId}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select chain" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {balances
-                            ?.filter((b) => b.balance.value > 0n)
-                            .map((balance) => {
-                              return (
-                                <SelectItem
-                                  value={balance.chainId.toString()}
-                                  key={balance.chainId}
-                                >
-                                  <div className="flex items-center gap-2">
-                                    <ChainLogo
-                                      chainId={balance.chainId as JBChainId}
-                                    />
-                                    {
-                                      JB_CHAINS[balance.chainId as JBChainId]
-                                        .name
-                                    }
-                                  </div>
-                                </SelectItem>
-                              );
-                            })}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-                </div>
-
-                {sellAmount && sellChainId && !valid ? (
-                  <div className="text-red-500 mt-4">
-                    Insuffient {tokenSymbol} on{" "}
-                    {JB_CHAINS[Number(sellChainId) as JBChainId].name}
-                  </div>
-                ) : null}
-
-                {sellAmount && sellAmountBN > 0n && valid ? (
-                  <div className="text-base mt-4">
-                    Estimated value:{" "}
-                    {sellQuote ? (
-                      <span className="font-medium">
-                        <NativeTokenValue wei={((sellQuote * 975n) / 1000n)} decimals={8} />
-                      </span>
-                    ) : (
-                      <>...</>
-                    )}
-                  </div>
-                ) : null}
-              </>
+        {!isCheckingPool && hasUniswapPool && (
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="amount">Amount to sell</Label>
+              <Input
+                id="amount"
+                type="number"
+                step="any"
+                min="0"
+                value={sellAmount}
+                onChange={(e) => handleAmountChange(e.target.value)}
+                placeholder="0.0"
+              />
+            </div>
+            {sellQuote && (
+              <div className="text-sm text-muted-foreground">
+                You will receive {NativeTokenValue({ wei: sellQuote, decimals: NATIVE_TOKEN_DECIMALS })} {NATIVE_TOKEN}
+              </div>
             )}
           </div>
-        </div>
+        )}
+
         <DialogFooter>
-          {!isSuccess ? (
+          {!isCheckingPool && hasUniswapPool && (
             <ButtonWithWallet
-              targetChainId={Number(sellChainId) as JBChainId}
-              loading={loading}
               onClick={() => {
-                if (!primaryNativeTerminal?.data) {
-                  console.error("no terminal");
-                  return;
-                }
-
-                if (!(address && sellAmountBN)) {
-                  console.error("incomplete args");
-                  return;
-                }
-
-                const args = [
-                  address, // holder
-                  projectId, // project id
-                  sellAmount
-                    ? parseUnits(sellAmount, NATIVE_TOKEN_DECIMALS)
-                    : 0n, // sell count
-                  NATIVE_TOKEN, // token to reclaim
-                  0n, // min tokens reclaimed
-                  address, // beneficiary
-                  DEFAULT_METADATA, // metadata
-                ] as const;
-
-                console.log("⏩ sell args", args);
-
-                writeContract?.({
+                if (!primaryNativeTerminal?.data || !sellChainId) return;
+                writeContract({
+                  address: primaryNativeTerminal.data,
+                  args: [
+                    primaryNativeTerminal.data,
+                    projectId,
+                    sellAmountBN,
+                    NATIVE_TOKEN,
+                    0n,
+                    DEFAULT_METADATA,
+                    address as `0x${string}`,
+                  ],
                   chainId: Number(sellChainId) as JBChainId,
-                  address: primaryNativeTerminal?.data,
-                  args,
                 });
               }}
+              disabled={!valid || loading || !isOnCorrectNetwork}
             >
-              Sell on market
+              {loading
+                ? "Processing..."
+                : !isOnCorrectNetwork
+                ? "Switch Network"
+                : "Sell"}
             </ButtonWithWallet>
-          ) : null}
+          )}
         </DialogFooter>
       </DialogContent>
     </Dialog>

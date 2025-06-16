@@ -7,13 +7,13 @@ import { useJBContractContext, useJBRulesetContext, useJBTokenContext } from "ju
 
 // Uniswap V3 Factory addresses for different networks
 const UNISWAP_V3_FACTORY_ADDRESSES: Record<number, Address> = {
+  [baseSepolia.id]: "0x4752ba5DBc23f44D87826276BF6Fd6b1C372aD24",
+  [base.id]: "0x33128a8fC17869897dcE68Ed026d694621f6FDfD",
+  [sepolia.id]: "0x0227628f3F023bb0B980b67D528571c95c6DaC1c",
   [mainnet.id]: "0x1F98431c8aD98523631AE4a59f267346ea31F984",
   [optimism.id]: "0x1F98431c8aD98523631AE4a59f267346ea31F984",
-  [base.id]: "0x33128a8fC17869897dcE68Ed026d694621f6FDfD",
-  [baseSepolia.id]: "0x4752ba5DBc23f44D87826276BF6Fd6b1C372aD24",
-  [arbitrum.id]: "0x1F98431c8aD98523631AE4a59f267346ea31F984",
-  [sepolia.id]: "0x0227628f3F023bb0B980b67D528571c95c6DaC1c",
   [optimismSepolia.id]: "0x0227628f3F023bb0B980b67D528571c95c6DaC1c",
+  [arbitrum.id]: "0x1F98431c8aD98523631AE4a59f267346ea31F984",
   [arbitrumSepolia.id]: "0x0227628f3F023bb0B980b67D528571c95c6DaC1c",
 };
 
@@ -22,12 +22,14 @@ const WETH_ADDRESSES: Record<number, Address> = {
   [mainnet.id]: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
   [optimism.id]: "0x4200000000000000000000000000000000000006",
   [base.id]: "0x4200000000000000000000000000000000000006",
-  [baseSepolia.id]: "0x000000000000000000000000000000000000EEEe",
+  [baseSepolia.id]: "0x4200000000000000000000000000000000000006",
   [arbitrum.id]: "0x82aF49447D8a07e3bd95BD0d56f35241523fBab1",
   [sepolia.id]: "0x7b79995e5f793A07Bc00c21412e50Ecae098E7f9",
   [optimismSepolia.id]: "0x4200000000000000000000000000000000000006",
   [arbitrumSepolia.id]: "0x82aF49447D8a07e3bd95BD0d56f35241523fBab1",
 };
+
+const TICK_SPACING = 60; // 0.3% fee tier
 
 export function useUniswapV3Pool(tokenAddress: Address | undefined, chainId?: number) {
   const publicClient = usePublicClient();
@@ -39,100 +41,123 @@ export function useUniswapV3Pool(tokenAddress: Address | undefined, chainId?: nu
   const [isInitialized, setIsInitialized] = useState<boolean>(false);
 
   const checkPool = useCallback(async () => {
-    if (!publicClient || !tokenAddress || !token?.data || !chainId) return false;
+    if (!publicClient || !tokenAddress || !token?.data || !chainId) {
+      console.log("Missing required parameters:", {
+        hasPublicClient: !!publicClient,
+        hasTokenAddress: !!tokenAddress,
+        hasTokenData: !!token?.data,
+        chainId
+      });
+      setIsPoolExists(false);
+      setPoolAddress(null);
+      setIsInitialized(false);
+      return false;
+    }
 
     try {
       console.log("Checking pool for chain ID:", chainId);
+      console.log("Token Address:", tokenAddress);
+      console.log("Token Symbol:", token.data.symbol);
+      console.log("Current Chain ID:", publicClient.chain.id);
       
       const factoryAddress = UNISWAP_V3_FACTORY_ADDRESSES[chainId];
       if (!factoryAddress) {
         console.log("No factory address found for chain:", chainId);
+        setIsPoolExists(false);
+        setPoolAddress(null);
+        setIsInitialized(false);
         return false;
       }
 
       // Verify the factory contract exists
-      const code = await publicClient.getBytecode({ address: factoryAddress });
-      if (!code || code === "0x") {
-        console.log("Factory contract not deployed at", factoryAddress);
-        return false;
-      }
-
-      console.log("Factory Address:", factoryAddress);
-      console.log("Token Address:", tokenAddress);
-      console.log("WETH Address:", WETH_ADDRESSES[chainId]);
-      console.log("Chain ID:", chainId);
-      console.log("Token Order:", tokenAddress < WETH_ADDRESSES[chainId] ? "Token-WETH" : "WETH-Token");
-
       try {
-        const poolAddress = await publicClient.readContract({
-          address: factoryAddress,
-          abi: parseAbi([
-            "function getPool(address tokenA, address tokenB, uint24 fee) view returns (address pool)",
-          ]),
-          functionName: "getPool",
-          args: [
-            tokenAddress < WETH_ADDRESSES[chainId] 
-              ? tokenAddress 
-              : WETH_ADDRESSES[chainId],
-            tokenAddress < WETH_ADDRESSES[chainId] 
-              ? WETH_ADDRESSES[chainId] 
-              : tokenAddress,
-            3000
-          ],
-        });
-
-        console.log("Pool Address:", poolAddress);
-        console.log("Is Zero Address:", poolAddress === "0x0000000000000000000000000000000000000000");
-
-        setPoolAddress(poolAddress);
-        const exists = poolAddress !== "0x0000000000000000000000000000000000000000";
-        console.log("Setting pool exists to:", exists);
-        setIsPoolExists(exists);
-
-        // Check if pool is initialized (slot0 returns without error and sqrtPriceX96 > 0)
-        if (exists) {
-          try {
-            const slot0 = await publicClient.readContract({
-              address: poolAddress,
-              abi: parseAbi([
-                "function slot0() view returns (uint160 sqrtPriceX96, int24 tick, uint16 observationIndex, uint16 observationCardinality, uint16 observationCardinalityNext, uint8 feeProtocol, bool unlocked)"
-              ]),
-              functionName: "slot0",
-              args: [],
-            });
-            setIsInitialized(slot0[0] > 0n);
-          } catch (e) {
-            setIsInitialized(false);
-          }
-        } else {
-          setIsInitialized(false);
-        }
-        return exists;
-      } catch (error) {
-        // If the error is about no data returned, it means no pool exists
-        if (error instanceof Error && error.message.includes("returned no data")) {
-          console.log("No pool found for token pair");
+        const code = await publicClient.getBytecode({ address: factoryAddress });
+        console.log("Factory contract bytecode length:", code ? code.length : 0);
+        if (!code || code === "0x") {
+          console.log("Factory contract not deployed at", factoryAddress);
           setIsPoolExists(false);
           setPoolAddress(null);
           setIsInitialized(false);
           return false;
         }
-        // For other errors, log them
+      } catch (error) {
+        console.error("Error getting factory bytecode:", error);
+        setIsPoolExists(false);
+        setPoolAddress(null);
+        setIsInitialized(false);
+        return false;
+      }
+
+      console.log("Factory Address:", factoryAddress);
+      console.log("WETH Address:", WETH_ADDRESSES[chainId]);
+      console.log("Token Order:", tokenAddress < WETH_ADDRESSES[chainId] ? "Token-WETH" : "WETH-Token");
+
+      try {
+        // Try both token orderings to be thorough
+        const token0 = tokenAddress < WETH_ADDRESSES[chainId] ? tokenAddress : WETH_ADDRESSES[chainId];
+        const token1 = tokenAddress < WETH_ADDRESSES[chainId] ? WETH_ADDRESSES[chainId] : tokenAddress;
+
+        console.log("Checking pool with token0:", token0);
+        console.log("Checking pool with token1:", token1);
+
+        // Check all fee tiers
+        const feeTiers = [500, 3000, 10000];
+        for (const fee of feeTiers) {
+          console.log(`Checking ${fee/10000}% fee tier...`);
+          const poolAddress = await publicClient.readContract({
+            address: factoryAddress,
+            abi: parseAbi([
+              "function getPool(address tokenA, address tokenB, uint24 fee) view returns (address pool)",
+            ]),
+            functionName: "getPool",
+            args: [token0, token1, fee],
+          });
+          console.log(`Pool Address (${fee/10000}% fee):`, poolAddress);
+          
+          if (poolAddress !== "0x0000000000000000000000000000000000000000") {
+            console.log("Found pool at address:", poolAddress);
+            setPoolAddress(poolAddress);
+            setIsPoolExists(true);
+            
+            // Check if pool is initialized
+            try {
+              console.log("Checking pool initialization...");
+              const slot0 = await publicClient.readContract({
+                address: poolAddress,
+                abi: parseAbi([
+                  "function slot0() view returns (uint160 sqrtPriceX96, int24 tick, uint16 observationIndex, uint16 observationCardinality, uint16 observationCardinalityNext, uint8 feeProtocol, bool unlocked)"
+                ]),
+                functionName: "slot0",
+                args: [],
+              });
+              console.log("Pool slot0:", slot0);
+              const isInitialized = slot0[0] > 0n;
+              console.log("Pool is initialized:", isInitialized);
+              setIsInitialized(isInitialized);
+            } catch (e) {
+              console.error("Error checking pool initialization:", e);
+              setIsInitialized(false);
+            }
+            
+            return true;
+          }
+        }
+
+        // No pool found in any fee tier
+        console.log("No pool found in any fee tier");
+        setIsPoolExists(false);
+        setPoolAddress(null);
+        setIsInitialized(false);
+        return false;
+      } catch (error) {
         console.error("Error checking pool:", error);
-        console.error("Error details:", {
-          factoryAddress,
-          tokenAddress,
-          wethAddress: WETH_ADDRESSES[chainId],
-          chainId,
-          error
-        });
         setIsPoolExists(false);
         setPoolAddress(null);
         setIsInitialized(false);
         return false;
       }
     } catch (error) {
-      console.error("Error checking pool:", error);
+      console.error("Error in checkPool:", error);
       setIsPoolExists(false);
       setPoolAddress(null);
       setIsInitialized(false);
@@ -264,6 +289,15 @@ export function useUniswapV3Pool(tokenAddress: Address | undefined, chainId?: nu
       if (!exists) {
         throw new Error("Pool creation failed");
       }
+
+      // Calculate ticks based on price
+      const tick = Math.floor(Math.log(price) / Math.log(1.0001));
+      let finalTickLower = Math.floor(tick / TICK_SPACING) * TICK_SPACING;
+      let finalTickUpper = finalTickLower + TICK_SPACING;
+
+      // Ensure ticks are aligned with tick spacing
+      finalTickLower = Math.floor(finalTickLower / TICK_SPACING) * TICK_SPACING;
+      finalTickUpper = Math.floor(finalTickUpper / TICK_SPACING) * TICK_SPACING;
     } catch (error) {
       console.error("Error initializing pool:", error);
       throw error;
