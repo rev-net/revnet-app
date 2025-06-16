@@ -444,13 +444,28 @@ export function SellOnMarketDialog({
                       throw new Error(`Price must be above ${isPoolExists ? 'current pool price' : 'cashout value'} (${cashoutValueEth.toFixed(6)} ETH)`);
                     }
 
+                    // If pool doesn't exist, create and initialize it first
+                    if (!isPoolExists) {
+                      console.log("Pool doesn't exist, creating and initializing...");
+                      await initializePool(initialPrice);
+                      // Wait a moment for the pool to be fully initialized
+                      await new Promise(resolve => setTimeout(resolve, 2000));
+                      // Check pool status again
+                      const exists = await checkPool();
+                      if (!exists) {
+                        throw new Error("Failed to create pool");
+                      }
+                    }
+
+                    // Now add the limit order
                     await addLimitOrder({
                       tokenAddress: token?.data?.address as Address,
                       chainId: Number(sellChainId),
                       limitPrice: minPriceEth,
                       amountToken: sellAmountBN,
                       amountETH: 0n, // No ETH deposit initially
-                      liquidityType: 'limit' // Specify this is a limit order
+                      liquidityType: 'limit', // Specify this is a limit order
+                      cashoutQuote // Add the cashout quote
                     });
                     // Refresh pool status after creation
                     checkPoolExistence();

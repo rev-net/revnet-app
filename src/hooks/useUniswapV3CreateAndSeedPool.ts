@@ -1,11 +1,10 @@
 import { useCallback, useState } from 'react';
 import { useAccount, usePublicClient, useWalletClient } from 'wagmi';
-import { Pool, Position, TickMath } from '@uniswap/v3-sdk';
+import { Pool, Position, TickMath, encodeSqrtRatioX96, NonfungiblePositionManager, TICK_SPACINGS } from '@uniswap/v3-sdk';
 import { Token, CurrencyAmount, Percent, Price } from '@uniswap/sdk-core';
 import { getContract, type Address, getAddress } from 'viem';
 import JSBI from 'jsbi';
 
-const { MIN_TICK, MAX_TICK } = TickMath;
 
 // Factory addresses for different networks
 const UNISWAP_V3_FACTORY_ADDRESSES = {
@@ -42,6 +41,17 @@ const UNISWAP_V3_FACTORY_ABI = [
     name: 'getPool',
     outputs: [{ name: 'pool', type: 'address' }],
     stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      { name: 'tokenA', type: 'address' },
+      { name: 'tokenB', type: 'address' },
+      { name: 'fee', type: 'uint24' },
+    ],
+    name: 'createPool',
+    outputs: [{ name: 'pool', type: 'address' }],
+    stateMutability: 'nonpayable',
     type: 'function',
   },
 ] as const;
@@ -83,6 +93,13 @@ const UNISWAP_V3_POOL_ABI = [
     stateMutability: 'view',
     type: 'function',
   },
+  {
+    inputs: [{ name: 'sqrtPriceX96', type: 'uint160' }],
+    name: 'initialize',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
 ] as const;
 
 const ERC20_ABI = [
@@ -94,6 +111,27 @@ const ERC20_ABI = [
     name: 'approve',
     outputs: [{ name: '', type: 'bool' }],
     stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'decimals',
+    outputs: [{ name: '', type: 'uint8' }],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'symbol',
+    outputs: [{ name: '', type: 'string' }],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'name',
+    outputs: [{ name: '', type: 'string' }],
+    stateMutability: 'view',
     type: 'function',
   },
 ] as const;
@@ -146,6 +184,7 @@ export function useUniswapV3AddLimitOrder() {
     tickLower,
     tickUpper,
     liquidityType,
+    cashoutQuote,
   }: {
     tokenAddress: Address;
     chainId: number;
@@ -155,337 +194,267 @@ export function useUniswapV3AddLimitOrder() {
     tickLower?: number;
     tickUpper?: number;
     liquidityType: 'spot' | 'limit';
+    cashoutQuote: bigint;
   }) => {
     if (!walletClient || !publicClient || !address) {
       throw new Error('Wallet or public client not available');
     }
 
-    try {
-      console.log("=== Starting Limit Order Addition ===");
-      console.log("Input parameters:", {
-        tokenAddress,
-        chainId,
-        limitPrice,
-        amountToken: amountToken.toString(),
-        amountETH: amountETH.toString(),
-      });
+    const maxRetries = 3;
+    let retryCount = 0;
+    let lastError: Error | null = null;
 
-      const chainIdKey = chainId.toString() as SupportedChainId;
-      const factoryAddress = UNISWAP_V3_FACTORY_ADDRESSES[chainIdKey];
-      const wethAddress = WETH_ADDRESSES[chainIdKey];
-      const positionManagerAddress = POSITION_MANAGER_ADDRESSES[chainIdKey];
-
-      if (!factoryAddress || !wethAddress || !positionManagerAddress) {
-        throw new Error(`Unsupported network: ${chainId}`);
-      }
-
-      // Create token instances
-      const token0 = tokenAddress.toLowerCase() < wethAddress.toLowerCase() ? tokenAddress : wethAddress;
-      const token1 = tokenAddress.toLowerCase() < wethAddress.toLowerCase() ? wethAddress : tokenAddress;
-      
-      console.log("Token addresses:", { token0, token1, wethAddress });
-
-      // Verify both tokens are valid ERC-20s
-      const erc20Abi = [
-        {
-          inputs: [
-            { name: 'spender', type: 'address' },
-            { name: 'amount', type: 'uint256' }
-          ],
-          name: 'approve',
-          outputs: [{ name: '', type: 'bool' }],
-          stateMutability: 'nonpayable',
-          type: 'function'
-        },
-        {
-          inputs: [],
-          name: 'decimals',
-          outputs: [{ name: '', type: 'uint8' }],
-          stateMutability: 'view',
-          type: 'function'
-        },
-        {
-          inputs: [],
-          name: 'symbol',
-          outputs: [{ name: '', type: 'string' }],
-          stateMutability: 'view',
-          type: 'function'
-        },
-        {
-          inputs: [],
-          name: 'name',
-          outputs: [{ name: '', type: 'string' }],
-          stateMutability: 'view',
-          type: 'function'
-        }
-      ] as const;
-
-      let token0Decimals: number;
-      let token1Decimals: number;
-      let token0Instance: Token;
-      let token1Instance: Token;
-
+    while (retryCount < maxRetries) {
       try {
-        console.log("Creating token contracts...");
+        console.log(`=== Starting Limit Order Addition (Attempt ${retryCount + 1}/${maxRetries}) ===`);
         
-        // First verify the contract exists
-        const token0Code = await publicClient.getBytecode({ address: token0 });
-        const token1Code = await publicClient.getBytecode({ address: token1 });
+        const chainIdKey = chainId.toString() as SupportedChainId;
+        const factoryAddress = UNISWAP_V3_FACTORY_ADDRESSES[chainIdKey];
+        const wethAddress = WETH_ADDRESSES[chainIdKey];
+        const positionManagerAddress = POSITION_MANAGER_ADDRESSES[chainIdKey];
+
+        if (!factoryAddress || !wethAddress || !positionManagerAddress) {
+          throw new Error(`Unsupported network: ${chainId}`);
+        }
+
+        // Create token instances
+        const token0 = tokenAddress.toLowerCase() < wethAddress.toLowerCase() ? tokenAddress : wethAddress;
+        const token1 = tokenAddress.toLowerCase() < wethAddress.toLowerCase() ? wethAddress : tokenAddress;
+
+        // Get token metadata and create SDK Token instances
+        const [token0Decimals, token1Decimals] = await Promise.all([
+          publicClient.readContract({
+            address: token0,
+            abi: [{ inputs: [], name: 'decimals', outputs: [{ type: 'uint8' }], stateMutability: 'view', type: 'function' }],
+            functionName: 'decimals'
+          }),
+          publicClient.readContract({
+            address: token1,
+            abi: [{ inputs: [], name: 'decimals', outputs: [{ type: 'uint8' }], stateMutability: 'view', type: 'function' }],
+            functionName: 'decimals'
+          })
+        ]);
+
+        const token0Instance = new Token(chainId, token0, token0Decimals);
+        const token1Instance = new Token(chainId, token1, token1Decimals);
+
+        // Calculate amounts based on token order
+        const isToken0Weth = wethAddress.toLowerCase() === token0.toLowerCase();
+        const amount0 = isToken0Weth ? amountETH : amountToken;
+        const amount1 = isToken0Weth ? amountToken : amountETH;
+
+        // Calculate the expected amounts based on the limit price
+        const price = isToken0Weth ? 1 / limitPrice : limitPrice;
         
-        console.log("Contract bytecode lengths:", {
-          token0: token0Code?.length || 0,
-          token1: token1Code?.length || 0
+        // Calculate the expected amount of token1 based on the limit price
+        const expectedAmount1 = isToken0Weth 
+          ? amount0 * BigInt(Math.floor(1 / price * 1e18)) / BigInt(1e18)
+          : amount0 * BigInt(Math.floor(price * 1e18)) / BigInt(1e18);
+
+        // Use the larger of the expected amount or cashout quote
+        const finalAmount1 = expectedAmount1 > cashoutQuote ? expectedAmount1 : cashoutQuote;
+
+        // Get or create pool
+        const factoryContract = getContract({
+          address: factoryAddress,
+          abi: [
+            {
+              inputs: [
+                { name: 'tokenA', type: 'address' },
+                { name: 'tokenB', type: 'address' },
+                { name: 'fee', type: 'uint24' },
+              ],
+              name: 'getPool',
+              outputs: [{ name: 'pool', type: 'address' }],
+              stateMutability: 'view',
+              type: 'function',
+            },
+            {
+              inputs: [
+                { name: 'tokenA', type: 'address' },
+                { name: 'tokenB', type: 'address' },
+                { name: 'fee', type: 'uint24' },
+              ],
+              name: 'createPool',
+              outputs: [{ name: 'pool', type: 'address' }],
+              stateMutability: 'nonpayable',
+              type: 'function',
+            },
+          ],
+          client: publicClient,
         });
 
-        if (!token0Code || token0Code.length === 0) {
-          throw new Error(`Token0 contract does not exist at ${token0}`);
-        }
-        if (!token1Code || token1Code.length === 0) {
-          throw new Error(`Token1 contract does not exist at ${token1}`);
-        }
+        let poolAddress = await factoryContract.read.getPool([token0, token1, 3000]);
+        let pool: Pool | null = null;
 
-        console.log("Verifying token metadata...");
-        
-        // Verify token0 metadata
-        try {
-          console.log("Checking token0:", token0);
-          const token0Decimals = await publicClient.readContract({
-            address: token0,
-            abi: erc20Abi,
-            functionName: 'decimals'
-          }) as number;
-          console.log("Token0 decimals:", token0Decimals);
-          
-          const token0Symbol = await publicClient.readContract({
-            address: token0,
-            abi: erc20Abi,
-            functionName: 'symbol'
-          });
-          console.log("Token0 symbol:", token0Symbol);
-          
-          const token0Name = await publicClient.readContract({
-            address: token0,
-            abi: erc20Abi,
-            functionName: 'name'
-          });
-          console.log("Token0 name:", token0Name);
-
-          // Create token0 instance after getting decimals
-          token0Instance = new Token(chainId, token0, token0Decimals);
-        } catch (error) {
-          console.error("Error verifying token0:", error);
-          throw new Error(`Failed to verify token0 (${token0}): ${error instanceof Error ? error.message : 'Unknown error'}`);
-        }
-
-        // Verify token1 metadata
-        try {
-          console.log("Checking token1:", token1);
-          const token1Decimals = await publicClient.readContract({
-            address: token1,
-            abi: erc20Abi,
-            functionName: 'decimals'
-          }) as number;
-          console.log("Token1 decimals:", token1Decimals);
-          
-          const token1Symbol = await publicClient.readContract({
-            address: token1,
-            abi: erc20Abi,
-            functionName: 'symbol'
-          });
-          console.log("Token1 symbol:", token1Symbol);
-          
-          const token1Name = await publicClient.readContract({
-            address: token1,
-            abi: erc20Abi,
-            functionName: 'name'
-          });
-          console.log("Token1 name:", token1Name);
-
-          // Create token1 instance after getting decimals
-          token1Instance = new Token(chainId, token1, token1Decimals);
-        } catch (error) {
-          console.error("Error verifying token1:", error);
-          throw new Error(`Failed to verify token1 (${token1}): ${error instanceof Error ? error.message : 'Unknown error'}`);
-        }
-
-      } catch (error) {
-        console.error("Error verifying token metadata:", error);
-        throw new Error(`Failed to verify token metadata: ${error instanceof Error ? error.message : 'Unknown error'}`);
-      }
-
-      // Get pool
-      const factoryContract = getContract({
-        address: factoryAddress,
-        abi: UNISWAP_V3_FACTORY_ABI,
-        client: publicClient,
-      });
-
-      const poolAddress = await factoryContract.read.getPool([token0, token1, 3000]);
-      console.log("Pool address:", poolAddress);
-
-      if (poolAddress && poolAddress !== '0x0000000000000000000000000000000000000000') {
-        try {
-          // Get pool contract to check its token addresses
+        if (poolAddress && poolAddress !== '0x0000000000000000000000000000000000000000') {
+          // Pool exists, get its state
           const poolContract = getContract({
             address: poolAddress,
-            abi: UNISWAP_V3_POOL_ABI,
+            abi: [
+              {
+                inputs: [],
+                name: 'slot0',
+                outputs: [
+                  { name: 'sqrtPriceX96', type: 'uint160' },
+                  { name: 'tick', type: 'int24' },
+                  { name: 'observationIndex', type: 'uint16' },
+                  { name: 'observationCardinality', type: 'uint16' },
+                  { name: 'observationCardinalityNext', type: 'uint16' },
+                  { name: 'feeProtocol', type: 'uint8' },
+                  { name: 'unlocked', type: 'bool' },
+                ],
+                stateMutability: 'view',
+                type: 'function',
+              },
+              {
+                inputs: [],
+                name: 'liquidity',
+                outputs: [{ name: '', type: 'uint128' }],
+                stateMutability: 'view',
+                type: 'function',
+              },
+            ],
             client: publicClient,
           });
 
-          const [poolToken0, poolToken1] = await Promise.all([
-            poolContract.read.token0(),
-            poolContract.read.token1()
+          const [slot0, liquidity] = await Promise.all([
+            poolContract.read.slot0(),
+            poolContract.read.liquidity()
           ]);
 
-          console.log("Pool token addresses:", {
-            poolToken0,
-            poolToken1,
-            expectedToken0: token0,
-            expectedToken1: token1
+          if (slot0[0] > 0n) {
+            pool = new Pool(
+              token0Instance,
+              token1Instance,
+              3000,
+              slot0[0].toString(),
+              liquidity.toString(),
+              slot0[1]
+            );
+          }
+        }
+
+        // Create pool if it doesn't exist or isn't initialized
+        if (!pool) {
+          const createPoolTx = await factoryContract.write.createPool(
+            [token0, token1, 3000],
+            { account: address }
+          );
+
+          const createPoolReceipt = await publicClient.waitForTransactionReceipt({
+            hash: createPoolTx
           });
 
-          if (poolToken0.toLowerCase() !== token0.toLowerCase() || 
-              poolToken1.toLowerCase() !== token1.toLowerCase()) {
-            throw new Error(`Pool exists but with different tokens. Expected: ${token0}/${token1}, Found: ${poolToken0}/${poolToken1}`);
+          const poolCreatedEvent = createPoolReceipt.logs.find(
+            log => log.topics[0] === '0x783cca1c0412dd0d695e784568c96da2e9c22ff989357a2e8b1d9b2b4e6b7118'
+          );
+          
+          if (!poolCreatedEvent || !poolCreatedEvent.topics[1]) {
+            throw new Error("Pool created event not found or invalid");
           }
 
-        const slot0 = await poolContract.read.slot0();
+          poolAddress = getAddress('0x' + poolCreatedEvent.topics[1].slice(26), 1);
+          
+          // Initialize pool with price
+          const poolContract = getContract({
+            address: poolAddress,
+            abi: [
+              {
+                inputs: [{ name: 'sqrtPriceX96', type: 'uint160' }],
+                name: 'initialize',
+                outputs: [],
+                stateMutability: 'nonpayable',
+                type: 'function',
+              },
+            ],
+            client: publicClient,
+          });
 
-          const sqrtPriceX96 = JSBI.BigInt(slot0[0].toString());
-          const currentTick = Number(slot0[1]);
+          const sqrtPriceX96 = encodeSqrtRatioX96(
+            JSBI.BigInt(Math.floor(Number(cashoutQuote) / Number(amountToken) * 1e6)),
+            JSBI.BigInt(1e6)
+          );
 
-          // Create pool instance
-          const pool = new Pool(
+          const initializeTx = await poolContract.write.initialize(
+            [BigInt(sqrtPriceX96.toString())],
+            { account: address }
+          );
+          await publicClient.waitForTransactionReceipt({ hash: initializeTx });
+
+          // Create pool instance after initialization
+          pool = new Pool(
             token0Instance,
             token1Instance,
             3000,
-            sqrtPriceX96,
-            JSBI.BigInt(slot0[2].toString()),
-            currentTick
+            sqrtPriceX96.toString(),
+            '0',
+            0
           );
+        }
 
-          // Calculate tick range
-          const TICK_SPACING = 60; // 0.3% fee tier
-          const isLimitOrder = liquidityType === 'limit';
+        // Calculate valid tick range using SDK constants
+        const tickSpacing = TICK_SPACINGS[3000]; // Get tick spacing for 0.3% fee tier
+        
+        let tickLower: number;
+        let tickUpper: number;
+
+        if (liquidityType === 'limit') {
+          // For limit orders, use the user's specified limit price
+          // Convert price to tick, considering token order
+          const isToken0Weth = wethAddress.toLowerCase() === token0.toLowerCase();
+          const price = isToken0Weth ? limitPrice : 1 / limitPrice;
+          const tick = Math.floor(Math.log(price) / Math.log(1.0001));
           
-        let finalTickLower: number;
-        let finalTickUpper: number;
-
-          if (!isLimitOrder) {
-          // For spot liquidity, use a narrow range around the desired price
-            const spotTick = Math.floor(Math.log(limitPrice) / Math.log(1.0001));
-          const minTick = Math.ceil((currentTick + 1) / TICK_SPACING) * TICK_SPACING;
-            finalTickLower = Math.max(minTick, Math.floor(spotTick / TICK_SPACING) * TICK_SPACING);
-          finalTickUpper = finalTickLower + TICK_SPACING * 2;
+          // For limit orders, we want a narrow range around the limit price
+          // This ensures the order executes close to the desired price
+          const tickRange = 100; // Smaller range for limit orders
+          tickLower = Math.floor((tick - tickRange) / tickSpacing) * tickSpacing;
+          tickUpper = Math.ceil((tick + tickRange) / tickSpacing) * tickSpacing;
         } else {
-          // For limit orders:
-            const limitTickRaw = Math.floor(Math.log(limitPrice) / Math.log(1.0001));
-            const limitTick = Math.floor(limitTickRaw / TICK_SPACING) * TICK_SPACING;
-            
-            // For selling token1 (WETH), we want the price to be higher than current
-            // For selling token0 (token), we want the price to be lower than current
-            const isSellingToken1 = token1.toLowerCase() === wethAddress.toLowerCase();
-            
-            if (isSellingToken1) {
-              // Selling WETH - price should be higher than current
-              finalTickLower = Math.max(currentTick, limitTick);
-              finalTickUpper = finalTickLower + TICK_SPACING;
-            } else {
-              // Selling token - price should be lower than current
-              finalTickUpper = Math.min(currentTick, limitTick);
-              finalTickLower = finalTickUpper - TICK_SPACING;
-            }
-          }
-
-          // Ensure tick range is valid
-          finalTickLower = Math.max(MIN_TICK, Math.min(MAX_TICK, finalTickLower));
-          finalTickUpper = Math.max(MIN_TICK, Math.min(MAX_TICK, finalTickUpper));
-        finalTickLower = Math.floor(finalTickLower / TICK_SPACING) * TICK_SPACING;
-        finalTickUpper = Math.floor(finalTickUpper / TICK_SPACING) * TICK_SPACING;
-
-          // Create position
-          const isAddingToken1 = amountToken > 0n;
+          // For spot orders, use the current price
+          const amount0Currency = CurrencyAmount.fromRawAmount(token0Instance, amount0.toString());
+          const amount1Currency = CurrencyAmount.fromRawAmount(token1Instance, amount1.toString());
+          const price = new Price(token0Instance, token1Instance, amount0Currency.quotient, amount1Currency.quotient);
+          const tickFromPrice = Math.log(Number(price.toSignificant(18))) / Math.log(1.0001);
           
-          // Create position using SDK
-          const position = Position.fromAmounts({
-              pool,
-              tickLower: finalTickLower,
-              tickUpper: finalTickUpper,
-            amount0: isAddingToken1 ? '0' : amountToken.toString(),
-            amount1: isAddingToken1 ? amountToken.toString() : '0',
-              useFullPrecision: true
-          });
+          // Wider range for spot orders
+          const tickRange = 1000;
+          tickLower = Math.floor((tickFromPrice - tickRange) / tickSpacing) * tickSpacing;
+          tickUpper = Math.ceil((tickFromPrice + tickRange) / tickSpacing) * tickSpacing;
+        }
 
-          // Get the actual amounts needed for the position
-          const { amount0, amount1 } = position.mintAmounts;
-          console.log("Position amounts:", { amount0: amount0.toString(), amount1: amount1.toString() });
+        // Ensure ticks are within valid range and properly ordered
+        const validTickLower = Math.max(TickMath.MIN_TICK, tickLower);
+        const validTickUpper = Math.min(TickMath.MAX_TICK, tickUpper);
 
-          // Ensure we have valid amounts
-          if (JSBI.EQ(amount0, JSBI.BigInt(0)) && JSBI.EQ(amount1, JSBI.BigInt(0))) {
-            // If amounts are zero, try calculating with the raw input amounts
-            const rawPosition = Position.fromAmounts({
-              pool,
-              tickLower: finalTickLower,
-              tickUpper: finalTickUpper,
-              amount0: amountToken.toString(),
-              amount1: amountETH.toString(),
-              useFullPrecision: true
-            });
+        // Ensure tickLower is less than tickUpper
+        if (validTickLower >= validTickUpper) {
+          throw new Error('Invalid tick range: lower tick must be less than upper tick');
+        }
 
-            const { amount0: rawAmount0, amount1: rawAmount1 } = rawPosition.mintAmounts;
-            console.log("Raw position amounts:", { 
-              rawAmount0: rawAmount0.toString(), 
-              rawAmount1: rawAmount1.toString(),
-              inputAmountToken: amountToken.toString(),
-              inputAmountETH: amountETH.toString()
-            });
+        // Create position with the calculated amounts
+        const position = Position.fromAmounts({
+          pool,
+          tickLower: validTickLower,
+          tickUpper: validTickUpper,
+          amount0: amount0.toString(),
+          amount1: finalAmount1.toString(),
+          useFullPrecision: true
+        });
 
-            if (JSBI.EQ(rawAmount0, JSBI.BigInt(0)) && JSBI.EQ(rawAmount1, JSBI.BigInt(0))) {
-          throw new Error('Position amounts cannot be zero. Please check your input amounts and price range.');
-            }
-          }
+        // Get mint parameters using SDK
+        const { calldata, value } = NonfungiblePositionManager.addCallParameters(position, {
+          slippageTolerance: new Percent(50, 10_000), // 0.5%
+          deadline: Math.floor(Date.now() / 1000) + 3600,
+          recipient: address,
+          createPool: !pool
+        });
 
-          // Approve both tokens
-          if (amountToken > 0n) {
-            const { request: approveRequest } = await publicClient.simulateContract({
-              address: tokenAddress,
-              abi: ERC20_ABI,
-              functionName: 'approve',
-              args: [positionManagerAddress, amountToken],
-              account: address,
-              chain: publicClient.chain,
-            });
-
-            const approveHash = await walletClient.writeContract(approveRequest);
-            await publicClient.waitForTransactionReceipt({ hash: approveHash });
-          }
-
-          // Also approve WETH if needed
-          if (amountETH > 0n) {
-            const { request: approveWethRequest } = await publicClient.simulateContract({
-              address: wethAddress,
-              abi: ERC20_ABI,
-              functionName: 'approve',
-              args: [positionManagerAddress, amountETH],
-              account: address,
-              chain: publicClient.chain,
-            });
-
-            const approveWethHash = await walletClient.writeContract(approveWethRequest);
-            await publicClient.waitForTransactionReceipt({ hash: approveWethHash });
-          }
-
-          // Verify position manager contract exists
-          console.log("Verifying position manager contract...");
-          const positionManagerCode = await publicClient.getBytecode({ address: positionManagerAddress });
-          console.log("Position manager bytecode length:", positionManagerCode?.length || 0);
-          
-          if (!positionManagerCode || positionManagerCode.length === 0) {
-            throw new Error(`Position manager contract does not exist at ${positionManagerAddress}`);
-          }
-
-          // Verify position manager ABI
-          const positionManagerAbi = [
+        // Create position manager contract
+        const positionManagerContract = getContract({
+          address: positionManagerAddress,
+          abi: [
             {
               inputs: [
                 { name: 'token0', type: 'address' },
@@ -510,69 +479,65 @@ export function useUniswapV3AddLimitOrder() {
               stateMutability: 'payable',
               type: 'function',
             },
-          ] as const;
+          ],
+          client: walletClient,
+        });
 
-          // Before mint
-          console.log("Mint parameters:", {
+        // Mint position using SDK parameters
+        const tx = await positionManagerContract.write.mint(
+          [
             token0,
             token1,
-            fee: 3000,
-            tickLower: finalTickLower,
-            tickUpper: finalTickUpper,
-            amount0: amountToken.toString(),
-            amount1: amountETH.toString(),
-            positionManagerAddress,
-            isAddingToken1,
-            inputAmountToken: amountToken.toString(),
-            inputAmountETH: amountETH.toString()
-          });
+            3000,
+            validTickLower,
+            validTickUpper,
+            amountToken,  // Project token amount
+            amountETH,    // ETH amount
+            0n,
+            0n,
+            address,
+            BigInt(Math.floor(Date.now() / 1000) + 3600)
+          ],
+          { account: address, value: BigInt(value) }
+        );
 
-          // Mint position
-          const { request: mintRequest } = await publicClient.simulateContract({
-            address: positionManagerAddress,
-            abi: positionManagerAbi,
-            functionName: 'mint',
-            args: [
-              token0,
-              token1,
-              3000,
-              finalTickLower,
-              finalTickUpper,
-              amountToken,
-              amountETH,
-              0n, // amount0Min
-              0n, // amount1Min
-              address,
-              BigInt(Math.floor(Date.now() / 1000) + 3600), // 1 hour
-            ],
-            value: amountETH,
-            account: address,
-            chain: publicClient.chain,
-          });
+        await publicClient.waitForTransactionReceipt({ hash: tx });
 
-          const mintHash = await walletClient.writeContract(mintRequest);
-          await publicClient.waitForTransactionReceipt({ hash: mintHash });
+        setPoolAddress(poolAddress);
+        setIsPoolExists(true);
+        setIsPoolInitialized(true);
 
-          setPoolAddress(poolAddress);
-          setIsPoolExists(true);
-          setIsPoolInitialized(true);
-
-          return {
-              poolAddress,
-          };
-        } catch (err) {
-          console.error('Error adding limit order:', err);
-          setError(err instanceof Error ? err.message : 'Failed to add limit order');
-          throw err;
+        return { poolAddress };
+      } catch (err) {
+        lastError = err instanceof Error ? err : new Error(String(err));
+        console.error(`Attempt ${retryCount + 1} failed:`, lastError);
+        
+        // Check for specific error types
+        const isRateLimit = lastError.message.includes('429') || lastError.message.includes('Too Many Requests');
+        const isRpcError = lastError.message.includes('400') || lastError.message.includes('Unsupported method');
+        const isTransactionError = lastError.message.includes('eth_sendTransaction') || 
+                                 lastError.message.includes('transaction') ||
+                                 lastError.message.includes('gas');
+        
+        if (isRateLimit || isRpcError || isTransactionError) {
+          retryCount++;
+          if (retryCount < maxRetries) {
+            // Exponential backoff with jitter
+            const baseDelay = Math.pow(2, retryCount) * 1000;
+            const jitter = Math.random() * 1000;
+            const delay = baseDelay + jitter;
+            console.log(`Retrying in ${Math.round(delay)}ms... (Error: ${lastError.message})`);
+            await new Promise(resolve => setTimeout(resolve, delay));
+            continue;
+          }
         }
+        
+        // If it's not a retryable error or we've exhausted retries, throw
+        throw lastError;
       }
-    } catch (err) {
-      console.error('Error adding limit order:', err);
-      setError(err instanceof Error ? err.message : 'Failed to add limit order');
-      throw err;
-    } finally {
-      setIsLoading(false);
     }
+
+    throw lastError || new Error('Failed to add limit order after all retries');
   }, [publicClient, walletClient, address]);
 
   return {
