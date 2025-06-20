@@ -26,6 +26,7 @@ import {
   useSuckersUserTokenBalance,
   useJBRulesetContext,
   useSuckers,
+  useJBTokenContext,
 } from "juice-sdk-react";
 import { PropsWithChildren, useEffect, useMemo, useState } from "react";
 import { Address } from "viem";
@@ -33,10 +34,10 @@ import { useAccount, usePublicClient, useWalletClient } from "wagmi";
 import { Token } from "@uniswap/sdk-core";
 import { Pool, FeeAmount } from "@uniswap/v3-sdk";
 import { UNISWAP_V3_FACTORY_ADDRESSES, WETH_ADDRESSES } from "@/constants";
-import { CHAIN_IDS } from "@/constants";
 import { parseEther } from "viem";
 import { FixedInt } from "fpnum";
 import { AddLiquidity } from "./AddLiquidity";
+import { useNativeTokenSymbol } from "@/hooks/useNativeTokenSymbol";
 
 // Define minimal ABIs for the functions we need
 const FACTORY_ABI = [
@@ -107,17 +108,16 @@ interface PoolState {
 
 export function SellOnMarket({
   tokenSymbol,
-  primaryTerminalEth,
   disabled,
   children,
 }: PropsWithChildren<{
   tokenSymbol: string;
-  primaryTerminalEth: Address;
   disabled?: boolean;
 }>) {
   const { address } = useAccount();
   const { data: balances } = useSuckersUserTokenBalance();
   const { ruleset, rulesetMetadata } = useJBRulesetContext();
+  const { token } = useJBTokenContext();
   const [sellChainId, setSellChainId] = useState<string>();
   const [poolState, setPoolState] = useState<PoolState>({
     exists: false,
@@ -141,30 +141,57 @@ export function SellOnMarket({
 
   // Create token instances once when chain is selected
   const tokens = useMemo(() => {
-    if (!sellChainId) return null;
+    if (!sellChainId || !token?.data) return null;
 
-    // Use WETH address for Base Sepolia
-    const nativeTokenAddress = Number(sellChainId) === CHAIN_IDS.BASE_SEPOLIA 
-      ? WETH_ADDRESSES[CHAIN_IDS.BASE_SEPOLIA]
-      : NATIVE_TOKEN as `0x${string}`;
+    const chainId = Number(sellChainId);
+    
+    // Check if the native token from JB is ETH
+    const isEthChain = NATIVE_TOKEN === '0x000000000000000000000000000000000000EEEe';
+    
+    if (isEthChain) {
+      // For ETH chains, use WETH for Uniswap V3 pools
+      const wethAddress = WETH_ADDRESSES[chainId];
+      if (!wethAddress || wethAddress === '0x0000000000000000000000000000000000000000') {
+        console.warn(`WETH address not available for chain ${sellChainId}`);
+        return null;
+      }
 
-    return {
-      projectToken: new Token(
-        Number(sellChainId),
-        primaryTerminalEth as `0x${string}`,
-        18,
-        tokenSymbol,
-        tokenSymbol
-      ),
-      nativeToken: new Token(
-        Number(sellChainId),
-        nativeTokenAddress,
-        18,
-        "ETH",
-        "Ethereum"
-      )
-    };
-  }, [sellChainId, primaryTerminalEth, tokenSymbol]);
+      return {
+        projectToken: new Token(
+          chainId,
+          token.data.address as `0x${string}`,
+          token.data.decimals,
+          tokenSymbol,
+          tokenSymbol
+        ),
+        nativeToken: new Token(
+          chainId,
+          wethAddress,
+          18,
+          "WETH",
+          "Wrapped Ether"
+        )
+      };
+    } else {
+      // For non-ETH chains, use the native token directly
+      return {
+        projectToken: new Token(
+          chainId,
+          token.data.address as `0x${string}`,
+          token.data.decimals,
+          tokenSymbol,
+          tokenSymbol
+        ),
+        nativeToken: new Token(
+          chainId,
+          NATIVE_TOKEN as `0x${string}`,
+          18,
+          "NATIVE",
+          "Native Token"
+        )
+      };
+    }
+  }, [sellChainId, token?.data, tokenSymbol]);
 
   // Calculate initial price when ruleset data is available
   useEffect(() => {
@@ -172,9 +199,9 @@ export function SellOnMarket({
 
     try {
       // Calculate initial price using Juicebox SDK
-      const oneEth = new FixedInt(parseEther("1"), tokens.nativeToken.decimals);
+      const oneNativeToken = new FixedInt(parseEther("1"), tokens.nativeToken.decimals);
       const amountAQuote = getTokenBtoAQuote(
-        oneEth,
+        oneNativeToken,
         tokens.projectToken.decimals,
         {
           weight: ruleset.data.weight,
@@ -182,19 +209,43 @@ export function SellOnMarket({
         }
       );
 
-      // Convert the quote to a price ratio (tokens per ETH)
-      const tokensPerEth = Number(amountAQuote.format());
-      console.log('Tokens per ETH from Juicebox TODO FIX:', tokensPerEth);
+      // The quote gives us tokens per native token (how many project tokens for 1 native token)
+      const tokensPerNative = Number(amountAQuote.format()); // e.g., 10000 tokens per native
+      const nativePerToken = 1 / tokensPerNative; // e.g., 0.0001 native per token
+      
+      console.log('Price from Juicebox:', {
+        nativePerToken,   // How much native token you need for 1 project token
+        tokensPerNative,  // How many project tokens you get for 1 native token
+        note: `1 ${tokens.nativeToken.symbol} = ${tokensPerNative} ${tokenSymbol}, or 1 ${tokenSymbol} = ${nativePerToken} ${tokens.nativeToken.symbol}`
+      });
 
-      // Calculate price in ETH per token (inverse of tokens per ETH)
-      const price = 1 / tokensPerEth;
-      console.log('Initial price (ETH per token):', price);
-      setInitialPrice(price);
+      // Set initial price to half of JB price (in native token per project token)
+      const initialNativePerToken = nativePerToken / 2; // e.g., 0.00005 native per token
+      const initialTokensPerNative = 1 / initialNativePerToken; // e.g., 20000 tokens per native
+      
+      console.log('Initial pool price:', {
+        initialNativePerToken,    // How much native token you need for 1 project token
+        initialTokensPerNative,   // How many project tokens you get for 1 native token
+        note: `Initial price = ${initialNativePerToken} ${tokens.nativeToken.symbol} per ${tokenSymbol} (or ${initialTokensPerNative} ${tokenSymbol} per ${tokens.nativeToken.symbol})`
+      });
+      setInitialPrice(initialNativePerToken);
+
+      // Calculate sqrtPriceX96 for Uniswap V3 (consistent with initializePool)
+      const sqrt = Math.sqrt(initialTokensPerNative);
+      const sqrtPriceX96 = BigInt(Math.floor(sqrt * 2 ** 96));
+
+      console.log('Pool Initialization:', {
+        initialNativePerToken,    // native token per project token
+        initialTokensPerNative,   // project tokens per native token
+        sqrt,
+        sqrtPriceX96: sqrtPriceX96.toString(),
+        note: `sqrtPriceX96 is calculated from ${tokenSymbol} per ${tokens.nativeToken.symbol} (consistent with initializePool)`
+      });
     } catch (error) {
       console.error('Error calculating initial price:', error);
       setInitialPrice(null);
     }
-  }, [ruleset?.data, rulesetMetadata?.data, tokens]);
+  }, [ruleset?.data, rulesetMetadata?.data, tokens, tokenSymbol]);
 
   // Check for existing pool when chain is selected
   useEffect(() => {
@@ -228,7 +279,7 @@ export function SellOnMarket({
           factoryAddress,
           tokenA: tokens.projectToken.address,
           tokenB: tokens.nativeToken.address,
-          fee: FeeAmount.MEDIUM
+          fee: FeeAmount.LOW
         });
         console.log('Project Token:', {
           address: tokens.projectToken.address,
@@ -249,7 +300,7 @@ export function SellOnMarket({
           args: [
             tokens.projectToken.address as `0x${string}`,
             tokens.nativeToken.address as `0x${string}`,
-            FeeAmount.MEDIUM
+            FeeAmount.LOW
           ],
         }) as `0x${string}`;
 
@@ -327,7 +378,7 @@ export function SellOnMarket({
         args: [
           tokens.projectToken.address as `0x${string}`,
           tokens.nativeToken.address as `0x${string}`,
-          FeeAmount.MEDIUM
+          FeeAmount.LOW
         ],
         account: address,
       });
@@ -335,18 +386,23 @@ export function SellOnMarket({
       const receipt = await publicClient.waitForTransactionReceipt({ hash });
       console.log('Pool created:', receipt);
 
-      // Get the new pool address using SDK
-      const newPoolAddress = Pool.getAddress(
-        tokens.projectToken,
-        tokens.nativeToken,
-        FeeAmount.MEDIUM
-      );
+      // Get the new pool address from the factory
+      const newPoolAddress = await publicClient.readContract({
+        address: factoryAddress,
+        abi: FACTORY_ABI,
+        functionName: 'getPool',
+        args: [
+          tokens.projectToken.address as `0x${string}`,
+          tokens.nativeToken.address as `0x${string}`,
+          FeeAmount.LOW
+        ],
+      }) as `0x${string}`;
 
       setPoolState({
         exists: true,
         hasInitialPrice: false,
         hasLiquidity: false,
-        address: newPoolAddress as Address,
+        address: newPoolAddress,
       });
       console.log('New pool created at:', newPoolAddress);
     } catch (error) {
@@ -363,8 +419,17 @@ export function SellOnMarket({
       setIsLoading(true);
       
       // Calculate sqrtPriceX96 for Uniswap V3
-      const priceX96 = BigInt(Math.floor(initialPrice * 1e6)) * BigInt(2 ** 96);
-      const sqrtPriceX96 = BigInt(Math.floor(Math.sqrt(Number(priceX96))));
+      const tokensPerNative = 1 / initialPrice;
+      const sqrt = Math.sqrt(tokensPerNative);
+      const sqrtPriceX96 = BigInt(Math.floor(sqrt * 2 ** 96));
+
+      console.log('Pool Initialization:', {
+        initialPrice,                    // native token per project token
+        tokensPerNative,                 // project tokens per native token
+        sqrt,
+        sqrtPriceX96: sqrtPriceX96.toString(),
+        note: `sqrtPriceX96 = sqrt(${tokenSymbol} per ${tokens.nativeToken.symbol}) * 2^96`
+      });
 
       const hash = await walletClient.writeContract({
         address: poolState.address,
@@ -475,7 +540,7 @@ export function SellOnMarket({
                           <p className="text-amber-600">Pool needs initial price</p>
                           {initialPrice && (
                             <p className="text-zinc-600 mt-1">
-                              Initial price will be {initialPrice} ETH per token
+                              Initial price will be {initialPrice} {tokens?.nativeToken.symbol} per {tokenSymbol}
                             </p>
                           )}
                           <ButtonWithWallet

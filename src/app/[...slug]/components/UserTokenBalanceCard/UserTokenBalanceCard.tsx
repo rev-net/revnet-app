@@ -53,10 +53,8 @@ export function UserTokenBalanceCard() {
         ) : null}
         {token?.data?.symbol && creditBalance && primaryNativeTerminal.data ? (
           <SellOnMarket
-            projectId={projectId}
-            creditBalance={creditBalance}
             tokenSymbol={tokenSymbol}
-            primaryTerminalEth={primaryNativeTerminal.data}
+            disabled={creditBalance.value === 0n}
           >
             <Button variant="outline" disabled={creditBalance.value === 0n}>
               Sell on market
