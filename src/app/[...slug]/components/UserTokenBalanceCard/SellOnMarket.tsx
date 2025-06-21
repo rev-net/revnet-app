@@ -29,82 +29,22 @@ import {
   useJBTokenContext,
 } from "juice-sdk-react";
 import { PropsWithChildren, useEffect, useMemo, useState } from "react";
-import { Address } from "viem";
-import { useAccount, usePublicClient, useWalletClient } from "wagmi";
+import { Address, parseEther } from "viem";
+import { useAccount, usePublicClient, useWalletClient, useChainId, useSwitchChain } from "wagmi";
 import { Token } from "@uniswap/sdk-core";
-import { Pool, FeeAmount } from "@uniswap/v3-sdk";
+import { FeeAmount } from "@uniswap/v3-sdk";
 import { UNISWAP_V3_FACTORY_ADDRESSES, WETH_ADDRESSES } from "@/constants";
-import { parseEther } from "viem";
 import { FixedInt } from "fpnum";
 import { AddLiquidity } from "./AddLiquidity";
 import { useNativeTokenSymbol } from "@/hooks/useNativeTokenSymbol";
-
-// Define minimal ABIs for the functions we need
-const FACTORY_ABI = [
-  {
-    inputs: [
-      { name: 'tokenA', type: 'address' },
-      { name: 'tokenB', type: 'address' },
-      { name: 'fee', type: 'uint24' }
-    ],
-    name: 'getPool',
-    outputs: [{ name: '', type: 'address' }],
-    stateMutability: 'view',
-    type: 'function'
-  },
-  {
-    inputs: [
-      { name: 'tokenA', type: 'address' },
-      { name: 'tokenB', type: 'address' },
-      { name: 'fee', type: 'uint24' }
-    ],
-    name: 'createPool',
-    outputs: [{ name: 'pool', type: 'address' }],
-    stateMutability: 'nonpayable',
-    type: 'function'
-  }
-] as const;
-
-const POOL_ABI = [
-  {
-    inputs: [],
-    name: 'slot0',
-    outputs: [
-      { name: 'sqrtPriceX96', type: 'uint160' },
-      { name: 'tick', type: 'int24' },
-      { name: 'observationIndex', type: 'uint16' },
-      { name: 'observationCardinality', type: 'uint16' },
-      { name: 'observationCardinalityNext', type: 'uint16' },
-      { name: 'feeProtocol', type: 'uint8' },
-      { name: 'unlocked', type: 'bool' }
-    ],
-    stateMutability: 'view',
-    type: 'function'
-  },
-  {
-    inputs: [],
-    name: 'liquidity',
-    outputs: [{ name: '', type: 'uint128' }],
-    stateMutability: 'view',
-    type: 'function'
-  },
-  {
-    inputs: [
-      { name: 'sqrtPriceX96', type: 'uint160' }
-    ],
-    name: 'initialize',
-    outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function'
-  }
-] as const;
-
-interface PoolState {
-  exists: boolean;
-  hasInitialPrice: boolean;
-  hasLiquidity: boolean;
-  address: Address | null;
-}
+import { useToast } from "@/components/ui/use-toast";
+import { 
+  createPoolAndMintFirstPosition,
+  getPoolInfo,
+  calculateSqrtPriceX96,
+  checkPoolHasPositions,
+} from "@/lib/uniswap";
+import { Button } from "@/components/ui/button";
 
 export function SellOnMarket({
   tokenSymbol,
@@ -115,22 +55,26 @@ export function SellOnMarket({
   disabled?: boolean;
 }>) {
   const { address } = useAccount();
-  const { data: balances } = useSuckersUserTokenBalance();
-  const { ruleset, rulesetMetadata } = useJBRulesetContext();
-  const { token } = useJBTokenContext();
-  const [sellChainId, setSellChainId] = useState<string>();
-  const [poolState, setPoolState] = useState<PoolState>({
-    exists: false,
-    hasInitialPrice: false,
-    hasLiquidity: false,
-    address: null,
-  });
-  const [isLoading, setIsLoading] = useState(false);
-  const [initialPrice, setInitialPrice] = useState<number | null>(null);
+  const walletClient = useWalletClient();
   const publicClient = usePublicClient();
-  const { data: walletClient } = useWalletClient();
-  const suckersQuery = useSuckers();
-  const suckers = suckersQuery.data;
+  const { toast } = useToast();
+  const { token } = useJBTokenContext();
+  const { data: balances } = useSuckersUserTokenBalance();
+  const { data: suckers } = useSuckers();
+  const { ruleset, rulesetMetadata } = useJBRulesetContext();
+  const nativeTokenSymbol = useNativeTokenSymbol();
+
+  // State
+  const [sellChainId, setSellChainId] = useState<string>("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [poolInfo, setPoolInfo] = useState<any>(null);
+  const [initialPrice, setInitialPrice] = useState<number | null>(null);
+  const [poolHasPositions, setPoolHasPositions] = useState<boolean>(false);
+  const [isRefreshingPrice, setIsRefreshingPrice] = useState(false);
+
+  // Add these hooks for chain switching
+  const userChainId = useChainId();
+  const { switchChain, isPending: isSwitchingChain } = useSwitchChain();
 
   // Get the correct factory address for the selected chain
   const factoryAddress = useMemo(() => {
@@ -193,262 +137,170 @@ export function SellOnMarket({
     }
   }, [sellChainId, token?.data, tokenSymbol]);
 
-  // Calculate initial price when ruleset data is available
+  // Get issuance price from Juicebox
   useEffect(() => {
-    if (!ruleset?.data || !rulesetMetadata?.data || !tokens) return;
+    const getIssuancePrice = async () => {
+      if (!ruleset?.data || !rulesetMetadata?.data) return;
 
     try {
-      // Calculate initial price using Juicebox SDK
-      const oneNativeToken = new FixedInt(parseEther("1"), tokens.nativeToken.decimals);
-      const amountAQuote = getTokenBtoAQuote(
-        oneNativeToken,
-        tokens.projectToken.decimals,
+        const quote = await getTokenBtoAQuote(
+          new FixedInt(parseEther("1"), 18),
+          18,
         {
           weight: ruleset.data.weight,
           reservedPercent: rulesetMetadata.data.reservedPercent,
         }
       );
-
-      // The quote gives us tokens per native token (how many project tokens for 1 native token)
-      const tokensPerNative = Number(amountAQuote.format()); // e.g., 10000 tokens per native
-      const nativePerToken = 1 / tokensPerNative; // e.g., 0.0001 native per token
-      
-      console.log('Price from Juicebox:', {
-        nativePerToken,   // How much native token you need for 1 project token
-        tokensPerNative,  // How many project tokens you get for 1 native token
-        note: `1 ${tokens.nativeToken.symbol} = ${tokensPerNative} ${tokenSymbol}, or 1 ${tokenSymbol} = ${nativePerToken} ${tokens.nativeToken.symbol}`
-      });
-
-      // Set initial price to half of JB price (in native token per project token)
-      const initialNativePerToken = nativePerToken / 2; // e.g., 0.00005 native per token
-      const initialTokensPerNative = 1 / initialNativePerToken; // e.g., 20000 tokens per native
-      
-      console.log('Initial pool price:', {
-        initialNativePerToken,    // How much native token you need for 1 project token
-        initialTokensPerNative,   // How many project tokens you get for 1 native token
-        note: `Initial price = ${initialNativePerToken} ${tokens.nativeToken.symbol} per ${tokenSymbol} (or ${initialTokensPerNative} ${tokenSymbol} per ${tokens.nativeToken.symbol})`
-      });
-      setInitialPrice(initialNativePerToken);
-
-      // Calculate sqrtPriceX96 for Uniswap V3 (consistent with initializePool)
-      const sqrt = Math.sqrt(initialTokensPerNative);
-      const sqrtPriceX96 = BigInt(Math.floor(sqrt * 2 ** 96));
-
-      console.log('Pool Initialization:', {
-        initialNativePerToken,    // native token per project token
-        initialTokensPerNative,   // project tokens per native token
-        sqrt,
-        sqrtPriceX96: sqrtPriceX96.toString(),
-        note: `sqrtPriceX96 is calculated from ${tokenSymbol} per ${tokens.nativeToken.symbol} (consistent with initializePool)`
-      });
+        const issuancePrice = Number(quote.value) / 1e18;
+        setInitialPrice(issuancePrice);
     } catch (error) {
-      console.error('Error calculating initial price:', error);
-      setInitialPrice(null);
+        console.error('Error getting issuance price:', error);
     }
-  }, [ruleset?.data, rulesetMetadata?.data, tokens, tokenSymbol]);
-
-  // Check for existing pool when chain is selected
-  useEffect(() => {
-    const checkPool = async () => {
-      if (!sellChainId || !publicClient || !tokens || !factoryAddress) {
-        setPoolState({
-          exists: false,
-          hasInitialPrice: false,
-          hasLiquidity: false,
-          address: null,
-        });
-        return;
-      }
-
-      try {
-        // First verify the contract exists and has the getPool function
-        const code = await publicClient.getBytecode({ address: factoryAddress });
-        if (!code || code === '0x') {
-          console.error('No contract code found at factory address:', factoryAddress);
-          setPoolState({
-            exists: false,
-            hasInitialPrice: false,
-            hasLiquidity: false,
-            address: null,
-          });
-          return;
-        }
-
-        console.log('Contract exists at:', factoryAddress);
-        console.log('Checking pool with params:', {
-          factoryAddress,
-          tokenA: tokens.projectToken.address,
-          tokenB: tokens.nativeToken.address,
-          fee: FeeAmount.LOW
-        });
-        console.log('Project Token:', {
-          address: tokens.projectToken.address,
-          symbol: tokens.projectToken.symbol,
-          chainId: tokens.projectToken.chainId
-        });
-        console.log('Native Token:', {
-          address: tokens.nativeToken.address,
-          symbol: tokens.nativeToken.symbol,
-          chainId: tokens.nativeToken.chainId
-        });
-
-        // First check if the pool exists using the factory
-        const poolAddress = await publicClient.readContract({
-          address: factoryAddress,
-          abi: FACTORY_ABI,
-          functionName: 'getPool',
-          args: [
-            tokens.projectToken.address as `0x${string}`,
-            tokens.nativeToken.address as `0x${string}`,
-            FeeAmount.LOW
-          ],
-        }) as `0x${string}`;
-
-        console.log('Pool address returned:', poolAddress);
-
-        if (poolAddress === '0x0000000000000000000000000000000000000000') {
-          console.log('No pool exists for this token pair');
-          setPoolState({
-            exists: false,
-            hasInitialPrice: false,
-            hasLiquidity: false,
-            address: null,
-          });
-          return;
-        }
-
-        console.log('Pool exists at:', poolAddress);
-
-        // If pool exists, check its state
-        const [slot0, liquidity] = await Promise.all([
-          publicClient.readContract({
-            address: poolAddress,
-            abi: POOL_ABI,
-            functionName: 'slot0',
-          }),
-          publicClient.readContract({
-            address: poolAddress,
-            abi: POOL_ABI,
-            functionName: 'liquidity',
-          }),
-        ]);
-
-        // slot0 returns [sqrtPriceX96, tick, observationIndex, observationCardinality, observationCardinalityNext, feeProtocol, unlocked]
-        const sqrtPriceX96 = (slot0 as readonly [bigint, number, number, number, number, number, boolean])[0];
-        const hasInitialPrice = sqrtPriceX96 > 0n;
-        const hasLiquidity = liquidity > 0n;
-
-        setPoolState({
-          exists: true,
-          hasInitialPrice,
-          hasLiquidity,
-          address: poolAddress,
-        });
-      } catch (error) {
-        console.error('Error checking pool:', error);
-        // Log more details about the error
-        if (error instanceof Error) {
-          console.error('Error details:', {
-            message: error.message,
-            name: error.name,
-            stack: error.stack
-          });
-        }
-        setPoolState({
-          exists: false,
-          hasInitialPrice: false,
-          hasLiquidity: false,
-          address: null,
-        });
-      }
     };
 
-    checkPool();
-  }, [sellChainId, publicClient, tokens, factoryAddress]);
+    getIssuancePrice();
+  }, [ruleset?.data, rulesetMetadata?.data]);
 
-  const createPool = async () => {
-    if (!address || !walletClient || !publicClient || !sellChainId || !tokens || !factoryAddress) return;
-
+  // Refresh pool positions status
+  const refreshPoolPositions = async () => {
+    if (!tokens || !publicClient) return;
+    
+    setIsRefreshingPrice(true);
     try {
-      setIsLoading(true);
-      const hash = await walletClient.writeContract({
-        address: factoryAddress,
-        abi: FACTORY_ABI,
-        functionName: 'createPool',
-        args: [
-          tokens.projectToken.address as `0x${string}`,
-          tokens.nativeToken.address as `0x${string}`,
-          FeeAmount.LOW
-        ],
-        account: address,
-      });
-
-      const receipt = await publicClient.waitForTransactionReceipt({ hash });
-      console.log('Pool created:', receipt);
-
-      // Get the new pool address from the factory
-      const newPoolAddress = await publicClient.readContract({
-        address: factoryAddress,
-        abi: FACTORY_ABI,
-        functionName: 'getPool',
-        args: [
-          tokens.projectToken.address as `0x${string}`,
-          tokens.nativeToken.address as `0x${string}`,
-          FeeAmount.LOW
-        ],
-      }) as `0x${string}`;
-
-      setPoolState({
-        exists: true,
-        hasInitialPrice: false,
-        hasLiquidity: false,
-        address: newPoolAddress,
-      });
-      console.log('New pool created at:', newPoolAddress);
-    } catch (error) {
-      console.error('Error creating pool:', error);
+      if (poolInfo?.exists) {
+        const hasPositions = await checkPoolHasPositions({
+          token0: tokens.projectToken,
+          token1: tokens.nativeToken,
+          fee: FeeAmount.HIGH,
+          publicClient
+        });
+        setPoolHasPositions(hasPositions);
+      } else {
+        setPoolHasPositions(false);
+      }
     } finally {
-      setIsLoading(false);
+      setIsRefreshingPrice(false);
     }
   };
 
-  const initializePool = async () => {
-    if (!address || !walletClient || !publicClient || !sellChainId || !tokens || !poolState.address || !initialPrice) return;
+  // Fetch pool info when chain or tokens change
+  useEffect(() => {
+    const fetchPoolInfo = async () => {
+      if (!tokens || !publicClient) {
+        setPoolInfo(null);
+        return;
+      }
+      try {
+        console.log('🔍 Fetching pool info with helper...');
+        const info = await getPoolInfo(
+          tokens.projectToken,
+          tokens.nativeToken,
+          FeeAmount.HIGH,
+          publicClient
+        );
+        console.log('✅ Pool info fetched:', info);
+        setPoolInfo(info);
+        
+        // Check if pool has positions
+        if (info.exists) {
+          const hasPositions = await checkPoolHasPositions({
+            token0: tokens.projectToken,
+            token1: tokens.nativeToken,
+            fee: FeeAmount.HIGH,
+            publicClient
+          });
+          setPoolHasPositions(hasPositions);
+        } else {
+          setPoolHasPositions(false);
+        }
+      } catch (err) {
+        console.log('❌ Pool info fetch failed:', err);
+        setPoolInfo(null);
+      }
+    };
+    fetchPoolInfo();
+  }, [tokens, publicClient]);
+
+  // Auto-switch chain when sellChainId changes
+  useEffect(() => {
+    if (sellChainId && userChainId !== Number(sellChainId)) {
+      console.log(`🔄 Auto-switching to chain ${sellChainId}`);
+      switchChain({ chainId: Number(sellChainId) as JBChainId });
+    }
+  }, [sellChainId, userChainId, switchChain]);
+
+  const createPool = async () => {
+    if (!address || !walletClient?.data || !publicClient || !tokens) return;
 
     try {
       setIsLoading(true);
       
-      // Calculate sqrtPriceX96 for Uniswap V3
-      const tokensPerNative = 1 / initialPrice;
-      const sqrt = Math.sqrt(tokensPerNative);
-      const sqrtPriceX96 = BigInt(Math.floor(sqrt * 2 ** 96));
-
-      console.log('Pool Initialization:', {
-        initialPrice,                    // native token per project token
-        tokensPerNative,                 // project tokens per native token
-        sqrt,
-        sqrtPriceX96: sqrtPriceX96.toString(),
-        note: `sqrtPriceX96 = sqrt(${tokenSymbol} per ${tokens.nativeToken.symbol}) * 2^96`
+      console.log('🏗️ Creating pool with high-level helper...');
+      console.log('📊 Pool creation parameters:', {
+        token0: tokens.projectToken.symbol,
+        token1: tokens.nativeToken.symbol,
+        chainId: tokens.projectToken.chainId,
+        initialPrice
       });
 
-      const hash = await walletClient.writeContract({
-        address: poolState.address,
-        abi: POOL_ABI,
-        functionName: 'initialize',
-        args: [sqrtPriceX96],
-        account: address,
+      // Use fixed amounts for initial pool creation
+      const projectTokenAmount = "1";
+      const nativeTokenAmount = initialPrice ? (1 * initialPrice).toFixed(6) : "0.001";
+
+      // Determine token order and amounts
+      const [token0, token1] = tokens.projectToken.address.toLowerCase() < tokens.nativeToken.address.toLowerCase() 
+        ? [tokens.projectToken, tokens.nativeToken] 
+        : [tokens.nativeToken, tokens.projectToken];
+
+      const [amount0, amount1] = tokens.projectToken.address.toLowerCase() < tokens.nativeToken.address.toLowerCase()
+        ? [parseEther(projectTokenAmount), parseEther(nativeTokenAmount)]
+        : [parseEther(nativeTokenAmount), parseEther(projectTokenAmount)];
+
+      console.log('🔄 Token order and amounts:', {
+        token0: { symbol: token0.symbol, amount: amount0.toString() },
+        token1: { symbol: token1.symbol, amount: amount1.toString() },
+        isToken0First: tokens.projectToken.address.toLowerCase() < tokens.nativeToken.address.toLowerCase()
+      });
+      
+      // Use the high-level helper for pool creation and first position
+      const result = await createPoolAndMintFirstPosition({
+        token0,
+        token1,
+        fee: FeeAmount.HIGH,
+        amount0,
+        amount1,
+        initialPrice: calculateSqrtPriceX96(initialPrice || 1), // Use issuance price or default to 1
+        recipient: address,
+        walletClient: walletClient.data,
+        publicClient,
+        account: address
       });
 
-      const receipt = await publicClient.waitForTransactionReceipt({ hash });
-      console.log('Pool initialized:', receipt);
+      console.log('✅ Pool operation completed successfully:', {
+        poolAddress: result.poolAddress,
+        positionHash: result.positionHash,
+        isNewPool: result.isNewPool
+      });
 
-      // Update pool state
-      setPoolState(prev => ({
-        ...prev,
-        hasInitialPrice: true
-      }));
+      // Refresh pool info
+      const newPoolInfo = await getPoolInfo(token0, token1, FeeAmount.HIGH, publicClient);
+      setPoolInfo(newPoolInfo);
+
+      // Refresh pool positions status
+      await refreshPoolPositions();
+
+      toast({
+        title: "Success",
+        description: result.isNewPool ? "Pool created and liquidity added" : "Liquidity added to existing pool"
+      });
+
     } catch (error) {
-      console.error('Error initializing pool:', error);
+      console.error('❌ Pool creation failed:', error);
+      toast({
+        variant: "destructive",
+        title: "Error", 
+        description: error instanceof Error ? error.message : "Failed to create pool"
+      });
     } finally {
       setIsLoading(false);
     }
@@ -462,9 +314,6 @@ export function SellOnMarket({
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Sell {tokenSymbol} on Market</DialogTitle>
-          <DialogDescription>
-            Create and manage a Uniswap V3 pool for {tokenSymbol}
-          </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">
@@ -475,10 +324,10 @@ export function SellOnMarket({
             <Select
               value={sellChainId}
               onValueChange={setSellChainId}
-              disabled={disabled}
+              disabled={disabled || isSwitchingChain}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Select a chain" />
+                <SelectValue placeholder={isSwitchingChain ? "Switching chain..." : "Select a chain"} />
               </SelectTrigger>
               <SelectContent>
                 {suckers?.map((sucker) => (
@@ -491,94 +340,83 @@ export function SellOnMarket({
                 ))}
               </SelectContent>
             </Select>
+            {isSwitchingChain && (
+              <p className="text-xs text-blue-600 mt-1">
+                 Switching to {sellChainId ? JB_CHAINS[Number(sellChainId) as JBChainId].name : ''}...
+              </p>
+            )}
+          </div>
+
+          {/* Balance Information - Show always */}
+          <div className="p-4 border rounded-lg bg-zinc-50">
+            <div className="text-sm">
+              <p className="font-medium mb-2">Your {tokenSymbol} balance:</p>
+              {balances?.map((balance, index) => (
+                <div key={index} className="flex justify-between gap-2 mt-1">
+                  <span>{JB_CHAINS[balance.chainId as JBChainId].name}</span>
+                  <span className="font-medium">
+                    {balance.balance?.format(6)} {tokenSymbol}
+                  </span>
+                </div>
+              ))}
+              <hr className="my-2" />
+              <div className="flex justify-between gap-2">
+                <span>[All chains]</span>
+                <span className="font-medium">
+                  {new JBProjectToken(
+                    balances?.reduce((acc, curr) => acc + curr.balance.value, 0n) ?? 0n
+                  ).format(6)} {tokenSymbol}
+                </span>
+              </div>
+            </div>
           </div>
 
           {sellChainId && (
-            <div className="mt-4 p-4 border rounded-lg bg-zinc-50">
-              {!factoryAddress ? (
-                <div className="text-sm">
-                  <p className="font-medium text-red-600">
-                    Uniswap V3 is not supported on {JB_CHAINS[Number(sellChainId) as JBChainId].name}
-                  </p>
+            <>
+              {/* Add Liquidity Section - Only show if pool exists */}
+              {poolInfo?.exists && (
+                <div className="p-4 border rounded-lg bg-zinc-50">
+                  <AddLiquidity
+                    poolAddress={poolInfo.poolAddress}
+                    projectToken={tokens!.projectToken}
+                    nativeToken={tokens!.nativeToken}
+                    disabled={isLoading}
+                    onLiquidityAdded={refreshPoolPositions}
+                  />
                 </div>
-              ) : (
-                <>
-                  <div className="text-sm mb-4">
-                    <p className="font-medium">Your {tokenSymbol} balance:</p>
-                      {balances?.map((balance, index) => (
-                      <div key={index} className="flex justify-between gap-2 mt-1">
-                        <span>{JB_CHAINS[balance.chainId as JBChainId].name}</span>
-                          <span className="font-medium">
-                          {balance.balance?.format(6)} {tokenSymbol}
-                          </span>
-                        </div>
-                      ))}
-                    <hr className="my-2" />
-                    <div className="flex justify-between gap-2">
-                      <span>[All chains]</span>
-                      <span className="font-medium">
-                        {new JBProjectToken(
-                          balances?.reduce((acc, curr) => acc + curr.balance.value, 0n) ?? 0n
-                        ).format(6)} {tokenSymbol}
-                      </span>
-                    </div>
-                  </div>
-
-                  {poolState.exists ? (
-                    <div className="text-sm space-y-4">
-                      <div>
-                        <p className="font-medium text-green-600">
-                          Pool exists on {JB_CHAINS[Number(sellChainId) as JBChainId].name}
-                        </p>
-                        <p className="text-zinc-600 mt-1 break-all">
-                          {poolState.address}
-                        </p>
-                      </div>
-
-                      {!poolState.hasInitialPrice && (
-                        <div className="mt-2">
-                          <p className="text-amber-600">Pool needs initial price</p>
-                          {initialPrice && (
-                            <p className="text-zinc-600 mt-1">
-                              Initial price will be {initialPrice} {tokens?.nativeToken.symbol} per {tokenSymbol}
-                            </p>
-                          )}
-                          <ButtonWithWallet
-                            targetChainId={Number(sellChainId) as JBChainId}
-                            onClick={initializePool}
-                            disabled={isLoading || !initialPrice}
-                            className="mt-2"
-                          >
-                            {isLoading ? 'Initializing...' : 'Initialize Pool Price'}
-                          </ButtonWithWallet>
-                        </div>
-                      )}
-
-                      {poolState.hasInitialPrice && !poolState.hasLiquidity && (
-                        <AddLiquidity
-                          poolAddress={poolState.address!}
-                          projectToken={tokens!.projectToken}
-                          nativeToken={tokens!.nativeToken}
-                          disabled={isLoading}
-                        />
-                      )}
-                    </div>
-                  ) : (
-                    <div className="text-sm">
-                      <p className="text-amber-600">No pool exists for this token pair</p>
-                      <ButtonWithWallet
-                        targetChainId={Number(sellChainId) as JBChainId}
-                        onClick={createPool}
-                        disabled={isLoading}
-                        className="mt-2"
-                      >
-                        {isLoading ? 'Creating...' : 'Create Pool'}
-                      </ButtonWithWallet>
-                    </div>
-                  )}
-                </>
               )}
-            </div>
+
+                            {/* Pool Status - Prominent display */}
+                            <div className="p-4 border rounded-lg bg-zinc-50">
+                {!factoryAddress ? (
+                  <div className="text-center">
+                    <p className="font-medium text-red-600">
+                      Uniswap V3 is not supported on {JB_CHAINS[Number(sellChainId) as JBChainId].name}
+                    </p>
+                  </div>
+                ) : poolInfo?.exists ? (
+                  <div className="text-center">
+                    <p className="text-xs text-zinc-600 break-all">
+                      {poolInfo.poolAddress}
+                    </p>
+                  </div>
+                ) : (
+                  <div className="text-center">
+                    <p className="font-bold text-lg text-amber-600 mb-2">
+                      No market exists for {tokenSymbol} on {JB_CHAINS[Number(sellChainId) as JBChainId].name}
+                    </p>
+                    <ButtonWithWallet
+                      targetChainId={Number(sellChainId) as JBChainId}
+                      onClick={createPool}
+                      disabled={isLoading}
+                      className="w-full"
+                    >
+                      {isLoading ? 'Creating Pool...' : 'Create Pool'}
+                    </ButtonWithWallet>
+                  </div>
+                )}
+              </div>
+            </>
           )}
         </div>
       </DialogContent>

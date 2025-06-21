@@ -1,61 +1,22 @@
-import { useAccount, usePublicClient } from "wagmi";
-import { Address, formatEther } from "viem";
+import { useAccount, usePublicClient, useWalletClient } from "wagmi";
+import { Address, formatEther, parseEther } from "viem";
 import { Token } from "@uniswap/sdk-core";
+import { FeeAmount } from "@uniswap/v3-sdk";
+import { useState, useEffect } from "react";
+import { useToast } from "@/components/ui/use-toast";
+import { Button } from "@/components/ui/button";
+import { ButtonWithWallet } from "@/components/ButtonWithWallet";
+import { JBChainId } from "juice-sdk-core";
+import { 
+  getPoolPositions, 
+  collectFees, 
+  removeLiquidity, 
+  hasUnclaimedFees,
+  formatTickRangeToPriceRange,
+  tickToPrice,
+  type UserPosition 
+} from "@/lib/uniswap";
 import { POSITION_MANAGER_ADDRESSES } from "@/constants";
-import { useEffect, useState } from "react";
-
-// Uniswap V3 Nonfungible Position Manager ABI
-const NONFUNGIBLE_POSITION_MANAGER_ABI = [
-  {
-    inputs: [{ name: 'tokenId', type: 'uint256' }],
-    name: 'positions',
-    outputs: [
-      { name: 'nonce', type: 'uint96' },
-      { name: 'operator', type: 'address' },
-      { name: 'token0', type: 'address' },
-      { name: 'token1', type: 'address' },
-      { name: 'fee', type: 'uint24' },
-      { name: 'tickLower', type: 'int24' },
-      { name: 'tickUpper', type: 'int24' },
-      { name: 'liquidity', type: 'uint128' },
-      { name: 'feeGrowthInside0LastX128', type: 'uint256' },
-      { name: 'feeGrowthInside1LastX128', type: 'uint256' },
-      { name: 'tokensOwed0', type: 'uint128' },
-      { name: 'tokensOwed1', type: 'uint128' }
-    ],
-    stateMutability: 'view',
-    type: 'function'
-  },
-  {
-    inputs: [{ name: 'owner', type: 'address' }],
-    name: 'balanceOf',
-    outputs: [{ name: '', type: 'uint256' }],
-    stateMutability: 'view',
-    type: 'function'
-  },
-  {
-    inputs: [
-      { name: 'owner', type: 'address' },
-      { name: 'index', type: 'uint256' }
-    ],
-    name: 'tokenOfOwnerByIndex',
-    outputs: [{ name: '', type: 'uint256' }],
-    stateMutability: 'view',
-    type: 'function'
-  }
-] as const;
-
-interface Position {
-  tokenId: bigint;
-  token0: Address;
-  token1: Address;
-  fee: number;
-  tickLower: number;
-  tickUpper: number;
-  liquidity: bigint;
-  tokensOwed0: bigint;
-  tokensOwed1: bigint;
-}
 
 interface PositionsListProps {
   projectToken: Token;
@@ -65,11 +26,13 @@ interface PositionsListProps {
 export function PositionsList({ projectToken, nativeToken }: PositionsListProps) {
   const { address } = useAccount();
   const publicClient = usePublicClient();
-  const [positions, setPositions] = useState<Position[]>([]);
+  const walletClient = useWalletClient();
+  const { toast } = useToast();
+  const [positions, setPositions] = useState<UserPosition[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [loadingActions, setLoadingActions] = useState<Set<string>>(new Set());
 
-  useEffect(() => {
     const fetchPositions = async () => {
       if (!address || !publicClient) return;
 
@@ -77,93 +40,151 @@ export function PositionsList({ projectToken, nativeToken }: PositionsListProps)
         setIsLoading(true);
         setError(null);
         
-        const positionManagerAddress = POSITION_MANAGER_ADDRESSES[projectToken.chainId];
-        if (!positionManagerAddress) {
-          throw new Error(`Position Manager not found for chain ID ${projectToken.chainId}`);
-        }
+      console.log('🔍 Fetching positions with new helpers...');
+      
+      const poolPositions = await getPoolPositions({
+        account: address,
+        token0: projectToken,
+        token1: nativeToken,
+        fee: FeeAmount.HIGH,
+        publicClient
+      });
 
-        console.log('Chain ID:', projectToken.chainId);
-        console.log('Using Position Manager:', positionManagerAddress);
-
-        // Verify the contract exists and has the balanceOf function
-        try {
-          const code = await publicClient.getBytecode({ address: positionManagerAddress });
-          if (!code || code === '0x') {
-            throw new Error(`No contract found at address ${positionManagerAddress}`);
-          }
-        } catch (error) {
-          console.error('Error verifying contract:', error);
-          throw new Error(`Invalid contract at address ${positionManagerAddress}`);
-        }
-
-        // Get total number of positions
-        const balance = await publicClient.readContract({
-          address: positionManagerAddress,
-          abi: NONFUNGIBLE_POSITION_MANAGER_ABI,
-          functionName: 'balanceOf',
-          args: [address]
-        });
-
-        console.log('Found positions:', Number(balance));
-
-        // Fetch each position
-        const positionsPromises = Array.from({ length: Number(balance) }, async (_, index) => {
-          const tokenId = await publicClient.readContract({
-            address: positionManagerAddress,
-            abi: NONFUNGIBLE_POSITION_MANAGER_ABI,
-            functionName: 'tokenOfOwnerByIndex',
-            args: [address, BigInt(index)]
-          });
-
-          const position = await publicClient.readContract({
-            address: positionManagerAddress,
-            abi: NONFUNGIBLE_POSITION_MANAGER_ABI,
-            functionName: 'positions',
-            args: [tokenId]
-          });
-
-          return {
-            tokenId,
-            token0: position[2],
-            token1: position[3],
-            fee: Number(position[4]),
-            tickLower: Number(position[5]),
-            tickUpper: Number(position[6]),
-            liquidity: position[7],
-            tokensOwed0: position[10],
-            tokensOwed1: position[11]
-          };
-        });
-
-        const allPositions = await Promise.all(positionsPromises);
-        
-        // Filter positions for this pool
-        const poolPositions = allPositions.filter(pos => 
-          (pos.token0.toLowerCase() === projectToken.address.toLowerCase() && 
-           pos.token1.toLowerCase() === nativeToken.address.toLowerCase()) ||
-          (pos.token0.toLowerCase() === nativeToken.address.toLowerCase() && 
-           pos.token1.toLowerCase() === projectToken.address.toLowerCase())
-        );
-
-        console.log('Filtered pool positions:', poolPositions);
+      console.log('✅ Positions fetched:', poolPositions.length);
         setPositions(poolPositions);
       } catch (error) {
-        console.error('Error fetching positions:', error);
+      console.error('❌ Error fetching positions:', error);
         setError(error instanceof Error ? error.message : 'Failed to fetch positions');
       } finally {
         setIsLoading(false);
       }
     };
 
+  // Fetch positions on mount and when dependencies change
+  useEffect(() => {
     fetchPositions();
   }, [address, publicClient, projectToken, nativeToken]);
+
+  const handleCollectFees = async (position: UserPosition) => {
+    if (!address || !walletClient?.data || !publicClient) return;
+
+    const actionKey = `collect-${position.tokenId}`;
+    setLoadingActions(prev => new Set(prev).add(actionKey));
+
+    try {
+      const positionManagerAddress = POSITION_MANAGER_ADDRESSES[projectToken.chainId];
+      if (!positionManagerAddress) {
+        throw new Error(`Position Manager not found for chain ${projectToken.chainId}`);
+      }
+
+      console.log('💰 Collecting fees for position:', position.tokenId.toString());
+
+      const hash = await collectFees({
+        tokenId: position.tokenId,
+        recipient: address,
+        amount0Max: position.tokensOwed0,
+        amount1Max: position.tokensOwed1,
+        walletClient: walletClient.data,
+        account: address,
+        positionManagerAddress
+      });
+
+      toast({
+        title: "Success",
+        description: `Fee collection transaction submitted: ${hash.slice(0, 10)}...`
+      });
+
+      // Refresh positions after successful collection
+      setTimeout(fetchPositions, 2000);
+    } catch (error) {
+      console.error('❌ Error collecting fees:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to collect fees"
+      });
+    } finally {
+      setLoadingActions(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(actionKey);
+        return newSet;
+      });
+    }
+  };
+
+  const handleRemoveLiquidity = async (position: UserPosition) => {
+    if (!address || !walletClient?.data || !publicClient) return;
+
+    const actionKey = `remove-${position.tokenId}`;
+    setLoadingActions(prev => new Set(prev).add(actionKey));
+
+    try {
+      const positionManagerAddress = POSITION_MANAGER_ADDRESSES[projectToken.chainId];
+      if (!positionManagerAddress) {
+        throw new Error(`Position Manager not found for chain ${projectToken.chainId}`);
+      }
+
+      console.log('🔥 Removing liquidity from position:', position.tokenId.toString());
+
+      // For now, remove all liquidity (can be made configurable later)
+      const hash = await removeLiquidity({
+        tokenId: position.tokenId,
+        liquidity: position.liquidity,
+        amount0Min: 0n, // Allow any amount (can be made configurable)
+        amount1Min: 0n, // Allow any amount (can be made configurable)
+        deadline: Math.floor(Date.now() / 1000) + 60 * 20, // 20 minutes
+        recipient: address,
+        walletClient: walletClient.data,
+        account: address,
+        positionManagerAddress
+      });
+
+      toast({
+        title: "Success",
+        description: `Liquidity removal transaction submitted: ${hash.slice(0, 10)}...`
+      });
+
+      // Refresh positions after successful removal
+      setTimeout(fetchPositions, 2000);
+    } catch (error) {
+      console.error('❌ Error removing liquidity:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to remove liquidity"
+      });
+    } finally {
+      setLoadingActions(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(actionKey);
+        return newSet;
+      });
+    }
+  };
+
+  const getTokenSymbol = (tokenAddress: Address): string => {
+    if (tokenAddress.toLowerCase() === projectToken.address.toLowerCase()) {
+      return projectToken.symbol || 'Unknown';
+    }
+    if (tokenAddress.toLowerCase() === nativeToken.address.toLowerCase()) {
+      return nativeToken.symbol || 'Unknown';
+    }
+    return 'Unknown';
+  };
 
   if (isLoading) {
     return <div className="p-4">Loading positions...</div>;
   }
 
   if (error) {
-    return <div className="p-4 text-red-500">Error: {error}</div>;
+    return (
+      <div className="p-4">
+        <div className="text-red-500 mb-2">Error: {error}</div>
+        <Button onClick={fetchPositions} variant="outline" size="sm">
+          Retry
+        </Button>
+      </div>
+    );
   }
 
   if (positions.length === 0) {
@@ -172,31 +193,111 @@ export function PositionsList({ projectToken, nativeToken }: PositionsListProps)
 
   return (
     <div className="mt-4 space-y-4">
+      <div className="flex justify-between items-center">
       <h3 className="text-lg font-medium">Your Positions</h3>
-      <div className="space-y-2">
-        {positions.map((position) => (
+        <Button onClick={fetchPositions} variant="outline" size="sm">
+          Refresh
+        </Button>
+      </div>
+      
+      <div className="space-y-3">
+        {positions.map((position) => {
+          const token0Symbol = getTokenSymbol(position.token0);
+          const token1Symbol = getTokenSymbol(position.token1);
+          const hasFees = hasUnclaimedFees(position);
+          const isCollecting = loadingActions.has(`collect-${position.tokenId}`);
+          const isRemoving = loadingActions.has(`remove-${position.tokenId}`);
+
+          // Detect if this is a single-sided position (limit order)
+          const isSingleSided = position.tickLower > 0 || position.tickUpper < 0;
+          
+          // For single-sided positions, show the price where the token is listed
+          const getPositionDisplay = () => {
+            if (isSingleSided) {
+              // For single-sided, show the price where the token is listed for sale
+              const price = tickToPrice(position.tickLower > 0 ? position.tickLower : position.tickUpper, projectToken.decimals, nativeToken.decimals);
+              const token0IsProject = projectToken.address.toLowerCase() < nativeToken.address.toLowerCase();
+              
+              if (token0IsProject) {
+                // If project token is token0, price is tokens per native, so cost per token = 1/price
+                const costPerToken = 1 / price;
+                return `Limit Order: 1 ${projectToken.symbol} = ${costPerToken.toFixed(6)} ${nativeToken.symbol}`;
+              } else {
+                // If native token is token0, price is native per token
+                return `Limit Order: 1 ${projectToken.symbol} = ${price.toFixed(6)} ${nativeToken.symbol}`;
+              }
+            } else {
+              // For two-sided positions, show the range
+              return formatTickRangeToPriceRange(
+                position.tickLower, 
+                position.tickUpper, 
+                projectToken, 
+                nativeToken,
+                'tokensPerNative'
+              );
+            }
+          };
+
+          return (
           <div key={position.tokenId.toString()} className="p-4 border rounded-lg bg-zinc-50">
-            <div className="flex justify-between items-center">
+              <div className="flex justify-between items-start mb-3">
               <div>
-                <p className="text-sm text-gray-600">Position #{position.tokenId.toString()}</p>
-                <p className="text-sm">
+                  <p className="text-sm font-medium">Position #{position.tokenId.toString()}</p>
+                  <p className="text-xs text-gray-600">
+                    {token0Symbol}/{token1Symbol} • Fee: {position.fee / 10000}%
+                    {isSingleSided && <span className="ml-2 text-blue-600">(Limit Order)</span>}
+                  </p>
+                </div>
+                <div className="text-right">
+                  <p className="text-sm font-medium">
                   Liquidity: {formatEther(position.liquidity)}
                 </p>
-                <p className="text-sm">
-                  Range: {position.tickLower} to {position.tickUpper}
-                </p>
+                  <p className="text-xs text-gray-600">
+                    {getPositionDisplay()}
+                  </p>
+                </div>
               </div>
-              <div className="text-right">
-                <p className="text-sm">
-                  {projectToken.symbol}: {formatEther(position.tokensOwed0)}
-                </p>
-                <p className="text-sm">
-                  {nativeToken.symbol}: {formatEther(position.tokensOwed1)}
-                </p>
+
+              <div className="grid grid-cols-2 gap-4 mb-3">
+                <div>
+                  <p className="text-xs text-gray-600">{token0Symbol} Owed:</p>
+                  <p className="text-sm font-medium">
+                    {formatEther(position.tokensOwed0)}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-600">{token1Symbol} Owed:</p>
+                  <p className="text-sm font-medium">
+                    {formatEther(position.tokensOwed1)}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex gap-2">
+                {hasFees && (
+                  <ButtonWithWallet
+                    targetChainId={projectToken.chainId as JBChainId}
+                    onClick={() => handleCollectFees(position)}
+                    disabled={isCollecting || isRemoving}
+                    size="sm"
+                    variant="outline"
+                  >
+                    {isCollecting ? 'Collecting...' : 'Collect Fees'}
+                  </ButtonWithWallet>
+                )}
+                <ButtonWithWallet
+                  targetChainId={projectToken.chainId as JBChainId}
+                  onClick={() => handleRemoveLiquidity(position)}
+                  disabled={isCollecting || isRemoving}
+                  size="sm"
+                  variant="destructive"
+                >
+                  {isRemoving ? 'Removing...' : 'Remove Liquidity'}
+                </ButtonWithWallet>
               </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
