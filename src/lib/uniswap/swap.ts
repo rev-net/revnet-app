@@ -1,10 +1,14 @@
 import { Token, Percent } from '@uniswap/sdk-core'
 import { Pool, FeeAmount } from '@uniswap/v3-sdk'
 import { Address, WalletClient, PublicClient } from 'viem'
-import { POSITION_MANAGER_ADDRESSES } from '@/constants'
+import { POSITION_MANAGER_ADDRESSES, UNISWAP_V3_ROUTER_ADDRESSES, UNISWAP_V3_QUOTER_ADDRESSES } from '@/constants'
 import { createPoolInstance, getPoolState, computePoolAddressForTokens } from './pool'
 import { createAndInitializePool } from './factory'
 import { calculateSqrtPriceX96 } from './utils'
+
+// Import ABIs from Uniswap SDK
+import QuoterV2Abi from '@uniswap/v3-periphery/artifacts/contracts/lens/QuoterV2.sol/QuoterV2.json'
+import QuoterAbi from '@uniswap/v3-periphery/artifacts/contracts/lens/Quoter.sol/Quoter.json'
 
 // Router ABI for swaps
 const ROUTER_ABI = [
@@ -54,46 +58,8 @@ const ROUTER_ABI = [
   }
 ] as const
 
-// Quoter ABI for getting swap quotes
-const QUOTER_ABI = [
-  {
-    inputs: [
-      {
-        components: [
-          { name: 'tokenIn', type: 'address' },
-          { name: 'tokenOut', type: 'address' },
-          { name: 'fee', type: 'uint24' },
-          { name: 'amountIn', type: 'uint256' },
-          { name: 'sqrtPriceLimitX96', type: 'uint160' }
-        ],
-        name: 'params',
-        type: 'tuple'
-      }
-    ],
-    name: 'quoteExactInputSingle',
-    outputs: [{ name: 'amountOut', type: 'uint256' }],
-    stateMutability: 'nonpayable',
-    type: 'function'
-  }
-] as const
-
-// Router addresses for different chains
-const ROUTER_ADDRESSES: Record<number, Address> = {
-  1: '0xE592427A0AEce92De3Edee1F18E0157C05861564', // Mainnet
-  10: '0xE592427A0AEce92De3Edee1F18E0157C05861564', // Optimism
-  137: '0xE592427A0AEce92De3Edee1F18E0157C05861564', // Polygon
-  42161: '0xE592427A0AEce92De3Edee1F18E0157C05861564', // Arbitrum
-  8453: '0xE592427A0AEce92De3Edee1F18E0157C05861564', // Base
-} as const
-
-// Quoter addresses for different chains
-const QUOTER_ADDRESSES: Record<number, Address> = {
-  1: '0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6', // Mainnet
-  10: '0x61fFE014bA17989E743c5F6cB21bF9697530B21e', // Optimism
-  137: '0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6', // Polygon
-  42161: '0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6', // Arbitrum
-  8453: '0x3d4e44Eb1374240CE5F1B871ab261CD16335B76a', // Base
-} as const
+// Quoter ABI for getting swap quotes - using SDK ABI
+const QUOTER_ABI = QuoterV2Abi.abi
 
 export interface SwapParams {
   tokenIn: Token
@@ -124,7 +90,7 @@ export interface SwapResult {
  * Get router address for a given chain
  */
 function getRouterAddress(chainId: number): Address {
-  const address = ROUTER_ADDRESSES[chainId]
+  const address = UNISWAP_V3_ROUTER_ADDRESSES[chainId]
   if (!address) {
     throw new Error(`Router not found for chain ${chainId}`)
   }
@@ -135,7 +101,7 @@ function getRouterAddress(chainId: number): Address {
  * Get quoter address for a given chain
  */
 function getQuoterAddress(chainId: number): Address {
-  const address = QUOTER_ADDRESSES[chainId]
+  const address = UNISWAP_V3_QUOTER_ADDRESSES[chainId]
   if (!address) {
     throw new Error(`Quoter not found for chain ${chainId}`)
   }
@@ -192,7 +158,8 @@ export async function getSwapQuote(
       }]
     })
 
-    const amountOut = BigInt(quote)
+    // QuoterV2 returns a tuple: [amountOut, sqrtPriceX96After, initializedTicksCrossed, gasEstimate]
+    const amountOut = Array.isArray(quote) ? BigInt(quote[0] as string | number | bigint) : BigInt(quote as string | number | bigint)
     
     // Validate that we got a reasonable quote
     if (amountOut === 0n) {

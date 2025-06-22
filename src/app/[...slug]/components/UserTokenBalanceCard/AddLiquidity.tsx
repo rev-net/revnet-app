@@ -415,8 +415,8 @@ export function AddLiquidity({
               Auto-updating
             </span>
           </div>
-          <p>1 {projectToken.symbol} = {poolPriceInfo.ethPerToken?.toFixed(6) || '0'} {nativeToken.symbol}</p>
-          <p>1 {nativeToken.symbol} = {poolPriceInfo.tokensPerEth?.toFixed(6) || '0'} {projectToken.symbol}</p>
+          <p>1 {nativeToken.symbol} = {(poolPriceInfo.ethPerToken || 0).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 6 })} {projectToken.symbol}</p>
+          <p>1 {projectToken.symbol} = {(poolPriceInfo.tokensPerEth || 0).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 6 })} {nativeToken.symbol}</p>
         </div>
       )}
 

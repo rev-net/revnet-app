@@ -221,13 +221,8 @@ export function SellOnMarket({
     fetchPoolInfo();
   }, [tokens, publicClient]);
 
-  // Auto-switch chain when sellChainId changes
-  useEffect(() => {
-    if (sellChainId && userChainId !== Number(sellChainId)) {
-      console.log(`🔄 Auto-switching to chain ${sellChainId}`);
-      switchChain({ chainId: Number(sellChainId) as JBChainId });
-    }
-  }, [sellChainId, userChainId, switchChain]);
+  // Check if user needs to switch chains
+  const needsChainSwitch = sellChainId && userChainId !== Number(sellChainId);
 
   const createPool = async () => {
     if (!address || !walletClient?.data || !publicClient || !tokens) return;
@@ -373,49 +368,72 @@ export function SellOnMarket({
 
           {sellChainId && (
             <>
-              {/* Add Liquidity Section - Only show if pool exists */}
-              {poolInfo?.exists && (
-                <div className="p-4 border rounded-lg bg-zinc-50">
-                  <AddLiquidity
-                    poolAddress={poolInfo.poolAddress}
-                    projectToken={tokens!.projectToken}
-                    nativeToken={tokens!.nativeToken}
-                    disabled={isLoading}
-                    onLiquidityAdded={refreshPoolPositions}
-                  />
+              {/* Chain Switch Required */}
+              {needsChainSwitch && (
+                <div className="p-4 border rounded-lg bg-amber-50 border-amber-200">
+                  <div className="text-center">
+                    <p className="font-medium text-amber-800 mb-3">
+                      Switch to {JB_CHAINS[Number(sellChainId) as JBChainId].name} to continue
+                    </p>
+                    <Button
+                      onClick={() => switchChain({ chainId: Number(sellChainId) as JBChainId })}
+                      disabled={isSwitchingChain}
+                      className="w-full"
+                    >
+                      {isSwitchingChain ? "Switching..." : "Switch Chain"}
+                    </Button>
+                  </div>
                 </div>
               )}
 
-                            {/* Pool Status - Prominent display */}
-                            <div className="p-4 border rounded-lg bg-zinc-50">
-                {!factoryAddress ? (
-                  <div className="text-center">
-                    <p className="font-medium text-red-600">
-                      Uniswap V3 is not supported on {JB_CHAINS[Number(sellChainId) as JBChainId].name}
-                    </p>
+              {/* Pool Operations - Only show when on correct chain */}
+              {!needsChainSwitch && (
+                <>
+                  {/* Add Liquidity Section - Only show if pool exists */}
+                  {poolInfo?.exists && (
+                    <div className="p-4 border rounded-lg bg-zinc-50">
+                      <AddLiquidity
+                        poolAddress={poolInfo.poolAddress}
+                        projectToken={tokens!.projectToken}
+                        nativeToken={tokens!.nativeToken}
+                        disabled={isLoading}
+                        onLiquidityAdded={refreshPoolPositions}
+                      />
+                    </div>
+                  )}
+
+                  {/* Pool Status - Prominent display */}
+                  <div className="p-4 border rounded-lg bg-zinc-50">
+                    {!factoryAddress ? (
+                      <div className="text-center">
+                        <p className="font-medium text-red-600">
+                          Uniswap V3 is not supported on {JB_CHAINS[Number(sellChainId) as JBChainId].name}
+                        </p>
+                      </div>
+                    ) : poolInfo?.exists ? (
+                      <div className="text-center">
+                        <p className="text-xs text-zinc-600 break-all">
+                          {poolInfo.poolAddress}
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="text-center">
+                        <p className="font-bold text-lg text-amber-600 mb-2">
+                          No market exists for {tokenSymbol} on {JB_CHAINS[Number(sellChainId) as JBChainId].name}
+                        </p>
+                        <ButtonWithWallet
+                          targetChainId={Number(sellChainId) as JBChainId}
+                          onClick={createPool}
+                          disabled={isLoading}
+                          className="w-full"
+                        >
+                          {isLoading ? 'Creating Pool...' : 'Create Pool'}
+                        </ButtonWithWallet>
+                      </div>
+                    )}
                   </div>
-                ) : poolInfo?.exists ? (
-                  <div className="text-center">
-                    <p className="text-xs text-zinc-600 break-all">
-                      {poolInfo.poolAddress}
-                    </p>
-                  </div>
-                ) : (
-                  <div className="text-center">
-                    <p className="font-bold text-lg text-amber-600 mb-2">
-                      No market exists for {tokenSymbol} on {JB_CHAINS[Number(sellChainId) as JBChainId].name}
-                    </p>
-                    <ButtonWithWallet
-                      targetChainId={Number(sellChainId) as JBChainId}
-                      onClick={createPool}
-                      disabled={isLoading}
-                      className="w-full"
-                    >
-                      {isLoading ? 'Creating Pool...' : 'Create Pool'}
-                    </ButtonWithWallet>
-                  </div>
-                )}
-              </div>
+                </>
+              )}
             </>
           )}
         </div>
