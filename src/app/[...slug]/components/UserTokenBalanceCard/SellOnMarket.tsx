@@ -45,6 +45,7 @@ import {
   checkPoolHasPositions,
 } from "@/lib/uniswap";
 import { Button } from "@/components/ui/button";
+import EtherscanLink from "@/components/EtherscanLink";
 
 export function SellOnMarket({
   tokenSymbol,
@@ -391,8 +392,13 @@ export function SellOnMarket({
                   </div>
                 ) : poolInfo?.exists ? (
                   <div className="text-center">
-                    <p className="text-xs text-zinc-600 break-all">
-                      {poolInfo.poolAddress}
+                    <p className="text-sm text-muted-foreground">
+                      Uniswap Pool:{" "}
+                      <EtherscanLink 
+                        value={poolInfo.poolAddress} 
+                        type="address"
+                        truncateTo={8}
+                      />
                     </p>
                   </div>
                 ) : (
