@@ -1,12 +1,11 @@
-import { ButtonWithWallet } from "@/components/ButtonWithWallet";
-import { Token, Price } from "@uniswap/sdk-core";
+import { Token } from "@uniswap/sdk-core";
 import { Address, parseEther } from "viem";
 import { useAccount, usePublicClient, useWalletClient, useBlockNumber } from "wagmi";
 import { useState, useEffect, useMemo } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { PositionsList } from "./PositionsList";
 import { useJBRulesetContext } from "juice-sdk-react";
-import { getTokenBtoAQuote, JBChainId } from "juice-sdk-core";
+import { getTokenBtoAQuote } from "juice-sdk-core";
 import { FixedInt } from "fpnum";
 import { FeeAmount } from "@uniswap/v3-sdk";
 import { 
@@ -17,7 +16,6 @@ import {
 } from "@/lib/uniswap";
 import { performSwap, getSwapQuote, checkPoolForSwap } from "@/lib/uniswap/swap";
 import { Button } from "@/components/ui/button";
-import { getPoolPriceInfo } from '@/lib/uniswap/pool';
 import { unwrapWeth } from "@/lib/uniswap/position";
 
 interface PriceInfo {
@@ -444,7 +442,7 @@ export function AddLiquidity({
             onClick={() => setActiveView('sell')}
             className="px-3 py-2"
           >
-            Sell Now
+            SPOT
           </Button>
           <Button
             variant={activeView === 'limit' ? "tab-selected" : "bottomline"}
@@ -452,7 +450,7 @@ export function AddLiquidity({
             onClick={() => setActiveView('limit')}
             className="px-3 py-2"
           >
-            Limit Order
+            LIMIT
           </Button>
           <Button
             variant={activeView === 'lp' ? "tab-selected" : "bottomline"}
@@ -653,7 +651,7 @@ export function AddLiquidity({
                   value={targetPrice}
                   onChange={(e) => setTargetPrice(e.target.value)}
                   placeholder="0.0"
-                  className="w-32 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500 text-sm bg-white"
+                  className="w-32 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500 text-sm bg-white select-none"
                   disabled={disabled || isLoading}
                 />
                 <div className="text-right">

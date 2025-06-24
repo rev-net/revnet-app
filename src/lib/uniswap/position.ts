@@ -412,36 +412,36 @@ export async function getUserPositions({
   // Fetch each position with error handling
   const positionsPromises = Array.from({ length: Number(balance) }, async (_, index) => {
     try {
-      const tokenId = await publicClient.readContract({
-        address: positionManagerAddress,
+    const tokenId = await publicClient.readContract({
+      address: positionManagerAddress,
         abi: NFPM_ABI.abi,
-        functionName: 'tokenOfOwnerByIndex',
-        args: [account, BigInt(index)]
-      })
+      functionName: 'tokenOfOwnerByIndex',
+      args: [account, BigInt(index)]
+    })
 
       // Check if the token still exists before fetching position data
       try {
-        const position = await publicClient.readContract({
-          address: positionManagerAddress,
+    const position = await publicClient.readContract({
+      address: positionManagerAddress,
           abi: NFPM_ABI.abi,
-          functionName: 'positions',
-          args: [tokenId]
-        })
+      functionName: 'positions',
+      args: [tokenId]
+    })
 
-        return {
-          tokenId,
-          nonce: position[0],
-          operator: position[1],
-          token0: position[2],
-          token1: position[3],
-          fee: Number(position[4]),
-          tickLower: Number(position[5]),
-          tickUpper: Number(position[6]),
-          liquidity: position[7],
-          feeGrowthInside0LastX128: position[8],
-          feeGrowthInside1LastX128: position[9],
-          tokensOwed0: position[10],
-          tokensOwed1: position[11]
+    return {
+      tokenId,
+      nonce: position[0],
+      operator: position[1],
+      token0: position[2],
+      token1: position[3],
+      fee: Number(position[4]),
+      tickLower: Number(position[5]),
+      tickUpper: Number(position[6]),
+      liquidity: position[7],
+      feeGrowthInside0LastX128: position[8],
+      feeGrowthInside1LastX128: position[9],
+      tokensOwed0: position[10],
+      tokensOwed1: position[11]
         }
       } catch (positionError) {
         console.warn(`⚠️ Position ${tokenId.toString()} is invalid or no longer exists:`, positionError)
@@ -657,7 +657,7 @@ export async function removeLiquidity({
 
   // Step 2: Collect the tokens (fees and removed liquidity)
   const collectParams = {
-    tokenId,
+      tokenId,
     recipient,
     amount0Max: 2n ** 128n - 1n, // type(uint128).max - collect all
     amount1Max: 2n ** 128n - 1n  // type(uint128).max - collect all
@@ -685,7 +685,7 @@ export async function removeLiquidity({
   });
 
   console.log('✅ Burn transaction:', burnHash);
-  
+
   return { decreaseHash, collectHash, burnHash };
 }
 

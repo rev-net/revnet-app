@@ -223,7 +223,7 @@ export async function getPoolPrice(
     console.error('Error getting pool price:', error);
     return null;
   }
-}
+} 
 
 /**
  * Get real-time pool price information with auto-refresh capability
