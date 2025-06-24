@@ -715,25 +715,28 @@ export function AddLiquidity({
       {(activeView === 'sell' && poolHasLiquidity) && (
         <div className="mb-6 p-4 border-2 border-gray-200 rounded-lg bg-white">
           <div className="flex items-center justify-between mb-3">
-            <h4 className="text-base font-semibold text-gray-800">Sell on Market</h4>
+            <h4 className="text-base font-semibold text-gray-800">Sell now</h4>
             <span className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded-full font-medium">
               Market Order
             </span>
           </div>
           
-          <div className="mb-4 p-4 bg-white rounded-lg border border-gray-200">
-            <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg mb-2">
-            <input
-              type="number"
-              value={projectAmount}
-              onChange={(e) => {
-                setProjectAmount(e.target.value);
-              }}
-                placeholder="0.0"
-                className="w-32 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500 text-sm bg-white"
-              disabled={disabled || isSwapLoading}
-            />
-            <div className="text-right">
+          <div className="mb-4 bg-white rounded-lg border border-gray-200 relative">
+            <div className="flex items-center justify-between p-3 bg-gray-50 rounded-t-lg">
+              <div className="flex flex-col">
+                <label className="text-xs text-gray-600 mb-1">Sell</label>
+                <input
+                  type="number"
+                  value={projectAmount}
+                  onChange={(e) => {
+                    setProjectAmount(e.target.value);
+                  }}
+                    placeholder="0.0"
+                    className="w-36 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500 text-sm bg-white"
+                  disabled={disabled || isSwapLoading}
+                />
+              </div>
+            <div className="text-right pt-2">
                 <div className="text-sm font-semibold text-gray-800">
                   {projectTokenAmount ? <TokenAmount amount={projectTokenAmount} decimals={6} /> : "0"}
                 </div>
@@ -741,9 +744,9 @@ export function AddLiquidity({
             </div>
           </div>
 
-            {/* Swap arrow */}
-            <div className="flex justify-center mb-2">
-              <div className="w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center">
+            {/* Swap arrow - positioned to overlay */}
+            <div className="absolute left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10">
+              <div className="w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center border-2 border-white">
                 <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
                 </svg>
@@ -751,16 +754,25 @@ export function AddLiquidity({
             </div>
 
             {/* You receive amount - always show when sell tab is active */}
-            <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-              <input
-                type="text"
-                value={swapQuote?.amountOut || "0.0"}
-                readOnly
-                className="w-32 px-3 py-2 border border-gray-300 rounded-md text-sm bg-white text-gray-800 pointer-events-none select-none"
-              />
-              <div className="text-right">
-                <div className="text-sm font-semibold text-gray-800">{getNativeTokenDisplaySymbol}</div>
-                <div className="text-xs text-gray-600">You receive</div>
+            <div className="flex items-center justify-between p-3 bg-gray-50 rounded-b-lg">
+              <div className="flex flex-col">
+                <label className="text-xs text-gray-600 mb-1">Buy</label>
+                <input
+                  type="text"
+                  value={swapQuote?.amountOut || "0.0"}
+                  readOnly
+                  className="w-36 px-3 py-2 border border-gray-300 rounded-md text-sm bg-white text-gray-800 pointer-events-none select-none"
+                />
+              </div>
+              <div className="text-right pt-2">
+                <div className="text-sm font-semibold text-gray-800">
+                  {poolPriceInfo.tokensPerEth ? (
+                    `${poolPriceInfo.tokensPerEth.toFixed(6)} ${getNativeTokenDisplaySymbol}`
+                  ) : (
+                    `0.000000 ${getNativeTokenDisplaySymbol}`
+                  )}
+                </div>
+                <div className="text-xs text-gray-600">Current Price</div>
               </div>
             </div>
           </div>
@@ -781,7 +793,7 @@ export function AddLiquidity({
       {(activeView === 'limit' || (!poolHasLiquidity && activeView !== 'lp')) && (
         <div className="mb-6 p-4 border-2 border-gray-200 rounded-lg bg-white">
           <div className="flex items-center justify-between mb-3">
-            <h4 className="text-base font-semibold text-gray-800">Set Sell Price</h4>
+            <h4 className="text-base font-semibold text-gray-800">Sell at price</h4>
             <span className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded-full font-medium">
               Single-sided
             </span>
@@ -819,67 +831,83 @@ export function AddLiquidity({
             </div>
           )}
 
+          {/* Pool Price Display */}
+          {poolPriceInfo.tokensPerEth && (
+            <div className="text-sm text-zinc-700 mb-4 p-3 border rounded bg-gray-50">
+              {/* Issuance Price */}
+              {priceInfo.issuancePrice && (
+                <div className="flex justify-between items-center mb-2">
+                  <span>Issuance Price (post splits):</span>
+                  <span>{(priceInfo.issuancePrice).toFixed(6)} {getNativeTokenDisplaySymbol}</span>
+                </div>
+              )}
+              
+              <div className="flex justify-between items-center mb-2">
+                <span>Spot Price:</span>
+                <span>{(poolPriceInfo.tokensPerEth || 0).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 6 })} {getNativeTokenDisplaySymbol}</span>
+              </div>
+              
+              {exitFloorPrice && (
+                <div className="flex justify-between items-center mb-2">
+                  <span>Cash Out:</span>
+                  <span><NativeTokenValue wei={exitFloorPrice} decimals={6} /></span>
+                </div>
+              )}
+              
+              <div className="flex justify-between items-center mt-2 pt-2 border-t border-gray-200">
+                <span>1 {getNativeTokenDisplaySymbol} buys:</span>
+                <span>{(poolPriceInfo.ethPerToken || 0).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 6 })} {projectToken.symbol}</span>
+              </div>
+            </div>
+          )}
+
           {/* Project token amount */}
           <div className="mb-4 bg-white rounded-lg border border-gray-200 relative">
             <div className="flex items-center justify-between p-3 bg-gray-50 rounded-t-lg">
-              <input
-                type="number"
-                value={projectAmount}
-                onChange={(e) => setProjectAmount(e.target.value)}
-                placeholder="0.0"
-                className="w-32 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500 text-sm bg-white"
-                disabled={disabled || isLoading}
-              />
-              <div className="text-right">
-                <div className="text-sm font-semibold text-gray-800">
-                  {projectTokenAmount ? <TokenAmount amount={projectTokenAmount} decimals={6} /> : "0"}
-                </div>
-                <div className="text-xs text-gray-600">Available</div>
-              </div>
-            </div>
-
-            {/* @ symbol separator - positioned to overlay */}
-            <div className="absolute left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10">
-              <div className="w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center border-2 border-white">
-                <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-                </svg>
-              </div>
-            </div>
-
-            {/* Native token amount (only for two-sided when no pool exists) */}
-            {!poolHasLiquidity && !isSingleSided && (
-              <div className="flex items-center justify-between p-3 bg-gray-50 rounded-b-lg">
+              <div className="flex flex-col">
+                <label className="text-xs text-gray-600 mb-1">Sell</label>
                 <input
                   type="number"
-                  value={nativeAmount}
-                  onChange={(e) => setNativeAmount(e.target.value)}
+                  value={projectAmount}
+                  onChange={(e) => setProjectAmount(e.target.value)}
                   placeholder="0.0"
                   className="w-32 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500 text-sm bg-white"
                   disabled={disabled || isLoading}
                 />
-                <div className="text-right">
-                  <div className="text-sm font-semibold text-gray-800">{nativeToken.symbol}</div>
-                  <div className="text-xs text-gray-600">Amount</div>
-                  <div className="text-xs text-gray-500">
-                    Balance: {nativeTokenAmount ? <TokenAmount amount={nativeTokenAmount} decimals={6} /> : "0"}
-                  </div>
-                </div>
               </div>
-            )}
+              <div className="text-right pt-2">
+              <div className="text-sm font-semibold text-gray-800">
+                  {projectTokenAmount ? <TokenAmount amount={projectTokenAmount} decimals={6} /> : "0"}
+                </div>
+                <div className="text-xs text-gray-600">Available</div>
+
+              </div>
+            </div>
+
+            {/* @ symbol separator */}
+            <div className="flex justify-center -my-3 relative z-10">
+              <div className="w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center border-2 border-white">
+                <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
+              </div>
+            </div>
 
             {/* Target price for single-sided liquidity */}
             {(!poolHasLiquidity || isSingleSided) && (
-              <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                <input
-                  type="number"
-                  value={targetPrice}
-                  onChange={(e) => setTargetPrice(e.target.value)}
-                  placeholder="0.0"
-                  className="w-32 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500 text-sm bg-white select-none"
-                  disabled={disabled || isLoading}
-                />
-                <div className="text-right">
+              <div className="flex items-center justify-between p-3 bg-gray-50 rounded-b-lg">
+                <div className="flex flex-col">
+                  <label className="text-xs text-gray-600 mb-1">Price</label>
+                  <input
+                    type="number"
+                    value={targetPrice}
+                    onChange={(e) => setTargetPrice(e.target.value)}
+                    placeholder="0.0"
+                    className="w-32 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500 text-sm bg-white select-none"
+                    disabled={disabled || isLoading}
+                  />
+                </div>
+                <div className="text-right pt-2">
                   <div className="text-sm font-semibold text-gray-800">
                     {poolPriceInfo.tokensPerEth ? (
                       `${poolPriceInfo.tokensPerEth.toFixed(6)} ETH`
@@ -917,7 +945,7 @@ export function AddLiquidity({
       {activeView === 'lp' && (
         <div className="mb-6 p-4 border-2 border-gray-200 rounded-lg bg-white">
           <div className="flex items-center justify-between mb-3">
-            <h4 className="text-base font-semibold text-gray-800">Provide Liquidity</h4>
+            <h4 className="text-base font-semibold text-gray-800">Provide liquidity</h4>
             <span className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded-full font-medium">
               Two-sided
             </span>
@@ -933,13 +961,13 @@ export function AddLiquidity({
                   <span>{(priceInfo.issuancePrice).toFixed(6)} {getNativeTokenDisplaySymbol}</span>
                 </div>
               )}
-              <div className="flex justify-between items-center mb-1">
-                <span>{projectToken.symbol} Spot Price:</span>
+              <div className="flex justify-between items-center mb-2">
+                <span>Spot Price:</span>
                 <span>{(poolPriceInfo.tokensPerEth || 0).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 6 })} {getNativeTokenDisplaySymbol}</span>
               </div>
               {exitFloorPrice && (
-                <div className="flex justify-between items-center mb-1">
-                  <span>Exit Floor:</span>
+                <div className="flex justify-between items-center mb-2">
+                  <span>Cash Out:</span>
                   <span><NativeTokenValue wei={exitFloorPrice} decimals={6} /></span>
                 </div>
               )}
@@ -953,55 +981,55 @@ export function AddLiquidity({
           {/* Project token amount */}
           <div className="mb-4 bg-white rounded-lg border border-gray-200 relative">
             <div className="flex items-center justify-between p-3 bg-gray-50 rounded-t-lg">
-              <input
-                type="number"
-                value={projectAmount}
-                onChange={(e) => setProjectAmount(e.target.value)}
-                placeholder="0.0"
-                className="w-32 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500 text-sm bg-white"
-                disabled={disabled || isLoading}
-              />
-              <div className="text-right">
-                <div className="text-sm font-semibold text-gray-800">
+              <div className="flex flex-col">
+                <label className="text-xs text-gray-600 mb-1">Lock</label>
+                <input
+                  type="number"
+                  value={projectAmount}
+                  onChange={(e) => setProjectAmount(e.target.value)}
+                  placeholder="0.0"
+                  className="w-32 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500 text-sm bg-white"
+                  disabled={disabled || isLoading}
+                />
+              </div>
+              <div className="text-right pt-2">
+              <div className="text-sm font-semibold text-gray-800">
                   {projectTokenAmount ? <TokenAmount amount={projectTokenAmount} decimals={6} /> : "0"}
                 </div>
                 <div className="text-xs text-gray-600">Available</div>
+
               </div>
             </div>
 
-            {/* @ symbol separator - positioned to overlay */}
-            <div className="absolute left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10">
+            {/* @ symbol separator */}
+            <div className="flex justify-center -my-3 relative z-10">
               <div className="w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center border-2 border-white">
                 <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                 </svg>
               </div>
             </div>
 
             {/* Native token amount */}
             <div className="flex items-center justify-between p-3 bg-gray-50 rounded-b-lg">
-              <input
-                type="number"
-                value={nativeAmount}
-                onChange={(e) => setNativeAmount(e.target.value)}
-                placeholder="0.0"
-                className="w-32 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500 text-sm bg-white"
-                disabled={disabled || isLoading}
-              />
-              <div className="text-right">
+              <div className="flex flex-col">
+                <label className="text-xs text-gray-600 mb-1">Lock</label>
+                <input
+                  type="number"
+                  value={nativeAmount}
+                  onChange={(e) => setNativeAmount(e.target.value)}
+                  placeholder="0.0"
+                  className="w-32 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500 text-sm bg-white"
+                  disabled={disabled || isLoading || isSingleSided}
+                />
+              </div>
+              <div className="text-right pt-2">
                 <div className="text-sm font-semibold text-gray-800">
                   {ethTokenAmount ? <TokenAmount amount={ethTokenAmount} decimals={6} /> : "0"}
                 </div>
                 <div className="text-xs text-gray-600">Available</div>
               </div>
             </div>
-
-            {/* Balance error message */}
-            {getBalanceErrorMessage() && (
-              <div className="text-sm text-red-600 bg-red-50 p-2 rounded mt-2">
-                {getBalanceErrorMessage()}
-              </div>
-            )}
           </div>
 
       {/* Add liquidity button */}
