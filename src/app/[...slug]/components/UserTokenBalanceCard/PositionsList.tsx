@@ -33,32 +33,32 @@ export function PositionsList({ projectToken, nativeToken }: PositionsListProps)
   const [error, setError] = useState<string | null>(null);
   const [loadingActions, setLoadingActions] = useState<Set<string>>(new Set());
 
-    const fetchPositions = async () => {
-      if (!address || !publicClient) return;
+  const fetchPositions = async () => {
+    if (!address || !publicClient) return;
 
-      try {
-        setIsLoading(true);
-        setError(null);
-        
-      console.log('🔍 Fetching positions with new helpers...');
+    try {
+      setIsLoading(true);
+      setError(null);
       
-      const poolPositions = await getPoolPositions({
-        account: address,
-        token0: projectToken,
-        token1: nativeToken,
-        fee: FeeAmount.HIGH,
-        publicClient
-      });
+    console.log('🔍 Fetching positions with new helpers...');
+    
+    const poolPositions = await getPoolPositions({
+      account: address,
+      token0: projectToken,
+      token1: nativeToken,
+      fee: FeeAmount.HIGH,
+      publicClient
+    });
 
-      console.log('✅ Positions fetched:', poolPositions.length);
-        setPositions(poolPositions);
-      } catch (error) {
-      console.error('❌ Error fetching positions:', error);
-        setError(error instanceof Error ? error.message : 'Failed to fetch positions');
-      } finally {
-        setIsLoading(false);
-      }
-    };
+    console.log('✅ Positions fetched:', poolPositions.length);
+      setPositions(poolPositions);
+    } catch (error) {
+    console.error('❌ Error fetching positions:', error);
+      setError(error instanceof Error ? error.message : 'Failed to fetch positions');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   // Fetch positions on mount and when dependencies change
   useEffect(() => {
@@ -79,19 +79,26 @@ export function PositionsList({ projectToken, nativeToken }: PositionsListProps)
 
       console.log('💰 Collecting fees for position:', position.tokenId.toString());
 
-      const hash = await collectFees({
+      const result = await collectFees({
         tokenId: position.tokenId,
         recipient: address,
         amount0Max: position.tokensOwed0,
         amount1Max: position.tokensOwed1,
         walletClient: walletClient.data,
+        publicClient: publicClient as any,
         account: address,
-        positionManagerAddress
+        positionManagerAddress,
+        chainId: projectToken.chainId,
+        unwrapWethToEth: true
       });
+
+      const message = result.unwrapHash 
+        ? `Fees collected and WETH unwrapped! Collect: ${result.collectHash.slice(0, 10)}... Unwrap: ${result.unwrapHash.slice(0, 10)}...`
+        : `Fee collection completed! ${result.collectHash.slice(0, 10)}...`;
 
       toast({
         title: "Success",
-        description: `Fee collection transaction submitted: ${hash.slice(0, 10)}...`
+        description: message
       });
 
       // Refresh positions after successful collection
@@ -124,24 +131,26 @@ export function PositionsList({ projectToken, nativeToken }: PositionsListProps)
         throw new Error(`Position Manager not found for chain ${projectToken.chainId}`);
       }
 
-      console.log('🔥 Removing liquidity from position:', position.tokenId.toString());
+      console.log(' Removing liquidity from position:', position.tokenId.toString());
 
       // For now, remove all liquidity (can be made configurable later)
-      const hash = await removeLiquidity({
+      const result = await removeLiquidity({
         tokenId: position.tokenId,
         liquidity: position.liquidity,
-        amount0Min: 0n, // Allow any amount (can be made configurable)
-        amount1Min: 0n, // Allow any amount (can be made configurable)
-        deadline: Math.floor(Date.now() / 1000) + 60 * 20, // 20 minutes
+        amount0Min: 0n,
+        amount1Min: 0n,
+        deadline: Math.floor(Date.now() / 1000) + 60 * 20,
         recipient: address,
         walletClient: walletClient.data,
         account: address,
-        positionManagerAddress
+        positionManagerAddress,
+        chainId: projectToken.chainId,
+        unwrapWethToEth: true
       });
 
       toast({
         title: "Success",
-        description: `Liquidity removal transaction submitted: ${hash.slice(0, 10)}...`
+        description: `Position closed! Decrease: ${result.decreaseHash.slice(0, 10)}... Collect: ${result.collectHash.slice(0, 10)}... Burn: ${result.burnHash.slice(0, 10)}...`
       });
 
       // Refresh positions after successful removal
@@ -193,15 +202,14 @@ export function PositionsList({ projectToken, nativeToken }: PositionsListProps)
 
   return (
     <div className="mt-4 space-y-4">
-      <div className="flex justify-between items-center">
-      <h3 className="text-lg font-medium">Your Positions</h3>
-        <Button onClick={fetchPositions} variant="outline" size="sm">
-          Refresh
-        </Button>
-      </div>
-      
       <div className="space-y-3">
         {positions.map((position) => {
+          // Add defensive checks for position properties
+          if (!position || typeof position.tokenId === 'undefined') {
+            console.error('Invalid position data:', position);
+            return null;
+          }
+
           const token0Symbol = getTokenSymbol(position.token0);
           const token1Symbol = getTokenSymbol(position.token1);
           const hasFees = hasUnclaimedFees(position);
@@ -209,32 +217,37 @@ export function PositionsList({ projectToken, nativeToken }: PositionsListProps)
           const isRemoving = loadingActions.has(`remove-${position.tokenId}`);
 
           // Detect if this is a single-sided position (limit order)
-          const isSingleSided = position.tickLower > 0 || position.tickUpper < 0;
+          const isSingleSided = (position.tickLower || 0) > 0 || (position.tickUpper || 0) < 0;
           
           // For single-sided positions, show the price where the token is listed
           const getPositionDisplay = () => {
-            if (isSingleSided) {
-              // For single-sided, show the price where the token is listed for sale
-              const price = tickToPrice(position.tickLower > 0 ? position.tickLower : position.tickUpper, projectToken.decimals, nativeToken.decimals);
-              const token0IsProject = projectToken.address.toLowerCase() < nativeToken.address.toLowerCase();
-              
-              if (token0IsProject) {
-                // If project token is token0, price is tokens per native, so cost per token = 1/price
-                const costPerToken = 1 / price;
-                return `Limit Order: 1 ${projectToken.symbol} = ${costPerToken.toFixed(6)} ${nativeToken.symbol}`;
+            try {
+              if (isSingleSided) {
+                // For single-sided, show the price where the token is listed for sale
+                const price = tickToPrice(position.tickLower > 0 ? position.tickLower : position.tickUpper, projectToken.decimals, nativeToken.decimals);
+                const token0IsProject = projectToken.address.toLowerCase() < nativeToken.address.toLowerCase();
+                
+                if (token0IsProject) {
+                  // If project token is token0, price is tokens per native, so cost per token = 1/price
+                  const costPerToken = 1 / price;
+                  return `Limit Order: 1 ${projectToken.symbol} = ${costPerToken.toFixed(6)} ${nativeToken.symbol}`;
+                } else {
+                  // If native token is token0, price is native per token
+                  return `Limit Order: 1 ${projectToken.symbol} = ${price.toFixed(6)} ${nativeToken.symbol}`;
+                }
               } else {
-                // If native token is token0, price is native per token
-                return `Limit Order: 1 ${projectToken.symbol} = ${price.toFixed(6)} ${nativeToken.symbol}`;
+                // For two-sided positions, show the range
+                return formatTickRangeToPriceRange(
+                  position.tickLower, 
+                  position.tickUpper, 
+                  projectToken, 
+                  nativeToken,
+                  'tokensPerNative'
+                );
               }
-            } else {
-              // For two-sided positions, show the range
-              return formatTickRangeToPriceRange(
-                position.tickLower, 
-                position.tickUpper, 
-                projectToken, 
-                nativeToken,
-                'tokensPerNative'
-              );
+            } catch (error) {
+              console.error('Error in getPositionDisplay:', error);
+              return `Position ${position.tokenId.toString()}`;
             }
           };
 
@@ -290,9 +303,9 @@ export function PositionsList({ projectToken, nativeToken }: PositionsListProps)
                   onClick={() => handleRemoveLiquidity(position)}
                   disabled={isCollecting || isRemoving}
                   size="sm"
-                  variant="destructive"
+                  variant="secondary"
                 >
-                  {isRemoving ? 'Removing...' : 'Remove Liquidity'}
+                  {isRemoving ? 'Closing Position...' : 'Close Position'}
                 </ButtonWithWallet>
               </div>
             </div>

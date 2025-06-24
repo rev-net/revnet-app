@@ -223,4 +223,74 @@ export async function getPoolPrice(
     console.error('Error getting pool price:', error);
     return null;
   }
+}
+
+/**
+ * Get real-time pool price information with auto-refresh capability
+ */
+export async function getPoolPriceInfo(
+  token0: Token,
+  token1: Token,
+  fee: FeeAmount,
+  publicClient: PublicClient
+): Promise<{
+  tokensPerEth: number;
+  ethPerToken: number;
+  poolAddress: Address;
+  liquidity: bigint;
+  tick: number;
+} | null> {
+  try {
+    const poolAddress = computePoolAddressForTokens(token0, token1, fee, token0.chainId);
+    
+    // Get both slot0 and liquidity data
+    const [slot0, liquidity] = await Promise.all([
+      publicClient.readContract({
+        address: poolAddress,
+        abi: POOL_ABI,
+        functionName: 'slot0',
+      }),
+      publicClient.readContract({
+        address: poolAddress,
+        abi: POOL_ABI,
+        functionName: 'liquidity',
+      })
+    ]);
+
+    const sqrtPriceX96 = BigInt(slot0[0]);
+    const tick = Number(slot0[1]);
+    const poolLiquidity = BigInt(liquidity);
+
+    // Check if pool has liquidity
+    if (poolLiquidity === 0n) {
+      return null;
+    }
+
+    // Determine token order
+    const token0IsProject = token0.address.toLowerCase() < token1.address.toLowerCase();
+    const projectToken = token0IsProject ? token0 : token1;
+    const nativeToken = token0IsProject ? token1 : token0;
+    
+    // Calculate price from tick using Uniswap V3 formula
+    const price = 1.0001 ** tick;
+    
+    // Adjust for token decimals
+    const decimalAdjustment = 10 ** (projectToken.decimals - nativeToken.decimals);
+    const adjustedPrice = price * decimalAdjustment;
+    
+    // Calculate both directions
+    const tokensPerEth = token0IsProject ? adjustedPrice : 1 / adjustedPrice;
+    const ethPerToken = 1 / tokensPerEth;
+    
+    return {
+      tokensPerEth,
+      ethPerToken,
+      poolAddress,
+      liquidity: poolLiquidity,
+      tick
+    };
+  } catch (error) {
+    console.error('Error fetching pool price info:', error);
+    return null;
+  }
 } 

@@ -57,7 +57,7 @@ export function UserTokenBalanceCard() {
             disabled={creditBalance.value === 0n}
           >
             <Button variant="outline" disabled={creditBalance.value === 0n}>
-              Sell on market
+              Trade
             </Button>
           </SellOnMarket>
         ) : null}

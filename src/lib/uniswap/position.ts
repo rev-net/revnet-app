@@ -3,6 +3,24 @@ import { Pool, FeeAmount } from '@uniswap/v3-sdk'
 import { Token, Percent, BigintIsh } from '@uniswap/sdk-core'
 import { Address, WalletClient } from 'viem'
 import { computePoolAddressForTokens } from './pool'
+import NFPM_ABI from "@uniswap/v3-periphery/artifacts/contracts/NonfungiblePositionManager.sol/NonfungiblePositionManager.json";
+
+const WETH9_ABI = [
+  {
+    inputs: [{ name: 'wad', type: 'uint256' }],
+    name: 'withdraw',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function'
+  },
+  {
+    inputs: [{ name: 'account', type: 'address' }],
+    name: 'balanceOf',
+    outputs: [{ name: '', type: 'uint256' }],
+    stateMutability: 'view',
+    type: 'function'
+  }
+] as const;
 
 export interface CreatePositionParams {
   pool: Pool
@@ -331,8 +349,11 @@ export interface CollectFeesParams {
   amount0Max: bigint
   amount1Max: bigint
   walletClient: WalletClient
+  publicClient: any
   account: Address
   positionManagerAddress: Address
+  chainId: number
+  unwrapWethToEth?: boolean
 }
 
 export interface RemoveLiquidityParams {
@@ -345,6 +366,8 @@ export interface RemoveLiquidityParams {
   walletClient: WalletClient
   account: Address
   positionManagerAddress: Address
+  chainId: number
+  unwrapWethToEth?: boolean
 }
 
 /**
@@ -375,7 +398,7 @@ export async function getUserPositions({
   // Get total number of positions
   const balance = await publicClient.readContract({
     address: positionManagerAddress,
-    abi: POSITION_MANAGER_ABI,
+    abi: NFPM_ABI.abi,
     functionName: 'balanceOf',
     args: [account]
   })
@@ -386,43 +409,56 @@ export async function getUserPositions({
     return []
   }
 
-  // Fetch each position
+  // Fetch each position with error handling
   const positionsPromises = Array.from({ length: Number(balance) }, async (_, index) => {
-    const tokenId = await publicClient.readContract({
-      address: positionManagerAddress,
-      abi: POSITION_MANAGER_ABI,
-      functionName: 'tokenOfOwnerByIndex',
-      args: [account, BigInt(index)]
-    })
+    try {
+      const tokenId = await publicClient.readContract({
+        address: positionManagerAddress,
+        abi: NFPM_ABI.abi,
+        functionName: 'tokenOfOwnerByIndex',
+        args: [account, BigInt(index)]
+      })
 
-    const position = await publicClient.readContract({
-      address: positionManagerAddress,
-      abi: POSITION_MANAGER_ABI,
-      functionName: 'positions',
-      args: [tokenId]
-    })
+      // Check if the token still exists before fetching position data
+      try {
+        const position = await publicClient.readContract({
+          address: positionManagerAddress,
+          abi: NFPM_ABI.abi,
+          functionName: 'positions',
+          args: [tokenId]
+        })
 
-    return {
-      tokenId,
-      nonce: position[0],
-      operator: position[1],
-      token0: position[2],
-      token1: position[3],
-      fee: Number(position[4]),
-      tickLower: Number(position[5]),
-      tickUpper: Number(position[6]),
-      liquidity: position[7],
-      feeGrowthInside0LastX128: position[8],
-      feeGrowthInside1LastX128: position[9],
-      tokensOwed0: position[10],
-      tokensOwed1: position[11]
+        return {
+          tokenId,
+          nonce: position[0],
+          operator: position[1],
+          token0: position[2],
+          token1: position[3],
+          fee: Number(position[4]),
+          tickLower: Number(position[5]),
+          tickUpper: Number(position[6]),
+          liquidity: position[7],
+          feeGrowthInside0LastX128: position[8],
+          feeGrowthInside1LastX128: position[9],
+          tokensOwed0: position[10],
+          tokensOwed1: position[11]
+        }
+      } catch (positionError) {
+        console.warn(`⚠️ Position ${tokenId.toString()} is invalid or no longer exists:`, positionError)
+        return null // Skip this position
+      }
+    } catch (tokenError) {
+      console.warn(`⚠️ Error fetching token at index ${index}:`, tokenError)
+      return null // Skip this position
     }
   })
 
   const allPositions = await Promise.all(positionsPromises)
-  console.log('✅ Fetched all positions:', allPositions.length)
+  const validPositions = allPositions.filter(pos => pos !== null) as UserPosition[]
   
-  return allPositions
+  console.log('✅ Fetched valid positions:', validPositions.length, 'out of', allPositions.length)
+  
+  return validPositions
 }
 
 /**
@@ -468,7 +504,45 @@ export async function getPoolPositions({
 }
 
 /**
- * Collect fees from a position
+ * Unwrap WETH to ETH using the official WETH9 ABI
+ */
+export async function unwrapWeth({
+  amount,
+  recipient,
+  walletClient,
+  account,
+  chainId
+}: {
+  amount: bigint
+  recipient: Address
+  walletClient: WalletClient
+  account: Address
+  chainId: number
+}): Promise<string> {
+  const { WETH_ADDRESSES } = await import('@/constants')
+  const wethAddress = WETH_ADDRESSES[chainId]
+  
+  if (!wethAddress) {
+    throw new Error(`WETH address not available for chain ${chainId}`)
+  }
+
+  console.log(`🔄 Unwrapping ${amount} WETH to ETH...`)
+  
+  const unwrapHash = await walletClient.writeContract({
+    address: wethAddress,
+    abi: WETH9_ABI,
+    functionName: 'withdraw',
+    args: [amount],
+    account,
+    chain: null
+  });
+
+  console.log(`✅ Unwrapped ${amount} WETH to ETH`)
+  return unwrapHash
+}
+
+/**
+ * Collect fees from a position and optionally unwrap WETH
  */
 export async function collectFees({
   tokenId,
@@ -476,32 +550,65 @@ export async function collectFees({
   amount0Max,
   amount1Max,
   walletClient,
+  publicClient,
   account,
-  positionManagerAddress
-}: CollectFeesParams): Promise<string> {
+  positionManagerAddress,
+  chainId,
+  unwrapWethToEth = true
+}: CollectFeesParams & { chainId: number; unwrapWethToEth?: boolean; publicClient: any }): Promise<{ collectHash: string; unwrapHash?: string }> {
   console.log('💰 Collecting fees for position:', {
     tokenId: tokenId.toString(),
     recipient,
     amount0Max: amount0Max.toString(),
     amount1Max: amount1Max.toString()
-  })
+  });
 
-  const hash = await walletClient.writeContract({
+  const collectParams = {
+    tokenId,
+    recipient,
+    amount0Max: 2n ** 128n - 1n, // type(uint128).max - collect all fees
+    amount1Max: 2n ** 128n - 1n  // type(uint128).max - collect all fees
+  };
+
+  const collectHash = await walletClient.writeContract({
     address: positionManagerAddress,
-    abi: POSITION_MANAGER_ABI,
+    abi: NFPM_ABI.abi,
     functionName: 'collect',
-    args: [{
-      tokenId,
-      recipient,
-      amount0Max,
-      amount1Max
-    }],
+    args: [collectParams],
     account,
     chain: null
-  })
+  });
 
-  console.log('✅ Fee collection transaction:', hash)
-  return hash
+  console.log('✅ Fee collection transaction:', collectHash);
+
+  // Optionally unwrap WETH to ETH
+  let unwrapHash: string | undefined;
+  if (unwrapWethToEth) {
+    const { WETH_ADDRESSES } = await import('@/constants')
+    const wethAddress = WETH_ADDRESSES[chainId]
+    
+    if (wethAddress) {
+      // Check WETH balance after collection
+      const wethBalance = await publicClient.readContract({
+        address: wethAddress,
+        abi: WETH9_ABI,
+        functionName: 'balanceOf',
+        args: [recipient]
+      });
+
+      if (wethBalance > 0n) {
+        unwrapHash = await unwrapWeth({
+          amount: wethBalance,
+          recipient,
+          walletClient,
+          account,
+          chainId
+        });
+      }
+    }
+  }
+
+  return { collectHash, unwrapHash };
 }
 
 /**
@@ -516,33 +623,70 @@ export async function removeLiquidity({
   recipient,
   walletClient,
   account,
-  positionManagerAddress
-}: RemoveLiquidityParams): Promise<string> {
-  console.log('🔥 Removing liquidity from position:', {
+  positionManagerAddress,
+  chainId,
+  unwrapWethToEth = true
+}: RemoveLiquidityParams): Promise<{ decreaseHash: string; collectHash: string; burnHash: string }> {
+  console.log(' Removing liquidity from position:', {
     tokenId: tokenId.toString(),
     liquidity: liquidity.toString(),
     amount0Min: amount0Min.toString(),
     amount1Min: amount1Min.toString(),
     deadline
-  })
+  });
 
-  const hash = await walletClient.writeContract({
+  // Step 1: Decrease liquidity (burn the liquidity)
+  const decreaseParams = {
+    tokenId,
+    liquidity,
+    amount0Min,
+    amount1Min,
+    deadline: BigInt(deadline)
+  };
+
+  const decreaseHash = await walletClient.writeContract({
     address: positionManagerAddress,
-    abi: POSITION_MANAGER_ABI,
+    abi: NFPM_ABI.abi,
     functionName: 'decreaseLiquidity',
-    args: [{
-      tokenId,
-      liquidity,
-      amount0Min,
-      amount1Min,
-      deadline
-    }],
+    args: [decreaseParams],
     account,
     chain: null
-  })
+  });
 
-  console.log('✅ Liquidity removal transaction:', hash)
-  return hash
+  console.log('✅ Liquidity decrease transaction:', decreaseHash);
+
+  // Step 2: Collect the tokens (fees and removed liquidity)
+  const collectParams = {
+    tokenId,
+    recipient,
+    amount0Max: 2n ** 128n - 1n, // type(uint128).max - collect all
+    amount1Max: 2n ** 128n - 1n  // type(uint128).max - collect all
+  };
+
+  const collectHash = await walletClient.writeContract({
+    address: positionManagerAddress,
+    abi: NFPM_ABI.abi,
+    functionName: 'collect',
+    args: [collectParams],
+    account,
+    chain: null
+  });
+
+  console.log('✅ Collect transaction:', collectHash);
+
+  // Step 3: Burn the position NFT (assuming it's fully empty)
+  const burnHash = await walletClient.writeContract({
+    address: positionManagerAddress,
+    abi: NFPM_ABI.abi,
+    functionName: 'burn',
+    args: [tokenId],
+    account,
+    chain: null
+  });
+
+  console.log('✅ Burn transaction:', burnHash);
+  
+  return { decreaseHash, collectHash, burnHash };
 }
 
 /**
