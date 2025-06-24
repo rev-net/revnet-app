@@ -641,14 +641,11 @@ export function AddLiquidity({
             {/* Native token amount */}
             <div className="flex items-center justify-between p-3 bg-gray-50 rounded-b-lg">
               <TokenInput
-                token={{
-                  ...nativeToken,
-                  symbol: getNativeTokenDisplaySymbol(nativeToken, nativeToken.chainId)
-                }}
+                token={nativeToken}
                 value={nativeAmount}
                 onValueChange={setNativeAmount}
                 balance={ethBalance?.value || null}
-                label="Lock"
+                label={`Lock ${getNativeTokenDisplaySymbol(nativeToken, nativeToken.chainId)}`}
                 disabled={disabled || isLoading || isSingleSided}
                 className="flex-1"
               />
