@@ -343,28 +343,7 @@ export function SellOnMarket({
           </div>
 
           {/* Balance Information - Show always */}
-          <div className="p-4 border rounded-lg bg-zinc-50">
-            <div className="text-sm">
-              <p className="font-medium mb-2">Your {tokenSymbol} balance:</p>
-              {balances?.map((balance, index) => (
-                <div key={index} className="flex justify-between gap-2 mt-1">
-                  <span>{JB_CHAINS[balance.chainId as JBChainId].name}</span>
-                  <span className="font-medium">
-                    {balance.balance?.format(6)} {tokenSymbol}
-                  </span>
-                </div>
-              ))}
-              <hr className="my-2" />
-              <div className="flex justify-between gap-2">
-                <span>[All chains]</span>
-                <span className="font-medium">
-                  {new JBProjectToken(
-                    balances?.reduce((acc, curr) => acc + curr.balance.value, 0n) ?? 0n
-                  ).format(6)} {tokenSymbol}
-                </span>
-              </div>
-            </div>
-          </div>
+          {/* Removed this section */}
 
           {sellChainId && (
             <>
