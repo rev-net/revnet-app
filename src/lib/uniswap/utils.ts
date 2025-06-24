@@ -3,31 +3,8 @@ import { Token } from '@uniswap/sdk-core'
 import { Address, PublicClient } from 'viem'
 import { useState, useEffect } from 'react'
 
-// Add the POOL_ABI for slot0
-const POOL_ABI = [
-  {
-    inputs: [],
-    name: 'slot0',
-    outputs: [
-      { name: 'sqrtPriceX96', type: 'uint160' },
-      { name: 'tick', type: 'int24' },
-      { name: 'observationIndex', type: 'uint16' },
-      { name: 'observationCardinality', type: 'uint16' },
-      { name: 'observationCardinalityNext', type: 'uint16' },
-      { name: 'feeProtocol', type: 'uint8' },
-      { name: 'unlocked', type: 'bool' }
-    ],
-    stateMutability: 'view',
-    type: 'function'
-  },
-  {
-    inputs: [],
-    name: 'liquidity',
-    outputs: [{ name: '', type: 'uint128' }],
-    stateMutability: 'view',
-    type: 'function'
-  }
-] as const;
+// Import Pool ABI from Uniswap SDK
+import PoolAbi from '@uniswap/v3-core/artifacts/contracts/UniswapV3Pool.sol/UniswapV3Pool.json'
 
 /**
  * Calculate sqrtPriceX96 from a price (tokens per ETH)
@@ -65,12 +42,6 @@ export function tickToPrice(tick: number, projectTokenDecimals: number, nativeTo
   // Proper Uniswap V3 tick to price calculation
   // For negative ticks, this should give us a small number
   const price = 1.0001 ** tick;
-  
-  console.log('🔍 tickToPrice calculation:', {
-    tick,
-    price,
-    '1.0001^tick': 1.0001 ** tick
-  });
   
   return price;
 }
@@ -132,12 +103,12 @@ export async function getPoolPrice(
   try {
     const slot0 = await publicClient.readContract({
       address: poolAddress,
-      abi: POOL_ABI,
+      abi: PoolAbi.abi,
       functionName: 'slot0',
     });
 
-    const sqrtPriceX96 = BigInt(slot0[0]);
-    const tick = Number(slot0[1]);
+    const sqrtPriceX96 = BigInt(slot0[0] as string | number | bigint);
+    const tick = Number(slot0[1] as string | number | bigint);
 
     const token0IsProject = projectToken.address.toLowerCase() < nativeToken.address.toLowerCase();
     
@@ -145,24 +116,6 @@ export async function getPoolPrice(
     const sqrt = Number(sqrtPriceX96) / 2 ** 96;
     const tokensPerEth = sqrt ** 2; // This is already tokens per ETH
     const ethPerToken = 1 / tokensPerEth;
-    
-    console.log('📈 Pool Price Information:', {
-      tickData: {
-        currentTick: tick,
-        sqrt: sqrt,
-        sqrtPriceX96: sqrtPriceX96.toString(),
-        tokensPerEth: tokensPerEth,
-      },
-      priceRelation: {
-        [`${projectToken.symbol} per 1 ${nativeToken.symbol}`]: tokensPerEth,
-        [`${nativeToken.symbol} per 1 ${projectToken.symbol}`]: ethPerToken,
-      },
-      tokenOrder: {
-        token0: token0IsProject ? projectToken.symbol : nativeToken.symbol,
-        token1: token0IsProject ? nativeToken.symbol : projectToken.symbol,
-      },
-      note: `tokensPerEth = ${projectToken.symbol} per 1 ${nativeToken.symbol} (directly from sqrtPriceX96)`,
-    });
     
     return {
       tokensPerEth,

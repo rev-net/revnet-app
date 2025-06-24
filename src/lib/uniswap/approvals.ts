@@ -40,6 +40,37 @@ const WETH_ABI = [
   }
 ] as const
 
+// Permit2 ABI for approvals
+const PERMIT2_ABI = [
+  {
+    inputs: [
+      { name: 'owner',   type: 'address' },
+      { name: 'token',   type: 'address' },
+      { name: 'spender', type: 'address' }
+    ],
+    name: 'allowance',
+    outputs: [
+      { name: 'amount',     type: 'uint160' },
+      { name: 'expiration', type: 'uint48' },
+      { name: 'nonce',      type: 'uint48' }
+    ],
+    stateMutability: 'view',
+    type: 'function'
+  },
+  {
+    inputs: [
+      { name: 'token',      type: 'address' },
+      { name: 'spender',    type: 'address' },
+      { name: 'amount',     type: 'uint160' },
+      { name: 'expiration', type: 'uint48' }
+    ],
+    name: 'approve',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function'
+  }
+] as const
+
 export interface TokenApprovalParams {
   token: Token
   spender: Address
@@ -78,6 +109,16 @@ export interface CompleteLiquidityResult {
   positionHash: string
   isNewPool: boolean
   wrappedEthAmount?: bigint
+}
+
+export interface Permit2ApprovalParams {
+  token: Token
+  spender: Address
+  amount: bigint
+  permit2Address: Address
+  walletClient: WalletClient
+  publicClient: PublicClient
+  account: Address
 }
 
 /**
@@ -350,4 +391,46 @@ export function isWethToken(token: Token): boolean {
 export function getWethAddress(chainId: number): Address | null {
   const address = WETH_ADDRESSES[chainId]
   return address && address !== '0x0000000000000000000000000000000000000000' ? address : null
+}
+
+/**
+ * Check if a token needs Permit2 approval and approve if necessary
+ */
+export async function ensurePermit2Approval({
+  token,
+  spender,
+  amount,
+  permit2Address,
+  walletClient,
+  publicClient,
+  account
+}: Permit2ApprovalParams): Promise<void> {
+  const [currentAmount, _expiration, _nonce] = await publicClient.readContract({
+    address: permit2Address,
+    abi: PERMIT2_ABI,
+    functionName: 'allowance',
+    args: [account, token.address as Address, spender]
+  })
+
+  if (currentAmount >= amount) {
+    console.log(`✅ Token ${token.symbol} already has sufficient Permit2 allowance`)
+    return
+  }
+
+  console.log(`🔐 Approving ${token.symbol} for Permit2 spender ${spender}...`)
+  
+  // Set expiration to 1 hour from now
+  const expiration = BigInt(Math.floor(Date.now() / 1000) + 60 * 60)
+  
+  const approveHash = await walletClient.writeContract({
+    address: permit2Address,
+    abi: PERMIT2_ABI,
+    functionName: 'approve',
+    args: [token.address as Address, spender, amount as bigint, expiration as bigint],
+    account,
+    chain: null
+  })
+
+  await publicClient.waitForTransactionReceipt({ hash: approveHash })
+  console.log(`✅ ${token.symbol} Permit2 approval completed`)
 } 

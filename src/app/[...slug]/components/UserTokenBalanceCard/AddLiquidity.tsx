@@ -83,16 +83,7 @@ export function AddLiquidity({
         
         // Set default radio button state based on pool liquidity
         setIsSingleSided(hasLiquidity);
-        
-        console.log('🏊 Pool liquidity check:', {
-          exists: poolState.exists,
-          initialized: poolState.initialized,
-          liquidity: poolState.liquidity.toString(),
-          hasLiquidity,
-          defaultToSingleSided: hasLiquidity
-        });
       } catch (error) {
-        console.error('Error checking pool liquidity:', error);
         // Default to two-sided if we can't determine pool state
         setPoolHasLiquidity(false);
         setIsSingleSided(false);
@@ -119,7 +110,7 @@ export function AddLiquidity({
         const issuancePrice = Number(quote.value) / 1e18;
         setPriceInfo(prev => ({ ...prev, issuancePrice }));
     } catch (error) {
-        console.error('Error getting issuance price:', error);
+        // Ignore error
     }
     };
 
@@ -140,14 +131,6 @@ export function AddLiquidity({
     // Convert to ticks using proper Uniswap V3 calculation
     const lowerTick = Math.floor(Math.log(lowerPrice) / Math.log(1.0001));
     const upperTick = Math.floor(Math.log(upperPrice) / Math.log(1.0001));
-    
-    console.log('🎯 Price range calculation:', {
-      targetPrice: targetPriceNum,
-      lowerPrice,
-      upperPrice,
-      lowerTick,
-      upperTick
-    });
     
     return { lower: lowerTick, upper: upperTick };
   }, [targetPrice, priceInfo.poolPrice]);
@@ -229,25 +212,14 @@ export function AddLiquidity({
         ? [projectAmountWei, nativeAmountWei]
         : [nativeAmountWei, projectAmountWei];
 
-      console.log('🔄 Token order and amounts:', {
-        token0: { symbol: token0.symbol, amount: amount0.toString() },
-        token1: { symbol: token1.symbol, amount: amount1.toString() },
-        isToken0First: projectToken.address.toLowerCase() < nativeToken.address.toLowerCase()
-      });
-
       // Calculate initial price for single-sided liquidity
       let initialPrice: bigint | undefined;
       if (isSingleSided && targetPrice) {
         const targetPriceNum = parseFloat(targetPrice);
         initialPrice = calculateSqrtPriceX96(targetPriceNum);
-        console.log('🎯 Single-sided initial price:', {
-          targetPrice: targetPriceNum,
-          sqrtPriceX96: initialPrice.toString()
-          });
-        }
+      }
         
       // Use the comprehensive helper for all liquidity provision
-      console.log('🔧 Calling completeLiquidityProvision helper...');
       const result = await completeLiquidityProvision({
         token0,
         token1,
@@ -260,13 +232,6 @@ export function AddLiquidity({
         account: address,
         useSingleSided: isSingleSided,
         initialPrice
-      });
-
-      console.log('✅ Liquidity provision completed successfully:', {
-        poolAddress: result.poolAddress,
-        positionHash: result.positionHash,
-        isNewPool: result.isNewPool,
-        wrappedEthAmount: result.wrappedEthAmount?.toString()
       });
 
       toast({
@@ -302,13 +267,38 @@ export function AddLiquidity({
       const amountIn = parseEther(projectAmount);
       const quote = await getSwapQuote(projectToken, nativeToken, amountIn, publicClient);
       
-      if (quote) {
+      if (quote && !('type' in quote)) {
+        // Success case - quote is a SwapQuote
         const amountOutEth = Number(quote.amountOut) / 1e18;
+        
         setSwapQuote({
           amountOut: amountOutEth.toFixed(6),
           priceImpact: quote.priceImpact
         });
+      } else if (quote && 'type' in quote) {
+        // Error case - quote is a SwapQuoteError
+        setSwapQuote(null);
+        
+        let errorMessage = quote.message;
+        if (quote.type === 'insufficient_liquidity' && quote.details) {
+          const tokenInFormatted = quote.details.tokenInBalance 
+            ? (Number(quote.details.tokenInBalance) / Math.pow(10, projectToken.decimals)).toFixed(6)
+            : '0';
+          const tokenOutFormatted = quote.details.tokenOutBalance 
+            ? (Number(quote.details.tokenOutBalance) / Math.pow(10, nativeToken.decimals)).toFixed(6)
+            : '0';
+          const requiredFormatted = (Number(amountIn) / Math.pow(10, projectToken.decimals)).toFixed(6);
+          
+          errorMessage = `Insufficient liquidity. Pool has ${tokenInFormatted} ${projectToken.symbol} and ${tokenOutFormatted} ${nativeToken.symbol}, but you're trying to swap ${requiredFormatted} ${projectToken.symbol}.`;
+        }
+        
+        toast({
+          variant: "destructive",
+          title: "Quote Failed",
+          description: errorMessage
+        });
       } else {
+        // Null case
         setSwapQuote(null);
         toast({
           variant: "destructive",
@@ -317,7 +307,6 @@ export function AddLiquidity({
         });
       }
     } catch (error) {
-      console.error('Error getting swap quote:', error);
       setSwapQuote(null);
       toast({
         variant: "destructive",
@@ -326,6 +315,19 @@ export function AddLiquidity({
       });
     }
   };
+
+  // Auto-update quote when amount changes
+  useEffect(() => {
+    if (projectAmount && parseFloat(projectAmount) > 0) {
+      const timeoutId = setTimeout(() => {
+        handleSwapQuote();
+      }, 500); // Debounce for 500ms
+
+      return () => clearTimeout(timeoutId);
+    } else {
+      setSwapQuote(null);
+    }
+  }, [projectAmount]);
 
   const sellOnMarket = async () => {
     if (!address || !walletClient?.data || !publicClient || !projectAmount) return;
@@ -355,12 +357,6 @@ export function AddLiquidity({
       }
 
       const amountIn = parseEther(projectAmount);
-      
-      console.log('💱 Executing swap:', {
-        tokenIn: { symbol: projectToken.symbol, amount: amountIn.toString() },
-        tokenOut: { symbol: nativeToken.symbol },
-        recipient: address
-      });
 
       const result = await performSwap({
         tokenIn: projectToken,
@@ -370,12 +366,6 @@ export function AddLiquidity({
         walletClient: walletClient.data,
         publicClient,
         account: address
-      });
-
-      console.log('✅ Swap completed:', {
-        hash: result.hash,
-        amountOut: result.amountOut.toString(),
-        priceImpact: result.priceImpact
       });
 
       toast({
@@ -391,7 +381,6 @@ export function AddLiquidity({
         onLiquidityAdded();
       }
     } catch (error) {
-      console.error('❌ Swap failed:', error);
       toast({
         variant: "destructive",
         title: "Error",
@@ -404,57 +393,62 @@ export function AddLiquidity({
 
   return (
     <div className="mt-4 p-4 border rounded-lg bg-zinc-50">
-      <h3 className="text-lg font-medium mb-4">Add Liquidity</h3>
+      <h3 className="text-lg font-medium mb-4">Sell on Market</h3>
 
-      {/* Pool Price Display */}
-      {poolPriceInfo.tokensPerEth && (
-        <div className="text-sm text-zinc-700 mb-4 p-3 border rounded bg-white">
-          <div className="flex items-center justify-between mb-2">
-            <p className="font-medium">Current Pool Price:</p>
-            <span className="text-xs text-green-600">
-              Auto-updating
+      {/* Sell on Market Card - Only show when pool has liquidity */}
+      {poolHasLiquidity && (
+        <div className="mb-6 p-4 border-2 border-orange-200 rounded-lg bg-orange-50">
+          <div className="flex items-center justify-between mb-3">
+            <h4 className="text-base font-semibold text-gray-800">Sell on Market</h4>
+            <span className="text-xs bg-orange-100 text-orange-700 px-2 py-1 rounded-full font-medium">
+              Market Order
             </span>
           </div>
-          <p>1 {nativeToken.symbol} = {(poolPriceInfo.ethPerToken || 0).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 6 })} {projectToken.symbol}</p>
-          <p>1 {projectToken.symbol} = {(poolPriceInfo.tokensPerEth || 0).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 6 })} {nativeToken.symbol}</p>
-        </div>
-      )}
 
-      {/* Sell on Market Section */}
-      {poolHasLiquidity && (
-        <div className="mb-4 p-3 border rounded bg-orange-50">
-          <div className="flex items-center justify-between mb-2">
-            <h4 className="text-sm font-medium text-gray-700">Quick Sell</h4>
-            <span className="text-xs text-orange-600">Market Order</span>
-          </div>
+          {/* Current Price Display */}
+          {poolPriceInfo.tokensPerEth && (
+            <div className="text-sm text-zinc-700 mb-4 p-3 border rounded bg-white">
+              <div className="flex items-center justify-between mb-2">
+                <p className="font-medium">Current Price:</p>
+                <span className="text-xs text-green-600">
+                  Auto-updating
+                </span>
+              </div>
+              <p>1 {projectToken.symbol} = {(poolPriceInfo.tokensPerEth || 0).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 6 })} {nativeToken.symbol}</p>
+              <p>1 {nativeToken.symbol} = {(poolPriceInfo.ethPerToken || 0).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 6 })} {projectToken.symbol}</p>
+            </div>
+          )}
           
-          <div className="flex gap-2 mb-2">
+          <div className="mb-3">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              {projectToken.symbol} amount
+            </label>
             <input
               type="number"
               value={projectAmount}
               onChange={(e) => {
                 setProjectAmount(e.target.value);
-                // Clear quote when amount changes
-                setSwapQuote(null);
               }}
-              placeholder={`${projectToken.symbol} amount`}
-              className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 text-sm"
+              placeholder={`Enter ${projectToken.symbol} amount`}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-sm"
               disabled={disabled || isSwapLoading}
             />
-            <ButtonWithWallet
-              targetChainId={projectToken.chainId as JBChainId}
-              onClick={handleSwapQuote}
-              disabled={disabled || isSwapLoading || !projectAmount}
-              className="px-4 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600 disabled:opacity-50 text-sm"
-            >
-              Get Quote
-            </ButtonWithWallet>
           </div>
 
           {swapQuote && (
-            <div className="text-xs text-gray-600 mb-2 p-2 bg-white rounded border">
-              <p>You'll receive: <span className="font-medium">{swapQuote.amountOut} {nativeToken.symbol}</span></p>
-              <p>Price impact: <span className="font-medium">{swapQuote.priceImpact.toFixed(2)}%</span></p>
+            <div className="mb-3 p-3 bg-white rounded-md border border-orange-200">
+              <div className="flex justify-between items-center mb-1">
+                <span className="text-sm text-gray-600">You'll receive:</span>
+                <span className="text-sm font-semibold text-gray-800">
+                  {swapQuote.amountOut} {nativeToken.symbol}
+                </span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-gray-600">Price impact:</span>
+                <span className={`text-sm font-medium ${swapQuote.priceImpact > 1 ? 'text-red-600' : 'text-green-600'}`}>
+                  {swapQuote.priceImpact.toFixed(2)}%
+                </span>
+              </div>
             </div>
           )}
 
@@ -462,115 +456,129 @@ export function AddLiquidity({
             targetChainId={projectToken.chainId as JBChainId}
             onClick={sellOnMarket}
             disabled={disabled || isSwapLoading || !projectAmount || !swapQuote}
-            className="w-full bg-orange-500 text-white py-2 px-4 rounded-md hover:bg-orange-600 disabled:opacity-50 text-sm"
+            className="w-full bg-orange-500 text-white py-3 px-4 rounded-md hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed font-medium transition-colors"
           >
             {isSwapLoading ? "Selling..." : "Sell on Market"}
           </ButtonWithWallet>
         </div>
       )}
 
-      {/* Liquidity type selector */}
-      <div className="mb-4">
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          Liquidity Type
-        </label>
-        <div className="flex space-x-4">
-          <label className="flex items-center">
-          <input
-              type="radio"
-            checked={isSingleSided}
-              onChange={() => setIsSingleSided(true)}
-              className="mr-2"
-          />
-            Single-sided (Limit Order)
-          </label>
-          <label className="flex items-center">
-            <input
-              type="radio"
-              checked={!isSingleSided}
-              onChange={() => setIsSingleSided(false)}
-              className="mr-2"
-            />
-            Two-sided Liquidity
-          </label>
-        </div>
-        {poolHasLiquidity !== null && (
-          <p className="text-xs text-gray-500 mt-1">
-            {poolHasLiquidity 
-              ? "Pool has existing liquidity - single-sided recommended for limit orders"
-              : "New pool - two-sided liquidity recommended for initial setup"
-            }
-          </p>
-        )}
-      </div>
+      {/* Liquidity Provision Section - Only show when no pool exists */}
+      {!poolHasLiquidity && (
+        <>
+          {/* Pool Price Display */}
+          {poolPriceInfo.tokensPerEth && (
+            <div className="text-sm text-zinc-700 mb-4 p-3 border rounded bg-white">
+              <div className="flex items-center justify-between mb-2">
+                <p className="font-medium">Current Price:</p>
+                <span className="text-xs text-green-600">
+                  Auto-updating
+                </span>
+              </div>
+              <p>1 {projectToken.symbol} = {(poolPriceInfo.tokensPerEth || 0).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 6 })} {nativeToken.symbol}</p>
+              <p>1 {nativeToken.symbol} = {(poolPriceInfo.ethPerToken || 0).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 6 })} {projectToken.symbol}</p>
+            </div>
+          )}
 
-      {/* Project token amount */}
-      <div className="mb-4">
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          {projectToken.symbol} Amount
+          {/* Liquidity type selector */}
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Liquidity Type
             </label>
-              <input
-                type="number"
-          value={projectAmount}
-          onChange={(e) => setProjectAmount(e.target.value)}
-          placeholder="0.0"
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          disabled={disabled || isLoading}
-        />
+            <div className="flex space-x-4">
+              <label className="flex items-center">
+                <input
+                  type="radio"
+                  checked={isSingleSided}
+                  onChange={() => setIsSingleSided(true)}
+                  className="mr-2"
+                />
+                Single-sided (Limit Order)
+              </label>
+              <label className="flex items-center">
+                <input
+                  type="radio"
+                  checked={!isSingleSided}
+                  onChange={() => setIsSingleSided(false)}
+                  className="mr-2"
+                />
+                Two-sided Liquidity
+              </label>
+            </div>
+            <p className="text-xs text-gray-500 mt-1">
+              New pool - two-sided liquidity recommended for initial setup
+            </p>
           </div>
 
-      {/* Native token amount (only for two-sided) */}
-        {!isSingleSided && (
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            {nativeToken.symbol} Amount
+          {/* Project token amount */}
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              {projectToken.symbol} Amount
             </label>
             <input
               type="number"
-              value={nativeAmount}
-              onChange={(e) => setNativeAmount(e.target.value)}
-            placeholder="0.0"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            disabled={disabled || isLoading}
+              value={projectAmount}
+              onChange={(e) => setProjectAmount(e.target.value)}
+              placeholder="0.0"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              disabled={disabled || isLoading}
             />
           </div>
-        )}
 
-      {/* Target price for single-sided liquidity */}
-      {isSingleSided && (
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Target Price (1 {projectToken.symbol} = {nativeToken.symbol})
-          </label>
-          <input
-            type="number"
-            value={targetPrice}
-            onChange={(e) => setTargetPrice(e.target.value)}
-            placeholder="0.0"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            disabled={disabled || isLoading}
-          />
-          {priceRange && (
-            <p className="text-xs text-gray-500 mt-1">
-              Debug - Raw ticks: {priceRange.lower} to {priceRange.upper} | 
-              Raw prices: {tickToPrice(priceRange.lower, projectToken.decimals, nativeToken.decimals).toFixed(10)} to {tickToPrice(priceRange.upper, projectToken.decimals, nativeToken.decimals).toFixed(10)}
-            </p>
+          {/* Native token amount (only for two-sided) */}
+          {!isSingleSided && (
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                {nativeToken.symbol} Amount
+              </label>
+              <input
+                type="number"
+                value={nativeAmount}
+                onChange={(e) => setNativeAmount(e.target.value)}
+                placeholder="0.0"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                disabled={disabled || isLoading}
+              />
+            </div>
           )}
-        </div>
+
+          {/* Target price for single-sided liquidity */}
+          {isSingleSided && (
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Target Price (1 {projectToken.symbol} = {nativeToken.symbol})
+              </label>
+              <input
+                type="number"
+                value={targetPrice}
+                onChange={(e) => setTargetPrice(e.target.value)}
+                placeholder="0.0"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                disabled={disabled || isLoading}
+              />
+              {priceRange && (
+                <p className="text-xs text-gray-500 mt-1">
+                  Debug - Raw ticks: {priceRange.lower} to {priceRange.upper} | 
+                  Raw prices: {tickToPrice(priceRange.lower, projectToken.decimals, nativeToken.decimals).toFixed(10)} to {tickToPrice(priceRange.upper, projectToken.decimals, nativeToken.decimals).toFixed(10)}
+                </p>
+              )}
+            </div>
+          )}
+
+          {/* Add liquidity button */}
+          <ButtonWithWallet
+            targetChainId={projectToken.chainId as JBChainId}
+            onClick={addLiquidity}
+            disabled={disabled || isLoading}
+            className="w-full"
+          >
+            {isLoading ? "Adding Liquidity..." : isSingleSided ? "Create Limit Order" : "Add Liquidity"}
+          </ButtonWithWallet>
+
+          {/* Show existing positions */}
+          <PositionsList projectToken={projectToken} nativeToken={nativeToken} />
+        </>
       )}
-
-      {/* Add liquidity button */}
-        <ButtonWithWallet
-          targetChainId={projectToken.chainId as JBChainId}
-          onClick={addLiquidity}
-          disabled={disabled || isLoading}
-          className="w-full"
-        >
-        {isLoading ? "Adding Liquidity..." : isSingleSided ? "Create Limit Order" : "Add Liquidity"}
-        </ButtonWithWallet>
-
-      {/* Show existing positions */}
-        <PositionsList projectToken={projectToken} nativeToken={nativeToken} />
     </div>
   );
 } 
