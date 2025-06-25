@@ -137,8 +137,8 @@ export async function createPool({
     fee
   })
 
-  // Create the pool and get the returned address
-  const poolAddress = await walletClient.writeContract({
+  // Create the pool and get the transaction hash
+  const hash = await walletClient.writeContract({
     address: factoryAddress,
     abi: FACTORY_ABI,
     functionName: 'createPool',
@@ -152,11 +152,30 @@ export async function createPool({
   })
   
   // Wait for transaction to be mined
-  await publicClient.waitForTransactionReceipt({ hash: poolAddress })
+  await publicClient.waitForTransactionReceipt({ hash })
   
-  console.log('🏊 Pool address returned from createPool:', poolAddress)
+  // Get the pool address after creation using the SDK
+  const { computePoolAddress } = await import('@uniswap/v3-sdk')
   
-  return poolAddress as Address
+  // Ensure we use the exact same token ordering as the factory contract
+  // The factory contract sorts tokens by address (tokenA < tokenB)
+  const poolAddress = computePoolAddress({
+    factoryAddress,
+    tokenA,
+    tokenB,
+    fee,
+  }) as Address
+  
+  console.log('🏊 Pool address computed from SDK:', poolAddress)
+  console.log('📊 Token ordering for SDK:', {
+    tokenA: { symbol: tokenA.symbol, address: tokenA.address },
+    tokenB: { symbol: tokenB.symbol, address: tokenB.address },
+    tokenAAddress: tokenA.address,
+    tokenBAddress: tokenB.address,
+    tokenAIsLower: tokenA.address.toLowerCase() < tokenB.address.toLowerCase()
+  })
+  
+  return poolAddress
 }
 /**
  * Initialize a pool with an initial price

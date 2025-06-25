@@ -133,7 +133,9 @@ export function PositionsList({ projectToken, nativeToken, activeView }: Positio
         const fees = await calculateUnclaimedFees({
           position,
           publicClient,
-          chainId: projectToken.chainId
+          chainId: projectToken.chainId,
+          token0: projectToken,
+          token1: nativeToken
         });
         
         feesMap.set(position.tokenId.toString(), fees);

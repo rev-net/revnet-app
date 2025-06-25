@@ -82,7 +82,7 @@ export function SellOnMarket({
   const [isLoading, setIsLoading] = useState(false);
   const [poolInfo, setPoolInfo] = useState<any>(null);
   const [projectTokenAmount, setProjectTokenAmount] = useState("1");
-  const [nativeTokenAmount, setNativeTokenAmount] = useState("0.001");
+  const [nativeTokenAmount, setNativeTokenAmount] = useState("0.0002");
   const [poolHasPositions, setPoolHasPositions] = useState<boolean>(false);
   const [isRefreshingPrice, setIsRefreshingPrice] = useState(false);
 
@@ -134,21 +134,34 @@ export function SellOnMarket({
     const getIssuancePrice = async () => {
       if (!ruleset?.data || !rulesetMetadata?.data) return;
 
-    try {
+      try {
         const quote = await getTokenBtoAQuote(
           new FixedInt(parseEther("1"), 18),
           18,
-        {
-          weight: ruleset.data.weight,
-          reservedPercent: rulesetMetadata.data.reservedPercent,
-        }
-      );
-        const issuancePrice = Number(quote.value) / 1e18;
-        setProjectTokenAmount(issuancePrice.toFixed(6));
-        setNativeTokenAmount((issuancePrice * issuancePrice).toFixed(6));
-    } catch (error) {
+          {
+            weight: ruleset.data.weight,
+            reservedPercent: rulesetMetadata.data.reservedPercent,
+          }
+        );
+        
+        // Set the correct amounts for initial liquidity
+        // $AMM2 Amount: 1 token
+        setProjectTokenAmount("1");
+        
+        // WETH Amount: 0.0002 ETH (based on your requirement)
+        setNativeTokenAmount("0.0002");
+        
+        console.log('💰 Set initial liquidity amounts:', {
+          projectTokenAmount: "1",
+          nativeTokenAmount: "0.0002",
+          issuancePrice: Number(quote.value) / 1e18
+        });
+      } catch (error) {
         console.error('Error getting issuance price:', error);
-    }
+        // Fallback to default values
+        setProjectTokenAmount("1");
+        setNativeTokenAmount("0.0002");
+      }
     };
 
     getIssuancePrice();

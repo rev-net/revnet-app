@@ -14,7 +14,8 @@ export function useTokenBPrice() {
   console.log('🔍 useTokenBPrice hook debug:', {
     hasRuleset: !!ruleset?.data,
     hasRulesetMetadata: !!rulesetMetadata?.data,
-    tokenADecimals: tokenA?.decimals,
+    tokenASymbol: tokenA.symbol,
+    tokenADecimals: tokenA.decimals,
     weight: ruleset?.data?.weight?.toString(),
     reservedPercent: rulesetMetadata?.data?.reservedPercent?.toString()
   });
@@ -29,13 +30,20 @@ export function useTokenBPrice() {
     reservedPercent: rulesetMetadata?.data?.reservedPercent,
   });
 
+  // Convert from wei to ETH (divide by 10^18)
+  // The juice-sdk returns price in wei, but we need it in ETH for pool initialization
+  const priceInEth = tokenBPrice.value / BigInt(10 ** 18);
+
   console.log('📊 useTokenBPrice result:', {
     tokenBPriceObject: tokenBPrice,
     tokenBPriceValue: tokenBPrice.value,
     tokenBPriceValueString: tokenBPrice.value.toString(),
-    tokenBPriceType: typeof tokenBPrice.value
+    priceInEth: priceInEth.toString(),
+    priceInEthNumber: Number(priceInEth) / 1e18, // Convert to human-readable
+    tokenASymbol: tokenA.symbol,
+    tokenADecimals: tokenA.decimals
   });
 
-  // Return the value as bigint
-  return tokenBPrice.value;
+  // Return the price in ETH (not wei)
+  return priceInEth;
 }

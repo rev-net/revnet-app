@@ -146,41 +146,7 @@ export function getMintCallParameters({
   return NonfungiblePositionManager.addCallParameters(position, mintOptions)
 }
 
-// Add the correct MINT_ABI
-const MINT_ABI = [
-  {
-    name: 'mint',
-    type: 'function',
-    stateMutability: 'payable',
-    inputs: [
-      {
-        components: [
-          { name: 'token0', type: 'address' },
-          { name: 'token1', type: 'address' },
-          { name: 'fee', type: 'uint24' },
-          { name: 'tickLower', type: 'int24' },
-          { name: 'tickUpper', type: 'int24' },
-          { name: 'amount0Desired', type: 'uint256' },
-          { name: 'amount1Desired', type: 'uint256' },
-          { name: 'amount0Min', type: 'uint256' },
-          { name: 'amount1Min', type: 'uint256' },
-          { name: 'recipient', type: 'address' },
-          { name: 'deadline', type: 'uint256' }
-        ],
-        name: 'params',
-        type: 'tuple'
-      }
-    ],
-    outputs: [
-      { name: 'tokenId', type: 'uint256' },
-      { name: 'liquidity', type: 'uint128' },
-      { name: 'amount0', type: 'uint256' },
-      { name: 'amount1', type: 'uint256' }
-    ]
-  }
-] as const
-
-// Update mintPosition function
+// Update mintPosition function to use the official ABI
 export async function mintPosition({
   position,
   recipient,
@@ -200,7 +166,7 @@ export async function mintPosition({
 
   const hash = await walletClient.writeContract({
     address: positionManagerAddress,
-    abi: MINT_ABI,
+    abi: NFPM_ABI.abi,
     functionName: 'mint',
     args: [{
       token0: position.pool.token0.address as `0x${string}`,
@@ -716,17 +682,21 @@ export function hasUnclaimedFees(position: UserPosition): boolean {
 export async function calculateUnclaimedFees({
   position,
   publicClient,
-  chainId
+  chainId,
+  token0,
+  token1
 }: {
   position: UserPosition
   publicClient: any
   chainId: number
+  token0: Token
+  token1: Token
 }): Promise<{ amount0: bigint; amount1: bigint }> {
   try {
-    // Get current fee growth from the pool
+    // Use the provided token objects with correct decimals
     const poolAddress = computePoolAddressForTokens(
-      { address: position.token0, decimals: 18, symbol: '', chainId } as Token,
-      { address: position.token1, decimals: 18, symbol: '', chainId } as Token,
+      token0,
+      token1,
       position.fee as FeeAmount,
       chainId
     )
