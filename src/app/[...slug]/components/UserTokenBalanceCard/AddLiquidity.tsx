@@ -141,6 +141,7 @@ export function AddLiquidity({
     projectAmount,
     nativeAmount,
     projectToken,
+    nativeToken,
     projectTokenBalance: projectTokenBalance?.value,
     nativeTokenBalance: nativeTokenBalance?.value,
     ethBalance: ethBalance?.value,
@@ -336,13 +337,13 @@ export function AddLiquidity({
         
         toast({
           title: "Success",
-          description: `Successfully swapped ${projectAmount} ${projectToken.symbol} for ${(Number(result.amountOut) / 1e18).toFixed(6)} ${nativeToken.symbol} and unwrapped to ETH`
+          description: `Successfully swapped ${projectAmount} ${projectToken.symbol} for ${(Number(result.amountOut) / 1e18).toFixed(6)} ETH`
         });
       } else {
-      toast({
-        title: "Success",
-        description: `Successfully swapped ${projectAmount} ${projectToken.symbol} for ${(Number(result.amountOut) / 1e18).toFixed(6)} ${nativeToken.symbol}`
-      });
+        toast({
+          title: "Success",
+          description: `Successfully swapped ${projectAmount} ${projectToken.symbol} for ${(Number(result.amountOut) / 1e18).toFixed(6)} ${getNativeTokenDisplaySymbol(nativeToken, nativeToken.chainId)}`
+        });
       }
 
       // Reset form
@@ -430,6 +431,7 @@ export function AddLiquidity({
                 label="Sell"
                 disabled={disabled || isSwapLoading}
                 className="flex-1"
+                chainId={projectToken.chainId}
               />
             </div>
 
@@ -538,6 +540,7 @@ export function AddLiquidity({
                 label="Sell"
                 disabled={disabled || isLoading}
                 className="flex-1"
+                chainId={projectToken.chainId}
               />
             </div>
 
@@ -626,6 +629,7 @@ export function AddLiquidity({
                 label="Lock"
                 disabled={disabled || isLoading}
                 className="flex-1"
+                chainId={projectToken.chainId}
               />
             </div>
 
@@ -646,18 +650,26 @@ export function AddLiquidity({
                 onValueChange={setNativeAmount}
                 balance={ethBalance?.value || null}
                 label={`Lock ${getNativeTokenDisplaySymbol(nativeToken, nativeToken.chainId)}`}
-                disabled={disabled || isLoading || isSingleSided}
+                disabled={disabled || isLoading}
                 className="flex-1"
+                chainId={nativeToken.chainId}
               />
             </div>
           </div>
 
-      {/* Add liquidity button */}
+          {/* Balance error message for LP section */}
+          {getBalanceErrorMessage() && (
+            <div className="text-sm text-red-600 bg-red-50 p-2 rounded mt-2">
+              {getBalanceErrorMessage()}
+            </div>
+          )}
+
+          {/* Add liquidity button */}
           <Button
             variant="default"
-          onClick={addLiquidity}
-          disabled={disabled || isLoading}
-          className="w-full"
+            onClick={addLiquidity}
+            disabled={disabled || isLoading || !hasSufficientBalance}
+            className="w-full"
             loading={isLoading}
           >
             {isLoading ? "Adding Liquidity..." : "Add Liquidity"}

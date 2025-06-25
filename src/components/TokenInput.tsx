@@ -1,5 +1,5 @@
 import { Token } from "@uniswap/sdk-core";
-import { formatTokenAmount } from "@/lib/tokenDisplay";
+import { formatTokenAmount, getNativeTokenDisplaySymbol } from "@/lib/tokenDisplay";
 import { Input } from "@/components/ui/input";
 
 interface TokenInputProps {
@@ -11,6 +11,7 @@ interface TokenInputProps {
   placeholder?: string;
   disabled?: boolean;
   className?: string;
+  chainId?: number;
 }
 
 export const TokenInput = ({
@@ -22,7 +23,12 @@ export const TokenInput = ({
   placeholder = "0.0",
   disabled = false,
   className = "",
+  chainId,
 }: TokenInputProps) => {
+  const displaySymbol = chainId 
+    ? getNativeTokenDisplaySymbol(token, chainId)
+    : (token.symbol || "Unknown");
+
   return (
     <div className={`space-y-2 ${className}`}>
       <label className="text-sm font-medium text-gray-700">
@@ -38,12 +44,12 @@ export const TokenInput = ({
           className="pr-12"
         />
         <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-sm text-gray-500">
-          {token.symbol}
+          {displaySymbol}
         </div>
       </div>
       {balance !== null && (
         <div className="text-xs text-gray-500">
-          Balance: {formatTokenAmount(balance, token.decimals, token.symbol)}
+          Balance: {formatTokenAmount(balance, token.decimals, displaySymbol)}
         </div>
       )}
     </div>

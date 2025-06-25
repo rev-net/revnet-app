@@ -2,6 +2,7 @@ import { Token } from '@uniswap/sdk-core'
 import { FeeAmount } from '@uniswap/v3-sdk'
 import { Address, WalletClient, PublicClient } from 'viem'
 import { UNISWAP_V3_FACTORY_ADDRESSES } from '@/constants'
+
 // Factory ABI for creating pools
 const FACTORY_ABI = [
   {
@@ -27,6 +28,7 @@ const FACTORY_ABI = [
     type: 'function'
   }
 ] as const
+
 // Pool ABI for initializing pools
 const POOL_ABI = [
   {
@@ -39,12 +41,14 @@ const POOL_ABI = [
     type: 'function'
   }
 ] as const
+
 // Tick spacing mapping from Uniswap SDK
 const TICK_SPACINGS: Record<FeeAmount, number> = {
   [FeeAmount.LOW]: 10,      // 500 bps -> 10 tick spacing
   [FeeAmount.MEDIUM]: 60,   // 3000 bps -> 60 tick spacing  
   [FeeAmount.HIGH]: 200,    // 10000 bps -> 200 tick spacing
-} as Record<FeeAmount, number>
+}
+
 export interface CreatePoolParams {
   token0: Token
   token1: Token
@@ -54,6 +58,7 @@ export interface CreatePoolParams {
   publicClient: PublicClient
   account: Address
 }
+
 /**
  * Get the factory address for a given chain
  */
@@ -64,6 +69,7 @@ export function getFactoryAddress(chainId: number): Address {
   }
   return factoryAddress
 }
+
 /**
  * Check if a pool already exists
  */
@@ -74,10 +80,12 @@ export async function checkPoolExists(
   publicClient: PublicClient
 ): Promise<boolean> {
   const factoryAddress = getFactoryAddress(token0.chainId)
+  
   // Sort tokens by address (tokenA < tokenB)
   const [tokenA, tokenB] = token0.address.toLowerCase() < token1.address.toLowerCase() 
     ? [token0, token1] 
     : [token1, token0]
+  
   console.log('🔍 Checking pool existence with sorted tokens:', {
     factoryAddress,
     tokenA: { symbol: tokenA.symbol, address: tokenA.address },
@@ -85,6 +93,7 @@ export async function checkPoolExists(
     fee,
     chainId: token0.chainId
   });
+  
   try {
     const poolAddress = await publicClient.readContract({
       address: factoryAddress,
@@ -92,21 +101,10 @@ export async function checkPoolExists(
       functionName: 'getPool',
       args: [tokenA.address as Address, tokenB.address as Address, fee]
     })
+    
     const exists = poolAddress !== '0x0000000000000000000000000000000000000000';
     console.log('📊 Pool address from factory:', poolAddress);
     console.log('📊 Pool exists:', exists);
-    
-    if (!exists) {
-      // Compute expected pool address for reference
-      const { computePoolAddress } = await import('@uniswap/v3-sdk')
-      const expectedPoolAddress = computePoolAddress({
-        factoryAddress,
-        tokenA,
-        tokenB,
-        fee,
-      }) as Address
-      console.log('🔮 Expected pool address (when created):', expectedPoolAddress);
-    }
     
     return exists;
   } catch (error) {
@@ -114,6 +112,7 @@ export async function checkPoolExists(
     return false
   }
 }
+
 /**
  * Create a new pool via the factory
  */
@@ -126,6 +125,7 @@ export async function createPool({
   account
 }: Omit<CreatePoolParams, 'initialPrice'>): Promise<Address> {
   const factoryAddress = getFactoryAddress(token0.chainId)
+  
   // Sort tokens by address (tokenA < tokenB)
   const [tokenA, tokenB] = token0.address.toLowerCase() < token1.address.toLowerCase() 
     ? [token0, token1] 
@@ -136,9 +136,8 @@ export async function createPool({
     tokenB: { symbol: tokenB.symbol, address: tokenB.address },
     fee
   })
-
-  // Create the pool and get the returned address
-  const poolAddress = await walletClient.writeContract({
+  
+  const hash = await walletClient.writeContract({
     address: factoryAddress,
     abi: FACTORY_ABI,
     functionName: 'createPool',
@@ -152,12 +151,19 @@ export async function createPool({
   })
   
   // Wait for transaction to be mined
-  await publicClient.waitForTransactionReceipt({ hash: poolAddress })
+  const receipt = await publicClient.waitForTransactionReceipt({ hash })
   
-  console.log('🏊 Pool address returned from createPool:', poolAddress)
+  // Get the pool address after creation
+  const poolAddress = await publicClient.readContract({
+    address: factoryAddress,
+    abi: FACTORY_ABI,
+    functionName: 'getPool',
+    args: [tokenA.address as Address, tokenB.address as Address, fee]
+  })
   
   return poolAddress as Address
 }
+
 /**
  * Initialize a pool with an initial price
  */
@@ -174,8 +180,6 @@ export async function initializePool({
   publicClient: PublicClient
   account: Address
 }): Promise<void> {
-
-  
   const hash = await walletClient.writeContract({
     address: poolAddress,
     abi: POOL_ABI,
@@ -184,24 +188,30 @@ export async function initializePool({
     account,
     chain: null
   })
+  
   // Wait for transaction to be mined
   await publicClient.waitForTransactionReceipt({ hash })
-  console.log('✅ Pool initialization completed')
 }
+
 /**
  * Create and initialize a pool in one transaction
  */
 export async function createAndInitializePool(params: CreatePoolParams): Promise<Address> {
   const { token0, token1, fee, initialPrice, walletClient, publicClient, account } = params
+  
   console.log('🔍 Checking if pool exists before creation...');
+  
   // Check if pool already exists
   const exists = await checkPoolExists(token0, token1, fee, publicClient)
   console.log('📊 Pool existence check result:', exists);
+  
   if (exists) {
     console.log('❌ Pool already exists - cannot create duplicate');
     throw new Error('Pool already exists')
   }
+  
   console.log('✅ Pool does not exist, proceeding with creation...');
+  
   // Create the pool
   const poolAddress = await createPool({
     token0,
@@ -211,6 +221,7 @@ export async function createAndInitializePool(params: CreatePoolParams): Promise
     publicClient,
     account
   })
+  
   // Initialize the pool with initial price
   await initializePool({
     poolAddress,
@@ -219,67 +230,6 @@ export async function createAndInitializePool(params: CreatePoolParams): Promise
     publicClient,
     account
   })
+  
   return poolAddress
-}
-/**
- * Debug function to help identify pool address computation issues
- */
-export async function debugPoolAddressComputation(
-  token0: Token,
-  token1: Token,
-  fee: FeeAmount,
-  publicClient: PublicClient
-): Promise<void> {
-  const factoryAddress = getFactoryAddress(token0.chainId)
-  
-  // Sort tokens by address (tokenA < tokenB)
-  const [tokenA, tokenB] = token0.address.toLowerCase() < token1.address.toLowerCase() 
-    ? [token0, token1] 
-    : [token1, token0]
-  
-  console.log('🔍 Debugging pool address computation:', {
-    factoryAddress,
-    originalTokens: {
-      token0: { symbol: token0.symbol, address: token0.address },
-      token1: { symbol: token1.symbol, address: token1.address }
-    },
-    sortedTokens: {
-      tokenA: { symbol: tokenA.symbol, address: tokenA.address },
-      tokenB: { symbol: tokenB.symbol, address: tokenB.address }
-    },
-    fee,
-    chainId: token0.chainId
-  })
-  
-  // Get pool address from factory
-  try {
-    const factoryPoolAddress = await publicClient.readContract({
-      address: factoryAddress,
-      abi: FACTORY_ABI,
-      functionName: 'getPool',
-      args: [tokenA.address as Address, tokenB.address as Address, fee]
-    })
-    console.log('📊 Factory pool address:', factoryPoolAddress)
-  } catch (error) {
-    console.log('❌ Error getting factory pool address:', error)
-  }
-  
-  // Compute expected address using SDK
-  const { computePoolAddress } = await import('@uniswap/v3-sdk')
-  const sdkPoolAddress = computePoolAddress({
-    factoryAddress,
-    tokenA,
-    tokenB,
-    fee,
-  }) as Address
-  console.log('🔮 SDK computed pool address:', sdkPoolAddress)
-  
-  // Try reverse order
-  const reverseSdkPoolAddress = computePoolAddress({
-    factoryAddress,
-    tokenA: tokenB,
-    tokenB: tokenA,
-    fee,
-  }) as Address
-  console.log('🔄 SDK computed pool address (reverse order):', reverseSdkPoolAddress)
 } 

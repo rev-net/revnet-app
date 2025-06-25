@@ -15,6 +15,7 @@ export {
   createPool,
   initializePool,
   getFactoryAddress,
+  debugPoolAddressComputation,
   type CreatePoolParams
 } from './factory'
 
@@ -69,9 +70,12 @@ export {
 // High-level pool management
 export {
   createPoolAndMintFirstPosition,
+  createPoolAndMintFirstPositionWithAmounts,
   addLiquidityToExistingPool,
   isPoolReadyForSingleSided as checkPoolReadyForSingleSided,
   getPoolInfo,
+  calculateExpectedPriceFromAmounts,
+  createPoolParamsWithTokenBPrice,
   type CreatePoolAndPositionParams,
   type PoolAndPositionResult
 } from './pool-management'

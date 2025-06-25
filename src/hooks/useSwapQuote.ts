@@ -4,6 +4,7 @@ import { parseEther } from "viem";
 import { PublicClient } from "viem";
 import { getSwapQuote } from "@/lib/uniswap/swap";
 import { useToast } from "@/components/ui/use-toast";
+import { getNativeTokenDisplaySymbol } from "@/lib/tokenDisplay";
 
 interface UseSwapQuoteProps {
   projectAmount: string;
@@ -53,7 +54,9 @@ export const useSwapQuote = ({
             : '0';
           const requiredFormatted = (Number(amountIn) / Math.pow(10, projectToken.decimals)).toFixed(6);
           
-          errorMessage = `Insufficient liquidity. Pool has ${tokenInFormatted} ${projectToken.symbol} and ${tokenOutFormatted} ${nativeToken.symbol}, but you're trying to swap ${requiredFormatted} ${projectToken.symbol}.`;
+          const nativeTokenDisplaySymbol = getNativeTokenDisplaySymbol(nativeToken, nativeToken.chainId);
+          
+          errorMessage = `Insufficient liquidity. Pool has ${tokenInFormatted} ${projectToken.symbol} and ${tokenOutFormatted} ${nativeTokenDisplaySymbol}, but you're trying to swap ${requiredFormatted} ${projectToken.symbol}.`;
         }
         
         toast({

@@ -28,10 +28,10 @@ import {
 } from "juice-sdk-react";
 import { PropsWithChildren, useEffect, useMemo, useState } from "react";
 import { parseEther } from "viem";
-import { useAccount, usePublicClient, useWalletClient, useChainId, useSwitchChain } from "wagmi";
+import { useAccount, usePublicClient, useWalletClient, useChainId, useSwitchChain, useWaitForTransactionReceipt } from "wagmi";
 import { Token } from "@uniswap/sdk-core";
 import { FeeAmount } from "@uniswap/v3-sdk";
-import { UNISWAP_V3_FACTORY_ADDRESSES, WETH_ADDRESSES } from "@/constants";
+import { UNISWAP_V3_FACTORY_ADDRESSES, WETH_ADDRESSES, UNISWAP_FEE_TIER } from "@/constants";
 import { FixedInt } from "fpnum";
 import { AddLiquidity } from "./AddLiquidity";
 import { useNativeTokenSymbol } from "@/hooks/useNativeTokenSymbol";
@@ -41,9 +41,16 @@ import {
   getPoolInfo,
   calculateSqrtPriceX96,
   checkPoolHasPositions,
+  createPoolAndMintFirstPositionWithAmounts,
+  createPoolParamsWithTokenBPrice,
 } from "@/lib/uniswap";
 import { Button } from "@/components/ui/button";
 import EtherscanLink from "@/components/EtherscanLink";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useProjectTokens } from "@/hooks/useTokenA";
+import { useProjectSuckers } from "@/graphql/useBendystrawQuery";
+import { useTokenBPrice } from "@/hooks/useTokenBPrice";
 
 export function SellOnMarket({
   tokenSymbol,
@@ -60,12 +67,22 @@ export function SellOnMarket({
   const { token } = useJBTokenContext();
   const { data: suckers } = useSuckers();
   const { ruleset, rulesetMetadata } = useJBRulesetContext();
+  const tokenBPrice = useTokenBPrice();
+
+  console.log('🔍 SellOnMarket tokenBPrice debug:', {
+    tokenBPrice,
+    tokenBPriceType: typeof tokenBPrice,
+    tokenBPriceString: tokenBPrice?.toString(),
+    isUndefined: tokenBPrice === undefined,
+    isNull: tokenBPrice === null
+  });
 
   // State
   const [sellChainId, setSellChainId] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
   const [poolInfo, setPoolInfo] = useState<any>(null);
-  const [initialPrice, setInitialPrice] = useState<number | null>(null);
+  const [projectTokenAmount, setProjectTokenAmount] = useState("1");
+  const [nativeTokenAmount, setNativeTokenAmount] = useState("0.001");
   const [poolHasPositions, setPoolHasPositions] = useState<boolean>(false);
   const [isRefreshingPrice, setIsRefreshingPrice] = useState(false);
 
@@ -86,52 +103,30 @@ export function SellOnMarket({
 
     const chainId = Number(sellChainId);
     
-    // Check if the native token from JB is ETH
-    const isEthChain = NATIVE_TOKEN === '0x000000000000000000000000000000000000EEEe';
+    // For Uniswap V3, use WETH if available, otherwise use the native token directly
+    const wethAddress = WETH_ADDRESSES[chainId];
+    const hasWeth = wethAddress && wethAddress !== '0x0000000000000000000000000000000000000000';
     
-    if (isEthChain) {
-      // For ETH chains, use WETH for Uniswap V3 pools
-      const wethAddress = WETH_ADDRESSES[chainId];
-      if (!wethAddress || wethAddress === '0x0000000000000000000000000000000000000000') {
-        console.warn(`WETH address not available for chain ${sellChainId}`);
-        return null;
-      }
+    const nativeTokenAddress = hasWeth ? wethAddress : NATIVE_TOKEN as `0x${string}`;
+    const nativeTokenSymbol = hasWeth ? "WETH" : "ETH";
+    const nativeTokenName = hasWeth ? "Wrapped Ether" : "Ether";
 
-      return {
-        projectToken: new Token(
-          chainId,
-          token.data.address as `0x${string}`,
-          token.data.decimals,
-          tokenSymbol,
-          tokenSymbol
-        ),
-        nativeToken: new Token(
-          chainId,
-          wethAddress,
-          18,
-          "WETH",
-          "Wrapped Ether"
-        )
-      };
-    } else {
-      // For non-ETH chains, use the native token directly
-      return {
-        projectToken: new Token(
-          chainId,
-          token.data.address as `0x${string}`,
-          token.data.decimals,
-          tokenSymbol,
-          tokenSymbol
-        ),
-        nativeToken: new Token(
-          chainId,
-          NATIVE_TOKEN as `0x${string}`,
-          18,
-          "NATIVE",
-          "Native Token"
-        )
-      };
-    }
+    return {
+      projectToken: new Token(
+        chainId,
+        token.data.address as `0x${string}`,
+        token.data.decimals,
+        tokenSymbol,
+        tokenSymbol
+      ),
+      nativeToken: new Token(
+        chainId,
+        nativeTokenAddress,
+        18,
+        nativeTokenSymbol,
+        nativeTokenName
+      )
+    };
   }, [sellChainId, token?.data, tokenSymbol]);
 
   // Get issuance price from Juicebox
@@ -149,7 +144,8 @@ export function SellOnMarket({
         }
       );
         const issuancePrice = Number(quote.value) / 1e18;
-        setInitialPrice(issuancePrice);
+        setProjectTokenAmount(issuancePrice.toFixed(6));
+        setNativeTokenAmount((issuancePrice * issuancePrice).toFixed(6));
     } catch (error) {
         console.error('Error getting issuance price:', error);
     }
@@ -158,7 +154,7 @@ export function SellOnMarket({
     getIssuancePrice();
   }, [ruleset?.data, rulesetMetadata?.data]);
 
-  // Refresh pool positions status
+  // Refresh pool positions
   const refreshPoolPositions = async () => {
     if (!tokens || !publicClient) return;
     
@@ -168,7 +164,7 @@ export function SellOnMarket({
         const hasPositions = await checkPoolHasPositions({
           token0: tokens.projectToken,
           token1: tokens.nativeToken,
-          fee: FeeAmount.HIGH,
+          fee: UNISWAP_FEE_TIER,
           publicClient
         });
         setPoolHasPositions(hasPositions);
@@ -192,7 +188,7 @@ export function SellOnMarket({
         const info = await getPoolInfo(
           tokens.projectToken,
           tokens.nativeToken,
-          FeeAmount.HIGH,
+          UNISWAP_FEE_TIER,
           publicClient
         );
         console.log('✅ Pool info fetched:', info);
@@ -203,7 +199,7 @@ export function SellOnMarket({
           const hasPositions = await checkPoolHasPositions({
             token0: tokens.projectToken,
             token1: tokens.nativeToken,
-            fee: FeeAmount.HIGH,
+            fee: UNISWAP_FEE_TIER,
             publicClient
           });
           setPoolHasPositions(hasPositions);
@@ -227,17 +223,16 @@ export function SellOnMarket({
     try {
       setIsLoading(true);
       
-      console.log('🏗️ Creating pool with high-level helper...');
+      console.log('🏗️ Creating pool with JB token B price...');
       console.log('📊 Pool creation parameters:', {
         token0: tokens.projectToken.symbol,
         token1: tokens.nativeToken.symbol,
         chainId: tokens.projectToken.chainId,
-        initialPrice
+        projectTokenAmount,
+        nativeTokenAmount,
+        tokenBPrice: tokenBPrice?.toString() || 'undefined',
+        tokenBPriceType: typeof tokenBPrice
       });
-
-      // Use fixed amounts for initial pool creation
-      const projectTokenAmount = "1";
-      const nativeTokenAmount = initialPrice ? (1 * initialPrice).toFixed(6) : "0.001";
 
       // Determine token order and amounts
       const [token0, token1] = tokens.projectToken.address.toLowerCase() < tokens.nativeToken.address.toLowerCase() 
@@ -254,19 +249,31 @@ export function SellOnMarket({
         isToken0First: tokens.projectToken.address.toLowerCase() < tokens.nativeToken.address.toLowerCase()
       });
       
-      // Use the high-level helper for pool creation and first position
-      const result = await createPoolAndMintFirstPosition({
+      // Use JB token B price for pool initialization
+      console.log('🔧 Creating pool params with tokenBPrice:', {
+        tokenBPrice,
+        tokenBPriceType: typeof tokenBPrice,
+        willUseDefault: !tokenBPrice
+      });
+
+      const params = createPoolParamsWithTokenBPrice({
         token0,
         token1,
-        fee: FeeAmount.HIGH,
+        fee: UNISWAP_FEE_TIER,
         amount0,
         amount1,
-        initialPrice: calculateSqrtPriceX96(initialPrice || 1), // Use issuance price or default to 1
         recipient: address,
         walletClient: walletClient.data,
         publicClient,
         account: address
+      }, tokenBPrice || 1n);
+      
+      console.log('✅ Pool params created:', {
+        hasTokenBPrice: !!params.tokenBPrice,
+        tokenBPriceValue: params.tokenBPrice?.toString()
       });
+
+      const result = await createPoolAndMintFirstPositionWithAmounts(params);
 
       console.log('✅ Pool operation completed successfully:', {
         poolAddress: result.poolAddress,
@@ -275,7 +282,7 @@ export function SellOnMarket({
       });
 
       // Refresh pool info
-      const newPoolInfo = await getPoolInfo(token0, token1, FeeAmount.HIGH, publicClient);
+      const newPoolInfo = await getPoolInfo(token0, token1, UNISWAP_FEE_TIER, publicClient);
       setPoolInfo(newPoolInfo);
 
       // Refresh pool positions status
@@ -398,14 +405,53 @@ export function SellOnMarket({
                     </p>
                   </div>
                 ) : (
-                  <div className="text-center">
-                    <p className="font-bold text-lg text-gray-600 mb-2">
-                      No market exists for {tokenSymbol} on {JB_CHAINS[Number(sellChainId) as JBChainId].name}
-                    </p>
+                  <div className="space-y-4">
+                    <div className="text-center">
+                      <p className="font-bold text-lg text-gray-600 mb-2">
+                        No market exists for {tokenSymbol} on {JB_CHAINS[Number(sellChainId) as JBChainId].name}
+                      </p>
+                      <p className="text-sm text-gray-500 mb-4">
+                        Create the initial liquidity pool by providing token amounts
+                      </p>
+                    </div>
+                    
+                    {/* Token Amount Inputs */}
+                    <div className="space-y-3">
+                      <div>
+                        <Label htmlFor="projectTokenAmount">
+                          {tokens?.projectToken.symbol} Amount
+                        </Label>
+                        <Input
+                          id="projectTokenAmount"
+                          type="number"
+                          value={projectTokenAmount}
+                          onChange={(e) => setProjectTokenAmount(e.target.value)}
+                          placeholder="1.0"
+                          min="0"
+                          step="0.1"
+                        />
+                      </div>
+                      
+                      <div>
+                        <Label htmlFor="nativeTokenAmount">
+                          {tokens?.nativeToken.symbol} Amount
+                        </Label>
+                        <Input
+                          id="nativeTokenAmount"
+                          type="number"
+                          value={nativeTokenAmount}
+                          onChange={(e) => setNativeTokenAmount(e.target.value)}
+                          placeholder="0.001"
+                          min="0"
+                          step="0.000001"
+                        />
+                      </div>
+                    </div>
+                    
                     <ButtonWithWallet
                       targetChainId={Number(sellChainId) as JBChainId}
                       onClick={createPool}
-                      disabled={isLoading}
+                      disabled={isLoading || !projectTokenAmount || !nativeTokenAmount}
                       className="w-full"
                     >
                       {isLoading ? 'Creating Market...' : 'Create Market'}

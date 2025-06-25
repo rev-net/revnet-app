@@ -50,6 +50,19 @@ export const formatTokenAmount = (
 };
 
 /**
+ * Format token amount with proper symbol handling for WETH/ETH
+ */
+export const formatTokenAmountWithSymbol = (
+  amount: bigint,
+  decimals: number,
+  token: Token,
+  displayDecimals: number = 6
+): string => {
+  const displaySymbol = getNativeTokenDisplaySymbol(token, token.chainId);
+  return formatTokenAmount(amount, decimals, displaySymbol, displayDecimals);
+};
+
+/**
  * Format token amount using FixedInt for consistent formatting
  */
 export const formatTokenAmountWithFixedInt = (
@@ -72,18 +85,22 @@ export const hasSufficientBalance = (
   isSingleSided: boolean,
   activeView: string
 ): boolean => {
-  if (!projectAmount) return true;
-  
-  const projectAmountWei = BigInt(parseFloat(projectAmount) * Math.pow(10, 18));
-  const hasProjectBalance = (projectTokenBalance ?? 0n) >= projectAmountWei;
-  
+  // For single-sided liquidity, only project amount is required
   if (isSingleSided) {
+    if (!projectAmount) return false;
+    const projectAmountWei = BigInt(Math.floor(parseFloat(projectAmount) * Math.pow(10, 18)));
+    const hasProjectBalance = (projectTokenBalance ?? 0n) >= projectAmountWei;
     return hasProjectBalance;
   }
   
-  if (!nativeAmount) return hasProjectBalance;
+  // For two-sided liquidity, both amounts are required
+  if (!projectAmount || !nativeAmount) return false;
   
-  const nativeAmountWei = BigInt(parseFloat(nativeAmount) * Math.pow(10, 18));
+  const projectAmountWei = BigInt(Math.floor(parseFloat(projectAmount) * Math.pow(10, 18)));
+  const nativeAmountWei = BigInt(Math.floor(parseFloat(nativeAmount) * Math.pow(10, 18)));
+  
+  const hasProjectBalance = (projectTokenBalance ?? 0n) >= projectAmountWei;
+  
   // Use ETH balance for LP section, WETH balance for other sections
   const relevantNativeBalance = activeView === 'lp' ? (ethBalance ?? 0n) : (nativeTokenBalance ?? 0n);
   const hasNativeBalance = relevantNativeBalance >= nativeAmountWei;
@@ -98,6 +115,7 @@ export const getBalanceErrorMessage = (
   projectAmount: string,
   nativeAmount: string,
   projectToken: Token,
+  nativeToken: Token,
   projectTokenBalance: bigint | undefined,
   nativeTokenBalance: bigint | undefined,
   ethBalance: bigint | undefined,
@@ -107,25 +125,36 @@ export const getBalanceErrorMessage = (
   ethTokenAmount: { amount: FixedInt<number>; symbol: string | undefined } | null,
   nativeTokenAmount: { amount: FixedInt<number>; symbol: string | undefined } | null
 ): string | null => {
-  if (!projectAmount) return null;
+  // For single-sided liquidity, only project amount is required
+  if (isSingleSided) {
+    if (!projectAmount) return `Please enter ${projectToken.symbol} amount`;
+    
+    const projectAmountWei = BigInt(Math.floor(parseFloat(projectAmount) * Math.pow(10, 18)));
+    
+    if ((projectTokenBalance ?? 0n) < projectAmountWei) {
+      return `Insufficient ${projectToken.symbol} balance. You have ${formatTokenAmountWithFixedInt(projectTokenAmount)} ${projectToken.symbol}`;
+    }
+    return null;
+  }
   
-  const projectAmountWei = BigInt(parseFloat(projectAmount) * Math.pow(10, 18));
+  // For two-sided liquidity, both amounts are required
+  if (!projectAmount) return `Please enter ${projectToken.symbol} amount`;
+  if (!nativeAmount) return `Please enter ${getNativeTokenDisplaySymbolForBalance(nativeToken, nativeToken.chainId, activeView)} amount`;
+  
+  const projectAmountWei = BigInt(Math.floor(parseFloat(projectAmount) * Math.pow(10, 18)));
+  const nativeAmountWei = BigInt(Math.floor(parseFloat(nativeAmount) * Math.pow(10, 18)));
   
   if ((projectTokenBalance ?? 0n) < projectAmountWei) {
     return `Insufficient ${projectToken.symbol} balance. You have ${formatTokenAmountWithFixedInt(projectTokenAmount)} ${projectToken.symbol}`;
   }
   
-  if (!isSingleSided && nativeAmount) {
-    const nativeAmountWei = BigInt(parseFloat(nativeAmount) * Math.pow(10, 18));
-    
-    // Use ETH balance for LP section, WETH balance for other sections
-    const relevantNativeBalance = activeView === 'lp' ? (ethBalance ?? 0n) : (nativeTokenBalance ?? 0n);
-    const relevantNativeAmount = activeView === 'lp' ? ethTokenAmount : nativeTokenAmount;
-    const relevantNativeSymbol = getNativeTokenDisplaySymbolForBalance(projectToken, projectToken.chainId, activeView);
-    
-    if (relevantNativeBalance < nativeAmountWei) {
-      return `Insufficient ${relevantNativeSymbol} balance. You have ${formatTokenAmountWithFixedInt(relevantNativeAmount)} ${relevantNativeSymbol}`;
-    }
+  // Use ETH balance for LP section, WETH balance for other sections
+  const relevantNativeBalance = activeView === 'lp' ? (ethBalance ?? 0n) : (nativeTokenBalance ?? 0n);
+  const relevantNativeAmount = activeView === 'lp' ? ethTokenAmount : nativeTokenAmount;
+  const relevantNativeSymbol = getNativeTokenDisplaySymbolForBalance(nativeToken, nativeToken.chainId, activeView);
+  
+  if (relevantNativeBalance < nativeAmountWei) {
+    return `Insufficient ${relevantNativeSymbol} balance. You have ${formatTokenAmountWithFixedInt(relevantNativeAmount)} ${relevantNativeSymbol}`;
   }
   
   return null;

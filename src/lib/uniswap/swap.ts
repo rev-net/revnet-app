@@ -1,7 +1,7 @@
 import { Token, Percent } from '@uniswap/sdk-core'
 import { FeeAmount, encodeRouteToPath, Route, Pool } from '@uniswap/v3-sdk'
 import { Address, WalletClient, PublicClient, bytesToHex, encodeAbiParameters } from 'viem'
-import { UNISWAP_V3_ROUTER_ADDRESSES, UNISWAP_V3_QUOTER_ADDRESSES, WETH_ADDRESSES, PERMIT2_ADDRESSES } from '@/constants'
+import { UNISWAP_V3_ROUTER_ADDRESSES, UNISWAP_V3_QUOTER_ADDRESSES, WETH_ADDRESSES, PERMIT2_ADDRESSES, UNISWAP_FEE_TIER } from '@/constants'
 import { getPoolState, computePoolAddressForTokens, createPoolInstance } from './pool'
 import { ensureTokenApproval, ensurePermit2Approval } from './approvals'
 import { CommandType } from '@uniswap/universal-router-sdk'
@@ -94,7 +94,7 @@ export async function getSwapQuote(
   tokenOut: Token,
   amountIn: bigint,
   publicClient: PublicClient,
-  fee: FeeAmount = FeeAmount.HIGH
+  fee: FeeAmount = UNISWAP_FEE_TIER
 ): Promise<SwapQuoteResult> {
   const quoterAddress = getQuoterAddress(tokenIn.chainId)
   
@@ -193,7 +193,7 @@ export async function performSwap({
   account,
   slippageTolerance = new Percent(50, 10_000), // 0.5%
   deadline = BigInt(Math.floor(Date.now() / 1e3) + 60 * 10), // 10 minutes
-  fee = FeeAmount.HIGH
+  fee = UNISWAP_FEE_TIER
 }: SwapParams): Promise<SwapResult> {
   
   // Get quote first
@@ -411,7 +411,7 @@ export async function checkPoolForSwap(
   tokenIn: Token,
   tokenOut: Token,
   publicClient: PublicClient,
-  fee: FeeAmount = FeeAmount.HIGH
+  fee: FeeAmount = UNISWAP_FEE_TIER
 ): Promise<{ exists: boolean; hasLiquidity: boolean; poolAddress: Address | null }> {
   try {
     const poolAddress = computePoolAddressForTokens(tokenIn, tokenOut, fee, tokenIn.chainId)
@@ -439,7 +439,7 @@ export async function checkPoolLiquidityForSwap(
   tokenOut: Token,
   amountIn: bigint,
   publicClient: PublicClient,
-  fee: FeeAmount = FeeAmount.HIGH
+  fee: FeeAmount = UNISWAP_FEE_TIER
 ): Promise<{ hasSufficientLiquidity: boolean; tokenInBalance: bigint; tokenOutBalance: bigint; poolAddress: Address | null }> {
   try {
     const poolAddress = computePoolAddressForTokens(tokenIn, tokenOut, fee, tokenIn.chainId)

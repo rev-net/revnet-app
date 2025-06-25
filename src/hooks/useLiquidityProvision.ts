@@ -2,10 +2,12 @@ import { useState } from "react";
 import { Address, parseEther } from "viem";
 import { Token } from "@uniswap/sdk-core";
 import { FeeAmount } from "@uniswap/v3-sdk";
+import { UNISWAP_FEE_TIER } from "@/constants";
 import { PublicClient, WalletClient } from "viem";
 import { completeLiquidityProvision } from "@/lib/uniswap";
 import { calculateInitialSqrtPrice, isValidPrice } from "@/lib/uniswap/priceCalculations";
 import { useToast } from "@/components/ui/use-toast";
+import { getNativeTokenDisplaySymbol } from "@/lib/tokenDisplay";
 
 interface UseLiquidityProvisionProps {
   projectToken: Token;
@@ -131,27 +133,43 @@ export const useLiquidityProvision = ({
 
       // For two-sided liquidity, also check native token balance
       if (!isSingleSided) {
-        const nativeTokenBalance = await publicClient.readContract({
-          address: nativeToken.address as Address,
-          abi: [
-            {
-              inputs: [{ name: 'account', type: 'address' }],
-              name: 'balanceOf',
-              outputs: [{ name: '', type: 'uint256' }],
-              stateMutability: 'view',
-              type: 'function'
-            }
-          ],
-          functionName: 'balanceOf',
-          args: [address]
-        });
+        // For LP, we need to check ETH balance since we wrap ETH to WETH
+        // For other cases, check the native token balance
+        let nativeTokenBalance: bigint;
+        
+        // Check if native token is WETH
+        const { WETH_ADDRESSES } = await import('@/constants');
+        const wethAddress = WETH_ADDRESSES[nativeToken.chainId];
+        const isNativeTokenWeth = wethAddress && nativeToken.address.toLowerCase() === wethAddress.toLowerCase();
+        
+        if (isNativeTokenWeth) {
+          // For WETH, check ETH balance since we'll wrap it
+          nativeTokenBalance = await publicClient.getBalance({ address });
+        } else {
+          // For other tokens, check the token balance
+          nativeTokenBalance = await publicClient.readContract({
+            address: nativeToken.address as Address,
+            abi: [
+              {
+                inputs: [{ name: 'account', type: 'address' }],
+                name: 'balanceOf',
+                outputs: [{ name: '', type: 'uint256' }],
+                stateMutability: 'view',
+                type: 'function'
+              }
+            ],
+            functionName: 'balanceOf',
+            args: [address]
+          });
+        }
 
         if (nativeTokenBalance < nativeAmountWei) {
-          const userBalanceFormatted = (Number(nativeTokenBalance) / Math.pow(10, nativeToken.decimals)).toFixed(6);
+          const userBalanceFormatted = (Number(nativeTokenBalance) / Math.pow(10, 18)).toFixed(6);
+          const nativeTokenDisplaySymbol = getNativeTokenDisplaySymbol(nativeToken, nativeToken.chainId);
           toast({
             variant: "destructive",
             title: "Insufficient Balance",
-            description: `You only have ${userBalanceFormatted} ${nativeToken.symbol}`
+            description: `You only have ${userBalanceFormatted} ${nativeTokenDisplaySymbol}`
           });
           return;
         }
@@ -176,7 +194,7 @@ export const useLiquidityProvision = ({
       const result = await completeLiquidityProvision({
         token0,
         token1,
-        fee: FeeAmount.HIGH,
+        fee: UNISWAP_FEE_TIER,
         amount0,
         amount1,
         recipient: address,

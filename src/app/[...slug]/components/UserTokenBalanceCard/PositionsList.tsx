@@ -17,7 +17,7 @@ import {
   tickToPrice,
   type UserPosition 
 } from "@/lib/uniswap";
-import { POSITION_MANAGER_ADDRESSES } from "@/constants";
+import { POSITION_MANAGER_ADDRESSES, UNISWAP_FEE_TIER } from "@/constants";
 
 interface PositionsListProps {
   projectToken: Token;
@@ -42,7 +42,7 @@ export function PositionsList({ projectToken, nativeToken, activeView }: Positio
 
     try {
       const { computePoolAddressForTokens } = await import('@/lib/uniswap/pool');
-      const poolAddress = computePoolAddressForTokens(projectToken, nativeToken, FeeAmount.HIGH, projectToken.chainId);
+      const poolAddress = computePoolAddressForTokens(projectToken, nativeToken, UNISWAP_FEE_TIER, projectToken.chainId);
       
       const liquidity = await publicClient.readContract({
         address: poolAddress,
@@ -79,7 +79,7 @@ export function PositionsList({ projectToken, nativeToken, activeView }: Positio
       account: address,
       token0: projectToken,
       token1: nativeToken,
-      fee: FeeAmount.HIGH,
+      fee: UNISWAP_FEE_TIER,
       publicClient
     });
 

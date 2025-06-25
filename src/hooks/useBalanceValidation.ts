@@ -10,6 +10,7 @@ interface UseBalanceValidationProps {
   projectAmount: string;
   nativeAmount: string;
   projectToken: Token;
+  nativeToken: Token;
   projectTokenBalance: bigint | undefined;
   nativeTokenBalance: bigint | undefined;
   ethBalance: bigint | undefined;
@@ -24,6 +25,7 @@ export const useBalanceValidation = ({
   projectAmount,
   nativeAmount,
   projectToken,
+  nativeToken,
   projectTokenBalance,
   nativeTokenBalance,
   ethBalance,
@@ -50,6 +52,7 @@ export const useBalanceValidation = ({
       projectAmount,
       nativeAmount,
       projectToken,
+      nativeToken,
       projectTokenBalance,
       nativeTokenBalance,
       ethBalance,

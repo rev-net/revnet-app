@@ -52,15 +52,10 @@ export function computePoolAddressForTokens(
     throw new Error(`No factory address found for chain ${chainId}`)
   }
 
-    // Sort tokens by address (tokenA < tokenB) to match factory behavior
-  const [tokenA, tokenB] = token0.address.toLowerCase() < token1.address.toLowerCase() 
-    ? [token0, token1] 
-    : [token1, token0]
-
   return computePoolAddress({
     factoryAddress,
-    tokenA: tokenA,
-    tokenB: tokenB,
+    tokenA: token0,
+    tokenB: token1,
     fee,
   }) as Address
 }
