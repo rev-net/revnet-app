@@ -675,7 +675,11 @@ export function AddLiquidity({
             </span>
           </div>
           
-        <PositionsList projectToken={projectToken} nativeToken={nativeToken} />
+        <PositionsList 
+          projectToken={projectToken} 
+          nativeToken={nativeToken} 
+          activeView={activeView}
+        />
     </div>
       )}
     </>

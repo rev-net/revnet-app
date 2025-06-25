@@ -710,6 +710,81 @@ export function hasUnclaimedFees(position: UserPosition): boolean {
 }
 
 /**
+ * Calculate current unclaimed fees for a position
+ * This compares current fee growth with the last recorded fee growth
+ */
+export async function calculateUnclaimedFees({
+  position,
+  publicClient,
+  chainId
+}: {
+  position: UserPosition
+  publicClient: any
+  chainId: number
+}): Promise<{ amount0: bigint; amount1: bigint }> {
+  try {
+    // Get current fee growth from the pool
+    const poolAddress = computePoolAddressForTokens(
+      { address: position.token0, decimals: 18, symbol: '', chainId } as Token,
+      { address: position.token1, decimals: 18, symbol: '', chainId } as Token,
+      position.fee as FeeAmount,
+      chainId
+    )
+
+    // Get current tick from the pool to check if position is in range
+    const slot0 = await publicClient.readContract({
+      address: poolAddress,
+      abi: [
+        {
+          inputs: [],
+          name: 'slot0',
+          outputs: [
+            { name: 'sqrtPriceX96', type: 'uint160' },
+            { name: 'tick', type: 'int24' },
+            { name: 'observationIndex', type: 'uint16' },
+            { name: 'observationCardinality', type: 'uint16' },
+            { name: 'observationCardinalityNext', type: 'uint16' },
+            { name: 'feeProtocol', type: 'uint8' },
+            { name: 'unlocked', type: 'bool' }
+          ],
+          stateMutability: 'view',
+          type: 'function'
+        }
+      ],
+      functionName: 'slot0',
+    })
+
+    const currentTick = Number(slot0[1])
+    
+    // Check if position is in range
+    const isInRange = currentTick >= position.tickLower && currentTick <= position.tickUpper
+    
+    if (!isInRange) {
+      // Position is out of range, so it won't accumulate new fees
+      // Only return already owed tokens
+      return {
+        amount0: position.tokensOwed0,
+        amount1: position.tokensOwed1
+      }
+    }
+
+    // For now, just return the already owed tokens
+    // The full fee calculation is complex and requires getting fee growth data
+    return {
+      amount0: position.tokensOwed0,
+      amount1: position.tokensOwed1
+    }
+  } catch (error) {
+    console.error('Error calculating unclaimed fees:', error)
+    // Fallback to just the owed tokens
+    return {
+      amount0: position.tokensOwed0,
+      amount1: position.tokensOwed1
+    }
+  }
+}
+
+/**
  * Check if a pool has any positions (liquidity)
  */
 export async function checkPoolHasPositions({

@@ -34,6 +34,7 @@ export {
   removeLiquidity,
   getPositionFees,
   hasUnclaimedFees,
+  calculateUnclaimedFees,
   checkPoolHasPositions,
   type CreatePositionParams,
   type MintPositionParams,

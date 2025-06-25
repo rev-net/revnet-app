@@ -54,14 +54,17 @@ export function formatTickRangeToPriceRange(
   tickUpper: number,
   projectToken: Token,
   nativeToken: Token,
-  format: 'tokensPerNative' | 'nativePerToken' = 'nativePerToken'
+  format: 'tokensPerNative' | 'nativePerToken' = 'nativePerToken',
+  getTokenSymbol?: (tokenAddress: Address) => string
 ): string {
   try {
     // Check if this is a full-range position
     const isFullRange = tickLower <= -887200 && tickUpper >= 887200;
     
     if (isFullRange) {
-      return `Full Range (0 to ∞ ${projectToken.symbol}/${nativeToken.symbol})`;
+      const projectSymbol = getTokenSymbol ? getTokenSymbol(projectToken.address) : projectToken.symbol;
+      const nativeSymbol = getTokenSymbol ? getTokenSymbol(nativeToken.address) : nativeToken.symbol;
+      return `Full Range (0 to ∞ ${projectSymbol}/${nativeSymbol})`;
     }
     
     // Convert ticks to prices
@@ -75,14 +78,19 @@ export function formatTickRangeToPriceRange(
     
     if (format === 'nativePerToken') {
       // For single-sided liquidity, show native token per project token
-      return `${lowerPrice.toFixed(6)} - ${upperPrice.toFixed(6)} ${nativeToken.symbol} per 1 ${projectToken.symbol}`;
+      const projectSymbol = getTokenSymbol ? getTokenSymbol(projectToken.address) : projectToken.symbol;
+      const nativeSymbol = getTokenSymbol ? getTokenSymbol(nativeToken.address) : nativeToken.symbol;
+      return `${lowerPrice.toFixed(6)} - ${upperPrice.toFixed(6)} ${nativeSymbol} per 1 ${projectSymbol}`;
     } else {
       // Show tokens per native token
       const token0IsProject = projectToken.address.toLowerCase() < nativeToken.address.toLowerCase();
+      const projectSymbol = getTokenSymbol ? getTokenSymbol(projectToken.address) : projectToken.symbol;
+      const nativeSymbol = getTokenSymbol ? getTokenSymbol(nativeToken.address) : nativeToken.symbol;
+      
       if (token0IsProject) {
-        return `${lowerPrice.toFixed(6)} - ${upperPrice.toFixed(6)} ${projectToken.symbol}/${nativeToken.symbol}`;
+        return `${lowerPrice.toFixed(6)} - ${upperPrice.toFixed(6)} ${projectSymbol}/${nativeSymbol}`;
       } else {
-        return `${lowerPrice.toFixed(6)} - ${upperPrice.toFixed(6)} ${nativeToken.symbol}/${projectToken.symbol}`;
+        return `${lowerPrice.toFixed(6)} - ${upperPrice.toFixed(6)} ${nativeSymbol}/${projectSymbol}`;
       }
     }
   } catch (error) {
