@@ -3,7 +3,6 @@ import { ChainLogo } from "@/components/ChainLogo";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -19,7 +18,6 @@ import {
   JB_CHAINS,
   NATIVE_TOKEN,
   getTokenBtoAQuote,
-  JBProjectToken,
 } from "juice-sdk-core";
 import {
   JBChainId,
@@ -29,7 +27,7 @@ import {
   useJBTokenContext,
 } from "juice-sdk-react";
 import { PropsWithChildren, useEffect, useMemo, useState } from "react";
-import { Address, parseEther } from "viem";
+import { parseEther } from "viem";
 import { useAccount, usePublicClient, useWalletClient, useChainId, useSwitchChain } from "wagmi";
 import { Token } from "@uniswap/sdk-core";
 import { FeeAmount } from "@uniswap/v3-sdk";
@@ -60,10 +58,8 @@ export function SellOnMarket({
   const publicClient = usePublicClient();
   const { toast } = useToast();
   const { token } = useJBTokenContext();
-  const { data: balances } = useSuckersUserTokenBalance();
   const { data: suckers } = useSuckers();
   const { ruleset, rulesetMetadata } = useJBRulesetContext();
-  const nativeTokenSymbol = useNativeTokenSymbol();
 
   // State
   const [sellChainId, setSellChainId] = useState<string>("");
@@ -303,13 +299,13 @@ export function SellOnMarket({
   };
 
   return (
-    <Dialog>
+    <Dialog open={disabled === true ? false : undefined}>
       <DialogTrigger asChild>
         <div className="cursor-pointer">{children}</div>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Sell {tokenSymbol} on Market</DialogTitle>
+          <DialogTitle>Trade {tokenSymbol}</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4">
@@ -337,7 +333,7 @@ export function SellOnMarket({
               </SelectContent>
             </Select>
             {isSwitchingChain && (
-              <p className="text-xs text-blue-600 mt-1">
+              <p className="text-xs text-gray-600 mt-1">
                  Switching to {sellChainId ? JB_CHAINS[Number(sellChainId) as JBChainId].name : ''}...
               </p>
             )}
@@ -350,9 +346,9 @@ export function SellOnMarket({
             <>
               {/* Chain Switch Required */}
               {needsChainSwitch && (
-                <div className="p-4 border rounded-lg bg-amber-50 border-amber-200">
+                <div className="p-4 border rounded-lg bg-gray-50 border-gray-200">
                   <div className="text-center">
-                    <p className="font-medium text-amber-800 mb-3">
+                    <p className="font-medium text-gray-800 mb-3">
                       Switch to {JB_CHAINS[Number(sellChainId) as JBChainId].name} to continue
                     </p>
                     <Button
@@ -403,7 +399,7 @@ export function SellOnMarket({
                   </div>
                 ) : (
                   <div className="text-center">
-                    <p className="font-bold text-lg text-amber-600 mb-2">
+                    <p className="font-bold text-lg text-gray-600 mb-2">
                       No market exists for {tokenSymbol} on {JB_CHAINS[Number(sellChainId) as JBChainId].name}
                     </p>
                     <ButtonWithWallet
@@ -412,7 +408,7 @@ export function SellOnMarket({
                       disabled={isLoading}
                       className="w-full"
                     >
-                      {isLoading ? 'Creating Pool...' : 'Create Pool'}
+                      {isLoading ? 'Creating Market...' : 'Create Market'}
                     </ButtonWithWallet>
                   </div>
                 )}

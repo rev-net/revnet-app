@@ -469,7 +469,7 @@ export function AddLiquidity({
             className="w-full"
             loading={isSwapLoading}
           >
-            {isSwapLoading ? "Selling..." : "Sell on Market"}
+            {isSwapLoading ? "Selling..." : "Sell now"}
           </Button>
         </div>
       )}
