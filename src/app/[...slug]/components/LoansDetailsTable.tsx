@@ -35,7 +35,7 @@ export function LoanDetailsTable({
     owner: address,
     projectId: Number(revnetId),
   }, {
-    pollInterval: 5000, // Refresh every 5 seconds
+    pollInterval: 3000, // Refresh every 3 seconds
   });
   if (!data?.loans?.items) return null;
 

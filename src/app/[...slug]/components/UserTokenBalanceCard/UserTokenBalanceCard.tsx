@@ -54,9 +54,7 @@ export function UserTokenBalanceCard() {
         {token?.data?.symbol && creditBalance && primaryNativeTerminal.data ? (
           <BorrowDialog
             projectId={projectId}
-            creditBalance={creditBalance}
             tokenSymbol={tokenSymbol}
-            primaryTerminalEth={primaryNativeTerminal.data}
           >
             <Button
               ref={borrowDialogTriggerRef}
