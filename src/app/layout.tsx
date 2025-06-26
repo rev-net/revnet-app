@@ -4,7 +4,9 @@ import { twMerge } from "tailwind-merge";
 import "./globals.css";
 import { Providers } from "./providers";
 import { headers } from "next/headers";
+//import type { Metadata } from "next";
 import type { Metadata } from "next";
+import { metadata } from "@/lib/metadata"
 
 
 import localFont from "next/font/local";
@@ -57,7 +59,7 @@ export default function RootLayout({
   );
 }
 
-
+/*
 export async function generateMetadata(): Promise<Metadata> {
   const headersList = headers();
   const host = headersList.get("host");
@@ -110,5 +112,67 @@ export async function generateMetadata(): Promise<Metadata> {
     other: {
       "fc:frame": JSON.stringify(frame),
     },
+  };
+}
+*/
+
+export async function generateMetadata(): Promise<Metadata> {
+  const headersList = headers();
+  const host = headersList.get("host");
+  const proto = headersList.get("x-forwarded-proto") || "http";
+  const origin = `${proto}://${host}`;
+
+  const fullPath = "/";
+  const url = new URL(fullPath, origin);
+
+  const imgUrl = `${origin}/assets/img/anachronistic1-1.png`;
+
+  const frame = {
+    version: "next",
+    imageUrl: imgUrl,
+    button: {
+      title: metadata.description,
+      action: {
+        type: "launch_frame",
+        name: metadata.siteName,
+        url: url.href,
+        splashImageUrl: `${origin}/assets/img/small-bw-200x200.png`,
+        splashBackgroundColor: "#ffffff",
+      },
+    },
+  };
+
+  return {
+    title: metadata.siteName, 
+    description: metadata.description,
+    alternates: {
+      canonical: url, 
+    },
+    openGraph: {
+      title: metadata.siteName, 
+      description: metadata.description, 
+      siteName: metadata.siteName, 
+      images: [
+        {
+          url: imgUrl, 
+          width: 700,
+          height: 370,
+          alt: "Revnet preview image",
+        },
+      ],
+      url: url,
+      type: "website",
+    },
+    twitter: {
+      title: metadata.siteName,
+      description: metadata.description,
+      card: "summary_large_image",
+      images: [imgUrl],
+    },
+    other: {
+      "fc:frame": JSON.stringify(frame),
+    },
+    manifest: metadata.manifest,
+    keywords: metadata.keywords, 
   };
 }
