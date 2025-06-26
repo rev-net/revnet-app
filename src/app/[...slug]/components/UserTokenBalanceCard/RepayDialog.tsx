@@ -22,7 +22,6 @@ export function RepayDialog({
   onOpenChange,
   loanId,
   chainId,
-  ...props
 }: {
   projectId: bigint;
   tokenSymbol: string;
