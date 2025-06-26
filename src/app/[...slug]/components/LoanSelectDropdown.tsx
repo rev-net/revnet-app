@@ -27,6 +27,8 @@ export function LoanSelectDropdown({
   const { data } = useBendystrawQuery(LoansDetailsByAccountDocument, {
     owner: address,
     projectId: Number(revnetId),
+  }, {
+    pollInterval: 5000,
   });
 
   if (!data?.loans?.items?.length) return null;

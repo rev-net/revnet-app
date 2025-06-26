@@ -34,6 +34,8 @@ export function LoanDetailsTable({
   const { data } = useBendystrawQuery(LoansDetailsByAccountDocument, {
     owner: address,
     projectId: Number(revnetId),
+  }, {
+    pollInterval: 5000, // Refresh every 5 seconds
   });
   if (!data?.loans?.items) return null;
 
