@@ -7,6 +7,8 @@ import { useWalletClient } from "wagmi";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
+import { NativeTokenValue } from "@/components/NativeTokenValue";
+import { TokenAmount } from "@/components/TokenAmount";
 
 import {
   JBChainId,
@@ -437,8 +439,6 @@ const collateralCountToTransfer = internalSelectedLoan && currentBorrowableOnSel
   }, [collateralAmount, userProjectTokenBalance, borrowableAmountRaw, prepaidPercent]);
 
 
-const feeData = generateFeeData({ grossBorrowedEth, ethToWallet, prepaidPercent });
-
   // Calculate prepaidMonths using new prepaidDuration logic
   const monthsToPrepay = (parseFloat(prepaidPercent) / 50) * 120;
   const prepaidMonths = monthsToPrepay;
@@ -513,7 +513,7 @@ const feeData = generateFeeData({ grossBorrowedEth, ethToWallet, prepaidPercent 
                     onChange={(e) => setCollateralAmount(e.target.value)}
                     placeholder={
                       cashOutChainId && selectedBalance
-                        ? (Number(selectedBalance.balance.value) / 1e18).toFixed(8)
+                        ? (Number(selectedBalance.balance.value) / 1e18).toFixed(6)
                         : "Enter amount"
                     }
                     className="mt-2"
@@ -569,6 +569,13 @@ const feeData = generateFeeData({ grossBorrowedEth, ethToWallet, prepaidPercent 
                 ? Number(effectiveBorrowableAmount) / 1e18
                 : 0;
 
+              // Generate fee data using the simulated values for consistency
+              const simulatedFeeData = generateFeeData({ 
+                grossBorrowedEth: simulatedGrossBorrowedEth, 
+                ethToWallet: simulatedEthToWallet, 
+                prepaidPercent 
+              });
+
               if (collateralAmount && !isNaN(Number(collateralAmount))) {
                 return (
                   <SimulatedLoanCard
@@ -577,7 +584,7 @@ const feeData = generateFeeData({ grossBorrowedEth, ethToWallet, prepaidPercent 
                     ethToWallet={simulatedEthToWallet}
                     prepaidPercent={prepaidPercent}
                     grossBorrowedEth={simulatedGrossBorrowedEth}
-                    feeData={feeData}
+                    feeData={simulatedFeeData}
                   />
                 );
               }
@@ -596,19 +603,39 @@ const feeData = generateFeeData({ grossBorrowedEth, ethToWallet, prepaidPercent 
                 ▶
               </span>
             </button>
-            {showChart && (
-              <LoanFeeChart
-                prepaidPercent={prepaidPercent}
-                setPrepaidPercent={setPrepaidPercent}
-                feeData={feeData}
-                ethToWallet={ethToWallet}
-                grossBorrowedEth={grossBorrowedEth}
-                collateralAmount={collateralAmount}
-                tokenSymbol={tokenSymbol}
-                displayYears={displayYears}
-                displayMonths={displayMonths}
-              />
-            )}
+            {showChart && (() => {
+              // Use the same simulated values for the chart
+              const effectiveBorrowableAmount =
+                internalSelectedLoan && showOtherCollateral && selectedLoanReallocAmount
+                  ? selectedLoanReallocAmount - BigInt(internalSelectedLoan.borrowAmount)
+                  : estimatedBorrowFromInputOnly;
+              const simulatedEthToWallet = effectiveBorrowableAmount
+                ? Number(effectiveBorrowableAmount) / 1e18 * (1 - FIXEDLOANFEES)
+                : 0;
+              const simulatedGrossBorrowedEth = effectiveBorrowableAmount
+                ? Number(effectiveBorrowableAmount) / 1e18
+                : 0;
+
+              const simulatedFeeData = generateFeeData({ 
+                grossBorrowedEth: simulatedGrossBorrowedEth, 
+                ethToWallet: simulatedEthToWallet, 
+                prepaidPercent 
+              });
+
+              return (
+                <LoanFeeChart
+                  prepaidPercent={prepaidPercent}
+                  setPrepaidPercent={setPrepaidPercent}
+                  feeData={simulatedFeeData}
+                  ethToWallet={simulatedEthToWallet}
+                  grossBorrowedEth={simulatedGrossBorrowedEth}
+                  collateralAmount={collateralAmount}
+                  tokenSymbol={tokenSymbol}
+                  displayYears={displayYears}
+                  displayMonths={displayMonths}
+                />
+              );
+            })()}
             {/* Additional Collateral toggleable section (conditionally rendered) */}
             {showAddOnCollateralSection && (
               <>
@@ -643,7 +670,7 @@ const feeData = generateFeeData({ grossBorrowedEth, ethToWallet, prepaidPercent 
                   <div className="text-sm text-zinc-700 mt-4 space-y-1">
                     <div className="flex justify-between items-center">
                       <p>
-                        This loan has unlocked <b>{(Number(collateralHeadroom) / 1e18).toFixed(6)}</b> ETH of appreciated value you can now access.
+                        This loan has unlocked <b><NativeTokenValue wei={collateralHeadroom} decimals={6} /></b> of appreciated value you can now access.
                       </p>
                       <button
                         onClick={() => setInternalSelectedLoan(null)}
@@ -659,7 +686,7 @@ const feeData = generateFeeData({ grossBorrowedEth, ethToWallet, prepaidPercent 
                       You're also escrowing <b>{collateralAmount && Number(collateralAmount) > 0 ? collateralAmount : "0"}</b> {tokenSymbol} of new collateral.
                     </p>
                     <p>
-                      Existing borrowed: <b>{(Number(internalSelectedLoan.borrowAmount) / 1e18).toFixed(6)}</b> ETH will be rolled into a new loan.
+                      Existing borrowed: <b><NativeTokenValue wei={BigInt(internalSelectedLoan.borrowAmount)} decimals={6} /></b> will be rolled into a new loan.
                     </p>
 
                     {selectedLoanReallocAmount &&
@@ -674,11 +701,10 @@ const feeData = generateFeeData({ grossBorrowedEth, ethToWallet, prepaidPercent 
                       Updated borrowable amount:{" "}
                       <b>
                         {selectedLoanReallocAmount && internalSelectedLoan
-                          ? (Number(selectedLoanReallocAmount - BigInt(internalSelectedLoan.borrowAmount)) / 1e18).toFixed(6)
+                          ? <NativeTokenValue wei={selectedLoanReallocAmount - BigInt(internalSelectedLoan.borrowAmount)} decimals={6} />
                           : "0.000000"}{" "}
-                        ETH
-                      </b>{" "}
-                      after fees.
+                        after fees.
+                      </b>
                     </p>
                   </div>
                 )}

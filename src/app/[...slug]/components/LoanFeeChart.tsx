@@ -63,7 +63,7 @@ import {
               />
               <YAxis
                 label={{
-                  value: "Collateral decay %",
+                  value: "Fee amount (ETH)",
                   angle: -90,
                   position: "insideLeft",
                   offset: 0,
@@ -74,18 +74,25 @@ import {
               />
               <Tooltip
                 formatter={(value: number, name: string, props) => {
-                  const repayAmount = (grossBorrowedEth || 0) + value;
-                  const netToPay = repayAmount - ethToWallet;
                   if (props?.payload?.year >= 9.99) {
                     return [
                       "—",
                       "No collateral can be reclaimed at this time",
                     ];
                   }
+                  
+                  const totalUnlockCost = grossBorrowedEth + value;
+                  const isVerySmallCost = totalUnlockCost < 0.000001;
+                  
+                  const baseMessage = `${collateralAmount} ${tokenSymbol}`;
+                  const costMessage = `Total cost to unlock: ${totalUnlockCost.toFixed(6)} ETH`;
+                  const warningMessage = isVerySmallCost ? "⚠️ Very small fees (may be higher due to rounding)" : "";
+                  
                   return [
-                    `${collateralAmount} ${tokenSymbol}`,
-                    `Interest of ${netToPay.toFixed(6)} ETH for full collateral: `,
-                  ];
+                    baseMessage,
+                    costMessage,
+                    warningMessage,
+                  ].filter(Boolean);
                 }}
                 labelFormatter={(label: number) => {
                   if (label >= 9.99) {

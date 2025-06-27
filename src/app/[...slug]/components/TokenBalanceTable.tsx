@@ -16,6 +16,7 @@ function TokenBalanceRow({
   summary,
   showHeader,
   columns,
+  isSelectable = true,
 }: {
   chainId: JBChainId;
   balanceValue: bigint;
@@ -24,6 +25,7 @@ function TokenBalanceRow({
   summary?: { borrowAmount: bigint; collateral: bigint };
   showHeader: boolean;
   columns: Array<"chain" | "holding" | "borrowable" | "debt" | "collateral">;
+  isSelectable?: boolean;
 }) {
   const { data: borrowableAmount } = useReadRevLoansBorrowableAmountFrom({
     chainId,
@@ -31,7 +33,7 @@ function TokenBalanceRow({
   });
 
   function formatAmount(value?: bigint): string {
-    return value !== undefined ? (Number(value) / 1e18).toFixed(5) : "—";
+    return value !== undefined ? (Number(value) / 1e18).toFixed(6) : "—";
   }
 
   const hasAnyBalance =
@@ -40,34 +42,35 @@ function TokenBalanceRow({
     (summary?.borrowAmount && summary.borrowAmount > 0n) ||
     (summary?.collateral && summary.collateral > 0n);
 
-  if (!hasAnyBalance) return null;
+  // Show the row even if no balance, but mark it as not selectable
+  const opacityClass = hasAnyBalance ? "" : "opacity-50";
 
   return (
     <>
       {columns.includes("chain") && (
-        <TableCell className="whitespace-nowrap w-32">
+        <TableCell className={`whitespace-nowrap w-32 ${opacityClass}`}>
           <div className="flex items-center">
             <ChainLogo chainId={chainId} width={14} height={14} />
           </div>
         </TableCell>
       )}
       {columns.includes("holding") && (
-        <TableCell className="text-right">
+        <TableCell className={`text-right ${opacityClass}`}>
           <span className="whitespace-nowrap">{formatAmount(balanceValue)} {tokenSymbol}</span>
         </TableCell>
       )}
       {columns.includes("borrowable") && (
-        <TableCell className="text-right">
+        <TableCell className={`text-right ${opacityClass}`}>
           <span className="whitespace-nowrap">{formatAmount(borrowableAmount)} ETH</span>
         </TableCell>
       )}
       {columns.includes("debt") && (
-        <TableCell className="text-right">
+        <TableCell className={`text-right ${opacityClass}`}>
           <span className="whitespace-nowrap">{formatAmount(summary?.borrowAmount)} ETH</span>
         </TableCell>
       )}
       {columns.includes("collateral") && (
-        <TableCell className="text-right">
+        <TableCell className={`text-right ${opacityClass}`}>
           <span className="whitespace-nowrap">{formatAmount(summary?.collateral)} {tokenSymbol}</span>
         </TableCell>
       )}
@@ -122,15 +125,19 @@ export function TokenBalanceTable({
 
   const loanSummary = summarizeLoansByChain(data?.loans?.items);
 
-  // Auto-select the first selectable row if more than one row and no selection exists
-  const firstSelectable = balances?.find(({ chainId, balance }) => {
-    const summary = loanSummary[chainId];
-    return (
-      balance.value > 0n ||
-      (summary?.borrowAmount && summary.borrowAmount > 0n) ||
-      (summary?.collateral && summary.collateral > 0n)
-    );
+  // Get borrowable amounts for all chains to determine which are selectable
+  const chainBorrowableAmounts = balances?.map(({ chainId, balance }) => {
+    const { data: borrowableAmount } = useReadRevLoansBorrowableAmountFrom({
+      chainId: chainId as JBChainId,
+      args: [projectId, balance.value, 18n, 61166n],
+    });
+    return { chainId, borrowableAmount };
   });
+
+  // Auto-select the first chain with borrowable amount if no selection exists
+  const firstSelectable = chainBorrowableAmounts?.find(({ borrowableAmount }) => 
+    borrowableAmount !== undefined && borrowableAmount > 0n
+  );
 
   const hasAutoselected = useRef(false);
 
@@ -173,27 +180,27 @@ export function TokenBalanceTable({
                     const chainId = balance.chainId as JBChainId;
                     const summary = loanSummary[chainId];
 
-                    const hasAnyBalance =
-                      balance.balance.value > 0n ||
-                      (summary?.borrowAmount && summary.borrowAmount > 0n) ||
-                      (summary?.collateral && summary.collateral > 0n);
+                    // Get borrowable amount from pre-calculated values
+                    const chainBorrowableData = chainBorrowableAmounts?.find(cb => cb.chainId === chainId);
+                    const borrowableAmount = chainBorrowableData?.borrowableAmount;
 
-                    if (!hasAnyBalance) return null;
-
+                    const hasBorrowableAmount = borrowableAmount !== undefined && borrowableAmount > 0n;
                     const checked = selectedChainId === chainId;
+                    const isDisabled = !hasBorrowableAmount;
 
                     return (
                       <TableRow
                         key={index}
-                        className={`cursor-pointer hover:bg-zinc-100 ${checked ? "bg-zinc-100" : ""}`}
-                        onClick={() => onCheckRow?.(chainId, true)}
+                        className={`${isDisabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:bg-zinc-100'} ${checked ? "bg-zinc-100" : ""}`}
+                        onClick={() => !isDisabled && onCheckRow?.(chainId, true)}
                       >
                         <TableCell className="text-center">
                           <input
                             type="radio"
                             name="chain"
                             checked={checked}
-                            onChange={() => onCheckRow?.(chainId, true)}
+                            disabled={isDisabled}
+                            onChange={() => !isDisabled && onCheckRow?.(chainId, true)}
                           />
                         </TableCell>
                         <TokenBalanceRow
@@ -204,6 +211,7 @@ export function TokenBalanceTable({
                           summary={summary}
                           showHeader={false}
                           columns={columns}
+                          isSelectable={hasBorrowableAmount}
                         />
                       </TableRow>
                     );
