@@ -12,6 +12,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { ChainLogo } from "@/components/ChainLogo";
+import { Button } from "@/components/ui/button";
 
 export function LoanDetailsTable({
   revnetId,
@@ -24,7 +25,7 @@ export function LoanDetailsTable({
 }: {
   revnetId: bigint;
   address: string;
-  onSelectLoan?: (loanId: string, loanData: any) => void;
+  onSelectLoan?: (loanId: string, chainId: number) => void;
   chainId?: number;
   tokenSymbol: string;
   title?: string;
@@ -33,6 +34,8 @@ export function LoanDetailsTable({
   const { data } = useBendystrawQuery(LoansDetailsByAccountDocument, {
     owner: address,
     projectId: Number(revnetId),
+  }, {
+    pollInterval: 3000, // Refresh every 3 seconds
   });
   if (!data?.loans?.items) return null;
 
@@ -62,14 +65,14 @@ export function LoanDetailsTable({
                 <TableHead className="text-left pr-4">Borrowed</TableHead>
                 <TableHead className="text-left pr-4">Collateral</TableHead>
                 <TableHead className="text-left pr-6">Fees Increase In</TableHead>
+                <TableHead className="text-center">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {sortedLoans.map((loan) => (
                 <TableRow
                   key={`${loan.id}-${loan.createdAt}`}
-                  className={`cursor-pointer hover:bg-zinc-100 ${selectedLoanId === loan.id ? "bg-zinc-100" : ""}`}
-                  onClick={() => onSelectLoan?.(loan.id, loan)}
+                  className={`hover:bg-zinc-100 ${selectedLoanId === loan.id ? "bg-zinc-100" : ""}`}
                 >
                   <TableCell className="whitespace-nowrap">
                     {(loan.chainId in JB_CHAINS) ? (
@@ -97,6 +100,16 @@ export function LoanDetailsTable({
                     <span className="whitespace-nowrap">
                       {formatSeconds(Math.max(0, loan.prepaidDuration - (now - Number(loan.createdAt))))}
                     </span>
+                  </TableCell>
+                  <TableCell className="text-center">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => onSelectLoan?.(loan.id, Number(loan.chainId))}
+                      className="text-xs px-2 py-1"
+                    >
+                      Repay
+                    </Button>
                   </TableCell>
                 </TableRow>
               ))}

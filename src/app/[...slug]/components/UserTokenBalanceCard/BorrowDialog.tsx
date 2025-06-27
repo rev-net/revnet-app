@@ -1,4 +1,4 @@
-import { PropsWithChildren, useEffect, useState } from "react";
+import { PropsWithChildren, useEffect, useState, useCallback } from "react";
 import { useHasBorrowPermission } from "@/hooks/useHasBorrowPermission";
 import { generateFeeData } from "@/lib/feeHelpers";
 import { toWei } from "@/lib/utils";
@@ -6,15 +6,15 @@ import { useAccount, useWaitForTransactionReceipt } from "wagmi";
 import { useWalletClient } from "wagmi";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { useToast } from "@/components/ui/use-toast";
 
 import {
-  JB_CHAINS,
+  JBChainId,
   jbPermissionsAbi,
   NATIVE_TOKEN_DECIMALS,
   JB_TOKEN_DECIMALS
 } from "juice-sdk-core";
 import {
-  JBChainId,
   useJBContractContext,
   useSuckersUserTokenBalance,
 } from "juice-sdk-react";
@@ -43,25 +43,21 @@ import { LoanFeeChart } from "../LoanFeeChart";
 import { TokenBalanceTable } from "../TokenBalanceTable";
 import { LoanDetailsTable } from "../LoansDetailsTable";
 import { ImportantInfo } from "./ImportantInfo";
+import { ExternalLink } from "@/components/ExternalLink";
+import { etherscanLink } from "@/lib/utils";
 
 const FIXEDLOANFEES = 0.035; // TODO: get from onchain?
 const showAddOnCollateralSection = false; //true; // Set to false to hide this section
 
 export function BorrowDialog({
   projectId,
-  creditBalance,
   tokenSymbol,
-  primaryTerminalEth,
-  disabled,
   children,
   selectedLoan,
   defaultTab,
 }: PropsWithChildren<{
   projectId: bigint;
-  creditBalance: FixedInt<number>;
   tokenSymbol: string;
-  primaryTerminalEth: string;
-  disabled?: boolean;
   selectedLoan?: any;
   defaultTab?: "borrow" | "repay";
 }>) {
@@ -93,6 +89,30 @@ export function BorrowDialog({
   const [showOtherCollateral, setShowOtherCollateral] = useState(false);
   const [showingWaitingMessage, setShowingWaitingMessage] = useState(false);
   const [selectedTab, setSelectedTab] = useState<"borrow" | "repay">(defaultTab ?? "borrow");
+  const [showRefinanceLoanDetailsTable, setShowRefinanceLoanDetailsTable] = useState(true);
+  const { toast } = useToast();
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  // Reset internal state when dialog closes or set tab on open
+  const handleOpenChange = useCallback((open: boolean) => {
+    setIsDialogOpen(open);
+    if (open) {
+      setSelectedTab(defaultTab ?? "borrow");
+    } else {
+      setCollateralAmount("");
+      setPrepaidPercent("2.5");
+      setEthToWallet(0);
+      setBorrowStatus("idle");
+      setCashOutChainId(undefined);
+      setRepayAmount("");
+      setCollateralToReturn("");
+      setInternalSelectedLoan(null);
+      setShowLoanDetailsTable(true);
+      setShowRefinanceLoanDetailsTable(true);
+      setShowOtherCollateral(false); // ✅ Hide add-on collateral
+      setSelectedChainId(null); // Reset chain selection on close
+    }
+  }, [defaultTab]);
 
   // Sync defaultTab with selectedTab if defaultTab changes
   useEffect(() => {
@@ -102,7 +122,6 @@ export function BorrowDialog({
   }, [defaultTab, selectedTab]);
   const [internalSelectedLoan, setInternalSelectedLoan] = useState<any | null>(selectedLoan ?? null);
   const [showLoanDetailsTable, setShowLoanDetailsTable] = useState(true);
-  const [showRefinanceLoanDetailsTable, setShowRefinanceLoanDetailsTable] = useState(true);
 
   // Used for estimating how much ETH could be borrowed if both
   // the existing loan's collateral and new collateral were combined into one.
@@ -221,6 +240,14 @@ const collateralCountToTransfer = internalSelectedLoan && currentBorrowableOnSel
     }
   }, [borrowStatus]);
 
+  // Auto-clear status after 5 seconds for terminal states
+  useEffect(() => {
+    if (["success", "error", "error-permission-denied", "error-loan-canceled"].includes(borrowStatus)) {
+      const timeout = setTimeout(() => setBorrowStatus("idle"), 5000);
+      return () => clearTimeout(timeout);
+    }
+  }, [borrowStatus]);
+
   const {
     contracts: { primaryNativeTerminal, controller, splits, rulesets },
   } = useJBContractContext();
@@ -324,6 +351,7 @@ const collateralCountToTransfer = internalSelectedLoan && currentBorrowableOnSel
   const {
     writeContractAsync: reallocateCollateralAsync,
     isPending: isReallocating,
+    data: reallocationTxHash,
   } = useWriteRevLoansReallocateCollateralFromLoan();
 
   const txHash = data;
@@ -332,26 +360,55 @@ const collateralCountToTransfer = internalSelectedLoan && currentBorrowableOnSel
     hash: txHash,
   });
 
+  // Track reallocation transaction status
+  const { isLoading: isReallocationTxLoading, isSuccess: isReallocationSuccess } = useWaitForTransactionReceipt({
+    hash: reallocationTxHash,
+  });
+
+  // Handle reallocation pending status
+  useEffect(() => {
+    if (isReallocating) {
+      setBorrowStatus("reallocation-pending");
+    }
+  }, [isReallocating]);
+
   // TODO:  surely i missed a helper util here
   useEffect(() => {
-    if (!txHash) return;
+    if (!txHash && !reallocationTxHash) return;
 
-    if (isTxLoading) {
+    if (isTxLoading || isReallocationTxLoading) {
       setBorrowStatus("pending");
-    } else if (isSuccess) {
+    } else if (isSuccess || isReallocationSuccess) {
       setBorrowStatus("success");
+      const currentTxHash = txHash || reallocationTxHash;
+      toast({
+        title: "Success",
+        description: (
+          <div>
+            <div>{isReallocationSuccess ? "Loan adjusted successfully!" : "Loan created successfully!"}</div>
+            {currentTxHash && (
+              <div className="mt-1">
+                <ExternalLink
+                  href={etherscanLink(currentTxHash as string, {
+                    type: "tx",
+                  })}
+                  className="text-blue-600 hover:underline"
+                >
+                  View transaction
+                </ExternalLink>
+              </div>
+            )}
+          </div>
+        ),
+      });
+      // Close dialog after showing transaction link and toast
+      setTimeout(() => {
+        handleOpenChange(false);
+      }, 3000);
     } else {
       setBorrowStatus("error");
     }
-  }, [txHash, isTxLoading, isSuccess]);
-
-  // Auto-clear status after 5 seconds for terminal states
-  useEffect(() => {
-    if (["success", "error", "error-permission-denied", "error-loan-canceled"].includes(borrowStatus)) {
-      const timeout = setTimeout(() => setBorrowStatus("idle"), 5000);
-      return () => clearTimeout(timeout);
-    }
-  }, [borrowStatus]);
+  }, [txHash, reallocationTxHash, isTxLoading, isReallocationTxLoading, isSuccess, isReallocationSuccess, toast, handleOpenChange]);
 
   const loading = isWriteLoading || isTxLoading;
 
@@ -388,26 +445,6 @@ const feeData = generateFeeData({ grossBorrowedEth, ethToWallet, prepaidPercent 
   const displayYears = Math.floor(prepaidMonths / 12);
   const displayMonths = Math.round(prepaidMonths % 12);
 
-  // Reset internal state when dialog closes or set tab on open
- const handleOpenChange = (open: boolean) => {
-  if (open) {
-    setSelectedTab(defaultTab ?? "borrow");
-  } else {
-    setCollateralAmount("");
-    setPrepaidPercent("2.5");
-    setEthToWallet(0);
-    setBorrowStatus("idle");
-    setCashOutChainId(undefined);
-    setRepayAmount("");
-    setCollateralToReturn("");
-    setInternalSelectedLoan(null);
-    setShowLoanDetailsTable(true);
-    setShowRefinanceLoanDetailsTable(true);
-    setShowOtherCollateral(false); // ✅ Hide add-on collateral
-    setSelectedChainId(null); // Reset chain selection on close
-  }
-};
-
   // Move useHasBorrowPermission to top-level of component
   const userHasPermission = useHasBorrowPermission({
     address: address as `0x${string}`,
@@ -418,7 +455,7 @@ const feeData = generateFeeData({ grossBorrowedEth, ethToWallet, prepaidPercent 
   });
 
   return (
-    <Dialog onOpenChange={handleOpenChange}>
+    <Dialog open={isDialogOpen} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="max-w-2xl">
         <DialogHeader>
@@ -468,7 +505,7 @@ const feeData = generateFeeData({ grossBorrowedEth, ethToWallet, prepaidPercent 
               </div>
               <div className="grid grid-cols-7 gap-2">
                 <div className="col-span-4">
-                  <input
+                  <Input
                     id="collateral-amount"
                     type="number"
                     step="0.0001"
@@ -479,7 +516,7 @@ const feeData = generateFeeData({ grossBorrowedEth, ethToWallet, prepaidPercent 
                         ? (Number(selectedBalance.balance.value) / 1e18).toFixed(8)
                         : "Enter amount"
                     }
-                    className="mt-2 w-full border rounded-md px-3 py-2 bg-white text-sm text-zinc-900 h-10"
+                    className="mt-2"
                   />
                 </div>
               </div>
@@ -670,20 +707,21 @@ const feeData = generateFeeData({ grossBorrowedEth, ethToWallet, prepaidPercent 
                   <p className="text-sm text-zinc-600">
                     {borrowStatus === "checking" && "Checking permissions..."}
                     {borrowStatus === "granting-permission" && "Granting permission..."}
-                    {borrowStatus === "permission-granted" && "Permission granted. Borrowing..."}
-                    {showingWaitingMessage && "Waiting for wallet confirmation..."}
-                    {borrowStatus === "pending" && "Borrowing..."}
-                    {borrowStatus === "success" && "Loan successfully issued!"}
+                    {borrowStatus === "permission-granted" && "Permission granted. Creating loan..."}
+                    {borrowStatus === "waiting-signature" && "Waiting for wallet confirmation..."}
+                    {borrowStatus === "pending" && "Creating loan..."}
+                    {borrowStatus === "reallocation-pending" && "Adjusting loan..."}
+                    {borrowStatus === "success" && "Loan created successfully!"}
                     {borrowStatus === "error-permission-denied" && "Permission was not granted. Please approve to proceed."}
                     {borrowStatus === "error-loan-canceled" && "Loan creation was canceled."}
-                    {borrowStatus === "error" && "Something went wrong."}
+                    {borrowStatus === "error" && "Something went wrong during loan creation."}
                   </p>
                 )}
               </div>
               {/* Single borrow button for both reallocation and standard borrowing */}
               <ButtonWithWallet
                 targetChainId={cashOutChainId ? Number(cashOutChainId) as JBChainId : undefined}
-                loading={internalSelectedLoan && collateralAmount && !isNaN(Number(collateralAmount)) ? isReallocating : false}
+                loading={isWriteLoading || isTxLoading || isReallocating || isReallocationTxLoading}
                 onClick={async () => {
                   if (internalSelectedLoan && collateralAmount && !isNaN(Number(collateralAmount))) {
                     // Reallocation path
@@ -732,6 +770,11 @@ const feeData = generateFeeData({ grossBorrowedEth, ethToWallet, prepaidPercent 
                     } catch (err) {
                       console.error("❌ Reallocation TX failed:", err);
                       setBorrowStatus("error");
+                      toast({
+                        variant: "destructive",
+                        title: "Reallocation Failed",
+                        description: err instanceof Error ? err.message : "An error occurred during loan adjustment",
+                      });
                     }
                   } else {
                     // Standard borrow path
@@ -771,6 +814,11 @@ const feeData = generateFeeData({ grossBorrowedEth, ethToWallet, prepaidPercent 
                           setBorrowStatus("permission-granted");
                         } catch (err) {
                           setBorrowStatus("error-permission-denied");
+                          toast({
+                            variant: "destructive",
+                            title: "Permission Denied",
+                            description: "Permission was not granted. Please approve to proceed.",
+                          });
                           setTimeout(() => setBorrowStatus("idle"), 5000);
                           return;
                         }
@@ -806,12 +854,22 @@ const feeData = generateFeeData({ grossBorrowedEth, ethToWallet, prepaidPercent 
                       } catch (err) {
                         console.warn("User rejected or tx failed", err);
                         setBorrowStatus("error-loan-canceled");
+                        toast({
+                          variant: "destructive",
+                          title: "Transaction Cancelled",
+                          description: "Loan creation was cancelled by user",
+                        });
                         setTimeout(() => setBorrowStatus("idle"), 5000);
                         return;
                       }
                     } catch (err) {
                       console.error(err);
                       setBorrowStatus("error");
+                      toast({
+                        variant: "destructive",
+                        title: "Borrow Failed",
+                        description: err instanceof Error ? err.message : "An error occurred during borrowing",
+                      });
                     }
                   }
                 }}

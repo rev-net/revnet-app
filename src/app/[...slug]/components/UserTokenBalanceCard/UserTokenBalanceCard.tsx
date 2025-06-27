@@ -31,7 +31,8 @@ export function UserTokenBalanceCard() {
     balances?.reduce((acc, balance) => acc + balance.balance.value, 0n) ?? 0n
   );
 
-  const [selectedLoan, setSelectedLoan] = useState<any>(null);
+  const [selectedLoanId, setSelectedLoanId] = useState<string | null>(null);
+  const [selectedChainId, setSelectedChainId] = useState<number | null>(null);
   const [showRepayDialog, setShowRepayDialog] = useState(false);
   const borrowDialogTriggerRef = useRef<HTMLButtonElement | null>(null);
 
@@ -53,9 +54,7 @@ export function UserTokenBalanceCard() {
         {token?.data?.symbol && creditBalance && primaryNativeTerminal.data ? (
           <BorrowDialog
             projectId={projectId}
-            creditBalance={creditBalance}
             tokenSymbol={tokenSymbol}
-            primaryTerminalEth={primaryNativeTerminal.data}
           >
             <Button
               ref={borrowDialogTriggerRef}
@@ -66,14 +65,15 @@ export function UserTokenBalanceCard() {
             </Button>
           </BorrowDialog>
         ) : null}
-        {selectedLoan && (
+        {selectedLoanId && selectedChainId && (
           <RepayDialog
             projectId={projectId}
             tokenSymbol={tokenSymbol}
             address={address || ""}
             open={showRepayDialog}
             onOpenChange={setShowRepayDialog}
-            loan={selectedLoan}
+            loanId={selectedLoanId}
+            chainId={selectedChainId}
           />
         )}
       </div>
@@ -85,8 +85,9 @@ export function UserTokenBalanceCard() {
           address={address}
           chainId={0}
           tokenSymbol={tokenSymbol}
-          onSelectLoan={(loanId, loanData) => {
-            setSelectedLoan(loanData);
+          onSelectLoan={(loanId, chainId) => {
+            setSelectedLoanId(loanId);
+            setSelectedChainId(chainId);
             setShowRepayDialog(true);
           }}
         />
