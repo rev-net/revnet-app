@@ -1,0 +1,17 @@
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://app.revnet.eth.sucks/</loc>
+    <lastmod>2025-06-27</lastmod>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://app.revnet.eth.sucks/create</loc>
+    <lastmod>2025-06-27</lastmod>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://app.revnet.eth.sucks/discover</loc>
+    <lastmod>2025-06-27</lastmod>
+    <priority>0.4</priority>
+  </url>
+</urlset>
