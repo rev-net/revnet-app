@@ -3,7 +3,6 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { QuestionMarkCircleIcon } from "@heroicons/react/24/outline";
 
 export function SectionTooltip({
   name,

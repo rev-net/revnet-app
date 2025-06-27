@@ -1,4 +1,3 @@
-# robots.txt for https://inevitable.science/
 
 # Block MJ12bot entirely
 User-agent: MJ12bot

@@ -1,16 +1,7 @@
-import { EthereumAddress } from "@/components/EthereumAddress";
-import { Badge } from "@/components/ui/badge";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { useBoostRecipient } from "@/hooks/useBoostRecipient";
 import { useFormattedTokenIssuance } from "@/hooks/useFormattedTokenIssuance";
 import { formatTokenSymbol } from "@/lib/utils";
-import { ForwardIcon } from "@heroicons/react/24/solid";
 import {
-  useEtherPrice,
   useJBRulesetContext,
   useJBTokenContext,
   useSuckersTokenCashOutValue,
@@ -24,7 +15,6 @@ export function PriceSection({ className }: { className?: string }) {
   });
 
   const { ruleset, rulesetMetadata } = useJBRulesetContext();
-  const { data: ethPrice } = useEtherPrice();
   const { token } = useJBTokenContext();
   const { data: cashOutValue, loading: cashOutLoading } =
     useSuckersTokenCashOutValue({
