@@ -10,10 +10,13 @@ export function generateFeeData({
   fixedLoanFee?: number;
 }) {
   const MAX_YEARS = 10;
-  const monthsToPrepay = (parseFloat(prepaidPercent) / 50) * 120;
-  const feeBps = monthsToPrepay * 10;
-  const prepaidFee = (grossBorrowedEth * feeBps) / 1000;
-  const prepaidDuration = monthsToPrepay / 12;
+  
+  // Calculate prepaid fee as a percentage of the loan amount
+  const prepaidFeePercent = parseFloat(prepaidPercent) / 100;
+  const prepaidFee = grossBorrowedEth * prepaidFeePercent;
+  
+  // Calculate prepaid duration based on the percentage (more prepaid = longer duration)
+  const prepaidDuration = (prepaidFeePercent / 0.5) * MAX_YEARS; // 50% prepaid = 10 years
 
   const rawBorrowable = grossBorrowedEth;
   const fixedFee = rawBorrowable * fixedLoanFee;

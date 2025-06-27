@@ -19,6 +19,7 @@ query Participants(
       balance
       erc20Balance
       creditBalance
+      projectId
     }
   }
 }

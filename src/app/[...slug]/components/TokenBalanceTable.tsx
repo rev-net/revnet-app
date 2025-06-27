@@ -7,6 +7,20 @@ import { LoansByAccountDocument } from "@/generated/graphql";
 import { useEffect, useRef } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ChainLogo } from "@/components/ChainLogo";
+import { useAppData } from "@/contexts/AppDataContext";
+
+// Define types for the data structures
+type BalanceData = {
+  balance: { value: bigint };
+  chainId: number;
+  projectId: bigint;
+};
+
+type LoanData = {
+  chainId: number;
+  collateral: string;
+  borrowAmount: string;
+};
 
 function TokenBalanceRow({
   chainId,
@@ -35,7 +49,7 @@ function TokenBalanceRow({
   }
 
   const hasAnyBalance =
-    balanceValue > 0n ||
+    (balanceValue && balanceValue > 0n) ||
     (borrowableAmount && borrowableAmount > 0n) ||
     (summary?.borrowAmount && summary.borrowAmount > 0n) ||
     (summary?.collateral && summary.collateral > 0n);
@@ -76,7 +90,6 @@ function TokenBalanceRow({
 }
 
 export function TokenBalanceTable({
-  balances,
   projectId,
   tokenSymbol,
   terminalAddress,
@@ -86,12 +99,6 @@ export function TokenBalanceTable({
   onCheckRow,
   onAutoselectRow,
 }: {
-  balances: {
-    chainId: number;
-    balance: {
-      value: bigint;
-    };
-  }[] | undefined;
   projectId: bigint;
   tokenSymbol: string;
   terminalAddress: `0x${string}`;
@@ -101,12 +108,31 @@ export function TokenBalanceTable({
   onCheckRow?: (chainId: number, checked: boolean) => void;
   onAutoselectRow?: (chainId: number) => void;
 }) {
-  const { data } = useBendystrawQuery(LoansByAccountDocument, {
-    owner: address,
-  });
+  const { balances, loans } = useAppData();
+
+  const participantsData = (balances?.data as any)?.participants?.items ?? [];
+  
+  // Aggregate balances by chain (GraphQL query is already filtered by project context)
+  const aggregatedBalances = participantsData.reduce((acc: Record<number, BalanceData>, participant: any) => {
+    const chainId = participant.chainId;
+    const balance = BigInt(participant.balance || 0);
+    
+    if (!acc[chainId]) {
+      acc[chainId] = {
+        balance: { value: 0n },
+        chainId: chainId,
+        projectId: BigInt(participant.projectId || 0),
+      };
+    }
+    
+    acc[chainId].balance.value += balance;
+    return acc;
+  }, {});
+
+  const convertedBalances: BalanceData[] = Object.values(aggregatedBalances);
 
   function summarizeLoansByChain(
-    loans?: Array<{ chainId: number; collateral: string; borrowAmount: string }>
+    loans?: LoanData[]
   ) {
     if (!loans) return {};
     return loans.reduce<Record<number, { collateral: bigint; borrowAmount: bigint }>>((acc, loan) => {
@@ -120,13 +146,15 @@ export function TokenBalanceTable({
     }, {});
   }
 
-  const loanSummary = summarizeLoansByChain(data?.loans?.items);
+  const loanSummary = summarizeLoansByChain(
+    (loans?.data as any)?.loans?.items || []
+  );
 
   // Auto-select the first selectable row if more than one row and no selection exists
-  const firstSelectable = balances?.find(({ chainId, balance }) => {
-    const summary = loanSummary[chainId];
+  const firstSelectable = convertedBalances?.find((balance: BalanceData) => {
+    const summary = loanSummary[balance.chainId];
     return (
-      balance.value > 0n ||
+      (balance?.balance?.value && balance.balance.value > 0n) ||
       (summary?.borrowAmount && summary.borrowAmount > 0n) ||
       (summary?.collateral && summary.collateral > 0n)
     );
@@ -147,7 +175,7 @@ export function TokenBalanceTable({
     }
   }, [firstSelectable, selectedChainId, onAutoselectRow]);
 
-  if (!balances || balances.length === 0) return null;
+  if (!convertedBalances || convertedBalances.length === 0) return null;
 
   return (
     <div className="w-full max-w-md mb-5">
@@ -169,12 +197,12 @@ export function TokenBalanceTable({
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {balances.map((balance, index) => {
+                  {convertedBalances.map((balance: BalanceData, index) => {
                     const chainId = balance.chainId as JBChainId;
                     const summary = loanSummary[chainId];
 
                     const hasAnyBalance =
-                      balance.balance.value > 0n ||
+                      (balance?.balance?.value && balance.balance.value > 0n) ||
                       (summary?.borrowAmount && summary.borrowAmount > 0n) ||
                       (summary?.collateral && summary.collateral > 0n);
 

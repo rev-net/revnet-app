@@ -30,13 +30,20 @@ import {
   JBChainId,
   NativeTokenValue,
   useJBContractContext,
-  useSuckersUserTokenBalance,
   useTokenCashOutQuoteEth,
   useWriteJbMultiTerminalCashOutTokensOf,
 } from "juice-sdk-react";
 import { PropsWithChildren, useState } from "react";
 import { Address, parseUnits } from "viem";
 import { useAccount, useWaitForTransactionReceipt } from "wagmi";
+import { useAppData } from "@/contexts/AppDataContext";
+
+// Define the balance type
+type BalanceData = {
+  balance: { value: bigint };
+  chainId: number;
+  projectId: bigint;
+};
 
 export function RedeemDialog({
   projectId,
@@ -57,8 +64,22 @@ export function RedeemDialog({
     contracts: { primaryNativeTerminal },
   } = useJBContractContext();
   const { address } = useAccount();
-  const { data: balances } = useSuckersUserTokenBalance();
+  const { balances } = useAppData();
   const [cashOutChainId, setCashOutChainId] = useState<string>();
+
+  const participantsData = (balances?.data as any)?.participants?.items ?? [];
+  
+  // Filter participants for the current project only
+  const projectParticipants = participantsData.filter((participant: any) => 
+    Number(participant.projectId) === Number(projectId)
+  );
+
+  // Convert to the format expected by the rest of the component
+  const convertedBalances: BalanceData[] = projectParticipants.map((participant: any) => ({
+    balance: { value: BigInt(participant.balance || 0) },
+    chainId: participant.chainId,
+    projectId: BigInt(participant.projectId),
+  }));
 
   const redeemAmountBN = redeemAmount
     ? JBProjectToken.parse(redeemAmount, 18).value
@@ -78,8 +99,8 @@ export function RedeemDialog({
     chainId: Number(cashOutChainId) as JBChainId,
   });
   const loading = isWriteLoading || isTxLoading;
-  const selectedBalance = balances?.find(
-    (b) => b.chainId === Number(cashOutChainId)
+  const selectedBalance = convertedBalances.find(
+    (b: BalanceData) => b.chainId === Number(cashOutChainId)
   );
   const valid =
     redeemAmountBN > 0n &&
@@ -103,11 +124,11 @@ export function RedeemDialog({
                       Your {tokenSymbol}
                     </span>
                     <div className="mt-1 border border-zinc-200 p-3 bg-zinc-50">
-                      {balances?.map((balance, index) => (
+                      {convertedBalances.map((balance: BalanceData, index: number) => (
                         <div key={index} className="flex justify-between gap-2">
                           {JB_CHAINS[balance.chainId as JBChainId].name}
                           <span className="font-medium">
-                            {balance.balance?.format()} {tokenSymbol}
+                            {(Number(balance.balance.value) / 1e18).toFixed(6)} {tokenSymbol}
                           </span>
                         </div>
                       ))}
@@ -144,9 +165,9 @@ export function RedeemDialog({
                             <SelectValue placeholder="Select chain" />
                           </SelectTrigger>
                           <SelectContent>
-                            {balances
-                              ?.filter((b) => b.balance.value > 0n)
-                              .map((balance) => {
+                            {convertedBalances
+                              .filter((b: BalanceData) => b.balance.value > 0n)
+                              .map((balance: BalanceData) => {
                                 return (
                                   <SelectItem
                                     value={balance.chainId.toString()}

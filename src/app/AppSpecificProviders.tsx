@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ConnectKitProvider } from "connectkit";
 import * as React from "react";
 import { WagmiProvider } from "wagmi";
+import { AppDataProvider } from "@/contexts/AppDataContext";
 
 const queryClient = new QueryClient();
 
@@ -33,9 +34,11 @@ export function AppSpecificProviders({ children }: { children: React.ReactNode }
             "--ck-accent-text-color": "#ffffff",
           }}
         >
-          <TooltipProvider delayDuration={200} skipDelayDuration={100}>
-            {children}
-          </TooltipProvider>
+          <AppDataProvider>
+            <TooltipProvider delayDuration={200} skipDelayDuration={100}>
+              {children}
+            </TooltipProvider>
+          </AppDataProvider>
         </ConnectKitProvider>
       </QueryClientProvider>
     </WagmiProvider>

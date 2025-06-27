@@ -16,7 +16,6 @@ import {
 } from "juice-sdk-core";
 import {
   useJBContractContext,
-  useSuckersUserTokenBalance,
 } from "juice-sdk-react";
 import {
   useReadRevLoansBorrowableAmountFrom,
@@ -45,9 +44,9 @@ import { LoanDetailsTable } from "../LoansDetailsTable";
 import { ImportantInfo } from "./ImportantInfo";
 import { ExternalLink } from "@/components/ExternalLink";
 import { etherscanLink } from "@/lib/utils";
+import { useAppData } from "@/contexts/AppDataContext";
 
 const FIXEDLOANFEES = 0.035; // TODO: get from onchain?
-const showAddOnCollateralSection = false; //true; // Set to false to hide this section
 
 export function BorrowDialog({
   projectId,
@@ -86,12 +85,12 @@ export function BorrowDialog({
   const [cashOutChainId, setCashOutChainId] = useState<string>();
   const [showChart, setShowChart] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
-  const [showOtherCollateral, setShowOtherCollateral] = useState(false);
   const [showingWaitingMessage, setShowingWaitingMessage] = useState(false);
   const [selectedTab, setSelectedTab] = useState<"borrow" | "repay">(defaultTab ?? "borrow");
   const [showRefinanceLoanDetailsTable, setShowRefinanceLoanDetailsTable] = useState(true);
   const { toast } = useToast();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const { invalidateUserData } = useAppData();
 
   // Reset internal state when dialog closes or set tab on open
   const handleOpenChange = useCallback((open: boolean) => {
@@ -106,10 +105,8 @@ export function BorrowDialog({
       setCashOutChainId(undefined);
       setRepayAmount("");
       setCollateralToReturn("");
-      setInternalSelectedLoan(null);
       setShowLoanDetailsTable(true);
       setShowRefinanceLoanDetailsTable(true);
-      setShowOtherCollateral(false); // ✅ Hide add-on collateral
       setSelectedChainId(null); // Reset chain selection on close
     }
   }, [defaultTab]);
@@ -120,15 +117,14 @@ export function BorrowDialog({
       setSelectedTab(defaultTab);
     }
   }, [defaultTab, selectedTab]);
-  const [internalSelectedLoan, setInternalSelectedLoan] = useState<any | null>(selectedLoan ?? null);
   const [showLoanDetailsTable, setShowLoanDetailsTable] = useState(true);
 
   // Used for estimating how much ETH could be borrowed if both
   // the existing loan's collateral and new collateral were combined into one.
   // --- Reallocation borrowable amount estimation ---
   const totalReallocationCollateral =
-    internalSelectedLoan && collateralAmount
-      ? BigInt(internalSelectedLoan.collateral) + BigInt(Math.floor(Number(collateralAmount) * 1e18))
+    selectedLoan && collateralAmount
+      ? BigInt(selectedLoan.collateral) + BigInt(Math.floor(Number(collateralAmount) * 1e18))
       : undefined;
 
   const { data: selectedLoanReallocAmount } = useReadRevLoansBorrowableAmountFrom({
@@ -146,10 +142,10 @@ export function BorrowDialog({
   // --- Current borrowable amount on selected collateral ---
   const { data: currentBorrowableOnSelectedCollateral } = useReadRevLoansBorrowableAmountFrom({
     chainId: cashOutChainId ? Number(cashOutChainId) as JBChainId : undefined,
-    args: internalSelectedLoan
+    args: selectedLoan
       ? [
           projectId,
-          BigInt(internalSelectedLoan.collateral),
+          BigInt(selectedLoan.collateral),
           BigInt(NATIVE_TOKEN_DECIMALS),
           61166n,
         ]
@@ -157,42 +153,42 @@ export function BorrowDialog({
   });
 
 const netAvailableToBorrow =
-  selectedTab === "borrow" && selectedLoanReallocAmount !== undefined && internalSelectedLoan
-    ? selectedLoanReallocAmount - BigInt(internalSelectedLoan.borrowAmount)
+  selectedTab === "borrow" && selectedLoanReallocAmount !== undefined && selectedLoan
+    ? selectedLoanReallocAmount - BigInt(selectedLoan.borrowAmount)
     : 0n;
 
 // --- Overcollateralization buffer calculation and debug log ---
 const isOvercollateralized =
   selectedLoanReallocAmount !== undefined &&
-  BigInt(internalSelectedLoan?.borrowAmount ?? 0) < selectedLoanReallocAmount;
+  BigInt(selectedLoan?.borrowAmount ?? 0) < selectedLoanReallocAmount;
 
 const extraCollateralBuffer = isOvercollateralized
-  ? selectedLoanReallocAmount - BigInt(internalSelectedLoan?.borrowAmount ?? 0)
+  ? selectedLoanReallocAmount - BigInt(selectedLoan?.borrowAmount ?? 0)
   : 0n;
 
 // --- Collateral headroom calculation and debug log ---
 const collateralHeadroom =
-  currentBorrowableOnSelectedCollateral !== undefined && internalSelectedLoan
-    ? currentBorrowableOnSelectedCollateral - BigInt(internalSelectedLoan.borrowAmount)
+  currentBorrowableOnSelectedCollateral !== undefined && selectedLoan
+    ? currentBorrowableOnSelectedCollateral - BigInt(selectedLoan.borrowAmount)
     : 0n;
 
 // --- Collateral count to transfer calculation for display ---
-const collateralCountToTransfer = internalSelectedLoan && currentBorrowableOnSelectedCollateral
+const collateralCountToTransfer = selectedLoan && currentBorrowableOnSelectedCollateral
   ? BigInt(
       Math.floor(
         Number(collateralHeadroom) /
-          (Number(currentBorrowableOnSelectedCollateral) / Number(internalSelectedLoan.collateral))
+          (Number(currentBorrowableOnSelectedCollateral) / Number(selectedLoan.collateral))
       )
     )
   : BigInt(0);
 
   useEffect(() => {
-    if (currentBorrowableOnSelectedCollateral !== undefined && internalSelectedLoan?.borrowAmount !== undefined) {
+    if (currentBorrowableOnSelectedCollateral !== undefined && selectedLoan?.borrowAmount !== undefined) {
       const netAvailableBorrowETH =
-        Number(currentBorrowableOnSelectedCollateral - BigInt(internalSelectedLoan.borrowAmount)) / 1e18;
+        Number(currentBorrowableOnSelectedCollateral - BigInt(selectedLoan.borrowAmount)) / 1e18;
       // Debug log here
     }
-  }, [currentBorrowableOnSelectedCollateral, internalSelectedLoan]);
+  }, [currentBorrowableOnSelectedCollateral, selectedLoan]);
 
   // Reset showLoanDetailsTable or showRefinanceLoanDetailsTable when switching tabs
   useEffect(() => {
@@ -253,7 +249,7 @@ const collateralCountToTransfer = internalSelectedLoan && currentBorrowableOnSel
   } = useJBContractContext();
   const { address } = useAccount();
   const { data: walletClient } = useWalletClient();
-  const { data: balances } = useSuckersUserTokenBalance();
+  const { balances } = useAppData();
   const { data: resolvedPermissionsAddress } = useReadRevDeployerPermissions({
     chainId: cashOutChainId ? Number(cashOutChainId) as JBChainId : undefined,
   });
@@ -262,11 +258,11 @@ const collateralCountToTransfer = internalSelectedLoan && currentBorrowableOnSel
     data: estimatedRepayAmountForCollateral,
     isLoading: isEstimatingRepayment,
   } = useReadRevLoansBorrowableAmountFrom({
-    chainId: internalSelectedLoan?.chainId,
-    args: internalSelectedLoan
+    chainId: selectedLoan?.chainId,
+    args: selectedLoan
       ? [
           projectId,
-          BigInt(internalSelectedLoan.collateral),
+          BigInt(selectedLoan.collateral),
           BigInt(JB_TOKEN_DECIMALS), // TODO confirm this is correct
           61166n,
         ]
@@ -274,16 +270,16 @@ const collateralCountToTransfer = internalSelectedLoan && currentBorrowableOnSel
   });
 
   // Collateral to return logic for repay tab
-  const remainingCollateral = internalSelectedLoan && collateralToReturn
-    ? BigInt(internalSelectedLoan.collateral) - BigInt(Math.floor(Number(collateralToReturn) * 1e18))
+  const remainingCollateral = selectedLoan && collateralToReturn
+    ? BigInt(selectedLoan.collateral) - BigInt(Math.floor(Number(collateralToReturn) * 1e18))
     : undefined;
 
   const {
     data: estimatedNewBorrowableAmount,
   } = useReadRevLoansBorrowableAmountFrom({
-    chainId: internalSelectedLoan?.chainId,
+    chainId: selectedLoan?.chainId,
     args:
-      internalSelectedLoan && remainingCollateral !== undefined
+      selectedLoan && remainingCollateral !== undefined
         ? [
             projectId,
             remainingCollateral,
@@ -295,20 +291,48 @@ const collateralCountToTransfer = internalSelectedLoan && currentBorrowableOnSel
 
   // Recalculate repayAmount when collateralToReturn, estimatedNewBorrowableAmount, or selectedLoan changes
   useEffect(() => {
-    if (!internalSelectedLoan || !collateralToReturn || estimatedNewBorrowableAmount === undefined) return;
+    if (!selectedLoan || !collateralToReturn || estimatedNewBorrowableAmount === undefined) return;
 
-    const correctedBorrowAmount = BigInt(internalSelectedLoan.borrowAmount);
+    const correctedBorrowAmount = BigInt(selectedLoan.borrowAmount);
     const repayAmountWei = correctedBorrowAmount - estimatedNewBorrowableAmount;
     setRepayAmount((Number(repayAmountWei) / 1e18).toFixed(6));
-  }, [collateralToReturn, estimatedNewBorrowableAmount, internalSelectedLoan]);
+  }, [collateralToReturn, estimatedNewBorrowableAmount, selectedLoan]);
 
-  const userProjectTokenBalance = balances?.find(
-    (b) =>
+  const participantsData = (balances?.data as any)?.participants?.items ?? [];
+  
+  // Define the balance type
+  type BalanceData = {
+    balance: { value: bigint };
+    chainId: number;
+    projectId: bigint;
+  };
+  
+  // Aggregate balances by chain (GraphQL query is already filtered by project context)
+  const aggregatedBalances = participantsData.reduce((acc: Record<number, BalanceData>, participant: any) => {
+    const chainId = participant.chainId;
+    const balance = BigInt(participant.balance || 0);
+    
+    if (!acc[chainId]) {
+      acc[chainId] = {
+        balance: { value: 0n },
+        chainId: chainId,
+        projectId: BigInt(participant.projectId || 0),
+      };
+    }
+    
+    acc[chainId].balance.value += balance;
+    return acc;
+  }, {});
+
+  const convertedBalances: BalanceData[] = Object.values(aggregatedBalances);
+
+  const userProjectTokenBalance = convertedBalances.find(
+    (b: BalanceData) =>
       BigInt(b.projectId) === projectId &&
       b.chainId === Number(cashOutChainId)
-  )?.balance.value ?? 0n;
-  const selectedBalance = balances?.find(
-    (b) => b.chainId === Number(cashOutChainId)
+  )?.balance?.value ?? 0n;
+  const selectedBalance = convertedBalances.find(
+    (b: BalanceData) => b.chainId === Number(cashOutChainId)
   );
 
   const {
@@ -380,6 +404,9 @@ const collateralCountToTransfer = internalSelectedLoan && currentBorrowableOnSel
       setBorrowStatus("pending");
     } else if (isSuccess || isReallocationSuccess) {
       setBorrowStatus("success");
+      // Invalidate user data cache to refresh balances and loans
+      invalidateUserData();
+      
       const currentTxHash = txHash || reallocationTxHash;
       toast({
         title: "Success",
@@ -408,7 +435,7 @@ const collateralCountToTransfer = internalSelectedLoan && currentBorrowableOnSel
     } else {
       setBorrowStatus("error");
     }
-  }, [txHash, reallocationTxHash, isTxLoading, isReallocationTxLoading, isSuccess, isReallocationSuccess, toast, handleOpenChange]);
+  }, [txHash, reallocationTxHash, isTxLoading, isReallocationTxLoading, isSuccess, isReallocationSuccess, toast, handleOpenChange, invalidateUserData]);
 
   const loading = isWriteLoading || isTxLoading;
 
@@ -472,7 +499,6 @@ const feeData = generateFeeData({ grossBorrowedEth, ethToWallet, prepaidPercent 
             {/* Network selector and collateral input, new layout */}
             <div className="grid w-full gap-1.5">
               <TokenBalanceTable
-                balances={balances}
                 projectId={projectId}
                 tokenSymbol={tokenSymbol}
                 terminalAddress={primaryNativeTerminal.data as `0x${string}`}
@@ -480,20 +506,18 @@ const feeData = generateFeeData({ grossBorrowedEth, ethToWallet, prepaidPercent 
                 columns={["chain", "holding", "borrowable"]}
                 selectedChainId={selectedChainId ?? undefined}
                 onCheckRow={(chainId) => {
-                  const selected = balances?.find((b) => b.chainId === chainId);
-                  const collateral = selected ? Number(selected.balance.value) / 1e18 : 0;
+                  const selected = convertedBalances.find((b: BalanceData) => b.chainId === chainId);
+                  const collateral = selected ? Number(selected.balance?.value || 0) / 1e18 : 0;
                   setSelectedChainId(chainId);
                   setCashOutChainId(chainId.toString());
                   setCollateralAmount(collateral.toFixed(6));
-                  setInternalSelectedLoan(null);
                 }}
                 onAutoselectRow={(chainId) => {
-                  const selected = balances?.find((b) => b.chainId === chainId);
-                  const collateral = selected ? Number(selected.balance.value) / 1e18 : 0;
+                  const selected = convertedBalances.find((b: BalanceData) => b.chainId === chainId);
+                  const collateral = selected ? Number(selected.balance?.value || 0) / 1e18 : 0;
                   setSelectedChainId(chainId);
                   setCashOutChainId(chainId.toString());
                   setCollateralAmount(collateral.toFixed(6));
-                  setInternalSelectedLoan(null);
                 }}
               />
               <div className="grid grid-cols-7 gap-2">
@@ -513,7 +537,7 @@ const feeData = generateFeeData({ grossBorrowedEth, ethToWallet, prepaidPercent 
                     onChange={(e) => setCollateralAmount(e.target.value)}
                     placeholder={
                       cashOutChainId && selectedBalance
-                        ? (Number(selectedBalance.balance.value) / 1e18).toFixed(8)
+                        ? (Number((selectedBalance as BalanceData).balance.value) / 1e18).toFixed(8)
                         : "Enter amount"
                     }
                     className="mt-2"
@@ -529,7 +553,7 @@ const feeData = generateFeeData({ grossBorrowedEth, ethToWallet, prepaidPercent 
                         type="button"
                         onClick={() => {
                           if (selectedBalance) {
-                            const value = (Number(selectedBalance.balance.value) / 1e18) * (pct / 100);
+                            const value = (Number((selectedBalance as BalanceData).balance.value) / 1e18) * (pct / 100);
                             setCollateralAmount(value.toFixed(6));
                           }
                         }}
@@ -542,7 +566,7 @@ const feeData = generateFeeData({ grossBorrowedEth, ethToWallet, prepaidPercent 
                       type="button"
                       onClick={() => {
                         if (selectedBalance) {
-                          const maxValue = Number(selectedBalance.balance.value) / 1e18;
+                          const maxValue = Number((selectedBalance as BalanceData).balance.value) / 1e18;
                           setCollateralAmount(maxValue.toFixed(6));
                         }
                       }}
@@ -559,8 +583,8 @@ const feeData = generateFeeData({ grossBorrowedEth, ethToWallet, prepaidPercent 
             {(() => {
               // Calculate effectiveBorrowableAmount and simulation values
               const effectiveBorrowableAmount =
-                internalSelectedLoan && showOtherCollateral && selectedLoanReallocAmount
-                  ? selectedLoanReallocAmount - BigInt(internalSelectedLoan.borrowAmount)
+                selectedLoan && selectedLoanReallocAmount
+                  ? selectedLoanReallocAmount - BigInt(selectedLoan.borrowAmount)
                   : estimatedBorrowFromInputOnly;
               const simulatedEthToWallet = effectiveBorrowableAmount
                 ? Number(effectiveBorrowableAmount) / 1e18 * (1 - FIXEDLOANFEES)
@@ -568,6 +592,13 @@ const feeData = generateFeeData({ grossBorrowedEth, ethToWallet, prepaidPercent 
               const simulatedGrossBorrowedEth = effectiveBorrowableAmount
                 ? Number(effectiveBorrowableAmount) / 1e18
                 : 0;
+
+              // Generate feeData specifically for the simulation
+              const simulatedFeeData = generateFeeData({ 
+                grossBorrowedEth: simulatedGrossBorrowedEth, 
+                ethToWallet: simulatedEthToWallet, 
+                prepaidPercent 
+              });
 
               if (collateralAmount && !isNaN(Number(collateralAmount))) {
                 return (
@@ -577,7 +608,7 @@ const feeData = generateFeeData({ grossBorrowedEth, ethToWallet, prepaidPercent 
                     ethToWallet={simulatedEthToWallet}
                     prepaidPercent={prepaidPercent}
                     grossBorrowedEth={simulatedGrossBorrowedEth}
-                    feeData={feeData}
+                    feeData={simulatedFeeData}
                   />
                 );
               }
@@ -596,94 +627,40 @@ const feeData = generateFeeData({ grossBorrowedEth, ethToWallet, prepaidPercent 
                 ▶
               </span>
             </button>
-            {showChart && (
-              <LoanFeeChart
-                prepaidPercent={prepaidPercent}
-                setPrepaidPercent={setPrepaidPercent}
-                feeData={feeData}
-                ethToWallet={ethToWallet}
-                grossBorrowedEth={grossBorrowedEth}
-                collateralAmount={collateralAmount}
-                tokenSymbol={tokenSymbol}
-                displayYears={displayYears}
-                displayMonths={displayMonths}
-              />
-            )}
-            {/* Additional Collateral toggleable section (conditionally rendered) */}
-            {showAddOnCollateralSection && (
-              <>
-                <button
-                  type="button"
-                  onClick={() => {
-                    const next = !showOtherCollateral;
-                    setShowOtherCollateral(next);
-                    if (!next) setInternalSelectedLoan(null);
-                  }}
-                  className="flex items-center gap-2 text-left block text-gray-700 text-sm font-bold mt-6"
-                >
-                  <span>Add on Collateral (optional)</span>
-                  <span
-                    className={`transform transition-transform ${showOtherCollateral ? "rotate-90" : "rotate-0"}`}
-                  >
-                    ▶
-                  </span>
-                </button>
-                {showOtherCollateral && (
-                  <LoanDetailsTable
-                    key={`${internalSelectedLoan?.id ?? "new"}-${collateralAmount}`}
-                    revnetId={BigInt(projectId)}
-                    address={address ?? ""}
-                    chainId={cashOutChainId ? Number(cashOutChainId) : 0}
-                    tokenSymbol={tokenSymbol}
-                    onSelectLoan={(loanId, loanData) => setInternalSelectedLoan(loanData)}
-                    selectedLoanId={internalSelectedLoan?.id}
-                  />
-                )}
-               {internalSelectedLoan && showOtherCollateral && (
-                  <div className="text-sm text-zinc-700 mt-4 space-y-1">
-                    <div className="flex justify-between items-center">
-                      <p>
-                        This loan has unlocked <b>{(Number(collateralHeadroom) / 1e18).toFixed(6)}</b> ETH of appreciated value you can now access.
-                      </p>
-                      <button
-                        onClick={() => setInternalSelectedLoan(null)}
-                        className="text-xs text-red-600 hover:underline ml-4"
-                      >
-                        Remove
-                      </button>
-                    </div>
-                    <p>
-                      To access it, you're reusing <b>{(Number(collateralCountToTransfer) / 1e18).toFixed(6)}</b> {tokenSymbol} of that appreciated collateral.
-                    </p>
-                    <p>
-                      You're also escrowing <b>{collateralAmount && Number(collateralAmount) > 0 ? collateralAmount : "0"}</b> {tokenSymbol} of new collateral.
-                    </p>
-                    <p>
-                      Existing borrowed: <b>{(Number(internalSelectedLoan.borrowAmount) / 1e18).toFixed(6)}</b> ETH will be rolled into a new loan.
-                    </p>
+            {showChart && (() => {
+              // Calculate effectiveBorrowableAmount and simulation values for the chart
+              const effectiveBorrowableAmount =
+                selectedLoan && selectedLoanReallocAmount
+                  ? selectedLoanReallocAmount - BigInt(selectedLoan.borrowAmount)
+                  : estimatedBorrowFromInputOnly;
+              const simulatedEthToWallet = effectiveBorrowableAmount
+                ? Number(effectiveBorrowableAmount) / 1e18 * (1 - FIXEDLOANFEES)
+                : ethToWallet;
+              const simulatedGrossBorrowedEth = effectiveBorrowableAmount
+                ? Number(effectiveBorrowableAmount) / 1e18
+                : grossBorrowedEth;
 
-                    {selectedLoanReallocAmount &&
-                      internalSelectedLoan &&
-                      BigInt(selectedLoanReallocAmount) <= BigInt(internalSelectedLoan.borrowAmount) && (
-                        <p className="text-red-600 text-sm font-medium">
-                          ⚠️ Borrowable amount must exceed existing borrowed amount.
-                        </p>
-                    )}
+              // Generate feeData for the chart using the same values as the simulation
+              const chartFeeData = generateFeeData({ 
+                grossBorrowedEth: simulatedGrossBorrowedEth, 
+                ethToWallet: simulatedEthToWallet, 
+                prepaidPercent 
+              });
 
-                    <p>
-                      Updated borrowable amount:{" "}
-                      <b>
-                        {selectedLoanReallocAmount && internalSelectedLoan
-                          ? (Number(selectedLoanReallocAmount - BigInt(internalSelectedLoan.borrowAmount)) / 1e18).toFixed(6)
-                          : "0.000000"}{" "}
-                        ETH
-                      </b>{" "}
-                      after fees.
-                    </p>
-                  </div>
-                )}
-              </>
-            )}
+              return (
+                <LoanFeeChart
+                  prepaidPercent={prepaidPercent}
+                  setPrepaidPercent={setPrepaidPercent}
+                  feeData={chartFeeData}
+                  ethToWallet={simulatedEthToWallet}
+                  grossBorrowedEth={simulatedGrossBorrowedEth}
+                  collateralAmount={collateralAmount}
+                  tokenSymbol={tokenSymbol}
+                  displayYears={displayYears}
+                  displayMonths={displayMonths}
+                />
+              );
+            })()}
             {/* Important Info toggleable section */}
             <button
               type="button"
@@ -723,10 +700,9 @@ const feeData = generateFeeData({ grossBorrowedEth, ethToWallet, prepaidPercent 
                 targetChainId={cashOutChainId ? Number(cashOutChainId) as JBChainId : undefined}
                 loading={isWriteLoading || isTxLoading || isReallocating || isReallocationTxLoading}
                 onClick={async () => {
-                  if (internalSelectedLoan && collateralAmount && !isNaN(Number(collateralAmount))) {
+                  if (selectedLoan && collateralAmount && !isNaN(Number(collateralAmount))) {
                     // Reallocation path
                     if (
-                      !internalSelectedLoan ||
                       !primaryNativeTerminal?.data ||
                       !cashOutChainId ||
                       !address ||
@@ -737,11 +713,11 @@ const feeData = generateFeeData({ grossBorrowedEth, ethToWallet, prepaidPercent 
                       return;
                     }
 
-                    const collateralCountToTransfer = internalSelectedLoan && currentBorrowableOnSelectedCollateral
+                    const collateralCountToTransfer = selectedLoan && currentBorrowableOnSelectedCollateral
                       ? BigInt(
                           Math.floor(
                             Number(collateralHeadroom) /
-                              (Number(currentBorrowableOnSelectedCollateral) / Number(internalSelectedLoan.collateral))
+                              (Number(currentBorrowableOnSelectedCollateral) / Number(selectedLoan.collateral))
                           )
                         )
                       : BigInt(0);
@@ -752,10 +728,37 @@ const feeData = generateFeeData({ grossBorrowedEth, ethToWallet, prepaidPercent 
                     try {
                       setBorrowStatus("waiting-signature");
 
+                      // Console log for reallocation transaction data
+                      console.log("🔄 REALLOCATION TRANSACTION DATA:", {
+                        chainId: Number(cashOutChainId),
+                        functionName: "reallocateCollateralFromLoan",
+                        args: [
+                          selectedLoan.id,
+                          collateralCountToTransfer.toString(),
+                          {
+                            token: "0x000000000000000000000000000000000000EEEe",
+                            terminal: primaryNativeTerminal.data,
+                          },
+                          minBorrowAmount.toString(),
+                          collateralCountToAdd.toString(),
+                          address,
+                          feePercent.toString(),
+                        ],
+                        parsedValues: {
+                          loanId: selectedLoan.id,
+                          collateralCountToTransfer: Number(collateralCountToTransfer) / 1e18,
+                          collateralCountToAdd: Number(collateralCountToAdd) / 1e18,
+                          minBorrowAmount: Number(minBorrowAmount) / 1e18,
+                          feePercent: Number(feePercent) / 10, // Convert back to percentage
+                          beneficiary: address,
+                          terminal: primaryNativeTerminal.data,
+                        }
+                      });
+
                       await reallocateCollateralAsync({
                         chainId: Number(cashOutChainId) as JBChainId,
                         args: [
-                          internalSelectedLoan.id,
+                          selectedLoan.id,
                           collateralCountToTransfer,
                           {
                             token: "0x000000000000000000000000000000000000EEEe",
@@ -785,34 +788,76 @@ const feeData = generateFeeData({ grossBorrowedEth, ethToWallet, prepaidPercent 
                         !walletClient ||
                         !primaryNativeTerminal?.data ||
                         !address ||
-                        !borrowableAmountRaw ||
+                        borrowableAmountRaw === undefined ||
                         !resolvedPermissionsAddress
                       ) {
-                        console.error("Missing required data");
+                        console.error("Missing required data:", {
+                          walletClient: !!walletClient,
+                          primaryNativeTerminal: !!primaryNativeTerminal?.data,
+                          address: !!address,
+                          borrowableAmountRaw: borrowableAmountRaw?.toString(),
+                          resolvedPermissionsAddress: !!resolvedPermissionsAddress,
+                          cashOutChainId,
+                          collateralAmount,
+                          projectId: projectId.toString()
+                        });
                         setBorrowStatus("error");
                         return;
                       }
 
                       const feeBasisPoints = Math.round(parseFloat(prepaidPercent) * 10);
+                      
+                      console.log("🔐 PERMISSION CHECK:", {
+                        userHasPermission,
+                        resolvedPermissionsAddress,
+                        address,
+                        projectId: projectId.toString(),
+                        chainId: Number(cashOutChainId),
+                        revLoansAddress: revLoansAddress[Number(cashOutChainId) as JBChainId],
+                        projectToken: tokenSymbol,
+                        purpose: "Burn permission for project tokens as collateral"
+                      });
+                      
                       if (!userHasPermission) {
+                        console.log("🔐 GRANTING PERMISSIONS FOR PROJECT TOKENS...");
                         setBorrowStatus("granting-permission");
                         try {
+                          const permissionArgs = [
+                            address as `0x${string}`,
+                            {
+                              operator: revLoansAddress[Number(cashOutChainId) as JBChainId],
+                              projectId,
+                              permissionIds: [1], // Burn permission for project tokens
+                            },
+                          ] as const;
+                          
+                          console.log("🔐 PERMISSION TRANSACTION DATA:", {
+                            chainId: Number(cashOutChainId),
+                            functionName: "setPermissionsFor",
+                            address: resolvedPermissionsAddress,
+                            args: permissionArgs,
+                            parsedValues: {
+                              account: address,
+                              permissionsAddress: resolvedPermissionsAddress,
+                              operator: revLoansAddress[Number(cashOutChainId) as JBChainId],
+                              projectId: projectId.toString(),
+                              permissionIds: [1],
+                              projectToken: tokenSymbol,
+                              purpose: "Burn permission for project tokens as collateral"
+                            }
+                          });
+                          
                           await walletClient.writeContract({
                             account: address,
                             address: resolvedPermissionsAddress as `0x${string}`,
                             abi: jbPermissionsAbi,
                             functionName: "setPermissionsFor",
-                            args: [
-                              address as `0x${string}`,
-                              {
-                                operator: revLoansAddress[Number(cashOutChainId) as JBChainId],
-                                projectId,
-                                permissionIds: [1],
-                              },
-                            ],
+                            args: permissionArgs,
                           });
+                          console.log("✅ PERMISSIONS GRANTED FOR PROJECT TOKENS");
                           setBorrowStatus("permission-granted");
                         } catch (err) {
+                          console.error("❌ PERMISSION GRANT FAILED:", err);
                           setBorrowStatus("error-permission-denied");
                           toast({
                             variant: "destructive",
@@ -823,6 +868,7 @@ const feeData = generateFeeData({ grossBorrowedEth, ethToWallet, prepaidPercent 
                           return;
                         }
                       } else {
+                        console.log("✅ USER ALREADY HAS PERMISSIONS FOR PROJECT TOKENS");
                         setBorrowStatus("permission-granted");
                       }
 
@@ -847,6 +893,36 @@ const feeData = generateFeeData({ grossBorrowedEth, ethToWallet, prepaidPercent 
 
                       try {
                         setBorrowStatus("waiting-signature");
+                        
+                        // Console log for standard borrow transaction data
+                        console.log("💰 STANDARD BORROW TRANSACTION DATA:", {
+                          chainId: Number(cashOutChainId),
+                          functionName: "borrowFrom",
+                          args: [
+                            projectId.toString(),
+                            {
+                              token: "0x000000000000000000000000000000000000EEEe",
+                              terminal: primaryNativeTerminal.data,
+                            },
+                            0n.toString(),
+                            collateralBigInt.toString(),
+                            address,
+                            BigInt(feeBasisPoints).toString(),
+                          ],
+                          parsedValues: {
+                            projectId: projectId.toString(),
+                            token: "0x000000000000000000000000000000000000EEEe",
+                            terminal: primaryNativeTerminal.data,
+                            minBorrowAmount: 0,
+                            collateralAmount: Number(collateralBigInt) / 1e18,
+                            beneficiary: address,
+                            feeBasisPoints: feeBasisPoints,
+                            feePercent: feeBasisPoints / 10, // Convert to percentage
+                            userHasPermission,
+                            resolvedPermissionsAddress,
+                          }
+                        });
+                        
                         await writeContract({
                           chainId: Number(cashOutChainId) as JBChainId,
                           args,
@@ -874,7 +950,7 @@ const feeData = generateFeeData({ grossBorrowedEth, ethToWallet, prepaidPercent 
                   }
                 }}
               >
-                {internalSelectedLoan && collateralAmount && !isNaN(Number(collateralAmount))
+                {selectedLoan && collateralAmount && !isNaN(Number(collateralAmount))
                   ? "Adjust loan"
                   : "Open loan"}
               </ButtonWithWallet>

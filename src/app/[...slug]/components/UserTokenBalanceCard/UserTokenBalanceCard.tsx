@@ -7,13 +7,16 @@ import {
   useJBChainId,
   useJBContractContext,
   useJBTokenContext,
-  useSuckersUserTokenBalance,
 } from "juice-sdk-react";
 import { RedeemDialog } from "./RedeemDialog";
 import { BorrowDialog } from "./BorrowDialog";
 import { RepayDialog } from "./RepayDialog";
 import { LoanDetailsTable } from "../LoansDetailsTable";
+import { UserTokenBalanceDatum } from "./UserTokenBalanceDatum";
 import { useAccount } from "wagmi";
+import { ParticipantsQuery, ParticipantsDocument } from "@/generated/graphql";
+import { useBendystrawQuery } from "@/graphql/useBendystrawQuery";
+import { useMemo } from "react";
 
 export function UserTokenBalanceCard() {
   const {
@@ -26,10 +29,58 @@ export function UserTokenBalanceCard() {
   const chainId = useJBChainId();
   const { address } = useAccount();
 
-  const { data: balances } = useSuckersUserTokenBalance();
+  // Query for all participant data for the user (across all projects and chains)
+  const projectParticipantsQuery = useBendystrawQuery(ParticipantsDocument, {
+    where: {
+      address: address || "",
+      balance_gt: 0,
+      projectId: Number(projectId),
+    },
+    orderBy: "balance",
+    orderDirection: "desc",
+    limit: 1000, // Ensure we get all records
+  }, {
+    enabled: !!address && !!projectId,
+  });
+
+  const isLoading = projectParticipantsQuery?.isLoading;
+  const participantsData = (projectParticipantsQuery?.data as ParticipantsQuery | undefined)?.participants?.items ?? [];
+  
+  // Aggregate balances by chain (GraphQL query is already filtered by project context)
+  const aggregatedBalances = useMemo(() => {
+    const chainBalances: Record<number, bigint> = {};
+    
+    participantsData.forEach((participant: any) => {
+      const chainId = participant.chainId;
+      const balance = BigInt(participant.balance || 0);
+      chainBalances[chainId] = (chainBalances[chainId] || 0n) + balance;
+    });
+    
+    return Object.entries(chainBalances)
+      .map(([chainId, balance]) => ({
+        chainId: Number(chainId),
+        balance,
+      }))
+      .sort((a, b) => Number(b.balance - a.balance)); // Sort by balance descending
+  }, [participantsData]);
+
   const creditBalance = new JBProjectToken(
-    balances?.reduce((acc, balance) => acc + balance.balance.value, 0n) ?? 0n
+    aggregatedBalances.reduce((acc, chainBalance) => {
+      return acc + chainBalance.balance;
+    }, 0n)
   );
+
+  // Debug logging
+  console.log('UserTokenBalanceCard debug:', {
+    isLoading,
+    participantsData: participantsData.length,
+    aggregatedBalances,
+    projectId: projectId.toString(),
+    creditBalanceValue: creditBalance.value,
+    hasAddress: !!address,
+    hasToken: !!token?.data?.symbol,
+    hasPrimaryTerminal: !!primaryNativeTerminal.data
+  });
 
   const [selectedLoanId, setSelectedLoanId] = useState<string | null>(null);
   const [selectedChainId, setSelectedChainId] = useState<number | null>(null);
@@ -38,6 +89,11 @@ export function UserTokenBalanceCard() {
 
   return (
     <>
+      {/* Balance Display Section */}
+      <div className="mb-4">
+        <UserTokenBalanceDatum className="text-lg font-medium" />
+      </div>
+      
       <div className="flex flex-row gap-2 mt-2">
         {token?.data?.symbol && creditBalance && primaryNativeTerminal.data ? (
           <RedeemDialog
@@ -46,7 +102,10 @@ export function UserTokenBalanceCard() {
             tokenSymbol={tokenSymbol}
             primaryTerminalEth={primaryNativeTerminal.data}
           >
-            <Button variant="outline" disabled={creditBalance.value === 0n}>
+            <Button 
+              variant="outline" 
+              disabled={creditBalance.value === 0n || isLoading}
+            >
               Cash out
             </Button>
           </RedeemDialog>
@@ -59,7 +118,7 @@ export function UserTokenBalanceCard() {
             <Button
               ref={borrowDialogTriggerRef}
               variant="outline"
-              disabled={creditBalance.value === 0n}
+              disabled={creditBalance.value === 0n || isLoading}
             >
               Get a loan
             </Button>
