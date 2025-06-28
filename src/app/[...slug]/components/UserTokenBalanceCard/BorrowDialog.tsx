@@ -47,9 +47,10 @@ import { LoanDetailsTable } from "../LoansDetailsTable";
 import { ImportantInfo } from "./ImportantInfo";
 import { ExternalLink } from "@/components/ExternalLink";
 import { etherscanLink } from "@/lib/utils";
+import { useRevLoansFeeConstants } from "@/hooks/useRevLoansFeeConstants";
 
 const FIXEDLOANFEES = 0.035; // TODO: get from onchain?
-const showAddOnCollateralSection = false; //true; // Set to false to hide this section
+const showAddOnCollateralSection = false; // Set to false to hide this section
 
 export function BorrowDialog({
   projectId,
@@ -453,6 +454,28 @@ const collateralCountToTransfer = internalSelectedLoan && currentBorrowableOnSel
     resolvedPermissionsAddress: resolvedPermissionsAddress as `0x${string}`,
     skip: false,
   });
+
+  // TEST: Call the new hook and console.log the values
+  const feeConstants = useRevLoansFeeConstants(cashOutChainId ? Number(cashOutChainId) as JBChainId : undefined);
+  
+  useEffect(() => {
+    console.log("🔍 REVLoans Fee Constants Test:", {
+      // Basis points (raw contract values)
+      maxPrepaidFeeBps: feeConstants.maxPrepaidFeeBps,
+      minPrepaidFeeBps: feeConstants.minPrepaidFeeBps,
+      revPrepaidFeeBps: feeConstants.revPrepaidFeeBps,
+      totalProtocolFeeBps: feeConstants.totalProtocolFeeBps,
+      
+      // Percentages (converted from basis points)
+      maxPrepaidFeePercent: feeConstants.maxPrepaidFeePercent,
+      minPrepaidFeePercent: feeConstants.minPrepaidFeePercent,
+      revPrepaidFeePercent: feeConstants.revPrepaidFeePercent,
+      totalProtocolFeePercent: feeConstants.totalProtocolFeePercent,
+      
+      currentHardcodedFee: FIXEDLOANFEES,
+      chainId: cashOutChainId,
+    });
+  }, [feeConstants, cashOutChainId]);
 
   return (
     <Dialog open={isDialogOpen} onOpenChange={handleOpenChange}>
