@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
 import { NativeTokenValue } from "@/components/NativeTokenValue";
 import { TokenAmount } from "@/components/TokenAmount";
+import EtherscanLink from "@/components/EtherscanLink";
 
 import {
   JBChainId,
@@ -273,6 +274,18 @@ const collateralCountToTransfer = internalSelectedLoan && currentBorrowableOnSel
     return (borrowableAmount * BigInt(feeBps)) / 10000n; // Convert from basis points
   };
 
+  // Get actual contract fee constants
+  const feeConstants = useRevLoansFeeConstants(cashOutChainId ? Number(cashOutChainId) as JBChainId : undefined);
+
+  // Helper function to calculate actual prepaid fee using SDK
+  const calculateActualPrepaidFee = (borrowableAmount: bigint, prepaidPercent: string) => {
+    if (!borrowableAmount || !prepaidPercent) return 0n;
+    const monthsToPrepay = Math.round((parseFloat(prepaidPercent) / 50) * 120);
+    const feeBpsBigInt = calcPrepaidFee(monthsToPrepay); // SDK returns bps as bigint
+    const feeBps = Number(feeBpsBigInt);
+    return (borrowableAmount * BigInt(feeBps)) / 10000n; // Convert from basis points
+  };
+
   const {
     data: estimatedRepayAmountForCollateral,
     isLoading: isEstimatingRepayment,
@@ -313,6 +326,7 @@ const collateralCountToTransfer = internalSelectedLoan && currentBorrowableOnSel
     if (!internalSelectedLoan || !collateralToReturn || estimatedNewBorrowableAmount === undefined) return;
 
     const correctedBorrowAmount = BigInt(internalSelectedLoan.borrowAmount);
+    setRepayAmount((Number(correctedBorrowAmount - estimatedNewBorrowableAmount) / 1e18).toFixed(6));
     setRepayAmount((Number(correctedBorrowAmount - estimatedNewBorrowableAmount) / 1e18).toFixed(6));
   }, [collateralToReturn, estimatedNewBorrowableAmount, internalSelectedLoan]);
 
@@ -402,6 +416,13 @@ const collateralCountToTransfer = internalSelectedLoan && currentBorrowableOnSel
             <div>{isReallocationSuccess ? "Loan adjusted successfully!" : "Loan created successfully!"}</div>
             {currentTxHash && (
               <div className="mt-1">
+                <EtherscanLink 
+                  value={currentTxHash as string} 
+                  type="tx"
+                  className="text-blue-600 hover:underline"
+                >
+                  View transaction
+                </EtherscanLink>
               </div>
             )}
           </div>
@@ -678,11 +699,32 @@ const collateralCountToTransfer = internalSelectedLoan && currentBorrowableOnSel
               // The user receives the borrowable amount minus the prepaid fee
               const actualPrepaidFee = borrowableAmountRaw && prepaidPercent 
                 ? Number(calculateActualPrepaidFee(borrowableAmountRaw, prepaidPercent)) / 1e18
+              // Use the exact same calculation logic as the main useEffect
+              if (!collateralAmount || isNaN(Number(collateralAmount))) {
+                return null;
+              }
+
+              // Calculate the same way as the main useEffect
+              const percent = Number(collateralAmount) / (Number(userProjectTokenBalance) / 1e18);
+              const estimatedRaw = borrowableAmountRaw ? Number(borrowableAmountRaw) / 1e18 : 0;
+              const adjusted = estimatedRaw * percent;
+              
+              // The user receives the borrowable amount minus the prepaid fee
+              const actualPrepaidFee = borrowableAmountRaw && prepaidPercent 
+                ? Number(calculateActualPrepaidFee(borrowableAmountRaw, prepaidPercent)) / 1e18
                 : 0;
+              
+              const amountToWallet = adjusted - actualPrepaidFee;
               
               const amountToWallet = adjusted - actualPrepaidFee;
 
               const simulatedFeeData = generateFeeData({ 
+                grossBorrowedEth: adjusted, 
+                ethToWallet: amountToWallet, 
+                prepaidPercent,
+                fixedLoanFee: feeConstants.totalProtocolFeePercent ?? FIXEDLOANFEES,
+                feeConstants,
+                actualPrepaidFeeAmount: actualPrepaidFee
                 grossBorrowedEth: adjusted, 
                 ethToWallet: amountToWallet, 
                 prepaidPercent,
@@ -696,6 +738,8 @@ const collateralCountToTransfer = internalSelectedLoan && currentBorrowableOnSel
                   prepaidPercent={prepaidPercent}
                   setPrepaidPercent={setPrepaidPercent}
                   feeData={simulatedFeeData}
+                  ethToWallet={amountToWallet}
+                  grossBorrowedEth={adjusted}
                   ethToWallet={amountToWallet}
                   grossBorrowedEth={adjusted}
                   collateralAmount={collateralAmount}

@@ -7,6 +7,7 @@ export function SimulatedLoanCard({
   feeData,
   actualPrepaidFee,
   feeConstants,
+  actualPrepaidFee,
 }: {
   collateralAmount: string;
   tokenSymbol: string;
@@ -14,6 +15,7 @@ export function SimulatedLoanCard({
   prepaidPercent: string;
   grossBorrowedEth: number;
   feeData: { year: number; totalCost: number }[];
+  actualPrepaidFee?: number;
   actualPrepaidFee?: number;
   feeConstants?: {
     totalProtocolFeePercent?: number;

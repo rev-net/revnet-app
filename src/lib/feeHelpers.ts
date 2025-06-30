@@ -5,6 +5,8 @@ export function generateFeeData({
   fixedLoanFee = 0.035,
   feeConstants,
   actualPrepaidFeeAmount,
+  feeConstants,
+  actualPrepaidFeeAmount,
 }: {
   grossBorrowedEth: number;
   ethToWallet: number;
@@ -16,13 +18,24 @@ export function generateFeeData({
     revPrepaidFeePercent?: number;
   };
   actualPrepaidFeeAmount?: number;
+  feeConstants?: {
+    totalProtocolFeePercent?: number;
+    minPrepaidFeePercent?: number;
+    revPrepaidFeePercent?: number;
+  };
+  actualPrepaidFeeAmount?: number;
 }) {
   const MAX_YEARS = 10;
   
+  // Use actual contract fee constants if available, otherwise fall back to hardcoded value
+  const actualProtocolFee = feeConstants?.totalProtocolFeePercent ?? fixedLoanFee;
+  
   // Calculate prepaid duration in years
-  const monthsToPrepay = Math.round((parseFloat(prepaidPercent) / 50) * 120);
+  const monthsToPrepay = Math.round(Math.round((parseFloat(prepaidPercent) / 50) * 120));
   const prepaidDuration = monthsToPrepay / 12;
   
+  // Use actual prepaid fee amount if provided, otherwise calculate based on percentage
+  const prepaidFeeAmount = actualPrepaidFeeAmount ?? (grossBorrowedEth * (parseFloat(prepaidPercent) / 100));
   // Use actual prepaid fee amount if provided, otherwise calculate based on percentage
   const prepaidFeeAmount = actualPrepaidFeeAmount ?? (grossBorrowedEth * (parseFloat(prepaidPercent) / 100));
   
