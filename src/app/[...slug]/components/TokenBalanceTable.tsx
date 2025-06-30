@@ -1,13 +1,117 @@
-import { JBChainId, JB_CHAINS } from "juice-sdk-core";
-import {
-  useReadRevLoansBorrowableAmountFrom,
-} from "revnet-sdk";
+import { JBChainId } from "juice-sdk-core";
+import { useReadRevLoansBorrowableAmountFrom } from "revnet-sdk";
 import { useBendystrawQuery } from "@/graphql/useBendystrawQuery";
 import { LoansByAccountDocument } from "@/generated/graphql";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useMemo, useCallback } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ChainLogo } from "@/components/ChainLogo";
 
+// ===== TYPES =====
+type ColumnType = "chain" | "holding" | "borrowable" | "debt" | "collateral";
+
+interface Balance {
+  chainId: number;
+  balance: {
+    value: bigint;
+  };
+}
+
+interface LoanSummary {
+  borrowAmount: bigint;
+  collateral: bigint;
+}
+
+interface TokenBalanceRowProps {
+  chainId: JBChainId;
+  balanceValue: bigint;
+  projectId: bigint;
+  tokenSymbol: string;
+  summary?: LoanSummary;
+  showHeader: boolean;
+  columns: ColumnType[];
+}
+
+interface TokenBalanceTableProps {
+  balances: Balance[] | undefined;
+  projectId: bigint;
+  tokenSymbol: string;
+  terminalAddress: `0x${string}`;
+  address: string;
+  columns?: ColumnType[];
+  selectedChainId?: number;
+  onCheckRow?: (chainId: number, checked: boolean) => void;
+  onAutoselectRow?: (chainId: number) => void;
+}
+
+// ===== CONSTANTS =====
+const DEFAULT_COLUMNS: ColumnType[] = ["chain", "holding", "borrowable", "debt", "collateral"];
+const TOKEN_DECIMALS = 18n;
+const CURRENCY_ID = 61166n;
+
+// ===== UTILITY FUNCTIONS =====
+function formatAmount(value?: bigint): string {
+  return value !== undefined ? (Number(value) / 1e18).toFixed(5) : "—";
+}
+
+function summarizeLoansByChain(
+  loans?: Array<{ chainId: number; collateral: string; borrowAmount: string }>
+): Record<number, LoanSummary> {
+  if (!loans) return {};
+  
+  return loans.reduce<Record<number, LoanSummary>>((acc, loan) => {
+    const { chainId, collateral, borrowAmount } = loan;
+    if (!acc[chainId]) {
+      acc[chainId] = { collateral: 0n, borrowAmount: 0n };
+    }
+    acc[chainId].collateral += BigInt(collateral);
+    acc[chainId].borrowAmount += BigInt(borrowAmount);
+    return acc;
+  }, {});
+}
+
+// ===== CUSTOM HOOKS =====
+function useLoanSummary(address: string) {
+  const { data } = useBendystrawQuery(LoansByAccountDocument, {
+    owner: address,
+  });
+
+  return useMemo(() => summarizeLoansByChain(data?.loans?.items), [data?.loans?.items]);
+}
+
+function useAutoSelection(
+  balances: Balance[] | undefined,
+  loanSummary: Record<number, LoanSummary>,
+  selectedChainId: number | undefined,
+  onAutoselectRow?: (chainId: number) => void
+) {
+  const hasAutoselected = useRef(false);
+
+  const firstSelectable = useMemo(() => {
+    return balances?.find(({ chainId, balance }) => {
+      const summary = loanSummary[chainId];
+      return (
+        balance.value > 0n ||
+        (summary?.borrowAmount && summary.borrowAmount > 0n) ||
+        (summary?.collateral && summary.collateral > 0n)
+      );
+    });
+  }, [balances, loanSummary]);
+
+  useEffect(() => {
+    if (
+      firstSelectable &&
+      (typeof selectedChainId === "undefined" || selectedChainId === null) &&
+      !hasAutoselected.current
+    ) {
+      hasAutoselected.current = true;
+      onAutoselectRow?.(firstSelectable.chainId);
+    }
+  }, [firstSelectable, selectedChainId, onAutoselectRow]);
+
+  return firstSelectable;
+}
+
+// ===== COMPONENTS =====
 function TokenBalanceRow({
   chainId,
   balanceValue,
@@ -16,203 +120,200 @@ function TokenBalanceRow({
   summary,
   showHeader,
   columns,
-}: {
-  chainId: JBChainId;
-  balanceValue: bigint;
-  projectId: bigint;
-  tokenSymbol: string;
-  summary?: { borrowAmount: bigint; collateral: bigint };
-  showHeader: boolean;
-  columns: Array<"chain" | "holding" | "borrowable" | "debt" | "collateral">;
-}) {
+}: TokenBalanceRowProps) {
   const { data: borrowableAmount } = useReadRevLoansBorrowableAmountFrom({
     chainId,
-    args: [projectId, balanceValue, 18n, 61166n],
+    args: [projectId, balanceValue, TOKEN_DECIMALS, CURRENCY_ID],
   });
 
-  function formatAmount(value?: bigint): string {
-    return value !== undefined ? (Number(value) / 1e18).toFixed(5) : "—";
-  }
-
-  const hasAnyBalance =
-    balanceValue > 0n ||
-    (borrowableAmount && borrowableAmount > 0n) ||
-    (summary?.borrowAmount && summary.borrowAmount > 0n) ||
-    (summary?.collateral && summary.collateral > 0n);
+  const hasAnyBalance = useMemo(() => {
+    return (
+      balanceValue > 0n ||
+      (borrowableAmount && borrowableAmount > 0n) ||
+      (summary?.borrowAmount && summary.borrowAmount > 0n) ||
+      (summary?.collateral && summary.collateral > 0n)
+    );
+  }, [balanceValue, borrowableAmount, summary]);
 
   if (!hasAnyBalance) return null;
 
+  const renderCell = useCallback((column: ColumnType) => {
+    switch (column) {
+      case "chain":
+        return (
+          <TableCell key={column} className="whitespace-nowrap w-32 px-3 py-2">
+            <div className="flex items-center">
+              <ChainLogo chainId={chainId} width={14} height={14} />
+            </div>
+          </TableCell>
+        );
+      case "holding":
+        return (
+          <TableCell key={column} className="text-left px-3 py-2">
+            <span className="whitespace-nowrap">{formatAmount(balanceValue)} {tokenSymbol}</span>
+          </TableCell>
+        );
+      case "borrowable":
+        return (
+          <TableCell key={column} className="text-left px-3 py-2">
+            <span className="whitespace-nowrap">{formatAmount(borrowableAmount)} ETH</span>
+          </TableCell>
+        );
+      case "debt":
+        return (
+          <TableCell key={column} className="text-left px-3 py-2">
+            <span className="whitespace-nowrap">{formatAmount(summary?.borrowAmount)} ETH</span>
+          </TableCell>
+        );
+      case "collateral":
+        return (
+          <TableCell key={column} className="text-left px-3 py-2">
+            <span className="whitespace-nowrap">{formatAmount(summary?.collateral)} {tokenSymbol}</span>
+          </TableCell>
+        );
+      default:
+        return null;
+    }
+  }, [chainId, balanceValue, tokenSymbol, borrowableAmount, summary]);
+
+  return <>{columns.map(renderCell)}</>;
+}
+
+function TableHeaderRow({ columns }: { columns: ColumnType[] }) {
+  const getHeaderText = useCallback((column: ColumnType) => {
+    switch (column) {
+      case "chain": return "Chain";
+      case "holding": return "Balance";
+      case "borrowable": return "Borrowable";
+      case "debt": return "Debt";
+      case "collateral": return "Collateral";
+      default: return "";
+    }
+  }, []);
+
   return (
-    <>
-      {columns.includes("chain") && (
-        <TableCell className="whitespace-nowrap w-32">
-          <div className="flex items-center">
-            <ChainLogo chainId={chainId} width={14} height={14} />
-          </div>
-        </TableCell>
-      )}
-      {columns.includes("holding") && (
-        <TableCell className="text-right">
-          <span className="whitespace-nowrap">{formatAmount(balanceValue)} {tokenSymbol}</span>
-        </TableCell>
-      )}
-      {columns.includes("borrowable") && (
-        <TableCell className="text-right">
-          <span className="whitespace-nowrap">{formatAmount(borrowableAmount)} ETH</span>
-        </TableCell>
-      )}
-      {columns.includes("debt") && (
-        <TableCell className="text-right">
-          <span className="whitespace-nowrap">{formatAmount(summary?.borrowAmount)} ETH</span>
-        </TableCell>
-      )}
-      {columns.includes("collateral") && (
-        <TableCell className="text-right">
-          <span className="whitespace-nowrap">{formatAmount(summary?.collateral)} {tokenSymbol}</span>
-        </TableCell>
-      )}
-    </>
+    <TableRow>
+      <TableHead className="w-4 px-3 py-2" />
+      {columns.map(column => (
+        <TableHead key={column} className="text-left px-3 py-2">
+          {getHeaderText(column)}
+        </TableHead>
+      ))}
+    </TableRow>
   );
 }
 
+function TableRowItem({
+  balance,
+  index,
+  projectId,
+  tokenSymbol,
+  columns,
+  selectedChainId,
+  loanSummary,
+  onCheckRow,
+}: {
+  balance: Balance;
+  index: number;
+  projectId: bigint;
+  tokenSymbol: string;
+  columns: ColumnType[];
+  selectedChainId?: number;
+  loanSummary: Record<number, LoanSummary>;
+  onCheckRow?: (chainId: number, checked: boolean) => void;
+}) {
+  const chainId = balance.chainId as JBChainId;
+  const summary = loanSummary[chainId];
+
+  const hasAnyBalance = useMemo(() => {
+    return (
+      balance.balance.value > 0n ||
+      (summary?.borrowAmount && summary.borrowAmount > 0n) ||
+      (summary?.collateral && summary.collateral > 0n)
+    );
+  }, [balance.balance.value, summary]);
+
+  if (!hasAnyBalance) return null;
+
+  const checked = selectedChainId === chainId;
+  const handleRowClick = useCallback(() => onCheckRow?.(chainId, true), [chainId, onCheckRow]);
+
+  return (
+    <TableRow
+      key={index}
+      className={`cursor-pointer hover:bg-zinc-100 ${checked ? "bg-zinc-100" : ""}`}
+      onClick={handleRowClick}
+    >
+      <TableCell className="text-center px-3 py-2">
+        <input
+          type="radio"
+          name="chain"
+          checked={checked}
+          onChange={handleRowClick}
+        />
+      </TableCell>
+      <TokenBalanceRow
+        chainId={chainId}
+        balanceValue={balance.balance.value}
+        projectId={projectId}
+        tokenSymbol={tokenSymbol}
+        summary={summary}
+        showHeader={false}
+        columns={columns}
+      />
+    </TableRow>
+  );
+}
+
+// ===== MAIN COMPONENT =====
 export function TokenBalanceTable({
   balances,
   projectId,
   tokenSymbol,
   terminalAddress,
   address,
-  columns = ["chain", "holding", "borrowable", "debt", "collateral"],
+  columns = DEFAULT_COLUMNS,
   selectedChainId,
   onCheckRow,
   onAutoselectRow,
-}: {
-  balances: {
-    chainId: number;
-    balance: {
-      value: bigint;
-    };
-  }[] | undefined;
-  projectId: bigint;
-  tokenSymbol: string;
-  terminalAddress: `0x${string}`;
-  address: string;
-  columns?: Array<"chain" | "holding" | "borrowable" | "debt" | "collateral">;
-  selectedChainId?: number;
-  onCheckRow?: (chainId: number, checked: boolean) => void;
-  onAutoselectRow?: (chainId: number) => void;
-}) {
-  const { data } = useBendystrawQuery(LoansByAccountDocument, {
-    owner: address,
-  });
+}: TokenBalanceTableProps) {
+  const loanSummary = useLoanSummary(address);
+  const firstSelectable = useAutoSelection(balances, loanSummary, selectedChainId, onAutoselectRow);
 
-  function summarizeLoansByChain(
-    loans?: Array<{ chainId: number; collateral: string; borrowAmount: string }>
-  ) {
-    if (!loans) return {};
-    return loans.reduce<Record<number, { collateral: bigint; borrowAmount: bigint }>>((acc, loan) => {
-      const { chainId, collateral, borrowAmount } = loan;
-      if (!acc[chainId]) {
-        acc[chainId] = { collateral: 0n, borrowAmount: 0n };
-      }
-      acc[chainId].collateral += BigInt(collateral);
-      acc[chainId].borrowAmount += BigInt(borrowAmount);
-      return acc;
-    }, {});
-  }
-
-  const loanSummary = summarizeLoansByChain(data?.loans?.items);
-
-  // Auto-select the first selectable row if more than one row and no selection exists
-  const firstSelectable = balances?.find(({ chainId, balance }) => {
-    const summary = loanSummary[chainId];
-    return (
-      balance.value > 0n ||
-      (summary?.borrowAmount && summary.borrowAmount > 0n) ||
-      (summary?.collateral && summary.collateral > 0n)
-    );
-  });
-
-  const hasAutoselected = useRef(false);
-
-  useEffect(() => {
-    // Only auto-select if there's a selectable row, no selection, and we haven't yet auto-selected
-    if (
-      firstSelectable &&
-      (typeof selectedChainId === "undefined" || selectedChainId === null) &&
-      !hasAutoselected.current
-    ) {
-      hasAutoselected.current = true;
-      // Only call onAutoselectRow, which should be responsible for syncing all related state
-      onAutoselectRow?.(firstSelectable.chainId);
-    }
-  }, [firstSelectable, selectedChainId, onAutoselectRow]);
-
+  // Early return for empty state
   if (!balances || balances.length === 0) return null;
 
   return (
     <div className="w-full max-w-md mb-5">
-        <label className="block text-gray-700 text-sm font-bold mb-1">
-          On which chain?
-        </label>
-        <div className="max-h-96 overflow-auto bg-zinc-50 border border-zinc-200">
-          <div className="flex flex-col overflow-x-auto">
-            <div className="min-w-full">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-4" />
-                    {columns.includes("chain") && <TableHead className="text-left">Chain</TableHead>}
-                    {columns.includes("holding") && <TableHead className="text-left">Balance</TableHead>}
-                    {columns.includes("borrowable") && <TableHead className="text-left">Borrowable</TableHead>}
-                    {columns.includes("debt") && <TableHead className="text-left">Debt</TableHead>}
-                    {columns.includes("collateral") && <TableHead className="text-left">Collateral</TableHead>}
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {balances.map((balance, index) => {
-                    const chainId = balance.chainId as JBChainId;
-                    const summary = loanSummary[chainId];
-
-                    const hasAnyBalance =
-                      balance.balance.value > 0n ||
-                      (summary?.borrowAmount && summary.borrowAmount > 0n) ||
-                      (summary?.collateral && summary.collateral > 0n);
-
-                    if (!hasAnyBalance) return null;
-
-                    const checked = selectedChainId === chainId;
-
-                    return (
-                      <TableRow
-                        key={index}
-                        className={`cursor-pointer hover:bg-zinc-100 ${checked ? "bg-zinc-100" : ""}`}
-                        onClick={() => onCheckRow?.(chainId, true)}
-                      >
-                        <TableCell className="text-center">
-                          <input
-                            type="radio"
-                            name="chain"
-                            checked={checked}
-                            onChange={() => onCheckRow?.(chainId, true)}
-                          />
-                        </TableCell>
-                        <TokenBalanceRow
-                          chainId={chainId}
-                          balanceValue={balance.balance.value}
-                          projectId={projectId}
-                          tokenSymbol={tokenSymbol}
-                          summary={summary}
-                          showHeader={false}
-                          columns={columns}
-                        />
-                      </TableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
-            </div>
+      <label className="block text-gray-700 text-sm font-bold mb-1">
+        On which chain?
+      </label>
+      <div className="max-h-96 overflow-auto bg-zinc-50 border border-zinc-200">
+        <div className="flex flex-col overflow-x-auto">
+          <div className="min-w-full">
+            <Table>
+              <TableHeader>
+                <TableHeaderRow columns={columns} />
+              </TableHeader>
+              <TableBody>
+                {balances.map((balance, index) => (
+                  <TableRowItem
+                    key={`${balance.chainId}-${index}`}
+                    balance={balance}
+                    index={index}
+                    projectId={projectId}
+                    tokenSymbol={tokenSymbol}
+                    columns={columns}
+                    selectedChainId={selectedChainId}
+                    loanSummary={loanSummary}
+                    onCheckRow={onCheckRow}
+                  />
+                ))}
+              </TableBody>
+            </Table>
           </div>
         </div>
+      </div>
     </div>
   );
 }

@@ -61,11 +61,11 @@ export function LoanDetailsTable({
             <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Chain</TableHead>
-                <TableHead className="text-left pr-4">Borrowed</TableHead>
-                <TableHead className="text-left pr-4">Collateral</TableHead>
-                <TableHead className="text-left pr-6">Fees Increase In</TableHead>
-                <TableHead className="text-center">Actions</TableHead>
+                <TableHead className="text-left px-3 py-2">Chain</TableHead>
+                <TableHead className="text-left px-3 py-2">Borrowed</TableHead>
+                <TableHead className="text-left px-3 py-2">Collateral</TableHead>
+                <TableHead className="text-left px-3 py-2">Fees Increase In</TableHead>
+                <TableHead className="text-center px-3 py-2">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -74,14 +74,14 @@ export function LoanDetailsTable({
                   key={`${loan.id}-${loan.createdAt}`}
                   className={`hover:bg-zinc-100 ${selectedLoanId === loan.id ? "bg-zinc-100" : ""}`}
                 >
-                  <TableCell className="whitespace-nowrap">
+                  <TableCell className="whitespace-nowrap px-3 py-2">
                     {(loan.chainId in JB_CHAINS) ? (
                       <ChainLogo chainId={loan.chainId as JBChainId} width={15} height={15} />
                     ) : (
                       <span>{loan.chainId}</span>
                     )}
                   </TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className="text-left px-3 py-2">
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <span className="whitespace-nowrap">
@@ -91,17 +91,17 @@ export function LoanDetailsTable({
                       <TooltipContent>Loan ID: {loan.id?.toString() ?? "Unavailable"}</TooltipContent>
                     </Tooltip>
                   </TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className="text-left px-3 py-2">
                     <span className="whitespace-nowrap">
                       {(Number(loan.collateral) / 1e18).toFixed(4)}&nbsp;{tokenSymbol}
                     </span>
                   </TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className="text-left px-3 py-2">
                     <span className="whitespace-nowrap">
                       {formatSeconds(Math.max(0, loan.prepaidDuration - (now - Number(loan.createdAt))))}
                     </span>
                   </TableCell>
-                  <TableCell className="text-center">
+                  <TableCell className="text-center px-3 py-2">
                     <Button
                       variant="outline"
                       size="sm"
