@@ -19,6 +19,7 @@ import {
 import {
   defaultStageData } from "../constants";
 import { Field, FieldGroup } from "./Fields";
+import { Input } from "@/components/ui/input";
 import {
   Tooltip,
   TooltipContent,
@@ -403,31 +404,60 @@ export function AddStageDialog({
                     {revnetTokenSymbol} holders who stick around as others cash
                     out.
                   </p>
-                  <div className="space-y-2 mt-6">
-                    <div className="flex justify-between relative w-full">
-                      {steps.map((step) => (
-                        <span key={Number(step) / 100} className={ Number(step) === 0 ? "text-sm pl-1" : Number(step) === 20 ? "text-sm pl-4" : "text-sm pl-2"}>
-                          {Number(step) / 100}
-                        </span>
-                      ))}
+                    <div className="space-y-2 mt-6">
+                      <div className="flex justify-between relative w-full">
+                        {steps.map((step) => (
+                          <span
+                            key={Number(step) / 100}
+                            className={
+                              Number(step) === 0
+                                ? "text-sm pl-1"
+                                : Number(step) === 20
+                                ? "text-sm pl-4"
+                                : "text-sm pl-2"
+                            }
+                          >
+                            {Number(step) / 100}
+                          </span>
+                        ))}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="range"
+                          min={0}
+                          max={80}
+                          step={10}
+                          name="priceFloorTaxIntensity"
+                          value={cashOutTax}
+                          onChange={(e: any) => {
+                            const numValue = parseFloat(e.target.value);
+                            const closestHalfStep = Math.round(numValue * 20) / 20;
+                            setCashOutTax(closestHalfStep);
+                            values.priceFloorTaxIntensity = String(closestHalfStep);
+                          }}
+                          className="w-full h-2 bg-gray-200 appearance-none cursor-pointer accent-teal-500"
+                          aria-label="Exit tax percentage"
+                        />
+                        <Input
+                          type="number"
+                          min={0}
+                          max={0.8}
+                          step={0.01}
+                          value={(cashOutTax / 100).toString()}
+                          onChange={(e) => {
+                            const decimal = parseFloat(e.target.value);
+                            const bounded = isNaN(decimal)
+                              ? 0
+                              : Math.max(0, Math.min(0.8, decimal));
+                            const scaled = Math.round(bounded * 100 * 100) / 100;
+                            setCashOutTax(scaled);
+                            values.priceFloorTaxIntensity = String(scaled);
+                          }}
+                          className="w-20 h-9"
+                          aria-label="Custom cash out tax"
+                        />
+                      </div>
                     </div>
-                    <input
-                      type="range"
-                      min={0}
-                      max={80}
-                      step={10}
-                      name="priceFloorTaxIntensity"
-                      value={cashOutTax}
-                      onChange={(e: any) => {
-                        const numValue = parseFloat(e.target.value);
-                        const closestHalfStep = Math.round(numValue * 20) / 20;
-                        setCashOutTax(closestHalfStep);
-                        values.priceFloorTaxIntensity = String(closestHalfStep);
-                      }}
-                      className="w-full h-2 bg-gray-200 appearance-none cursor-pointer accent-teal-500"
-                      aria-label="Exit tax percentage"
-                    />
-                  </div>
                   <div className="text-sm font-medium text-zinc-500 mt-4 border-l border-zinc-300 pl-2 py-1 px-1">
                     Cashing out 10% of {revnetTokenSymbol} gets {calculateYield(Number(cashOutTax))}% of the revnet's {nativeTokenSymbol}.
                   </div>
