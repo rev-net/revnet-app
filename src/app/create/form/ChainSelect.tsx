@@ -36,12 +36,7 @@ const TESTNETS: JBChainId[] = [
   baseSepolia.id,
 ];
 
-const MAINNETS: JBChainId[] = [
-  mainnet.id,
-  optimism.id,
-  base.id,
-  arbitrum.id,
-];
+const MAINNETS: JBChainId[] = [mainnet.id, optimism.id, base.id, arbitrum.id];
 
 export function ChainSelect({
   disabled = false,
@@ -65,34 +60,36 @@ export function ChainSelect({
       "chainIds",
       checked
         ? [...values.chainIds, chainId]
-        : values.chainIds.filter((id) => id !== chainId)
+        : values.chainIds.filter((id) => id !== chainId),
     );
   };
 
   const revnetTokenSymbol =
     values.tokenSymbol?.length > 0 ? `$${values.tokenSymbol}` : "token";
 
+  console.log(values);
+
   return (
     <>
       <div className="md:col-span-1">
-        <h2 className="font-bold text-lg mb-2">3. Deploy</h2>
-        <p className="text-zinc-600 text-lg">
+        <h2 className="mb-2 text-lg font-bold">3. Deploy</h2>
+        <p className="text-lg text-zinc-600">
           Pick which chains your revnet will accept money on and issue{" "}
           {revnetTokenSymbol} from.
         </p>
-        <p className="text-zinc-600 text-lg mt-2">
+        <p className="mt-2 text-lg text-zinc-600">
           Holders of {revnetTokenSymbol} can cash out on any of the selected
           chains, and can move their {revnetTokenSymbol} between chains at any
           time.
         </p>
-        <p className="text-zinc-600 text-lg mt-2">
+        <p className="mt-2 text-lg text-zinc-600">
           The Operator you set in your revnet's terms will also be able to add
           new chains to the revnet later.
         </p>
       </div>
       <div className="md:col-span-2">
         <div className="flex flex-col gap-4">
-          <div className="text-left text-black-500 font-semibold">
+          <div className="text-black-500 text-left font-semibold">
             Choose your chains
           </div>
           <div className="max-w-56">
@@ -116,12 +113,12 @@ export function ChainSelect({
               </SelectContent>
             </Select>
           </div>
-          <div className="flex flex-wrap gap-6 mt-4">
+          <div className="mt-4 flex flex-wrap gap-6">
             {environment === "production" ? (
               <>
                 {Object.values(JB_CHAINS)
                   .filter(({ chain }) =>
-                    MAINNETS.includes(chain.id as JBChainId)
+                    MAINNETS.includes(chain.id as JBChainId),
                   )
                   .map(({ chain, name }) => (
                     <label key={chain.id} className="flex items-center gap-2">
@@ -132,12 +129,12 @@ export function ChainSelect({
                         disabled={disabled}
                         className="disabled:opacity-50"
                         checked={values.chainIds.includes(
-                          Number(chain.id) as JBChainId
+                          Number(chain.id) as JBChainId,
                         )}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                           handleChainSelect(
                             chain.id as JBChainId,
-                            e.target.checked
+                            e.target.checked,
                           );
                         }}
                       />
@@ -149,7 +146,7 @@ export function ChainSelect({
               <>
                 {Object.values(JB_CHAINS)
                   .filter(({ chain }) =>
-                    TESTNETS.includes(chain.id as JBChainId)
+                    TESTNETS.includes(chain.id as JBChainId),
                   )
                   .map(({ chain, name }) => (
                     <label key={chain.id} className="flex items-center gap-2">
@@ -160,12 +157,12 @@ export function ChainSelect({
                         disabled={disabled}
                         className="disabled:opacity-50"
                         checked={values.chainIds.includes(
-                          Number(chain.id) as JBChainId
+                          Number(chain.id) as JBChainId,
                         )}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                           handleChainSelect(
                             chain.id as JBChainId,
-                            e.target.checked
+                            e.target.checked,
                           );
                         }}
                       />
@@ -208,17 +205,17 @@ export function ChainSelect({
           />
           {relayrResponse && (
             <div className="flex flex-col items-start">
-              <div className="text-xs italic mt-2">
+              <div className="mt-2 text-xs italic">
                 Quote valid until{" "}
                 {format(
                   relayrResponse.payment_info[0].payment_deadline,
-                  "h:mm:ss aaa"
+                  "h:mm:ss aaa",
                 )}
                 .
                 <Button
                   variant="link"
                   size="sm"
-                  className="italic text-xs px-1"
+                  className="px-1 text-xs italic"
                   disabled={isLoading}
                   onClick={() => getRelayrTxQuote.reset()}
                 >
