@@ -30,7 +30,8 @@ export function generateFeeData({
   // So we don't need to recalculate it here
   const amountToWallet = ethToWallet;
   
-  // The amount that needs to be paid back (the borrowed amount)
+  // The decaying portion is the amount that will be subject to time-based fees
+  // This is the amount that needs to be paid back (the borrowed amount)
   const amountToPayBack = grossBorrowedEth;
   
   const data = [];
@@ -41,21 +42,20 @@ export function generateFeeData({
   
   for (let i = 0; i <= steps; i++) {
     const year = Math.min(i * 0.1, MAX_YEARS);
-    let additionalFees = 0;
+    let variableFee = 0;
 
-    // Additional fees only start after the prepaid period
+    // Variable fees only start after the prepaid period
     if (year > prepaidDuration && year <= MAX_YEARS) {
       const elapsedAfterPrepaid = year - prepaidDuration;
       const remainingTime = MAX_YEARS - prepaidDuration;
       const percentElapsed = Math.min(elapsedAfterPrepaid / remainingTime, 1);
-      // Additional fees are a percentage of the borrowed amount (max 50%)
-      additionalFees = amountToPayBack * percentElapsed * 0.5;
+      variableFee = amountToPayBack * percentElapsed;
     } else if (year > MAX_YEARS) {
-      additionalFees = amountToPayBack * 0.5; // Max 50% additional fees
+      variableFee = amountToPayBack;
     }
 
     // The total cost is the amount borrowed plus any additional fees after prepaid period
-    const totalCost = amountToPayBack + additionalFees;
+    const totalCost = amountToPayBack + variableFee;
     data.push({ year, totalCost });
   }
 

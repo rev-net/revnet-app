@@ -21,18 +21,16 @@ export function SimulatedLoanCard({
     revPrepaidFeePercent?: number;
   };
 }) {
-    // Get the max cost from the fee data (last data point)
-    const maxCost = feeData[feeData.length - 1]?.totalCost ?? grossBorrowedEth;
+    const totalFeeCost = feeData[feeData.length - 1]?.totalCost ?? 0;
+    const totalUnlockCost = grossBorrowedEth + totalFeeCost;
     
-    // Calculate loan processing fees (protocol fee + REV fee = 3%)
+    // Calculate total upfront fees (protocol + project + REV + prepaid)
     const protocolFee = grossBorrowedEth * (feeConstants?.minPrepaidFeePercent ?? 2.5) / 100;
+    const projectFee = grossBorrowedEth * (feeConstants?.minPrepaidFeePercent ?? 2.5) / 100;
     const revFee = grossBorrowedEth * (feeConstants?.revPrepaidFeePercent ?? 0.5) / 100;
-    const totalProcessingFees = protocolFee + revFee;
+    const prepaidFee = actualPrepaidFee ?? (grossBorrowedEth * (parseFloat(prepaidPercent) / 100));
     
-    // Prepaid fee should be based on the slider percentage, not the SDK calculation
-    const prepaidFee = grossBorrowedEth * (parseFloat(prepaidPercent) / 100);
-    
-    const totalUpfrontFees = totalProcessingFees + prepaidFee;
+    const totalUpfrontFees = protocolFee + projectFee + revFee + prepaidFee;
     const totalUpfrontFeePercent = (totalUpfrontFees / grossBorrowedEth) * 100;
     
     // Calculate prepaid duration
@@ -44,7 +42,7 @@ export function SimulatedLoanCard({
     const amountToWallet = ethToWallet;
     
     // Check if the total unlock cost is very small (less than 0.000001 ETH)
-    const isVerySmallCost = maxCost < 0.000001;
+    const isVerySmallCost = totalUnlockCost < 0.000001;
     
     return (
       <div className="mb-2 p-3 bg-zinc-50 rounded-md border border-zinc-200">
@@ -60,17 +58,23 @@ export function SimulatedLoanCard({
             {totalUpfrontFees.toFixed(6)}
           </span> ETH total upfront fees ({totalUpfrontFeePercent.toFixed(1)}%)</p>
           <p className="text-xs text-zinc-500 ml-4">
-            • Loan processing fees: {totalProcessingFees.toFixed(6)} ETH ({(totalProcessingFees/grossBorrowedEth*100).toFixed(1)}%)
+            • Protocol fee: {protocolFee.toFixed(6)} ETH ({(protocolFee/grossBorrowedEth*100).toFixed(1)}%)
           </p>
           <p className="text-xs text-zinc-500 ml-4">
-            • Prepaid interest: {prepaidFee.toFixed(6)} ETH ({(prepaidFee/grossBorrowedEth*100).toFixed(1)}%)
+            • Project fee: {projectFee.toFixed(6)} ETH ({(projectFee/grossBorrowedEth*100).toFixed(1)}%)
+          </p>
+          <p className="text-xs text-zinc-500 ml-4">
+            • REV fee: {revFee.toFixed(6)} ETH ({(revFee/grossBorrowedEth*100).toFixed(1)}%)
+          </p>
+          <p className="text-xs text-zinc-500 ml-4">
+            • Prepaid fee: {prepaidFee.toFixed(6)} ETH ({(prepaidFee/grossBorrowedEth*100).toFixed(1)}%)
           </p>
           <p><span className="font-semibold">
             {prepaidYears > 0 ? `${prepaidYears} year${prepaidYears > 1 ? 's' : ''}` : ''}
             {prepaidMonths > 0 ? `${prepaidYears > 0 ? ' ' : ''}${prepaidMonths} month${prepaidMonths > 1 ? 's' : ''}` : ''}
           </span> prepaid period (no additional fees)</p>
           <p><span className="font-semibold">
-            {maxCost.toFixed(6)}
+            {totalUnlockCost.toFixed(6)}
           </span> ETH max cost to unlock all collateral before 10 years</p>
         </div>
         <p className="text-xs text-zinc-500 mt-1">Actual amounts may vary slightly due to rounding.</p>
