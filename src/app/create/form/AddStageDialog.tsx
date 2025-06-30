@@ -160,6 +160,7 @@ export function AddStageDialog({
                           autoFocus={true}
                           min="0"
                           max="100"
+                          step="0.1"
                           className="h-9"
                           suffix="%"
                           required
