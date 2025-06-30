@@ -5,6 +5,7 @@ export function SimulatedLoanCard({
   prepaidPercent,
   grossBorrowedEth,
   feeData,
+  actualPrepaidFee,
 }: {
   collateralAmount: string;
   tokenSymbol: string;
@@ -12,13 +13,16 @@ export function SimulatedLoanCard({
   prepaidPercent: string;
   grossBorrowedEth: number;
   feeData: { year: number; totalCost: number }[];
+  actualPrepaidFee?: number;
 }) {
     const totalFeeCost = feeData[feeData.length - 1]?.totalCost ?? 0;
     const totalUnlockCost = grossBorrowedEth + totalFeeCost;
     
-    // Calculate amounts based on the same logic as generateFeeData
-    const prepaidFeeAmount = grossBorrowedEth * (parseFloat(prepaidPercent) / 100);
-    const amountToWallet = ethToWallet * (1 - parseFloat(prepaidPercent) / 100);
+    // Use actual prepaid fee if provided, otherwise fall back to calculation
+    const prepaidFeeAmount = actualPrepaidFee ?? (grossBorrowedEth * (parseFloat(prepaidPercent) / 100));
+    
+    // The amount to wallet is already calculated correctly and passed in as ethToWallet
+    const amountToWallet = ethToWallet;
     
     // Check if the total unlock cost is very small (less than 0.000001 ETH)
     const isVerySmallCost = totalUnlockCost < 0.000001;

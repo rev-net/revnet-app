@@ -29,6 +29,17 @@ import {
     displayYears: number;
     displayMonths: number;
   }) {
+    // Calculate Y-axis domain to make first data point start at ~1/3 of total height
+    const minValue = Math.min(...feeData.map(d => d.totalCost));
+    const maxValue = Math.max(...feeData.map(d => d.totalCost));
+    const range = maxValue - minValue;
+    
+    // Set Y-axis to start at 70% of min value (or 0 if that would be negative)
+    // This will make the first data point appear at about 1/3 of the chart height
+    const yAxisMin = Math.max(0, minValue - (range * 0.3));
+    // Ensure the line extends to the maximum value with some padding
+    const yAxisMax = maxValue + (range * 0.05); // Add 5% padding at top
+
     return (
       <div className="mt-2">
         <div className="mt-2 mb-2">
@@ -39,7 +50,7 @@ import {
             type="range"
             min="2.5"
             max="50"
-            step="2.5"
+            step="0.5"
             value={prepaidPercent}
             onChange={(e) => setPrepaidPercent(e.target.value)}
             className="w-full"
@@ -58,7 +69,7 @@ import {
                 label={{ value: "Time (years)", position: "insideBottom", offset: -5 }}
                 type="number"
                 domain={[0, 10]}
-                ticks={[...Array(11).keys()]}
+                ticks={[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]}
                 tickFormatter={(year) => `${year}`}
               />
               <YAxis
@@ -69,7 +80,7 @@ import {
                   offset: 0,
                   style: { textAnchor: "middle" }
                 }}
-                domain={[0, (dataMax: number) => dataMax]}
+                domain={[yAxisMin, yAxisMax]}
                 tick={false}
               />
               <Tooltip
@@ -110,6 +121,7 @@ import {
                 stroke="#71717a"
                 strokeWidth={2}
                 dot={false}
+                connectNulls={true}
               />
             </LineChart>
           </ResponsiveContainer>
