@@ -126,17 +126,6 @@ function TokenBalanceRow({
     args: [projectId, balanceValue, TOKEN_DECIMALS, CURRENCY_ID],
   });
 
-  const hasAnyBalance = useMemo(() => {
-    return (
-      balanceValue > 0n ||
-      (borrowableAmount && borrowableAmount > 0n) ||
-      (summary?.borrowAmount && summary.borrowAmount > 0n) ||
-      (summary?.collateral && summary.collateral > 0n)
-    );
-  }, [balanceValue, borrowableAmount, summary]);
-
-  if (!hasAnyBalance) return null;
-
   const renderCell = useCallback((column: ColumnType) => {
     switch (column) {
       case "chain":
@@ -225,23 +214,29 @@ function TableRowItem({
   const chainId = balance.chainId as JBChainId;
   const summary = loanSummary[chainId];
 
-  const hasAnyBalance = useMemo(() => {
-    return (
-      balance.balance.value > 0n ||
-      (summary?.borrowAmount && summary.borrowAmount > 0n) ||
-      (summary?.collateral && summary.collateral > 0n)
-    );
-  }, [balance.balance.value, summary]);
+  // Get borrowable amount for this chain
+  const { data: borrowableAmount } = useReadRevLoansBorrowableAmountFrom({
+    chainId,
+    args: [projectId, balance.balance.value, TOKEN_DECIMALS, CURRENCY_ID],
+  });
 
-  if (!hasAnyBalance) return null;
+  // Check if this chain is selectable (has borrowable amount)
+  const isSelectable = borrowableAmount && borrowableAmount > 0n;
+
+  // Only show chains that have token balance
+  if (balance.balance.value === 0n) return null;
 
   const checked = selectedChainId === chainId;
-  const handleRowClick = useCallback(() => onCheckRow?.(chainId, true), [chainId, onCheckRow]);
+  const handleRowClick = useCallback(() => {
+    if (isSelectable) {
+      onCheckRow?.(chainId, true);
+    }
+  }, [chainId, onCheckRow, isSelectable]);
 
   return (
     <TableRow
       key={index}
-      className={`cursor-pointer hover:bg-zinc-100 ${checked ? "bg-zinc-100" : ""}`}
+      className={`${isSelectable ? 'cursor-pointer hover:bg-zinc-100' : 'cursor-not-allowed opacity-60'} ${checked ? "bg-zinc-100" : ""}`}
       onClick={handleRowClick}
     >
       <TableCell className="text-center px-3 py-2">
@@ -249,7 +244,9 @@ function TableRowItem({
           type="radio"
           name="chain"
           checked={checked}
+          disabled={!isSelectable}
           onChange={handleRowClick}
+          className={!isSelectable ? 'opacity-50' : ''}
         />
       </TableCell>
       <TokenBalanceRow
