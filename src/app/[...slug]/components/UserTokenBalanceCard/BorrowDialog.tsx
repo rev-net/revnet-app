@@ -82,8 +82,8 @@ export function BorrowDialog({
   const [repayAmount, setRepayAmount] = useState("");
   const [collateralToReturn, setCollateralToReturn] = useState("");
   const [prepaidPercent, setPrepaidPercent] = useState("2.5");
-  const [ethToWallet, setEthToWallet] = useState(0);
-  const [grossBorrowedEth, setGrossBorrowedEth] = useState(0);
+  const [nativeToWallet, setNativeToWallet] = useState(0);
+  const [grossBorrowedNative, setGrossBorrowedNative] = useState(0);
   const [borrowStatus, setBorrowStatus] = useState<BorrowState>("idle");
   const [cashOutChainId, setCashOutChainId] = useState<string>();
   const [showChart, setShowChart] = useState(false);
@@ -106,7 +106,7 @@ export function BorrowDialog({
     } else {
       setCollateralAmount("");
       setPrepaidPercent("2.5");
-      setEthToWallet(0);
+      setNativeToWallet(0);
       setBorrowStatus("idle");
       setCashOutChainId(undefined);
       setRepayAmount("");
@@ -441,8 +441,8 @@ const collateralCountToTransfer = internalSelectedLoan && currentBorrowableOnSel
 
   useEffect(() => {
     if (!collateralAmount || isNaN(Number(collateralAmount))) {
-      setEthToWallet(0);
-      setGrossBorrowedEth(0);
+      setNativeToWallet(0);
+      setGrossBorrowedNative(0);
       return;
     }
     // for ux buttons 25 50 75 100
@@ -450,15 +450,15 @@ const collateralCountToTransfer = internalSelectedLoan && currentBorrowableOnSel
     const estimatedRaw = borrowableAmountRaw ? Number(formatUnits(borrowableAmountRaw, NATIVE_TOKEN_DECIMALS)) : 0;
     const adjusted = estimatedRaw * percent;
     const afterNetworkFee = adjusted * ( 1 - FIXEDLOANFEES); // get from onchain?
-    setEthToWallet(afterNetworkFee);
-    setGrossBorrowedEth(adjusted);
+    setNativeToWallet(afterNetworkFee);
+    setGrossBorrowedNative(adjusted);
 
     // --- Prepaid fee calculation for display only (not setting state to avoid infinite loop) ---
     // The prepaidPercent is now controlled by the slider, so we don't auto-update it here
   }, [collateralAmount, userProjectTokenBalance, borrowableAmountRaw]);
 
 
-const feeData = generateFeeData({ grossBorrowedEth, prepaidPercent });
+const feeData = generateFeeData({ grossBorrowedEth: grossBorrowedNative, prepaidPercent });
 
   // Calculate prepaidMonths using new prepaidDuration logic
   const monthsToPrepay = (parseFloat(prepaidPercent) / 50) * 120;
@@ -622,8 +622,8 @@ const feeData = generateFeeData({ grossBorrowedEth, prepaidPercent });
                 prepaidPercent={prepaidPercent}
                 setPrepaidPercent={setPrepaidPercent}
                 feeData={feeData}
-                nativeToWallet={ethToWallet}
-                grossBorrowedNative={grossBorrowedEth}
+                nativeToWallet={nativeToWallet}
+                grossBorrowedNative={grossBorrowedNative}
                 collateralAmount={collateralAmount}
                 tokenSymbol={tokenSymbol}
                 displayYears={displayYears}
