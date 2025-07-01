@@ -11,6 +11,7 @@ import { formatUnits, parseUnits } from "viem";
 
 import {
   JBChainId,
+  JB_CHAINS,
   jbPermissionsAbi,
   NATIVE_TOKEN_DECIMALS,
   JB_TOKEN_DECIMALS
@@ -415,6 +416,7 @@ const collateralCountToTransfer = internalSelectedLoan && currentBorrowableOnSel
                 <ExternalLink
                   href={etherscanLink(currentTxHash as string, {
                     type: "tx",
+                    chain: cashOutChainId ? JB_CHAINS[Number(cashOutChainId) as JBChainId].chain : undefined,
                   })}
                   className="text-blue-600 hover:underline"
                 >
@@ -595,7 +597,7 @@ const feeData = generateFeeData({ grossBorrowedEth, prepaidPercent });
                     tokenSymbol={tokenSymbol}
                     amountBorrowed={simulatedAmountBorrowed}
                     prepaidPercent={prepaidPercent}
-                    grossBorrowedEth={simulatedGrossBorrowedEth}
+                    grossBorrowedNative={simulatedGrossBorrowedEth}
                     feeData={feeData}
                   />
                 );
@@ -620,8 +622,8 @@ const feeData = generateFeeData({ grossBorrowedEth, prepaidPercent });
                 prepaidPercent={prepaidPercent}
                 setPrepaidPercent={setPrepaidPercent}
                 feeData={feeData}
-                ethToWallet={ethToWallet}
-                grossBorrowedEth={grossBorrowedEth}
+                nativeToWallet={ethToWallet}
+                grossBorrowedNative={grossBorrowedEth}
                 collateralAmount={collateralAmount}
                 tokenSymbol={tokenSymbol}
                 displayYears={displayYears}
