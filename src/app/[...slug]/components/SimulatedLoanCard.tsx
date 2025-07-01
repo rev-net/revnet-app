@@ -12,6 +12,7 @@ export function SimulatedLoanCard({
   prepaidPercent,
   grossBorrowedNative,
   feeData,
+  totalFixedFees,
 }: {
   collateralAmount: string;
   tokenSymbol: string;
@@ -19,11 +20,13 @@ export function SimulatedLoanCard({
   prepaidPercent: string;
   grossBorrowedNative: number;
   feeData: { year: number; totalCost: number }[];
+  totalFixedFees: number;
 }) {
     const nativeTokenSymbol = useNativeTokenSymbol();
     const totalCost = feeData[feeData.length - 1]?.totalCost ?? 0;
     // const maxUnlockCost = grossBorrowedNative + totalCost;
-    const protocolFees = amountBorrowed * 0.035; // 3.5% protocol & project fees
+    const protocolFees = amountBorrowed * (totalFixedFees / 1000);
+    const protocolFeesPercentage = (totalFixedFees / 1000) * 100;
     return (
       <div className="mb-2 p-3 bg-zinc-50 rounded-md border border-zinc-200">
         <div className="space-y-1 text-sm text-zinc-600">
@@ -33,7 +36,7 @@ export function SimulatedLoanCard({
           </span> borrowed</p>
           <p><span className="font-semibold">
             {formatNativeTokenValue(protocolFees)} {nativeTokenSymbol}
-          </span> protocol & project fees (3.5%)</p>
+          </span> protocol & project fees ({protocolFeesPercentage.toFixed(1)}%)</p>
           <p><span className="font-semibold">
             {formatNativeTokenValue(totalCost)} {nativeTokenSymbol}
           </span> max cost to unlock all collateral before 10 years</p>
