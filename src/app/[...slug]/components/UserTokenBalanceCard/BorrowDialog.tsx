@@ -7,6 +7,7 @@ import { useWalletClient } from "wagmi";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
+import { formatUnits, parseUnits } from "viem";
 
 import {
   JBChainId,
@@ -17,6 +18,7 @@ import {
 import {
   useJBContractContext,
   useSuckersUserTokenBalance,
+  useJBTokenContext,
 } from "juice-sdk-react";
 import {
   useReadRevLoansBorrowableAmountFrom,
@@ -27,7 +29,6 @@ import {
   useWriteRevLoansRepayLoan,
   useWriteRevLoansReallocateCollateralFromLoan,
 } from "revnet-sdk";
-import { FixedInt } from "fpnum";
 import {
   Dialog,
   DialogContent,
@@ -76,7 +77,7 @@ export function BorrowDialog({
     | "reallocation-pending";
 
   const [collateralAmount, setCollateralAmount] = useState("");
-  const [selectedChainId, setSelectedChainId] = useState<number | null>(null);
+  const [selectedChainId, setSelectedChainId] = useState<number | undefined>(undefined);
   const [repayAmount, setRepayAmount] = useState("");
   const [collateralToReturn, setCollateralToReturn] = useState("");
   const [prepaidPercent, setPrepaidPercent] = useState("2.5");
@@ -92,6 +93,9 @@ export function BorrowDialog({
   const [showRefinanceLoanDetailsTable, setShowRefinanceLoanDetailsTable] = useState(true);
   const { toast } = useToast();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  const { token } = useJBTokenContext();
+  const projectTokenDecimals = token?.data?.decimals ?? JB_TOKEN_DECIMALS;
 
   // Reset internal state when dialog closes or set tab on open
   const handleOpenChange = useCallback((open: boolean) => {
@@ -110,7 +114,7 @@ export function BorrowDialog({
       setShowLoanDetailsTable(true);
       setShowRefinanceLoanDetailsTable(true);
       setShowOtherCollateral(false); // ✅ Hide add-on collateral
-      setSelectedChainId(null); // Reset chain selection on close
+      setSelectedChainId(undefined); // Reset chain selection on close
     }
   }, [defaultTab]);
 
@@ -128,7 +132,7 @@ export function BorrowDialog({
   // --- Reallocation borrowable amount estimation ---
   const totalReallocationCollateral =
     internalSelectedLoan && collateralAmount
-      ? BigInt(internalSelectedLoan.collateral) + BigInt(Math.floor(Number(collateralAmount) * 1e18))
+      ? BigInt(internalSelectedLoan.collateral) + parseUnits(collateralAmount, projectTokenDecimals)
       : undefined;
 
   const { data: selectedLoanReallocAmount } = useReadRevLoansBorrowableAmountFrom({
@@ -189,7 +193,7 @@ const collateralCountToTransfer = internalSelectedLoan && currentBorrowableOnSel
   useEffect(() => {
     if (currentBorrowableOnSelectedCollateral !== undefined && internalSelectedLoan?.borrowAmount !== undefined) {
       const netAvailableBorrowETH =
-        Number(currentBorrowableOnSelectedCollateral - BigInt(internalSelectedLoan.borrowAmount)) / 1e18;
+        Number(formatUnits(currentBorrowableOnSelectedCollateral - BigInt(internalSelectedLoan.borrowAmount), NATIVE_TOKEN_DECIMALS));
       // Debug log here
     }
   }, [currentBorrowableOnSelectedCollateral, internalSelectedLoan]);
@@ -275,7 +279,7 @@ const collateralCountToTransfer = internalSelectedLoan && currentBorrowableOnSel
 
   // Collateral to return logic for repay tab
   const remainingCollateral = internalSelectedLoan && collateralToReturn
-    ? BigInt(internalSelectedLoan.collateral) - BigInt(Math.floor(Number(collateralToReturn) * 1e18))
+    ? BigInt(internalSelectedLoan.collateral) - parseUnits(collateralToReturn, projectTokenDecimals)
     : undefined;
 
   const {
@@ -299,7 +303,7 @@ const collateralCountToTransfer = internalSelectedLoan && currentBorrowableOnSel
 
     const correctedBorrowAmount = BigInt(internalSelectedLoan.borrowAmount);
     const repayAmountWei = correctedBorrowAmount - estimatedNewBorrowableAmount;
-    setRepayAmount((Number(repayAmountWei) / 1e18).toFixed(6));
+    setRepayAmount(formatUnits(repayAmountWei, NATIVE_TOKEN_DECIMALS));
   }, [collateralToReturn, estimatedNewBorrowableAmount, internalSelectedLoan]);
 
   const userProjectTokenBalance = balances?.find(
@@ -333,13 +337,33 @@ const collateralCountToTransfer = internalSelectedLoan && currentBorrowableOnSel
     args: collateralAmount
       ? [
           projectId,
-          BigInt(Math.floor(Number(collateralAmount) * 1e18)),
+          parseUnits(collateralAmount, projectTokenDecimals),
           BigInt(NATIVE_TOKEN_DECIMALS),
           61166n,
         ]
       : undefined,
   });
 
+  // Check if selected chain has no borrowable amount and auto-select another chain
+  useEffect(() => {
+    if (selectedChainId && balances && borrowableAmountRaw !== undefined && balances.length > 0) {
+      // If the selected chain has no borrowable amount, find another chain
+      if (borrowableAmountRaw === 0n) {
+        // Find first chain with balance that's different from current selection
+        const alternativeChain = balances.find(b => 
+          b.chainId !== selectedChainId && 
+          b.balance.value > 0n
+        );
+        if (alternativeChain) {
+          const collateral = Number(formatUnits(alternativeChain.balance.value, projectTokenDecimals));
+          setSelectedChainId(alternativeChain.chainId);
+          setCashOutChainId(alternativeChain.chainId.toString());
+          setCollateralAmount(collateral.toFixed(6));
+          setInternalSelectedLoan(null);
+        }
+      }
+    }
+  }, [selectedChainId, balances, borrowableAmountRaw]);
 
   const {
     writeContract,
@@ -420,24 +444,19 @@ const collateralCountToTransfer = internalSelectedLoan && currentBorrowableOnSel
       return;
     }
     // for ux buttons 25 50 75 100
-    const percent = Number(collateralAmount) / (Number(userProjectTokenBalance) / 1e18);
-    const estimatedRaw = borrowableAmountRaw ? Number(borrowableAmountRaw) / 1e18 : 0;
+    const percent = Number(formatUnits(parseUnits(collateralAmount, projectTokenDecimals), projectTokenDecimals)) / Number(formatUnits(userProjectTokenBalance, projectTokenDecimals));
+    const estimatedRaw = borrowableAmountRaw ? Number(formatUnits(borrowableAmountRaw, NATIVE_TOKEN_DECIMALS)) : 0;
     const adjusted = estimatedRaw * percent;
     const afterNetworkFee = adjusted * ( 1 - FIXEDLOANFEES); // get from onchain?
     setEthToWallet(afterNetworkFee);
     setGrossBorrowedEth(adjusted);
 
-    // --- Insert prepaid fee SDK calculation ---
-    if (borrowableAmountRaw && prepaidPercent) {
-      const monthsToPrepay = (parseFloat(prepaidPercent) / 50) * 120;
-      const feeBpsBigInt = calcPrepaidFee(monthsToPrepay); // SDK returns bps as bigint
-      const feeBps = Number(feeBpsBigInt);
-      const fee = (borrowableAmountRaw * BigInt(feeBps)) / 1000n;
-    }
-  }, [collateralAmount, userProjectTokenBalance, borrowableAmountRaw, prepaidPercent]);
+    // --- Prepaid fee calculation for display only (not setting state to avoid infinite loop) ---
+    // The prepaidPercent is now controlled by the slider, so we don't auto-update it here
+  }, [collateralAmount, userProjectTokenBalance, borrowableAmountRaw]);
 
 
-const feeData = generateFeeData({ grossBorrowedEth, ethToWallet, prepaidPercent });
+const feeData = generateFeeData({ grossBorrowedEth, prepaidPercent });
 
   // Calculate prepaidMonths using new prepaidDuration logic
   const monthsToPrepay = (parseFloat(prepaidPercent) / 50) * 120;
@@ -479,20 +498,22 @@ const feeData = generateFeeData({ grossBorrowedEth, ethToWallet, prepaidPercent 
                 address={address as `0x${string}`}
                 columns={["chain", "holding", "borrowable"]}
                 selectedChainId={selectedChainId ?? undefined}
-                onCheckRow={(chainId) => {
-                  const selected = balances?.find((b) => b.chainId === chainId);
-                  const collateral = selected ? Number(selected.balance.value) / 1e18 : 0;
-                  setSelectedChainId(chainId);
-                  setCashOutChainId(chainId.toString());
-                  setCollateralAmount(collateral.toFixed(6));
-                  setInternalSelectedLoan(null);
+                onCheckRow={(chainId, checked) => {
+                  if (checked) {
+                    const selected = balances?.find((b) => b.chainId === chainId);
+                    const collateral = selected ? formatUnits(selected.balance.value, projectTokenDecimals) : "0";
+                    setSelectedChainId(chainId);
+                    setCashOutChainId(chainId.toString());
+                    setCollateralAmount(collateral);
+                    setInternalSelectedLoan(null);
+                  }
                 }}
                 onAutoselectRow={(chainId) => {
                   const selected = balances?.find((b) => b.chainId === chainId);
-                  const collateral = selected ? Number(selected.balance.value) / 1e18 : 0;
+                  const collateral = selected ? formatUnits(selected.balance.value, projectTokenDecimals) : "0";
                   setSelectedChainId(chainId);
                   setCashOutChainId(chainId.toString());
-                  setCollateralAmount(collateral.toFixed(6));
+                  setCollateralAmount(collateral);
                   setInternalSelectedLoan(null);
                 }}
               />
@@ -513,7 +534,7 @@ const feeData = generateFeeData({ grossBorrowedEth, ethToWallet, prepaidPercent 
                     onChange={(e) => setCollateralAmount(e.target.value)}
                     placeholder={
                       cashOutChainId && selectedBalance
-                        ? (Number(selectedBalance.balance.value) / 1e18).toFixed(8)
+                        ? Number(formatUnits(selectedBalance.balance.value, projectTokenDecimals)).toFixed(8)
                         : "Enter amount"
                     }
                     className="mt-2"
@@ -529,7 +550,7 @@ const feeData = generateFeeData({ grossBorrowedEth, ethToWallet, prepaidPercent 
                         type="button"
                         onClick={() => {
                           if (selectedBalance) {
-                            const value = (Number(selectedBalance.balance.value) / 1e18) * (pct / 100);
+                            const value = Number(formatUnits(selectedBalance.balance.value, projectTokenDecimals)) * (pct / 100);
                             setCollateralAmount(value.toFixed(6));
                           }
                         }}
@@ -542,7 +563,7 @@ const feeData = generateFeeData({ grossBorrowedEth, ethToWallet, prepaidPercent 
                       type="button"
                       onClick={() => {
                         if (selectedBalance) {
-                          const maxValue = Number(selectedBalance.balance.value) / 1e18;
+                          const maxValue = Number(formatUnits(selectedBalance.balance.value, projectTokenDecimals));
                           setCollateralAmount(maxValue.toFixed(6));
                         }
                       }}
@@ -562,19 +583,17 @@ const feeData = generateFeeData({ grossBorrowedEth, ethToWallet, prepaidPercent 
                 internalSelectedLoan && showOtherCollateral && selectedLoanReallocAmount
                   ? selectedLoanReallocAmount - BigInt(internalSelectedLoan.borrowAmount)
                   : estimatedBorrowFromInputOnly;
-              const simulatedEthToWallet = effectiveBorrowableAmount
-                ? Number(effectiveBorrowableAmount) / 1e18 * (1 - FIXEDLOANFEES)
+              const simulatedAmountBorrowed = effectiveBorrowableAmount
+                ? Number(formatUnits(effectiveBorrowableAmount, NATIVE_TOKEN_DECIMALS))
                 : 0;
-              const simulatedGrossBorrowedEth = effectiveBorrowableAmount
-                ? Number(effectiveBorrowableAmount) / 1e18
-                : 0;
+              const simulatedGrossBorrowedEth = simulatedAmountBorrowed;
 
               if (collateralAmount && !isNaN(Number(collateralAmount))) {
                 return (
                   <SimulatedLoanCard
                     collateralAmount={collateralAmount}
                     tokenSymbol={tokenSymbol}
-                    ethToWallet={simulatedEthToWallet}
+                    amountBorrowed={simulatedAmountBorrowed}
                     prepaidPercent={prepaidPercent}
                     grossBorrowedEth={simulatedGrossBorrowedEth}
                     feeData={feeData}
@@ -643,7 +662,7 @@ const feeData = generateFeeData({ grossBorrowedEth, ethToWallet, prepaidPercent 
                   <div className="text-sm text-zinc-700 mt-4 space-y-1">
                     <div className="flex justify-between items-center">
                       <p>
-                        This loan has unlocked <b>{(Number(collateralHeadroom) / 1e18).toFixed(6)}</b> ETH of appreciated value you can now access.
+                        This loan has unlocked <b>{Number(formatUnits(collateralHeadroom, NATIVE_TOKEN_DECIMALS)).toFixed(6)}</b> ETH of appreciated value you can now access.
                       </p>
                       <button
                         onClick={() => setInternalSelectedLoan(null)}
@@ -653,13 +672,13 @@ const feeData = generateFeeData({ grossBorrowedEth, ethToWallet, prepaidPercent 
                       </button>
                     </div>
                     <p>
-                      To access it, you're reusing <b>{(Number(collateralCountToTransfer) / 1e18).toFixed(6)}</b> {tokenSymbol} of that appreciated collateral.
+                      To access it, you're reusing <b>{Number(formatUnits(collateralCountToTransfer, projectTokenDecimals)).toFixed(6)}</b> {tokenSymbol} of that appreciated collateral.
                     </p>
                     <p>
                       You're also escrowing <b>{collateralAmount && Number(collateralAmount) > 0 ? collateralAmount : "0"}</b> {tokenSymbol} of new collateral.
                     </p>
                     <p>
-                      Existing borrowed: <b>{(Number(internalSelectedLoan.borrowAmount) / 1e18).toFixed(6)}</b> ETH will be rolled into a new loan.
+                      Existing borrowed: <b>{Number(formatUnits(internalSelectedLoan.borrowAmount, NATIVE_TOKEN_DECIMALS)).toFixed(6)}</b> ETH will be rolled into a new loan.
                     </p>
 
                     {selectedLoanReallocAmount &&
@@ -674,7 +693,7 @@ const feeData = generateFeeData({ grossBorrowedEth, ethToWallet, prepaidPercent 
                       Updated borrowable amount:{" "}
                       <b>
                         {selectedLoanReallocAmount && internalSelectedLoan
-                          ? (Number(selectedLoanReallocAmount - BigInt(internalSelectedLoan.borrowAmount)) / 1e18).toFixed(6)
+                          ? Number(formatUnits(selectedLoanReallocAmount - BigInt(internalSelectedLoan.borrowAmount), NATIVE_TOKEN_DECIMALS)).toFixed(6)
                           : "0.000000"}{" "}
                         ETH
                       </b>{" "}
@@ -740,8 +759,8 @@ const feeData = generateFeeData({ grossBorrowedEth, ethToWallet, prepaidPercent 
                     const collateralCountToTransfer = internalSelectedLoan && currentBorrowableOnSelectedCollateral
                       ? BigInt(
                           Math.floor(
-                            Number(collateralHeadroom) /
-                              (Number(currentBorrowableOnSelectedCollateral) / Number(internalSelectedLoan.collateral))
+                            Number(formatUnits(collateralHeadroom, projectTokenDecimals)) /
+                              (Number(formatUnits(currentBorrowableOnSelectedCollateral, projectTokenDecimals)) / Number(internalSelectedLoan.collateral))
                           )
                         )
                       : BigInt(0);

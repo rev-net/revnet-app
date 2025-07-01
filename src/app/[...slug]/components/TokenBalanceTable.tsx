@@ -45,8 +45,8 @@ interface TokenBalanceTableProps {
 
 // ===== CONSTANTS =====
 const DEFAULT_COLUMNS: ColumnType[] = ["chain", "holding", "borrowable", "debt", "collateral"];
-const TOKEN_DECIMALS = 18n;
-const CURRENCY_ID = 61166n;
+const TOKEN_DECIMALS = 18n; // Get from Juice SDK
+const CURRENCY_ID = 61166n; // Might change with native token
 
 // ===== UTILITY FUNCTIONS =====
 function formatAmount(value?: bigint): string {
@@ -82,20 +82,17 @@ function useAutoSelection(
   balances: Balance[] | undefined,
   loanSummary: Record<number, LoanSummary>,
   selectedChainId: number | undefined,
-  onAutoselectRow?: (chainId: number) => void
+  onAutoselectRow?: (chainId: number) => void,
+  projectId?: bigint
 ) {
   const hasAutoselected = useRef(false);
 
   const firstSelectable = useMemo(() => {
     return balances?.find(({ chainId, balance }) => {
-      const summary = loanSummary[chainId];
-      return (
-        balance.value > 0n ||
-        (summary?.borrowAmount && summary.borrowAmount > 0n) ||
-        (summary?.collateral && summary.collateral > 0n)
-      );
+      // Only consider chains with token balance
+      return balance.value > 0n;
     });
-  }, [balances, loanSummary]);
+  }, [balances]);
 
   useEffect(() => {
     if (
@@ -227,8 +224,15 @@ function TableRowItem({
   if (balance.balance.value === 0n) return null;
 
   const checked = selectedChainId === chainId;
+  
   const handleRowClick = useCallback(() => {
     if (isSelectable) {
+      onCheckRow?.(chainId, true);
+    }
+  }, [chainId, onCheckRow, isSelectable]);
+
+  const handleRadioChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    if (isSelectable && e.target.checked) {
       onCheckRow?.(chainId, true);
     }
   }, [chainId, onCheckRow, isSelectable]);
@@ -245,7 +249,7 @@ function TableRowItem({
           name="chain"
           checked={checked}
           disabled={!isSelectable}
-          onChange={handleRowClick}
+          onChange={handleRadioChange}
           className={!isSelectable ? 'opacity-50' : ''}
         />
       </TableCell>
@@ -275,7 +279,31 @@ export function TokenBalanceTable({
   onAutoselectRow,
 }: TokenBalanceTableProps) {
   const loanSummary = useLoanSummary(address);
-  const firstSelectable = useAutoSelection(balances, loanSummary, selectedChainId, onAutoselectRow);
+  const firstSelectable = useAutoSelection(balances, loanSummary, selectedChainId, onAutoselectRow, projectId);
+
+  // Check if selected chain has no borrowable amount, if not auto-select one that does
+  useEffect(() => {
+    if (selectedChainId && balances && onAutoselectRow) {
+      const selectedBalance = balances.find(b => b.chainId === selectedChainId);
+      if (selectedBalance && selectedBalance.balance.value === 0n) {
+        // Selected chain has no balance, find first chain with balance
+        const firstWithBalance = balances.find(b => b.balance.value > 0n);
+        if (firstWithBalance) {
+          onAutoselectRow(firstWithBalance.chainId);
+        }
+      }
+    }
+  }, [selectedChainId, balances, onAutoselectRow]);
+
+  // Auto-select first chain with balance if no chain is selected
+  useEffect(() => {
+    if ((selectedChainId === undefined || selectedChainId === null) && balances && onAutoselectRow) {
+      const firstWithBalance = balances.find(b => b.balance.value > 0n);
+      if (firstWithBalance) {
+        onAutoselectRow(firstWithBalance.chainId);
+      }
+    }
+  }, [selectedChainId, balances, onAutoselectRow]);
 
   // Early return for empty state
   if (!balances || balances.length === 0) return null;
