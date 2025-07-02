@@ -12,7 +12,8 @@ import {
   JB_CHAINS,
   jbPermissionsAbi,
   NATIVE_TOKEN_DECIMALS,
-  JB_TOKEN_DECIMALS
+  JB_TOKEN_DECIMALS,
+  ETH_CURRENCY_ID
 } from "juice-sdk-core";
 import {
   useJBContractContext,
@@ -156,7 +157,7 @@ export function useBorrowDialog({
           projectId,
           userProjectTokenBalance,
           BigInt(NATIVE_TOKEN_DECIMALS),
-          61166n,
+          BigInt(ETH_CURRENCY_ID),
         ] as const
       : undefined,
   });
@@ -168,7 +169,7 @@ export function useBorrowDialog({
           projectId,
           parseUnits(collateralAmount, projectTokenDecimals),
           BigInt(NATIVE_TOKEN_DECIMALS),
-          61166n,
+          BigInt(ETH_CURRENCY_ID),
         ]
       : undefined,
   });
@@ -181,7 +182,7 @@ export function useBorrowDialog({
           projectId,
           totalReallocationCollateral,
           BigInt(NATIVE_TOKEN_DECIMALS),
-          61166n,
+          BigInt(ETH_CURRENCY_ID),
         ]
       : undefined,
   });
@@ -193,7 +194,7 @@ export function useBorrowDialog({
           projectId,
           BigInt(internalSelectedLoan.collateral),
           BigInt(NATIVE_TOKEN_DECIMALS),
-          61166n,
+          BigInt(ETH_CURRENCY_ID),
         ]
       : undefined,
   });
@@ -209,7 +210,7 @@ export function useBorrowDialog({
           projectId,
           BigInt(internalSelectedLoan.collateral),
           BigInt(JB_TOKEN_DECIMALS), // TODO confirm this is correct
-          61166n,
+          BigInt(ETH_CURRENCY_ID),
         ]
       : undefined,
   });
@@ -224,7 +225,7 @@ export function useBorrowDialog({
             projectId,
             remainingCollateral,
             BigInt(NATIVE_TOKEN_DECIMALS),
-            61166n,
+            BigInt(ETH_CURRENCY_ID),
           ]
         : undefined,
   });
@@ -286,6 +287,20 @@ export function useBorrowDialog({
       ? currentBorrowableOnSelectedCollateral - BigInt(internalSelectedLoan.borrowAmount)
       : 0n;
 
+  // Calculate borrowable amount for just the new loan (headroom + additional collateral)
+  const newLoanCollateral = collateralHeadroom + (collateralAmount ? toWei(collateralAmount) : 0n);
+  const { data: newLoanBorrowableAmount } = useReadRevLoansBorrowableAmountFrom({
+    chainId: cashOutChainId ? Number(cashOutChainId) as JBChainId : undefined,
+    args: newLoanCollateral > 0n
+      ? [
+          projectId,
+          newLoanCollateral,
+          BigInt(NATIVE_TOKEN_DECIMALS),
+          BigInt(ETH_CURRENCY_ID),
+        ]
+      : undefined,
+  });
+
   const collateralCountToTransfer = internalSelectedLoan && currentBorrowableOnSelectedCollateral
     ? BigInt(
         Math.floor(
@@ -295,7 +310,23 @@ export function useBorrowDialog({
       )
     : BigInt(0);
 
-  const feeData = generateFeeData({ grossBorrowedEth: grossBorrowedNative, prepaidPercent });
+  // For reallocation, use the total borrowable amount for combined collateral
+  const borrowAmountForFeeCalculation = internalSelectedLoan && selectedLoanReallocAmount
+    ? Number(formatUnits(selectedLoanReallocAmount, NATIVE_TOKEN_DECIMALS))
+    : grossBorrowedNative;
+    
+  const feeData = generateFeeData({ 
+    grossBorrowedEth: borrowAmountForFeeCalculation, 
+    prepaidPercent 
+  });
+
+  // Fee calculation for the new loan simulation (not the combined total)
+  const newLoanFeeData = newLoanBorrowableAmount 
+    ? generateFeeData({ 
+        grossBorrowedEth: Number(formatUnits(newLoanBorrowableAmount, NATIVE_TOKEN_DECIMALS)), 
+        prepaidPercent 
+      })
+    : feeData;
 
   // Calculate prepaidMonths using new prepaidDuration logic
   const monthsToPrepay = (parseFloat(prepaidPercent) / 50) * 120;
@@ -337,12 +368,21 @@ export function useBorrowDialog({
   }, [balances, projectTokenDecimals]);
 
   const handleLoanSelection = useCallback((loanId: string, loanData: any) => {
+    console.log("Loan selection data:", loanData);
     setInternalSelectedLoan(loanData);
+    // Set the cashOutChainId based on the loan's chain
+    if (loanData?.chainId) {
+      setCashOutChainId(loanData.chainId.toString());
+    } else if (loanData?.chain) {
+      setCashOutChainId(loanData.chain.toString());
+    } else {
+      console.warn("No chain information found in loan data:", loanData);
+    }
   }, []);
 
   const handleBorrow = useCallback(async () => {
-    if (internalSelectedLoan && collateralAmount && !isNaN(Number(collateralAmount))) {
-      // Reallocation path
+    if (internalSelectedLoan && collateralAmount !== undefined && !isNaN(Number(collateralAmount))) {
+      // Reallocation path - allow 0 additional capital
       if (
         !internalSelectedLoan ||
         !primaryNativeTerminal?.data ||
@@ -350,25 +390,67 @@ export function useBorrowDialog({
         !address ||
         !walletClient
       ) {
-        console.error("Missing data for reallocation");
+        console.error("Missing data for reallocation:", {
+          internalSelectedLoan: !!internalSelectedLoan,
+          primaryNativeTerminal: !!primaryNativeTerminal?.data,
+          cashOutChainId: !!cashOutChainId,
+          address: !!address,
+          walletClient: !!walletClient,
+          internalSelectedLoanData: internalSelectedLoan,
+          primaryNativeTerminalData: primaryNativeTerminal?.data,
+          cashOutChainIdValue: cashOutChainId,
+          addressValue: address,
+        });
         setBorrowStatus("error");
         return;
       }
 
-      const collateralCountToTransfer = internalSelectedLoan && currentBorrowableOnSelectedCollateral
-        ? BigInt(
-            Math.floor(
-              Number(formatUnits(collateralHeadroom, projectTokenDecimals)) /
-                (Number(formatUnits(currentBorrowableOnSelectedCollateral, projectTokenDecimals)) / Number(internalSelectedLoan.collateral))
-            )
-          )
-        : BigInt(0);
-      const collateralCountToAdd = toWei(collateralAmount);
+      // Fix the parameter calculations based on the guidance:
+      // Calculate the safe transfer amount to avoid under-collateralization
+      const principalCover = BigInt(internalSelectedLoan.borrowAmount);
+      const maxRemovable = currentBorrowableOnSelectedCollateral ? 
+        currentBorrowableOnSelectedCollateral - principalCover : 0n;
+      
+      // Only transfer the safe amount (or less)
+      const collateralCountToTransfer = maxRemovable > 0n ? maxRemovable : 0n;
+      
+      // collateralCountToAdd: The amount of collateral to add to the new loan (can be 0)
+      const collateralCountToAdd = toWei(collateralAmount || "0");
+      
+      // feePercent: The fee percent for the new loan
       const feePercent = BigInt(Math.round(parseFloat(prepaidPercent) * 10));
+      
+      // Validate that the reallocation won't result in a borrow amount less than the original
+      if (selectedLoanReallocAmount !== undefined && selectedLoanReallocAmount < BigInt(internalSelectedLoan.borrowAmount)) {
+        console.error("Reallocation would result in borrow amount less than original:", {
+          selectedLoanReallocAmount: selectedLoanReallocAmount.toString(),
+          originalBorrowAmount: internalSelectedLoan.borrowAmount,
+        });
+        setBorrowStatus("error");
+        toast({
+          variant: "destructive",
+          title: "Invalid Reallocation",
+          description: "Adding this collateral would result in a borrow amount less than your original loan. Please add more collateral.",
+        });
+        return;
+      }
+      
+      // Set minBorrowAmount to 0 as per the guidance
       const minBorrowAmount = 0n;
 
       try {
         setBorrowStatus("waiting-signature");
+
+        console.log("Reallocation transaction args:", {
+          chainId: Number(cashOutChainId) as JBChainId,
+          loanId: internalSelectedLoan.id,
+          collateralCountToTransfer: collateralCountToTransfer.toString(),
+          terminal: primaryNativeTerminal.data as `0x${string}`,
+          minBorrowAmount: minBorrowAmount.toString(),
+          collateralCountToAdd: collateralCountToAdd.toString(),
+          address: address as `0x${string}`,
+          feePercent: feePercent.toString(),
+        });
 
         await reallocateCollateralAsync({
           chainId: Number(cashOutChainId) as JBChainId,
@@ -518,9 +600,21 @@ export function useBorrowDialog({
     }
   }, [defaultTab, selectedTab]);
 
-  // Check if selected chain has no borrowable amount and auto-select another chain
+  // Sync internalSelectedLoan with selectedLoan prop
   useEffect(() => {
-    if (selectedChainId && balances && borrowableAmountRaw !== undefined && balances.length > 0) {
+    setInternalSelectedLoan(selectedLoan ?? null);
+    // Also set the cashOutChainId based on the loan's chain
+    if (selectedLoan?.chainId) {
+      setCashOutChainId(selectedLoan.chainId.toString());
+    } else if (selectedLoan?.chain) {
+      setCashOutChainId(selectedLoan.chain.toString());
+    }
+  }, [selectedLoan]);
+
+  // Check if selected chain has no borrowable amount and auto-select another chain
+  // Only run this effect if we don't have a selectedLoan (for new loans, not reallocation)
+  useEffect(() => {
+    if (!selectedLoan && selectedChainId && balances && borrowableAmountRaw !== undefined && balances.length > 0) {
       if (borrowableAmountRaw === 0n) {
         const alternativeChain = balances.find(b => 
           b.chainId !== selectedChainId && 
@@ -531,11 +625,10 @@ export function useBorrowDialog({
           setSelectedChainId(alternativeChain.chainId);
           setCashOutChainId(alternativeChain.chainId.toString());
           setCollateralAmount(collateral.toFixed(6));
-          setInternalSelectedLoan(null);
         }
       }
     }
-  }, [selectedChainId, balances, borrowableAmountRaw, projectTokenDecimals]);
+  }, [selectedLoan, selectedChainId, balances, borrowableAmountRaw, projectTokenDecimals]);
 
   // Handle reallocation pending status
   useEffect(() => {
@@ -563,7 +656,7 @@ export function useBorrowDialog({
     } else {
       setBorrowStatus("error");
     }
-  }, [txHash, reallocationTxHash, isTxLoading, isReallocationTxLoading, isSuccess, isReallocationSuccess, toast, handleOpenChange, cashOutChainId]);
+  }, [txHash, reallocationTxHash, isTxLoading, isReallocationTxLoading, isSuccess, isReallocationSuccess, toast, handleOpenChange]);
 
   // Calculate native to wallet and gross borrowed
   useEffect(() => {
@@ -613,13 +706,7 @@ export function useBorrowDialog({
     }
   }, [borrowStatus]);
 
-  // Tab-related effects
-  useEffect(() => {
-    if (selectedTab === "repay") {
-      setShowLoanDetailsTable(true);
-    }
-  }, [selectedTab]);
-
+  // Tab-related effects - COMBINED into one effect
   useEffect(() => {
     setShowLoanDetailsTable(selectedTab === "repay");
   }, [selectedTab]);
@@ -671,6 +758,7 @@ export function useBorrowDialog({
     collateralHeadroom,
     collateralCountToTransfer,
     feeData,
+    newLoanFeeData,
     displayYears,
     displayMonths,
     estimatedBorrowFromInputOnly,
@@ -679,6 +767,7 @@ export function useBorrowDialog({
     estimatedRepayAmountForCollateral,
     isEstimatingRepayment,
     estimatedNewBorrowableAmount,
+    newLoanBorrowableAmount,
 
     // Actions
     handleOpenChange,

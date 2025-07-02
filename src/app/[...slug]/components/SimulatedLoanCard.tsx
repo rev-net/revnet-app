@@ -1,10 +1,5 @@
 import { useNativeTokenSymbol } from "@/hooks/useNativeTokenSymbol";
 
-// Utility function to format a number with native token symbol
-function formatNativeTokenValue(value: number, decimals: number = 8): string {
-  return `${value.toFixed(decimals)}`;
-}
-
 export function SimulatedLoanCard({
   collateralAmount,
   tokenSymbol,
@@ -23,8 +18,7 @@ export function SimulatedLoanCard({
   totalFixedFees: number;
 }) {
     const nativeTokenSymbol = useNativeTokenSymbol();
-    const totalCost = feeData[feeData.length - 1]?.totalCost ?? 0;
-    // const maxUnlockCost = grossBorrowedNative + totalCost;
+    const maxUnlockCost = feeData[feeData.length - 1]?.totalCost ?? 0;
     const protocolFees = amountBorrowed * (totalFixedFees / 1000);
     const protocolFeesPercentage = (totalFixedFees / 1000) * 100;
     return (
@@ -32,13 +26,13 @@ export function SimulatedLoanCard({
         <div className="space-y-1 text-sm text-zinc-600">
           <p><span className="font-semibold">{collateralAmount}</span> {tokenSymbol} used as collateral</p>
           <p><span className="font-semibold">
-            {formatNativeTokenValue(amountBorrowed)} {nativeTokenSymbol}
-          </span> borrowed</p>
+            {amountBorrowed.toFixed(8)} {nativeTokenSymbol}
+          </span> borrowing (before fees)</p>
           <p><span className="font-semibold">
-            {formatNativeTokenValue(protocolFees)} {nativeTokenSymbol}
+            {protocolFees.toFixed(8)} {nativeTokenSymbol}
           </span> protocol & project fees ({protocolFeesPercentage.toFixed(1)}%)</p>
           <p><span className="font-semibold">
-            {formatNativeTokenValue(totalCost)} {nativeTokenSymbol}
+            {maxUnlockCost.toFixed(8)} {nativeTokenSymbol}
           </span> max cost to unlock all collateral before 10 years</p>
         </div>
         <p className="text-xs text-zinc-500 mt-1">Actual amount may vary slightly.</p>

@@ -2,7 +2,7 @@ import { PropsWithChildren } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { formatUnits } from "viem";
-import { NATIVE_TOKEN_DECIMALS, JBChainId } from "juice-sdk-core";
+import { NATIVE_TOKEN_DECIMALS, JBChainId, JB_TOKEN_DECIMALS } from "juice-sdk-core";
 import {
   Dialog,
   DialogContent,
@@ -19,8 +19,10 @@ import { TokenBalanceTable } from "../TokenBalanceTable";
 import { LoanDetailsTable } from "../LoansDetailsTable";
 import { ImportantInfo } from "./ImportantInfo";
 import { useBorrowDialog } from "./hooks/useBorrowDialog";
-
-const showAddOnCollateralSection = true; //true; // Set to false to hide this section
+import { Button } from "@/components/ui/button";
+import { useState, useEffect, useCallback } from "react";
+import { useAccount } from "wagmi";
+import { useSuckersUserTokenBalance, useJBTokenContext, useJBContractContext } from "juice-sdk-react";
 
 export function BorrowDialog({
   projectId,
@@ -35,7 +37,7 @@ export function BorrowDialog({
   defaultTab?: "borrow" | "repay";
 }>) {
   const borrowDialog = useBorrowDialog({
-    projectId,
+          projectId,
     tokenSymbol,
     selectedLoan,
     defaultTab,
@@ -68,7 +70,7 @@ export function BorrowDialog({
     selectedBalance,
     totalFixedFees,
     totalReallocationCollateral,
-    remainingCollateral,
+            remainingCollateral,
     netAvailableToBorrow,
     isOvercollateralized,
     extraCollateralBuffer,
@@ -257,81 +259,6 @@ export function BorrowDialog({
                 displayMonths={displayMonths}
               />
             )}
-            {/* Additional Collateral toggleable section (conditionally rendered) */}
-            {showAddOnCollateralSection && (
-              <>
-                <button
-                  type="button"
-                  onClick={() => {
-                    const next = !showOtherCollateral;
-                    setShowOtherCollateral(next);
-                    if (!next) setInternalSelectedLoan(null);
-                  }}
-                  className="flex items-center gap-2 text-left block text-gray-700 text-sm font-bold mt-6"
-                >
-                  <span>Add on Collateral (optional)</span>
-                  <span
-                    className={`transform transition-transform ${showOtherCollateral ? "rotate-90" : "rotate-0"}`}
-                  >
-                    ▶
-                  </span>
-                </button>
-                {showOtherCollateral && (
-                  <LoanDetailsTable
-                    key={`${internalSelectedLoan?.id ?? "new"}-${collateralAmount}`}
-                    revnetId={BigInt(projectId)}
-                    address={address ?? ""}
-                    chainId={cashOutChainId ? Number(cashOutChainId) : 0}
-                    tokenSymbol={tokenSymbol}
-                    onSelectLoan={(loanId, loanData) => setInternalSelectedLoan(loanData)}
-                    selectedLoanId={internalSelectedLoan?.id}
-                  />
-                )}
-               {internalSelectedLoan && showOtherCollateral && (
-                  <div className="text-sm text-zinc-700 mt-4 space-y-1">
-                    <div className="flex justify-between items-center">
-                      <p>
-                        This loan has unlocked <b>{Number(formatUnits(collateralHeadroom, NATIVE_TOKEN_DECIMALS)).toFixed(6)}</b> ETH of appreciated value you can now access.
-                      </p>
-                      <button
-                        onClick={() => setInternalSelectedLoan(null)}
-                        className="text-xs text-red-600 hover:underline ml-4"
-                      >
-                        Remove
-                      </button>
-                    </div>
-                    <p>
-                      To access it, you're reusing <b>{Number(formatUnits(collateralCountToTransfer, projectTokenDecimals)).toFixed(6)}</b> {tokenSymbol} of that appreciated collateral.
-                    </p>
-                    <p>
-                      You're also escrowing <b>{collateralAmount && Number(collateralAmount) > 0 ? collateralAmount : "0"}</b> {tokenSymbol} of new collateral.
-                    </p>
-                    <p>
-                      Existing borrowed: <b>{Number(formatUnits(internalSelectedLoan.borrowAmount, NATIVE_TOKEN_DECIMALS)).toFixed(6)}</b> ETH will be rolled into a new loan.
-                    </p>
-
-                    {selectedLoanReallocAmount &&
-                      internalSelectedLoan &&
-                      BigInt(selectedLoanReallocAmount) <= BigInt(internalSelectedLoan.borrowAmount) && (
-                        <p className="text-red-600 text-sm font-medium">
-                          ⚠️ Borrowable amount must exceed existing borrowed amount.
-                        </p>
-                    )}
-
-                    <p>
-                      Updated borrowable amount:{" "}
-                      <b>
-                        {selectedLoanReallocAmount && internalSelectedLoan
-                          ? Number(formatUnits(selectedLoanReallocAmount - BigInt(internalSelectedLoan.borrowAmount), NATIVE_TOKEN_DECIMALS)).toFixed(6)
-                          : "0.000000"}{" "}
-                        ETH
-                      </b>{" "}
-                      after fees.
-                    </p>
-                  </div>
-                )}
-              </>
-            )}
             {/* Important Info toggleable section */}
             <button
               type="button"
@@ -383,3 +310,4 @@ export function BorrowDialog({
     </Dialog>
   );
 }
+
