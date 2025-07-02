@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import DOMPurify from "dompurify"
 import { useJBProjectMetadataContext } from "juice-sdk-react";
 
-const RichPreview = ({ source }: { source: string }) => {
+/*const RichPreview = ({ source }: { source: string }) => {
   useEffect(() => {
     DOMPurify.addHook("afterSanitizeAttributes", function(node) {
       if (node.tagName === "A") {
@@ -32,7 +32,45 @@ const RichPreview = ({ source }: { source: string }) => {
     console.error("HTML sanitization failed:", error)
     return <div className="break-words">{source}</div>
   }
-}
+}*/
+
+const RichPreview = ({ source }: { source: string }) => {
+  useEffect(() => {
+    DOMPurify.addHook("afterSanitizeAttributes", function (node) {
+      if (node.tagName === "A") {
+        node.setAttribute("target", "_blank");
+        node.setAttribute("rel", "noopener noreferrer");
+      }
+    });
+  }, []);
+
+  if (!source?.trim()) {
+    return null;
+  }
+
+  try {
+    // Convert markdown links [text](url) → <a href="url">text</a>
+    const withLinks = source.replace(
+      /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g,
+      '<a href="$2">$1</a>'
+    );
+
+    // Sanitize the generated HTML
+    const purified = DOMPurify.sanitize(withLinks);
+
+    return (
+      <div
+        className="break-words [&_a]:text-gray-600 [&_a:hover]:text-gray-800 [&_a]:break-all [&_a]:underline"
+        dangerouslySetInnerHTML={{
+          __html: purified,
+        }}
+      />
+    );
+  } catch (error) {
+    console.error("HTML sanitization failed:", error);
+    return <div className="break-words">{source}</div>;
+  }
+};
 
 export function DescriptionSection() {
   const { metadata } = useJBProjectMetadataContext();
