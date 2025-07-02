@@ -220,9 +220,6 @@ function TableRowItem({
   // Check if this chain is selectable (has borrowable amount)
   const isSelectable = borrowableAmount && borrowableAmount > 0n;
 
-  // Only show chains that have token balance
-  if (balance.balance.value === 0n) return null;
-
   const checked = selectedChainId === chainId;
   
   const handleRowClick = useCallback(() => {
@@ -236,6 +233,9 @@ function TableRowItem({
       onCheckRow?.(chainId, true);
     }
   }, [chainId, onCheckRow, isSelectable]);
+
+  // Only show chains that have token balance
+  if (balance.balance.value === 0n) return null;
 
   return (
     <TableRow

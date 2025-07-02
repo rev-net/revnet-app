@@ -9,11 +9,9 @@ import { formatUnits, parseUnits } from "viem";
 
 import {
   JBChainId,
-  JB_CHAINS,
   jbPermissionsAbi,
   NATIVE_TOKEN_DECIMALS,
-  JB_TOKEN_DECIMALS,
-  ETH_CURRENCY_ID
+  JB_TOKEN_DECIMALS
 } from "juice-sdk-core";
 import {
   useJBContractContext,
@@ -30,8 +28,6 @@ import {
   useWriteRevLoansRepayLoan,
   useWriteRevLoansReallocateCollateralFromLoan,
 } from "revnet-sdk";
-import { ExternalLink } from "@/components/ExternalLink";
-import { etherscanLink } from "@/lib/utils";
 
 // Types
 type BorrowState =
@@ -62,6 +58,8 @@ export function useBorrowDialog({
   selectedLoan,
   defaultTab,
 }: UseBorrowDialogProps) {
+  // ===== STATE VARIABLES =====
+  const ETH_CURRENCY_ID = 61166n;
   // ===== STATE VARIABLES =====
   // Dialog and UI state
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -95,7 +93,7 @@ export function useBorrowDialog({
   // Context hooks
   const { token } = useJBTokenContext();
   const {
-    contracts: { primaryNativeTerminal, controller, splits, rulesets },
+    contracts: { primaryNativeTerminal },
   } = useJBContractContext();
   
   // Account and wallet hooks
@@ -116,7 +114,7 @@ export function useBorrowDialog({
     chainId: cashOutChainId ? Number(cashOutChainId) as JBChainId : undefined,
   });
 
-  // ===== DERIVED VALUES =====
+  // ===== DERIVED VALUES (needed by callbacks) =====
   const projectTokenDecimals = token?.data?.decimals ?? JB_TOKEN_DECIMALS;
   
   const userProjectTokenBalance = balances?.find(
@@ -336,7 +334,7 @@ export function useBorrowDialog({
 
   const loading = isWriteLoading || isTxLoading;
 
-  // ===== ACTIONS =====
+  // ===== CALLBACK HOOKS (must be before any conditional logic) =====
   // Reset internal state when dialog closes or set tab on open
   const handleOpenChange = useCallback((open: boolean) => {
     setIsDialogOpen(open);
@@ -580,14 +578,13 @@ export function useBorrowDialog({
     address,
     walletClient,
     currentBorrowableOnSelectedCollateral,
-    collateralHeadroom,
-    projectTokenDecimals,
+    selectedLoanReallocAmount,
     prepaidPercent,
     reallocateCollateralAsync,
     toast,
+    userHasPermission,
     borrowableAmountRaw,
     resolvedPermissionsAddress,
-    userHasPermission,
     writeContract,
     projectId,
   ]);
