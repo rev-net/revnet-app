@@ -19,7 +19,7 @@ import { useNativeTokenSymbol } from "@/hooks/useNativeTokenSymbol";
 
 // Constants for loan calculations and display
 const LOAN_CONSTANTS = {
-  CURRENCY_ID: ETH_CURRENCY_ID,
+  CURRENCY_ID: 61166n,
   EFFICIENCY_THRESHOLDS: {
     HIGH: 90,      // Green color threshold
     MEDIUM: 70,    // Yellow color threshold
