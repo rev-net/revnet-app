@@ -103,7 +103,7 @@ export function ChainSelect({
               defaultValue="production"
               disabled={disabled}
             >
-              <SelectTrigger className="col-span-1">
+              <SelectTrigger className="col-span-1" aria-label="Choose your chains">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
