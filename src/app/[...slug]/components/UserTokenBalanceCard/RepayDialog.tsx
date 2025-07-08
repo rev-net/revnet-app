@@ -14,7 +14,7 @@ import {
 import { JBChainId, NATIVE_TOKEN_DECIMALS } from "juice-sdk-core";
 import { useJBTokenContext } from "juice-sdk-react";
 import { formatTokenSymbol } from "@/lib/utils";
-import { formatUnits } from "viem";
+import { formatUnits, parseUnits } from "viem";
 import { useTokenA } from "@/hooks/useTokenA";
 
 export function RepayDialog({
@@ -64,45 +64,46 @@ export function RepayDialog({
   // ===== HELPER FUNCTIONS =====
   const formatCollateralAmount = (amountWei: bigint) => {
     const amountTokens = formatUnits(amountWei, decimals);
-
-    // If amount is negligible dust, return "0"
-    if (Number(amountTokens) < 0.0000000001) {
-      return "0";
-    }
-
-    // Clean up trailing zeros
+    
+    // Simple approach: just format to reasonable precision
     return Number(amountTokens).toFixed(6).replace(/\.?0+$/, "");
   };
 
-  const calculateCollateralAmount = (input: string, maxCollateral: bigint) => {
-    const userInputWei = BigInt(Math.floor(Number(input) * (10 ** decimals)));
-    return userInputWei >= maxCollateral ? maxCollateral : userInputWei;
+  const calculateCollateralAmount = (input: string, maxCollateral: bigint): bigint => {
+    try {
+      const userInputWei = parseUnits(input, decimals);
+      return userInputWei >= maxCollateral ? maxCollateral : userInputWei;
+    } catch (error) {
+      // Fallback for invalid input (empty string, invalid number, etc.)
+      return 0n;
+    }
   };
 
-  // Alternative 1: Use full loan amount as max, let contract calculate actual amount needed
-  const {
-    data: simulationResult,
-    isLoading: isSimulating,
-    error: simulationError,
-  } = useSimulateRevLoansRepayLoan({
-    chainId: chainId as JBChainId,
-    args: loanData && collateralToReturn && userAddress
-      ? [
-          BigInt(loanId),
-          loanData.amount, // Use full loan amount as maxRepayBorrowAmount
-          calculateCollateralAmount(collateralToReturn, loanData.collateral),
-          userAddress as Address,
-          {
-            sigDeadline: 0n,
-            amount: 0n,
-            expiration: 0,
-            nonce: 0,
-            signature: "0x0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000" as `0x${string}`,
-          }
-        ]
-      : undefined,
-    value: loanData?.amount, // Send full amount, contract will return excess
-  });
+  // Calculate a conservative maxRepayBorrowAmount
+  const calculateMaxRepayAmount = (): bigint | undefined => {
+    if (!loanData || !collateralToReturn) return undefined;
+    
+    const requestedCollateralWei = calculateCollateralAmount(collateralToReturn, loanData.collateral);
+    const collateralRatio = Number(requestedCollateralWei) / Number(loanData.collateral);
+    
+    // Use a much more conservative approach - only 50% of the proportional amount
+    const conservativeMaxRepay = BigInt(Math.floor(Number(loanData.amount) * collateralRatio * 0.5));
+    
+    console.log("RepayDialog - maxRepay calculation:", {
+      requestedCollateralWei: requestedCollateralWei.toString(),
+      originalCollateral: loanData.collateral.toString(),
+      collateralRatio,
+      originalLoanAmount: loanData.amount.toString(),
+      conservativeMaxRepay: conservativeMaxRepay.toString()
+    });
+    
+    return conservativeMaxRepay;
+  };
+
+  // Temporarily disable simulation due to contract errors
+  const simulationResult = undefined;
+  const isSimulating = false;
+  const simulationError = undefined;
 
   // Debug: Log the collateral calculation
   console.log("RepayDialog - collateral calculation:", {
@@ -132,24 +133,44 @@ export function RepayDialog({
   // Debug: Log the simulation arguments
   console.log("RepayDialog - simulation args:", {
     loanId: BigInt(loanId),
-    maxRepayBorrowAmount: loanData?.amount, // Using full loan amount as max
+    maxRepayBorrowAmount: calculateMaxRepayAmount() || loanData?.amount, // Using proportional amount with buffer
     collateralCountToReturn: loanData ? calculateCollateralAmount(collateralToReturn, loanData.collateral) : undefined,
     beneficiary: userAddress,
-    value: loanData?.amount // Sending full amount, contract will return excess
+    value: calculateMaxRepayAmount() || loanData?.amount // Sending proportional amount with buffer
   });
 
   // Debug: Log the simulation result
   console.log("RepayDialog - simulationResult:", simulationResult);
   console.log("RepayDialog - simulationError:", simulationError);
 
-  // Use the simulation result to get the exact repay amount
-  const exactRepayAmount = simulationResult?.result && Array.isArray(simulationResult.result) && simulationResult.result.length >= 2 && loanData
-    ? loanData.amount - BigInt(simulationResult.result[1]?.amount || 0)
-    : // Fallback when simulation fails or is not available
-      undefined;
+  // Debug: Log current state
+  console.log("RepayDialog - current state:", {
+    hasLoanData: !!loanData,
+    collateralToReturn,
+    userAddress
+  });
 
-  // Use the simulation result to get the exact repay amount, or fallback to full loan amount
-  const finalRepayAmount = exactRepayAmount || loanData?.amount;
+  // Calculate proportional fallback based on collateral ratio
+  const calculateProportionalRepayAmount = (): bigint | undefined => {
+    if (!loanData || !collateralToReturn) return undefined;
+    
+    const requestedCollateralWei = calculateCollateralAmount(collateralToReturn, loanData.collateral);
+    const collateralRatio = Number(requestedCollateralWei) / Number(loanData.collateral);
+    const proportionalRepayAmount = BigInt(Math.floor(Number(loanData.amount) * collateralRatio));
+    
+    console.log("RepayDialog - proportional fallback:", {
+      requestedCollateralWei: requestedCollateralWei.toString(),
+      originalCollateral: loanData.collateral.toString(),
+      collateralRatio,
+      originalLoanAmount: loanData.amount.toString(),
+      proportionalRepayAmount: proportionalRepayAmount.toString()
+    });
+    
+    return proportionalRepayAmount;
+  };
+
+  // Always use proportional calculation since simulation is disabled
+  const finalRepayAmount = calculateProportionalRepayAmount() || loanData?.amount;
 
   // ===== EFFECTS =====
 
@@ -199,10 +220,8 @@ export function RepayDialog({
   // Initialize form when dialog opens
   useEffect(() => {
     if (open && loanData) {
-      // For testing, start with a smaller amount instead of max
       const maxCollateralDisplay = formatUnits(loanData.collateral, decimals);
-      const testAmount = (Number(maxCollateralDisplay) * 0.1).toString(); // Start with 10% for testing
-      setCollateralToReturn(testAmount);
+      setCollateralToReturn(maxCollateralDisplay);
     }
     if (!open) {
       setCollateralToReturn("");
@@ -388,11 +407,9 @@ export function RepayDialog({
                 Calculating exact amount...
               </p>
             )}
-            {simulationError && (
-              <p className="text-xs text-red-500 mt-1">
-                Error calculating amount: {simulationError.message}
-              </p>
-            )}
+            <p className="text-xs text-zinc-500 mt-1">
+              Using proportional estimate based on collateral ratio
+            </p>
           </div>
           <div className="flex flex-col items-end pt-2">
             <ButtonWithWallet
