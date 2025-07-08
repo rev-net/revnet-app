@@ -12,24 +12,25 @@ import {
   useReadRevLoansLoanOf
 } from "revnet-sdk";
 import { JBChainId, NATIVE_TOKEN_DECIMALS } from "juice-sdk-core";
+import { useJBTokenContext } from "juice-sdk-react";
+import { formatTokenSymbol } from "@/lib/utils";
+import { formatUnits } from "viem";
+import { useTokenA } from "@/hooks/useTokenA";
 
 export function RepayDialog({
-  projectId,
-  tokenSymbol,
-  address,
-  open,
-  onOpenChange,
   loanId,
   chainId,
+  open,
+  onOpenChange,
 }: {
-  projectId: bigint;
-  tokenSymbol: string;
-  address: string;
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
   loanId: string;
   chainId: number;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
 }) {
+  // Debug: Log the loan ID being passed in
+  console.log("RepayDialog - loanId:", loanId, "type:", typeof loanId);
+  
   // ===== STATE =====
   const [collateralToReturn, setCollateralToReturn] = useState("");
   const [repayStatus, setRepayStatus] = useState("idle");
@@ -39,12 +40,18 @@ export function RepayDialog({
   // ===== HOOKS =====
   const { address: userAddress } = useAccount();
   const { toast } = useToast();
+  const { token } = useJBTokenContext();
+  const tokenSymbol = formatTokenSymbol(token);
+  const { decimals } = useTokenA();
 
   // Fetch loan data directly from contract using SDK
   const { data: loanData, isLoading: isLoadingLoan } = useReadRevLoansLoanOf({
     chainId: chainId as JBChainId,
     args: [BigInt(loanId)],
   });
+
+  // Debug: Log loan data when it loads
+  console.log("RepayDialog - loanData:", loanData);
 
   // Repay loan hook
   const { writeContractAsync: repayLoanAsync, isPending: isRepaying } = useWriteRevLoansRepayLoan();
@@ -56,28 +63,23 @@ export function RepayDialog({
 
   // ===== HELPER FUNCTIONS =====
   const formatCollateralAmount = (amountWei: bigint) => {
-    const amountTokens = Number(amountWei) / (10 ** NATIVE_TOKEN_DECIMALS);
+    const amountTokens = formatUnits(amountWei, decimals);
 
     // If amount is negligible dust, return "0"
-    if (amountTokens < 0.0000000001) {
+    if (Number(amountTokens) < 0.0000000001) {
       return "0";
     }
 
-    // Use toFixed to avoid scientific notation, then clean up trailing zeros
-    return amountTokens.toFixed(6).replace(/\.?0+$/, "");
-  };
-
-  const isDustLoan = (amountWei: bigint): boolean => {
-    const amountTokens = Number(amountWei) / (10 ** NATIVE_TOKEN_DECIMALS);
-    return amountTokens < 0.000001;
+    // Clean up trailing zeros
+    return Number(amountTokens).toFixed(6).replace(/\.?0+$/, "");
   };
 
   const calculateCollateralAmount = (input: string, maxCollateral: bigint) => {
-    const userInputWei = BigInt(Math.floor(Number(input) * (10 ** NATIVE_TOKEN_DECIMALS)));
+    const userInputWei = BigInt(Math.floor(Number(input) * (10 ** decimals)));
     return userInputWei >= maxCollateral ? maxCollateral : userInputWei;
   };
 
-  // ===== SIMULATION =====
+  // Alternative 1: Use full loan amount as max, let contract calculate actual amount needed
   const {
     data: simulationResult,
     isLoading: isSimulating,
@@ -87,7 +89,7 @@ export function RepayDialog({
     args: loanData && collateralToReturn && userAddress
       ? [
           BigInt(loanId),
-          2n ** 256n - 1n, // MaxUint256 - allow contract to use maximum amount needed
+          loanData.amount, // Use full loan amount as maxRepayBorrowAmount
           calculateCollateralAmount(collateralToReturn, loanData.collateral),
           userAddress as Address,
           {
@@ -99,8 +101,46 @@ export function RepayDialog({
           }
         ]
       : undefined,
-    value: loanData?.amount,
+    value: loanData?.amount, // Send full amount, contract will return excess
   });
+
+  // Debug: Log the collateral calculation
+  console.log("RepayDialog - collateral calculation:", {
+    collateralToReturn: collateralToReturn,
+    calculatedCollateralWei: loanData ? calculateCollateralAmount(collateralToReturn, loanData.collateral) : undefined,
+    originalCollateral: loanData?.collateral,
+    ratio: loanData ? Number(calculateCollateralAmount(collateralToReturn, loanData.collateral)) / Number(loanData.collateral) : undefined,
+    originalLoanAmount: loanData?.amount,
+    // Add decimal information
+    projectTokenDecimals: decimals,
+    nativeTokenDecimals: 18,
+    // Show the actual calculations
+    collateralToReturnInWei: loanData ? BigInt(Math.floor(Number(collateralToReturn) * (10 ** decimals))) : undefined,
+    maxCollateralInWei: loanData?.collateral,
+    // Show percentage
+    percentageOfCollateral: loanData ? (Number(calculateCollateralAmount(collateralToReturn, loanData.collateral)) / Number(loanData.collateral)) * 100 : undefined,
+    // Show the exact calculation steps
+    calculationSteps: {
+      inputAsNumber: Number(collateralToReturn),
+      multiplier: 10 ** decimals,
+      rawCalculation: Number(collateralToReturn) * (10 ** decimals),
+      flooredValue: Math.floor(Number(collateralToReturn) * (10 ** decimals)),
+      finalBigInt: loanData ? BigInt(Math.floor(Number(collateralToReturn) * (10 ** decimals))) : undefined
+    }
+  });
+
+  // Debug: Log the simulation arguments
+  console.log("RepayDialog - simulation args:", {
+    loanId: BigInt(loanId),
+    maxRepayBorrowAmount: loanData?.amount, // Using full loan amount as max
+    collateralCountToReturn: loanData ? calculateCollateralAmount(collateralToReturn, loanData.collateral) : undefined,
+    beneficiary: userAddress,
+    value: loanData?.amount // Sending full amount, contract will return excess
+  });
+
+  // Debug: Log the simulation result
+  console.log("RepayDialog - simulationResult:", simulationResult);
+  console.log("RepayDialog - simulationError:", simulationError);
 
   // Use the simulation result to get the exact repay amount
   const exactRepayAmount = simulationResult?.result && Array.isArray(simulationResult.result) && simulationResult.result.length >= 2 && loanData
@@ -108,15 +148,8 @@ export function RepayDialog({
     : // Fallback when simulation fails or is not available
       undefined;
 
-  // For dust loans, if simulation fails, use a reasonable estimate
-  const finalRepayAmount = exactRepayAmount || (isDustLoan(loanData?.collateral || 0n) && loanData
-    ? (() => {
-        // For dust loans, estimate a small repay amount
-        // This should be much smaller than the original loan amount
-        const estimatedRepayAmount = 0.0001; // 0.0001 ETH
-        return BigInt(Math.floor(estimatedRepayAmount * (10 ** NATIVE_TOKEN_DECIMALS)));
-      })()
-    : loanData?.amount);
+  // Use the simulation result to get the exact repay amount, or fallback to full loan amount
+  const finalRepayAmount = exactRepayAmount || loanData?.amount;
 
   // ===== EFFECTS =====
 
@@ -127,26 +160,7 @@ export function RepayDialog({
       return;
     }
 
-    // If this is a dust loan, allow repayment of the exact wei amount
-    if (isDustLoan(loanData.collateral)) {
-      const inputAmount = Number(collateralToReturn);
-      const exactAmount = Number(loanData.collateral) / (10 ** NATIVE_TOKEN_DECIMALS);
-
-      // Allow if user enters the exact amount (with tolerance for floating point precision)
-      // Use a relative tolerance instead of absolute
-      const tolerance = Math.max(exactAmount * 1e-10, 1e-18); // 10^-10 relative or 10^-18 absolute
-      const difference = Math.abs(inputAmount - exactAmount);
-      const isValid = difference <= tolerance;
-
-      if (isValid) {
-        setCollateralError(""); // No error, allow repayment
-      } else {
-        setCollateralError("Dust loan amount automatically set - ready to repay");
-      }
-      return;
-    }
-
-    const maxCollateralDisplay = Number(loanData.collateral) / (10 ** NATIVE_TOKEN_DECIMALS);
+    const maxCollateralDisplay = Number(formatUnits(loanData.collateral, decimals));
     const inputCollateral = Number(collateralToReturn);
 
     if (inputCollateral > maxCollateralDisplay) {
@@ -185,16 +199,10 @@ export function RepayDialog({
   // Initialize form when dialog opens
   useEffect(() => {
     if (open && loanData) {
-      if (isDustLoan(loanData.collateral)) {
-        // Automatically set the exact wei amount for dust loans
-        const weiAmount = loanData.collateral;
-        const tokenAmount = Number(weiAmount) / (10 ** NATIVE_TOKEN_DECIMALS);
-        const formattedAmount = tokenAmount.toFixed(18).replace(/\.?0+$/, "");
-        setCollateralToReturn(formattedAmount);
-      } else {
-        const maxCollateralDisplay = Number(loanData.collateral) / (10 ** NATIVE_TOKEN_DECIMALS);
-        setCollateralToReturn(maxCollateralDisplay.toString());
-      }
+      // For testing, start with a smaller amount instead of max
+      const maxCollateralDisplay = formatUnits(loanData.collateral, decimals);
+      const testAmount = (Number(maxCollateralDisplay) * 0.1).toString(); // Start with 10% for testing
+      setCollateralToReturn(testAmount);
     }
     if (!open) {
       setCollateralToReturn("");
@@ -226,7 +234,7 @@ export function RepayDialog({
         chainId: chainId as JBChainId,
         args: [
           loanIdBigInt,
-          maxRepayBorrowAmount,
+          loanData.amount, // Use actual loan amount for consistency with simulation
           collateralCountToReturn,
           userAddress as Address,
           {
@@ -237,7 +245,7 @@ export function RepayDialog({
             signature: "0x0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000" as `0x${string}`,
           },
         ],
-        value: maxRepayBorrowAmount,
+        value: maxRepayBorrowAmount, // Keep using the calculated amount for the actual ETH sent
       });
 
       setRepayTxHash(txHash);
@@ -256,17 +264,6 @@ export function RepayDialog({
   const renderPercentageButtons = () => {
     if (!loanData) return null;
 
-    // For dust loans, show a simple message instead of buttons
-    if (isDustLoan(loanData.collateral)) {
-      return (
-        <div className="flex gap-1 mt-4 flex-wrap">
-          <div className="text-xs text-red-600 py-2">
-            Dust loan detected - exact amount automatically set. Any excess over payment gets sent back to you.
-          </div>
-        </div>
-      );
-    }
-
     return (
       <div className="flex gap-1 mt-4 flex-wrap">
         {[10, 25, 50, 75].map((pct) => (
@@ -274,7 +271,7 @@ export function RepayDialog({
             key={pct}
             type="button"
             onClick={() => {
-              const collateralInTokens = Number(loanData.collateral) / (10 ** NATIVE_TOKEN_DECIMALS);
+              const collateralInTokens = Number(formatUnits(loanData.collateral, decimals));
               const portion = collateralInTokens * (pct / 100);
               setCollateralToReturn(portion < 0.000001 ? "0" : portion.toFixed(6).replace(/\.?0+$/, ""));
             }}
@@ -286,8 +283,8 @@ export function RepayDialog({
         <button
           type="button"
           onClick={() => {
-            const maxCollateralDisplay = Number(loanData.collateral) / (10 ** NATIVE_TOKEN_DECIMALS);
-            setCollateralToReturn(maxCollateralDisplay.toString());
+            const maxCollateralDisplay = formatUnits(loanData.collateral, decimals);
+            setCollateralToReturn(maxCollateralDisplay);
           }}
           className="h-8 px-3 text-xs text-zinc-700 border border-zinc-300 rounded-md bg-white hover:bg-zinc-100"
         >
@@ -384,7 +381,7 @@ export function RepayDialog({
           </div>
           <div className="mt-4">
             <Label className="block text-gray-700 text-sm font-bold mb-1">
-              Cost to repay: {finalRepayAmount ? (Number(finalRepayAmount) / (10 ** NATIVE_TOKEN_DECIMALS)).toFixed(6) : "0.00"} ETH
+              Cost to repay: {finalRepayAmount ? formatUnits(finalRepayAmount, decimals) : "0.00"} ETH
             </Label>
             {isSimulating && (
               <p className="text-xs text-zinc-500 mt-1">

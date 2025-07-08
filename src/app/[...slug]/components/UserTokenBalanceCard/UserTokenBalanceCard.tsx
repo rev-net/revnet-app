@@ -70,13 +70,10 @@ export function UserTokenBalanceCard() {
         ) : null}
         {selectedLoanId && selectedChainId && (
           <RepayDialog
-            projectId={projectId}
-            tokenSymbol={tokenSymbol}
-            address={address || ""}
-            open={showRepayDialog}
-            onOpenChange={setShowRepayDialog}
             loanId={selectedLoanId}
             chainId={selectedChainId}
+            open={showRepayDialog}
+            onOpenChange={setShowRepayDialog}
           />
         )}
       </div>

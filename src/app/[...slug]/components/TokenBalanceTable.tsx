@@ -1,8 +1,8 @@
-import { JBChainId } from "juice-sdk-core";
+import { JBChainId, NATIVE_TOKEN_DECIMALS } from "juice-sdk-core";
 import { useReadRevLoansBorrowableAmountFrom } from "revnet-sdk";
 import { useBendystrawQuery } from "@/graphql/useBendystrawQuery";
 import { LoansByAccountDocument } from "@/generated/graphql";
-import { useEffect, useRef, useMemo, useCallback } from "react";
+import { useEffect, useMemo, useCallback } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ChainLogo } from "@/components/ChainLogo";
 
@@ -45,8 +45,7 @@ interface TokenBalanceTableProps {
 
 // ===== CONSTANTS =====
 const DEFAULT_COLUMNS: ColumnType[] = ["chain", "holding", "borrowable", "debt", "collateral"];
-const TOKEN_DECIMALS = 18n; // Get from Juice SDK
-const CURRENCY_ID = 61166n; // Might change with native token
+const ETH_CURRENCY_ID = 61166n;
 
 // ===== UTILITY FUNCTIONS =====
 function formatAmount(value?: bigint): string {
@@ -78,35 +77,7 @@ function useLoanSummary(address: string) {
   return useMemo(() => summarizeLoansByChain(data?.loans?.items), [data?.loans?.items]);
 }
 
-function useAutoSelection(
-  balances: Balance[] | undefined,
-  loanSummary: Record<number, LoanSummary>,
-  selectedChainId: number | undefined,
-  onAutoselectRow?: (chainId: number) => void,
-  projectId?: bigint
-) {
-  const hasAutoselected = useRef(false);
 
-  const firstSelectable = useMemo(() => {
-    return balances?.find(({ chainId, balance }) => {
-      // Only consider chains with token balance
-      return balance.value > 0n;
-    });
-  }, [balances]);
-
-  useEffect(() => {
-    if (
-      firstSelectable &&
-      (typeof selectedChainId === "undefined" || selectedChainId === null) &&
-      !hasAutoselected.current
-    ) {
-      hasAutoselected.current = true;
-      onAutoselectRow?.(firstSelectable.chainId);
-    }
-  }, [firstSelectable, selectedChainId, onAutoselectRow]);
-
-  return firstSelectable;
-}
 
 // ===== COMPONENTS =====
 function TokenBalanceRow({
@@ -120,7 +91,7 @@ function TokenBalanceRow({
 }: TokenBalanceRowProps) {
   const { data: borrowableAmount } = useReadRevLoansBorrowableAmountFrom({
     chainId,
-    args: [projectId, balanceValue, TOKEN_DECIMALS, CURRENCY_ID],
+    args: [projectId, balanceValue, BigInt(NATIVE_TOKEN_DECIMALS), ETH_CURRENCY_ID],
   });
 
   const renderCell = useCallback((column: ColumnType) => {
@@ -214,7 +185,7 @@ function TableRowItem({
   // Get borrowable amount for this chain
   const { data: borrowableAmount } = useReadRevLoansBorrowableAmountFrom({
     chainId,
-    args: [projectId, balance.balance.value, TOKEN_DECIMALS, CURRENCY_ID],
+    args: [projectId, balance.balance.value, BigInt(NATIVE_TOKEN_DECIMALS), ETH_CURRENCY_ID],
   });
 
   // Check if this chain is selectable (has borrowable amount)
@@ -279,7 +250,6 @@ export function TokenBalanceTable({
   onAutoselectRow,
 }: TokenBalanceTableProps) {
   const loanSummary = useLoanSummary(address);
-  const firstSelectable = useAutoSelection(balances, loanSummary, selectedChainId, onAutoselectRow, projectId);
 
   // Check if selected chain has no borrowable amount, if not auto-select one that does
   useEffect(() => {
