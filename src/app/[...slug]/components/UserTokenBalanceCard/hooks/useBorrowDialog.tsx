@@ -266,7 +266,7 @@ export function useBorrowDialog({
     skip: false,
   });
 
-  // Additional derived values
+  // Additional derived values in native tokens
   const netAvailableToBorrow =
     selectedTab === "borrow" && selectedLoanReallocAmount !== undefined && internalSelectedLoan
       ? selectedLoanReallocAmount - BigInt(internalSelectedLoan.borrowAmount)

@@ -103,7 +103,7 @@ export function LoanFeeChart({
                 
                 return [
                   `${collateralAmount} ${tokenSymbol}`,
-                  `Total paid to unlock: ${costToUnlock.toFixed(6)} ${nativeTokenSymbol}`,
+                  `Total paid to unlock: ${costToUnlock.toFixed(8)} ${nativeTokenSymbol}`,
                 ];
               }}
               labelFormatter={(label: number) => {
