@@ -48,7 +48,6 @@ export const USDC_ADDRESSES: Record<number, `0x${string}`> = {
 };
 
 export const USDC_DECIMALS = 6;
-export const USDC_CURRENCY_ID = 905698312;
 
 export const isProduction = process.env.NODE_ENV === "production";
 export const externalBaseUrl = isProduction

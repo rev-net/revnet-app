@@ -20,7 +20,7 @@ import {
 } from "viem";
 import { RevnetFormData } from "../types";
 import { jbPricesAddress } from "juice-sdk-react";
-import { USDC_ADDRESSES, USDC_DECIMALS, USDC_CURRENCY_ID } from "@/app/constants";
+import { USDC_ADDRESSES, USDC_DECIMALS, JB_CURRENCY_USD } from "@/app/constants";
 
 export function parseDeployData(
   _formData: RevnetFormData,
@@ -75,8 +75,8 @@ export function parseDeployData(
   if (formData.reserveAsset === "USDC") {
     tokenAddress = USDC_ADDRESSES[extra.chainId] || "0x0000000000000000000000000000000000000000";
     tokenDecimals = USDC_DECIMALS;
-    baseCurrency = USDC_CURRENCY_ID;
-    currencyId = USDC_CURRENCY_ID;
+    baseCurrency = JB_CURRENCY_USD;
+    currencyId = parseInt(tokenAddress.toLowerCase().replace(/^0x/, '').slice(-8), 16);
   } else {
     tokenAddress = NATIVE_TOKEN as `0x${string}`;
     tokenDecimals = NATIVE_TOKEN_DECIMALS;
