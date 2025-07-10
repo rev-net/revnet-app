@@ -46,11 +46,12 @@ export function SimulatedLoanCard({
           <p><span className="font-semibold">
             {protocolFees.toFixed(8)} {nativeTokenSymbol}
           </span> protocol & project fees ({protocolFeesPercentage.toFixed(1)}%)</p>
+          {/* This is already included in the borrowableAmountFrom
           {cashoutTaxRate !== undefined && (
             <p><span className="font-semibold">
               {(amountBorrowed * Number(cashoutTaxRate) / 10000).toFixed(8)} {nativeTokenSymbol}
             </span> cash out exit fees ({(Number(cashoutTaxRate) / 100).toFixed(1)}%)</p>
-          )}
+          )} */}
           <p><span className="font-semibold">
             {maxUnlockCost.toFixed(8)} {nativeTokenSymbol}
           </span> max cost to unlock all collateral before 10 years</p>
