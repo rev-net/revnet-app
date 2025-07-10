@@ -75,7 +75,7 @@ export function ChainSelect({
   return (
     <>
       <div className="md:col-span-1">
-        <h2 className="font-bold text-lg mb-2">3. Deploy</h2>
+        <h2 className="font-bold text-lg mb-2">4. Deploy</h2>
         <p className="text-zinc-600 text-lg">
           Pick which chains your revnet will accept money on and issue{" "}
           {revnetTokenSymbol} from.

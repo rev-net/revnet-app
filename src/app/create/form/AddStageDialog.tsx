@@ -81,7 +81,8 @@ export function AddStageDialog({
   const { values: formikValues, setFieldValue } = useFormikContext<RevnetFormData>();
 
   const [open, setOpen] = useState(false);
-  const nativeTokenSymbol = useNativeTokenSymbol();
+  // const nativeTokenSymbol = useNativeTokenSymbol();
+  const reserveAsset = formikValues.reserveAsset || "ETH";
 
   const revnetTokenSymbol =
     formikValues.tokenSymbol?.length > 0
@@ -144,7 +145,7 @@ export function AddStageDialog({
                         1. Issuance
                       </div>
                       <p className="text-md text-zinc-500 mt-3">
-                        How many {revnetTokenSymbol} to issue when receiving 1 {nativeTokenSymbol}.
+                        How many {revnetTokenSymbol} to issue when receiving 1 {reserveAsset}.
                       </p>
                       <div className="flex flex-wrap md:flex-nowrap gap-2 sm:gap-2 items-center text-md text-zinc-600 mt-2">
                         {/* Styled number input with suffix for initialIssuance */}
@@ -157,7 +158,7 @@ export function AddStageDialog({
                             className="h-9 w-full pr-24 border rounded px-3 text-md"
                           />
                           <span className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 text-md pointer-events-none">
-                            {revnetTokenSymbol} / {nativeTokenSymbol}
+                            {revnetTokenSymbol} / {reserveAsset}
                           </span>
                         </div>
                         <div className="flex items-center gap-2 w-full md:w-auto">
@@ -316,11 +317,7 @@ export function AddStageDialog({
                         </li>
                         <li className="flex">
                           <span className="mr-2">•</span>
-                          If there's a market for {revnetTokenSymbol} /{" "}
-                          {nativeTokenSymbol} offering a better price, all{" "}
-                          {nativeTokenSymbol} paid in will be used to buyback
-                          instead of feeding the revnet. Uniswap is used as
-                          the market.
+                          If there's a market for {revnetTokenSymbol} / {reserveAsset} offering a better price, all {reserveAsset} paid in will be used to buyback instead of feeding the revnet. Uniswap is used as the market.
                         </li>
                         <li className="flex">
                           <span className="mr-2">•</span>
@@ -459,7 +456,7 @@ export function AddStageDialog({
                     </div>
                   </div>
                   <div className="text-sm font-medium text-zinc-500 mt-4 border-l border-zinc-300 pl-2 py-1 px-1">
-                    Cashing out 10% of {revnetTokenSymbol} gets {calculateYield(Number(values.priceFloorTaxIntensity))}% of the revnet's {nativeTokenSymbol}.
+                    Cashing out 10% of {revnetTokenSymbol} gets {calculateYield(Number(values.priceFloorTaxIntensity))}% of the revnet's {reserveAsset}.
                   </div>
                   <NotesSection>
                     <div className="text-zinc-600 text-md mt-4 italic">
@@ -478,22 +475,17 @@ export function AddStageDialog({
                         </li>
                         <li className="flex">
                           <span className="mr-2">•</span>
-                          Given 100 {nativeTokenSymbol} in the revnet, 100 total
+                          Given 100 {reserveAsset} in the revnet, 100 total
                           supply of {revnetTokenSymbol}, and 10{" "}
                           {revnetTokenSymbol} being cashed out, a tax rate of 0
-                          would yield a cash out value of 10 {nativeTokenSymbol}
-                          , 0.2 would yield 8.2 {nativeTokenSymbol}, 0.5 would
-                          yield 5.5 {nativeTokenSymbol}, and 0.8 would yield 2.8{" "}
-                          {nativeTokenSymbol}.
+                          would yield a cash out value of 10 {reserveAsset}
+                          , 0.2 would yield 8.2 {reserveAsset}, 0.5 would
+                          yield 5.5 {reserveAsset}, and 0.8 would yield 2.8{" "}
+                          {reserveAsset}.
                         </li>
                         <li className="flex">
                           <span className="mr-2">•</span>
-                          The formula for the amount of {nativeTokenSymbol}{" "}
-                          received when cashing out is `(ax/s) * ((1-r) + xr/s)`
-                          where: `r` is the cash out tax rate, `a` is the amount
-                          in the revnet being accessed, `s` is the current token
-                          supply of {revnetTokenSymbol}, `x` is the amount of{" "}
-                          {revnetTokenSymbol} being cashed out.
+                          The formula for the amount of {reserveAsset} received when cashing out is `(ax/s) * ((1-r) + xr/s)` where: `r` is the cash out tax rate, `a` is the amount in the revnet being accessed, `s` is the current token supply of {revnetTokenSymbol}, `x` is the amount of {revnetTokenSymbol} being cashed out.
                         </li>
                       </ul>
                     </div>
@@ -543,3 +535,4 @@ export function AddStageDialog({
     </Dialog>
   );
 }
+

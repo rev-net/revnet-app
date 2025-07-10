@@ -20,6 +20,7 @@ import {
 } from "viem";
 import { RevnetFormData } from "../types";
 import { jbPricesAddress } from "juice-sdk-react";
+import { USDC_ADDRESSES, USDC_DECIMALS, USDC_CURRENCY_ID } from "@/app/constants";
 
 export function parseDeployData(
   _formData: RevnetFormData,
@@ -69,17 +70,31 @@ export function parseDeployData(
       ?.address || formData.stages[0].initialOperator;
   console.log({ operator, extra });
   console.log(`[ Operator ] ${operator}`);
+  // Determine asset settings based on reserveAsset
+  let baseCurrency, tokenAddress, tokenDecimals, currencyId;
+  if (formData.reserveAsset === "USDC") {
+    tokenAddress = USDC_ADDRESSES[extra.chainId] || "0x0000000000000000000000000000000000000000";
+    tokenDecimals = USDC_DECIMALS;
+    baseCurrency = USDC_CURRENCY_ID;
+    currencyId = USDC_CURRENCY_ID;
+  } else {
+    tokenAddress = NATIVE_TOKEN as `0x${string}`;
+    tokenDecimals = NATIVE_TOKEN_DECIMALS;
+    baseCurrency = ETH_CURRENCY_ID;
+    currencyId = 61166; // Existing value for native
+  }
+
   const accountingContextsToAccept = [
     {
-      token: NATIVE_TOKEN,
-      decimals: NATIVE_TOKEN_DECIMALS,
-      currency: 61166,
+      token: tokenAddress,
+      decimals: tokenDecimals,
+      currency: currencyId,
     },
   ];
 
   const loanSources = [
     {
-      token: NATIVE_TOKEN,
+      token: tokenAddress,
       terminal: jbProjectDeploymentAddresses.JBMultiTerminal[
         extra?.chainId as JBChainId
       ] as Address,
@@ -88,7 +103,7 @@ export function parseDeployData(
 
   const poolConfigurations = [
     {
-      token: NATIVE_TOKEN,
+      token: tokenAddress,
       fee: 10_000,
       twapWindow: 2 * 60 * 60 * 24,
       twapSlippageTolerance: 9000,
@@ -191,7 +206,7 @@ export function parseDeployData(
         uri: extra.metadataCid,
         salt: extra.salt,
       },
-      baseCurrency: ETH_CURRENCY_ID,
+      baseCurrency: baseCurrency,
       splitOperator: operator as Address,
       stageConfigurations,
       loans: revLoansAddress[extra.chainId as JBChainId] as Address,
@@ -224,8 +239,8 @@ export function parseDeployData(
         contractUri: "",
         tiersConfig: {
           tiers: [],
-          currency: 1,
-          decimals: 18,
+          currency: baseCurrency,
+          decimals: tokenDecimals,
           prices: jbPricesAddress[extra.chainId as JBChainId],
         },
         reserveBeneficiary: zeroAddress,

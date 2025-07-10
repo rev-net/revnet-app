@@ -34,7 +34,21 @@ export const chainIdToLogo = {
 export const BACKED_BY_TOKENS = ["ETH", "USDC"] as const;
 
 export const JB_CURRENCY_ETH = 1;
-export const JB_CURRENCY_USD = 2;
+export const JB_CURRENCY_USD = 3;
+
+export const USDC_ADDRESSES: Record<number, `0x${string}`> = {
+  42161: "0xaf88d065e77c8cC2239327C5EDb3A432268e5831", // Arbitrum
+  8453: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", // Base
+  1: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48", // Ethereum
+  10: "0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85", // Optimism
+  421614: "0x75faf114eafb1BDbe2F0316DF893fd58CE46AA4d", // Arbitrum sepolia
+  84532: "0x036CbD53842c5426634e7929541eC2318f3dCF7e", // Base Sepolia
+  11155111: "0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238", // Ethereum sepolia
+  11155420: "0x5fd84259d66Cd46123540766Be93DFE6D43130D7", // Optimism sepolia
+};
+
+export const USDC_DECIMALS = 6;
+export const USDC_CURRENCY_ID = 905698312;
 
 export const isProduction = process.env.NODE_ENV === "production";
 export const externalBaseUrl = isProduction
