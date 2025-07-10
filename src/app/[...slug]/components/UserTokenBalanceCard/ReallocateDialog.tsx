@@ -179,14 +179,39 @@ export function ReallocateDialog({
                 value={collateralAmount}
                 onChange={(e) => {
                   const value = e.target.value;
+                  
+                  // Allow empty input for clearing
+                  if (value === "") {
+                    setCollateralAmount("");
+                    return;
+                  }
+                  
+                  // Limit decimal places to 8 digits
+                  const decimalIndex = value.indexOf('.');
+                  if (decimalIndex !== -1 && value.length - decimalIndex - 1 > 8) {
+                    return; // Don't update if too many decimal places
+                  }
+                  
                   const numValue = Number(value);
-                  if (numValue <= Number(borrowableAmountFormatted)) {
-                    setCollateralAmount(value.toString().replace(/\.?0+$/, ""));
+                  
+                  // Only validate max if it's a valid number
+                  if (!isNaN(numValue)) {
+                    const maxValue = Number(borrowableAmountFormatted);
+                    
+                    // Prevent entering more than available balance
+                    if (numValue > maxValue) {
+                      setCollateralAmount(maxValue.toFixed(6));
+                    } else {
+                      setCollateralAmount(value);
+                    }
+                  } else {
+                    // Allow partial input (like just a decimal point)
+                    setCollateralAmount(value);
                   }
                 }}
                 placeholder="Enter additional amount"
                 className="mb-2"
-                max={borrowableAmountFormatted.toString()}
+                max={borrowableAmountFormatted}
               />
               <div className="flex gap-1 mt-1 mb-2">
                 <div className="flex gap-1 mt-2 mb-2">

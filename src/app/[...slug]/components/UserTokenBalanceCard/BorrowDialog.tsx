@@ -165,6 +165,12 @@ export function BorrowDialog({
                     onChange={(e) => {
                       const value = e.target.value;
                       
+                      // Allow empty input for clearing
+                      if (value === "") {
+                        setCollateralAmount("");
+                        return;
+                      }
+                      
                       // Limit decimal places to 8 digits
                       const decimalIndex = value.indexOf('.');
                       if (decimalIndex !== -1 && value.length - decimalIndex - 1 > 8) {
@@ -174,10 +180,16 @@ export function BorrowDialog({
                       const numValue = Number(value);
                       const maxValue = selectedBalance ? Number(formatUnits(selectedBalance.balance.value, projectTokenDecimals)) : 0;
                       
-                      // Prevent entering more than available balance
-                      if (numValue > maxValue) {
-                        setCollateralAmount(maxValue.toFixed(6));
+                      // Only validate max if it's a valid number
+                      if (!isNaN(numValue)) {
+                        // Prevent entering more than available balance
+                        if (numValue > maxValue) {
+                          setCollateralAmount(maxValue.toFixed(6));
+                        } else {
+                          setCollateralAmount(value);
+                        }
                       } else {
+                        // Allow partial input (like just a decimal point)
                         setCollateralAmount(value);
                       }
                     }}

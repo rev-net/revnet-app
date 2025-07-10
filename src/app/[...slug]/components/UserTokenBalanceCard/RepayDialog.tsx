@@ -337,7 +337,32 @@ export function RepayDialog({
                 value={collateralToReturn}
                 onChange={(e) => {
                   const value = e.target.value;
-                  if (/^[0-9]*\.?[0-9]*$/.test(value) || value === "") {
+                  
+                  // Allow empty input for clearing
+                  if (value === "") {
+                    setCollateralToReturn("");
+                    return;
+                  }
+                  
+                  // Limit decimal places to 8 digits
+                  const decimalIndex = value.indexOf('.');
+                  if (decimalIndex !== -1 && value.length - decimalIndex - 1 > 8) {
+                    return; // Don't update if too many decimal places
+                  }
+                  
+                  const numValue = Number(value);
+                  const maxValue = loanData ? Number(formatUnits(loanData.collateral, decimals)) : 0;
+                  
+                  // Only validate max if it's a valid number
+                  if (!isNaN(numValue)) {
+                    // Prevent entering more than available collateral
+                    if (numValue > maxValue) {
+                      setCollateralToReturn(maxValue.toFixed(6));
+                    } else {
+                      setCollateralToReturn(value);
+                    }
+                  } else {
+                    // Allow partial input (like just a decimal point)
                     setCollateralToReturn(value);
                   }
                 }}
