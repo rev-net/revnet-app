@@ -160,8 +160,27 @@ export function BorrowDialog({
                     id="collateral-amount"
                     type="number"
                     step="0.0001"
+                    max={selectedBalance ? Number(formatUnits(selectedBalance.balance.value, projectTokenDecimals)) : undefined}
                     value={collateralAmount}
-                    onChange={(e) => setCollateralAmount(e.target.value)}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      
+                      // Limit decimal places to 8 digits
+                      const decimalIndex = value.indexOf('.');
+                      if (decimalIndex !== -1 && value.length - decimalIndex - 1 > 8) {
+                        return; // Don't update if too many decimal places
+                      }
+                      
+                      const numValue = Number(value);
+                      const maxValue = selectedBalance ? Number(formatUnits(selectedBalance.balance.value, projectTokenDecimals)) : 0;
+                      
+                      // Prevent entering more than available balance
+                      if (numValue > maxValue) {
+                        setCollateralAmount(maxValue.toFixed(6));
+                      } else {
+                        setCollateralAmount(value);
+                      }
+                    }}
                     placeholder={
                       cashOutChainId && selectedBalance
                         ? Number(formatUnits(selectedBalance.balance.value, projectTokenDecimals)).toFixed(8)
