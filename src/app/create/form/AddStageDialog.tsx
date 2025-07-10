@@ -78,10 +78,9 @@ export function AddStageDialog({
   children: React.ReactNode;
   onSave: (newStage: StageData) => void;
 }) {
-  const { values: formikValues } = useFormikContext<RevnetFormData>();
+  const { values: formikValues, setFieldValue } = useFormikContext<RevnetFormData>();
 
   const [open, setOpen] = useState(false);
-  const [initialIssuance, setInitialIssuance] = useState(initialValues?.initialIssuance || "10000");
   const nativeTokenSymbol = useNativeTokenSymbol();
 
   const revnetTokenSymbol =
@@ -89,8 +88,7 @@ export function AddStageDialog({
       ? `$${formikValues.tokenSymbol}`
       : "tokens";
 
-    const [cashOutTax, setCashOutTax] = useState(initialValues?.priceFloorTaxIntensity || 20); // Default to 0.2
-
+    console.log({stageIdx, initialValues});
     // Discrete values matching your radio options
     const steps = [0, 20, 40, 60, 80];
 
@@ -115,65 +113,101 @@ export function AddStageDialog({
               setOpen(false);
             }}
           >
-            {({ values }) => (
-              <Form>
-                <div className="pb-6">
+            {({ values }) => {
+              // Checkbox state: enabled if either field is not 0
+              const [enableCut, setEnableCut] = useState(
+                Boolean(initialValues && (Number(initialValues.priceCeilingIncreasePercentage) !== 0 || Number(initialValues.priceCeilingIncreaseFrequency) !== 0))
+              );
+              // Handler for checkbox toggle
+              const handleCutToggle = (e: React.ChangeEvent<HTMLInputElement>) => {
+                const checked = e.target.checked;
+                setEnableCut(checked);
+                if (!checked) {
+                  setFieldValue("priceCeilingIncreasePercentage", 0);
+                  setFieldValue("priceCeilingIncreaseFrequency", 0);
+                } else {
+                  // If enabling and either value is 0, set to 1
+                  if (Number(values.priceCeilingIncreasePercentage) === 0) {
+                    setFieldValue("priceCeilingIncreasePercentage", 1);
+                  }
+                  if (Number(values.priceCeilingIncreaseFrequency) === 0) {
+                    setFieldValue("priceCeilingIncreaseFrequency", 1);
+                  }
+                }
+              };
+              return (
+                <Form>
+                  <div className="pb-10">
 
-                  <div>
-                    <div className="block text-md font-semibold leading-6">
-                      1. Issuance
-                    </div>
-                    <p className="text-md text-zinc-500 mt-3">
-                      How many {revnetTokenSymbol} to issue when receiving 1 {nativeTokenSymbol}.
-                    </p>
-                    <div className="flex flex-wrap md:flex-nowrap gap-4 sm:gap-2 items-center text-md text-zinc-600 mt-2">
-                      <div className="w-full sm:w-[200px] lg:w-[200px] xl:w-[200px]">
-                        <FieldGroup
-                          id="initialIssuance"
-                          name="initialIssuance"
-                          min="0"
-                          type="number"
-                          autoFocus={false}
-                          value={initialIssuance}
-                          onChange={(e: any) => {
-                            setInitialIssuance(e.target.value);
-                            values.initialIssuance = e.target.value;
-                          }}
-                          suffix={`${revnetTokenSymbol} / ${nativeTokenSymbol}`}
-                        />
+                    <div>
+                      <div className="block text-md font-semibold leading-6">
+                        1. Issuance
                       </div>
-                      <div className="flex items-center gap-2 w-full md:w-auto">
-                        <label
-                          htmlFor="priceCeilingIncreasePercentage"
-                          className="whitespace-nowrap"
-                        >
-                          cut by
-                        </label>
-                        <Field
-                          id="priceCeilingIncreasePercentage"
-                          name="priceCeilingIncreasePercentage"
-                          type="number"
-                          autoFocus={true}
-                          min="0"
-                          max="100"
-                          className="h-9"
-                          suffix="%"
-                          required
-                        />
-                        <label htmlFor="priceCeilingIncreaseFrequency">
-                          every
-                        </label>
-                        <Field
-                          id="priceCeilingIncreaseFrequency"
-                          name="priceCeilingIncreaseFrequency"
-                          className="h-9"
-                          type="number"
-                          min="0"
-                          required
-                        />
-                        days.
-                      </div>
-                      </div>
+                      <p className="text-md text-zinc-500 mt-3">
+                        How many {revnetTokenSymbol} to issue when receiving 1 {nativeTokenSymbol}.
+                      </p>
+                      <div className="flex flex-wrap md:flex-nowrap gap-2 sm:gap-2 items-center text-md text-zinc-600 mt-2">
+                        {/* Styled number input with suffix for initialIssuance */}
+                        <div className="relative w-full sm:w-[220px] lg:w-[220px] xl:w-[220px]">
+                          <Field
+                            id="initialIssuance"
+                            name="initialIssuance"
+                            min="0"
+                            type="number"
+                            className="h-9 w-full pr-24 border rounded px-3 text-md"
+                          />
+                          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 text-md pointer-events-none">
+                            {revnetTokenSymbol} / {nativeTokenSymbol}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2 w-full md:w-auto">
+                          {/* If not enabled, show 'add cut? [ ]' */}
+                          {!enableCut && (
+                            <>
+                              <label htmlFor="enableCut" className="whitespace-nowrap italic text-zinc-400">add automatic cuts?</label>
+                              <input
+                                type="checkbox"
+                                id="enableCut"
+                                checked={enableCut}
+                                onChange={handleCutToggle}
+                              />
+                            </>
+                          )}
+                          {/* If enabled, show 'cut [x] __% every __ days' */}
+                          {enableCut && (
+                            <>
+                              <label htmlFor="priceCeilingIncreasePercentage" className="whitespace-nowrap">cut</label>
+                              <input
+                                type="checkbox"
+                                id="enableCut"
+                                checked={enableCut}
+                                onChange={handleCutToggle}
+                              />
+                              <Field
+                                id="priceCeilingIncreasePercentage"
+                                name="priceCeilingIncreasePercentage"
+                                type="number"
+                                autoFocus={true}
+                                min="1"
+                                max="100"
+                                className="h-9 w-16"
+                                suffix="%"
+                                required
+                              />
+                              <label htmlFor="priceCeilingIncreaseFrequency">every</label>
+                              <Field
+                                id="priceCeilingIncreaseFrequency"
+                                name="priceCeilingIncreaseFrequency"
+                                className="h-9 w-16"
+                                type="number"
+                                min="1"
+                                required
+                              />
+                              days.
+                            </>
+                          )}
+                        </div>
+                  </div>
                   <div>
                     <FieldArray
                       name="splits"
@@ -272,72 +306,6 @@ export function AddStageDialog({
                     </div>
                   )}
                   </div>
-                  <FieldArray
-                    name="autoIssuance"
-                    render={(arrayHelpers) => (
-                      <div>
-                        <p className="text-md text-zinc-500 mt-5">
-                          Optionally, auto-issue {revnetTokenSymbol} when the stage starts.
-                        </p>
-                        {values.autoIssuance?.map((_, index) => (
-                          <div
-                            key={index}
-                            className="flex gap-2 items-center text-md text-zinc-600 mt-4"
-                          >
-                            <label htmlFor={`autoIssuance.${index}.amount`}>
-                              {index === 0 ? "Issue" : "...and"}
-                            </label>
-                            <Field
-                              id={`autoIssuance.${index}.amount`}
-                              name={`autoIssuance.${index}.amount`}
-                              type="number"
-                              min="0"
-                              className="h-9"
-                              suffix={`${revnetTokenSymbol}`}
-                              required
-                              // width="w-72" // mobile padding issue
-                            />
-                            <label
-                              htmlFor={`autoIssuance.${index}.beneficiary`}
-                            >
-                              to
-                            </label>
-                            <Field
-                              id={`autoIssuance.${index}.beneficiary`}
-                              name={`autoIssuance.${index}.beneficiary`}
-                              className="h-9"
-                              placeholder="0x"
-                              required
-                            />
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => arrayHelpers.remove(index)}
-                              className="h-9 px-0 sm:px-3"
-                            >
-                              <TrashIcon className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        ))}
-                        <Button
-                          type="button"
-                          onClick={() => {
-                            console.log(values);
-                            arrayHelpers.push({ amount: "", beneficiary: "" });
-                          }}
-                          className="h-7 mt-3 bg-zinc-100 border border-zinc-200 text-zinc-600 hover:bg-zinc-200 hover:text-zinc-900"
-                        >
-                          add auto issuance +
-                        </Button>
-                        { values.autoIssuance.length > 0 && <div className="text-sm font-medium text-zinc-500 mt-4 border-l border-zinc-300 pl-2 py-1 px-1">
-                          Total auto issuance of {" "}
-                          {commaNumber(values.autoIssuance?.reduce((sum, issuance) => sum + (Number(issuance.amount) || 0), 0))}
-                          {" "}{revnetTokenSymbol}.
-                        </div>
-                        }
-                      </div>
-                    )}
-                  />
                   <NotesSection>
                     <div className="text-zinc-600 text-md mt-4 italic">
                       <ul className="list-disc list-inside space-y-2">
@@ -385,6 +353,71 @@ export function AddStageDialog({
                       </ul>
                     </div>
                   </NotesSection>
+                  <FieldArray
+                    name="autoIssuance"
+                    render={(arrayHelpers) => (
+                      <div>
+                        <p className="text-md text-zinc-500 mt-10">
+                          Optionally, auto-issue {revnetTokenSymbol} when the stage starts.
+                        </p>
+                        {values.autoIssuance?.map((_, index) => (
+                          <div
+                            key={index}
+                            className="flex gap-2 items-center text-md text-zinc-600 mt-4"
+                          >
+                            <label htmlFor={`autoIssuance.${index}.amount`}>
+                              {index === 0 ? "Issue" : "...and"}
+                            </label>
+                            <Field
+                              id={`autoIssuance.${index}.amount`}
+                              name={`autoIssuance.${index}.amount`}
+                              type="number"
+                              min="0"
+                              className="h-9"
+                              suffix={`${revnetTokenSymbol}`}
+                              required
+                              // width="w-72" // mobile padding issue
+                            />
+                            <label
+                              htmlFor={`autoIssuance.${index}.beneficiary`}
+                            >
+                              to
+                            </label>
+                            <Field
+                              id={`autoIssuance.${index}.beneficiary`}
+                              name={`autoIssuance.${index}.beneficiary`}
+                              className="h-9"
+                              placeholder="0x"
+                              required
+                            />
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => arrayHelpers.remove(index)}
+                              className="h-9 px-0 sm:px-3"
+                            >
+                              <TrashIcon className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        ))}
+                        <Button
+                          type="button"
+                          onClick={() => {
+                            arrayHelpers.push({ amount: "", beneficiary: "" });
+                          }}
+                          className="h-7 mt-3 bg-zinc-100 border border-zinc-200 text-zinc-600 hover:bg-zinc-200 hover:text-zinc-900"
+                        >
+                          add auto issuance +
+                        </Button>
+                        { values.autoIssuance.length > 0 && <div className="text-sm font-medium text-zinc-500 mt-4 border-l border-zinc-300 pl-2 py-1 px-1">
+                          Total auto issuance of {" "}
+                          {commaNumber(values.autoIssuance?.reduce((sum, issuance) => sum + (Number(issuance.amount) || 0), 0))}
+                          {" "}{revnetTokenSymbol}.
+                        </div>
+                        }
+                      </div>
+                    )}
+                  />
                   </div>
                 </div>
 
@@ -411,25 +444,22 @@ export function AddStageDialog({
                         </span>
                       ))}
                     </div>
-                    <input
-                      type="range"
-                      min={0}
-                      max={80}
-                      step={10}
-                      name="priceFloorTaxIntensity"
-                      value={cashOutTax}
-                      onChange={(e: any) => {
-                        const numValue = parseFloat(e.target.value);
-                        const closestHalfStep = Math.round(numValue * 20) / 20;
-                        setCashOutTax(closestHalfStep);
-                        values.priceFloorTaxIntensity = String(closestHalfStep);
-                      }}
-                      className="w-full h-2 bg-gray-200 appearance-none cursor-pointer accent-teal-500"
-                      aria-label="Exit tax percentage"
-                    />
+                    {/* Styled slider for priceFloorTaxIntensity */}
+                    <div className="flex flex-col justify-center w-full">
+                      <Field
+                        as="input"
+                        type="range"
+                        min={0}
+                        max={80}
+                        step={10}
+                        name="priceFloorTaxIntensity"
+                        className="w-full h-2 bg-gray-200 appearance-none cursor-pointer accent-teal-500 px-0 rounded-full"
+                        aria-label="Exit tax percentage"
+                      />
+                    </div>
                   </div>
                   <div className="text-sm font-medium text-zinc-500 mt-4 border-l border-zinc-300 pl-2 py-1 px-1">
-                    Cashing out 10% of {revnetTokenSymbol} gets {calculateYield(Number(cashOutTax))}% of the revnet's {nativeTokenSymbol}.
+                    Cashing out 10% of {revnetTokenSymbol} gets {calculateYield(Number(values.priceFloorTaxIntensity))}% of the revnet's {nativeTokenSymbol}.
                   </div>
                   <NotesSection>
                     <div className="text-zinc-600 text-md mt-4 italic">
@@ -472,13 +502,14 @@ export function AddStageDialog({
                 {stageIdx > 0 && (
                   <div className="pb-7">
                     <FieldGroup
-                      id="boostDuration"
-                      name="boostDuration"
+                      id="stageStart"
+                      name="stageStart"
                       label="4. Start Time"
                       suffix="days"
-                      min="0"
+                      min="1"
                       type="number"
-                      description="How many days after the previous stage should this stage start?"
+                      defaultValue={values.stageStart || 30}
+                      description="How many days after the last stage's start time should this stage start?"
                       width="w-32"
                     />
                     <NotesSection>
@@ -504,7 +535,8 @@ export function AddStageDialog({
                   </Button>
                 </DialogFooter>
               </Form>
-            )}
+            );
+          }}
           </Formik>
         </div>
       </DialogContent>

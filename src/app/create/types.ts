@@ -22,7 +22,7 @@ export type StageData = {
       address: string;
     }[];
   }[];
-  boostDuration: string;
+  stageStart: string;
 };
 
 export type RevnetFormData = {

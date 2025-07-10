@@ -23,7 +23,7 @@ export function DetailsPage({
   return (
     <>
       <h1 className="mb-16 text-2xl md:col-span-3 font-semibold">
-        Design and deploy a tokenized revnet for your project
+        Design and deploy a revnet for your project
       </h1>
       <div className="md:col-span-1">
         <h2 className="font-bold text-lg mb-2">1. Look</h2>
