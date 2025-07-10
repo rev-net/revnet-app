@@ -49,7 +49,12 @@ export default function Page() {
     for (const chainId of formData.chainIds) {
         const suckerDeployerConfig = parseSuckerDeployerConfig(
             chainId,
-            formData.chainIds
+            formData.chainIds,
+            {
+                // As all projects are deployed with CCIP suckers we can set this to be 0.
+                // This would not be a safe default for canonical suckers (non-ccip suckers).
+                minBridgeAmount: 0n,
+            }
         );
         const deployData = parseDeployData(formData, {
             metadataCid,
