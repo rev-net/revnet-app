@@ -1,6 +1,4 @@
 import {
-    useReadRevLoansTotalBorrowedFrom,
-    useReadRevLoansNumberOfLoansFor,
     useReadRevLoansBorrowableAmountFrom,
   } from "revnet-sdk";
   import { JB_CHAINS, JBChainId } from "juice-sdk-core";
@@ -8,26 +6,14 @@ import {
   import { LoansByAccountDocument } from "@/generated/graphql";
 
   export function LoanTableRow({
-    index,
     revnetId,
     chainId,
-    terminalAddress,
-    tokenAddress,
-    decimals,
-    currency,
     collateralCount,
-    tokenSymbol,
     address,
   }: {
-    index: number;
     revnetId: bigint;
     chainId: JBChainId;
-    terminalAddress: `0x${string}`;
-    tokenAddress: `0x${string}`;
-    decimals: number;
-    currency: bigint;
     collateralCount: bigint;
-    tokenSymbol: string;
     address: string;
   }) {
     const { data } = useBendystrawQuery(LoansByAccountDocument, {
@@ -37,7 +23,7 @@ import {
 
     const { data: borrowableAmount } = useReadRevLoansBorrowableAmountFrom({
       chainId,
-      args: [revnetId, collateralCount, BigInt(decimals), currency],
+      args: [revnetId, collateralCount, BigInt(18), 1n], // Using standard decimals and currency
     });
 
     function summarizeLoansByChain(

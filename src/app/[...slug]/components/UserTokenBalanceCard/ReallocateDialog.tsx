@@ -17,7 +17,6 @@ import { LoanFeeChart } from "../LoanFeeChart";
 import { ImportantInfo } from "./ImportantInfo";
 import { useBorrowDialog } from "./hooks/useBorrowDialog";
 import { useNativeTokenSymbol } from "@/hooks/useNativeTokenSymbol";
-import { useTokenA } from "@/hooks/useTokenA";
 import { SimulatedLoanCard } from "../SimulatedLoanCard";
 
 export function ReallocateDialog({
@@ -48,21 +47,16 @@ export function ReallocateDialog({
     showInfo,
     borrowStatus,
     collateralAmount,
-    selectedChainId,
     cashOutChainId,
     prepaidPercent,
     nativeToWallet,
     grossBorrowedNative,
     loading,
     projectTokenDecimals,
-    selectedBalance,
     totalFixedFees,
-    feeData,
     newLoanFeeData,
     displayYears,
     displayMonths,
-    estimatedBorrowFromInputOnly,
-    selectedLoanReallocAmount,
     newLoanBorrowableAmount,
     collateralHeadroom,
     handleOpenChange,
@@ -72,8 +66,6 @@ export function ReallocateDialog({
     setShowChart,
     setShowInfo,
     balances,
-    primaryNativeTerminal,
-    address,
   } = reallocateDialog;
 
   const nativeTokenSymbol = useNativeTokenSymbol();
