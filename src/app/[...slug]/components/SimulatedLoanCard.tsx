@@ -30,6 +30,12 @@ export function SimulatedLoanCard({
     const maxUnlockCost = feeData[feeData.length - 1]?.totalCost ?? 0;
     const protocolFees = amountBorrowed * (totalFixedFees / 1000);
     const protocolFeesPercentage = (totalFixedFees / 1000) * 100;
+    
+    // Don't render if we don't have valid data
+    if (!collateralAmount || Number(collateralAmount) === 0) {
+      return null;
+    }
+    
     return (
       <div className="mb-2 p-3 bg-zinc-50 rounded-md border border-zinc-200">
         <div className="space-y-1 text-sm text-zinc-600">

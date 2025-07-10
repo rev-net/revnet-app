@@ -251,14 +251,14 @@ export function ReallocateDialog({
           )}
 
           {/* New Loan Preview */}
-          {headroomCollateral > 0 && newLoanBorrowableAmount && (
+          {headroomCollateral > 0 && (
             <SimulatedLoanCard
               collateralAmount={newLoanCollateral.toFixed(8)}
               tokenSymbol={tokenSymbol}
-              amountBorrowed={Number(formatUnits(newLoanBorrowableAmount, NATIVE_TOKEN_DECIMALS))}
+              amountBorrowed={newLoanBorrowableAmount ? Number(formatUnits(newLoanBorrowableAmount, NATIVE_TOKEN_DECIMALS)) : 0}
               prepaidPercent={prepaidPercent}
-              grossBorrowedNative={Number(formatUnits(newLoanBorrowableAmount, NATIVE_TOKEN_DECIMALS)) + totalFixedFees}
-              feeData={newLoanFeeData}
+              grossBorrowedNative={newLoanBorrowableAmount ? Number(formatUnits(newLoanBorrowableAmount, NATIVE_TOKEN_DECIMALS)) + totalFixedFees : 0}
+              feeData={newLoanFeeData || []}
               totalFixedFees={totalFixedFees}
             />
           )}
