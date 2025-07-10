@@ -11,7 +11,6 @@ import { Button } from "@/components/ui/button";
 import { PlusIcon } from "@heroicons/react/24/solid";
 import { RevnetFormData } from "../types";
 import { AddStageDialog } from "./AddStageDialog";
-import { stageDuration } from "../helpers/stageDuration";
 import { formatTokenSymbol } from "@/lib/utils";
 import { commaNumber } from "@/lib/number";
 
@@ -83,25 +82,28 @@ export function Stages({
                         </Button>
                       </div>
                     </div>
-                    <div className="text-md text-zinc-500 flex gap-2 flex-wrap">
-                      <div>
-                        {stageDuration(values.stages, index)}
-                      </div>
-                      •
-                      <div>
-                        {stage.initialIssuance} {formatTokenSymbol(values.tokenSymbol) ?? "tokens"}{" "}
-                        / {nativeTokenSymbol}
-                        {", "}-{stage.priceCeilingIncreasePercentage || 0}%
-                        every {stage.priceCeilingIncreaseFrequency} days
-                      </div>
-                      •
-                      <div>
-                        {(Number(stage.priceFloorTaxIntensity) / 100 || 0)} cash
-                        out tax rate
-                      </div>
-                      <div>• {stage.splits.reduce((sum, split) => sum + (Number(split.percentage) || 0), 0)}% split limit</div>
-                      <div>• {commaNumber(stage.autoIssuance.reduce((sum, autoIssuance) => sum + (Number(autoIssuance.amount) || 0), 0))} {formatTokenSymbol(values.tokenSymbol) ?? "tokens"} auto issuance</div>
-                    </div>
+                    <dl className="text-md text-zinc-600 grid grid-cols-[max-content_1fr] gap-x-4 gap-y-1">
+                      <dt className="font-medium">Duration</dt>
+                      <dd>{stage.stageStart ? `${stage.stageStart} days` : 'Forever'}</dd>
+                      <dt className="font-medium">Issuance</dt>
+                      <dd>
+                        {stage.initialIssuance} {formatTokenSymbol(values.tokenSymbol) ?? "tokens"} / {nativeTokenSymbol}
+                        {(Number(stage.priceCeilingIncreasePercentage) > 0 && Number(stage.priceCeilingIncreaseFrequency) > 0) &&
+                          `, cut ${stage.priceCeilingIncreasePercentage}% every ${stage.priceCeilingIncreaseFrequency} days`
+                        }
+                      </dd>
+                      <dt className="font-medium">Cash out tax</dt>
+                      <dd>{(Number(stage.priceFloorTaxIntensity) / 100 || 0)}</dd>
+                      <dt className="font-medium">Splits</dt>
+                      <dd>{stage.splits.reduce((sum, split) => sum + (Number(split.percentage) || 0), 0) === 0
+                        ? 'none'
+                        : `${stage.splits.reduce((sum, split) => sum + (Number(split.percentage) || 0), 0)}% split limit`}</dd>
+                      <dt className="font-medium">Auto issuance</dt>
+                      <dd>{stage.autoIssuance.reduce((sum, autoIssuance) => sum + (Number(autoIssuance.amount) || 0), 0) === 0
+                        ? 'none'
+                        : `${commaNumber(stage.autoIssuance.reduce((sum, autoIssuance) => sum + (Number(autoIssuance.amount) || 0), 0))} ${formatTokenSymbol(values.tokenSymbol) ?? "tokens"} auto issuance`}
+                      </dd>
+                    </dl>
                   </div>
                 ))}
               </div>

@@ -11,7 +11,7 @@ export const defaultStageData: StageData = {
   autoIssuance: [],
 
   splits: [],
-  boostDuration: "",
+  stageStart: "30",
 };
 
 export const DEFAULT_FORM_DATA: RevnetFormData = {
@@ -78,7 +78,7 @@ export const TEST_FORM_DATA: RevnetFormData = {
           chainId: 11155420,
         },
       ],
-      boostDuration: "0",
+      stageStart: "0",
     },
     {
       initialIssuance: "50",
@@ -109,7 +109,7 @@ export const TEST_FORM_DATA: RevnetFormData = {
           chainId: 11155420,
         },
       ],
-      boostDuration: "60",
+      stageStart: "60",
     },
     {
       initialIssuance: "25",
@@ -150,7 +150,7 @@ export const TEST_FORM_DATA: RevnetFormData = {
           chainId: 11155420,
         },
       ],
-      boostDuration: "100",
+      stageStart: "100",
     },
   ],
   chainIds: [11155111, 11155420, 84532, 421614],
@@ -205,7 +205,7 @@ export const SHORTER_TEST_FORM_DATA: RevnetFormData = {
           defaultBeneficiary: "0xDf087B724174A3E4eD2338C0798193932E851F1b",
         },
       ],
-      boostDuration: "0",
+      stageStart: "0",
     }
   ],
   chainIds: [],
