@@ -117,15 +117,14 @@ export function useBorrowDialog({
   // ===== DERIVED VALUES (needed by callbacks) =====
   const projectTokenDecimals = token?.data?.decimals ?? JB_TOKEN_DECIMALS;
   
-  const userProjectTokenBalance = balances?.find(
-    (b) =>
-      BigInt(b.projectId) === projectId &&
-      b.chainId === Number(cashOutChainId)
-  )?.balance.value ?? 0n;
-  
   const selectedBalance = balances?.find(
     (b) => b.chainId === Number(cashOutChainId)
   );
+  
+  const userProjectTokenBalance = selectedBalance?.balance.value ?? 0n;
+  
+  // Dynamically determine the correct projectId based on the selected chain
+  const effectiveProjectId = selectedBalance?.projectId ? BigInt(selectedBalance.projectId) : projectId;
 
   // Calculate total fixed fees from contract values (in basis points)
   const totalFixedFees = (revDeployerFee ? Number(revDeployerFee) : 0) + 
@@ -152,7 +151,7 @@ export function useBorrowDialog({
     chainId: cashOutChainId ? Number(cashOutChainId) as JBChainId : undefined,
     args: cashOutChainId
       ? [
-          projectId,
+          effectiveProjectId,
           userProjectTokenBalance,
           BigInt(NATIVE_TOKEN_DECIMALS),
           BigInt(ETH_CURRENCY_ID),
@@ -164,7 +163,7 @@ export function useBorrowDialog({
     chainId: cashOutChainId ? Number(cashOutChainId) as JBChainId : undefined,
     args: collateralAmount
       ? [
-          projectId,
+          effectiveProjectId,
           parseUnits(collateralAmount, projectTokenDecimals),
           BigInt(NATIVE_TOKEN_DECIMALS),
           BigInt(ETH_CURRENCY_ID),
@@ -177,7 +176,7 @@ export function useBorrowDialog({
     chainId: cashOutChainId ? Number(cashOutChainId) as JBChainId : undefined,
     args: totalReallocationCollateral
       ? [
-          projectId,
+          effectiveProjectId,
           totalReallocationCollateral,
           BigInt(NATIVE_TOKEN_DECIMALS),
           BigInt(ETH_CURRENCY_ID),
@@ -189,7 +188,7 @@ export function useBorrowDialog({
     chainId: cashOutChainId ? Number(cashOutChainId) as JBChainId : undefined,
     args: internalSelectedLoan
       ? [
-          projectId,
+          effectiveProjectId,
           BigInt(internalSelectedLoan.collateral),
           BigInt(NATIVE_TOKEN_DECIMALS),
           BigInt(ETH_CURRENCY_ID),
@@ -205,7 +204,7 @@ export function useBorrowDialog({
     chainId: internalSelectedLoan?.chainId,
     args: internalSelectedLoan
       ? [
-          projectId,
+          effectiveProjectId,
           BigInt(internalSelectedLoan.collateral),
           BigInt(JB_TOKEN_DECIMALS), // TODO confirm this is correct
           BigInt(ETH_CURRENCY_ID),
@@ -220,7 +219,7 @@ export function useBorrowDialog({
     args:
       internalSelectedLoan && remainingCollateral !== undefined
         ? [
-            projectId,
+            effectiveProjectId,
             remainingCollateral,
             BigInt(NATIVE_TOKEN_DECIMALS),
             BigInt(ETH_CURRENCY_ID),
@@ -260,7 +259,7 @@ export function useBorrowDialog({
   // Permission hook
   const userHasPermission = useHasBorrowPermission({
     address: address as `0x${string}`,
-    projectId,
+    projectId: effectiveProjectId,
     chainId: cashOutChainId ? Number(cashOutChainId) : undefined,
     resolvedPermissionsAddress: resolvedPermissionsAddress as `0x${string}`,
     skip: false,
@@ -291,7 +290,7 @@ export function useBorrowDialog({
     chainId: cashOutChainId ? Number(cashOutChainId) as JBChainId : undefined,
     args: newLoanCollateral > 0n
       ? [
-          projectId,
+          effectiveProjectId,
           newLoanCollateral,
           BigInt(NATIVE_TOKEN_DECIMALS),
           BigInt(ETH_CURRENCY_ID),
@@ -341,18 +340,31 @@ export function useBorrowDialog({
     if (open) {
       setSelectedTab(defaultTab ?? "borrow");
     } else {
+      // Clear all form state
       setCollateralAmount("");
       setPrepaidPercent("2.5");
       setNativeToWallet(0);
+      setGrossBorrowedNative(0);
+      
+      // Clear all status states
       setBorrowStatus("idle");
-      setCashOutChainId(undefined);
+      setRepayStatus("idle");
       setRepayAmount("");
       setCollateralToReturn("");
+      setRepayTxHash(undefined);
+      
+      // Clear chain selection and loan data
+      setCashOutChainId(undefined);
+      setSelectedChainId(undefined);
       setInternalSelectedLoan(null);
+      
+      // Clear UI state
+      setShowChart(false);
+      setShowInfo(false);
+      setShowOtherCollateral(false);
       setShowLoanDetailsTable(true);
       setShowRefinanceLoanDetailsTable(true);
-      setShowOtherCollateral(false);
-      setSelectedChainId(undefined);
+      setShowingWaitingMessage(false);
     }
   }, [defaultTab]);
 
@@ -366,7 +378,6 @@ export function useBorrowDialog({
   }, [balances, projectTokenDecimals]);
 
   const handleLoanSelection = useCallback((loanId: string, loanData: any) => {
-    console.log("Loan selection data:", loanData);
     setInternalSelectedLoan(loanData);
     // Set the cashOutChainId based on the loan's chain
     if (loanData?.chainId) {
@@ -439,17 +450,6 @@ export function useBorrowDialog({
       try {
         setBorrowStatus("waiting-signature");
 
-        console.log("Reallocation transaction args:", {
-          chainId: Number(cashOutChainId) as JBChainId,
-          loanId: internalSelectedLoan.id,
-          collateralCountToTransfer: collateralCountToTransfer.toString(),
-          terminal: primaryNativeTerminal.data as `0x${string}`,
-          minBorrowAmount: minBorrowAmount.toString(),
-          collateralCountToAdd: collateralCountToAdd.toString(),
-          address: address as `0x${string}`,
-          feePercent: feePercent.toString(),
-        });
-
         await reallocateCollateralAsync({
           chainId: Number(cashOutChainId) as JBChainId,
           args: [
@@ -504,7 +504,7 @@ export function useBorrowDialog({
                 address as `0x${string}`,
                 {
                   operator: revLoansAddress[Number(cashOutChainId) as JBChainId],
-                  projectId,
+                  projectId: effectiveProjectId,
                   permissionIds: [1],
                 },
               ],
@@ -526,7 +526,7 @@ export function useBorrowDialog({
 
         const collateralBigInt = toWei(collateralAmount);
         const args = [
-          projectId,
+          effectiveProjectId,
           {
             token: "0x000000000000000000000000000000000000EEEe",
             terminal: primaryNativeTerminal.data as `0x${string}`,
@@ -586,7 +586,7 @@ export function useBorrowDialog({
     borrowableAmountRaw,
     resolvedPermissionsAddress,
     writeContract,
-    projectId,
+    effectiveProjectId,
   ]);
 
   // ===== EFFECTS =====
@@ -608,24 +608,8 @@ export function useBorrowDialog({
     }
   }, [selectedLoan]);
 
-  // Check if selected chain has no borrowable amount and auto-select another chain
-  // Only run this effect if we don't have a selectedLoan (for new loans, not reallocation)
-  useEffect(() => {
-    if (!selectedLoan && selectedChainId && balances && borrowableAmountRaw !== undefined && balances.length > 0) {
-      if (borrowableAmountRaw === 0n) {
-        const alternativeChain = balances.find(b => 
-          b.chainId !== selectedChainId && 
-          b.balance.value > 0n
-        );
-        if (alternativeChain) {
-          const collateral = Number(formatUnits(alternativeChain.balance.value, projectTokenDecimals));
-          setSelectedChainId(alternativeChain.chainId);
-          setCashOutChainId(alternativeChain.chainId.toString());
-          setCollateralAmount(collateral.toFixed(6));
-        }
-      }
-    }
-  }, [selectedLoan, selectedChainId, balances, borrowableAmountRaw, projectTokenDecimals]);
+  // Don't auto-select any chain - let user choose manually
+  // This prevents pre-selection issues and ensures user has full control
 
   // Handle reallocation pending status
   useEffect(() => {
@@ -765,6 +749,7 @@ export function useBorrowDialog({
     isEstimatingRepayment,
     estimatedNewBorrowableAmount,
     newLoanBorrowableAmount,
+    borrowableAmountRaw,
 
     // Actions
     handleOpenChange,

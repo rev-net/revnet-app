@@ -15,14 +15,22 @@ import {
 import { ButtonWithWallet } from "@/components/ButtonWithWallet";
 import { SimulatedLoanCard } from "../SimulatedLoanCard";
 import { LoanFeeChart } from "../LoanFeeChart";
-import { TokenBalanceTable } from "../TokenBalanceTable";
-import { LoanDetailsTable } from "../LoansDetailsTable";
 import { ImportantInfo } from "./ImportantInfo";
 import { useBorrowDialog } from "./hooks/useBorrowDialog";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect, useCallback } from "react";
 import { useAccount } from "wagmi";
 import { useSuckersUserTokenBalance, useJBTokenContext, useJBContractContext } from "juice-sdk-react";
+import { ChainLogo } from "@/components/ChainLogo";
+import { JB_CHAINS } from "juice-sdk-core";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export function BorrowDialog({
   projectId,
@@ -37,7 +45,7 @@ export function BorrowDialog({
   defaultTab?: "borrow" | "repay";
 }>) {
   const borrowDialog = useBorrowDialog({
-          projectId,
+    projectId,
     tokenSymbol,
     selectedLoan,
     defaultTab,
@@ -70,7 +78,7 @@ export function BorrowDialog({
     selectedBalance,
     totalFixedFees,
     totalReallocationCollateral,
-            remainingCollateral,
+    remainingCollateral,
     netAvailableToBorrow,
     isOvercollateralized,
     extraCollateralBuffer,
@@ -85,6 +93,7 @@ export function BorrowDialog({
     estimatedRepayAmountForCollateral,
     isEstimatingRepayment,
     estimatedNewBorrowableAmount,
+    borrowableAmountRaw,
     handleOpenChange,
     handleChainSelection,
     handleLoanSelection,
@@ -103,6 +112,25 @@ export function BorrowDialog({
     setCashOutChainId,
   } = borrowDialog;
 
+  // Handle chain selection - exactly like RedeemDialog
+  const handleChainSelect = useCallback((chainId: string) => {
+    const selected = balances?.find((b: any) => b.chainId === Number(chainId));
+    if (selected) {
+      const collateral = formatUnits(selected.balance.value, projectTokenDecimals);
+      setSelectedChainId(Number(chainId));
+      setCashOutChainId(chainId);
+      setCollateralAmount(collateral);
+      setInternalSelectedLoan(null);
+    }
+  }, [balances, projectTokenDecimals, setSelectedChainId, setCashOutChainId, setCollateralAmount, setInternalSelectedLoan]);
+
+  // Restore chain selection if it gets reset while dialog is open
+  useEffect(() => {
+    if (isDialogOpen && !cashOutChainId && selectedChainId && balances) {
+      setCashOutChainId(selectedChainId.toString());
+    }
+  }, [isDialogOpen, cashOutChainId, selectedChainId, balances, setCashOutChainId]);
+
   return (
     <Dialog open={isDialogOpen} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>{children}</DialogTrigger>
@@ -118,88 +146,124 @@ export function BorrowDialog({
         {/* Main dialog content (inputs, preview, chart, actions) */}
         {selectedTab === "borrow" && (
           <div>
-            {/* Network selector and collateral input, new layout */}
-            <div className="grid w-full gap-1.5">
-              <TokenBalanceTable
-                balances={balances}
-                projectId={projectId}
-                tokenSymbol={tokenSymbol}
-                terminalAddress={primaryNativeTerminal.data as `0x${string}`}
-                address={address as `0x${string}`}
-                columns={["chain", "holding", "borrowable"]}
-                selectedChainId={selectedChainId ?? undefined}
-                onCheckRow={(chainId, checked) => {
-                  if (checked) {
-                    const selected = balances?.find((b: any) => b.chainId === chainId);
-                    const collateral = selected ? formatUnits(selected.balance.value, projectTokenDecimals) : "0";
-                    setSelectedChainId(chainId);
-                    setCashOutChainId(chainId.toString());
-                    setCollateralAmount(collateral);
-                    setInternalSelectedLoan(null);
-                  }
-                }}
-                onAutoselectRow={(chainId) => {
-                  const selected = balances?.find((b: any) => b.chainId === chainId);
-                  const collateral = selected ? formatUnits(selected.balance.value, projectTokenDecimals) : "0";
-                  setSelectedChainId(chainId);
-                  setCashOutChainId(chainId.toString());
-                  setCollateralAmount(collateral);
-                  setInternalSelectedLoan(null);
-                }}
-              />
-              <div className="grid grid-cols-7 gap-2">
-                <div className="col-span-4">
-                  <Label htmlFor="collateral-amount" className="block text-gray-700 text-sm font-bold">
-                    How much {tokenSymbol} do you want to collateralize?
-                  </Label>
-                </div>
+            {/* Holdings Overview Section - Static like RedeemDialog */}
+            <div className="mb-5 w-[65%]">
+              <span className="text-sm text-black font-medium">
+                Your {tokenSymbol}
+              </span>
+              <div className="mt-1 border border-zinc-200 p-3 bg-zinc-50">
+                {balances?.map((balance, index) => (
+                  <div key={index} className="flex justify-between gap-2">
+                    {JB_CHAINS[balance.chainId as JBChainId].name}
+                    <span className="font-medium">
+                      {balance.balance?.format()} {tokenSymbol}
+                    </span>
+                  </div>
+                ))}
               </div>
+              {/* Debug info */}
+              {/* Debug: selectedChainId, cashOutChainId, userProjectTokenBalance, borrowableAmountRaw, estimatedBorrowFromInputOnly - removed for production */}
+            </div>
+
+            {/* Collateral Input Section - Like RedeemDialog */}
+            <div className="grid w-full gap-1.5">
+              <Label htmlFor="collateral-amount" className="text-zinc-900">
+                How much {tokenSymbol} do you want to collateralize?
+              </Label>
               <div className="grid grid-cols-7 gap-2">
                 <div className="col-span-4">
-                  <Input
-                    id="collateral-amount"
-                    type="number"
-                    step="0.0001"
-                    max={selectedBalance ? Number(formatUnits(selectedBalance.balance.value, projectTokenDecimals)) : undefined}
-                    value={collateralAmount}
-                    onChange={(e) => {
-                      const value = e.target.value;
-                      
-                      // Allow empty input for clearing
-                      if (value === "") {
-                        setCollateralAmount("");
-                        return;
-                      }
-                      
-                      // Limit decimal places to 8 digits
-                      const decimalIndex = value.indexOf('.');
-                      if (decimalIndex !== -1 && value.length - decimalIndex - 1 > 8) {
-                        return; // Don't update if too many decimal places
-                      }
-                      
-                      const numValue = Number(value);
-                      const maxValue = selectedBalance ? Number(formatUnits(selectedBalance.balance.value, projectTokenDecimals)) : 0;
-                      
-                      // Only validate max if it's a valid number
-                      if (!isNaN(numValue)) {
-                        // Prevent entering more than available balance
-                        if (numValue > maxValue) {
-                          setCollateralAmount(maxValue.toFixed(6));
+                  <div className="relative">
+                    <Input
+                      id="collateral-amount"
+                      name="collateral-amount"
+                      type="number"
+                      step="0.0001"
+                      max={selectedBalance ? Number(formatUnits(selectedBalance.balance.value, projectTokenDecimals)) : undefined}
+                      value={collateralAmount}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        
+                        // Allow empty input for clearing
+                        if (value === "") {
+                          setCollateralAmount("");
+                          return;
+                        }
+                        
+                        // Limit decimal places to 8 digits
+                        const decimalIndex = value.indexOf('.');
+                        if (decimalIndex !== -1 && value.length - decimalIndex - 1 > 8) {
+                          return; // Don't update if too many decimal places
+                        }
+                        
+                        const numValue = Number(value);
+                        const maxValue = selectedBalance ? Number(formatUnits(selectedBalance.balance.value, projectTokenDecimals)) : 0;
+                        
+                        // Only validate max if it's a valid number
+                        if (!isNaN(numValue)) {
+                          // Prevent entering more than available balance
+                          if (numValue > maxValue) {
+                            setCollateralAmount(maxValue.toFixed(6));
+                          } else {
+                            setCollateralAmount(value);
+                          }
                         } else {
+                          // Allow partial input (like just a decimal point)
                           setCollateralAmount(value);
                         }
-                      } else {
-                        // Allow partial input (like just a decimal point)
-                        setCollateralAmount(value);
+                      }}
+                      placeholder={
+                        cashOutChainId && selectedBalance
+                          ? Number(formatUnits(selectedBalance.balance.value, projectTokenDecimals)).toFixed(8)
+                          : "Enter amount"
                       }
-                    }}
-                    placeholder={
-                      cashOutChainId && selectedBalance
-                        ? Number(formatUnits(selectedBalance.balance.value, projectTokenDecimals)).toFixed(8)
-                        : "Enter amount"
-                    }
-                    className="mt-2"
-                  />
+                      className="mt-2"
+                    />
+                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 z-10">
+                      <span className="text-zinc-500 sm:text-md">
+                        {tokenSymbol}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <div className="col-span-3">
+                  <Select 
+                    onValueChange={handleChainSelect} 
+                    value={cashOutChainId || ""}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select chain">
+                        {cashOutChainId && (
+                          <div className="flex items-center gap-2">
+                            <ChainLogo chainId={Number(cashOutChainId) as JBChainId} />
+                            <span>{JB_CHAINS[Number(cashOutChainId) as JBChainId].name}</span>
+                          </div>
+                        )}
+                      </SelectValue>
+                    </SelectTrigger>
+                    <SelectContent>
+                      {balances
+                        ?.filter((b) => b.balance.value > 0n)
+                        .map((balance) => {
+                          return (
+                            <SelectItem
+                              value={balance.chainId.toString()}
+                              key={balance.chainId}
+                            >
+                              <div className="flex items-center gap-2">
+                                <ChainLogo
+                                  chainId={balance.chainId as JBChainId}
+                                />
+                                {
+                                  JB_CHAINS[balance.chainId as JBChainId]
+                                    .name
+                                }
+                              </div>
+                            </SelectItem>
+                          );
+                        })}
+                    </SelectContent>
+                  </Select>
+                  {/* Debug: Show current Select value - removed for production */}
                 </div>
               </div>
               <div className="grid grid-cols-7 gap-2">
@@ -326,9 +390,11 @@ export function BorrowDialog({
               </div>
               {/* Single borrow button for both reallocation and standard borrowing */}
               <ButtonWithWallet
-                targetChainId={cashOutChainId ? Number(cashOutChainId) as JBChainId : undefined}
+                targetChainId={Number(cashOutChainId) as JBChainId}
                 loading={loading}
-                onClick={handleBorrow}
+                onClick={() => {
+                  handleBorrow();
+                }}
               >
                 {internalSelectedLoan && collateralAmount && !isNaN(Number(collateralAmount))
                   ? "Adjust loan"
@@ -337,8 +403,7 @@ export function BorrowDialog({
             </DialogFooter>
           </div>
         )}
-     </DialogContent>
-    </Dialog>
-  );
-}
-
+       </DialogContent>
+      </Dialog>
+    );
+  }
