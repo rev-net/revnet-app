@@ -9,6 +9,7 @@ query LoansByAccount($owner: String!) {
       token
       chainId
       createdAt
+      id
     }
   }
 }
