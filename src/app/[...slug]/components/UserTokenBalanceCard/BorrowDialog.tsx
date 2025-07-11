@@ -156,7 +156,7 @@ export function BorrowDialog({
                   <div key={index} className="flex justify-between gap-2">
                     {JB_CHAINS[balance.chainId as JBChainId].name}
                     <span className="font-medium">
-                      {balance.balance?.format()} {tokenSymbol}
+                      {balance.balance?.format(8)} {tokenSymbol}
                     </span>
                   </div>
                 ))}
@@ -289,7 +289,7 @@ export function BorrowDialog({
                       onClick={() => {
                         if (selectedBalance) {
                           const maxValue = Number(formatUnits(selectedBalance.balance.value, projectTokenDecimals));
-                          setCollateralAmount(maxValue.toFixed(6));
+                          setCollateralAmount(maxValue.toFixed(8));
                         }
                       }}
                       className="h-10 px-3 text-sm text-zinc-700 border border-zinc-300 rounded-md bg-white hover:bg-zinc-100"
