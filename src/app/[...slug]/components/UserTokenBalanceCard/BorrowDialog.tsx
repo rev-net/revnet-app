@@ -334,7 +334,7 @@ export function BorrowDialog({
               onClick={() => setShowChart(!showChart)}
               className="flex items-center gap-2 text-left block text-gray-700 text-sm font-bold  mt-6"
             >
-              <span>Fee Structure</span>
+              <span>Variable Fee Structure</span>
               <span
                 className={`transform transition-transform ${showChart ? "rotate-90" : "rotate-0"}`}
               >
