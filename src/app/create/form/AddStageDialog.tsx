@@ -83,6 +83,11 @@ export function AddStageDialog({
   const [open, setOpen] = useState(false);
   const nativeTokenSymbol = useNativeTokenSymbol();
 
+  // Move enableCut state to top level
+  const [enableCut, setEnableCut] = useState(
+    Boolean(initialValues && (Number(initialValues.priceCeilingIncreasePercentage) !== 0 || Number(initialValues.priceCeilingIncreaseFrequency) !== 0))
+  );
+
   const revnetTokenSymbol =
     formikValues.tokenSymbol?.length > 0
       ? `$${formikValues.tokenSymbol}`
@@ -115,9 +120,6 @@ export function AddStageDialog({
           >
             {({ values }) => {
               // Checkbox state: enabled if either field is not 0
-              const [enableCut, setEnableCut] = useState(
-                Boolean(initialValues && (Number(initialValues.priceCeilingIncreasePercentage) !== 0 || Number(initialValues.priceCeilingIncreaseFrequency) !== 0))
-              );
               // Handler for checkbox toggle
               const handleCutToggle = (e: React.ChangeEvent<HTMLInputElement>) => {
                 const checked = e.target.checked;

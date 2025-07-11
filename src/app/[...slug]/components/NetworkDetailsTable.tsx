@@ -285,7 +285,7 @@ export function NetworkDetailsTable() {
                   </Tooltip>
                 </dt>
                 <dd className="text-md leading-6 text-zinc-700 whitespace-nowrap">
-                  {issuance}, cut {selectedStage.weightCutPercent.formatPercentage()}% every{" "}
+                  {issuance} cut {selectedStage.weightCutPercent.formatPercentage()}% every{" "}
                   {(selectedStage.duration / 86400).toString()} days
                   {selectedStageBoost ? (
                     <span className="text-md leading-6 text-zinc-700">
