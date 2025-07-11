@@ -63,7 +63,7 @@ export function SimulatedLoanCard({
                   {amountBorrowed.toFixed(8)} {nativeTokenSymbol}
                 </span> borrowing</p>
                 <p><span className="font-semibold">
-                  {formatUnits(parseUnits(amountToWallet.toString(), NATIVE_TOKEN_DECIMALS), NATIVE_TOKEN_DECIMALS, { fractionDigits: 8 })} {nativeTokenSymbol}
+                  {amountToWallet.toFixed(8)} {nativeTokenSymbol}
                 </span> to beneficiary after fees</p>
               </div>
             </div>
