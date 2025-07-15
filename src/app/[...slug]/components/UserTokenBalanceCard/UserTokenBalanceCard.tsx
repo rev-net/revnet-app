@@ -11,6 +11,7 @@ import {
 } from "juice-sdk-react";
 import { RedeemDialog } from "./RedeemDialog";
 import { BorrowDialog } from "./BorrowDialog";
+import { ReallocateDialog } from "./ReallocateDialog";
 import { RepayDialog } from "./RepayDialog";
 import { LoanDetailsTable } from "../LoansDetailsTable";
 import { useAccount } from "wagmi";
@@ -35,6 +36,8 @@ export function UserTokenBalanceCard() {
   const [selectedChainId, setSelectedChainId] = useState<number | null>(null);
   const [showRepayDialog, setShowRepayDialog] = useState(false);
   const borrowDialogTriggerRef = useRef<HTMLButtonElement | null>(null);
+  const [reallocateLoan, setReallocateLoan] = useState<any>(null);
+  const [showReallocateDialog, setShowReallocateDialog] = useState(false);
 
   return (
     <>
@@ -67,13 +70,10 @@ export function UserTokenBalanceCard() {
         ) : null}
         {selectedLoanId && selectedChainId && (
           <RepayDialog
-            projectId={projectId}
-            tokenSymbol={tokenSymbol}
-            address={address || ""}
-            open={showRepayDialog}
-            onOpenChange={setShowRepayDialog}
             loanId={selectedLoanId}
             chainId={selectedChainId}
+            open={showRepayDialog}
+            onOpenChange={setShowRepayDialog}
           />
         )}
       </div>
@@ -90,9 +90,31 @@ export function UserTokenBalanceCard() {
             setSelectedChainId(chainId);
             setShowRepayDialog(true);
           }}
+          onReallocateLoan={(loan) => {
+            setReallocateLoan(loan);
+            setShowReallocateDialog(true);
+          }}
         />
       </>
     ) : null}
+
+      {/* Reallocate Dialog - Only render when we have a loan */}
+      {reallocateLoan && (
+        <ReallocateDialog
+          projectId={BigInt(projectId)}
+          tokenSymbol={tokenSymbol}
+          selectedLoan={reallocateLoan}
+          open={showReallocateDialog}
+          onOpenChange={(open) => {
+            setShowReallocateDialog(open);
+            if (!open) {
+              setReallocateLoan(null);
+            }
+          }}
+        >
+          <div style={{ display: 'none' }} />
+        </ReallocateDialog>
+      )}
     </>
   );
 }

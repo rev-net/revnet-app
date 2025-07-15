@@ -32,6 +32,8 @@ export type PageInfo = {
 
 export type Query = {
   _meta: Maybe<Meta>;
+  _sucker: Maybe<_Sucker>;
+  _suckers: _SuckerPage;
   activityEvent: Maybe<ActivityEvent>;
   activityEvents: ActivityEventPage;
   addToBalanceEvent: Maybe<AddToBalanceEvent>;
@@ -88,20 +90,33 @@ export type Query = {
   sendReservedTokensToSplitEvents: SendReservedTokensToSplitEventPage;
   sendReservedTokensToSplitsEvent: Maybe<SendReservedTokensToSplitsEvent>;
   sendReservedTokensToSplitsEvents: SendReservedTokensToSplitsEventPage;
-  stats: Maybe<Stats>;
-  statss: StatsPage;
   storeAutoIssuanceAmountEvent: Maybe<StoreAutoIssuanceAmountEvent>;
   storeAutoIssuanceAmountEvents: StoreAutoIssuanceAmountEventPage;
-  sucker: Maybe<Sucker>;
   suckerGroup: Maybe<SuckerGroup>;
   suckerGroupMoment: Maybe<SuckerGroupMoment>;
   suckerGroupMoments: SuckerGroupMomentPage;
   suckerGroups: SuckerGroupPage;
-  suckers: SuckerPage;
   useAllowanceEvent: Maybe<UseAllowanceEvent>;
   useAllowanceEvents: UseAllowanceEventPage;
   wallet: Maybe<Wallet>;
   wallets: WalletPage;
+};
+
+
+export type Query_SuckerArgs = {
+  address: Scalars['String']['input'];
+  chainId: Scalars['Float']['input'];
+  projectId: Scalars['Float']['input'];
+};
+
+
+export type Query_SuckersArgs = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<Scalars['String']['input']>;
+  orderDirection?: InputMaybe<Scalars['String']['input']>;
+  where?: InputMaybe<_SuckerFilter>;
 };
 
 
@@ -541,21 +556,6 @@ export type QuerySendReservedTokensToSplitsEventsArgs = {
 };
 
 
-export type QueryStatsArgs = {
-  chainId: Scalars['Int']['input'];
-};
-
-
-export type QueryStatssArgs = {
-  after?: InputMaybe<Scalars['String']['input']>;
-  before?: InputMaybe<Scalars['String']['input']>;
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  orderBy?: InputMaybe<Scalars['String']['input']>;
-  orderDirection?: InputMaybe<Scalars['String']['input']>;
-  where?: InputMaybe<StatsFilter>;
-};
-
-
 export type QueryStoreAutoIssuanceAmountEventArgs = {
   id: Scalars['String']['input'];
 };
@@ -568,13 +568,6 @@ export type QueryStoreAutoIssuanceAmountEventsArgs = {
   orderBy?: InputMaybe<Scalars['String']['input']>;
   orderDirection?: InputMaybe<Scalars['String']['input']>;
   where?: InputMaybe<StoreAutoIssuanceAmountEventFilter>;
-};
-
-
-export type QuerySuckerArgs = {
-  address: Scalars['String']['input'];
-  chainId: Scalars['Float']['input'];
-  projectId: Scalars['Float']['input'];
 };
 
 
@@ -609,16 +602,6 @@ export type QuerySuckerGroupsArgs = {
 };
 
 
-export type QuerySuckersArgs = {
-  after?: InputMaybe<Scalars['String']['input']>;
-  before?: InputMaybe<Scalars['String']['input']>;
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  orderBy?: InputMaybe<Scalars['String']['input']>;
-  orderDirection?: InputMaybe<Scalars['String']['input']>;
-  where?: InputMaybe<SuckerFilter>;
-};
-
-
 export type QueryUseAllowanceEventArgs = {
   id: Scalars['String']['input'];
 };
@@ -648,6 +631,50 @@ export type QueryWalletsArgs = {
   where?: InputMaybe<WalletFilter>;
 };
 
+export type _Sucker = {
+  address: Scalars['String']['output'];
+  chainId: Scalars['Int']['output'];
+  project: Maybe<Project>;
+  projectId: Scalars['Int']['output'];
+};
+
+export type _SuckerFilter = {
+  AND?: InputMaybe<Array<InputMaybe<_SuckerFilter>>>;
+  OR?: InputMaybe<Array<InputMaybe<_SuckerFilter>>>;
+  address?: InputMaybe<Scalars['String']['input']>;
+  address_contains?: InputMaybe<Scalars['String']['input']>;
+  address_ends_with?: InputMaybe<Scalars['String']['input']>;
+  address_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  address_not?: InputMaybe<Scalars['String']['input']>;
+  address_not_contains?: InputMaybe<Scalars['String']['input']>;
+  address_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  address_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  address_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  address_starts_with?: InputMaybe<Scalars['String']['input']>;
+  chainId?: InputMaybe<Scalars['Int']['input']>;
+  chainId_gt?: InputMaybe<Scalars['Int']['input']>;
+  chainId_gte?: InputMaybe<Scalars['Int']['input']>;
+  chainId_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  chainId_lt?: InputMaybe<Scalars['Int']['input']>;
+  chainId_lte?: InputMaybe<Scalars['Int']['input']>;
+  chainId_not?: InputMaybe<Scalars['Int']['input']>;
+  chainId_not_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  projectId?: InputMaybe<Scalars['Int']['input']>;
+  projectId_gt?: InputMaybe<Scalars['Int']['input']>;
+  projectId_gte?: InputMaybe<Scalars['Int']['input']>;
+  projectId_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  projectId_lt?: InputMaybe<Scalars['Int']['input']>;
+  projectId_lte?: InputMaybe<Scalars['Int']['input']>;
+  projectId_not?: InputMaybe<Scalars['Int']['input']>;
+  projectId_not_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+};
+
+export type _SuckerPage = {
+  items: Array<_Sucker>;
+  pageInfo: PageInfo;
+  totalCount: Scalars['Int']['output'];
+};
+
 export type ActivityEvent = {
   addToBalanceEvent: Maybe<AddToBalanceEvent>;
   autoIssueEvent: Maybe<AutoIssueEvent>;
@@ -675,6 +702,7 @@ export type ActivityEvent = {
   suckerGroupId: Scalars['String']['output'];
   timestamp: Scalars['Int']['output'];
   txHash: Scalars['String']['output'];
+  type: Maybe<ActivityEventType>;
   useAllowanceEvent: Maybe<UseAllowanceEvent>;
 };
 
@@ -925,6 +953,10 @@ export type ActivityEventFilter = {
   txHash_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   txHash_not_starts_with?: InputMaybe<Scalars['String']['input']>;
   txHash_starts_with?: InputMaybe<Scalars['String']['input']>;
+  type?: InputMaybe<ActivityEventType>;
+  type_in?: InputMaybe<Array<InputMaybe<ActivityEventType>>>;
+  type_not?: InputMaybe<ActivityEventType>;
+  type_not_in?: InputMaybe<Array<InputMaybe<ActivityEventType>>>;
   useAllowanceEvent?: InputMaybe<Scalars['String']['input']>;
   useAllowanceEvent_contains?: InputMaybe<Scalars['String']['input']>;
   useAllowanceEvent_ends_with?: InputMaybe<Scalars['String']['input']>;
@@ -942,6 +974,28 @@ export type ActivityEventPage = {
   pageInfo: PageInfo;
   totalCount: Scalars['Int']['output'];
 };
+
+export enum ActivityEventType {
+  addToBalanceEvent = 'addToBalanceEvent',
+  autoIssueEvent = 'autoIssueEvent',
+  borrowLoanEvent = 'borrowLoanEvent',
+  burnEvent = 'burnEvent',
+  cashOutTokensEvent = 'cashOutTokensEvent',
+  decorateBannyEvent = 'decorateBannyEvent',
+  deployErc20Event = 'deployErc20Event',
+  liquidateLoanEvent = 'liquidateLoanEvent',
+  mintNftEvent = 'mintNftEvent',
+  mintTokensEvent = 'mintTokensEvent',
+  payEvent = 'payEvent',
+  projectCreateEvent = 'projectCreateEvent',
+  reallocateLoanEvent = 'reallocateLoanEvent',
+  repayLoanEvent = 'repayLoanEvent',
+  sendPayoutToSplitEvent = 'sendPayoutToSplitEvent',
+  sendPayoutsEvent = 'sendPayoutsEvent',
+  sendReservedTokensToSplitEvent = 'sendReservedTokensToSplitEvent',
+  sendReservedTokensToSplitsEvent = 'sendReservedTokensToSplitsEvent',
+  useAllowanceEvent = 'useAllowanceEvent'
+}
 
 export type AddToBalanceEvent = {
   amount: Scalars['BigInt']['output'];
@@ -2971,6 +3025,7 @@ export type Participant = {
   createdAt: Scalars['Int']['output'];
   creditBalance: Scalars['BigInt']['output'];
   erc20Balance: Scalars['BigInt']['output'];
+  isRevnet: Maybe<Scalars['Boolean']['output']>;
   lastPaidTimestamp: Scalars['Int']['output'];
   nfts: Maybe<NftPage>;
   paymentsCount: Scalars['Int']['output'];
@@ -3046,6 +3101,10 @@ export type ParticipantFilter = {
   erc20Balance_lte?: InputMaybe<Scalars['BigInt']['input']>;
   erc20Balance_not?: InputMaybe<Scalars['BigInt']['input']>;
   erc20Balance_not_in?: InputMaybe<Array<InputMaybe<Scalars['BigInt']['input']>>>;
+  isRevnet?: InputMaybe<Scalars['Boolean']['input']>;
+  isRevnet_in?: InputMaybe<Array<InputMaybe<Scalars['Boolean']['input']>>>;
+  isRevnet_not?: InputMaybe<Scalars['Boolean']['input']>;
+  isRevnet_not_in?: InputMaybe<Array<InputMaybe<Scalars['Boolean']['input']>>>;
   lastPaidTimestamp?: InputMaybe<Scalars['Int']['input']>;
   lastPaidTimestamp_gt?: InputMaybe<Scalars['Int']['input']>;
   lastPaidTimestamp_gte?: InputMaybe<Scalars['Int']['input']>;
@@ -3401,7 +3460,6 @@ export type PermissionHolder = {
   permissions: Maybe<Array<Scalars['Int']['output']>>;
   project: Maybe<Project>;
   projectId: Scalars['Int']['output'];
-  suckerGroupId: Scalars['String']['output'];
 };
 
 export type PermissionHolderFilter = {
@@ -3447,16 +3505,6 @@ export type PermissionHolderFilter = {
   projectId_lte?: InputMaybe<Scalars['Int']['input']>;
   projectId_not?: InputMaybe<Scalars['Int']['input']>;
   projectId_not_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
-  suckerGroupId?: InputMaybe<Scalars['String']['input']>;
-  suckerGroupId_contains?: InputMaybe<Scalars['String']['input']>;
-  suckerGroupId_ends_with?: InputMaybe<Scalars['String']['input']>;
-  suckerGroupId_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-  suckerGroupId_not?: InputMaybe<Scalars['String']['input']>;
-  suckerGroupId_not_contains?: InputMaybe<Scalars['String']['input']>;
-  suckerGroupId_not_ends_with?: InputMaybe<Scalars['String']['input']>;
-  suckerGroupId_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-  suckerGroupId_not_starts_with?: InputMaybe<Scalars['String']['input']>;
-  suckerGroupId_starts_with?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type PermissionHolderPage = {
@@ -3484,6 +3532,7 @@ export type Project = {
   handle: Maybe<Scalars['String']['output']>;
   id: Scalars['String']['output'];
   infoUri: Maybe<Scalars['String']['output']>;
+  isRevnet: Maybe<Scalars['Boolean']['output']>;
   logoUri: Maybe<Scalars['String']['output']>;
   metadata: Maybe<Scalars['JSON']['output']>;
   metadataUri: Maybe<Scalars['String']['output']>;
@@ -3930,6 +3979,10 @@ export type ProjectFilter = {
   infoUri_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   infoUri_not_starts_with?: InputMaybe<Scalars['String']['input']>;
   infoUri_starts_with?: InputMaybe<Scalars['String']['input']>;
+  isRevnet?: InputMaybe<Scalars['Boolean']['input']>;
+  isRevnet_in?: InputMaybe<Array<InputMaybe<Scalars['Boolean']['input']>>>;
+  isRevnet_not?: InputMaybe<Scalars['Boolean']['input']>;
+  isRevnet_not_in?: InputMaybe<Array<InputMaybe<Scalars['Boolean']['input']>>>;
   logoUri?: InputMaybe<Scalars['String']['input']>;
   logoUri_contains?: InputMaybe<Scalars['String']['input']>;
   logoUri_ends_with?: InputMaybe<Scalars['String']['input']>;
@@ -4512,7 +4565,7 @@ export type SendPayoutToSplitEvent = {
   group: Scalars['BigInt']['output'];
   hook: Scalars['String']['output'];
   id: Scalars['String']['output'];
-  lockedUntil: Scalars['Int']['output'];
+  lockedUntil: Scalars['BigInt']['output'];
   logIndex: Scalars['Int']['output'];
   netAmount: Scalars['BigInt']['output'];
   percent: Scalars['Int']['output'];
@@ -4611,14 +4664,14 @@ export type SendPayoutToSplitEventFilter = {
   id_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   id_not_starts_with?: InputMaybe<Scalars['String']['input']>;
   id_starts_with?: InputMaybe<Scalars['String']['input']>;
-  lockedUntil?: InputMaybe<Scalars['Int']['input']>;
-  lockedUntil_gt?: InputMaybe<Scalars['Int']['input']>;
-  lockedUntil_gte?: InputMaybe<Scalars['Int']['input']>;
-  lockedUntil_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
-  lockedUntil_lt?: InputMaybe<Scalars['Int']['input']>;
-  lockedUntil_lte?: InputMaybe<Scalars['Int']['input']>;
-  lockedUntil_not?: InputMaybe<Scalars['Int']['input']>;
-  lockedUntil_not_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  lockedUntil?: InputMaybe<Scalars['BigInt']['input']>;
+  lockedUntil_gt?: InputMaybe<Scalars['BigInt']['input']>;
+  lockedUntil_gte?: InputMaybe<Scalars['BigInt']['input']>;
+  lockedUntil_in?: InputMaybe<Array<InputMaybe<Scalars['BigInt']['input']>>>;
+  lockedUntil_lt?: InputMaybe<Scalars['BigInt']['input']>;
+  lockedUntil_lte?: InputMaybe<Scalars['BigInt']['input']>;
+  lockedUntil_not?: InputMaybe<Scalars['BigInt']['input']>;
+  lockedUntil_not_in?: InputMaybe<Array<InputMaybe<Scalars['BigInt']['input']>>>;
   logIndex?: InputMaybe<Scalars['Int']['input']>;
   logIndex_gt?: InputMaybe<Scalars['Int']['input']>;
   logIndex_gte?: InputMaybe<Scalars['Int']['input']>;
@@ -4902,7 +4955,7 @@ export type SendReservedTokensToSplitEvent = {
   groupId: Scalars['BigInt']['output'];
   hook: Scalars['String']['output'];
   id: Scalars['String']['output'];
-  lockedUntil: Scalars['Int']['output'];
+  lockedUntil: Scalars['BigInt']['output'];
   logIndex: Scalars['Int']['output'];
   percent: Scalars['Int']['output'];
   preferAddToBalance: Scalars['Boolean']['output'];
@@ -4985,14 +5038,14 @@ export type SendReservedTokensToSplitEventFilter = {
   id_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   id_not_starts_with?: InputMaybe<Scalars['String']['input']>;
   id_starts_with?: InputMaybe<Scalars['String']['input']>;
-  lockedUntil?: InputMaybe<Scalars['Int']['input']>;
-  lockedUntil_gt?: InputMaybe<Scalars['Int']['input']>;
-  lockedUntil_gte?: InputMaybe<Scalars['Int']['input']>;
-  lockedUntil_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
-  lockedUntil_lt?: InputMaybe<Scalars['Int']['input']>;
-  lockedUntil_lte?: InputMaybe<Scalars['Int']['input']>;
-  lockedUntil_not?: InputMaybe<Scalars['Int']['input']>;
-  lockedUntil_not_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  lockedUntil?: InputMaybe<Scalars['BigInt']['input']>;
+  lockedUntil_gt?: InputMaybe<Scalars['BigInt']['input']>;
+  lockedUntil_gte?: InputMaybe<Scalars['BigInt']['input']>;
+  lockedUntil_in?: InputMaybe<Array<InputMaybe<Scalars['BigInt']['input']>>>;
+  lockedUntil_lt?: InputMaybe<Scalars['BigInt']['input']>;
+  lockedUntil_lte?: InputMaybe<Scalars['BigInt']['input']>;
+  lockedUntil_not?: InputMaybe<Scalars['BigInt']['input']>;
+  lockedUntil_not_in?: InputMaybe<Array<InputMaybe<Scalars['BigInt']['input']>>>;
   logIndex?: InputMaybe<Scalars['Int']['input']>;
   logIndex_gt?: InputMaybe<Scalars['Int']['input']>;
   logIndex_gte?: InputMaybe<Scalars['Int']['input']>;
@@ -5234,47 +5287,6 @@ export type SendReservedTokensToSplitsEventPage = {
   totalCount: Scalars['Int']['output'];
 };
 
-export type Stats = {
-  chainId: Scalars['Int']['output'];
-  volume: Scalars['BigInt']['output'];
-  volumeUsd: Scalars['BigInt']['output'];
-};
-
-export type StatsFilter = {
-  AND?: InputMaybe<Array<InputMaybe<StatsFilter>>>;
-  OR?: InputMaybe<Array<InputMaybe<StatsFilter>>>;
-  chainId?: InputMaybe<Scalars['Int']['input']>;
-  chainId_gt?: InputMaybe<Scalars['Int']['input']>;
-  chainId_gte?: InputMaybe<Scalars['Int']['input']>;
-  chainId_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
-  chainId_lt?: InputMaybe<Scalars['Int']['input']>;
-  chainId_lte?: InputMaybe<Scalars['Int']['input']>;
-  chainId_not?: InputMaybe<Scalars['Int']['input']>;
-  chainId_not_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
-  volume?: InputMaybe<Scalars['BigInt']['input']>;
-  volumeUsd?: InputMaybe<Scalars['BigInt']['input']>;
-  volumeUsd_gt?: InputMaybe<Scalars['BigInt']['input']>;
-  volumeUsd_gte?: InputMaybe<Scalars['BigInt']['input']>;
-  volumeUsd_in?: InputMaybe<Array<InputMaybe<Scalars['BigInt']['input']>>>;
-  volumeUsd_lt?: InputMaybe<Scalars['BigInt']['input']>;
-  volumeUsd_lte?: InputMaybe<Scalars['BigInt']['input']>;
-  volumeUsd_not?: InputMaybe<Scalars['BigInt']['input']>;
-  volumeUsd_not_in?: InputMaybe<Array<InputMaybe<Scalars['BigInt']['input']>>>;
-  volume_gt?: InputMaybe<Scalars['BigInt']['input']>;
-  volume_gte?: InputMaybe<Scalars['BigInt']['input']>;
-  volume_in?: InputMaybe<Array<InputMaybe<Scalars['BigInt']['input']>>>;
-  volume_lt?: InputMaybe<Scalars['BigInt']['input']>;
-  volume_lte?: InputMaybe<Scalars['BigInt']['input']>;
-  volume_not?: InputMaybe<Scalars['BigInt']['input']>;
-  volume_not_in?: InputMaybe<Array<InputMaybe<Scalars['BigInt']['input']>>>;
-};
-
-export type StatsPage = {
-  items: Array<Stats>;
-  pageInfo: PageInfo;
-  totalCount: Scalars['Int']['output'];
-};
-
 export type StoreAutoIssuanceAmountEvent = {
   beneficiary: Scalars['String']['output'];
   caller: Scalars['String']['output'];
@@ -5397,44 +5409,6 @@ export type StoreAutoIssuanceAmountEventPage = {
   items: Array<StoreAutoIssuanceAmountEvent>;
   pageInfo: PageInfo;
   totalCount: Scalars['Int']['output'];
-};
-
-export type Sucker = {
-  address: Scalars['String']['output'];
-  chainId: Scalars['Int']['output'];
-  project: Maybe<Project>;
-  projectId: Scalars['Int']['output'];
-};
-
-export type SuckerFilter = {
-  AND?: InputMaybe<Array<InputMaybe<SuckerFilter>>>;
-  OR?: InputMaybe<Array<InputMaybe<SuckerFilter>>>;
-  address?: InputMaybe<Scalars['String']['input']>;
-  address_contains?: InputMaybe<Scalars['String']['input']>;
-  address_ends_with?: InputMaybe<Scalars['String']['input']>;
-  address_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-  address_not?: InputMaybe<Scalars['String']['input']>;
-  address_not_contains?: InputMaybe<Scalars['String']['input']>;
-  address_not_ends_with?: InputMaybe<Scalars['String']['input']>;
-  address_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-  address_not_starts_with?: InputMaybe<Scalars['String']['input']>;
-  address_starts_with?: InputMaybe<Scalars['String']['input']>;
-  chainId?: InputMaybe<Scalars['Int']['input']>;
-  chainId_gt?: InputMaybe<Scalars['Int']['input']>;
-  chainId_gte?: InputMaybe<Scalars['Int']['input']>;
-  chainId_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
-  chainId_lt?: InputMaybe<Scalars['Int']['input']>;
-  chainId_lte?: InputMaybe<Scalars['Int']['input']>;
-  chainId_not?: InputMaybe<Scalars['Int']['input']>;
-  chainId_not_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
-  projectId?: InputMaybe<Scalars['Int']['input']>;
-  projectId_gt?: InputMaybe<Scalars['Int']['input']>;
-  projectId_gte?: InputMaybe<Scalars['Int']['input']>;
-  projectId_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
-  projectId_lt?: InputMaybe<Scalars['Int']['input']>;
-  projectId_lte?: InputMaybe<Scalars['Int']['input']>;
-  projectId_not?: InputMaybe<Scalars['Int']['input']>;
-  projectId_not_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
 };
 
 export type SuckerGroup = {
@@ -5768,12 +5742,6 @@ export type SuckerGroupPage = {
   totalCount: Scalars['Int']['output'];
 };
 
-export type SuckerPage = {
-  items: Array<Sucker>;
-  pageInfo: PageInfo;
-  totalCount: Scalars['Int']['output'];
-};
-
 export type UseAllowanceEvent = {
   amount: Scalars['BigInt']['output'];
   amountPaidOut: Scalars['BigInt']['output'];
@@ -6046,7 +6014,7 @@ export type LoansByAccountQueryVariables = Exact<{
 }>;
 
 
-export type LoansByAccountQuery = { loans: { items: Array<{ borrowAmount: any, collateral: any, prepaidDuration: number, projectId: number, terminal: string, token: string, chainId: number, createdAt: number }> } };
+export type LoansByAccountQuery = { loans: { items: Array<{ borrowAmount: any, collateral: any, prepaidDuration: number, projectId: number, terminal: string, token: string, chainId: number, createdAt: number, id: any }> } };
 
 export type LoansDetailsByAccountQueryVariables = Exact<{
   owner: Scalars['String']['input'];
@@ -6125,7 +6093,7 @@ export type SuckerGroupQuery = { suckerGroup: { id: string, tokenSupply: any } |
 
 
 export const ActivityEventsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"ActivityEvents"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"where"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"activityEventFilter"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"orderBy"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"orderDirection"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"activityEvents"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"where"},"value":{"kind":"Variable","name":{"kind":"Name","value":"where"}}},{"kind":"Argument","name":{"kind":"Name","value":"orderBy"},"value":{"kind":"Variable","name":{"kind":"Name","value":"orderBy"}}},{"kind":"Argument","name":{"kind":"Name","value":"orderDirection"},"value":{"kind":"Variable","name":{"kind":"Name","value":"orderDirection"}}},{"kind":"Argument","name":{"kind":"Name","value":"limit"},"value":{"kind":"IntValue","value":"1000"}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"chainId"}},{"kind":"Field","name":{"kind":"Name","value":"timestamp"}},{"kind":"Field","name":{"kind":"Name","value":"payEvent"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"amount"}},{"kind":"Field","name":{"kind":"Name","value":"beneficiary"}},{"kind":"Field","name":{"kind":"Name","value":"memo"}},{"kind":"Field","name":{"kind":"Name","value":"timestamp"}},{"kind":"Field","name":{"kind":"Name","value":"feeFromProject"}},{"kind":"Field","name":{"kind":"Name","value":"newlyIssuedTokenCount"}},{"kind":"Field","name":{"kind":"Name","value":"from"}},{"kind":"Field","name":{"kind":"Name","value":"txHash"}},{"kind":"Field","name":{"kind":"Name","value":"amountUsd"}},{"kind":"Field","name":{"kind":"Name","value":"caller"}},{"kind":"Field","name":{"kind":"Name","value":"distributionFromProjectId"}},{"kind":"Field","name":{"kind":"Name","value":"projectId"}},{"kind":"Field","name":{"kind":"Name","value":"project"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"projectId"}},{"kind":"Field","name":{"kind":"Name","value":"handle"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"cashOutTokensEvent"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"timestamp"}},{"kind":"Field","name":{"kind":"Name","value":"txHash"}},{"kind":"Field","name":{"kind":"Name","value":"from"}},{"kind":"Field","name":{"kind":"Name","value":"beneficiary"}},{"kind":"Field","name":{"kind":"Name","value":"reclaimAmount"}},{"kind":"Field","name":{"kind":"Name","value":"cashOutCount"}},{"kind":"Field","name":{"kind":"Name","value":"metadata"}},{"kind":"Field","name":{"kind":"Name","value":"project"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"projectId"}},{"kind":"Field","name":{"kind":"Name","value":"handle"}}]}}]}}]}}]}}]}}]} as unknown as DocumentNode<ActivityEventsQuery, ActivityEventsQueryVariables>;
-export const LoansByAccountDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"LoansByAccount"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"owner"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"loans"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"where"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"owner"},"value":{"kind":"Variable","name":{"kind":"Name","value":"owner"}}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"borrowAmount"}},{"kind":"Field","name":{"kind":"Name","value":"collateral"}},{"kind":"Field","name":{"kind":"Name","value":"prepaidDuration"}},{"kind":"Field","name":{"kind":"Name","value":"projectId"}},{"kind":"Field","name":{"kind":"Name","value":"terminal"}},{"kind":"Field","name":{"kind":"Name","value":"token"}},{"kind":"Field","name":{"kind":"Name","value":"chainId"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}}]}}]}}]}}]} as unknown as DocumentNode<LoansByAccountQuery, LoansByAccountQueryVariables>;
+export const LoansByAccountDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"LoansByAccount"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"owner"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"loans"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"where"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"owner"},"value":{"kind":"Variable","name":{"kind":"Name","value":"owner"}}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"borrowAmount"}},{"kind":"Field","name":{"kind":"Name","value":"collateral"}},{"kind":"Field","name":{"kind":"Name","value":"prepaidDuration"}},{"kind":"Field","name":{"kind":"Name","value":"projectId"}},{"kind":"Field","name":{"kind":"Name","value":"terminal"}},{"kind":"Field","name":{"kind":"Name","value":"token"}},{"kind":"Field","name":{"kind":"Name","value":"chainId"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]}}]} as unknown as DocumentNode<LoansByAccountQuery, LoansByAccountQueryVariables>;
 export const LoansDetailsByAccountDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"LoansDetailsByAccount"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"owner"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"projectId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"loans"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"where"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"owner"},"value":{"kind":"Variable","name":{"kind":"Name","value":"owner"}}},{"kind":"ObjectField","name":{"kind":"Name","value":"projectId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"projectId"}}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"borrowAmount"}},{"kind":"Field","name":{"kind":"Name","value":"collateral"}},{"kind":"Field","name":{"kind":"Name","value":"prepaidDuration"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"projectId"}},{"kind":"Field","name":{"kind":"Name","value":"terminal"}},{"kind":"Field","name":{"kind":"Name","value":"token"}},{"kind":"Field","name":{"kind":"Name","value":"chainId"}},{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]}}]} as unknown as DocumentNode<LoansDetailsByAccountQuery, LoansDetailsByAccountQueryVariables>;
 export const ParticipantsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"Participants"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"where"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"participantFilter"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"orderBy"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"orderDirection"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"limit"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"participants"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"where"},"value":{"kind":"Variable","name":{"kind":"Name","value":"where"}}},{"kind":"Argument","name":{"kind":"Name","value":"orderBy"},"value":{"kind":"Variable","name":{"kind":"Name","value":"orderBy"}}},{"kind":"Argument","name":{"kind":"Name","value":"orderDirection"},"value":{"kind":"Variable","name":{"kind":"Name","value":"orderDirection"}}},{"kind":"Argument","name":{"kind":"Name","value":"limit"},"value":{"kind":"Variable","name":{"kind":"Name","value":"limit"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"totalCount"}},{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"chainId"}},{"kind":"Field","name":{"kind":"Name","value":"address"}},{"kind":"Field","name":{"kind":"Name","value":"volume"}},{"kind":"Field","name":{"kind":"Name","value":"lastPaidTimestamp"}},{"kind":"Field","name":{"kind":"Name","value":"balance"}},{"kind":"Field","name":{"kind":"Name","value":"erc20Balance"}},{"kind":"Field","name":{"kind":"Name","value":"creditBalance"}}]}}]}}]}}]} as unknown as DocumentNode<ParticipantsQuery, ParticipantsQueryVariables>;
 export const HasPermissionDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"HasPermission"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"account"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"chainId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Float"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"projectId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Float"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"operator"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"permissionHolder"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"account"},"value":{"kind":"Variable","name":{"kind":"Name","value":"account"}}},{"kind":"Argument","name":{"kind":"Name","value":"chainId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"chainId"}}},{"kind":"Argument","name":{"kind":"Name","value":"projectId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"projectId"}}},{"kind":"Argument","name":{"kind":"Name","value":"operator"},"value":{"kind":"Variable","name":{"kind":"Name","value":"operator"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"permissions"}}]}}]}}]} as unknown as DocumentNode<HasPermissionQuery, HasPermissionQueryVariables>;

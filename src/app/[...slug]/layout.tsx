@@ -147,7 +147,7 @@ export async function generateMetadata({
     const url = new URL(`/${slugPath}`, origin);
     const title = "Revnet";
     const description = "Explore onchain revenue networks";
-    const imageUrl = `${origin}/assets/img/anachronistic1-1.png`;
+    const imageUrl = `${origin}/assets/img/rev-og-191-1.png`;
     const frame = {
       version: "next",
       imageUrl,
@@ -172,7 +172,7 @@ export async function generateMetadata({
   const project = slugPath ? await getProjectMetadata(slugPath) : null;
   const projectName = project ? project.handle : "project";
 
-  let imgUrl = project?.logoUri || `${origin}/assets/img/anachronistic1-1.png`;
+  let imgUrl = project?.logoUri || `${origin}/assets/img/rev-og-191-1.png`;
 
   const frame = {
     version: "next",

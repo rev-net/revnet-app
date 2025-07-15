@@ -1,4 +1,6 @@
 import { useNativeTokenSymbol } from "@/hooks/useNativeTokenSymbol";
+import { formatUnits, parseUnits } from "viem";
+import { useJBTokenContext } from "juice-sdk-react";
 
 /**
  * Token A is the token used to buy the project's token (Token B).
@@ -8,5 +10,7 @@ import { useNativeTokenSymbol } from "@/hooks/useNativeTokenSymbol";
  */
 export function useTokenA() {
   const nativeTokenSymbol = useNativeTokenSymbol();
-  return { symbol: nativeTokenSymbol, decimals: 18 };
+  const { token } = useJBTokenContext();
+  const projectTokenDecimals = token?.data?.decimals ?? 18;
+  return { symbol: nativeTokenSymbol, decimals: projectTokenDecimals };
 }
