@@ -456,8 +456,9 @@ export function AddStageDialog({
                     2. Cash out tax
                   </div>
                   <p className="text-md text-zinc-500 mt-3">
-                    The only way for anyone to access {revnetTokenSymbol} revenue is by cashing out or
-                    taking out a loan against their {revnetTokenSymbol}.
+                    The only way for anyone to access the {nativeTokenSymbol} used to issue {revnetTokenSymbol} is by cashing out or
+                    taking out a loan against their {revnetTokenSymbol}, both provided by the revnet out of the box.</p>
+                    <p className="text-md text-zinc-500 mt-3">
                     A tax can be added that makes cashing
                     out and taking out loans more expensive, while rewarding{" "}
                     {revnetTokenSymbol} holders who stick around as others cash
