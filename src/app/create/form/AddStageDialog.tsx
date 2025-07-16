@@ -78,7 +78,7 @@ export function AddStageDialog({
   children: React.ReactNode;
   onSave: (newStage: StageData) => void;
 }) {
-  const { values: formikValues, setFieldValue } = useFormikContext<RevnetFormData>();
+  const { values: formikValues } = useFormikContext<RevnetFormData>();
 
   const [open, setOpen] = useState(false);
   const nativeTokenSymbol = useNativeTokenSymbol();
@@ -87,19 +87,28 @@ export function AddStageDialog({
   const [enableCut, setEnableCut] = useState(
     Boolean(initialValues && (Number(initialValues.priceCeilingIncreasePercentage) !== 0 || Number(initialValues.priceCeilingIncreaseFrequency) !== 0))
   );
+  const [uiCutPercentage, setUiCutPercentage] = useState(
+    initialValues && Number(initialValues.priceCeilingIncreasePercentage) !== 0
+      ? Number(initialValues.priceCeilingIncreasePercentage)
+      : 10
+  );
+  const [uiCutFrequency, setUiCutFrequency] = useState(
+    initialValues && Number(initialValues.priceCeilingIncreaseFrequency) !== 0
+      ? Number(initialValues.priceCeilingIncreaseFrequency)
+      : 30
+  );
+  const [hasUserSetCut, setHasUserSetCut] = useState(false);
 
   const revnetTokenSymbol =
     formikValues.tokenSymbol?.length > 0
       ? `$${formikValues.tokenSymbol}`
       : "tokens";
 
-    console.log({stageIdx, initialValues});
     // Discrete values matching your radio options
     const steps = [0, 20, 40, 60, 80];
 
     // Calculate example yield based on selected tax rate
     const calculateYield = (taxRate: number) => {
-      console.log({taxRate});
       return (Number(((1-(taxRate/100))+((taxRate/100)/10))) * 10).toFixed(1);
     };
 
@@ -114,28 +123,31 @@ export function AddStageDialog({
           <Formik
             initialValues={{ ...(initialValues ?? defaultStageData) }}
             onSubmit={(newValues) => {
+              // Set Formik values from UI state
+              if (enableCut) {
+                newValues.priceCeilingIncreasePercentage = String(uiCutPercentage);
+                newValues.priceCeilingIncreaseFrequency = String(uiCutFrequency);
+              } else {
+                newValues.priceCeilingIncreasePercentage = "0";
+                newValues.priceCeilingIncreaseFrequency = "0";
+              }
               onSave(newValues);
               setOpen(false);
             }}
           >
             {({ values }) => {
-              // Checkbox state: enabled if either field is not 0
               // Handler for checkbox toggle
               const handleCutToggle = (e: React.ChangeEvent<HTMLInputElement>) => {
                 const checked = e.target.checked;
                 setEnableCut(checked);
-                if (!checked) {
-                  setFieldValue("priceCeilingIncreasePercentage", 0);
-                  setFieldValue("priceCeilingIncreaseFrequency", 0);
-                } else {
-                  // If enabling and either value is 0, set to 1
-                  if (Number(values.priceCeilingIncreasePercentage) === 0) {
-                    setFieldValue("priceCeilingIncreasePercentage", 1);
+                if (checked) {
+                  if (!hasUserSetCut) {
+                    setUiCutPercentage(10);
+                    setUiCutFrequency(30);
                   }
-                  if (Number(values.priceCeilingIncreaseFrequency) === 0) {
-                    setFieldValue("priceCeilingIncreaseFrequency", 1);
-                  }
+                  // else: keep last user-entered values
                 }
+                // Do not reset values on uncheck, just hide the fields
               };
               return (
                 <Form>
@@ -150,23 +162,24 @@ export function AddStageDialog({
                       </p>
                       <div className="flex flex-wrap md:flex-nowrap gap-2 sm:gap-2 items-center text-md text-zinc-600 mt-2">
                         {/* Styled number input with suffix for initialIssuance */}
-                        <div className="relative w-full sm:w-[220px] lg:w-[220px] xl:w-[220px]">
+                        <div className="relative w-full sm:w-[210px] lg:w-[210px] xl:w-[210px]">
                           <Field
                             id="initialIssuance"
                             name="initialIssuance"
                             min="0"
                             type="number"
-                            className="h-9 w-full pr-24 border rounded px-3 text-md"
+                            className="h-9 w-full pr-24 px-3 text-md"
                           />
                           <span className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 text-md pointer-events-none">
                             {revnetTokenSymbol} / {nativeTokenSymbol}
                           </span>
                         </div>
                         <div className="flex items-center gap-2 w-full md:w-auto">
-                          {/* If not enabled, show 'add cut? [ ]' */}
-                          {!enableCut && (
+                          {!enableCut ? (
                             <>
-                              <label htmlFor="enableCut" className="whitespace-nowrap italic text-zinc-400">add automatic cuts?</label>
+                              <label htmlFor="enableCut" className="whitespace-nowrap italic text-zinc-400">
+                                add automatic cuts?
+                              </label>
                               <input
                                 type="checkbox"
                                 id="enableCut"
@@ -174,35 +187,40 @@ export function AddStageDialog({
                                 onChange={handleCutToggle}
                               />
                             </>
-                          )}
-                          {/* If enabled, show 'cut [x] __% every __ days' */}
-                          {enableCut && (
+                          ) : (
                             <>
-                              <label htmlFor="priceCeilingIncreasePercentage" className="whitespace-nowrap">cut</label>
+                              <label htmlFor="uiCutPercentage" className="whitespace-nowrap">cut</label>
                               <input
                                 type="checkbox"
                                 id="enableCut"
                                 checked={enableCut}
                                 onChange={handleCutToggle}
                               />
-                              <Field
-                                id="priceCeilingIncreasePercentage"
-                                name="priceCeilingIncreasePercentage"
+                              <input
+                                id="uiCutPercentage"
                                 type="number"
-                                autoFocus={true}
                                 min="1"
                                 max="100"
-                                className="h-9 w-16"
-                                suffix="%"
+                                className="h-9 w-16 border-zinc-200"
+                                value={String(uiCutPercentage)}
+                                onChange={e => {
+                                  setUiCutPercentage(Number(e.target.value));
+                                  setHasUserSetCut(true);
+                                }}
                                 required
                               />
-                              <label htmlFor="priceCeilingIncreaseFrequency">every</label>
-                              <Field
-                                id="priceCeilingIncreaseFrequency"
-                                name="priceCeilingIncreaseFrequency"
-                                className="h-9 w-16"
+                              <span>%</span>
+                              <label htmlFor="uiCutFrequency">every</label>
+                              <input
+                                id="uiCutFrequency"
                                 type="number"
                                 min="1"
+                                className="h-9 w-16 border-zinc-200"
+                                value={String(uiCutFrequency)}
+                                onChange={e => {
+                                  setUiCutFrequency(Number(e.target.value));
+                                  setHasUserSetCut(true);
+                                }}
                                 required
                               />
                               days.
@@ -545,3 +563,4 @@ export function AddStageDialog({
     </Dialog>
   );
 }
+
