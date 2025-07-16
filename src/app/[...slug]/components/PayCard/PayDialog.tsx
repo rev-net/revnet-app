@@ -22,7 +22,6 @@ import {
   JB_CHAINS,
   JBChainId,
   NATIVE_TOKEN,
-  SuckerPair,
   TokenAmountType,
 } from "juice-sdk-core";
 import {
@@ -31,58 +30,52 @@ import {
   useSuckers,
   useWriteJbMultiTerminalPay,
 } from "juice-sdk-react";
+import { USDC_ADDRESSES } from "@/app/constants";
 import { useEffect, useState } from "react";
-import { Address } from "viem";
-import { useAccount, useWaitForTransactionReceipt } from "wagmi";
+import { Address, erc20Abi } from "viem";
+import {
+  useAccount,
+  useWaitForTransactionReceipt,
+  usePublicClient,
+  useWalletClient,
+} from "wagmi";
 import { useSelectedSucker } from "./SelectedSuckerContext";
-import { useProjectAccountingContext } from "@/hooks/useProjectAccountingContext";
 
 export function PayDialog({
   amountA,
   amountB,
   memo,
+  paymentToken,
   disabled,
 }: {
   amountA: TokenAmountType;
   amountB: TokenAmountType;
   memo: string | undefined;
-  primaryTerminalEth: Address;
+  paymentToken: `0x${string}`;
   disabled?: boolean;
 }) {
-  const {
-    projectId,
-    //contracts: { primaryNativeTerminal },
-  } = useJBContractContext();
-  const primaryNativeTerminal = {data: "0xdb9644369c79c3633cde70d2df50d827d7dc7dbc"};
+  const { projectId } = useJBContractContext();
+  const primaryNativeTerminal = { data: "0xdb9644369c79c3633cde70d2df50d827d7dc7dbc" };
   const { address } = useAccount();
   const value = amountA.amount.value;
-  const {
-    isError,
-    error,
-    writeContract,
-    isPending: isWriteLoading,
-    data,
-  } = useWriteJbMultiTerminalPay();
+  const { isError, error, writeContract, isPending: isWriteLoading, data } = useWriteJbMultiTerminalPay();
   const chainId = useJBChainId();
   const { selectedSucker, setSelectedSucker } = useSelectedSucker();
   const txHash = data;
-  const { isLoading: isTxLoading, isSuccess } = useWaitForTransactionReceipt({
-    hash: txHash,
-  });
+  const { isLoading: isTxLoading, isSuccess } = useWaitForTransactionReceipt({ hash: txHash });
   const { toast } = useToast();
-  const loading = isWriteLoading || isTxLoading;
   const suckersQuery = useSuckers();
   const suckers = suckersQuery.data;
-  const { data: accountingContext } = useProjectAccountingContext();
+  const publicClient = usePublicClient();
+  const { data: walletClient } = useWalletClient();
+  const [isApproving, setIsApproving] = useState(false);
 
   useEffect(() => {
     if (isError && error) {
       toast({
         variant: "destructive",
         title: "Error",
-        description:
-          error.message ||
-          "An error occurred while processing your contribution",
+        description: error.message || "An error occurred while processing your contribution",
       });
     }
   }, [isError, error, toast]);
@@ -97,38 +90,65 @@ export function PayDialog({
     }
   }, [suckers, chainId, projectId, selectedSucker, setSelectedSucker]);
 
-  const handlePay = () => {
-    console.log("handlePay", primaryNativeTerminal?.data, address, selectedSucker,);
-    if (!primaryNativeTerminal?.data || !address || !selectedSucker) {
-      return;
+  const loading = isWriteLoading || isTxLoading || isApproving;
+
+  const handlePay = async () => {
+    if (!primaryNativeTerminal?.data || !address || !selectedSucker || !walletClient || !publicClient) return;
+
+    const isNative = paymentToken === NATIVE_TOKEN;
+
+    try {
+      if (!isNative) {
+        const allowance = await publicClient.readContract({
+          address: paymentToken,
+          abi: erc20Abi,
+          functionName: "allowance",
+          args: [address, primaryNativeTerminal.data as `0x${string}`],
+        });
+
+        if (BigInt(allowance) < BigInt(value)) {
+          setIsApproving(true);
+          const hash = await walletClient.writeContract({
+            address: paymentToken,
+            abi: erc20Abi,
+            functionName: "approve",
+            args: [primaryNativeTerminal.data as `0x${string}`, value],
+          });
+          await publicClient.waitForTransactionReceipt({ hash });
+          setIsApproving(false);
+        }
+      }
+
+      writeContract?.({
+        chainId: selectedSucker.peerChainId,
+        address: primaryNativeTerminal.data as `0x${string}`,
+        args: [
+          selectedSucker.projectId,
+          paymentToken,
+          value,
+          address,
+          0n,
+          memo || "",
+          "0x0",
+        ],
+        value: isNative ? value : 0n,
+      });
+    } catch (err) {
+      setIsApproving(false);
+      const errMsg = err instanceof Error ? err.message : "Unknown error during payment";
+      console.error("Payment failed:", err);
+      toast({
+        variant: "destructive",
+        title: "Payment Failed",
+        description: errMsg,
+      });
     }
-    
-    // Get the payment token from accounting context
-    const paymentToken = (accountingContext?.project?.token as `0x${string}`) || NATIVE_TOKEN;
-    
-    writeContract?.({
-      chainId: selectedSucker.peerChainId, // Target chain for the transaction
-      address: primaryNativeTerminal?.data as `0x${string}`, // Contract address to call (terminal)
-      args: [
-        selectedSucker.projectId, // Project ID to pay into
-        paymentToken, // Token address to pay with (from accounting context)
-        value, // Amount to pay (in wei/smallest unit)
-        address, // Beneficiary address (who receives the tokens)
-        0n, // Minimum tokens received (0 = no slippage protection)
-        memo || "", // Optional memo/note for the payment
-        "0x0", // Metadata (empty for basic payments)
-      ],
-      value, // ETH value to send with transaction (for native token payments)
-    });
   };
 
   return (
     <Dialog open={disabled === true ? false : undefined}>
       <DialogTrigger asChild>
-        <Button
-          disabled={disabled}
-          className="w-full bg-teal-500 hover:bg-teal-600"
-        >
+        <Button disabled={disabled} className="w-full bg-teal-500 hover:bg-teal-600">
           Pay
         </Button>
       </DialogTrigger>
@@ -149,9 +169,7 @@ export function PayDialog({
                     </Stat>
                     {memo && <Stat label="Memo">{memo}</Stat>}
                   </div>
-                  {isTxLoading ? (
-                    <div>Transaction submitted, awaiting confirmation...</div>
-                  ) : null}
+                  {isTxLoading ? <div>Transaction submitted, awaiting confirmation...</div> : null}
                 </>
               )}
             </div>
@@ -160,34 +178,20 @@ export function PayDialog({
             <div className="flex flex-row justify-between items-end">
               {suckers && suckers.length > 1 ? (
                 <div className="flex flex-col mt-4">
-                  <div className="text-sm text-zinc-500">
-                    {amountB.symbol} is available on:
-                  </div>
+                  <div className="text-sm text-zinc-500">{amountB.symbol} is available on:</div>
                   <Select
-                    onValueChange={(v) =>
-                      setSelectedSucker(suckers[parseInt(v)])
-                    }
-                    value={
-                      selectedSucker
-                        ? String(suckers.indexOf(selectedSucker))
-                        : undefined
-                    }
+                    onValueChange={(v) => setSelectedSucker(suckers[parseInt(v)])}
+                    value={selectedSucker ? String(suckers.indexOf(selectedSucker)) : undefined}
                   >
                     <SelectTrigger className="w-[200px]">
-                      <SelectValue placeholder="Select chain"></SelectValue>
+                      <SelectValue placeholder="Select chain" />
                     </SelectTrigger>
                     <SelectContent>
                       {suckers.map((s, index) => (
-                        <SelectItem
-                          key={s.peerChainId}
-                          value={String(index)}
-                          className="flex items-center gap-2"
-                        >
+                        <SelectItem key={s.peerChainId} value={String(index)} className="flex items-center gap-2">
                           <div className="flex items-center gap-2">
                             <ChainLogo chainId={s.peerChainId as JBChainId} />
-                            <span>
-                              {JB_CHAINS[s.peerChainId as JBChainId].name}
-                            </span>
+                            <span>{JB_CHAINS[s.peerChainId as JBChainId].name}</span>
                           </div>
                         </SelectItem>
                       ))}
@@ -197,22 +201,16 @@ export function PayDialog({
               ) : (
                 selectedSucker && (
                   <div className="flex flex-col mt-4">
-                    <div className="text-xs text-slate-500">
-                      {amountB.symbol} is only on:
-                    </div>
-                    <div className=" flex flex-row items-center gap-2 pl-3 min-w-fit pr-5 py-2 border ring-offset-white">
-                      <ChainLogo
-                        chainId={selectedSucker.peerChainId as JBChainId}
-                      />
+                    <div className="text-xs text-slate-500">{amountB.symbol} is only on:</div>
+                    <div className="flex flex-row items-center gap-2 pl-3 min-w-fit pr-5 py-2 border ring-offset-white">
+                      <ChainLogo chainId={selectedSucker.peerChainId as JBChainId} />
                       {JB_CHAINS[selectedSucker.peerChainId as JBChainId].name}
                     </div>
                   </div>
                 )
               )}
               <ButtonWithWallet
-                targetChainId={
-                  selectedSucker?.peerChainId as JBChainId | undefined
-                }
+                targetChainId={selectedSucker?.peerChainId as JBChainId | undefined}
                 loading={loading}
                 onClick={handlePay}
                 className="bg-teal-500 hover:bg-teal-600"

@@ -15,6 +15,7 @@ import { formatUnits, parseEther, parseUnits } from "viem";
 import { PayDialog } from "./PayDialog";
 import { PayInput } from "./PayInput";
 import { formatTokenSymbol } from "@/lib/utils";
+import { useProjectAccountingContext } from "@/hooks/useProjectAccountingContext";
 
 export function PayForm() {
   const tokenA = useTokenA();
@@ -27,15 +28,16 @@ export function PayForm() {
 
   const primaryNativeTerminal ={data: "0xdb9644369c79c3633cde70d2df50d827d7dc7dbc"}
   const { ruleset, rulesetMetadata} = useJBRulesetContext();
-
+  const { data: accountingContext } = useProjectAccountingContext();
+  
   const tokenB = token?.data;
 
   if (token.isLoading || ruleset.isLoading || rulesetMetadata.isLoading || !tokenB) {
     return "Loading...";
   }
-
+  console.log("accountingContext", accountingContext);
   const _amountA = {
-    amount: new FixedInt(parseEther(amountA), tokenA.decimals),
+    amount: new FixedInt(parseUnits(amountA, tokenA.decimals), tokenA.decimals), // ✅ Use correct decimals
     symbol: tokenA.symbol,
   };
   const _amountB = {
@@ -141,7 +143,7 @@ export function PayForm() {
               amountA={_amountA}
               amountB={_amountB}
               memo={memo}
-              primaryTerminalEth={primaryNativeTerminal?.data as `0x${string}`}
+              paymentToken={(accountingContext?.project?.token as `0x${string}`) || "0x0000000000000000000000000000000000000000"}
               disabled={!amountA}
             />
           ) : null}
