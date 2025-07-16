@@ -468,7 +468,7 @@ export function AddStageDialog({
                         type="range"
                         min={0}
                         max={80}
-                        step={10}
+                        step={5}
                         name="priceFloorTaxIntensity"
                         className="w-full h-2 bg-gray-200 appearance-none cursor-pointer accent-teal-500 px-0 rounded-full"
                         aria-label="Exit tax percentage"
