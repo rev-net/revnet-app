@@ -27,7 +27,7 @@ export function Stages({
 
   const maxStageReached = values.stages.length >= MAX_RULESET_COUNT;
   const canAddStage = !hasStages || !maxStageReached;
-  const reserveAsset = values.reserveAsset || "ETH";
+  const reserveAsset = values.reserveAsset == "USDC" ? "USD" : "ETH";
   return (
     <>
       <div className="md:col-span-1">

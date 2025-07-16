@@ -159,7 +159,7 @@ export function AddStageDialog({
                         1. Issuance
                       </div>
                       <p className="text-md text-zinc-500 mt-3">
-                        How many {revnetTokenSymbol} to issue when receiving 1 {reserveAsset}.
+                        How many {revnetTokenSymbol} to issue when receiving {reserveAsset}.
                       </p>
                       <div className="flex flex-wrap md:flex-nowrap gap-2 sm:gap-2 items-center text-md text-zinc-600 mt-2">
                         {/* Styled number input with suffix for initialIssuance */}
@@ -172,7 +172,7 @@ export function AddStageDialog({
                             className="h-9 w-full pr-24 px-3 text-md"
                           />
                           <span className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 text-md pointer-events-none">
-                            {revnetTokenSymbol} / {reserveAsset}
+                            {revnetTokenSymbol} / {reserveAsset == "USDC" ? "USD" : reserveAsset}
                           </span>
                         </div>
                         <div className="flex items-center gap-2 w-full md:w-auto">
