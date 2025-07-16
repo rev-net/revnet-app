@@ -3524,6 +3524,8 @@ export type Project = {
   createdAt: Scalars['Int']['output'];
   createdWithinTrendingWindow: Maybe<Scalars['Boolean']['output']>;
   creator: Scalars['String']['output'];
+  currency: Maybe<Scalars['BigInt']['output']>;
+  decimals: Maybe<Scalars['Int']['output']>;
   deployErc20Events: Maybe<DeployErc20EventPage>;
   deployer: Scalars['String']['output'];
   description: Maybe<Scalars['String']['output']>;
@@ -3562,6 +3564,7 @@ export type Project = {
   suckerGroupId: Scalars['String']['output'];
   tags: Maybe<Array<Scalars['String']['output']>>;
   telegram: Maybe<Scalars['String']['output']>;
+  token: Maybe<Scalars['String']['output']>;
   tokenSupply: Scalars['BigInt']['output'];
   tokens: Maybe<Array<Scalars['String']['output']>>;
   trendingPaymentsCount: Scalars['Int']['output'];
@@ -3909,6 +3912,22 @@ export type ProjectFilter = {
   creator_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   creator_not_starts_with?: InputMaybe<Scalars['String']['input']>;
   creator_starts_with?: InputMaybe<Scalars['String']['input']>;
+  currency?: InputMaybe<Scalars['BigInt']['input']>;
+  currency_gt?: InputMaybe<Scalars['BigInt']['input']>;
+  currency_gte?: InputMaybe<Scalars['BigInt']['input']>;
+  currency_in?: InputMaybe<Array<InputMaybe<Scalars['BigInt']['input']>>>;
+  currency_lt?: InputMaybe<Scalars['BigInt']['input']>;
+  currency_lte?: InputMaybe<Scalars['BigInt']['input']>;
+  currency_not?: InputMaybe<Scalars['BigInt']['input']>;
+  currency_not_in?: InputMaybe<Array<InputMaybe<Scalars['BigInt']['input']>>>;
+  decimals?: InputMaybe<Scalars['Int']['input']>;
+  decimals_gt?: InputMaybe<Scalars['Int']['input']>;
+  decimals_gte?: InputMaybe<Scalars['Int']['input']>;
+  decimals_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+  decimals_lt?: InputMaybe<Scalars['Int']['input']>;
+  decimals_lte?: InputMaybe<Scalars['Int']['input']>;
+  decimals_not?: InputMaybe<Scalars['Int']['input']>;
+  decimals_not_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
   deployer?: InputMaybe<Scalars['String']['input']>;
   deployer_contains?: InputMaybe<Scalars['String']['input']>;
   deployer_ends_with?: InputMaybe<Scalars['String']['input']>;
@@ -4115,6 +4134,7 @@ export type ProjectFilter = {
   telegram_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   telegram_not_starts_with?: InputMaybe<Scalars['String']['input']>;
   telegram_starts_with?: InputMaybe<Scalars['String']['input']>;
+  token?: InputMaybe<Scalars['String']['input']>;
   tokenSupply?: InputMaybe<Scalars['BigInt']['input']>;
   tokenSupply_gt?: InputMaybe<Scalars['BigInt']['input']>;
   tokenSupply_gte?: InputMaybe<Scalars['BigInt']['input']>;
@@ -4123,6 +4143,15 @@ export type ProjectFilter = {
   tokenSupply_lte?: InputMaybe<Scalars['BigInt']['input']>;
   tokenSupply_not?: InputMaybe<Scalars['BigInt']['input']>;
   tokenSupply_not_in?: InputMaybe<Array<InputMaybe<Scalars['BigInt']['input']>>>;
+  token_contains?: InputMaybe<Scalars['String']['input']>;
+  token_ends_with?: InputMaybe<Scalars['String']['input']>;
+  token_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  token_not?: InputMaybe<Scalars['String']['input']>;
+  token_not_contains?: InputMaybe<Scalars['String']['input']>;
+  token_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  token_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  token_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  token_starts_with?: InputMaybe<Scalars['String']['input']>;
   tokens?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   tokens_has?: InputMaybe<Scalars['String']['input']>;
   tokens_not?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
@@ -6059,6 +6088,14 @@ export type ProjectsQueryVariables = Exact<{
 
 export type ProjectsQuery = { projects: { items: Array<{ projectId: number, metadataUri: string | null, handle: string | null, createdAt: number, suckerGroupId: string, participants: { totalCount: number } | null }> } };
 
+export type ProjectAccountingContextQueryVariables = Exact<{
+  chainId: Scalars['Float']['input'];
+  projectId: Scalars['Float']['input'];
+}>;
+
+
+export type ProjectAccountingContextQuery = { project: { token: string | null, decimals: number | null, currency: any | null } | null };
+
 export type ProjectCreateEventQueryVariables = Exact<{
   where?: InputMaybe<ProjectCreateEventFilter>;
 }>;
@@ -6099,6 +6136,7 @@ export const ParticipantsDocument = {"kind":"Document","definitions":[{"kind":"O
 export const HasPermissionDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"HasPermission"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"account"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"chainId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Float"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"projectId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Float"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"operator"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"permissionHolder"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"account"},"value":{"kind":"Variable","name":{"kind":"Name","value":"account"}}},{"kind":"Argument","name":{"kind":"Name","value":"chainId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"chainId"}}},{"kind":"Argument","name":{"kind":"Name","value":"projectId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"projectId"}}},{"kind":"Argument","name":{"kind":"Name","value":"operator"},"value":{"kind":"Variable","name":{"kind":"Name","value":"operator"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"permissions"}}]}}]}}]} as unknown as DocumentNode<HasPermissionQuery, HasPermissionQueryVariables>;
 export const ProjectDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"Project"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"projectId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Float"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"chainId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Float"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"project"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"projectId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"projectId"}}},{"kind":"Argument","name":{"kind":"Name","value":"chainId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"chainId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"projectId"}},{"kind":"Field","name":{"kind":"Name","value":"metadataUri"}},{"kind":"Field","name":{"kind":"Name","value":"handle"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"suckerGroupId"}}]}}]}}]} as unknown as DocumentNode<ProjectQuery, ProjectQueryVariables>;
 export const ProjectsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"Projects"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"where"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"projectFilter"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"projects"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"where"},"value":{"kind":"Variable","name":{"kind":"Name","value":"where"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"projectId"}},{"kind":"Field","name":{"kind":"Name","value":"metadataUri"}},{"kind":"Field","name":{"kind":"Name","value":"handle"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"suckerGroupId"}},{"kind":"Field","name":{"kind":"Name","value":"participants"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"totalCount"}}]}}]}}]}}]}}]} as unknown as DocumentNode<ProjectsQuery, ProjectsQueryVariables>;
+export const ProjectAccountingContextDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"ProjectAccountingContext"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"chainId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Float"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"projectId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Float"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"project"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"chainId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"chainId"}}},{"kind":"Argument","name":{"kind":"Name","value":"projectId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"projectId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"token"}},{"kind":"Field","name":{"kind":"Name","value":"decimals"}},{"kind":"Field","name":{"kind":"Name","value":"currency"}}]}}]}}]} as unknown as DocumentNode<ProjectAccountingContextQuery, ProjectAccountingContextQueryVariables>;
 export const ProjectCreateEventDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"ProjectCreateEvent"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"where"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"projectCreateEventFilter"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"projectCreateEvents"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"where"},"value":{"kind":"Variable","name":{"kind":"Name","value":"where"}}},{"kind":"Argument","name":{"kind":"Name","value":"limit"},"value":{"kind":"IntValue","value":"1"}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"txHash"}},{"kind":"Field","name":{"kind":"Name","value":"timestamp"}}]}}]}}]}}]} as unknown as DocumentNode<ProjectCreateEventQuery, ProjectCreateEventQueryVariables>;
 export const StoreAutoIssuanceAmountEventsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"StoreAutoIssuanceAmountEvents"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"where"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"storeAutoIssuanceAmountEventFilter"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"orderBy"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"orderDirection"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"storeAutoIssuanceAmountEvents"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"where"},"value":{"kind":"Variable","name":{"kind":"Name","value":"where"}}},{"kind":"Argument","name":{"kind":"Name","value":"orderBy"},"value":{"kind":"Variable","name":{"kind":"Name","value":"orderBy"}}},{"kind":"Argument","name":{"kind":"Name","value":"orderDirection"},"value":{"kind":"Variable","name":{"kind":"Name","value":"orderDirection"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"projectId"}},{"kind":"Field","name":{"kind":"Name","value":"beneficiary"}},{"kind":"Field","name":{"kind":"Name","value":"count"}},{"kind":"Field","name":{"kind":"Name","value":"stageId"}},{"kind":"Field","name":{"kind":"Name","value":"caller"}}]}}]}}]}}]} as unknown as DocumentNode<StoreAutoIssuanceAmountEventsQuery, StoreAutoIssuanceAmountEventsQueryVariables>;
 export const AutoIssueEventsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"AutoIssueEvents"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"where"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"autoIssueEventFilter"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"orderBy"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"orderDirection"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"autoIssueEvents"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"where"},"value":{"kind":"Variable","name":{"kind":"Name","value":"where"}}},{"kind":"Argument","name":{"kind":"Name","value":"orderBy"},"value":{"kind":"Variable","name":{"kind":"Name","value":"orderBy"}}},{"kind":"Argument","name":{"kind":"Name","value":"orderDirection"},"value":{"kind":"Variable","name":{"kind":"Name","value":"orderDirection"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"projectId"}},{"kind":"Field","name":{"kind":"Name","value":"stageId"}},{"kind":"Field","name":{"kind":"Name","value":"beneficiary"}},{"kind":"Field","name":{"kind":"Name","value":"count"}},{"kind":"Field","name":{"kind":"Name","value":"caller"}}]}}]}}]}}]} as unknown as DocumentNode<AutoIssueEventsQuery, AutoIssueEventsQueryVariables>;

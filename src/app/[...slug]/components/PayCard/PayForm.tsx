@@ -25,9 +25,7 @@ export function PayForm() {
   const [amountB, setAmountB] = useState<string>("");
   const [amountC, setAmountC] = useState<string>("");
 
-  const {
-    contracts: { primaryNativeTerminal },
-  } = useJBContractContext();
+  const primaryNativeTerminal ={data: "0xdb9644369c79c3633cde70d2df50d827d7dc7dbc"}
   const { ruleset, rulesetMetadata} = useJBRulesetContext();
 
   const tokenB = token?.data;
@@ -143,7 +141,7 @@ export function PayForm() {
               amountA={_amountA}
               amountB={_amountB}
               memo={memo}
-              primaryTerminalEth={primaryNativeTerminal?.data}
+              primaryTerminalEth={primaryNativeTerminal?.data as `0x${string}`}
               disabled={!amountA}
             />
           ) : null}

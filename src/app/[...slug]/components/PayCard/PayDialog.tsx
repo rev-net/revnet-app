@@ -35,6 +35,7 @@ import { useEffect, useState } from "react";
 import { Address } from "viem";
 import { useAccount, useWaitForTransactionReceipt } from "wagmi";
 import { useSelectedSucker } from "./SelectedSuckerContext";
+import { useProjectAccountingContext } from "@/hooks/useProjectAccountingContext";
 
 export function PayDialog({
   amountA,
@@ -50,8 +51,9 @@ export function PayDialog({
 }) {
   const {
     projectId,
-    contracts: { primaryNativeTerminal },
+    //contracts: { primaryNativeTerminal },
   } = useJBContractContext();
+  const primaryNativeTerminal = {data: "0xdb9644369c79c3633cde70d2df50d827d7dc7dbc"};
   const { address } = useAccount();
   const value = amountA.amount.value;
   const {
@@ -71,6 +73,7 @@ export function PayDialog({
   const loading = isWriteLoading || isTxLoading;
   const suckersQuery = useSuckers();
   const suckers = suckersQuery.data;
+  const { data: accountingContext } = useProjectAccountingContext();
 
   useEffect(() => {
     if (isError && error) {
@@ -95,23 +98,27 @@ export function PayDialog({
   }, [suckers, chainId, projectId, selectedSucker, setSelectedSucker]);
 
   const handlePay = () => {
+    console.log("handlePay", primaryNativeTerminal?.data, address, selectedSucker,);
     if (!primaryNativeTerminal?.data || !address || !selectedSucker) {
       return;
     }
-
+    
+    // Get the payment token from accounting context
+    const paymentToken = (accountingContext?.project?.token as `0x${string}`) || NATIVE_TOKEN;
+    
     writeContract?.({
-      chainId: selectedSucker.peerChainId,
-      address: primaryNativeTerminal?.data,
+      chainId: selectedSucker.peerChainId, // Target chain for the transaction
+      address: primaryNativeTerminal?.data as `0x${string}`, // Contract address to call (terminal)
       args: [
-        selectedSucker.projectId,
-        NATIVE_TOKEN,
-        value,
-        address,
-        0n,
-        memo || "",
-        "0x0",
+        selectedSucker.projectId, // Project ID to pay into
+        paymentToken, // Token address to pay with (from accounting context)
+        value, // Amount to pay (in wei/smallest unit)
+        address, // Beneficiary address (who receives the tokens)
+        0n, // Minimum tokens received (0 = no slippage protection)
+        memo || "", // Optional memo/note for the payment
+        "0x0", // Metadata (empty for basic payments)
       ],
-      value,
+      value, // ETH value to send with transaction (for native token payments)
     });
   };
 
