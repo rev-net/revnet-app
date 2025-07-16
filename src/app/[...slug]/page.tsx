@@ -2,6 +2,9 @@
 import { useEffect, useState } from "react";
 import { Nav } from "@/components/layout/Nav";
 import { JB_CHAINS, JBChainId, jbUrn } from "juice-sdk-core";
+import {
+  useJBTerminalContext,
+} from "juice-sdk-react";
 import { Providers } from "./Providers";
 import { NetworkDashboard } from "./components/NetworkDashboard/NetworkDashboard";
 import { sdk } from "@farcaster/frame-sdk";
@@ -10,6 +13,8 @@ export default function Page({ params }: { params: { slug?: string[] } }) {
   const [projectId, setProjectId] = useState<bigint | undefined>(undefined);
   const [chainId, setChainId] = useState<JBChainId | undefined>(undefined);
   const [notFound, setNotFound] = useState(false);
+  const terminal = useJBTerminalContext();
+  console.log({ terminal, accountingContexts: terminal.accountingContexts });
 
   const [user, setUser] = useState<{ fid: number; pfp: string; userName: string } | null>(null);
 
