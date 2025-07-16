@@ -19,6 +19,7 @@ export const DEFAULT_FORM_DATA: RevnetFormData = {
   // tagline: "",
   description: "",
   logoUri: "",
+  reserveAsset: "ETH",
 
   tokenName: "",
   tokenSymbol: "",
@@ -36,6 +37,7 @@ export const TEST_FORM_DATA: RevnetFormData = {
 
   tokenName: "Test Token",
   tokenSymbol: "TEST",
+  reserveAsset: "ETH",
 
   stages: [
     {
@@ -181,6 +183,7 @@ export const SHORTER_TEST_FORM_DATA: RevnetFormData = {
   logoUri: "",
   tokenName: "Donuts",
   tokenSymbol: "DONUTS",
+  reserveAsset: "ETH",
   stages: [
     {
       initialOperator: "0xDf087B724174A3E4eD2338C0798193932E851F1b",
