@@ -528,7 +528,6 @@ export function AddStageDialog({
                       suffix="days"
                       min="1"
                       type="number"
-                      defaultValue={values.stageStart || 30}
                       description="How many days after the last stage's start time should this stage start?"
                       width="w-32"
                     />
