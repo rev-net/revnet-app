@@ -47,65 +47,74 @@ export function Stages({
           <div className="mb-4 col-span-2">
             {values.stages.length > 0 ? (
               <div className="divide-y mb-2">
-                {values.stages.map((stage, index) => (
-                  <div className="py-4" key={index}>
-                    <div className="mb-1 flex justify-between items-center">
-                      <div className="font-semibold">Stage {index + 1}</div>
-                      <div className="flex">
-                        <AddStageDialog
-                          stageIdx={index}
-                          initialValues={stage}
-                          onSave={(newStage) => {
-                            arrayHelpers.replace(index, newStage);
-                          }}
-                        >
-                          <Button variant="ghost" size="sm" disabled={disabled}>
+                {values.stages.map((stage, index) => {
+                  // Calculate duration
+                  let duration;
+                  if (index < values.stages.length - 1) {
+                    duration = values.stages[index + 1].stageStart;
+                  } else {
+                    duration = 0;
+                  }
+                  return (
+                    <div className="py-4" key={index}>
+                      <div className="mb-1 flex justify-between items-center">
+                        <div className="font-semibold">Stage {index + 1}</div>
+                        <div className="flex">
+                          <AddStageDialog
+                            stageIdx={index}
+                            initialValues={stage}
+                            onSave={(newStage) => {
+                              arrayHelpers.replace(index, newStage);
+                            }}
+                          >
+                            <Button variant="ghost" size="sm" disabled={disabled}>
+                              {disabled ? (
+                                null
+                              ) : (
+                                <PencilSquareIcon className="h-4 w-4" />
+                              )}
+                            </Button>
+                          </AddStageDialog>
+
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            disabled={disabled}
+                            onClick={() => arrayHelpers.remove(index)}
+                          >
                             {disabled ? (
-                              null
+                              <LockClosedIcon className="h-4 w-4" />
                             ) : (
-                              <PencilSquareIcon className="h-4 w-4" />
+                              <TrashIcon className="h-4 w-4" />
                             )}
                           </Button>
-                        </AddStageDialog>
-
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          disabled={disabled}
-                          onClick={() => arrayHelpers.remove(index)}
-                        >
-                          {disabled ? (
-                            <LockClosedIcon className="h-4 w-4" />
-                          ) : (
-                            <TrashIcon className="h-4 w-4" />
-                          )}
-                        </Button>
+                        </div>
                       </div>
+                      <dl className="text-md text-zinc-600 grid grid-cols-[max-content_1fr] gap-x-4 gap-y-1">
+                        <dt className="font-medium">Duration</dt>
+                        <dd>{duration === 0 ? 'Forever' : `${duration} days`}</dd>
+                        <dt className="font-medium">Paid Issuance</dt>
+                        <dd>
+                          {stage.initialIssuance} {formatTokenSymbol(values.tokenSymbol) ?? "tokens"} / {nativeTokenSymbol}
+                          {(Number(stage.priceCeilingIncreasePercentage) > 0 && Number(stage.priceCeilingIncreaseFrequency) > 0) &&
+                            ` cut ${stage.priceCeilingIncreasePercentage}% every ${stage.priceCeilingIncreaseFrequency} days`
+                          }
+                          {(() => {
+                            const splitSum = stage.splits.reduce((sum, split) => sum + (Number(split.percentage) || 0), 0);
+                            return splitSum === 0 ? '' : `, ${splitSum}% split limit`;
+                          })()}
+                        </dd>
+                        <dt className="font-medium">Auto issuance</dt>
+                        <dd>{stage.autoIssuance.reduce((sum, autoIssuance) => sum + (Number(autoIssuance.amount) || 0), 0) === 0
+                          ? 'none'
+                          : `${commaNumber(stage.autoIssuance.reduce((sum, autoIssuance) => sum + (Number(autoIssuance.amount) || 0), 0))} ${formatTokenSymbol(values.tokenSymbol) ?? "tokens"} auto issuance`}
+                        </dd>
+                        <dt className="font-medium">Cash out tax</dt>
+                        <dd>{(Number(stage.priceFloorTaxIntensity) / 100 || 0)}</dd>
+                      </dl>
                     </div>
-                    <dl className="text-md text-zinc-600 grid grid-cols-[max-content_1fr] gap-x-4 gap-y-1">
-                      <dt className="font-medium">Duration</dt>
-                      <dd>{stage.stageStart ? `${stage.stageStart} days` : 'Forever'}</dd>
-                      <dt className="font-medium">Paid Issuance</dt>
-                      <dd>
-                        {stage.initialIssuance} {formatTokenSymbol(values.tokenSymbol) ?? "tokens"} / {nativeTokenSymbol}
-                        {(Number(stage.priceCeilingIncreasePercentage) > 0 && Number(stage.priceCeilingIncreaseFrequency) > 0) &&
-                          ` cut ${stage.priceCeilingIncreasePercentage}% every ${stage.priceCeilingIncreaseFrequency} days`
-                        }
-                        {(() => {
-                          const splitSum = stage.splits.reduce((sum, split) => sum + (Number(split.percentage) || 0), 0);
-                          return splitSum === 0 ? '' : `, ${splitSum}% split limit`;
-                        })()}
-                      </dd>
-                      <dt className="font-medium">Auto issuance</dt>
-                      <dd>{stage.autoIssuance.reduce((sum, autoIssuance) => sum + (Number(autoIssuance.amount) || 0), 0) === 0
-                        ? 'none'
-                        : `${commaNumber(stage.autoIssuance.reduce((sum, autoIssuance) => sum + (Number(autoIssuance.amount) || 0), 0))} ${formatTokenSymbol(values.tokenSymbol) ?? "tokens"} auto issuance`}
-                      </dd>
-                      <dt className="font-medium">Cash out tax</dt>
-                      <dd>{(Number(stage.priceFloorTaxIntensity) / 100 || 0)}</dd>
-                    </dl>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             ) : (
               <div className="text-left text-black-500 font-semibold mb-4">
