@@ -197,34 +197,38 @@ export function AddStageDialog({
                                 checked={enableCut}
                                 onChange={handleCutToggle}
                               />
-                              <input
-                                id="uiCutPercentage"
-                                type="number"
-                                min="1"
-                                max="100"
-                                className="h-9 w-16 border-zinc-200"
-                                value={String(uiCutPercentage)}
-                                onChange={e => {
-                                  setUiCutPercentage(Number(e.target.value));
-                                  setHasUserSetCut(true);
-                                }}
-                                required
-                              />
-                              <span>%</span>
+                              <div className="relative">
+                                <input
+                                  id="uiCutPercentage"
+                                  type="number"
+                                  min="1"
+                                  max="100"
+                                  className="h-9 w-16 border-zinc-200 pr-6 pl-2"
+                                  value={String(uiCutPercentage)}
+                                  onChange={e => {
+                                    setUiCutPercentage(Number(e.target.value));
+                                    setHasUserSetCut(true);
+                                  }}
+                                  required
+                                />
+                                <span className="absolute right-2 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none">%</span>
+                              </div>
                               <label htmlFor="uiCutFrequency">every</label>
-                              <input
-                                id="uiCutFrequency"
-                                type="number"
-                                min="1"
-                                className="h-9 w-16 border-zinc-200"
-                                value={String(uiCutFrequency)}
-                                onChange={e => {
-                                  setUiCutFrequency(Number(e.target.value));
-                                  setHasUserSetCut(true);
-                                }}
-                                required
-                              />
-                              days.
+                              <div className="relative">
+                                <input
+                                  id="uiCutFrequency"
+                                  type="number"
+                                  min="1"
+                                  className="h-9 border-zinc-200 pr-10 pl-2 w-24"
+                                  value={String(uiCutFrequency)}
+                                  onChange={e => {
+                                    setUiCutFrequency(Number(e.target.value));
+                                    setHasUserSetCut(true);
+                                  }}
+                                  required
+                                />
+                                <span className="absolute right-2 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none">days</span>
+                              </div>
                             </>
                           )}
                         </div>
@@ -385,16 +389,19 @@ export function AddStageDialog({
                             <label htmlFor={`autoIssuance.${index}.amount`}>
                               {index === 0 ? "Issue" : "...and"}
                             </label>
-                            <Field
-                              id={`autoIssuance.${index}.amount`}
-                              name={`autoIssuance.${index}.amount`}
-                              type="number"
-                              min="0"
-                              className="h-9"
-                              suffix={`${revnetTokenSymbol}`}
-                              required
-                              // width="w-72" // mobile padding issue
-                            />
+                            <div className="relative">
+                              <Field
+                                id={`autoIssuance.${index}.amount`}
+                                name={`autoIssuance.${index}.amount`}
+                                type="number"
+                                min="0"
+                                className="h-9 w-40 pr-16 pl-2"
+                                required
+                              />
+                              <span className="absolute right-2 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none">
+                                {revnetTokenSymbol}
+                              </span>
+                            </div>
                             <label
                               htmlFor={`autoIssuance.${index}.beneficiary`}
                             >
@@ -403,7 +410,7 @@ export function AddStageDialog({
                             <Field
                               id={`autoIssuance.${index}.beneficiary`}
                               name={`autoIssuance.${index}.beneficiary`}
-                              className="h-9"
+                              className="h-9 w-60"
                               placeholder="0x"
                               required
                             />
@@ -446,8 +453,9 @@ export function AddStageDialog({
                     2. Cash out tax
                   </div>
                   <p className="text-md text-zinc-500 mt-3">
-                    The only way for anyone to access {revnetTokenSymbol} revenue is by cashing out or
-                    taking out a loan against their {revnetTokenSymbol}.
+                    The only way for anyone to access the {nativeTokenSymbol} used to issue {revnetTokenSymbol} is by cashing out or
+                    taking out a loan against their {revnetTokenSymbol}, both provided by the revnet out of the box.</p>
+                    <p className="text-md text-zinc-500 mt-3">
                     A tax can be added that makes cashing
                     out and taking out loans more expensive, while rewarding{" "}
                     {revnetTokenSymbol} holders who stick around as others cash
