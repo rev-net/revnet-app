@@ -7,7 +7,6 @@ import {
   FieldArray,
 } from "formik";
 import { RevnetFormData, StageData } from "../types";
-import { useNativeTokenSymbol } from "@/hooks/useNativeTokenSymbol";
 import {
   Dialog,
   DialogContent,
@@ -106,7 +105,7 @@ export function AddStageDialog({
       : "tokens";
 
     // Discrete values matching your radio options
-    const steps = [0, 20, 40, 60, 80];
+    const steps = ["no tax", "light", "medium", "heavy", "extreme"];
 
     // Calculate example yield based on selected tax rate
     const calculateYield = (taxRate: number) => {
@@ -156,7 +155,7 @@ export function AddStageDialog({
 
                     <div>
                       <div className="block text-md font-semibold leading-6">
-                        1. Issuance
+                        1. {revnetTokenSymbol} issuance
                       </div>
                       <p className="text-md text-zinc-500 mt-3">
                         How many {revnetTokenSymbol} to issue when receiving {reserveAsset}.
@@ -450,22 +449,26 @@ export function AddStageDialog({
                     id="priceFloorTaxIntensity-group"
                     className="block text-md font-semibold leading-6"
                   >
-                    2. Cash out tax
+                    2. {revnetTokenSymbol} cash outs
                   </div>
                   <p className="text-md text-zinc-500 mt-3">
                     The only way for anyone to access the {reserveAsset} used to issue {revnetTokenSymbol} is by cashing out or
-                    taking out a loan against their {revnetTokenSymbol}, both provided by the revnet out of the box.</p>
+                    taking out a loan from the revnet using their {revnetTokenSymbol}.</p>
                     <p className="text-md text-zinc-500 mt-3">
                     A tax can be added that makes cashing
-                    out and taking out loans more expensive, while rewarding{" "}
+                    out and loans more expensive, while rewarding{" "}
                     {revnetTokenSymbol} holders who stick around as others cash
                     out.
+                  </p>
+                  <p className="text-md text-zinc-500 mt-3">
+                    A light tax is recommended to add an incentive while maintaining liquidity.
                   </p>
                   <div className="space-y-2 mt-6">
                     <div className="flex justify-between relative w-full">
                       {steps.map((step) => (
-                        <span key={Number(step) / 100} className={ Number(step) === 0 ? "text-sm pl-1" : Number(step) === 20 ? "text-sm pl-4" : "text-sm pl-2"}>
-                          {Number(step) / 100}
+                        <span key={Number(step) / 100} className={ Number(step) === 0 ? "text-sm" : Number(step) === 20 ? "text-sm" : "text-sm"}>
+                          {/* {Number(step) / 100} */}
+                          {step}
                         </span>
                       ))}
                     </div>
