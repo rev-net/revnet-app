@@ -453,7 +453,7 @@ export function AddStageDialog({
                     2. Cash out tax
                   </div>
                   <p className="text-md text-zinc-500 mt-3">
-                    The only way for anyone to access the {nativeTokenSymbol} used to issue {revnetTokenSymbol} is by cashing out or
+                    The only way for anyone to access the {reserveAsset} used to issue {revnetTokenSymbol} is by cashing out or
                     taking out a loan against their {revnetTokenSymbol}, both provided by the revnet out of the box.</p>
                     <p className="text-md text-zinc-500 mt-3">
                     A tax can be added that makes cashing

@@ -32,9 +32,11 @@ export function useFormattedTokenIssuance(params?: TokenIssuanceParams) {
       reservedPercent
     }
   );
-  const amount = formatUnits(quote.payerTokens, tokenA.decimals);
+  const amount = formatUnits(quote.payerTokens, 18);
   const formattedAmount = new Intl.NumberFormat("en-US", {
     maximumFractionDigits: 3
   }).format(Number(amount));
-  return `${formattedAmount} ${formatTokenSymbol(tokenB)} / ${tokenA.symbol}`;
+  
+  const denominator = rulesetMetadata.data.baseCurrency == 1 ? "ETH" : rulesetMetadata.data.baseCurrency == 3 ? "USD" : "???"
+  return `${formattedAmount} ${formatTokenSymbol(tokenB)} / ${denominator}`;
 }
