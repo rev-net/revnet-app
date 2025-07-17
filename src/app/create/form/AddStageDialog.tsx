@@ -390,7 +390,7 @@ export function AddStageDialog({
                             className="flex gap-2 items-center text-md text-zinc-600 mt-4"
                           >
                             <label htmlFor={`autoIssuance.${index}.amount`}>
-                              {index === 0 ? "Issue" : "...and"}
+                              {index === 0 ? "Issue" : "... and"}
                             </label>
                             <div className="relative">
                               <Field
