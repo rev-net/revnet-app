@@ -337,13 +337,13 @@ export function NetworkDetailsTable() {
                                   <li className="flex">
                                     <span className="mr-2">•</span>
                                     <div>
-                                      The higher the tax, the less that can be accessed by cashing out or taking out a loan at any given time, and the more that is left to share between remaining holders who cash out later.
+                                      The heavier the tax, the less that can be accessed by cashing out or taking out a loan at any given time, and the more that is left to share between remaining holders who cash out later.
                                     </div>
                                   </li>
                                   <li className="flex">
                                     <span className="mr-2">•</span>
                                     <div>
-                                      Loans are an automated source of revenue for {formatTokenSymbol(token)}. By making loans more expensive, a higher cash out tax reduces potential loan revenue.
+                                      Loans are an automated source of revenue for {formatTokenSymbol(token)}. By making loans more expensive, a heavier cash out tax reduces potential loan revenue.
                                     </div>
                                   </li>
                                   <li className="flex">

@@ -498,7 +498,7 @@ export function AddStageDialog({
                       <ul className="list-disc list-inside space-y-2">
                         <li className="flex">
                           <span className="mr-2">•</span>
-                          The higher the tax, the less that can be accessed by
+                          The heavier the tax, the less that can be accessed by
                           cashing out or taking out a loan at any given time,
                           and the more that is left to share between remaining
                           holders who cash out later.
@@ -506,7 +506,7 @@ export function AddStageDialog({
 
                         <li className="flex">
                           <span className="mr-2">•</span>
-                            Loans are an automated source of revenue for {revnetTokenSymbol}. By making loans more expensive, a higher cash out tax reduces potential loan revenue.
+                            Loans are an automated source of revenue for {revnetTokenSymbol}. By making loans more expensive, a heavier cash out tax reduces potential loan revenue.
                         </li>
                         <li className="flex">
                           <span className="mr-2">•</span>
