@@ -385,7 +385,7 @@ export function AddStageDialog({
                             key={index}
                             className="flex gap-2 items-center text-md text-zinc-600 mt-4"
                           >
-                            <label htmlFor={`autoIssuance.${index}.amount`}>
+                            <label className="whitespace-nowrap" htmlFor={`autoIssuance.${index}.amount`}>
                               {index === 0 ? "Issue" : "... and"}
                             </label>
                             <div className="relative">
@@ -409,7 +409,7 @@ export function AddStageDialog({
                             <Field
                               id={`autoIssuance.${index}.beneficiary`}
                               name={`autoIssuance.${index}.beneficiary`}
-                              className="h-9 w-60"
+                              className="h-9 w-full"
                               placeholder="0x"
                               required
                             />
