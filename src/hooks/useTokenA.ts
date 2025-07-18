@@ -3,7 +3,6 @@ import { useProjectAccountingContext } from "@/hooks/useProjectAccountingContext
 /**
  * Token A is the token used to buy the project's token (Token B).
  * Now uses the project's accounting context to determine the correct token.
- * @todo this currently assumes token A is always the network's native token (ETH, OP etc).
 */
 export function useTokenA() {
   const { data: accountingContext } = useProjectAccountingContext();

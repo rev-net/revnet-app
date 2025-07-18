@@ -25,13 +25,22 @@ export function useSuckersTokenSurplus(
   
     const suckersQuery = useSuckers();
     const pairs = suckersQuery.data;
+
+    // Create a stable tokenMap key for the query key
+    const tokenMapKey = Object.keys(tokenMap).length > 0 
+      ? Object.entries(tokenMap)
+          .sort(([a], [b]) => Number(a) - Number(b))
+          .map(([chainId, config]) => `${chainId}:${config.token}:${config.currency}:${config.decimals}`)
+          .join(',')
+      : 'empty';
   
-        const surplusQuery = useQuery({
+    const surplusQuery = useQuery({
       queryKey: [
         "suckersTokenSurplus",
         projectId.toString(),
         chainId?.toString(),
         pairs?.map((pair) => pair.peerChainId).join(","),
+        tokenMapKey, // Include tokenMap in query key
       ],
       queryFn: async () => {
         if (!chainId) {
@@ -39,6 +48,10 @@ export function useSuckersTokenSurplus(
         }
 
         if (!pairs || pairs.length === 0) {
+          return [];
+        }
+
+        if (Object.keys(tokenMap).length === 0) {
           return [];
         }
   
@@ -91,6 +104,11 @@ export function useSuckersTokenSurplus(
   
         return surpluses;
       },
+      enabled: !!chainId && !!projectId && !!pairs && pairs.length > 0 && Object.keys(tokenMap).length > 0,
+      retry: 3, // Retry up to 3 times
+      retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000), // Exponential backoff
+      staleTime: 30000, // Consider data stale after 30 seconds
+      gcTime: 5 * 60 * 1000, // Keep in cache for 5 minutes
     });
   
     return {

@@ -13,23 +13,27 @@ import { useJBContractContext } from "juice-sdk-react";
 import { Loader2 } from 'lucide-react';
 import { USDC_ADDRESSES } from "@/app/constants";
 
+
 export function TvlDatum() {
   const { projectId } = useJBContractContext();
   const chainId = useJBChainId();
 
   // Get the suckerGroupId from the current project
-  const { data: projectData } = useBendystrawQuery(ProjectDocument, {
+  const { data: projectData, isLoading: projectLoading } = useBendystrawQuery(ProjectDocument, {
     chainId: Number(chainId),
     projectId: Number(projectId),
+  }, {
+    enabled: !!chainId && !!projectId
   });
   const suckerGroupId = projectData?.project?.suckerGroupId;
 
   // Get all projects in the sucker group with their token data
-  const { data: suckerGroupData } = useBendystrawQuery(SuckerGroupDocument, {
+  const { data: suckerGroupData, isLoading: suckerGroupLoading } = useBendystrawQuery(SuckerGroupDocument, {
     id: suckerGroupId ?? "",
   }, {
     enabled: !!suckerGroupId
   });
+
   // Transform into the format expected by useSuckersTokenSurplus
   const tokenMap = suckerGroupData?.suckerGroup?.projects?.items?.reduce((acc, project) => {
     if (project.token) {
@@ -41,21 +45,24 @@ export function TvlDatum() {
     }
     return acc;
   }, {} as Record<JBChainId, { token: `0x${string}`; currency: number; decimals: number }>);
-  // call bendy straw for accounting context and feed that into the useSuckerTokenSurplus(_)
+
+  // Only call useSuckersTokenSurplus when we have the tokenMap and it's not empty
   const surplusQuery = useSuckersTokenSurplus(
     tokenMap || {} as Record<JBChainId, { token: `0x${string}`; currency: number; decimals: number }>
   );
-  if (surplusQuery.isError) {
-    console.error("surplusQuery failed - check network/contract access");
-  }
+
   const { data: ethPrice } = useEtherPrice();
-  const loading = surplusQuery.isLoading;
+  
+  // Show loading if any of the queries are loading
+  const loading = projectLoading || suckerGroupLoading || surplusQuery.isLoading;
+  
   const surpluses = surplusQuery?.data as
     | {
         surplus: bigint;
         chainId: JBChainId;
       }[]
     | undefined;
+
   // Check if all chains use the same token type
   const allTokens = surpluses?.map(surplus => {
     const tokenConfig = tokenMap?.[surplus.chainId];
@@ -104,7 +111,10 @@ export function TvlDatum() {
 
   if (loading) return <Loader2 className="animate-spin" size={16} />;
 
-  if (surplusQuery.isError) return <span>Error Loading Surplus</span>
+  // Show error state
+  if (surplusQuery.isError) {
+    return <span className="text-red-500">Error Loading Surplus</span>;
+  }
 
   return (
     <Tooltip>
