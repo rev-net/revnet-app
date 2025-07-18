@@ -35,7 +35,6 @@ export function PayForm() {
   if (token.isLoading || ruleset.isLoading || rulesetMetadata.isLoading || !tokenB) {
     return "Loading...";
   }
-  console.log("accountingContext", accountingContext);
   const _amountA = {
     amount: new FixedInt(parseUnits(amountA, tokenA.decimals), tokenA.decimals), // ✅ Use correct decimals
     symbol: tokenA.symbol,
