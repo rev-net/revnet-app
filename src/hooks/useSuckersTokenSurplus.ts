@@ -109,6 +109,8 @@ export function useSuckersTokenSurplus(
       retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000), // Exponential backoff
       staleTime: 30000, // Consider data stale after 30 seconds
       gcTime: 5 * 60 * 1000, // Keep in cache for 5 minutes
+      refetchInterval: 10000, // Poll every 10 seconds
+      refetchIntervalInBackground: true, // Continue polling when tab is not active
     });
   
     return {

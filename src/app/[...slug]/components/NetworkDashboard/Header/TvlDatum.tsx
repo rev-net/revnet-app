@@ -23,7 +23,8 @@ export function TvlDatum() {
     chainId: Number(chainId),
     projectId: Number(projectId),
   }, {
-    enabled: !!chainId && !!projectId
+    enabled: !!chainId && !!projectId,
+    pollInterval: 10000 // Poll every 10 seconds
   });
   const suckerGroupId = projectData?.project?.suckerGroupId;
 
@@ -31,7 +32,8 @@ export function TvlDatum() {
   const { data: suckerGroupData, isLoading: suckerGroupLoading } = useBendystrawQuery(SuckerGroupDocument, {
     id: suckerGroupId ?? "",
   }, {
-    enabled: !!suckerGroupId
+    enabled: !!suckerGroupId,
+    pollInterval: 10000 // Poll every 10 seconds
   });
 
   // Transform into the format expected by useSuckersTokenSurplus
