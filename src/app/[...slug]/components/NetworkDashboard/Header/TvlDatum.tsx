@@ -145,13 +145,39 @@ export function TvlDatum() {
             return "OTHER TOKEN"; // fallback
           };
           
+          // Format the amount with better precision control
+          const formatAmount = (amount: bigint, decimals: number) => {
+            const formatted = formatUnits(amount, decimals);
+            const num = Number(formatted);
+            
+            // For USDC, show 2 decimal places
+            if (isUsdc) {
+              return num.toLocaleString("en-US", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              });
+            }
+            
+            // For ETH, show up to 4 decimal places but trim trailing zeros
+            if (currency === 61166) {
+              return num.toLocaleString("en-US", {
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 4,
+              });
+            }
+            
+            // For other tokens, show up to 2 decimal places
+            return num.toLocaleString("en-US", {
+              minimumFractionDigits: 0,
+              maximumFractionDigits: 2,
+            });
+          };
+          
           return (
             <div key={index} className="flex justify-between gap-2">
               {JB_CHAINS[surplus.chainId].name}
               <span className="font-medium">
-                {surplus.surplus ? formatUnits(surplus.surplus, decimals, {
-                  fractionDigits: 4,
-                }) : "0"}{" "}
+                {surplus.surplus ? formatAmount(surplus.surplus, decimals) : "0"}{" "}
                 {getTokenName(currency || 0)}
               </span>
             </div>
@@ -161,9 +187,29 @@ export function TvlDatum() {
         <div className="flex justify-between gap-2">
           <span>[All chains]</span>
           <span className="font-medium">
-            {formatUnits(totalAmount, targetDecimals, {
-              fractionDigits: 4,
-            })}{" "}
+            {totalAmount ? (() => {
+              const formatted = formatUnits(totalAmount, targetDecimals);
+              const num = Number(formatted);
+              
+              if (isAllUsdc) {
+                return num.toLocaleString("en-US", {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                });
+              }
+              
+              if (isAllEth) {
+                return num.toLocaleString("en-US", {
+                  minimumFractionDigits: 0,
+                  maximumFractionDigits: 4,
+                });
+              }
+              
+              return num.toLocaleString("en-US", {
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 2,
+              });
+            })() : "0"}{" "}
             {targetCurrency}
           </span>
         </div>

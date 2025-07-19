@@ -36,6 +36,24 @@ export const BACKED_BY_TOKENS = ["ETH", "USDC"] as const;
 export const JB_CURRENCY_ETH = 1;
 export const JB_CURRENCY_USD = 3;
 
+// Currency configuration for different token types
+export const CURRENCY_CONFIG = {
+  ETH: {
+    currencyId: 61166,
+    symbol: "ETH",
+    decimals: 18,
+    targetCurrency: "eth",
+    isNative: true
+  },
+  USDC: {
+    currencyId: 1,
+    symbol: "USDC", 
+    decimals: 6,
+    targetCurrency: "usd",
+    isNative: false
+  }
+} as const;
+
 export const USDC_ADDRESSES: Record<number, `0x${string}`> = {
   42161: "0xaf88d065e77c8cC2239327C5EDb3A432268e5831", // Arbitrum
   8453: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", // Base
