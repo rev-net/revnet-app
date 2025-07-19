@@ -40,6 +40,8 @@ import {
   useWalletClient,
 } from "wagmi";
 import { useSelectedSucker } from "./SelectedSuckerContext";
+import { useBendystrawQuery } from "@/graphql/useBendystrawQuery";
+import { ProjectDocument, SuckerGroupDocument } from "@/generated/graphql";
 
 export function PayDialog({
   amountA,
@@ -70,6 +72,39 @@ export function PayDialog({
   const { data: walletClient } = useWalletClient();
   const [isApproving, setIsApproving] = useState(false);
 
+  // Get the suckerGroupId from the current project
+  const { data: projectData } = useBendystrawQuery(ProjectDocument, {
+    chainId: Number(chainId),
+    projectId: Number(projectId),
+  }, {
+    enabled: !!chainId && !!projectId,
+  });
+  const suckerGroupId = projectData?.project?.suckerGroupId;
+
+  // Get all projects in the sucker group with their token data
+  const { data: suckerGroupData } = useBendystrawQuery(SuckerGroupDocument, {
+    id: suckerGroupId ?? "",
+  }, {
+    enabled: !!suckerGroupId,
+  });
+
+  // Get the correct token address for the selected chain
+  const getTokenForChain = (targetChainId: number) => {
+    if (!suckerGroupData?.suckerGroup?.projects?.items) {
+      return paymentToken; // fallback to original paymentToken
+    }
+    
+    const projectForChain = suckerGroupData.suckerGroup.projects.items.find(
+      project => project.chainId === targetChainId
+    );
+    
+    if (projectForChain?.token) {
+      return projectForChain.token as `0x${string}`;
+    }
+    
+    return paymentToken; // fallback to original paymentToken
+  };
+
   useEffect(() => {
     if (isError && error) {
       toast({
@@ -95,12 +130,14 @@ export function PayDialog({
   const handlePay = async () => {
     if (!primaryNativeTerminal?.data || !address || !selectedSucker || !walletClient || !publicClient) return;
 
-    const isNative = paymentToken === NATIVE_TOKEN;
+    // Get the correct token for the selected chain
+    const chainToken = getTokenForChain(selectedSucker.peerChainId);
+    const isNative = chainToken === "0x000000000000000000000000000000000000eeee";
 
     try {
       if (!isNative) {
         const allowance = await publicClient.readContract({
-          address: paymentToken,
+          address: chainToken,
           abi: erc20Abi,
           functionName: "allowance",
           args: [address, primaryNativeTerminal.data as `0x${string}`],
@@ -109,7 +146,7 @@ export function PayDialog({
         if (BigInt(allowance) < BigInt(value)) {
           setIsApproving(true);
           const hash = await walletClient.writeContract({
-            address: paymentToken,
+            address: chainToken,
             abi: erc20Abi,
             functionName: "approve",
             args: [primaryNativeTerminal.data as `0x${string}`, value],
@@ -124,7 +161,7 @@ export function PayDialog({
         address: primaryNativeTerminal.data as `0x${string}`,
         args: [
           selectedSucker.projectId,
-          paymentToken,
+          chainToken,
           value,
           address,
           0n,

@@ -142,7 +142,7 @@ export function PayForm() {
               amountA={_amountA}
               amountB={_amountB}
               memo={memo}
-              paymentToken={(accountingContext?.project?.token as `0x${string}`) || "0x0000000000000000000000000000000000000000"}
+              paymentToken={(accountingContext?.project?.token as `0x${string}`) || "0x000000000000000000000000000000000000eeee"}
               disabled={!amountA}
             />
           ) : null}
