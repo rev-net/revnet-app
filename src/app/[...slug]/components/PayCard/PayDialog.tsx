@@ -49,12 +49,14 @@ export function PayDialog({
   memo,
   paymentToken,
   disabled,
+  onSuccess,
 }: {
   amountA: TokenAmountType;
   amountB: TokenAmountType;
   memo: string | undefined;
   paymentToken: `0x${string}`;
   disabled?: boolean;
+  onSuccess?: () => void;
 }) {
   const { projectId } = useJBContractContext();
   const primaryNativeTerminal = { data: "0xdb9644369c79c3633cde70d2df50d827d7dc7dbc" };
@@ -104,6 +106,17 @@ export function PayDialog({
     
     return paymentToken; // fallback to original paymentToken
   };
+
+  // Auto-reset after successful payment
+  useEffect(() => {
+    if (isSuccess && onSuccess) {
+      const timer = setTimeout(() => {
+        onSuccess();
+      }, 3000); // Show success message for 3 seconds
+
+      return () => clearTimeout(timer);
+    }
+  }, [isSuccess, onSuccess]);
 
   useEffect(() => {
     if (isError && error) {

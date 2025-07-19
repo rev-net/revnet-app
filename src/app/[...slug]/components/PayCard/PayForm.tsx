@@ -21,6 +21,7 @@ export function PayForm() {
   const tokenA = useTokenA();
   const { token } = useJBTokenContext();
   const [memo, setMemo] = useState<string>();
+  const [resetKey, setResetKey] = useState(0);
 
   const [amountA, setAmountA] = useState<string>("");
   const [amountB, setAmountB] = useState<string>("");
@@ -48,6 +49,7 @@ export function PayForm() {
     setAmountA("");
     setAmountB("");
     setAmountC("");
+    setResetKey(prev => prev + 1); // Force PayDialog to remount
   }
 
   return (
@@ -139,11 +141,16 @@ export function PayForm() {
         <div className="w-[150px] flex">
           {primaryNativeTerminal?.data ? (
             <PayDialog
+              key={resetKey}
               amountA={_amountA}
               amountB={_amountB}
               memo={memo}
               paymentToken={(accountingContext?.project?.token as `0x${string}`) || "0x000000000000000000000000000000000000eeee"}
               disabled={!amountA}
+              onSuccess={() => {
+                resetForm();
+                setMemo("");
+              }}
             />
           ) : null}
         </div>
