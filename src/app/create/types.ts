@@ -40,4 +40,5 @@ export type RevnetFormData = {
     chainId: string;
     address: string;
   }[];
+  reserveAsset: "ETH" | "USDC"; // Added field for reserve asset choice
 };

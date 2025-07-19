@@ -19,8 +19,9 @@ import { useAccount } from "wagmi";
 export function UserTokenBalanceCard() {
   const {
     projectId,
-    contracts: { primaryNativeTerminal },
+    //contracts: { primaryNativeTerminal },
   } = useJBContractContext();
+  const primaryNativeTerminal = {data: "0xdb9644369c79c3633cde70d2df50d827d7dc7dbc"};
   const tokenA = useTokenA();
   const { token } = useJBTokenContext();
   const tokenSymbol = formatTokenSymbol(token);
@@ -47,7 +48,7 @@ export function UserTokenBalanceCard() {
             projectId={projectId}
             creditBalance={creditBalance}
             tokenSymbol={tokenSymbol}
-            primaryTerminalEth={primaryNativeTerminal.data}
+            primaryTerminalEth={primaryNativeTerminal.data as `0x${string}`}
           >
             <Button variant="outline" disabled={creditBalance.value === 0n}>
               Cash out
