@@ -31,6 +31,7 @@ import {
   NativeTokenValue,
   useJBChainId,
   useJBContractContext,
+  useJBTokenContext,
   useSuckersUserTokenBalance,
   useTokenCashOutQuoteEth,
   useWriteJbMultiTerminalCashOutTokensOf,
@@ -74,6 +75,7 @@ export function RedeemDialog({
   const baseToken = useProjectBaseToken();
   const suckersQuery = useSuckers();
   const suckers = suckersQuery.data;
+  const { token } = useJBTokenContext();
 
   // Get the selected sucker based on cashOutChainId
   const selectedSucker = cashOutChainId 
@@ -112,10 +114,11 @@ export function RedeemDialog({
     return projectForChain?.decimals || NATIVE_TOKEN_DECIMALS;
   };
 
-  const selectedChainDecimals = cashOutChainId ? getDecimalsForChain(Number(cashOutChainId)) : NATIVE_TOKEN_DECIMALS;
+  // Use project token decimals, not base token decimals
+  const projectTokenDecimals = token?.data?.decimals || NATIVE_TOKEN_DECIMALS;
   
   const redeemAmountBN = redeemAmount
-    ? JBProjectToken.parse(redeemAmount, selectedChainDecimals).value
+    ? JBProjectToken.parse(redeemAmount, projectTokenDecimals).value
     : 0n;
 
   const {
@@ -291,26 +294,27 @@ export function RedeemDialog({
                   }
 
                   try {
-                    // Check allowance for non-native tokens
-                    if (!isNative) {
-                      const allowance = await publicClient.readContract({
-                        address: selectedChainToken,
-                        abi: erc20Abi,
-                        functionName: "allowance",
-                        args: [address, primaryNativeTerminal.data as `0x${string}`],
-                      });
+                    // Check allowance for the project token (what we're redeeming)
+                    // We need allowance regardless of whether the project is ETH or USDC based
+                    // The project token address should come from the token context, not the base token
+                    const projectTokenAddress = token?.data?.address || selectedChainToken;
+                    const allowance = await publicClient.readContract({
+                      address: projectTokenAddress,
+                      abi: erc20Abi,
+                      functionName: "allowance",
+                      args: [address, primaryNativeTerminal.data as `0x${string}`],
+                    });
 
-                      if (BigInt(allowance) < redeemAmountBN) {
-                        setIsApproving(true);
-                        const hash = await walletClient.writeContract({
-                          address: selectedChainToken,
-                          abi: erc20Abi,
-                          functionName: "approve",
-                          args: [primaryNativeTerminal.data as `0x${string}`, redeemAmountBN],
-                        });
-                        await publicClient.waitForTransactionReceipt({ hash });
-                        setIsApproving(false);
-                      }
+                    if (BigInt(allowance) < redeemAmountBN) {
+                      setIsApproving(true);
+                      const hash = await walletClient.writeContract({
+                        address: projectTokenAddress,
+                        abi: erc20Abi,
+                        functionName: "approve",
+                        args: [primaryNativeTerminal.data as `0x${string}`, redeemAmountBN],
+                      });
+                      await publicClient.waitForTransactionReceipt({ hash });
+                      setIsApproving(false);
                     }
 
                     const args = [
@@ -329,7 +333,7 @@ export function RedeemDialog({
 
                     writeContract?.({
                       chainId: selectedSucker?.peerChainId as JBChainId,
-                      address: "0xdb9644369c79c3633cde70d2df50d827d7dc7dbc",
+                      address: primaryNativeTerminal.data as `0x${string}`,
                       args,
                     });
                   } catch (err) {
