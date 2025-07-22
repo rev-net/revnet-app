@@ -80,6 +80,7 @@ export function PriceSection({ className }: { className?: string }) {
             </li>
           </ul>
         ) : null}
+        {/* TODO: Add back in when we have a way to get the minimum cash out value for a project
         <ul className="list-disc list-inside mt-2 space-y-2">
           <li className="flex">
             <div className="flex flex-col border-l border-zinc-300 pl-2">
@@ -91,7 +92,7 @@ export function PriceSection({ className }: { className?: string }) {
               </div>
             </div>
           </li>
-        </ul>
+        </ul> */}
       </div>
     </>
   );

@@ -541,7 +541,7 @@ export function useBorrowDialog({
         setBorrowStatus("waiting-signature");
 
         // Check allowance for non-ETH base tokens
-        if (baseTokenSymbol !== "ETH" && publicClient && walletClient) {
+        if (baseTokenSymbol !== "ETH" && publicClient && walletClient && newLoanBorrowableAmount) {
           const baseTokenAddress = selectedChainTokenConfig.token;
           const revLoansContractAddress = revLoansAddress[Number(cashOutChainId) as JBChainId];
           
@@ -559,9 +559,9 @@ export function useBorrowDialog({
           });
 
           console.log("Current allowance:", allowance.toString());
-          console.log("Required amount for reallocation:", collateralCountToTransfer.toString());
+          console.log("Required amount for reallocation (newLoanBorrowableAmount):", newLoanBorrowableAmount.toString());
 
-          if (BigInt(allowance) < collateralCountToTransfer) {
+          if (BigInt(allowance) < newLoanBorrowableAmount) {
             console.log("Insufficient allowance for reallocation, requesting approval...");
             setBorrowStatus("approving");
             
@@ -569,7 +569,7 @@ export function useBorrowDialog({
               address: baseTokenAddress,
               abi: erc20Abi,
               functionName: "approve",
-              args: [revLoansContractAddress as Address, collateralCountToTransfer],
+              args: [revLoansContractAddress as Address, newLoanBorrowableAmount],
             });
             
             console.log("Reallocation approval transaction hash:", approveHash);
@@ -661,7 +661,7 @@ export function useBorrowDialog({
         const baseTokenSymbol = getTokenSymbolFromAddress(selectedChainTokenConfig.token);
 
         // Check allowance for non-ETH base tokens (for standard borrow)
-        if (baseTokenSymbol !== "ETH" && publicClient && walletClient) {
+        if (baseTokenSymbol !== "ETH" && publicClient && walletClient && estimatedBorrowFromInputOnly) {
           const baseTokenAddress = selectedChainTokenConfig.token;
           const revLoansContractAddress = revLoansAddress[Number(cashOutChainId) as JBChainId];
           
@@ -679,9 +679,9 @@ export function useBorrowDialog({
           });
 
           console.log("Current allowance:", allowance.toString());
-          console.log("Required amount for borrow:", collateralBigInt.toString());
+          console.log("Required amount for borrow (estimatedBorrowFromInputOnly):", estimatedBorrowFromInputOnly.toString());
 
-          if (BigInt(allowance) < collateralBigInt) {
+          if (BigInt(allowance) < estimatedBorrowFromInputOnly) {
             console.log("Insufficient allowance for borrow, requesting approval...");
             setBorrowStatus("approving");
             
@@ -689,7 +689,7 @@ export function useBorrowDialog({
               address: baseTokenAddress,
               abi: erc20Abi,
               functionName: "approve",
-              args: [revLoansContractAddress as Address, collateralBigInt],
+              args: [revLoansContractAddress as Address, estimatedBorrowFromInputOnly],
             });
             
             console.log("Borrow approval transaction hash:", approveHash);
@@ -761,6 +761,11 @@ export function useBorrowDialog({
     resolvedPermissionsAddress,
     writeContract,
     effectiveProjectId,
+    estimatedBorrowFromInputOnly,
+    newLoanBorrowableAmount,
+    selectedChainTokenConfig,
+    publicClient,
+    projectTokenDecimals,
   ]);
 
   // ===== EFFECTS =====
