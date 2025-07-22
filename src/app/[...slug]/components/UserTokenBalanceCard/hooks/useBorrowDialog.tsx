@@ -33,6 +33,7 @@ import { useProjectBaseToken } from "@/hooks/useProjectBaseToken";
 import { useBendystrawQuery } from "@/graphql/useBendystrawQuery";
 import { ProjectDocument, SuckerGroupDocument } from "@/generated/graphql";
 import { USDC_ADDRESSES } from "@/app/constants";
+import { getTokenSymbolFromAddress, createTokenConfigGetter } from "@/lib/tokenUtils";
 
 
 // Types
@@ -152,61 +153,7 @@ export function useBorrowDialog({
   
   // ===== PHASE 1: TOKEN RESOLUTION FUNCTION =====
   // Get the correct token configuration for a specific chain
-  const getTokenConfigForChain = useCallback((targetChainId: number) => {
-    console.log("🔍 Getting token config for chain:", targetChainId);
-    console.log("🔍 Available projects:", suckerGroupData?.suckerGroup?.projects?.items?.map(p => ({ chainId: p.chainId, token: p.token })));
-    
-    if (!suckerGroupData?.suckerGroup?.projects?.items) {
-      console.log("⚠️ No sucker group data available, using ETH fallback");
-      return {
-        token: "0x000000000000000000000000000000000000EEEe" as `0x${string}`,
-        currency: 61166,
-        decimals: 18
-      };
-    }
-    
-    const projectForChain = suckerGroupData.suckerGroup.projects.items.find(
-      project => {
-        console.log("🔍 Comparing project chainId:", project.chainId, "with target:", targetChainId, "types:", typeof project.chainId, typeof targetChainId);
-        return project.chainId === targetChainId;
-      }
-    );
-    
-    console.log("🔍 Found project for chain:", projectForChain);
-    
-    if (projectForChain?.token) {
-      const config = {
-        token: projectForChain.token as `0x${string}`,
-        currency: Number(projectForChain.currency),
-        decimals: projectForChain.decimals || 18
-      };
-      console.log("✅ Found token config for chain:", targetChainId, config);
-      return config;
-    }
-    
-    console.log("⚠️ No token config found for chain:", targetChainId, "using ETH fallback");
-    return {
-      token: "0x000000000000000000000000000000000000EEEe" as `0x${string}`,
-      currency: 61166,
-      decimals: 18
-    };
-  }, [suckerGroupData]);
-  
-  // Helper function to get token symbol from address
-  const getTokenSymbolFromAddress = useCallback((tokenAddress: string): string => {
-    // Check for ETH (case insensitive)
-    if (tokenAddress?.toLowerCase() === "0x000000000000000000000000000000000000eeee") {
-      return "ETH";
-    }
-    
-    // Check for USDC
-    const isUsdc = Object.values(USDC_ADDRESSES).includes(tokenAddress as `0x${string}`);
-    if (isUsdc) {
-      return "USDC";
-    }
-    
-    return "TOKEN";
-  }, []);
+  const getTokenConfigForChain = useCallback(createTokenConfigGetter(suckerGroupData), [suckerGroupData]);
   
   // Data hooks
   const { data: balances } = useSuckersUserTokenBalance();

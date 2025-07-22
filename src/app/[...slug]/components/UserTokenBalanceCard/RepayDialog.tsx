@@ -19,6 +19,7 @@ import { formatUnits, parseUnits } from "viem";
 import { useBendystrawQuery } from "@/graphql/useBendystrawQuery";
 import { ProjectDocument, SuckerGroupDocument } from "@/generated/graphql";
 import { USDC_ADDRESSES } from "@/app/constants";
+import { getTokenSymbolFromAddress, getTokenConfigForChain } from "@/lib/tokenUtils";
 
 export function RepayDialog({
   loanId,
@@ -75,53 +76,8 @@ export function RepayDialog({
     pollInterval: 10000
   });
   
-  // Helper function to get token symbol from address
-  const getTokenSymbolFromAddress = (tokenAddress: string): string => {
-    // Check for ETH (case insensitive)
-    if (tokenAddress?.toLowerCase() === "0x000000000000000000000000000000000000eeee") {
-      return "ETH";
-    }
-    
-    // Check for USDC
-    const isUsdc = Object.values(USDC_ADDRESSES).includes(tokenAddress as `0x${string}`);
-    if (isUsdc) {
-      return "USDC";
-    }
-    
-    return "TOKEN";
-  };
-  
-  // Helper function to get token configuration for a specific chain
-  const getTokenConfigForChain = (targetChainId: number) => {
-    if (!suckerGroupData?.suckerGroup?.projects?.items) {
-      return {
-        token: "0x000000000000000000000000000000000000EEEe" as `0x${string}`,
-        currency: 61166,
-        decimals: 18
-      };
-    }
-    
-    const projectForChain = suckerGroupData.suckerGroup.projects.items.find(
-      (project: any) => project.chainId === targetChainId
-    );
-    
-    if (projectForChain?.token) {
-      return {
-        token: projectForChain.token as `0x${string}`,
-        currency: Number(projectForChain.currency),
-        decimals: projectForChain.decimals || 18
-      };
-    }
-    
-    return {
-      token: "0x000000000000000000000000000000000000EEEe" as `0x${string}`,
-      currency: 61166,
-      decimals: 18
-    };
-  };
-  
   // Get token configuration for this loan's chain
-  const chainTokenConfig = getTokenConfigForChain(chainId);
+  const chainTokenConfig = getTokenConfigForChain(suckerGroupData, chainId);
   const baseTokenSymbol = getTokenSymbolFromAddress(chainTokenConfig.token);
   const baseTokenDecimals = chainTokenConfig.decimals;
   

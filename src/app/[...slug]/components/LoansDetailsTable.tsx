@@ -1,9 +1,13 @@
-import { JB_CHAINS, JBChainId, NATIVE_TOKEN_DECIMALS } from "juice-sdk-core";
+import { JB_CHAINS, JBChainId, NATIVE_TOKEN_DECIMALS, JBProjectToken } from "juice-sdk-core";
 import { useBendystrawQuery } from "@/graphql/useBendystrawQuery";
 import { LoansByAccountDocument, ProjectDocument, SuckerGroupDocument } from "@/generated/graphql";
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { formatSeconds } from "@/lib/utils";
 import { formatUnits } from "viem";
+import { useJBTokenContext, useJBChainId, useSuckers } from "juice-sdk-react";
+import { useReadRevLoansBorrowableAmountFrom } from "revnet-sdk";
+import { USDC_ADDRESSES } from "@/app/constants";
+import { getTokenSymbolFromAddress, getTokenConfigForChain } from "@/lib/tokenUtils";
 import {
   Table,
   TableBody,
@@ -14,10 +18,7 @@ import {
 } from "@/components/ui/table";
 import { ChainLogo } from "@/components/ChainLogo";
 import { Button } from "@/components/ui/button";
-import { useJBTokenContext, useSuckers, useJBChainId } from "juice-sdk-react";
-import { useReadRevLoansBorrowableAmountFrom } from "revnet-sdk";
 import { useProjectBaseToken } from "@/hooks/useProjectBaseToken";
-import { USDC_ADDRESSES } from "@/app/constants";
 
 // Constants for loan calculations and display
 const LOAN_CONSTANTS = {
@@ -28,27 +29,6 @@ const LOAN_CONSTANTS = {
   POLL_INTERVAL: 3000, // Refresh every 3 seconds
   TABLE_MAX_HEIGHT: "max-h-96",
 } as const;
-
-// Helper function to get token symbol from address
-function getTokenSymbolFromAddress(tokenAddress: string): string {
-  console.log("🔍 Getting token symbol for address:", tokenAddress);
-  
-  // Check for ETH (case insensitive)
-  if (tokenAddress?.toLowerCase() === "0x000000000000000000000000000000000000eeee") {
-    console.log("✅ Identified as ETH");
-    return "ETH";
-  }
-  
-  // Check for USDC
-  const isUsdc = Object.values(USDC_ADDRESSES).includes(tokenAddress as `0x${string}`);
-  if (isUsdc) {
-    console.log("✅ Identified as USDC");
-    return "USDC";
-  }
-  
-  console.log("⚠️ Unknown token, returning TOKEN");
-  return "TOKEN";
-}
 
 // Separate component for each loan row to avoid Rules of Hooks violation
 function LoanRow({ 
@@ -73,36 +53,7 @@ function LoanRow({
   const { token } = useJBTokenContext();
   const projectTokenDecimals = token?.data?.decimals ?? 18;
 
-  // Get token configuration for this loan's chain
-  const getTokenConfigForChain = (targetChainId: number) => {
-    if (!suckerGroupData?.suckerGroup?.projects?.items) {
-      return {
-        token: "0x000000000000000000000000000000000000EEEe" as `0x${string}`,
-        currency: 61166,
-        decimals: 18
-      };
-    }
-    
-    const projectForChain = suckerGroupData.suckerGroup.projects.items.find(
-      (project: any) => project.chainId === targetChainId
-    );
-    
-    if (projectForChain?.token) {
-      return {
-        token: projectForChain.token as `0x${string}`,
-        currency: Number(projectForChain.currency),
-        decimals: projectForChain.decimals || 18
-      };
-    }
-    
-    return {
-      token: "0x000000000000000000000000000000000000EEEe" as `0x${string}`,
-      currency: 61166,
-      decimals: 18
-    };
-  };
-
-  const chainTokenConfig = getTokenConfigForChain(loan.chainId);
+  const chainTokenConfig = getTokenConfigForChain(suckerGroupData, loan.chainId);
   console.log("🎯 Chain token config for loan:", {
     chainId: loan.chainId,
     token: chainTokenConfig.token,

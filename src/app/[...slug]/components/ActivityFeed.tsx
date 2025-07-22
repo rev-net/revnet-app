@@ -12,6 +12,7 @@ import {
 } from "@/generated/graphql";
 import { useBendystrawQuery } from "@/graphql/useBendystrawQuery";
 import { formatTokenSymbol } from "@/lib/utils";
+import { getTokenSymbolFromAddress, getTokenConfigForChain } from "@/lib/tokenUtils";
 import { formatDistance } from "date-fns";
 import { Ether, JB_CHAINS, JBProjectToken } from "juice-sdk-core";
 import { formatUnits } from "viem";
@@ -25,53 +26,6 @@ import {
 import { useState, useEffect } from "react";
 import { Address } from "viem";
 import { Loader2 } from 'lucide-react';
-
-// Helper function to get token symbol from address
-function getTokenSymbolFromAddress(tokenAddress: string): string {
-  
-  // Check for ETH (case insensitive)
-  if (tokenAddress?.toLowerCase() === "0x000000000000000000000000000000000000eeee") {
-    return "ETH";
-  }
-  
-  // Check for USDC
-  const isUsdc = Object.values(USDC_ADDRESSES).includes(tokenAddress as `0x${string}`);
-  if (isUsdc) {
-    return "USDC";
-  }
-  
-  return "TOKEN";
-}
-
-// Helper function to get token configuration for a specific chain
-function getTokenConfigForChain(suckerGroupData: any, targetChainId: number) {
-  
-  if (!suckerGroupData?.suckerGroup?.projects?.items) {
-    return {
-      token: "0x000000000000000000000000000000000000EEEe" as `0x${string}`,
-      currency: 61166,
-      decimals: 18
-    };
-  }
-  
-  const projectForChain = suckerGroupData.suckerGroup.projects.items.find(
-    (project: any) => project.chainId === targetChainId
-  );
-  
-  if (projectForChain?.token) {
-    return {
-      token: projectForChain.token as `0x${string}`,
-      currency: Number(projectForChain.currency),
-      decimals: projectForChain.decimals || 18
-    };
-  }
-  
-  return {
-    token: "0x000000000000000000000000000000000000EEEe" as `0x${string}`,
-    currency: 61166,
-    decimals: 18
-  };
-}
 
 type PayActivityItemData = {
   id: string;
