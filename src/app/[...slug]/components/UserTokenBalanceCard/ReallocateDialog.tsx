@@ -59,6 +59,7 @@ export function ReallocateDialog({
     displayMonths,
     newLoanBorrowableAmount,
     collateralHeadroom,
+    collateralCountToTransfer,
     handleOpenChange,
     handleBorrow,
     setCollateralAmount,
@@ -66,6 +67,8 @@ export function ReallocateDialog({
     setShowChart,
     setShowInfo,
     balances,
+    selectedChainTokenSymbol,
+    getTokenConfigForChain,
   } = reallocateDialog;
 
   const nativeTokenSymbol = useNativeTokenSymbol();
@@ -88,7 +91,11 @@ export function ReallocateDialog({
 
   // Pre-populate with existing loan data
   const existingCollateral = selectedLoan ? Number(formatUnits(BigInt(selectedLoan.collateral), projectTokenDecimals)) : 0;
-  const existingBorrowed = selectedLoan ? Number(formatUnits(BigInt(selectedLoan.borrowAmount), NATIVE_TOKEN_DECIMALS)) : 0;
+  
+  // Get the correct base token configuration for the loan's chain
+  const loanChainTokenConfig = selectedLoan?.chainId ? getTokenConfigForChain(selectedLoan.chainId) : null;
+  const baseTokenDecimals = loanChainTokenConfig?.decimals || NATIVE_TOKEN_DECIMALS;
+  const existingBorrowed = selectedLoan ? Number(formatUnits(BigInt(selectedLoan.borrowAmount), baseTokenDecimals)) : 0;
 
   // Use provided open state or internal state
   const dialogOpen = open !== undefined ? open : isDialogOpen;
@@ -104,9 +111,12 @@ export function ReallocateDialog({
   }, [borrowStatus, onOpenChange]);
 
   // Calculate the new loan simulation values
-  const headroomCollateral = Number(formatUnits(collateralHeadroom, projectTokenDecimals));
+  const headroomCollateral = Number(formatUnits(collateralHeadroom, baseTokenDecimals));
   const additionalCollateral = Number(collateralAmount || 0);
   const newLoanCollateral = headroomCollateral + additionalCollateral;
+  
+  // Get the actual collateral amount that can be transferred (in project token)
+  const collateralToTransfer = Number(formatUnits(collateralCountToTransfer, projectTokenDecimals));
 
   return (
     <Dialog open={dialogOpen} onOpenChange={handleDialogOpenChange}>
@@ -130,7 +140,7 @@ export function ReallocateDialog({
               </div>
               <div>
                 <span className="text-zinc-600">Currently Borrowed:</span>
-                <div className="font-medium">{existingBorrowed.toFixed(6)} {nativeTokenSymbol}</div>
+                <div className="font-medium">{existingBorrowed.toFixed(6)} {selectedChainTokenSymbol}</div>
               </div>
               <div>
                 <span className="text-zinc-600">Loan ID will be burned and replaced:</span>
@@ -144,7 +154,7 @@ export function ReallocateDialog({
           </div>
 
           {/* Additional Collateral Input */}
-          {headroomCollateral > 0 && (
+          {collateralToTransfer > 0 && (
             <div>
               {Number(borrowableAmountFormatted) > 0 ? (
                 <div className="text-sm text-zinc-600 mb-2">
@@ -156,10 +166,10 @@ export function ReallocateDialog({
                 </div>
               )}
               <div className="text-sm text-zinc-600 mb-2">
-                Borrowable amount for the new loan: {newLoanBorrowableAmount ? Number(formatUnits(newLoanBorrowableAmount, NATIVE_TOKEN_DECIMALS)).toFixed(8) : "0.000000"} {nativeTokenSymbol}
+                Borrowable amount for the new loan: {newLoanBorrowableAmount ? Number(formatUnits(newLoanBorrowableAmount, baseTokenDecimals)).toFixed(8) : "0.000000"} {selectedChainTokenSymbol}
               </div>
               <div className="text-sm text-zinc-600 mb-2">
-                Head room to reallocate: {headroomCollateral > 0 ? Number(formatUnits(collateralHeadroom, projectTokenDecimals)).toFixed(6) : "0.000000"} {tokenSymbol}
+                Head room to reallocate: {collateralToTransfer > 0 ? collateralToTransfer.toFixed(6) : "0.000000"} {tokenSymbol}
               </div>
               <Label htmlFor="additional-collateral" className="block text-gray-700 text-sm font-bold mb-2">
                 How much additional {tokenSymbol} do you want to add as collateral for the new loan?
@@ -244,17 +254,18 @@ export function ReallocateDialog({
           )}
           
           {/* Warning when nothing to reallocate */}
-          {headroomCollateral <= 0 && (
+          {collateralToTransfer <= 0 && (
             <div className="text-sm text-amber-600 mb-2 font-medium">
               ⚠️ Nothing to reallocate. Consider taking out a new loan.
             </div>
           )}
 
           {/* New Loan Preview */}
-          {headroomCollateral > 0 && (
+          {collateralToTransfer > 0 && (
             <SimulatedLoanCard
               collateralAmount={newLoanCollateral.toFixed(8)}
-              tokenSymbol={tokenSymbol}
+              tokenSymbol={selectedChainTokenSymbol}
+              collateralTokenSymbol={tokenSymbol}
               amountBorrowed={newLoanBorrowableAmount ? Number(formatUnits(newLoanBorrowableAmount, NATIVE_TOKEN_DECIMALS)) : 0}
               prepaidPercent={prepaidPercent}
               grossBorrowedNative={newLoanBorrowableAmount ? Number(formatUnits(newLoanBorrowableAmount, NATIVE_TOKEN_DECIMALS)) + totalFixedFees : 0}
@@ -264,7 +275,7 @@ export function ReallocateDialog({
           )}
 
           {/* Fee Structure Chart */}
-          {headroomCollateral > 0 && (
+          {collateralToTransfer > 0 && (
             <>
               <button
                 type="button"
@@ -279,7 +290,7 @@ export function ReallocateDialog({
               {showChart && (
                 <div className="bg-zinc-50 p-4 rounded-lg">
                   <p className="text-sm text-zinc-600 mb-4">
-                    This shows the fee structure for the new loan that will be created with {newLoanCollateral.toFixed(6)} {tokenSymbol} collateral (appreciation: {headroomCollateral.toFixed(6)} + additional: {additionalCollateral.toFixed(6)}), allowing you to borrow {newLoanBorrowableAmount ? Number(formatUnits(newLoanBorrowableAmount, NATIVE_TOKEN_DECIMALS)).toFixed(8) : "0.000000"} {nativeTokenSymbol}.
+                    This shows the fee structure for the new loan that will be created with {newLoanCollateral.toFixed(6)} {tokenSymbol} collateral (appreciation: {headroomCollateral.toFixed(6)} + additional: {additionalCollateral.toFixed(6)}), allowing you to borrow {newLoanBorrowableAmount ? Number(formatUnits(newLoanBorrowableAmount, baseTokenDecimals)).toFixed(8) : "0.000000"} {selectedChainTokenSymbol}.
                   </p>
                   <LoanFeeChart
                     prepaidPercent={prepaidPercent}
@@ -288,7 +299,8 @@ export function ReallocateDialog({
                     nativeToWallet={nativeToWallet}
                     grossBorrowedNative={grossBorrowedNative}
                     collateralAmount={newLoanCollateral.toFixed(8)}
-                    tokenSymbol={tokenSymbol}
+                    tokenSymbol={selectedChainTokenSymbol}
+                    collateralTokenSymbol={tokenSymbol}
                     displayYears={displayYears}
                     displayMonths={displayMonths}
                   />
@@ -298,7 +310,7 @@ export function ReallocateDialog({
           )}
 
           {/* Important Info */}
-          {headroomCollateral > 0 && (
+          {collateralToTransfer > 0 && (
             <>
               <button
                 type="button"
@@ -317,7 +329,7 @@ export function ReallocateDialog({
           )}
 
           {/* Status and Action */}
-          {headroomCollateral > 0 && (
+          {collateralToTransfer > 0 && (
             <DialogFooter className="flex flex-row items-center justify-between w-full gap-4">
               <div className="flex-1 text-left">
                 {borrowStatus !== "idle" && (
@@ -325,6 +337,7 @@ export function ReallocateDialog({
                     {borrowStatus === "checking" && "Checking permissions..."}
                     {borrowStatus === "granting-permission" && "Granting permission..."}
                     {borrowStatus === "permission-granted" && "Permission granted. Reallocating loan..."}
+                    {borrowStatus === "approving" && "Approving token allowance..."}
                     {borrowStatus === "waiting-signature" && "Waiting for wallet confirmation..."}
                     {borrowStatus === "pending" && "Reallocating loan..."}
                     {borrowStatus === "reallocation-pending" && "Reallocating loan..."}

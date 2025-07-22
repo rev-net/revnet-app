@@ -73,6 +73,7 @@ export function UserTokenBalanceCard() {
           <RepayDialog
             loanId={selectedLoanId}
             chainId={selectedChainId}
+            projectId={projectId}
             open={showRepayDialog}
             onOpenChange={setShowRepayDialog}
           />

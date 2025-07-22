@@ -1,6 +1,6 @@
 import { JB_CHAINS, JBChainId, NATIVE_TOKEN_DECIMALS } from "juice-sdk-core";
 import { useBendystrawQuery } from "@/graphql/useBendystrawQuery";
-import { LoansByAccountDocument } from "@/generated/graphql";
+import { LoansByAccountDocument, ProjectDocument, SuckerGroupDocument } from "@/generated/graphql";
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { formatSeconds } from "@/lib/utils";
 import { formatUnits } from "viem";
@@ -14,13 +14,13 @@ import {
 } from "@/components/ui/table";
 import { ChainLogo } from "@/components/ChainLogo";
 import { Button } from "@/components/ui/button";
-import { useNativeTokenSymbol } from "@/hooks/useNativeTokenSymbol";
-import { useJBTokenContext, useSuckers } from "juice-sdk-react";
+import { useJBTokenContext, useSuckers, useJBChainId } from "juice-sdk-react";
 import { useReadRevLoansBorrowableAmountFrom } from "revnet-sdk";
+import { useProjectBaseToken } from "@/hooks/useProjectBaseToken";
+import { USDC_ADDRESSES } from "@/app/constants";
 
 // Constants for loan calculations and display
 const LOAN_CONSTANTS = {
-  CURRENCY_ID: 61166n,
   DECIMAL_PLACES: {
     BORROWED_AMOUNT: 6,
     COLLATERAL_AMOUNT: 6,
@@ -28,6 +28,27 @@ const LOAN_CONSTANTS = {
   POLL_INTERVAL: 3000, // Refresh every 3 seconds
   TABLE_MAX_HEIGHT: "max-h-96",
 } as const;
+
+// Helper function to get token symbol from address
+function getTokenSymbolFromAddress(tokenAddress: string): string {
+  console.log("🔍 Getting token symbol for address:", tokenAddress);
+  
+  // Check for ETH (case insensitive)
+  if (tokenAddress?.toLowerCase() === "0x000000000000000000000000000000000000eeee") {
+    console.log("✅ Identified as ETH");
+    return "ETH";
+  }
+  
+  // Check for USDC
+  const isUsdc = Object.values(USDC_ADDRESSES).includes(tokenAddress as `0x${string}`);
+  if (isUsdc) {
+    console.log("✅ Identified as USDC");
+    return "USDC";
+  }
+  
+  console.log("⚠️ Unknown token, returning TOKEN");
+  return "TOKEN";
+}
 
 // Separate component for each loan row to avoid Rules of Hooks violation
 function LoanRow({ 
@@ -37,7 +58,8 @@ function LoanRow({
   selectedLoanId, 
   now, 
   onSelectLoan, 
-  onReallocateLoan 
+  onReallocateLoan,
+  suckerGroupData
 }: {
   loan: any;
   revnetId: bigint;
@@ -46,24 +68,64 @@ function LoanRow({
   now: number;
   onSelectLoan?: (loanId: string, chainId: number) => void;
   onReallocateLoan?: (loan: any) => void;
+  suckerGroupData?: any;
 }) {
-  const nativeTokenSymbol = useNativeTokenSymbol();
   const { token } = useJBTokenContext();
   const projectTokenDecimals = token?.data?.decimals ?? 18;
 
-  const borrowEth = Number(formatUnits(BigInt(loan.borrowAmount), NATIVE_TOKEN_DECIMALS)).toFixed(4);
+  // Get token configuration for this loan's chain
+  const getTokenConfigForChain = (targetChainId: number) => {
+    if (!suckerGroupData?.suckerGroup?.projects?.items) {
+      return {
+        token: "0x000000000000000000000000000000000000EEEe" as `0x${string}`,
+        currency: 61166,
+        decimals: 18
+      };
+    }
+    
+    const projectForChain = suckerGroupData.suckerGroup.projects.items.find(
+      (project: any) => project.chainId === targetChainId
+    );
+    
+    if (projectForChain?.token) {
+      return {
+        token: projectForChain.token as `0x${string}`,
+        currency: Number(projectForChain.currency),
+        decimals: projectForChain.decimals || 18
+      };
+    }
+    
+    return {
+      token: "0x000000000000000000000000000000000000EEEe" as `0x${string}`,
+      currency: 61166,
+      decimals: 18
+    };
+  };
+
+  const chainTokenConfig = getTokenConfigForChain(loan.chainId);
+  console.log("🎯 Chain token config for loan:", {
+    chainId: loan.chainId,
+    token: chainTokenConfig.token,
+    currency: chainTokenConfig.currency,
+    decimals: chainTokenConfig.decimals
+  });
+  
+  const baseTokenSymbol = getTokenSymbolFromAddress(chainTokenConfig.token);
+  const baseTokenDecimals = chainTokenConfig.decimals;
+
+  const borrowAmount = Number(formatUnits(BigInt(loan.borrowAmount), baseTokenDecimals)).toFixed(4);
 
   // Calculate headroom: current value of collateral - borrowed amount
   const { data: currentCollateralValue } = useReadRevLoansBorrowableAmountFrom({
     chainId: loan.chainId as JBChainId,
-    args: [revnetId, BigInt(loan.collateral), BigInt(NATIVE_TOKEN_DECIMALS), LOAN_CONSTANTS.CURRENCY_ID],
+    args: [revnetId, BigInt(loan.collateral), BigInt(baseTokenDecimals), BigInt(chainTokenConfig.currency)],
   });
 
   const headroom = currentCollateralValue && currentCollateralValue > BigInt(loan.borrowAmount)
     ? currentCollateralValue - BigInt(loan.borrowAmount)
     : 0n;
 
-  const headroomEth = Number(formatUnits(headroom, NATIVE_TOKEN_DECIMALS)).toFixed(4);
+  const headroomAmount = Number(formatUnits(headroom, baseTokenDecimals)).toFixed(6);
 
   return (
     <TableRow
@@ -80,7 +142,7 @@ function LoanRow({
         <Tooltip>
           <TooltipTrigger asChild>
             <span className="whitespace-nowrap">
-              {borrowEth} {nativeTokenSymbol}
+              {borrowAmount} {baseTokenSymbol}
             </span>
           </TooltipTrigger>
           <TooltipContent>Loan ID: {loan.id?.toString() ?? "Unavailable"}</TooltipContent>
@@ -93,7 +155,7 @@ function LoanRow({
       </TableCell>
       <TableCell className="text-left px-3 py-2">
         <span className="whitespace-nowrap">
-          {headroomEth} {nativeTokenSymbol}
+          {headroomAmount} {baseTokenSymbol}
         </span>
       </TableCell>
       <TableCell className="text-left px-3 py-2">
@@ -146,12 +208,33 @@ export function LoanDetailsTable({
   title?: string;
   selectedLoanId?: string;
 }) {
+  const currentChainId = useJBChainId();
+  
   // Get all suckers (project deployments across chains) for this revnet
   const suckersQuery = useSuckers();
   const suckers = suckersQuery.data;
   
   // Get all project IDs across chains
   const projectIds = suckers?.map(sucker => Number(sucker.projectId)) || [Number(revnetId)];
+  
+  // Get project data to find sucker group ID
+  const { data: projectData } = useBendystrawQuery(ProjectDocument, {
+    chainId: Number(currentChainId),
+    projectId: Number(revnetId),
+  }, {
+    enabled: !!currentChainId && !!revnetId,
+    pollInterval: 10000
+  });
+  
+  const suckerGroupId = projectData?.project?.suckerGroupId;
+  
+  // Get sucker group data for token mapping
+  const { data: suckerGroupData } = useBendystrawQuery(SuckerGroupDocument, {
+    id: suckerGroupId ?? "",
+  }, {
+    enabled: !!suckerGroupId,
+    pollInterval: 10000
+  });
   
   const { data } = useBendystrawQuery(LoansByAccountDocument, {
     owner: address,
@@ -203,6 +286,7 @@ export function LoanDetailsTable({
                   now={now}
                   onSelectLoan={onSelectLoan}
                   onReallocateLoan={onReallocateLoan}
+                  suckerGroupData={suckerGroupData}
                 />
               ))}
             </TableBody>

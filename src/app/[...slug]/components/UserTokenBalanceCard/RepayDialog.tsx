@@ -4,27 +4,32 @@ import { ButtonWithWallet } from "@/components/ButtonWithWallet";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
-import { useAccount, useWaitForTransactionReceipt } from "wagmi";
-import { Address } from "viem";
+import { useAccount, useWaitForTransactionReceipt, usePublicClient, useWalletClient } from "wagmi";
+import { Address, erc20Abi } from "viem";
 import {
   useWriteRevLoansRepayLoan,
   useSimulateRevLoansRepayLoan,
-  useReadRevLoansLoanOf
+  useReadRevLoansLoanOf,
+  revLoansAddress
 } from "revnet-sdk";
 import { JBChainId } from "juice-sdk-core";
-import { useJBTokenContext } from "juice-sdk-react";
+import { useJBTokenContext, useJBChainId } from "juice-sdk-react";
 import { formatTokenSymbol } from "@/lib/utils";
 import { formatUnits, parseUnits } from "viem";
-import { useTokenA } from "@/hooks/useTokenA";
+import { useBendystrawQuery } from "@/graphql/useBendystrawQuery";
+import { ProjectDocument, SuckerGroupDocument } from "@/generated/graphql";
+import { USDC_ADDRESSES } from "@/app/constants";
 
 export function RepayDialog({
   loanId,
   chainId,
+  projectId,
   open,
   onOpenChange,
 }: {
   loanId: string;
   chainId: number;
+  projectId: bigint;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) {
@@ -39,14 +44,87 @@ export function RepayDialog({
   const { toast } = useToast();
   const { token } = useJBTokenContext();
   const tokenSymbol = formatTokenSymbol(token);
-  const { decimals } = useTokenA();
-
-  // Fetch loan data directly from contract using SDK
+  const projectTokenDecimals = token?.data?.decimals ?? 18;
+  console.log("token data", token.data?.decimals);
+  const currentChainId = useJBChainId();
+  const publicClient = usePublicClient();
+  const { data: walletClient } = useWalletClient();
+  
+  // Fetch loan data first to get the project ID
   const { data: loanData, isLoading: isLoadingLoan } = useReadRevLoansLoanOf({
     chainId: chainId as JBChainId,
     args: [BigInt(loanId)],
   });
 
+  // Get project data to find sucker group ID using the project ID
+  const { data: projectData } = useBendystrawQuery(ProjectDocument, {
+    chainId: Number(currentChainId),
+    projectId: Number(projectId), // Use the passed project ID
+  }, {
+    enabled: !!currentChainId && !!projectId,
+    pollInterval: 10000
+  });
+  
+  const suckerGroupId = projectData?.project?.suckerGroupId;
+  
+  // Get sucker group data for token mapping
+  const { data: suckerGroupData } = useBendystrawQuery(SuckerGroupDocument, {
+    id: suckerGroupId ?? "",
+  }, {
+    enabled: !!suckerGroupId,
+    pollInterval: 10000
+  });
+  
+  // Helper function to get token symbol from address
+  const getTokenSymbolFromAddress = (tokenAddress: string): string => {
+    // Check for ETH (case insensitive)
+    if (tokenAddress?.toLowerCase() === "0x000000000000000000000000000000000000eeee") {
+      return "ETH";
+    }
+    
+    // Check for USDC
+    const isUsdc = Object.values(USDC_ADDRESSES).includes(tokenAddress as `0x${string}`);
+    if (isUsdc) {
+      return "USDC";
+    }
+    
+    return "TOKEN";
+  };
+  
+  // Helper function to get token configuration for a specific chain
+  const getTokenConfigForChain = (targetChainId: number) => {
+    if (!suckerGroupData?.suckerGroup?.projects?.items) {
+      return {
+        token: "0x000000000000000000000000000000000000EEEe" as `0x${string}`,
+        currency: 61166,
+        decimals: 18
+      };
+    }
+    
+    const projectForChain = suckerGroupData.suckerGroup.projects.items.find(
+      (project: any) => project.chainId === targetChainId
+    );
+    
+    if (projectForChain?.token) {
+      return {
+        token: projectForChain.token as `0x${string}`,
+        currency: Number(projectForChain.currency),
+        decimals: projectForChain.decimals || 18
+      };
+    }
+    
+    return {
+      token: "0x000000000000000000000000000000000000EEEe" as `0x${string}`,
+      currency: 61166,
+      decimals: 18
+    };
+  };
+  
+  // Get token configuration for this loan's chain
+  const chainTokenConfig = getTokenConfigForChain(chainId);
+  const baseTokenSymbol = getTokenSymbolFromAddress(chainTokenConfig.token);
+  const baseTokenDecimals = chainTokenConfig.decimals;
+  
   // Repay loan hook
   const { writeContractAsync: repayLoanAsync, isPending: isRepaying } = useWriteRevLoansRepayLoan();
 
@@ -57,13 +135,13 @@ export function RepayDialog({
 
   // ===== HELPER FUNCTIONS =====
   const formatCollateralAmount = (amountWei: bigint) => {
-    const amountTokens = formatUnits(amountWei, decimals);
+    const amountTokens = formatUnits(amountWei, projectTokenDecimals);
     return Number(amountTokens).toFixed(6).replace(/\.?0+$/, "");
   };
 
   const calculateCollateralAmount = (input: string, maxCollateral: bigint): bigint => {
     try {
-      const userInputWei = parseUnits(input, decimals);
+      const userInputWei = parseUnits(input, projectTokenDecimals);
       return userInputWei >= maxCollateral ? maxCollateral : userInputWei;
     } catch (error) {
       return 0n;
@@ -87,6 +165,8 @@ export function RepayDialog({
       ]
     : undefined;
 
+  console.log("Simulation args:", simulationArgs);
+
   const {
     data: simulationResult,
     isLoading: isSimulating,
@@ -94,7 +174,7 @@ export function RepayDialog({
   } = useSimulateRevLoansRepayLoan({
     chainId: chainId as JBChainId,
     args: simulationArgs as readonly [bigint, bigint, bigint, `0x${string}`, { sigDeadline: bigint; amount: bigint; expiration: number; nonce: number; signature: `0x${string}`; }] | undefined,
-    value: loanData?.amount, // Send full loan amount - contract will use what it needs and refund excess
+    value: baseTokenSymbol === "ETH" ? loanData?.amount : 0n, // Only send ETH value for ETH-based projects
   });
 
   // Extract the exact amount from simulation result for display purposes only
@@ -137,7 +217,7 @@ export function RepayDialog({
       return;
     }
 
-    const maxCollateralDisplay = Number(formatUnits(loanData.collateral, decimals));
+    const maxCollateralDisplay = Number(formatUnits(loanData.collateral, projectTokenDecimals));
     const inputCollateral = Number(collateralToReturn);
 
     if (inputCollateral > maxCollateralDisplay) {
@@ -147,7 +227,7 @@ export function RepayDialog({
     } else {
       setCollateralError("");
     }
-  }, [collateralToReturn, loanData, tokenSymbol, decimals]);
+  }, [collateralToReturn, loanData, tokenSymbol, projectTokenDecimals]);
 
   // Handle transaction status updates
   useEffect(() => {
@@ -175,8 +255,8 @@ export function RepayDialog({
 
   // Initialize form when dialog opens
   useEffect(() => {
-    if (open && loanData) {
-      const maxCollateralDisplay = formatUnits(loanData.collateral, decimals);
+    if (open && loanData && projectTokenDecimals) {
+      const maxCollateralDisplay = formatUnits(loanData.collateral, projectTokenDecimals);
       setCollateralToReturn(maxCollateralDisplay);
     }
     if (!open) {
@@ -185,11 +265,11 @@ export function RepayDialog({
       setRepayTxHash(undefined);
       setCollateralError("");
     }
-  }, [open, loanData, decimals]);
+  }, [open, loanData, projectTokenDecimals]);
 
   // ===== EVENT HANDLERS =====
   const handleRepay = async () => {
-    if (!loanData || !userAddress || !repayLoanAsync) {
+    if (!loanData || !userAddress || !repayLoanAsync || !publicClient || !walletClient) {
       toast({
         variant: "destructive",
         title: "Error",
@@ -204,6 +284,58 @@ export function RepayDialog({
       const loanIdBigInt = BigInt(loanId);
       const maxRepayBorrowAmount = loanData.amount; // Use full loan amount as ceiling
       const collateralCountToReturn = calculateCollateralAmount(collateralToReturn, loanData.collateral);
+
+      console.log("Repay transaction args:", {
+        loanId: loanIdBigInt.toString(),
+        maxRepayBorrowAmount: maxRepayBorrowAmount.toString(),
+        collateralCountToReturn: collateralCountToReturn.toString(),
+        userAddress,
+        baseTokenSymbol,
+        value: baseTokenSymbol === "ETH" ? (exactRepayAmount || loanData?.amount) : 0n
+      });
+
+      // Check allowance for USDC-based projects
+      if (baseTokenSymbol !== "ETH") {
+        const baseTokenAddress = chainTokenConfig.token;
+        const revLoansContractAddress = revLoansAddress[chainId as JBChainId];
+        
+        console.log("Checking allowance for:", {
+          token: baseTokenAddress,
+          spender: revLoansContractAddress,
+          owner: userAddress
+        });
+
+        const allowance = await publicClient.readContract({
+          address: baseTokenAddress,
+          abi: erc20Abi,
+          functionName: "allowance",
+          args: [userAddress as Address, revLoansContractAddress as Address],
+        });
+
+        console.log("Current allowance:", allowance.toString());
+        console.log("Required amount:", maxRepayBorrowAmount.toString());
+
+        if (BigInt(allowance) < maxRepayBorrowAmount) {
+          console.log("Insufficient allowance, requesting approval...");
+          setRepayStatus("approving");
+          
+          if (!walletClient) {
+            throw new Error("Wallet client not available");
+          }
+          
+          const approveHash = await walletClient.writeContract({
+            address: baseTokenAddress,
+            abi: erc20Abi,
+            functionName: "approve",
+            args: [revLoansContractAddress as Address, maxRepayBorrowAmount],
+          });
+          
+          console.log("Approval transaction hash:", approveHash);
+          await publicClient.waitForTransactionReceipt({ hash: approveHash });
+          console.log("Approval confirmed");
+          setRepayStatus("waiting-signature");
+        }
+      }
 
       const txHash = await repayLoanAsync({
         chainId: chainId as JBChainId,
@@ -220,7 +352,7 @@ export function RepayDialog({
             signature: "0x0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000" as `0x${string}`,
           },
         ],
-        value: exactRepayAmount || loanData?.amount,
+        value: baseTokenSymbol === "ETH" ? (exactRepayAmount || loanData?.amount) : 0n,
       });
 
       setRepayTxHash(txHash);
@@ -246,7 +378,7 @@ export function RepayDialog({
             key={pct}
             type="button"
             onClick={() => {
-              const collateralInTokens = Number(formatUnits(loanData.collateral, decimals));
+              const collateralInTokens = Number(formatUnits(loanData.collateral, projectTokenDecimals));
               const portion = collateralInTokens * (pct / 100);
               setCollateralToReturn(portion < 0.000001 ? "0" : portion.toFixed(6).replace(/\.?0+$/, ""));
             }}
@@ -258,7 +390,7 @@ export function RepayDialog({
         <button
           type="button"
           onClick={() => {
-            const maxCollateralDisplay = formatUnits(loanData.collateral, decimals);
+            const maxCollateralDisplay = formatUnits(loanData.collateral, projectTokenDecimals);
             setCollateralToReturn(maxCollateralDisplay);
           }}
           className="h-8 px-3 text-xs text-zinc-700 border border-zinc-300 rounded-md bg-white hover:bg-zinc-100"
@@ -274,6 +406,7 @@ export function RepayDialog({
 
     const messages = {
       "waiting-signature": "Waiting for wallet confirmation...",
+      "approving": "Approving token allowance...",
       "pending": "Repayment pending...",
       "success": "Repayment successful!",
       "error": "Something went wrong during repayment."
@@ -351,7 +484,7 @@ export function RepayDialog({
                   }
                   
                   const numValue = Number(value);
-                  const maxValue = loanData ? Number(formatUnits(loanData.collateral, decimals)) : 0;
+                  const maxValue = loanData ? Number(formatUnits(loanData.collateral, projectTokenDecimals)) : 0;
                   
                   // Only validate max if it's a valid number
                   if (!isNaN(numValue)) {
@@ -389,21 +522,21 @@ export function RepayDialog({
                     <tbody className="space-y-1">
                       <tr>
                         <td className="pr-4">Original amount borrowed:</td>
-                        <td className="font-semibold text-right">{formatUnits(loanData.amount, decimals)} ETH</td>
+                        <td className="font-semibold text-right">{formatUnits(loanData.amount, baseTokenDecimals)} {baseTokenSymbol}</td>
                       </tr>
                       <tr>
-                        <td className="pr-4">Amount of collateral you want back ({(Number(collateralToReturn) / Number(formatUnits(loanData.collateral, decimals)) * 100).toFixed(1)}%):</td>
+                        <td className="pr-4">Amount of collateral you want back ({(Number(collateralToReturn) / Number(formatUnits(loanData.collateral, projectTokenDecimals)) * 100).toFixed(1)}%):</td>
                         <td className="font-semibold text-right">{collateralToReturn} {tokenSymbol}</td>
                       </tr>
                       {!isSimulating && !simulationError && exactRepayAmount && (
                         <>
                           <tr>
                             <td className="pr-4">Amount to pay now:</td>
-                            <td className="font-semibold text-right">{formatUnits(exactRepayAmount, decimals)} ETH</td>
+                            <td className="font-semibold text-right">{formatUnits(exactRepayAmount, baseTokenDecimals)} {baseTokenSymbol}</td>
                           </tr>
                           <tr>
                             <td className="pr-4">Amount rolled into new loan id:</td>
-                            <td className="font-semibold text-right">{formatUnits(loanData.amount - exactRepayAmount, decimals)} ETH</td>
+                            <td className="font-semibold text-right">{formatUnits(loanData.amount - exactRepayAmount, baseTokenDecimals)} {baseTokenSymbol}</td>
                           </tr>
                         </>
                       )}

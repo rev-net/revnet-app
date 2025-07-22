@@ -7,7 +7,7 @@ import {
   Tooltip,
   Line,
 } from "recharts";
-import { useNativeTokenSymbol } from "@/hooks/useNativeTokenSymbol";
+// Removed useNativeTokenSymbol import - using tokenSymbol prop instead
 
 export function LoanFeeChart({
   prepaidPercent,
@@ -17,6 +17,7 @@ export function LoanFeeChart({
   grossBorrowedNative,
   collateralAmount,
   tokenSymbol,
+  collateralTokenSymbol,
   displayYears,
   displayMonths,
 }: {
@@ -27,11 +28,10 @@ export function LoanFeeChart({
   grossBorrowedNative: number;
   collateralAmount: string;
   tokenSymbol: string;
+  collateralTokenSymbol?: string;
   displayYears: number;
   displayMonths: number;
 }) {
-  const nativeTokenSymbol = useNativeTokenSymbol();
-  
   // Ensure feeData is valid and has reasonable values
   const validFeeData = feeData?.filter(item => 
     item && 
@@ -100,10 +100,14 @@ export function LoanFeeChart({
                 // value is the totalCost (fees) at this point in time
                 // This represents how much native token you need to pay to unlock your collateral
                 const costToUnlock = value;
+                console.log("tokenSymbol for tooltip", tokenSymbol);
+                console.log("collateralTokenSymbol for tooltip", collateralTokenSymbol);
                 
+                // Use collateralTokenSymbol for collateral amount, tokenSymbol for fees
+                const collateralSymbol = collateralTokenSymbol || tokenSymbol;
                 return [
-                  `${collateralAmount} ${tokenSymbol}`,
-                  `Total paid to unlock: ${costToUnlock.toFixed(8)} ${nativeTokenSymbol}`,
+                  `${collateralAmount} ${collateralSymbol}`,
+                  `Total paid to unlock: ${costToUnlock.toFixed(8)} ${tokenSymbol}`,
                 ];
               }}
               labelFormatter={(label: number) => {
