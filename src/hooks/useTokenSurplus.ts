@@ -34,9 +34,9 @@ export function useTokenSurplus({
 
   const _chainId = chainId ?? useJBChainId();
   const _token = token ?? (primaryNativeTerminal?.data as `0x${string}`) ?? NATIVE_TOKEN as `0x${string}`;
-  const _currency = currency ?? 61166; // ETH currency ID
+  const _currency = currency ?? 1; // ETH currency ID
   const _decimals = decimals ?? NATIVE_TOKEN_DECIMALS;
-  const _inTermsOfCurrency = inTermsOfCurrency ?? 61166;
+  const _inTermsOfCurrency = inTermsOfCurrency ?? 1;
   const _inTermsOfDecimals = inTermsOfDecimals ?? NATIVE_TOKEN_DECIMALS;
 
   return useReadJbMultiTerminalCurrentSurplusOf({

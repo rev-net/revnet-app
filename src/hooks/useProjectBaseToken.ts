@@ -55,7 +55,7 @@ export function useProjectBaseToken(): BaseTokenInfo {
   const isAllUsdc = allTokens.length > 0 && 
     allTokens.every(token => token && Object.values(USDC_ADDRESSES).includes(token));
   
-  const isAllEth = Object.values(tokenMap).every((config: { currency: number }) => config.currency === 61166); // ETH currency ID
+  const isAllEth = Object.values(tokenMap).every((config: { currency: number }) => config.currency === 1 || config.currency === 61166); // ETH currency ID (handle both old and new)
   
   // Determine token type and configuration
   let tokenType: "ETH" | "USDC" | "MIXED";
@@ -67,23 +67,23 @@ export function useProjectBaseToken(): BaseTokenInfo {
 
   if (isAllUsdc) {
     tokenType = "USDC";
-    symbol = "USDC";
+    symbol = "USD";
     decimals = 6;
-    currency = 1; // USDC currency ID
+    currency = 3; // USD currency ID
     isNative = false;
     targetCurrency = "usd";
   } else if (isAllEth) {
     tokenType = "ETH";
     symbol = "ETH";
     decimals = NATIVE_TOKEN_DECIMALS;
-    currency = 61166; // ETH currency ID
+    currency = 1; // ETH currency ID
     isNative = true;
     targetCurrency = "eth";
   } else {
     tokenType = "MIXED";
-    symbol = "TOKEN";
+    symbol = "ETH"; // Default to ETH instead of TOKEN
     decimals = NATIVE_TOKEN_DECIMALS;
-    currency = 61166; // Default to ETH
+    currency = 1; // Default to ETH
     isNative = false;
     targetCurrency = "eth";
   }

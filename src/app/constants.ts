@@ -39,15 +39,15 @@ export const JB_CURRENCY_USD = 3;
 // Currency configuration for different token types
 export const CURRENCY_CONFIG = {
   ETH: {
-    currencyId: 61166,
+    currencyId: 1,
     symbol: "ETH",
     decimals: 18,
     targetCurrency: "eth",
     isNative: true
   },
   USDC: {
-    currencyId: 1,
-    symbol: "USDC", 
+    currencyId: 3,
+    symbol: "USD", 
     decimals: 6,
     targetCurrency: "usd",
     isNative: false

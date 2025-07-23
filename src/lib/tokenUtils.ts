@@ -39,7 +39,7 @@ export function getTokenConfigForChain(suckerGroupData: any, targetChainId: numb
   if (!suckerGroupData?.suckerGroup?.projects?.items) {
     return {
       token: "0x000000000000000000000000000000000000EEEe" as `0x${string}`,
-      currency: 61166,
+      currency: 1,
       decimals: 18
     };
   }
@@ -58,7 +58,7 @@ export function getTokenConfigForChain(suckerGroupData: any, targetChainId: numb
   
   return {
     token: "0x000000000000000000000000000000000000EEEe" as `0x${string}`,
-    currency: 61166,
+    currency: 1,
     decimals: 18
   };
 }

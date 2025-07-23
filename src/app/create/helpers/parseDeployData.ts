@@ -81,7 +81,7 @@ export function parseDeployData(
     tokenAddress = NATIVE_TOKEN as `0x${string}`;
     tokenDecimals = NATIVE_TOKEN_DECIMALS;
     baseCurrency = ETH_CURRENCY_ID;
-    currencyId = 61166; // Existing value for native
+    currencyId = 1; // ETH currency ID
   }
 
   const accountingContextsToAccept = [

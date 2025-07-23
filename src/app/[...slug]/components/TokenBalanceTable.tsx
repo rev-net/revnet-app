@@ -45,7 +45,7 @@ interface TokenBalanceTableProps {
 
 // ===== CONSTANTS =====
 const DEFAULT_COLUMNS: ColumnType[] = ["chain", "holding", "borrowable", "debt", "collateral"];
-const ETH_CURRENCY_ID = 61166n;
+  const ETH_CURRENCY_ID = 1n;
 
 // ===== UTILITY FUNCTIONS =====
 function formatAmount(value?: bigint): string {

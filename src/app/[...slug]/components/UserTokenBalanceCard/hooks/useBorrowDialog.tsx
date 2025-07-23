@@ -67,7 +67,7 @@ export function useBorrowDialog({
   defaultTab,
 }: UseBorrowDialogProps) {
   // ===== STATE VARIABLES =====
-  const ETH_CURRENCY_ID = 61166n;
+  const ETH_CURRENCY_ID = 1n;
   // ===== STATE VARIABLES =====
   // Dialog and UI state
   const [isDialogOpen, setIsDialogOpen] = useState(false);

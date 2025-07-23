@@ -22,11 +22,11 @@ export function useNativeTokenSurplus() {
         {
           token: NATIVE_TOKEN,
           decimals: NATIVE_TOKEN_DECIMALS,
-          currency: 61166,
+          currency: 1,
         },
       ],
       BigInt(NATIVE_TOKEN_DECIMALS),
-      BigInt(61166),
+      BigInt(1),
     ],
   });
 }

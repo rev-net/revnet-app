@@ -76,12 +76,12 @@ export function TvlDatum() {
   
   const isAllEth = surpluses?.every(surplus => {
     const tokenConfig = tokenMap?.[surplus.chainId];
-    return tokenConfig?.currency === 61166; // ETH currency ID
+    return tokenConfig?.currency === 1 || tokenConfig?.currency === 61166; // ETH currency ID (handle both old and new)
   });
   
   // Determine target currency and decimals
   const targetDecimals = isAllUsdc ? 6 : NATIVE_TOKEN_DECIMALS; // USDC or ETH decimals
-  const targetCurrency = isAllUsdc ? "USDC" : isAllEth ? "ETH" : "TOKEN";
+  const targetCurrency = isAllUsdc ? "USD" : isAllEth ? "ETH" : "TOKEN";
   
   const convertedSurpluses = surpluses?.map(surplus => {
     const tokenConfig = tokenMap?.[surplus.chainId];
@@ -140,8 +140,8 @@ export function TvlDatum() {
           
           // Get token name based on currency ID
           const getTokenName = (currencyId: number) => {
-            if (isUsdc) return "USDC";
-            if (currencyId === 61166) return "ETH"; // ETH currency ID
+            if (isUsdc) return "USD"; // Use USD for consistency with targetCurrency
+            if (currencyId === 1 || currencyId === 61166) return "ETH"; // ETH currency ID (handle both old and new)
             return "OTHER TOKEN"; // fallback
           };
           
@@ -159,7 +159,7 @@ export function TvlDatum() {
             }
             
             // For ETH, show up to 4 decimal places but trim trailing zeros
-            if (currency === 61166) {
+            if (currency === 1 || currency === 61166) {
               return num.toLocaleString("en-US", {
                 minimumFractionDigits: 0,
                 maximumFractionDigits: 4,
