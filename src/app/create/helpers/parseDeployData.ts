@@ -86,7 +86,7 @@ export function parseDeployData(
     {
       token: tokenAddress,
       decimals: tokenDecimals,
-      currency: parseInt(tokenAddress.toLowerCase().replace(/^0x/, '').slice(-8), 16);
+      currency: parseInt(tokenAddress.toLowerCase().replace(/^0x/, '').slice(-8), 16)
     },
   ];
 
