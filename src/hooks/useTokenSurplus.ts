@@ -4,7 +4,6 @@ import {
     NATIVE_TOKEN_DECIMALS
 } from "juice-sdk-core";
 import {
-    useJBChainId,
     useJBContractContext,
     useReadJbMultiTerminalCurrentSurplusOf
 } from "juice-sdk-react";
@@ -32,7 +31,7 @@ export function useTokenSurplus({
     contracts: { primaryNativeTerminal },
   } = useJBContractContext();
 
-  const _chainId = chainId ?? useJBChainId();
+  const _chainId = chainId;
   const _token = token ?? (primaryNativeTerminal?.data as `0x${string}`) ?? NATIVE_TOKEN as `0x${string}`;
   const _currency = currency ?? 1; // ETH currency ID
   const _decimals = decimals ?? NATIVE_TOKEN_DECIMALS;
