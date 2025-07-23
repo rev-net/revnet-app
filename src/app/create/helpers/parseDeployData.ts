@@ -1,7 +1,6 @@
 // https://github.com/rev-net/revnet-core/blob/main/script/Deploy.s.sol
 import {
   CashOutTaxRate,
-  createSalt,
   ETH_CURRENCY_ID,
   JB_CHAINS,
   JBChainId,
@@ -70,25 +69,24 @@ export function parseDeployData(
       ?.address || formData.stages[0].initialOperator;
   console.log({ operator, extra });
   console.log(`[ Operator ] ${operator}`);
+
   // Determine asset settings based on reserveAsset
-  let baseCurrency, tokenAddress, tokenDecimals, currencyId;
+  let baseCurrency, tokenAddress, tokenDecimals;
   if (formData.reserveAsset === "USDC") {
     tokenAddress = USDC_ADDRESSES[extra.chainId] || "0x0000000000000000000000000000000000000000";
     tokenDecimals = USDC_DECIMALS;
     baseCurrency = JB_CURRENCY_USD;
-    currencyId = parseInt(tokenAddress.toLowerCase().replace(/^0x/, '').slice(-8), 16);
   } else {
     tokenAddress = NATIVE_TOKEN as `0x${string}`;
     tokenDecimals = NATIVE_TOKEN_DECIMALS;
     baseCurrency = ETH_CURRENCY_ID;
-    currencyId = 1; // ETH currency ID
   }
 
   const accountingContextsToAccept = [
     {
       token: tokenAddress,
       decimals: tokenDecimals,
-      currency: currencyId,
+      currency: parseInt(tokenAddress.toLowerCase().replace(/^0x/, '').slice(-8), 16);
     },
   ];
 
