@@ -99,10 +99,7 @@ export function LoanFeeChart({
                 
                 // value is the totalCost (fees) at this point in time
                 // This represents how much native token you need to pay to unlock your collateral
-                const costToUnlock = value;
-                console.log("tokenSymbol for tooltip", tokenSymbol);
-                console.log("collateralTokenSymbol for tooltip", collateralTokenSymbol);
-                
+                const costToUnlock = value;  
                 // Use collateralTokenSymbol for collateral amount, tokenSymbol for fees
                 const collateralSymbol = collateralTokenSymbol || tokenSymbol;
                 return [

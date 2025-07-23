@@ -54,12 +54,6 @@ function LoanRow({
   const projectTokenDecimals = token?.data?.decimals ?? 18;
 
   const chainTokenConfig = getTokenConfigForChain(suckerGroupData, loan.chainId);
-  console.log("🎯 Chain token config for loan:", {
-    chainId: loan.chainId,
-    token: chainTokenConfig.token,
-    currency: chainTokenConfig.currency,
-    decimals: chainTokenConfig.decimals
-  });
   
   const baseTokenSymbol = getTokenSymbolFromAddress(chainTokenConfig.token);
   const baseTokenDecimals = chainTokenConfig.decimals;

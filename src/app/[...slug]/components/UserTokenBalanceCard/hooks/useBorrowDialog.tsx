@@ -112,18 +112,9 @@ export function useBorrowDialog({
   const publicClient = usePublicClient();
   
   // ===== PHASE 1: BASE TOKEN CONTEXT =====
-  console.log("🔄 Phase 1: Setting up base token context");
   
   // Get base token information
   const baseToken = useProjectBaseToken();
-  console.log("📊 Base token info:", {
-    tokenType: baseToken.tokenType,
-    symbol: baseToken.symbol,
-    decimals: baseToken.decimals,
-    currency: baseToken.currency,
-    isNative: baseToken.isNative,
-    targetCurrency: baseToken.targetCurrency
-  });
 
   // Get sucker group data for token mapping
   const { data: projectData, isLoading: projectLoading } = useBendystrawQuery(ProjectDocument, {
@@ -134,7 +125,6 @@ export function useBorrowDialog({
     pollInterval: 10000
   });
   const suckerGroupId = projectData?.project?.suckerGroupId;
-  console.log("🔗 Sucker group ID:", suckerGroupId);
 
   const { data: suckerGroupData, isLoading: suckerGroupLoading } = useBendystrawQuery(SuckerGroupDocument, {
     id: suckerGroupId ?? "",
@@ -142,14 +132,6 @@ export function useBorrowDialog({
     enabled: !!suckerGroupId,
     pollInterval: 10000
   });
-  console.log("📋 Sucker group data:", suckerGroupData?.suckerGroup?.projects?.items?.map(p => ({
-    chainId: p.chainId,
-    token: p.token,
-    currency: p.currency,
-    decimals: p.decimals
-  })));
-  console.log("📋 Raw sucker group data:", suckerGroupData);
-  console.log("📋 Project loading:", projectLoading, "Sucker group loading:", suckerGroupLoading);
   
   // ===== PHASE 1: TOKEN RESOLUTION FUNCTION =====
   // Get the correct token configuration for a specific chain
@@ -198,11 +180,9 @@ export function useBorrowDialog({
     : undefined;
 
   // ===== PHASE 2: UPDATE CONTRACT CALLS =====
-  console.log("🔄 Phase 2: Updating contract calls with dynamic token config");
   
   // Get token configuration for the selected chain
   const selectedChainTokenConfig = cashOutChainId ? getTokenConfigForChain(Number(cashOutChainId)) : null;
-  console.log("🎯 Selected chain token config:", selectedChainTokenConfig);
   
   // Borrow-related hooks
   const {
@@ -373,7 +353,6 @@ export function useBorrowDialog({
     : BigInt(0);
 
   // ===== PHASE 4: UPDATE FEE CALCULATIONS =====
-  console.log("🔄 Phase 4: Updating fee calculations with dynamic decimals");
   
   // For reallocation, use the total borrowable amount for combined collateral
   const borrowAmountForFeeCalculation = internalSelectedLoan && selectedLoanReallocAmount
@@ -452,21 +431,16 @@ export function useBorrowDialog({
       setCashOutChainId(loanData.chainId.toString());
     } else if (loanData?.chain) {
       setCashOutChainId(loanData.chain.toString());
-    } else {
-      console.warn("No chain information found in loan data:", loanData);
     }
   }, []);
 
   const handleBorrow = useCallback(async () => {
-    console.log("🚀 Phase 3: Starting borrow transaction");
     
     // Get token configuration for the selected chain
     const selectedChainTokenConfig = cashOutChainId ? getTokenConfigForChain(Number(cashOutChainId)) : null;
-    console.log("🎯 Transaction token config:", selectedChainTokenConfig);
     
     // Validate that we have token configuration for the selected chain
     if (!selectedChainTokenConfig) {
-      console.error("❌ No token configuration found for chain:", cashOutChainId);
       setBorrowStatus("error");
       toast({
         variant: "destructive",
@@ -485,17 +459,6 @@ export function useBorrowDialog({
         !address ||
         !walletClient
       ) {
-        console.error("Missing data for reallocation:", {
-          internalSelectedLoan: !!internalSelectedLoan,
-          primaryNativeTerminal: !!primaryNativeTerminal?.data,
-          cashOutChainId: !!cashOutChainId,
-          address: !!address,
-          walletClient: !!walletClient,
-          internalSelectedLoanData: internalSelectedLoan,
-          primaryNativeTerminalData: primaryNativeTerminal?.data,
-          cashOutChainIdValue: cashOutChainId,
-          addressValue: address,
-        });
         setBorrowStatus("error");
         return;
       }
@@ -518,10 +481,6 @@ export function useBorrowDialog({
       
       // Validate that the reallocation won't result in a borrow amount less than the original
       if (selectedLoanReallocAmount !== undefined && selectedLoanReallocAmount < BigInt(internalSelectedLoan.borrowAmount)) {
-        console.error("Reallocation would result in borrow amount less than original:", {
-          selectedLoanReallocAmount: selectedLoanReallocAmount.toString(),
-          originalBorrowAmount: internalSelectedLoan.borrowAmount,
-        });
         setBorrowStatus("error");
         toast({
           variant: "destructive",
@@ -544,12 +503,6 @@ export function useBorrowDialog({
         if (baseTokenSymbol !== "ETH" && publicClient && walletClient && newLoanBorrowableAmount) {
           const baseTokenAddress = selectedChainTokenConfig.token;
           const revLoansContractAddress = revLoansAddress[Number(cashOutChainId) as JBChainId];
-          
-          console.log("Checking allowance for reallocation:", {
-            token: baseTokenAddress,
-            spender: revLoansContractAddress,
-            owner: address
-          });
 
           const allowance = await publicClient.readContract({
             address: baseTokenAddress,
@@ -558,11 +511,7 @@ export function useBorrowDialog({
             args: [address as Address, revLoansContractAddress as Address],
           });
 
-          console.log("Current allowance:", allowance.toString());
-          console.log("Required amount for reallocation (newLoanBorrowableAmount):", newLoanBorrowableAmount.toString());
-
           if (BigInt(allowance) < newLoanBorrowableAmount) {
-            console.log("Insufficient allowance for reallocation, requesting approval...");
             setBorrowStatus("approving");
             
             const approveHash = await walletClient.writeContract({
@@ -572,14 +521,11 @@ export function useBorrowDialog({
               args: [revLoansContractAddress as Address, newLoanBorrowableAmount],
             });
             
-            console.log("Reallocation approval transaction hash:", approveHash);
             await publicClient.waitForTransactionReceipt({ hash: approveHash });
-            console.log("Reallocation approval confirmed");
             setBorrowStatus("waiting-signature");
           }
         }
 
-        console.log("🔄 Executing reallocation with token:", selectedChainTokenConfig.token);
         await reallocateCollateralAsync({
           chainId: Number(cashOutChainId) as JBChainId,
           args: [
@@ -596,7 +542,6 @@ export function useBorrowDialog({
           ],
         });
       } catch (err) {
-        console.error("❌ Reallocation TX failed:", err);
         setBorrowStatus("error");
         toast({
           variant: "destructive",
@@ -616,7 +561,6 @@ export function useBorrowDialog({
           !borrowableAmountRaw ||
           !resolvedPermissionsAddress
         ) {
-          console.error("Missing required data");
           setBorrowStatus("error");
           return;
         }
@@ -664,12 +608,6 @@ export function useBorrowDialog({
         if (baseTokenSymbol !== "ETH" && publicClient && walletClient && estimatedBorrowFromInputOnly) {
           const baseTokenAddress = selectedChainTokenConfig.token;
           const revLoansContractAddress = revLoansAddress[Number(cashOutChainId) as JBChainId];
-          
-          console.log("Checking allowance for standard borrow:", {
-            token: baseTokenAddress,
-            spender: revLoansContractAddress,
-            owner: address
-          });
 
           const allowance = await publicClient.readContract({
             address: baseTokenAddress,
@@ -678,11 +616,7 @@ export function useBorrowDialog({
             args: [address as Address, revLoansContractAddress as Address],
           });
 
-          console.log("Current allowance:", allowance.toString());
-          console.log("Required amount for borrow (estimatedBorrowFromInputOnly):", estimatedBorrowFromInputOnly.toString());
-
           if (BigInt(allowance) < estimatedBorrowFromInputOnly) {
-            console.log("Insufficient allowance for borrow, requesting approval...");
             setBorrowStatus("approving");
             
             const approveHash = await walletClient.writeContract({
@@ -692,13 +626,10 @@ export function useBorrowDialog({
               args: [revLoansContractAddress as Address, estimatedBorrowFromInputOnly],
             });
             
-            console.log("Borrow approval transaction hash:", approveHash);
             await publicClient.waitForTransactionReceipt({ hash: approveHash });
-            console.log("Borrow approval confirmed");
             setBorrowStatus("waiting-signature");
           }
         }
-        console.log("🔄 Executing standard borrow with token:", selectedChainTokenConfig.token, "project token decimals:", projectTokenDecimals);
         const args = [
           effectiveProjectId,
           {
@@ -712,7 +643,6 @@ export function useBorrowDialog({
         ] as const;
 
         if (!writeContract) {
-          console.error("writeContract is not available");
           setBorrowStatus("error");
           return;
         }
@@ -724,7 +654,6 @@ export function useBorrowDialog({
             args,
           });
         } catch (err) {
-          console.warn("User rejected or tx failed", err);
           setBorrowStatus("error-loan-canceled");
           toast({
             variant: "destructive",
@@ -735,7 +664,6 @@ export function useBorrowDialog({
           return;
         }
       } catch (err) {
-        console.error(err);
         setBorrowStatus("error");
         toast({
           variant: "destructive",

@@ -132,10 +132,8 @@ export function NetworkDetailsTable() {
   });
 
   const autoIssuances = useAutoIssuances();
-  // console.log("autoIssuances::", autoIssuances)
   const getAutoIssuancesTotalForStage = () => {
     if (!autoIssuances) return 0;
-    console.log("selectedStageIdx", selectedStageIdx + 1)
     const stageautoIssuances = autoIssuances.filter((a) => a.stage === selectedStageIdx + 1);
     return commaNumber(formatUnits(
       stageautoIssuances.reduce((acc, curr) => acc + BigInt(curr.count), 0n),

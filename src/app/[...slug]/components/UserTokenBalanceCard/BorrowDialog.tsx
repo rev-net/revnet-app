@@ -39,7 +39,6 @@ export function BorrowDialog({
   tokenSymbol: string;
   selectedLoan?: any;
 }>) {
-  console.log("🎨 Phase 3: Rendering BorrowDialog component");
   
   const borrowDialog = useBorrowDialog({
     projectId,
@@ -97,14 +96,10 @@ export function BorrowDialog({
     // For other tokens, check if it's a known USDC address
     const isUsdc = Object.values(USDC_ADDRESSES).includes(chainTokenConfig?.token as `0x${string}`);
     const symbol = isUsdc ? "USDC" : "TOKEN";
-    console.log("🔍 Token symbol for chain", targetChainId, ":", symbol, "token:", chainTokenConfig?.token, "isUsdc:", isUsdc);
     return symbol;
   }, [getTokenConfigForChain]);
   
   const selectedChainTokenSymbol = cashOutChainId ? getTokenSymbolForChain(Number(cashOutChainId)) : baseToken.symbol;
-  console.log("🎯 Selected chain token symbol:", selectedChainTokenSymbol, "for chain:", cashOutChainId);
-  console.log("🎯 Base token info:", baseToken);
-  console.log("🎯 Selected chain token config:", selectedChainTokenConfig);
   
   // Handle chain selection - exactly like RedeemDialog
   const handleChainSelect = useCallback((chainId: string) => {
@@ -306,13 +301,7 @@ export function BorrowDialog({
               : 0;
             const simulatedGrossBorrowedEth = simulatedAmountBorrowed;
 
-            console.log("🎯 Simulation values:", {
-              effectiveBorrowableAmount: effectiveBorrowableAmount?.toString(),
-              tokenDecimals,
-              simulatedAmountBorrowed,
-              selectedChainTokenSymbol,
-              selectedChainTokenConfig
-            });
+
 
             if (collateralAmount && !isNaN(Number(collateralAmount))) {
               return (

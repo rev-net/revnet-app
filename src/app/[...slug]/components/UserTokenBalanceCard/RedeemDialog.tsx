@@ -329,8 +329,6 @@ export function RedeemDialog({
                       DEFAULT_METADATA, // metadata
                     ] as const;
 
-                    console.log("⏩ redeem args", args);
-
                     writeContract?.({
                       chainId: selectedSucker?.peerChainId as JBChainId,
                       address: primaryNativeTerminal.data as `0x${string}`,
