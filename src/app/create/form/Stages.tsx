@@ -5,7 +5,6 @@ import {
   LockClosedIcon,
   TrashIcon
 } from "@heroicons/react/24/outline";
-import { useNativeTokenSymbol } from "@/hooks/useNativeTokenSymbol";
 import { MAX_RULESET_COUNT } from "@/app/constants";
 import { Button } from "@/components/ui/button";
 import { PlusIcon } from "@heroicons/react/24/solid";
@@ -19,8 +18,7 @@ export function Stages({
 }: {
   disabled?: boolean
 }) {
-  const { values, setFieldValue } = useFormikContext<RevnetFormData>();
-  const nativeTokenSymbol = useNativeTokenSymbol();
+  const { values  } = useFormikContext<RevnetFormData>();
 
   const hasStages = values.stages.length > 0;
 
@@ -29,10 +27,11 @@ export function Stages({
 
   const maxStageReached = values.stages.length >= MAX_RULESET_COUNT;
   const canAddStage = !hasStages || !maxStageReached;
+  const reserveAsset = values.reserveAsset == "USDC" ? "USD" : "ETH";
   return (
     <>
       <div className="md:col-span-1">
-        <h2 className="font-bold text-lg mb-2">2. Terms</h2>
+        <h2 className="font-bold text-lg mb-2">3. Terms</h2>
         <p className="text-zinc-600 text-lg">
           {revnetTokenSymbolCapitalized} issuance and cash out terms evolve over
           time automatically in stages.
@@ -95,7 +94,7 @@ export function Stages({
                         <dd>{duration === 0 ? 'Forever' : `${duration} days`}</dd>
                         <dt className="font-medium">Paid Issuance</dt>
                         <dd>
-                          {stage.initialIssuance} {formatTokenSymbol(values.tokenSymbol) ?? "tokens"} / {nativeTokenSymbol}
+                          {stage.initialIssuance} {formatTokenSymbol(values.tokenSymbol) ?? "tokens"} / {reserveAsset}
                           {(Number(stage.priceCeilingIncreasePercentage) > 0 && Number(stage.priceCeilingIncreaseFrequency) > 0) &&
                             ` cut ${stage.priceCeilingIncreasePercentage}% every ${stage.priceCeilingIncreaseFrequency} days`
                           }

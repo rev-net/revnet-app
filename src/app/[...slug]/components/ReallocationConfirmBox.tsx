@@ -17,7 +17,7 @@ export function ReallocationConfirmBox({
     minBorrowAmount: bigint;
     feePercent: bigint;
   };
-  primaryNativeTerminal: `0x${string}`;
+  primaryNativeTerminal: `0xdb9644369c79c3633cde70d2df50d827d7dc7dbc`;
   address: `0x${string}`;
   cashOutChainId: number;
   tokenSymbol: string;

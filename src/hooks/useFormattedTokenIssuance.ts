@@ -4,6 +4,7 @@ import { useTokenA } from "./useTokenA";
 import { ReservedPercent, RulesetWeight, getTokenAToBQuote } from "juice-sdk-core";
 import { formatUnits, parseUnits } from "viem";
 import { formatTokenSymbol } from "@/lib/utils";
+import { useProjectBaseToken } from "./useProjectBaseToken";
 
 interface TokenIssuanceParams {
   weight?: RulesetWeight;
@@ -20,6 +21,7 @@ export function useFormattedTokenIssuance(params?: TokenIssuanceParams) {
   const tokenA = useTokenA();
   const { token: tokenB } = useJBTokenContext();
   const { ruleset, rulesetMetadata } = useJBRulesetContext();
+  const baseToken = useProjectBaseToken();
 
   if (!ruleset?.data || !rulesetMetadata?.data) {
     return;
@@ -32,9 +34,12 @@ export function useFormattedTokenIssuance(params?: TokenIssuanceParams) {
       reservedPercent
     }
   );
-  const amount = formatUnits(quote.payerTokens, tokenA.decimals);
+  const amount = formatUnits(quote.payerTokens, 18);
   const formattedAmount = new Intl.NumberFormat("en-US", {
     maximumFractionDigits: 3
   }).format(Number(amount));
-  return `${formattedAmount} ${formatTokenSymbol(tokenB)} / ${tokenA.symbol}`;
+  
+  // Use the base token symbol instead of hardcoded currency names
+  const denominator = baseToken.symbol;
+  return `${formattedAmount} ${formatTokenSymbol(tokenB)} / ${denominator}`;
 }

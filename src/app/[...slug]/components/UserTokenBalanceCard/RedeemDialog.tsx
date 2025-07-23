@@ -29,14 +29,21 @@ import {
 import {
   JBChainId,
   NativeTokenValue,
+  useJBChainId,
   useJBContractContext,
+  useJBTokenContext,
   useSuckersUserTokenBalance,
   useTokenCashOutQuoteEth,
   useWriteJbMultiTerminalCashOutTokensOf,
 } from "juice-sdk-react";
 import { PropsWithChildren, useState } from "react";
-import { Address, parseUnits } from "viem";
-import { useAccount, useWaitForTransactionReceipt } from "wagmi";
+import { Address, parseUnits, erc20Abi } from "viem";
+import { useAccount, useWaitForTransactionReceipt, usePublicClient, useWalletClient } from "wagmi";
+import { useProjectBaseToken } from "@/hooks/useProjectBaseToken";
+import { useToast } from "@/components/ui/use-toast";
+import { useBendystrawQuery } from "@/graphql/useBendystrawQuery";
+import { ProjectDocument, SuckerGroupDocument } from "@/generated/graphql";
+import { useSuckers } from "juice-sdk-react";
 
 export function RedeemDialog({
   projectId,
@@ -53,15 +60,65 @@ export function RedeemDialog({
   disabled?: boolean;
 }>) {
   const [redeemAmount, setRedeemAmount] = useState<string>();
-  const {
-    contracts: { primaryNativeTerminal },
-  } = useJBContractContext();
+  // const {
+  //   contracts: { primaryNativeTerminal },
+  // } = useJBContractContext();
+  const primaryNativeTerminal = {data: "0xdb9644369c79c3633cde70d2df50d827d7dc7dbc"};
   const { address } = useAccount();
   const { data: balances } = useSuckersUserTokenBalance();
   const [cashOutChainId, setCashOutChainId] = useState<string>();
+  const chainId = useJBChainId();
+  const [isApproving, setIsApproving] = useState(false);
+  const { toast } = useToast();
+  const publicClient = usePublicClient();
+  const { data: walletClient } = useWalletClient();
+  const baseToken = useProjectBaseToken();
+  const suckersQuery = useSuckers();
+  const suckers = suckersQuery.data;
+  const { token } = useJBTokenContext();
 
+  // Get the selected sucker based on cashOutChainId
+  const selectedSucker = cashOutChainId 
+    ? suckers?.find(s => s.peerChainId === Number(cashOutChainId))
+    : suckers?.find(s => s.peerChainId === chainId);
+
+  // Get the correct project ID for the selected chain
+  const effectiveProjectId = selectedSucker?.projectId || projectId;
+
+  // Get the suckerGroupId from the current project
+  const { data: projectData } = useBendystrawQuery(ProjectDocument, {
+    chainId: Number(chainId),
+    projectId: Number(projectId),
+  }, {
+    enabled: !!chainId && !!projectId,
+  });
+  const suckerGroupId = projectData?.project?.suckerGroupId;
+
+  // Get all projects in the sucker group with their token data
+  const { data: suckerGroupData } = useBendystrawQuery(SuckerGroupDocument, {
+    id: suckerGroupId ?? "",
+  }, {
+    enabled: !!suckerGroupId,
+  });
+
+  // Get the correct decimals for the selected chain's token from bendystraw data
+  const getDecimalsForChain = (targetChainId: number) => {
+    if (!suckerGroupData?.suckerGroup?.projects?.items) {
+      return NATIVE_TOKEN_DECIMALS; // fallback to 18
+    }
+    
+    const projectForChain = suckerGroupData.suckerGroup.projects.items.find(
+      project => project.chainId === targetChainId
+    );
+    
+    return projectForChain?.decimals || NATIVE_TOKEN_DECIMALS;
+  };
+
+  // Use project token decimals, not base token decimals
+  const projectTokenDecimals = token?.data?.decimals || NATIVE_TOKEN_DECIMALS;
+  
   const redeemAmountBN = redeemAmount
-    ? JBProjectToken.parse(redeemAmount, 18).value
+    ? JBProjectToken.parse(redeemAmount, projectTokenDecimals).value
     : 0n;
 
   const {
@@ -75,7 +132,7 @@ export function RedeemDialog({
     hash: txHash,
   });
   const { data: redeemQuote } = useTokenCashOutQuoteEth(redeemAmountBN, {
-    chainId: Number(cashOutChainId) as JBChainId,
+    chainId: selectedSucker?.peerChainId as JBChainId,
   });
   const loading = isWriteLoading || isTxLoading;
   const selectedBalance = balances?.find(
@@ -84,6 +141,31 @@ export function RedeemDialog({
   const valid =
     redeemAmountBN > 0n &&
     (selectedBalance?.balance.value ?? 0n) >= redeemAmountBN;
+
+  // Get the correct token address for the selected chain
+  const getTokenForChain = (targetChainId: number) => {
+    if (!suckerGroupData?.suckerGroup?.projects?.items) {
+      return NATIVE_TOKEN; // fallback to NATIVE_TOKEN
+    }
+    
+    const projectForChain = suckerGroupData.suckerGroup.projects.items.find(
+      project => project.chainId === targetChainId
+    );
+    
+    if (projectForChain?.token) {
+      return projectForChain.token as `0x${string}`;
+    }
+    
+    return NATIVE_TOKEN; // fallback to NATIVE_TOKEN
+  };
+
+  const selectedChainToken = cashOutChainId ? getTokenForChain(Number(cashOutChainId)) : NATIVE_TOKEN;
+  const isNative = selectedChainToken === "0x000000000000000000000000000000000000eeee";
+
+  // Determine what token to receive from cashout
+  // For ETH projects: receive ETH (NATIVE_TOKEN)
+  // For USDC projects: receive USDC (the project's base token)
+  const tokenToReceive = isNative ? NATIVE_TOKEN : selectedChainToken;
 
   return (
     <Dialog open={disabled === true ? false : undefined}>
@@ -107,7 +189,7 @@ export function RedeemDialog({
                         <div key={index} className="flex justify-between gap-2">
                           {JB_CHAINS[balance.chainId as JBChainId].name}
                           <span className="font-medium">
-                            {balance.balance?.format()} {tokenSymbol}
+                            {balance.balance?.format(6)} {tokenSymbol}
                           </span>
                         </div>
                       ))}
@@ -182,7 +264,10 @@ export function RedeemDialog({
                       You'll get ~{" "}
                       {redeemQuote ? (
                         <span className="font-medium">
-                          <NativeTokenValue wei={((redeemQuote * 975n) / 1000n)} decimals={8} />
+                          <NativeTokenValue 
+                            wei={((redeemQuote * 975n) / 1000n)} 
+                            decimals={isNative ? 4 : 2} 
+                          />
                         </span>
                       ) : (
                         <>...</>
@@ -200,41 +285,68 @@ export function RedeemDialog({
           <DialogFooter>
             {!isSuccess ? (
               <ButtonWithWallet
-                targetChainId={Number(cashOutChainId) as JBChainId}
-                loading={loading}
-                onClick={() => {
-                  if (!primaryNativeTerminal?.data) {
-                    console.error("no terminal");
+                targetChainId={selectedSucker?.peerChainId as JBChainId}
+                loading={loading || isApproving}
+                onClick={async () => {
+                  if (!primaryNativeTerminal?.data || !address || !redeemAmountBN || !walletClient || !publicClient) {
+                    console.error("Missing required data for cashout");
                     return;
                   }
 
-                  if (!(address && redeemAmountBN)) {
-                    console.error("incomplete args");
-                    return;
+                  try {
+                    // Check allowance for the project token (what we're redeeming)
+                    // We need allowance regardless of whether the project is ETH or USDC based
+                    // The project token address should come from the token context, not the base token
+                    const projectTokenAddress = token?.data?.address || selectedChainToken;
+                    const allowance = await publicClient.readContract({
+                      address: projectTokenAddress,
+                      abi: erc20Abi,
+                      functionName: "allowance",
+                      args: [address, primaryNativeTerminal.data as `0x${string}`],
+                    });
+
+                    if (BigInt(allowance) < redeemAmountBN) {
+                      setIsApproving(true);
+                      const hash = await walletClient.writeContract({
+                        address: projectTokenAddress,
+                        abi: erc20Abi,
+                        functionName: "approve",
+                        args: [primaryNativeTerminal.data as `0x${string}`, redeemAmountBN],
+                      });
+                      await publicClient.waitForTransactionReceipt({ hash });
+                      setIsApproving(false);
+                    }
+
+                    const args = [
+                      address, // holder
+                      effectiveProjectId, // project id (use the correct project ID for the selected chain)
+                      redeemAmount
+                        ? parseUnits(redeemAmount, NATIVE_TOKEN_DECIMALS)
+                        : 0n, // cash out count
+                      tokenToReceive, // token to reclaim (what you want to receive)
+                      0n, // min tokens reclaimed
+                      address, // beneficiary
+                      DEFAULT_METADATA, // metadata
+                    ] as const;
+
+                    writeContract?.({
+                      chainId: selectedSucker?.peerChainId as JBChainId,
+                      address: primaryNativeTerminal.data as `0x${string}`,
+                      args,
+                    });
+                  } catch (err) {
+                    setIsApproving(false);
+                    const errMsg = err instanceof Error ? err.message : "Unknown error during cashout";
+                    console.error("Cashout failed:", err);
+                    toast({
+                      variant: "destructive",
+                      title: "Cashout Failed",
+                      description: errMsg,
+                    });
                   }
-
-                  const args = [
-                    address, // holder
-                    projectId, // project id
-                    redeemAmount
-                      ? parseUnits(redeemAmount, NATIVE_TOKEN_DECIMALS)
-                      : 0n, // cash out count
-                    NATIVE_TOKEN, // token to reclaim
-                    0n, // min tokens reclaimed
-                    address, // beneficiary
-                    DEFAULT_METADATA, // metadata
-                  ] as const;
-
-                  console.log("⏩ redeem args", args);
-
-                  writeContract?.({
-                    chainId: Number(cashOutChainId) as JBChainId,
-                    address: primaryNativeTerminal?.data,
-                    args,
-                  });
                 }}
               >
-                Cash out
+                {isApproving ? "Approving..." : "Cash out"}
               </ButtonWithWallet>
             ) : null}
           </DialogFooter>

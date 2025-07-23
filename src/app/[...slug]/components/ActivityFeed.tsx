@@ -8,11 +8,15 @@ import {
   CashOutTokensEvent,
   PayEvent,
   ProjectDocument,
+  SuckerGroupDocument,
 } from "@/generated/graphql";
 import { useBendystrawQuery } from "@/graphql/useBendystrawQuery";
 import { formatTokenSymbol } from "@/lib/utils";
+import { getTokenSymbolFromAddress, getTokenConfigForChain } from "@/lib/tokenUtils";
 import { formatDistance } from "date-fns";
 import { Ether, JB_CHAINS, JBProjectToken } from "juice-sdk-core";
+import { formatUnits } from "viem";
+import { USDC_ADDRESSES } from "@/app/constants";
 import {
   JBChainId,
   useJBChainId,
@@ -41,7 +45,7 @@ function PayActivityItem(
     | "timestamp"
     | "txHash"
     | "memo"
-  > & { chainId: JBChainId; identity?: any }
+  > & { chainId: JBChainId; identity?: any; suckerGroupData?: any }
 ) {
   const { token } = useJBTokenContext();
   const composeCast = sdk.actions.composeCast;
@@ -60,8 +64,16 @@ function PayActivityItem(
 
   if (!token?.data || !payEvent) return null;
 
+  // Get token configuration for this event's chain
+  const chainTokenConfig = getTokenConfigForChain(payEvent.suckerGroupData, payEvent.chainId);
+  const baseTokenSymbol = getTokenSymbolFromAddress(chainTokenConfig.token);
+  const baseTokenDecimals = chainTokenConfig.decimals;
+
+  // Format amount using correct decimals
+  const formattedAmount = Number(formatUnits(BigInt(payEvent.amount), baseTokenDecimals)).toFixed(6);
+
   const activityItemData = {
-    amount: new Ether(BigInt(payEvent.amount)),
+    amount: formattedAmount,
     beneficiary: payEvent.beneficiary,
     beneficiaryTokenCount: new JBProjectToken(
       BigInt(payEvent.newlyIssuedTokenCount)
@@ -74,7 +86,7 @@ function PayActivityItem(
     ? `@${payEvent.identity.username}`
     : `${payEvent.beneficiary.slice(0, 6)}…`;
 
-  const shareText = `⏩ ${handle} paid ${activityItemData.amount.format(4)} ETH and received ${activityItemData.beneficiaryTokenCount?.format(2)} ${token.data?.symbol} — "${activityItemData.memo}"`;
+  const shareText = `⏩ ${handle} paid ${activityItemData.amount} ${baseTokenSymbol} and received ${activityItemData.beneficiaryTokenCount?.format(2)} ${token.data?.symbol} — "${activityItemData.memo}"`;
 
   const formattedDate = formatDistance(payEvent.timestamp * 1000, new Date(), {
     addSuffix: true,
@@ -92,7 +104,7 @@ function PayActivityItem(
         </div>
         <div className="flex items-center gap-1">
           <div className="text-md text-zinc-500 ml-7">
-            {activityItemData.amount.format(6)} ETH{" "}
+            {activityItemData.amount} {baseTokenSymbol}{" "}
             <span className="border border-teal-600 bg-teal-50 text-teal-600 px-1 py-0.5">
               in
             </span>{" "}
@@ -145,7 +157,7 @@ function RedeemActivityItem(
   cashOutEvent: Pick<
     CashOutTokensEvent,
     "reclaimAmount" | "beneficiary" | "txHash" | "timestamp" | "cashOutCount"
-  > & { chainId: JBChainId; identity?: any }
+  > & { chainId: JBChainId; identity?: any; suckerGroupData?: any }
 ) {
   const { token } = useJBTokenContext();
   const composeCast = sdk.actions.composeCast;
@@ -162,8 +174,16 @@ function RedeemActivityItem(
 
   if (!token?.data || !cashOutEvent) return null;
 
+  // Get token configuration for this event's chain
+  const chainTokenConfig = getTokenConfigForChain(cashOutEvent.suckerGroupData, cashOutEvent.chainId);
+  const baseTokenSymbol = getTokenSymbolFromAddress(chainTokenConfig.token);
+  const baseTokenDecimals = chainTokenConfig.decimals;
+
+  // Format amount using correct decimals
+  const formattedAmount = Number(formatUnits(BigInt(cashOutEvent.reclaimAmount), baseTokenDecimals)).toFixed(6);
+
   const activityItemData = {
-    amount: new Ether(BigInt(cashOutEvent.reclaimAmount)),
+    amount: formattedAmount,
     beneficiary: cashOutEvent.beneficiary,
     cashOutCount: new JBProjectToken(BigInt(cashOutEvent.cashOutCount)),
   };
@@ -172,7 +192,7 @@ function RedeemActivityItem(
     ? `@${cashOutEvent.identity.username}`
     : `${cashOutEvent.beneficiary.slice(0, 6)}…`;
 
-  const shareText = `⏩ ${handle} redeemed ${activityItemData.cashOutCount?.format(2)} ${token.data.symbol} for ${activityItemData.amount.format(4)} ETH`;
+  const shareText = `⏩ ${handle} redeemed ${activityItemData.cashOutCount?.format(2)} ${token.data.symbol} for ${activityItemData.amount} ${baseTokenSymbol}`;
 
   const formattedDate = formatDistance(
     cashOutEvent.timestamp * 1000,
@@ -194,7 +214,7 @@ function RedeemActivityItem(
         </div>
         <div className="flex items-center gap-1">
           <div className="text-md text-zinc-500 ml-7">
-            {activityItemData.amount.format(6)} ETH{" "}
+            {activityItemData.amount} {baseTokenSymbol}{" "}
             <span className="border border-orange-500 bg-orange-50 text-orange-500 px-1 py-0.5">
               out
             </span>{" "}
@@ -226,25 +246,36 @@ export function ActivityFeed() {
   const chainId = useJBChainId();
   const [isOpen, setIsOpen] = useState(true);
 
-  const { data: project } = useBendystrawQuery(ProjectDocument, {
+  const { data: project, isLoading: projectLoading, error: projectError } = useBendystrawQuery(ProjectDocument, {
     chainId: Number(chainId),
     projectId: Number(projectId),
   });
 
   const suckerGroupId = project?.project?.suckerGroupId;
 
-  const { data: activityEvents } = useBendystrawQuery(
-    ActivityEventsDocument,
-    {
-      orderBy: "timestamp",
-      orderDirection: "desc",
-      where: suckerGroupId
-        ? {
-            suckerGroupId,
-            OR: [{ payEvent_not: null }, { cashOutTokensEvent_not: null }],
-          }
-        : undefined,
+  // Get sucker group data for token mapping
+  const { data: suckerGroupData, isLoading: suckerGroupLoading, error: suckerGroupError } = useBendystrawQuery(SuckerGroupDocument, {
+    id: suckerGroupId ?? "",
+  }, {
+    enabled: !!suckerGroupId,
+    pollInterval: 10000
+  });
+
+  const queryParams = {
+    orderBy: "timestamp",
+    orderDirection: "desc",
+    where: {
+      suckerGroupId,
+      OR: [
+        { payEvent_not: null },
+        { cashOutTokensEvent_not: null }
+      ],
     },
+  };
+
+  const { data: activityEvents, isLoading: activityLoading, error: activityError } = useBendystrawQuery(
+    ActivityEventsDocument,
+    queryParams,
     {
       pollInterval: 5000,
       enabled: !!suckerGroupId,
@@ -269,12 +300,14 @@ export function ActivityFeed() {
           {activityEvents?.activityEvents.items &&
           activityEvents.activityEvents.items.length > 0 ? (
             activityEvents.activityEvents.items?.map((event) => {
+              
               if (event?.payEvent) {
                 return (
                   <PayActivityItem
                     key={event.id}
                     chainId={event.chainId as JBChainId}
                     {...event.payEvent}
+                    suckerGroupData={suckerGroupData}
                   />
                 );
               }
@@ -284,6 +317,7 @@ export function ActivityFeed() {
                     key={event.id}
                     chainId={event.chainId as JBChainId}
                     {...event.cashOutTokensEvent}
+                    suckerGroupData={suckerGroupData}
                   />
                 );
               }
@@ -291,7 +325,17 @@ export function ActivityFeed() {
               return null;
             })
           ) : (
-            <Loader2 className="animate-spin" size={64} />
+            <div>
+              <Loader2 className="animate-spin" size={64} />
+              <p className="text-sm text-zinc-500 mt-2">
+                {activityLoading ? "Loading activity events..." : "No pay or cash out events yet"}
+              </p>
+              {!activityLoading && (
+                <p className="text-xs text-zinc-400 mt-1">
+                  Activity feed will show when users pay into or cash out of this project
+                </p>
+              )}
+            </div>
           )}
         </div>
       )}

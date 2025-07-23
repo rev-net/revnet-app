@@ -7,16 +7,18 @@ import {
 } from "@/components/ui/tooltip";
 import { useBoostRecipient } from "@/hooks/useBoostRecipient";
 import { useFormattedTokenIssuance } from "@/hooks/useFormattedTokenIssuance";
+import { useProjectBaseToken } from "@/hooks/useProjectBaseToken";
+import { useSuckersTokenSurplus } from "@/hooks/useSuckersTokenSurplus";
 import { formatTokenSymbol } from "@/lib/utils";
 import { ForwardIcon } from "@heroicons/react/24/solid";
 import {
   useEtherPrice,
   useJBRulesetContext,
   useJBTokenContext,
-  useSuckersTokenCashOutValue,
 } from "juice-sdk-react";
-import { ReservedPercent } from "juice-sdk-core";
+import { ReservedPercent, formatUnits } from "juice-sdk-core";
 import { PriceIncreaseCountdown } from "../../PriceIncreaseCountdown";
+import { useUsdcPrice } from "@/hooks/useUsdcPrice";
 
 export function PriceSection({ className }: { className?: string }) {
   const issuance = useFormattedTokenIssuance({
@@ -24,12 +26,16 @@ export function PriceSection({ className }: { className?: string }) {
   });
 
   const { ruleset, rulesetMetadata } = useJBRulesetContext();
-  const { data: ethPrice } = useEtherPrice();
   const { token } = useJBTokenContext();
-  const { data: cashOutValue, loading: cashOutLoading } =
-    useSuckersTokenCashOutValue({
-      targetCurrency: "eth",
-    });
+  const baseToken = useProjectBaseToken();
+  
+  // Use appropriate price hook based on token type
+  const { data: ethPrice } = useEtherPrice();
+  const { data: usdcPrice } = useUsdcPrice();
+  const tokenPrice = baseToken.tokenType === "USDC" ? usdcPrice : ethPrice;
+  
+  // Use the sucker token surplus hook with our token map
+  const { data: surpluses, isLoading: surplusLoading } = useSuckersTokenSurplus(baseToken.tokenMap);
   const boostRecipient = useBoostRecipient();
 
   if (!ruleset?.data || !rulesetMetadata?.data) {
@@ -37,12 +43,23 @@ export function PriceSection({ className }: { className?: string }) {
   }
 
   const devTax = rulesetMetadata?.data?.reservedPercent;
-  // console.log("totalBalance", totalBalance)
+
+  // Calculate total surplus across all chains
+  const totalSurplus = surpluses?.reduce((acc, surplus) => {
+    if (surplus.surplus) {
+      return acc + surplus.surplus;
+    }
+    return acc;
+  }, 0n) ?? 0n;
+
+  // Format the surplus value
+  const formattedSurplus = totalSurplus ? formatUnits(totalSurplus, baseToken.decimals, {
+    fractionDigits: 4,
+  }) : "0";
 
   return (
     <>
       <div className={className}>
-        {/* <div className="text-2xl font-semibold">Current issuance price</div> */}
         <ul className="list-disc list-inside mt-2 space-y-2">
           <li className="flex">
             <div className="flex flex-col border-l border-zinc-300 pl-2">
@@ -63,18 +80,19 @@ export function PriceSection({ className }: { className?: string }) {
             </li>
           </ul>
         ) : null}
+        {/* TODO: Add back in when we have a way to get the minimum cash out value for a project
         <ul className="list-disc list-inside mt-2 space-y-2">
           <li className="flex">
             <div className="flex flex-col border-l border-zinc-300 pl-2">
               <div className="text-md">
                 {formatTokenSymbol(token)} minimum cash out value of{" "}
-                {!cashOutLoading
-                  ? `${Number(cashOutValue).toFixed(4)} ETH`
+                {!surplusLoading
+                  ? `${formattedSurplus} ${baseToken.symbol}`
                   : "..."}.
               </div>
             </div>
           </li>
-        </ul>
+        </ul> */}
       </div>
     </>
   );

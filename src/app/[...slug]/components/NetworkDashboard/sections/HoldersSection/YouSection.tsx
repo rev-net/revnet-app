@@ -5,46 +5,67 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { formatPortion } from "@/lib/utils";
-import { formatEther } from "juice-sdk-core";
+import { formatUnits } from "juice-sdk-core";
 import { useSuckersUserTokenBalance } from "juice-sdk-react";
 import { UserTokenBalanceDatum } from "../../../UserTokenBalanceCard/UserTokenBalanceDatum";
-import { useSumQuotes, IndividualBalanceEntry } from '../../../../components/useSumQuotes';
 import { useMemo, Fragment } from "react";
 import { Loader2 } from 'lucide-react';
+import { useNativeTokenSymbol } from "@/hooks/useNativeTokenSymbol";
+import { JB_CHAINS } from "juice-sdk-core";
+import { JBChainId } from "juice-sdk-react";
+import { useProjectBaseToken } from "@/hooks/useProjectBaseToken";
+import { useSuckersTokenSurplus } from "@/hooks/useSuckersTokenSurplus";
 
 export function YouSection({ totalSupply }: { totalSupply: bigint }) {
   const balanceQuery = useSuckersUserTokenBalance();
+  const baseToken = useProjectBaseToken();
 
-  const balances = balanceQuery?.data as IndividualBalanceEntry[] | undefined;
+  const balances = balanceQuery?.data;
 
   const totalBalance = useMemo(
     () => balances?.reduce((acc, curr) => acc + curr.balance.value, 0n) || 0n,
     [balances]
   );
 
-  const {
-    totalCashQuoteSum,
-    isLoadingSum,
-    fetcherElements, 
-  } = useSumQuotes(balances);
+  // Use the sucker token surplus hook with our token map
+  const { data: surpluses, isLoading: surplusLoading } = useSuckersTokenSurplus(baseToken.tokenMap);
 
-  const displayQuoteValue = totalCashQuoteSum;
-  const isLoadingDisplayQuote = isLoadingSum;
+  // Calculate user's cashout value for each chain based on their token balance
+  const userCashoutValues = useMemo(() => {
+    if (!surpluses || !balances) return [];
+    
+    return surpluses.map(surplus => {
+      // Find the user's balance for this chain
+      const userBalance = balances.find(b => b.chainId === surplus.chainId);
+      if (!userBalance || !surplus.surplus) return { chainId: surplus.chainId, cashoutValue: 0n };
+      
+      // Calculate user's proportional share of the surplus
+      // This assumes the surplus is proportional to token holdings
+      const userCashoutValue = (surplus.surplus * userBalance.balance.value) / totalSupply;
+      
+      return { chainId: surplus.chainId, cashoutValue: userCashoutValue };
+    });
+  }, [surpluses, balances, totalSupply]);
+
+  // Calculate total user cashout value across all chains
+  const totalUserCashoutValue = userCashoutValues.reduce((acc, value) => acc + value.cashoutValue, 0n);
+
+  const displayQuoteValue = totalUserCashoutValue;
+  const isLoadingDisplayQuote = surplusLoading;
 
   const adjustedDisplayValue =
     displayQuoteValue !== undefined
       ? (displayQuoteValue * 975n) / 1000n
       : undefined;
 
-  const formattedEthString =
+  const formattedValueString =
     adjustedDisplayValue !== undefined
-      ? Number(formatEther(adjustedDisplayValue)).toFixed(5)
+      ? Number(formatUnits(adjustedDisplayValue, baseToken.decimals)).toFixed(5)
       : null;
 
 
   return (
     <>
-      {fetcherElements}
       <div className="grid grid-cols-1 gap-x-8 overflow-x-scrolltext-md gap-1">
         {/* Left Column */}
         <div className="sm:col-span-1 sm:px-0 grid grid-cols-2 sm:grid-cols-4">
@@ -69,8 +90,8 @@ export function YouSection({ totalSupply }: { totalSupply: bigint }) {
             <Tooltip>
               <TooltipTrigger>
                 {isLoadingDisplayQuote && <Loader2 className="animate-spin" size={16} />}
-                {!isLoadingDisplayQuote && formattedEthString
-                  ? `~${formattedEthString} ETH`
+                {!isLoadingDisplayQuote && formattedValueString
+                  ? `~${formattedValueString} ${baseToken.symbol}`
                   : !isLoadingDisplayQuote // Loaded, but no value
                   ? "N/A"
                   : ""}
@@ -78,8 +99,41 @@ export function YouSection({ totalSupply }: { totalSupply: bigint }) {
               <TooltipContent>
                 <div className="flex flex-col space-y-2">
                   {isLoadingDisplayQuote && "Loading.."}
-                  {!isLoadingDisplayQuote && adjustedDisplayValue !== undefined ? (
-                    <NativeTokenValue wei={adjustedDisplayValue} decimals={18} />
+                  {!isLoadingDisplayQuote && userCashoutValues ? (
+                    <>
+                      {userCashoutValues.map((cashoutValue, index) => {
+                        const chainName = JB_CHAINS[cashoutValue.chainId as JBChainId]?.name || `Chain ${cashoutValue.chainId}`;
+                        
+                        if (cashoutValue.cashoutValue > 0n) {
+                          const adjustedCashoutValue = (cashoutValue.cashoutValue * 975n) / 1000n;
+                          const formattedCashoutValue = Number(formatUnits(adjustedCashoutValue, baseToken.decimals)).toFixed(5);
+                          return (
+                            <div key={index} className="flex justify-between gap-2">
+                              <span>{chainName}</span>
+                              <span className="font-medium">~{formattedCashoutValue} {baseToken.symbol}</span>
+                            </div>
+                          );
+                        }
+                        
+                        return (
+                          <div key={index} className="flex justify-between gap-2">
+                            <span>{chainName}</span>
+                            <span className="font-medium">N/A</span>
+                          </div>
+                        );
+                      })}
+                      <hr className="py-1" />
+                      <div className="flex justify-between gap-2">
+                        <span>[All chains]</span>
+                        <span className="font-medium">
+                          {adjustedDisplayValue !== undefined ? (
+                            `~${Number(formatUnits(adjustedDisplayValue, baseToken.decimals)).toFixed(5)} ${baseToken.symbol}`
+                          ) : (
+                            "N/A"
+                          )}
+                        </span>
+                      </div>
+                    </>
                   ) : !isLoadingDisplayQuote ? ( // Loaded, but no value
                     "Not available"
                   ) : (

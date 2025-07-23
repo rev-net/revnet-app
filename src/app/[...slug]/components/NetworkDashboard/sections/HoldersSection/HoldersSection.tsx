@@ -1,8 +1,9 @@
 import { Button } from "@/components/ui/button";
-import { ParticipantsDocument, ProjectDocument } from "@/generated/graphql";
+import { ParticipantsDocument, ProjectDocument, SuckerGroupDocument } from "@/generated/graphql";
 import { useBendystrawQuery } from "@/graphql/useBendystrawQuery";
 import { useTotalOutstandingTokens } from "@/hooks/useTotalOutstandingTokens";
 import { formatTokenSymbol } from "@/lib/utils";
+import { getTokenSymbolFromAddress, getTokenConfigForChain } from "@/lib/tokenUtils";
 import {
   useJBChainId,
   useJBContractContext,
@@ -34,6 +35,21 @@ export function HoldersSection() {
     projectId: Number(projectId),
     chainId: Number(chainId),
   });
+
+  const suckerGroupId = project.data?.project?.suckerGroupId;
+  
+  // Get sucker group data for token mapping
+  const { data: suckerGroupData } = useBendystrawQuery(SuckerGroupDocument, {
+    id: suckerGroupId ?? "",
+  }, {
+    enabled: !!suckerGroupId,
+    pollInterval: 10000
+  });
+
+  // Get token configuration for the current chain
+  const chainTokenConfig = getTokenConfigForChain(suckerGroupData, Number(chainId));
+  const baseTokenSymbol = getTokenSymbolFromAddress(chainTokenConfig.token);
+  const baseTokenDecimals = chainTokenConfig.decimals;
 
   const participantsQuery = useBendystrawQuery(ParticipantsDocument, {
     orderBy: "balance",
@@ -142,6 +158,8 @@ export function HoldersSection() {
                       participants={Object.values(participantsDataAggregate)}
                       token={token?.data}
                       totalSupply={totalOutstandingTokens}
+                      baseTokenSymbol={baseTokenSymbol}
+                      baseTokenDecimals={baseTokenDecimals}
                     />
                   </div>
                 </div>

@@ -4,27 +4,32 @@ import { ButtonWithWallet } from "@/components/ButtonWithWallet";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
-import { useAccount, useWaitForTransactionReceipt } from "wagmi";
-import { Address } from "viem";
+import { useAccount, useWaitForTransactionReceipt, usePublicClient, useWalletClient } from "wagmi";
+import { Address, erc20Abi } from "viem";
 import {
   useWriteRevLoansRepayLoan,
   useSimulateRevLoansRepayLoan,
-  useReadRevLoansLoanOf
+  useReadRevLoansLoanOf,
+  revLoansAddress
 } from "revnet-sdk";
 import { JBChainId } from "juice-sdk-core";
-import { useJBTokenContext } from "juice-sdk-react";
+import { useJBTokenContext, useJBChainId } from "juice-sdk-react";
 import { formatTokenSymbol } from "@/lib/utils";
 import { formatUnits, parseUnits } from "viem";
-import { useTokenA } from "@/hooks/useTokenA";
+import { useBendystrawQuery } from "@/graphql/useBendystrawQuery";
+import { ProjectDocument, SuckerGroupDocument } from "@/generated/graphql";
+import { getTokenSymbolFromAddress, getTokenConfigForChain } from "@/lib/tokenUtils";
 
 export function RepayDialog({
   loanId,
   chainId,
+  projectId,
   open,
   onOpenChange,
 }: {
   loanId: string;
   chainId: number;
+  projectId: bigint;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) {
@@ -39,14 +44,46 @@ export function RepayDialog({
   const { toast } = useToast();
   const { token } = useJBTokenContext();
   const tokenSymbol = formatTokenSymbol(token);
-  const { decimals } = useTokenA();
-
-  // Fetch loan data directly from contract using SDK
+  const projectTokenDecimals = token?.data?.decimals ?? 18;
+  const currentChainId = useJBChainId();
+  const publicClient = usePublicClient();
+  const { data: walletClient } = useWalletClient();
+  
+  // Check allowance for non-ETH base tokens before simulation
+  const [allowanceChecked, setAllowanceChecked] = useState(false);
+  const [hasSufficientAllowance, setHasSufficientAllowance] = useState(true);
+  const [allowanceError, setAllowanceError] = useState<string>("");
+  
+  // Fetch loan data first to get the project ID
   const { data: loanData, isLoading: isLoadingLoan } = useReadRevLoansLoanOf({
     chainId: chainId as JBChainId,
     args: [BigInt(loanId)],
   });
 
+  // Get project data to find sucker group ID using the project ID
+  const { data: projectData } = useBendystrawQuery(ProjectDocument, {
+    chainId: Number(currentChainId),
+    projectId: Number(projectId), // Use the passed project ID
+  }, {
+    enabled: !!currentChainId && !!projectId,
+    pollInterval: 10000
+  });
+  
+  const suckerGroupId = projectData?.project?.suckerGroupId;
+  
+  // Get sucker group data for token mapping
+  const { data: suckerGroupData } = useBendystrawQuery(SuckerGroupDocument, {
+    id: suckerGroupId ?? "",
+  }, {
+    enabled: !!suckerGroupId,
+    pollInterval: 10000
+  });
+  
+  // Get token configuration for this loan's chain
+  const chainTokenConfig = getTokenConfigForChain(suckerGroupData, chainId);
+  const baseTokenSymbol = getTokenSymbolFromAddress(chainTokenConfig.token);
+  const baseTokenDecimals = chainTokenConfig.decimals;
+  
   // Repay loan hook
   const { writeContractAsync: repayLoanAsync, isPending: isRepaying } = useWriteRevLoansRepayLoan();
 
@@ -57,21 +94,28 @@ export function RepayDialog({
 
   // ===== HELPER FUNCTIONS =====
   const formatCollateralAmount = (amountWei: bigint) => {
-    const amountTokens = formatUnits(amountWei, decimals);
+    const amountTokens = formatUnits(amountWei, projectTokenDecimals);
     return Number(amountTokens).toFixed(6).replace(/\.?0+$/, "");
   };
 
   const calculateCollateralAmount = (input: string, maxCollateral: bigint): bigint => {
     try {
-      const userInputWei = parseUnits(input, decimals);
+      const userInputWei = parseUnits(input, projectTokenDecimals);
       return userInputWei >= maxCollateral ? maxCollateral : userInputWei;
     } catch (error) {
       return 0n;
     }
   };
 
-  // Simulation arguments
-  const simulationArgs = !isLoadingLoan && loanData && collateralToReturn && userAddress
+  // Simulation arguments - only run if allowance is sufficient for non-ETH tokens
+  const shouldRunSimulation = !isLoadingLoan && 
+    loanData && 
+    collateralToReturn && 
+    userAddress && 
+    allowanceChecked && // Ensure allowance check has completed
+    (baseTokenSymbol === "ETH" || hasSufficientAllowance);
+    
+  const simulationArgs = shouldRunSimulation
     ? [
         BigInt(loanId),
         loanData.amount, // Always use full loan amount - contract will calculate exact amount needed
@@ -87,14 +131,17 @@ export function RepayDialog({
       ]
     : undefined;
 
+
+
+  // Always call the hook, but pass undefined args when we shouldn't simulate
   const {
     data: simulationResult,
     isLoading: isSimulating,
     error: simulationError,
   } = useSimulateRevLoansRepayLoan({
     chainId: chainId as JBChainId,
-    args: simulationArgs as readonly [bigint, bigint, bigint, `0x${string}`, { sigDeadline: bigint; amount: bigint; expiration: number; nonce: number; signature: `0x${string}`; }] | undefined,
-    value: loanData?.amount, // Send full loan amount - contract will use what it needs and refund excess
+    args: shouldRunSimulation && simulationArgs ? (simulationArgs as unknown as readonly [bigint, bigint, bigint, `0x${string}`, { sigDeadline: bigint; amount: bigint; expiration: number; nonce: number; signature: `0x${string}`; }]) : undefined,
+    value: baseTokenSymbol === "ETH" ? loanData?.amount : 0n, // Only send ETH value for ETH-based projects
   });
 
   // Extract the exact amount from simulation result for display purposes only
@@ -128,6 +175,46 @@ export function RepayDialog({
   // Always use full loan amount - contract will calculate exact amount needed
   const finalRepayAmount = loanData?.amount;
 
+  // ===== ALLOWANCE CHECKING =====
+  // Check allowance for non-ETH base tokens
+  useEffect(() => {
+    const checkAllowance = async () => {
+      if (!loanData || !userAddress || !publicClient || baseTokenSymbol === "ETH") {
+        setAllowanceChecked(true);
+        setHasSufficientAllowance(true);
+        setAllowanceError("");
+        return;
+      }
+
+      try {
+        const baseTokenAddress = chainTokenConfig.token;
+        const revLoansContractAddress = revLoansAddress[chainId as JBChainId];
+        
+        const allowance = await publicClient.readContract({
+          address: baseTokenAddress,
+          abi: erc20Abi,
+          functionName: "allowance",
+          args: [userAddress as Address, revLoansContractAddress as Address],
+        });
+
+        if (BigInt(allowance) < loanData.amount) {
+          setHasSufficientAllowance(false);
+          setAllowanceError(`To calculate your repayment cost, we need permission for this loan. You will not be charged until you confirm repayment.`);
+        } else {
+          setHasSufficientAllowance(true);
+          setAllowanceError("");
+        }
+      } catch (error) {
+        setAllowanceError("Error checking allowance. Please try again.");
+        setHasSufficientAllowance(false);
+      } finally {
+        setAllowanceChecked(true);
+      }
+    };
+
+    checkAllowance();
+  }, [loanData, userAddress, publicClient, baseTokenSymbol, chainTokenConfig, chainId, baseTokenDecimals]);
+
   // ===== EFFECTS =====
 
   // Validate collateral input
@@ -137,7 +224,7 @@ export function RepayDialog({
       return;
     }
 
-    const maxCollateralDisplay = Number(formatUnits(loanData.collateral, decimals));
+    const maxCollateralDisplay = Number(formatUnits(loanData.collateral, projectTokenDecimals));
     const inputCollateral = Number(collateralToReturn);
 
     if (inputCollateral > maxCollateralDisplay) {
@@ -147,7 +234,7 @@ export function RepayDialog({
     } else {
       setCollateralError("");
     }
-  }, [collateralToReturn, loanData, tokenSymbol, decimals]);
+  }, [collateralToReturn, loanData, tokenSymbol, projectTokenDecimals]);
 
   // Handle transaction status updates
   useEffect(() => {
@@ -175,8 +262,8 @@ export function RepayDialog({
 
   // Initialize form when dialog opens
   useEffect(() => {
-    if (open && loanData) {
-      const maxCollateralDisplay = formatUnits(loanData.collateral, decimals);
+    if (open && loanData && projectTokenDecimals) {
+      const maxCollateralDisplay = formatUnits(loanData.collateral, projectTokenDecimals);
       setCollateralToReturn(maxCollateralDisplay);
     }
     if (!open) {
@@ -185,11 +272,48 @@ export function RepayDialog({
       setRepayTxHash(undefined);
       setCollateralError("");
     }
-  }, [open, loanData, decimals]);
+  }, [open, loanData, projectTokenDecimals]);
 
   // ===== EVENT HANDLERS =====
+  const handleApproveAllowance = async () => {
+    if (!loanData || !userAddress || !publicClient || !walletClient || baseTokenSymbol === "ETH") {
+      return;
+    }
+
+    try {
+      setRepayStatus("approving");
+      const baseTokenAddress = chainTokenConfig.token;
+      const revLoansContractAddress = revLoansAddress[chainId as JBChainId];
+      
+      const approveHash = await walletClient.writeContract({
+        address: baseTokenAddress,
+        abi: erc20Abi,
+        functionName: "approve",
+        args: [revLoansContractAddress as Address, loanData.amount],
+      });
+      
+      await publicClient.waitForTransactionReceipt({ hash: approveHash });
+      
+      // Reset allowance check to trigger re-check
+      setAllowanceChecked(false);
+      setRepayStatus("idle");
+      
+      toast({
+        title: "Approval Successful",
+        description: "Token allowance approved. You can now proceed with repayment.",
+      });
+    } catch (error: any) {
+      setRepayStatus("error");
+      toast({
+        variant: "destructive",
+        title: "Approval Failed",
+        description: error.message || "An error occurred during approval",
+      });
+    }
+  };
+
   const handleRepay = async () => {
-    if (!loanData || !userAddress || !repayLoanAsync) {
+    if (!loanData || !userAddress || !repayLoanAsync || !publicClient || !walletClient) {
       toast({
         variant: "destructive",
         title: "Error",
@@ -204,6 +328,39 @@ export function RepayDialog({
       const loanIdBigInt = BigInt(loanId);
       const maxRepayBorrowAmount = loanData.amount; // Use full loan amount as ceiling
       const collateralCountToReturn = calculateCollateralAmount(collateralToReturn, loanData.collateral);
+
+
+
+      // Check allowance for USDC-based projects
+      if (baseTokenSymbol !== "ETH") {
+        const baseTokenAddress = chainTokenConfig.token;
+        const revLoansContractAddress = revLoansAddress[chainId as JBChainId];
+        
+        const allowance = await publicClient.readContract({
+          address: baseTokenAddress,
+          abi: erc20Abi,
+          functionName: "allowance",
+          args: [userAddress as Address, revLoansContractAddress as Address],
+        });
+
+        if (BigInt(allowance) < maxRepayBorrowAmount) {
+          setRepayStatus("approving");
+          
+          if (!walletClient) {
+            throw new Error("Wallet client not available");
+          }
+          
+          const approveHash = await walletClient.writeContract({
+            address: baseTokenAddress,
+            abi: erc20Abi,
+            functionName: "approve",
+            args: [revLoansContractAddress as Address, maxRepayBorrowAmount],
+          });
+          
+          await publicClient.waitForTransactionReceipt({ hash: approveHash });
+          setRepayStatus("waiting-signature");
+        }
+      }
 
       const txHash = await repayLoanAsync({
         chainId: chainId as JBChainId,
@@ -220,12 +377,11 @@ export function RepayDialog({
             signature: "0x0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000" as `0x${string}`,
           },
         ],
-        value: exactRepayAmount || loanData?.amount,
+        value: baseTokenSymbol === "ETH" ? (exactRepayAmount || loanData?.amount) : 0n,
       });
 
       setRepayTxHash(txHash);
     } catch (error: any) {
-      console.error("Repayment failed:", error);
       setRepayStatus("error");
       toast({
         variant: "destructive",
@@ -246,7 +402,7 @@ export function RepayDialog({
             key={pct}
             type="button"
             onClick={() => {
-              const collateralInTokens = Number(formatUnits(loanData.collateral, decimals));
+              const collateralInTokens = Number(formatUnits(loanData.collateral, projectTokenDecimals));
               const portion = collateralInTokens * (pct / 100);
               setCollateralToReturn(portion < 0.000001 ? "0" : portion.toFixed(6).replace(/\.?0+$/, ""));
             }}
@@ -258,7 +414,7 @@ export function RepayDialog({
         <button
           type="button"
           onClick={() => {
-            const maxCollateralDisplay = formatUnits(loanData.collateral, decimals);
+            const maxCollateralDisplay = formatUnits(loanData.collateral, projectTokenDecimals);
             setCollateralToReturn(maxCollateralDisplay);
           }}
           className="h-8 px-3 text-xs text-zinc-700 border border-zinc-300 rounded-md bg-white hover:bg-zinc-100"
@@ -274,6 +430,7 @@ export function RepayDialog({
 
     const messages = {
       "waiting-signature": "Waiting for wallet confirmation...",
+      "approving": "Approving token allowance...",
       "pending": "Repayment pending...",
       "success": "Repayment successful!",
       "error": "Something went wrong during repayment."
@@ -287,7 +444,7 @@ export function RepayDialog({
   };
 
   // ===== LOADING STATES =====
-  if (isLoadingLoan) {
+  if (isLoadingLoan || (!allowanceChecked && baseTokenSymbol !== "ETH")) {
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="max-w-2xl">
@@ -295,7 +452,7 @@ export function RepayDialog({
             <DialogTitle>Repay loan</DialogTitle>
           </DialogHeader>
           <div className="text-sm text-zinc-700 space-y-4">
-            <p>Loading loan data...</p>
+            <p>{isLoadingLoan ? "Loading loan data..." : "Checking token allowance..."}</p>
           </div>
         </DialogContent>
       </Dialog>
@@ -351,7 +508,7 @@ export function RepayDialog({
                   }
                   
                   const numValue = Number(value);
-                  const maxValue = loanData ? Number(formatUnits(loanData.collateral, decimals)) : 0;
+                  const maxValue = loanData ? Number(formatUnits(loanData.collateral, projectTokenDecimals)) : 0;
                   
                   // Only validate max if it's a valid number
                   if (!isNaN(numValue)) {
@@ -378,6 +535,7 @@ export function RepayDialog({
               {renderPercentageButtons()}
             </div>
           </div>
+          
           <div className="mt-4">
             <Label className="block text-gray-700 text-sm font-bold mb-1">
               Repayment Breakdown
@@ -389,21 +547,21 @@ export function RepayDialog({
                     <tbody className="space-y-1">
                       <tr>
                         <td className="pr-4">Original amount borrowed:</td>
-                        <td className="font-semibold text-right">{formatUnits(loanData.amount, decimals)} ETH</td>
+                        <td className="font-semibold text-right">{formatUnits(loanData.amount, baseTokenDecimals)} {baseTokenSymbol}</td>
                       </tr>
                       <tr>
-                        <td className="pr-4">Amount of collateral you want back ({(Number(collateralToReturn) / Number(formatUnits(loanData.collateral, decimals)) * 100).toFixed(1)}%):</td>
+                        <td className="pr-4">Amount of collateral you want back ({(Number(collateralToReturn) / Number(formatUnits(loanData.collateral, projectTokenDecimals)) * 100).toFixed(1)}%):</td>
                         <td className="font-semibold text-right">{collateralToReturn} {tokenSymbol}</td>
                       </tr>
                       {!isSimulating && !simulationError && exactRepayAmount && (
                         <>
                           <tr>
                             <td className="pr-4">Amount to pay now:</td>
-                            <td className="font-semibold text-right">{formatUnits(exactRepayAmount, decimals)} ETH</td>
+                            <td className="font-semibold text-right">{formatUnits(exactRepayAmount, baseTokenDecimals)} {baseTokenSymbol}</td>
                           </tr>
                           <tr>
                             <td className="pr-4">Amount rolled into new loan id:</td>
-                            <td className="font-semibold text-right">{formatUnits(loanData.amount - exactRepayAmount, decimals)} ETH</td>
+                            <td className="font-semibold text-right">{formatUnits(loanData.amount - exactRepayAmount, baseTokenDecimals)} {baseTokenSymbol}</td>
                           </tr>
                         </>
                       )}
@@ -413,15 +571,42 @@ export function RepayDialog({
                 {isSimulating && (
                   <p className="text-sm text-zinc-500 mt-2">Calculating exact amounts...</p>
                 )}
-                {simulationError && (
+                {simulationError && shouldRunSimulation && (
                   <p className="text-sm text-red-500 mt-2">Error: {simulationError.message}</p>
                 )}
-                {!isSimulating && !simulationError && !exactRepayAmount && (
+                {!isSimulating && !simulationError && !exactRepayAmount && !hasSufficientAllowance && baseTokenSymbol !== "ETH" && (
+                  <p className="text-sm text-red-500 mt-2">Please approve token allowance to see exact repayment amounts</p>
+                )}
+                {!isSimulating && !simulationError && !exactRepayAmount && (hasSufficientAllowance || baseTokenSymbol === "ETH") && (
                   <p className="text-sm text-zinc-500 mt-2">Contract will calculate exact amounts</p>
                 )}
               </div>
             )}
           </div>
+                    {/* Allowance Error Display */}
+                    {allowanceChecked && !hasSufficientAllowance && baseTokenSymbol !== "ETH" && (
+            <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+              <div className="flex items-start gap-3">
+                <div className="flex-1">
+                  <p className="text-sm text-red-700 font-medium mb-2">
+                    Token Approval Required
+                  </p>
+                  <p className="text-sm text-red-600 mb-3">
+                    {allowanceError}
+                  </p>
+                  <ButtonWithWallet
+                    targetChainId={chainId as JBChainId}
+                    loading={repayStatus === "approving"}
+                    onClick={handleApproveAllowance}
+                    variant="outline"
+                    size="sm"
+                  >
+                    Approve {baseTokenSymbol}
+                  </ButtonWithWallet>
+                </div>
+              </div>
+            </div>
+          )}
           <div className="flex flex-col items-end pt-2">
             <ButtonWithWallet
               targetChainId={chainId as JBChainId}
@@ -432,7 +617,8 @@ export function RepayDialog({
                 Number(finalRepayAmount) <= 0 ||
                 !collateralToReturn ||
                 Number(collateralToReturn) <= 0 ||
-                !!collateralError
+                !!collateralError ||
+                (baseTokenSymbol !== "ETH" && !hasSufficientAllowance)
               }
             >
               Repay loan

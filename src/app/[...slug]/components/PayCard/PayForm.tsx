@@ -15,29 +15,29 @@ import { formatUnits, parseEther, parseUnits } from "viem";
 import { PayDialog } from "./PayDialog";
 import { PayInput } from "./PayInput";
 import { formatTokenSymbol } from "@/lib/utils";
+import { useProjectAccountingContext } from "@/hooks/useProjectAccountingContext";
 
 export function PayForm() {
   const tokenA = useTokenA();
   const { token } = useJBTokenContext();
   const [memo, setMemo] = useState<string>();
+  const [resetKey, setResetKey] = useState(0);
 
   const [amountA, setAmountA] = useState<string>("");
   const [amountB, setAmountB] = useState<string>("");
   const [amountC, setAmountC] = useState<string>("");
 
-  const {
-    contracts: { primaryNativeTerminal },
-  } = useJBContractContext();
+  const primaryNativeTerminal ={data: "0xdb9644369c79c3633cde70d2df50d827d7dc7dbc"}
   const { ruleset, rulesetMetadata} = useJBRulesetContext();
-
+  const { data: accountingContext } = useProjectAccountingContext();
+  
   const tokenB = token?.data;
 
   if (token.isLoading || ruleset.isLoading || rulesetMetadata.isLoading || !tokenB) {
     return "Loading...";
   }
-
   const _amountA = {
-    amount: new FixedInt(parseEther(amountA), tokenA.decimals),
+    amount: new FixedInt(parseUnits(amountA, tokenA.decimals), tokenA.decimals), // ✅ Use correct decimals
     symbol: tokenA.symbol,
   };
   const _amountB = {
@@ -49,6 +49,7 @@ export function PayForm() {
     setAmountA("");
     setAmountB("");
     setAmountC("");
+    setResetKey(prev => prev + 1); // Force PayDialog to remount
   }
 
   return (
@@ -140,11 +141,16 @@ export function PayForm() {
         <div className="w-[150px] flex">
           {primaryNativeTerminal?.data ? (
             <PayDialog
+              key={resetKey}
               amountA={_amountA}
               amountB={_amountB}
               memo={memo}
-              primaryTerminalEth={primaryNativeTerminal?.data}
+              paymentToken={(accountingContext?.project?.token as `0x${string}`) || "0x000000000000000000000000000000000000eeee"}
               disabled={!amountA}
+              onSuccess={() => {
+                resetForm();
+                setMemo("");
+              }}
             />
           ) : null}
         </div>
