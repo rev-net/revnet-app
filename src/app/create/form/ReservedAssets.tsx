@@ -16,7 +16,7 @@ export function AssetsSection({
       <div className="md:col-span-1">
         <h2 className="font-bold text-lg mb-2">2. Assets</h2>
         <p className="text-zinc-600 text-lg">
-          Pick which reserve asset will back the value of your {revnetTokenSymbol}.
+          Pick which reserve asset will back the value of {revnetTokenSymbol}.
         </p>
       </div>
       <div className="mb-4 col-span-2">
