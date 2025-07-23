@@ -20,10 +20,14 @@ export function ParticipantsTable({
   participants,
   token,
   totalSupply,
+  baseTokenSymbol = "ETH",
+  baseTokenDecimals = 18,
 }: {
   participants: (Participant & { chains: JBChainId[] })[];
   token: UseTokenReturnType["data"] | null;
   totalSupply: bigint;
+  baseTokenSymbol?: string;
+  baseTokenDecimals?: number;
 }) {
 
   if (participants.length === 0) return (
@@ -94,7 +98,7 @@ export function ParticipantsTable({
               </div>
             </TableCell>
             <TableCell className="whitespace-nowrap">
-              {formatUnits(participant.volume, 18, { fractionDigits: 3 })} ETH
+              {formatUnits(participant.volume, baseTokenDecimals, { fractionDigits: 3 })} {baseTokenSymbol}
             </TableCell>
           </TableRow>
         ))}
