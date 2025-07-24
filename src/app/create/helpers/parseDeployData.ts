@@ -36,11 +36,8 @@ export function parseDeployData(
           minBridgeAmount: bigint;
         }[];
       }[];
-      /**
-       * UNUSED
-       */
-      salt: `0x${string}`;
     };
+    timestamp: number;
     salt: `0x${string}`;
   }
 ): ContractFunctionParameters<
@@ -48,7 +45,6 @@ export function parseDeployData(
   "nonpayable",
   "deployWith721sFor"
 >["args"] {
-  const now = Math.floor(Date.now() / 1000);
   // hack: stringfy numbers
   const formData: RevnetFormData = JSON.parse(
     JSON.stringify(_formData),
@@ -113,7 +109,8 @@ export function parseDeployData(
       `~~~~~~~~~~~~~~~~~~~~~~~~~~ Stage ${idx + 1} ~~~~~~~~~~~~~~~~~~~~~~~~~~`
     );
     const lengthSeconds = Number(stage.stageStart) * 86400;
-    const startsAtOrAfter = idx === 0 ? now + 300 : prevStart + lengthSeconds;
+    const bufferSeconds = 300;
+    const startsAtOrAfter = idx === 0 ? extra.timestamp + bufferSeconds : prevStart + lengthSeconds;
     prevStart = startsAtOrAfter;
     console.log(
       `[ startsAtOrAfter ] ${new Date(

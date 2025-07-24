@@ -44,6 +44,7 @@ export default function Page() {
     setIsLoadingIpfs(false);
 
     const salt = createSalt();
+    const timestamp = Math.floor(Date.now() / 1000);
 
     const relayrTransactions = [];
     for (const chainId of formData.chainIds) {
@@ -55,6 +56,7 @@ export default function Page() {
             metadataCid,
             chainId,
             suckerDeployerConfig,
+            timestamp,
             salt,
         });
 
