@@ -93,8 +93,8 @@ export function BorrowDialog({
       return "ETH";
     }
     
-    // For other tokens, check if it's a known USDC address
-    const isUsdc = Object.values(USDC_ADDRESSES).includes(chainTokenConfig?.token as `0x${string}`);
+    // For other tokens, check if it's a known USDC address (case insensitive)
+    const isUsdc = Object.values(USDC_ADDRESSES).map(addr => addr.toLowerCase()).includes(chainTokenConfig?.token?.toLowerCase() as `0x${string}`);
     const symbol = isUsdc ? "USDC" : "TOKEN";
     return symbol;
   }, [getTokenConfigForChain]);

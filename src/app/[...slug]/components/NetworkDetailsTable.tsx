@@ -3,8 +3,18 @@ import {
   RESERVED_TOKEN_SPLIT_GROUP_ID,
 } from "@/app/constants";
 import { Button } from "@/components/ui/button";
-import { useNativeTokenSymbol } from "@/hooks/useNativeTokenSymbol";
-import { differenceInDays, formatDate } from "date-fns";
+import { useJBContractContext, useJBChainId, useJBTokenContext } from "juice-sdk-react";
+import { useReadJbRulesetsAllOf, useReadJbControllerGetRulesetOf, useReadJbSplitsSplitsOf } from "juice-sdk-react";
+import { useState } from "react";
+import { twJoin } from "tailwind-merge";
+import { PriceSection } from "./NetworkDashboard/sections/PriceSection";
+import { useFormattedTokenIssuance } from "@/hooks/useFormattedTokenIssuance";
+import { formatTokenSymbol, rulesetStartDate } from "@/lib/utils";
+import { useAutoIssuances } from "@/hooks/useAutoIssuances";
+import { useTokenA } from "@/hooks/useTokenA";
+import { commaNumber } from "@/lib/number";
+import { formatUnits } from "viem";
+import { formatDate, differenceInDays } from "date-fns";
 import {
   Tooltip,
   TooltipContent,
@@ -16,22 +26,6 @@ import {
   RulesetWeight,
   WeightCutPercent,
 } from "juice-sdk-core";
-import {
-  useJBContractContext,
-  useReadJbControllerGetRulesetOf,
-  useReadJbRulesetsAllOf,
-  useReadJbSplitsSplitsOf,
-  useJBTokenContext,
-  useJBChainId
-} from "juice-sdk-react";
-import { useState } from "react";
-import { twJoin } from "tailwind-merge";
-import { PriceSection } from "./NetworkDashboard/sections/PriceSection";
-import { useFormattedTokenIssuance } from "@/hooks/useFormattedTokenIssuance";
-import { formatTokenSymbol, rulesetStartDate } from "@/lib/utils";
-import { useAutoIssuances } from "@/hooks/useAutoIssuances";
-import { commaNumber } from "@/lib/number";
-import { formatUnits } from "viem";
 
 export function NetworkDetailsTable() {
   const [selectedStageIdx, setSelectedStageIdx] = useState<number>(0);
@@ -43,7 +37,7 @@ export function NetworkDetailsTable() {
   const chainId = useJBChainId();
 
   const { token } = useJBTokenContext();
-  const nativeTokenSymbol = useNativeTokenSymbol();
+  const tokenA = useTokenA();
   const [isOpen, setIsOpen] = useState(false);
 
   // TODO(perf) duplicate call, move to a new context
@@ -220,7 +214,7 @@ export function NetworkDetailsTable() {
                                   <li className="flex">
                                     <span className="mr-2">•</span>
                                     <div>
-                                      If there's a market for {formatTokenSymbol(token)} / {nativeTokenSymbol} offering a better price, all {nativeTokenSymbol} paid
+                                      If there's a market for {formatTokenSymbol(token)} / {tokenA.symbol} offering a better price, all {tokenA.symbol} paid
                                       in will be used to buyback instead of feeding the revnet. Uniswap is used as the market.
                                     </div>
                                   </li>
@@ -347,13 +341,13 @@ export function NetworkDetailsTable() {
                                   <li className="flex">
                                     <span className="mr-2">•</span>
                                     <div>
-                                      Given 100 {nativeTokenSymbol} in the revnet, 100 total supply of {formatTokenSymbol(token)}, and 10 {formatTokenSymbol(token)} being cashed out, a tax rate of 0 would yield a cash out value of 10 {nativeTokenSymbol}, 0.2 would yield 8.2 {nativeTokenSymbol}, 0.5 would yield 5.5 {nativeTokenSymbol}, and 0.8 would yield 2.8 {nativeTokenSymbol}.
+                                      Given 100 {tokenA.symbol} in the revnet, 100 total supply of {formatTokenSymbol(token)}, and 10 {formatTokenSymbol(token)} being cashed out, a tax rate of 0 would yield a cash out value of 10 {tokenA.symbol}, 0.2 would yield 8.2 {tokenA.symbol}, 0.5 would yield 5.5 {tokenA.symbol}, and 0.8 would yield 2.8 {tokenA.symbol}.
                                     </div>
                                   </li>
                                   <li className="flex">
                                     <span className="mr-2">•</span>
                                     <div>
-                                      The formula for the amount of {nativeTokenSymbol} received when cashing out is `(ax/s) * ((1-r) + xr/s)` where: `r` is the cash out tax rate, `a` is the amount in the revnet being accessed, `s` is the current token supply of {formatTokenSymbol(token)}, `x` is the amount of {formatTokenSymbol(token)} being cashed out.
+                                      The formula for the amount of {tokenA.symbol} received when cashing out is `(ax/s) * ((1-r) + xr/s)` where: `r` is the cash out tax rate, `a` is the amount in the revnet being accessed, `s` is the current token supply of {formatTokenSymbol(token)}, `x` is the amount of {formatTokenSymbol(token)} being cashed out.
                                     </div>
                                   </li>
                                 </ul>

@@ -10,7 +10,6 @@ import { useSuckersUserTokenBalance } from "juice-sdk-react";
 import { UserTokenBalanceDatum } from "../../../UserTokenBalanceCard/UserTokenBalanceDatum";
 import { useMemo, Fragment } from "react";
 import { Loader2 } from 'lucide-react';
-import { useNativeTokenSymbol } from "@/hooks/useNativeTokenSymbol";
 import { JB_CHAINS } from "juice-sdk-core";
 import { JBChainId } from "juice-sdk-react";
 import { useProjectBaseToken } from "@/hooks/useProjectBaseToken";

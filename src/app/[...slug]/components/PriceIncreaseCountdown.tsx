@@ -5,7 +5,6 @@ import {
 } from "@/components/ui/tooltip";
 import { useCountdownToDate } from "@/hooks/useCountdownToDate";
 import { useFormattedTokenIssuance } from "@/hooks/useFormattedTokenIssuance";
-import { useNativeTokenSymbol } from "@/hooks/useNativeTokenSymbol";
 import { formatSeconds } from "@/lib/utils";
 import {
   RulesetWeight,
@@ -17,7 +16,6 @@ import { useJBRulesetContext, useJBTokenContext } from "juice-sdk-react";
 export function PriceIncreaseCountdown() {
   const { token } = useJBTokenContext();
   const { ruleset, rulesetMetadata } = useJBRulesetContext();
-  const nativeTokenSymbol = useNativeTokenSymbol();
   const timeLeft = useCountdownToDate(
     new Date(
       ((ruleset?.data?.start ?? 0) + (ruleset?.data?.duration ?? 0)) * 1000

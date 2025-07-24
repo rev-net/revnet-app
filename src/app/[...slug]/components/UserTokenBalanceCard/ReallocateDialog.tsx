@@ -16,7 +16,6 @@ import { ButtonWithWallet } from "@/components/ButtonWithWallet";
 import { LoanFeeChart } from "../LoanFeeChart";
 import { ImportantInfo } from "./ImportantInfo";
 import { useBorrowDialog } from "./hooks/useBorrowDialog";
-import { useNativeTokenSymbol } from "@/hooks/useNativeTokenSymbol";
 import { SimulatedLoanCard } from "../SimulatedLoanCard";
 
 export function ReallocateDialog({
@@ -70,8 +69,6 @@ export function ReallocateDialog({
     selectedChainTokenSymbol,
     getTokenConfigForChain,
   } = reallocateDialog;
-
-  const nativeTokenSymbol = useNativeTokenSymbol();
 
   // Get the borrowable amount for the specific loan's chain
   const loanChainBalance = balances?.find(
