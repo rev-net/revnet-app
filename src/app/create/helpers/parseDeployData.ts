@@ -109,7 +109,7 @@ export function parseDeployData(
       `~~~~~~~~~~~~~~~~~~~~~~~~~~ Stage ${idx + 1} ~~~~~~~~~~~~~~~~~~~~~~~~~~`
     );
     const lengthSeconds = Number(stage.stageStart) * 86400;
-    const bufferSeconds = 300;
+    const bufferSeconds = 600;
     const startsAtOrAfter = idx === 0 ? extra.timestamp + bufferSeconds : prevStart + lengthSeconds;
     prevStart = startsAtOrAfter;
     console.log(
