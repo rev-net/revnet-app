@@ -40,7 +40,9 @@ export function YouSection({ totalSupply }: { totalSupply: bigint }) {
       
       // Calculate user's proportional share of the surplus
       // This assumes the surplus is proportional to token holdings
-      const userCashoutValue = (surplus.surplus * userBalance.balance.value) / totalSupply;
+      const userCashoutValue = totalSupply > 0n 
+        ? (surplus.surplus * userBalance.balance.value) / totalSupply 
+        : 0n;
       
       return { chainId: surplus.chainId, cashoutValue: userCashoutValue };
     });

@@ -1,10 +1,10 @@
 import { JB_CHAINS, JBChainId, NATIVE_TOKEN_DECIMALS, JBProjectToken } from "juice-sdk-core";
 import { useBendystrawQuery } from "@/graphql/useBendystrawQuery";
-import { LoansByAccountDocument, ProjectDocument, SuckerGroupDocument } from "@/generated/graphql";
+import { LoansDetailsByAccountDocument, ProjectDocument, SuckerGroupDocument } from "@/generated/graphql";
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { formatSeconds } from "@/lib/utils";
 import { formatUnits } from "viem";
-import { useJBTokenContext, useJBChainId, useSuckers } from "juice-sdk-react";
+import { useJBTokenContext, useJBChainId } from "juice-sdk-react";
 import { useReadRevLoansBorrowableAmountFrom } from "revnet-sdk";
 import { USDC_ADDRESSES } from "@/app/constants";
 import { getTokenSymbolFromAddress, getTokenConfigForChain } from "@/lib/tokenUtils";
@@ -155,13 +155,6 @@ export function LoanDetailsTable({
 }) {
   const currentChainId = useJBChainId();
   
-  // Get all suckers (project deployments across chains) for this revnet
-  const suckersQuery = useSuckers();
-  const suckers = suckersQuery.data;
-  
-  // Get all project IDs across chains
-  const projectIds = suckers?.map(sucker => Number(sucker.projectId)) || [Number(revnetId)];
-  
   // Get project data to find sucker group ID
   const { data: projectData } = useBendystrawQuery(ProjectDocument, {
     chainId: Number(currentChainId),
@@ -181,19 +174,20 @@ export function LoanDetailsTable({
     pollInterval: 10000
   });
   
-  const { data } = useBendystrawQuery(LoansByAccountDocument, {
+  // Use the direct query that filters by project ID
+  const { data } = useBendystrawQuery(LoansDetailsByAccountDocument, {
     owner: address,
+    projectId: Number(revnetId),
   }, {
     pollInterval: LOAN_CONSTANTS.POLL_INTERVAL, // Refresh every 3 seconds
   });
+  
   if (!data?.loans?.items) return null;
 
   const now = Math.floor(Date.now() / 1000);
   
-  // Filter loans by all project IDs across chains
-  const filteredLoans = data.loans.items.filter((loan) => 
-    projectIds.includes(Number(loan.projectId))
-  );
+  // No filtering needed - query already filters by project ID
+  const filteredLoans = data.loans.items;
   
   if (!filteredLoans.length)
     return null;
