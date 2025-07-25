@@ -1,6 +1,6 @@
 import { JB_CHAINS, JBChainId, NATIVE_TOKEN_DECIMALS, JBProjectToken } from "juice-sdk-core";
 import { useBendystrawQuery } from "@/graphql/useBendystrawQuery";
-import { LoansDetailsByAccountDocument, ProjectDocument, SuckerGroupDocument } from "@/generated/graphql";
+import { LoansByAccountDocument, ProjectDocument, SuckerGroupDocument } from "@/generated/graphql";
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { formatSeconds } from "@/lib/utils";
 import { formatUnits } from "viem";
@@ -174,20 +174,25 @@ export function LoanDetailsTable({
     pollInterval: 10000
   });
   
-  // Use the direct query that filters by project ID
-  const { data } = useBendystrawQuery(LoansDetailsByAccountDocument, {
+  // Get all loans for the user
+  const { data } = useBendystrawQuery(LoansByAccountDocument, {
     owner: address,
-    projectId: Number(revnetId),
   }, {
     pollInterval: LOAN_CONSTANTS.POLL_INTERVAL, // Refresh every 3 seconds
   });
-  
+
   if (!data?.loans?.items) return null;
 
   const now = Math.floor(Date.now() / 1000);
   
-  // No filtering needed - query already filters by project ID
-  const filteredLoans = data.loans.items;
+  // Get all project IDs for this revnet across all chains
+  const revnetProjectIds = suckerGroupData?.suckerGroup?.projects?.items
+    ?.map(project => Number(project.projectId)) || [Number(revnetId)];
+
+  // Filter loans to only show those from this revnet's projects
+  const filteredLoans = data.loans.items.filter((loan) => 
+    revnetProjectIds.includes(Number(loan.projectId))
+  );
   
   if (!filteredLoans.length)
     return null;
