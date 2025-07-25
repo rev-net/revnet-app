@@ -4,7 +4,7 @@ import { LoansByAccountDocument, ProjectDocument, SuckerGroupDocument } from "@/
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { formatSeconds } from "@/lib/utils";
 import { formatUnits } from "viem";
-import { useJBTokenContext, useJBChainId, useSuckers } from "juice-sdk-react";
+import { useJBTokenContext, useJBChainId } from "juice-sdk-react";
 import { useReadRevLoansBorrowableAmountFrom } from "revnet-sdk";
 import { USDC_ADDRESSES } from "@/app/constants";
 import { getTokenSymbolFromAddress, getTokenConfigForChain } from "@/lib/tokenUtils";
@@ -155,13 +155,6 @@ export function LoanDetailsTable({
 }) {
   const currentChainId = useJBChainId();
   
-  // Get all suckers (project deployments across chains) for this revnet
-  const suckersQuery = useSuckers();
-  const suckers = suckersQuery.data;
-  
-  // Get all project IDs across chains
-  const projectIds = suckers?.map(sucker => Number(sucker.projectId)) || [Number(revnetId)];
-  
   // Get project data to find sucker group ID
   const { data: projectData } = useBendystrawQuery(ProjectDocument, {
     chainId: Number(currentChainId),
@@ -181,18 +174,24 @@ export function LoanDetailsTable({
     pollInterval: 10000
   });
   
+  // Get all loans for the user
   const { data } = useBendystrawQuery(LoansByAccountDocument, {
     owner: address,
   }, {
     pollInterval: LOAN_CONSTANTS.POLL_INTERVAL, // Refresh every 3 seconds
   });
+
   if (!data?.loans?.items) return null;
 
   const now = Math.floor(Date.now() / 1000);
   
-  // Filter loans by all project IDs across chains
+  // Get all project IDs for this revnet across all chains
+  const revnetProjectIds = suckerGroupData?.suckerGroup?.projects?.items
+    ?.map(project => Number(project.projectId)) || [Number(revnetId)];
+
+  // Filter loans to only show those from this revnet's projects
   const filteredLoans = data.loans.items.filter((loan) => 
-    projectIds.includes(Number(loan.projectId))
+    revnetProjectIds.includes(Number(loan.projectId))
   );
   
   if (!filteredLoans.length)

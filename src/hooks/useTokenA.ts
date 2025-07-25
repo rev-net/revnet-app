@@ -1,18 +1,14 @@
-import { useProjectAccountingContext } from "@/hooks/useProjectAccountingContext";
+import { useProjectBaseToken } from "@/hooks/useProjectBaseToken";
 
 /**
  * Token A is the token used to buy the project's token (Token B).
- * Now uses the project's accounting context to determine the correct token.
+ * Uses the project's base token information to determine the correct token.
 */
 export function useTokenA() {
-  const { data: accountingContext } = useProjectAccountingContext();
+  const baseToken = useProjectBaseToken();
   
-  // Get token symbol from accounting context
-  const tokenSymbol = accountingContext?.project?.token ? 
-    (accountingContext.project.token === "0x000000000000000000000000000000000000eeee" ? "ETH" : "USDC") : 
-    "ETH"; // fallback
-  
-  // Get decimals from accounting context
-  const tokenDecimals = accountingContext?.project?.decimals ?? 18;
-  return { symbol: tokenSymbol, decimals: tokenDecimals };
+  return { 
+    symbol: baseToken.symbol, 
+    decimals: baseToken.decimals 
+  };
 }

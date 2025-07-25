@@ -11,8 +11,8 @@ export function getTokenSymbolFromAddress(tokenAddress: string): string {
     return "ETH";
   }
   
-  // Check for USDC
-  const isUsdc = Object.values(USDC_ADDRESSES).includes(tokenAddress as `0x${string}`);
+  // Check for USDC (case insensitive)
+  const isUsdc = Object.values(USDC_ADDRESSES).map(addr => addr.toLowerCase()).includes(tokenAddress?.toLowerCase() as `0x${string}`);
   if (isUsdc) {
     return "USDC";
   }
