@@ -71,8 +71,21 @@ export function TvlDatum() {
     return tokenConfig?.token;
   }).filter(Boolean);
   
+  // Check if all tokens are USDC addresses (case-insensitive)
   const isAllUsdc = allTokens && allTokens.length > 0 && 
-    allTokens.every(token => token && Object.values(USDC_ADDRESSES).includes(token));
+    allTokens.every(token => {
+      const tokenLower = token?.toLowerCase() as `0x${string}`;
+      const usdcAddressesLower = Object.values(USDC_ADDRESSES).map(addr => addr.toLowerCase());
+      return usdcAddressesLower.includes(tokenLower);
+    });
+  
+  // Alternative check: if all tokens are USDC addresses, treat as USD
+  const allTokensAreUsdc = allTokens && allTokens.length > 0 && 
+    allTokens.every(token => {
+      const tokenLower = token?.toLowerCase() as `0x${string}`;
+      const usdcAddressesLower = Object.values(USDC_ADDRESSES).map(addr => addr.toLowerCase());
+      return usdcAddressesLower.includes(tokenLower);
+    });
   
   const isAllEth = surpluses?.every(surplus => {
     const tokenConfig = tokenMap?.[surplus.chainId];
@@ -80,8 +93,8 @@ export function TvlDatum() {
   });
   
   // Determine target currency and decimals
-  const targetDecimals = isAllUsdc ? 6 : NATIVE_TOKEN_DECIMALS; // USDC or ETH decimals
-  const targetCurrency = isAllUsdc ? "USD" : isAllEth ? "ETH" : "TOKEN";
+  const targetDecimals = (isAllUsdc || allTokensAreUsdc) ? 6 : NATIVE_TOKEN_DECIMALS; // USDC or ETH decimals
+  const targetCurrency = (isAllUsdc || allTokensAreUsdc) ? "USD" : isAllEth ? "ETH" : "TOKEN";
   
   const convertedSurpluses = surpluses?.map(surplus => {
     const tokenConfig = tokenMap?.[surplus.chainId];
@@ -136,13 +149,13 @@ export function TvlDatum() {
           const currency = tokenConfig?.currency;
           
           // Detect USDC by token address using the constants
-          const isUsdc = token && Object.values(USDC_ADDRESSES).includes(token);
+          const isUsdc = token && Object.values(USDC_ADDRESSES).map(addr => addr.toLowerCase()).includes(token.toLowerCase() as `0x${string}`);
           
           // Get token name based on currency ID
           const getTokenName = (currencyId: number) => {
             if (isUsdc) return "USD"; // Use USD for consistency with targetCurrency
             if (currencyId === 1 || currencyId === 61166) return "ETH"; // ETH currency ID (handle both old and new)
-            return "OTHER TOKEN"; // fallback
+            return "USD"; // For encoded currency IDs, assume USD if not ETH
           };
           
           // Format the amount with better precision control

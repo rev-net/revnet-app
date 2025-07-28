@@ -10,7 +10,6 @@ import { useSuckersUserTokenBalance } from "juice-sdk-react";
 import { UserTokenBalanceDatum } from "../../../UserTokenBalanceCard/UserTokenBalanceDatum";
 import { useMemo, Fragment } from "react";
 import { Loader2 } from 'lucide-react';
-import { useNativeTokenSymbol } from "@/hooks/useNativeTokenSymbol";
 import { JB_CHAINS } from "juice-sdk-core";
 import { JBChainId } from "juice-sdk-react";
 import { useProjectBaseToken } from "@/hooks/useProjectBaseToken";
@@ -41,7 +40,9 @@ export function YouSection({ totalSupply }: { totalSupply: bigint }) {
       
       // Calculate user's proportional share of the surplus
       // This assumes the surplus is proportional to token holdings
-      const userCashoutValue = (surplus.surplus * userBalance.balance.value) / totalSupply;
+      const userCashoutValue = totalSupply > 0n 
+        ? (surplus.surplus * userBalance.balance.value) / totalSupply 
+        : 0n;
       
       return { chainId: surplus.chainId, cashoutValue: userCashoutValue };
     });
@@ -82,6 +83,7 @@ export function YouSection({ totalSupply }: { totalSupply: bigint }) {
             {formatPortion(totalBalance, totalSupply)}%
           </dd>
         </div>
+        {/* comment out for now until fixed
         <div className="sm:col-span-1 sm:px-0 grid grid-cols-2 sm:grid-cols-4">
           <dt className="text-md font-medium leading-6 text-zinc-900">
             Value Across Chains
@@ -144,6 +146,7 @@ export function YouSection({ totalSupply }: { totalSupply: bigint }) {
             </Tooltip>
           </dd>
         </div>
+        */}
         {/* comment out for now until sucker of bendystraw
         <div className="sm:col-span-1 sm:px-0 grid grid-cols-2 sm:grid-cols-4">
           <dt className="text-md font-medium leading-6 text-zinc-900">

@@ -12,13 +12,11 @@ import { useSuckersTokenSurplus } from "@/hooks/useSuckersTokenSurplus";
 import { formatTokenSymbol } from "@/lib/utils";
 import { ForwardIcon } from "@heroicons/react/24/solid";
 import {
-  useEtherPrice,
   useJBRulesetContext,
   useJBTokenContext,
 } from "juice-sdk-react";
 import { ReservedPercent, formatUnits } from "juice-sdk-core";
 import { PriceIncreaseCountdown } from "../../PriceIncreaseCountdown";
-import { useUsdcPrice } from "@/hooks/useUsdcPrice";
 
 export function PriceSection({ className }: { className?: string }) {
   const issuance = useFormattedTokenIssuance({
@@ -28,11 +26,6 @@ export function PriceSection({ className }: { className?: string }) {
   const { ruleset, rulesetMetadata } = useJBRulesetContext();
   const { token } = useJBTokenContext();
   const baseToken = useProjectBaseToken();
-  
-  // Use appropriate price hook based on token type
-  const { data: ethPrice } = useEtherPrice();
-  const { data: usdcPrice } = useUsdcPrice();
-  const tokenPrice = baseToken.tokenType === "USDC" ? usdcPrice : ethPrice;
   
   // Use the sucker token surplus hook with our token map
   const { data: surpluses, isLoading: surplusLoading } = useSuckersTokenSurplus(baseToken.tokenMap);

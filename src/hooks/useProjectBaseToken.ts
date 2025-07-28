@@ -53,7 +53,7 @@ export function useProjectBaseToken(): BaseTokenInfo {
   
   // Check if all chains use the same token type
   const isAllUsdc = allTokens.length > 0 && 
-    allTokens.every(token => token && Object.values(USDC_ADDRESSES).includes(token));
+    allTokens.every(token => token && Object.values(USDC_ADDRESSES).map(addr => addr.toLowerCase()).includes(token.toLowerCase()));
   
   const isAllEth = Object.values(tokenMap).every((config: { currency: number }) => config.currency === 1 || config.currency === 61166); // ETH currency ID (handle both old and new)
   
