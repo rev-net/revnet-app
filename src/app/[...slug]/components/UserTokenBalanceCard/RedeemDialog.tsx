@@ -259,6 +259,7 @@ export function RedeemDialog({
                     </div>
                   ) : null}
 
+                  {/*  out until fixed 
                   {redeemAmount && redeemAmountBN > 0n && valid ? (
                     <div className="text-base mt-4">
                       You'll get ~{" "}
@@ -273,7 +274,7 @@ export function RedeemDialog({
                         <>...</>
                       )}
                     </div>
-                  ) : null}
+                  ) : null} */}
 
                   {isTxLoading ? (
                     <div>Transaction submitted, awaiting confirmation...</div>

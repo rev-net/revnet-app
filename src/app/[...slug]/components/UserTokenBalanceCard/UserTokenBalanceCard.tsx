@@ -15,6 +15,9 @@ import { ReallocateDialog } from "./ReallocateDialog";
 import { RepayDialog } from "./RepayDialog";
 import { LoanDetailsTable } from "../LoansDetailsTable";
 import { useAccount } from "wagmi";
+import { useBendystrawQuery } from "@/graphql/useBendystrawQuery";
+import { ProjectDocument, SuckerGroupDocument } from "@/generated/graphql";
+import { NATIVE_TOKEN } from "juice-sdk-core";
 
 export function UserTokenBalanceCard() {
   const {
@@ -32,6 +35,34 @@ export function UserTokenBalanceCard() {
   const creditBalance = new JBProjectToken(
     balances?.reduce((acc, balance) => acc + balance.balance.value, 0n) ?? 0n
   );
+
+  // Get project data to determine if it's ETH-based
+  const { data: projectData } = useBendystrawQuery(ProjectDocument, {
+    chainId: Number(chainId),
+    projectId: Number(projectId),
+  }, {
+    enabled: !!chainId && !!projectId,
+  });
+  const suckerGroupId = projectData?.project?.suckerGroupId;
+
+  const { data: suckerGroupData } = useBendystrawQuery(SuckerGroupDocument, {
+    id: suckerGroupId ?? "",
+  }, {
+    enabled: !!suckerGroupId,
+  });
+
+  // Determine if the project is ETH-based by checking the token configuration
+  const isEthBasedProject = (() => {
+    if (!suckerGroupData?.suckerGroup?.projects?.items) {
+      return true; // Default to ETH if no data
+    }
+    
+    // Check if all projects in the sucker group use ETH
+    const allProjects = suckerGroupData.suckerGroup.projects.items;
+    return allProjects.every(project => 
+      project.token?.toLowerCase() === "0x000000000000000000000000000000000000eeee"
+    );
+  })();
 
   const [selectedLoanId, setSelectedLoanId] = useState<string | null>(null);
   const [selectedChainId, setSelectedChainId] = useState<number | null>(null);
@@ -55,7 +86,7 @@ export function UserTokenBalanceCard() {
             </Button>
           </RedeemDialog>
         ) : null}
-        {token?.data?.symbol && creditBalance && primaryNativeTerminal.data ? (
+        {token?.data?.symbol && creditBalance && primaryNativeTerminal.data && isEthBasedProject ? (
           <BorrowDialog
             projectId={projectId}
             tokenSymbol={tokenSymbol}
