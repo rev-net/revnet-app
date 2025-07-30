@@ -77,9 +77,7 @@ export function UserTokenBalanceCard() {
         {token?.data?.symbol && creditBalance && primaryNativeTerminal.data ? (
           <RedeemDialog
             projectId={projectId}
-            creditBalance={creditBalance}
             tokenSymbol={tokenSymbol}
-            primaryTerminalEth={primaryNativeTerminal.data as `0x${string}`}
           >
             <Button variant="outline" disabled={creditBalance.value === 0n}>
               Cash out

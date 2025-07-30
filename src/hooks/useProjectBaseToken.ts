@@ -36,7 +36,7 @@ export function useProjectBaseToken(): BaseTokenInfo {
     pollInterval: 10000
   });
 
-  // Transform into the format expected by useSuckersTokenSurplus
+  // Transform into the format expected by our new hooks pattern
   const tokenMap = suckerGroupData?.suckerGroup?.projects?.items?.reduce((acc, project) => {
     if (project.token) {
       acc[Number(project.chainId) as JBChainId] = {

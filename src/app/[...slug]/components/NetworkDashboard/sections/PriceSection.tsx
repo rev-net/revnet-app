@@ -8,7 +8,7 @@ import {
 import { useBoostRecipient } from "@/hooks/useBoostRecipient";
 import { useFormattedTokenIssuance } from "@/hooks/useFormattedTokenIssuance";
 import { useProjectBaseToken } from "@/hooks/useProjectBaseToken";
-import { useSuckersTokenSurplus } from "@/hooks/useSuckersTokenSurplus";
+
 import { formatTokenSymbol } from "@/lib/utils";
 import { ForwardIcon } from "@heroicons/react/24/solid";
 import {
@@ -27,8 +27,7 @@ export function PriceSection({ className }: { className?: string }) {
   const { token } = useJBTokenContext();
   const baseToken = useProjectBaseToken();
   
-  // Use the sucker token surplus hook with our token map
-  const { data: surpluses, isLoading: surplusLoading } = useSuckersTokenSurplus(baseToken.tokenMap);
+
   const boostRecipient = useBoostRecipient();
 
   if (!ruleset?.data || !rulesetMetadata?.data) {
@@ -37,18 +36,7 @@ export function PriceSection({ className }: { className?: string }) {
 
   const devTax = rulesetMetadata?.data?.reservedPercent;
 
-  // Calculate total surplus across all chains
-  const totalSurplus = surpluses?.reduce((acc, surplus) => {
-    if (surplus.surplus) {
-      return acc + surplus.surplus;
-    }
-    return acc;
-  }, 0n) ?? 0n;
 
-  // Format the surplus value
-  const formattedSurplus = totalSurplus ? formatUnits(totalSurplus, baseToken.decimals, {
-    fractionDigits: 4,
-  }) : "0";
 
   return (
     <>
