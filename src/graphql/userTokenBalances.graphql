@@ -1,0 +1,28 @@
+query UserTokenBalances($suckerGroupId: String!, $userAddress: String!) {
+  suckerGroup(id: $suckerGroupId) {
+    id
+    balance
+    volume
+    volumeUsd
+    projects {
+      items {
+        balance
+        chainId
+        decimals
+        currency
+        projectId
+        volume
+        volumeUsd
+        participants(where: {address: $userAddress}) {
+          items {
+            balance
+            address
+            chainId
+            isRevnet
+            projectId
+          }
+        }
+      }
+    }
+  }
+}

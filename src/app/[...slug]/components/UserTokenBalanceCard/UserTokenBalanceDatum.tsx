@@ -8,22 +8,22 @@ import { JB_CHAINS, JBProjectToken } from "juice-sdk-core";
 import {
   JBChainId,
   useJBTokenContext,
-  useSuckersUserTokenBalance,
 } from "juice-sdk-react";
 import { useCurrentProject } from "@/hooks/useCurrentProject";
 import { useAvailableCurrencies } from "@/hooks/useAvailableCurrencies";
+import { useUserTokenBalancesBendy } from "@/hooks/useUserTokenBalancesBendy";
+import { useAccount } from "wagmi";
 import { useMemo } from "react";
 
 export function UserTokenBalanceDatum({ className }: { className?: string }) {
-  const balanceQuery = useSuckersUserTokenBalance();
+  const { address: userAddress } = useAccount();
   const { suckerGroupId } = useCurrentProject();
   const { surpluses } = useAvailableCurrencies(suckerGroupId);
+  const { balances, isLoading } = useUserTokenBalancesBendy(suckerGroupId, userAddress);
   
-  const loading = balanceQuery.isLoading;
-  const balances = balanceQuery?.data;
   const totalBalance = new JBProjectToken(
-    balances?.reduce((acc, curr) => {
-      return acc + curr.balance.value;
+    balances?.reduce((acc: bigint, curr: any) => {
+      return acc + BigInt(curr.userBalance);
     }, 0n) ?? 0n
   );
   const { token } = useJBTokenContext();
@@ -34,7 +34,7 @@ export function UserTokenBalanceDatum({ className }: { className?: string }) {
     if (!balances || !surpluses) return balances;
     
     // Create a map of chainId to balance for quick lookup
-    const balanceMap = new Map(balances.map(b => [b.chainId, b]));
+    const balanceMap = new Map(balances.map((b: any) => [b.chainId, b]));
     
     // Return balances in the same order as surpluses
     return surpluses
@@ -42,7 +42,7 @@ export function UserTokenBalanceDatum({ className }: { className?: string }) {
       .filter(Boolean); // Remove any undefined entries
   }, [balances, surpluses]);
 
-  if (loading) return <>...</>;
+  if (isLoading) return <>...</>;
 
   return (
     <Tooltip>
@@ -50,11 +50,11 @@ export function UserTokenBalanceDatum({ className }: { className?: string }) {
         {totalBalance?.format(6) ?? 0} {tokenSymbol}
       </TooltipTrigger>
       <TooltipContent className="w-64">
-        {sortedBalances?.map((balance, index) => (
+        {sortedBalances?.map((balance: any, index: number) => (
           <div key={index} className="flex justify-between gap-2">
             {JB_CHAINS[balance?.chainId as JBChainId].name}
             <span className="font-medium">
-              {balance?.balance?.format(6)} {tokenSymbol}
+              {new JBProjectToken(BigInt(balance?.userBalance || 0)).format(6)} {tokenSymbol}
             </span>
           </div>
         ))}

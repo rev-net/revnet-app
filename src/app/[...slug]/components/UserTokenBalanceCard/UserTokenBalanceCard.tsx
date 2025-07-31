@@ -7,7 +7,6 @@ import {
   useJBChainId,
   useJBContractContext,
   useJBTokenContext,
-  useSuckersUserTokenBalance,
 } from "juice-sdk-react";
 import { RedeemDialog } from "./RedeemDialog";
 import { BorrowDialog } from "./BorrowDialog";
@@ -16,8 +15,10 @@ import { RepayDialog } from "./RepayDialog";
 import { LoanDetailsTable } from "../LoansDetailsTable";
 import { useAccount } from "wagmi";
 import { useBendystrawQuery } from "@/graphql/useBendystrawQuery";
-import { ProjectDocument, SuckerGroupDocument } from "@/generated/graphql";
+import { SuckerGroupDocument } from "@/generated/graphql";
 import { NATIVE_TOKEN } from "juice-sdk-core";
+import { useCurrentProject } from "@/hooks/useCurrentProject";
+import { useUserTokenBalancesBendy } from "@/hooks/useUserTokenBalancesBendy";
 
 export function UserTokenBalanceCard() {
   const {
@@ -30,21 +31,14 @@ export function UserTokenBalanceCard() {
   const tokenSymbol = formatTokenSymbol(token);
   const chainId = useJBChainId();
   const { address } = useAccount();
-
-  const { data: balances } = useSuckersUserTokenBalance();
+  const { suckerGroupId } = useCurrentProject();
+  const { balances } = useUserTokenBalancesBendy(suckerGroupId, address);
+  
   const creditBalance = new JBProjectToken(
-    balances?.reduce((acc, balance) => acc + balance.balance.value, 0n) ?? 0n
+    balances?.reduce((acc: bigint, balance: any) => acc + BigInt(balance.userBalance || 0), 0n) ?? 0n
   );
 
-  // Get project data to determine if it's ETH-based
-  const { data: projectData } = useBendystrawQuery(ProjectDocument, {
-    chainId: Number(chainId),
-    projectId: Number(projectId),
-  }, {
-    enabled: !!chainId && !!projectId,
-  });
-  const suckerGroupId = projectData?.project?.suckerGroupId;
-
+  // Get sucker group data to determine if it's ETH-based
   const { data: suckerGroupData } = useBendystrawQuery(SuckerGroupDocument, {
     id: suckerGroupId ?? "",
   }, {

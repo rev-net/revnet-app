@@ -15,7 +15,6 @@ import {
 } from "juice-sdk-core";
 import {
   useJBContractContext,
-  useSuckersUserTokenBalance,
   useJBTokenContext,
   useJBChainId,
 } from "juice-sdk-react";
@@ -31,9 +30,11 @@ import {
 } from "revnet-sdk";
 import { useProjectBaseToken } from "@/hooks/useProjectBaseToken";
 import { useBendystrawQuery } from "@/graphql/useBendystrawQuery";
-import { ProjectDocument, SuckerGroupDocument } from "@/generated/graphql";
+import { SuckerGroupDocument } from "@/generated/graphql";
 import { USDC_ADDRESSES } from "@/app/constants";
 import { getTokenSymbolFromAddress, createTokenConfigGetter } from "@/lib/tokenUtils";
+import { useCurrentProject } from "@/hooks/useCurrentProject";
+import { useUserTokenBalancesBendy } from "@/hooks/useUserTokenBalancesBendy";
 
 
 // Types
@@ -117,15 +118,7 @@ export function useBorrowDialog({
   const baseToken = useProjectBaseToken();
 
   // Get sucker group data for token mapping
-  const { data: projectData, isLoading: projectLoading } = useBendystrawQuery(ProjectDocument, {
-    chainId: Number(chainId),
-    projectId: Number(projectId),
-  }, {
-    enabled: !!chainId && !!projectId,
-    pollInterval: 10000
-  });
-  const suckerGroupId = projectData?.project?.suckerGroupId;
-
+  const { suckerGroupId } = useCurrentProject();
   const { data: suckerGroupData, isLoading: suckerGroupLoading } = useBendystrawQuery(SuckerGroupDocument, {
     id: suckerGroupId ?? "",
   }, {
@@ -138,7 +131,7 @@ export function useBorrowDialog({
   const getTokenConfigForChain = useCallback(createTokenConfigGetter(suckerGroupData), [suckerGroupData]);
   
   // Data hooks
-  const { data: balances } = useSuckersUserTokenBalance();
+  const { balances } = useUserTokenBalancesBendy(suckerGroupId, address);
   const { data: resolvedPermissionsAddress } = useReadRevDeployerPermissions({
     chainId: cashOutChainId ? Number(cashOutChainId) as JBChainId : undefined,
   });
@@ -155,10 +148,10 @@ export function useBorrowDialog({
   const projectTokenDecimals = token?.data?.decimals ?? JB_TOKEN_DECIMALS;
   
   const selectedBalance = balances?.find(
-    (b) => b.chainId === Number(cashOutChainId)
+    (b: any) => b.chainId === Number(cashOutChainId)
   );
   
-  const userProjectTokenBalance = selectedBalance?.balance.value ?? 0n;
+  const userProjectTokenBalance = selectedBalance ? BigInt(selectedBalance.userBalance || 0) : 0n;
   
   // Dynamically determine the correct projectId based on the selected chain
   const effectiveProjectId = selectedBalance?.projectId ? BigInt(selectedBalance.projectId) : projectId;
@@ -416,8 +409,8 @@ export function useBorrowDialog({
   }, [defaultTab]);
 
   const handleChainSelection = useCallback((chainId: number) => {
-    const selected = balances?.find((b) => b.chainId === chainId);
-    const collateral = selected ? formatUnits(selected.balance.value, projectTokenDecimals) : "0";
+    const selected = balances?.find((b: any) => b.chainId === chainId);
+    const collateral = selected ? formatUnits(BigInt(selected.userBalance || 0), projectTokenDecimals) : "0";
     setSelectedChainId(chainId);
     setCashOutChainId(chainId.toString());
     setCollateralAmount(collateral);

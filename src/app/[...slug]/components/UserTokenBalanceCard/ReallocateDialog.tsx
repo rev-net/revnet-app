@@ -72,10 +72,10 @@ export function ReallocateDialog({
 
   // Get the borrowable amount for the specific loan's chain
   const loanChainBalance = balances?.find(
-    (b) => b.chainId === Number(selectedLoan?.chainId)
+    (b: any) => b.chainId === Number(selectedLoan?.chainId)
   );
   
-  const borrowableAmount = loanChainBalance?.balance.value ?? 0n;
+  const borrowableAmount = loanChainBalance ? BigInt(loanChainBalance.userBalance || 0) : 0n;
   const borrowableAmountFormatted = formatUnits(borrowableAmount, projectTokenDecimals).replace(/\.?0+$/, "");
 
   // Set default collateral amount when dialog opens

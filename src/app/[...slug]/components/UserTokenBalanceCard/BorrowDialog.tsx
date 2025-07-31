@@ -2,7 +2,7 @@ import { PropsWithChildren } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { formatUnits } from "viem";
-import { NATIVE_TOKEN_DECIMALS, JBChainId } from "juice-sdk-core";
+import { NATIVE_TOKEN_DECIMALS, JBChainId, JBProjectToken } from "juice-sdk-core";
 import {
   Dialog,
   DialogContent,
@@ -105,7 +105,7 @@ export function BorrowDialog({
   const handleChainSelect = useCallback((chainId: string) => {
     const selected = balances?.find((b: any) => b.chainId === Number(chainId));
     if (selected) {
-      const collateral = formatUnits(selected.balance.value, projectTokenDecimals);
+      const collateral = formatUnits(BigInt(selected.userBalance || 0), projectTokenDecimals);
       setSelectedChainId(Number(chainId));
       setCashOutChainId(chainId);
       setCollateralAmount(collateral);
@@ -144,7 +144,7 @@ export function BorrowDialog({
                 <div key={index} className="flex justify-between gap-2">
                   {JB_CHAINS[balance.chainId as JBChainId].name}
                   <span className="font-medium">
-                    {balance.balance?.format(8)} {tokenSymbol}
+                    {new JBProjectToken(BigInt(balance.userBalance || 0)).format(8)} {tokenSymbol}
                   </span>
                 </div>
               ))}
@@ -164,7 +164,7 @@ export function BorrowDialog({
                     name="collateral-amount"
                     type="number"
                     step="0.0001"
-                    max={selectedBalance ? Number(formatUnits(selectedBalance.balance.value, projectTokenDecimals)) : undefined}
+                    max={selectedBalance ? Number(formatUnits(BigInt(selectedBalance.userBalance || 0), projectTokenDecimals)) : undefined}
                     value={collateralAmount}
                     onChange={(e) => {
                       const value = e.target.value;
@@ -182,7 +182,7 @@ export function BorrowDialog({
                       }
                       
                       const numValue = Number(value);
-                      const maxValue = selectedBalance ? Number(formatUnits(selectedBalance.balance.value, projectTokenDecimals)) : 0;
+                      const maxValue = selectedBalance ? Number(formatUnits(BigInt(selectedBalance.userBalance || 0), projectTokenDecimals)) : 0;
                       
                       // Only validate max if it's a valid number
                       if (!isNaN(numValue)) {
@@ -199,7 +199,7 @@ export function BorrowDialog({
                     }}
                     placeholder={
                       cashOutChainId && selectedBalance
-                        ? Number(formatUnits(selectedBalance.balance.value, projectTokenDecimals)).toFixed(8)
+                        ? Number(formatUnits(BigInt(selectedBalance.userBalance || 0), projectTokenDecimals)).toFixed(8)
                         : "Enter amount"
                     }
                     className="mt-2"
@@ -228,8 +228,8 @@ export function BorrowDialog({
                   </SelectTrigger>
                   <SelectContent>
                     {balances
-                      ?.filter((b) => b.balance.value > 0n)
-                      .map((balance) => {
+                      ?.filter((b: any) => BigInt(b.userBalance || 0) > 0n)
+                      .map((balance: any) => {
                         return (
                           <SelectItem
                             value={balance.chainId.toString()}
@@ -260,7 +260,7 @@ export function BorrowDialog({
                       type="button"
                       onClick={() => {
                         if (selectedBalance) {
-                          const value = Number(formatUnits(selectedBalance.balance.value, projectTokenDecimals)) * (pct / 100);
+                          const value = Number(formatUnits(BigInt(selectedBalance.userBalance || 0), projectTokenDecimals)) * (pct / 100);
                           setCollateralAmount(value.toFixed(6));
                         }
                       }}
@@ -273,7 +273,7 @@ export function BorrowDialog({
                     type="button"
                     onClick={() => {
                       if (selectedBalance) {
-                        const maxValue = Number(formatUnits(selectedBalance.balance.value, projectTokenDecimals));
+                        const maxValue = Number(formatUnits(BigInt(selectedBalance.userBalance || 0), projectTokenDecimals));
                         setCollateralAmount(maxValue.toFixed(8));
                       }
                     }}
