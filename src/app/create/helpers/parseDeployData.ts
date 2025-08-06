@@ -10,7 +10,8 @@ import {
   SPLITS_TOTAL_PERCENT,
   WeightCutPercent,
 } from "juice-sdk-core";
-import { revDeployerAbi, revLoansAddress } from "revnet-sdk";
+import { revDeployerAbi } from "revnet-sdk";
+import { REV_LOANS_ADDRESSES } from "@/app/constants";
 import {
   Address,
   ContractFunctionParameters,
@@ -204,7 +205,7 @@ export function parseDeployData(
       baseCurrency: baseCurrency,
       splitOperator: operator as Address,
       stageConfigurations,
-      loans: revLoansAddress[extra.chainId as JBChainId] as Address,
+      loans: REV_LOANS_ADDRESSES[extra.chainId as JBChainId] as Address,
       loanSources,
     },
     [

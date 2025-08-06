@@ -78,7 +78,7 @@ export function UserTokenBalanceCard() {
             </Button>
           </RedeemDialog>
         ) : null}
-        {token?.data?.symbol && creditBalance && primaryNativeTerminal.data && isEthBasedProject ? (
+        {token?.data?.symbol && creditBalance && primaryNativeTerminal.data ? (
           <BorrowDialog
             projectId={projectId}
             tokenSymbol={tokenSymbol}

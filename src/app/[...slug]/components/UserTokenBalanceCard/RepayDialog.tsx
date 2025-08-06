@@ -10,8 +10,10 @@ import {
   useWriteRevLoansRepayLoan,
   useSimulateRevLoansRepayLoan,
   useReadRevLoansLoanOf,
-  revLoansAddress
+  useReadRevDeployerLoansOf,
+  //revLoansAddress // Needs to be updated in sdk
 } from "revnet-sdk";
+import { REV_LOANS_ADDRESSES } from "@/app/constants";
 import { JBChainId } from "juice-sdk-core";
 import { useJBTokenContext, useJBChainId } from "juice-sdk-react";
 import { formatTokenSymbol } from "@/lib/utils";
@@ -54,6 +56,7 @@ export function RepayDialog({
   const [hasSufficientAllowance, setHasSufficientAllowance] = useState(true);
   const [allowanceError, setAllowanceError] = useState<string>("");
   
+
   // Fetch loan data first to get the project ID
   const { data: loanData, isLoading: isLoadingLoan } = useReadRevLoansLoanOf({
     chainId: chainId as JBChainId,
@@ -78,12 +81,20 @@ export function RepayDialog({
     enabled: !!suckerGroupId,
     pollInterval: 10000
   });
-  
+  console.log("suckerGroupData", suckerGroupData);
   // Get token configuration for this loan's chain
   const chainTokenConfig = getTokenConfigForChain(suckerGroupData, chainId);
   const baseTokenSymbol = getTokenSymbolFromAddress(chainTokenConfig.token);
   const baseTokenDecimals = chainTokenConfig.decimals;
-  
+    // Figure out which revLoans contract to use
+    const projectIdForLoans = suckerGroupData?.suckerGroup?.projects?.items[0]?.projectId;
+    const chainIdForLoans = suckerGroupData?.suckerGroup?.projects?.items[0]?.chainId;
+    
+    const { data: loansContractAddress, isLoading, error } = useReadRevDeployerLoansOf({
+      args: projectIdForLoans && chainIdForLoans ? [BigInt(projectIdForLoans)] : undefined,
+      chainId: chainIdForLoans as JBChainId,
+    });
+  console.log("loansContractAddress", loansContractAddress);
   // Repay loan hook
   const { writeContractAsync: repayLoanAsync, isPending: isRepaying } = useWriteRevLoansRepayLoan();
 
@@ -188,7 +199,7 @@ export function RepayDialog({
 
       try {
         const baseTokenAddress = chainTokenConfig.token;
-        const revLoansContractAddress = revLoansAddress[chainId as JBChainId];
+        const revLoansContractAddress = REV_LOANS_ADDRESSES[chainId as JBChainId];
         
         const allowance = await publicClient.readContract({
           address: baseTokenAddress,
@@ -283,7 +294,7 @@ export function RepayDialog({
     try {
       setRepayStatus("approving");
       const baseTokenAddress = chainTokenConfig.token;
-      const revLoansContractAddress = revLoansAddress[chainId as JBChainId];
+      const revLoansContractAddress = REV_LOANS_ADDRESSES[chainId as JBChainId];
       
       const approveHash = await walletClient.writeContract({
         address: baseTokenAddress,
@@ -334,7 +345,7 @@ export function RepayDialog({
       // Check allowance for USDC-based projects
       if (baseTokenSymbol !== "ETH") {
         const baseTokenAddress = chainTokenConfig.token;
-        const revLoansContractAddress = revLoansAddress[chainId as JBChainId];
+        const revLoansContractAddress = REV_LOANS_ADDRESSES[chainId as JBChainId];
         
         const allowance = await publicClient.readContract({
           address: baseTokenAddress,

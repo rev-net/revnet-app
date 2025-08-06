@@ -47,6 +47,22 @@ export const USDC_ADDRESSES: Record<number, `0x${string}`> = {
   11155420: "0x5fd84259d66Cd46123540766Be93DFE6D43130D7", // Optimism sepolia
 };
 
+// TODO: Remove this once the sdk is updated!
+export const REV_LOANS_ADDRESSES: Record<number, `0x${string}`> = {
+  42161: "0xDE1E70fAF22024559e7D94aB814abD7e42CA849B", // Arbitrum
+  8453: "0xDE1E70fAF22024559e7D94aB814abD7e42CA849B", // Base
+  1: "0xDE1E70fAF22024559e7D94aB814abD7e42CA849B", // Ethereum
+  10: "0xDE1E70fAF22024559e7D94aB814abD7e42CA849B", // Optimism
+  421614: "0xDE1E70fAF22024559e7D94aB814abD7e42CA849B", // Arbitrum sepolia
+  84532: "0xDE1E70fAF22024559e7D94aB814abD7e42CA849B", // Base Sepolia
+  11155111: "0xDE1E70fAF22024559e7D94aB814abD7e42CA849B", // Ethereum sepolia
+  11155420: "0xDE1E70fAF22024559e7D94aB814abD7e42CA849B", // Optimism sepolia
+};
+
+// TODO: Remove this once the sdk is updated! Same for all chains at the moment.
+export const primaryNativeTerminal = {data: "0xdb9644369c79c3633cde70d2df50d827d7dc7dbc"};
+
+
 export const USDC_DECIMALS = 6;
 
 export const isProduction = process.env.NODE_ENV === "production";
