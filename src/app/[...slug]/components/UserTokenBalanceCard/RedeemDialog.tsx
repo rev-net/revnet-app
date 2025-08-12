@@ -207,7 +207,7 @@ export function RedeemDialog({
                             id="amount"
                             name="amount"
                             value={redeemAmount}
-                            onChange={(e) => setRedeemAmount(e.target.value)}
+                            onChange={(e) => setRedeemAmount(e.target.value?.trim())}
                           />
                           <div
                             className={
