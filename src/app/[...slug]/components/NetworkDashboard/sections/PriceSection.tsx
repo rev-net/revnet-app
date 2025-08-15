@@ -1,16 +1,8 @@
-import { EthereumAddress } from "@/components/EthereumAddress";
-import { Badge } from "@/components/ui/badge";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { useBoostRecipient } from "@/hooks/useBoostRecipient";
 import { useFormattedTokenIssuance } from "@/hooks/useFormattedTokenIssuance";
 import { useProjectBaseToken } from "@/hooks/useProjectBaseToken";
 import { useSuckersTokenSurplus } from "@/hooks/useSuckersTokenSurplus";
 import { formatTokenSymbol } from "@/lib/utils";
-import { ForwardIcon } from "@heroicons/react/24/solid";
 import {
   useJBRulesetContext,
   useJBTokenContext,
