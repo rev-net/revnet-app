@@ -13,6 +13,7 @@ import { RedeemDialog } from "./RedeemDialog";
 import { BorrowDialog } from "./BorrowDialog";
 import { RepayDialog } from "./RepayDialog";
 import { SellOnMarket } from "./SellOnMarket";
+import { ProjectAdmin } from "./ProjectAdmin";
 import { LoanDetailsTable } from "../LoansDetailsTable";
 import { useAccount } from "wagmi";
 
@@ -77,6 +78,12 @@ export function UserTokenBalanceCard() {
             </Button>
           </BorrowDialog>
         ) : null}
+        
+        <ProjectAdmin>
+          <Button variant="outline" className="bg-yellow-50 border-yellow-200 text-yellow-800 hover:bg-yellow-100">
+            ⚙️ Admin
+          </Button>
+        </ProjectAdmin>
         {selectedLoan && (
           <RepayDialog
             projectId={projectId}

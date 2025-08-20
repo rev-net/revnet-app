@@ -22,3 +22,22 @@ query Projects($where: projectFilter) {
     }
   }
 }
+
+query ProjectWithPermissions($projectId: Float!, $chainId: Float!) {
+  project(projectId: $projectId, chainId: $chainId) {
+    projectId
+    metadataUri
+    handle
+    createdAt
+    suckerGroupId
+    deployer
+    permissionHolders {
+      items {
+        permissions
+        account
+        chainId
+        operator
+      }
+    }
+  }
+}
