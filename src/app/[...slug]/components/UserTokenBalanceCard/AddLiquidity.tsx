@@ -13,6 +13,7 @@ import { getTokenBtoAQuote } from "juice-sdk-core";
 import { FixedInt } from "fpnum";
 import { TickMath, FeeAmount } from "@uniswap/v3-sdk";
 import JSBI from "jsbi";
+import { ExternalLink } from "@/components/ExternalLink";
 
 // Minimal ABI for Uniswap V3 Position Manager
 const POSITION_MANAGER_ABI = [
@@ -547,31 +548,7 @@ export function AddLiquidity({
       }
     }
 
-          // Validate minimum position size
-      if (parseFloat(projectAmount) < 0.001) {
-        toast({
-          variant: "destructive",
-          title: "Error",
-          description: "Minimum position size is 1 token"
-        });
-        return;
-      }
-
-      // For LP tab, ensure reasonable minimum amounts
-      if (isLPTab) {
-        const projectAmountFloat = parseFloat(projectAmount);
-        const nativeAmountFloat = parseFloat(nativeAmount);
-
-        // Reasonable minimum amounts for LP positions
-        if (projectAmountFloat < 0.1 || nativeAmountFloat < 0.0001) {
-          toast({
-            variant: "destructive",
-            title: "Error",
-            description: "Minimum amounts for LP: 0.1 project tokens and 0.0001 native tokens"
-          });
-          return;
-        }
-      }
+      // No minimum amount validation - let users provide any amount they want
 
         // Validate amounts for LP tab
     if (isLPTab) {
@@ -761,8 +738,8 @@ export function AddLiquidity({
           const lowerTick = Math.floor(Math.log(lowerPrice) / Math.log(1.0001));
           const upperTick = Math.ceil(Math.log(upperPrice) / Math.log(1.0001));
 
-          // Snap to tick spacing (assuming 0.05% fee tier)
-          const tickSpacing = 10;
+          // Snap to tick spacing (assuming 1% fee tier)
+          const tickSpacing = 200;
           tickLower = Math.floor(lowerTick / tickSpacing) * tickSpacing;
           tickUpper = Math.ceil(upperTick / tickSpacing) * tickSpacing;
 
@@ -803,7 +780,7 @@ export function AddLiquidity({
           const lowerTick = Math.floor(Math.log(lowerPrice) / Math.log(1.0001));
           const upperTick = Math.ceil(Math.log(upperPrice) / Math.log(1.0001));
 
-          const tickSpacing = 10;
+          const tickSpacing = 200;
           tickLower = Math.floor(lowerTick / tickSpacing) * tickSpacing;
           tickUpper = Math.ceil(upperTick / tickSpacing) * tickSpacing;
 
@@ -1121,7 +1098,7 @@ export function AddLiquidity({
       }
 
       // Get the actual pool fee from the pool contract
-      let poolFee = FeeAmount.LOW; // default
+      let poolFee = FeeAmount.HIGH; // default to 1%
       try {
         const poolFeeResult = await publicClient.readContract({
           address: poolAddress,
@@ -1294,7 +1271,7 @@ export function AddLiquidity({
       const minAmountOut = 0n; // Allow any amount out for testing
 
       // Verify pool exists and get its fee
-      let poolFee = 500; // Default to LOW fee
+      let poolFee = 10000; // Default to HIGH fee (1%)
       let verifiedPoolAddress = poolAddress;
 
       try {
@@ -1486,15 +1463,27 @@ export function AddLiquidity({
     const percentageAmount = (totalBalance * BigInt(percentage)) / 100n;
     const amountInEth = Number(percentageAmount) / 10 ** 18;
     setNativeAmount(amountInEth.toFixed(6));
+
+    // For LP tab, also calculate balanced project token amount
+    if (activeTab === "lp" && priceInfo.poolPrice) {
+      const balancedProjectAmount = amountInEth * priceInfo.poolPrice;
+      setProjectAmount(balancedProjectAmount.toFixed(6));
+    }
   };
 
-    // Helper function to set percentage of available project token balance
+  // Helper function to set percentage of available project token balance
   const setProjectTokenPercentageAmount = (percentage: number) => {
     if (projectTokenBalance === 0n) return;
 
     const percentageAmount = (projectTokenBalance * BigInt(percentage)) / 100n;
     const amountInTokens = Number(percentageAmount) / 10 ** projectToken.decimals;
     setProjectAmount(amountInTokens.toFixed(6));
+
+    // For LP tab, also calculate balanced native token amount
+    if (activeTab === "lp" && priceInfo.poolPrice) {
+      const balancedNativeAmount = amountInTokens / priceInfo.poolPrice;
+      setNativeAmount(balancedNativeAmount.toFixed(6));
+    }
   };
 
 
@@ -1553,12 +1542,12 @@ export function AddLiquidity({
       }
 
             // Force use of fee 500 (0.05%) since that's what we've been using for swaps
-      const poolFee = 500; // Force to 500 (0.05%) - the fee tier we know works
+      const poolFee = 10000; // Force to 10000 (1%) - the fee tier we want
       let poolLiquidity = 0n;
       let currentTick = 0;
       let currentPrice = 0;
 
-      console.log("🔧 Using forced fee tier:", poolFee);
+      console.log("🔧 Using forced fee tier:", poolFee, "(1%)");
 
       // Calculate tick range for the limit order
       // For a sell order (SCORES → WETH), we need to invert the price
@@ -1568,14 +1557,14 @@ export function AddLiquidity({
       const scoresPerWeth = 1 / targetPriceFloat;
       const tick = Math.log(scoresPerWeth) / Math.log(1.0001);
 
-      // Helper function to snap ticks to valid spacing for fee 500 (spacing = 10)
+      // Helper function to snap ticks to valid spacing for fee 10000 (spacing = 200)
       const snapToTickSpacing = (tick: number): number => {
-        const tickSpacing = 10; // For fee 500
+        const tickSpacing = 200; // For fee 10000 (1%)
         return Math.round(tick / tickSpacing) * tickSpacing;
       };
 
-      // Use a tight tick range for limit orders (10 ticks wide)
-      const tickRange = 5; // 5 ticks on each side = 10 tick range
+      // Use a tight tick range for limit orders (200 ticks wide)
+      const tickRange = 100; // 100 ticks on each side = 200 tick range
       const tickLower = snapToTickSpacing(Math.floor(tick - tickRange));
       const tickUpper = snapToTickSpacing(Math.floor(tick + tickRange));
 
@@ -1620,20 +1609,36 @@ export function AddLiquidity({
         }
       }
 
-      // Check if this will execute immediately (below market price)
-      if (currentMarketTick > 0 && tickUpper < currentMarketTick) {
-        const currentMarketPrice = (1 / Math.pow(1.0001, currentMarketTick)).toFixed(8);
-        const targetPriceFormatted = targetPriceFloat.toFixed(8);
+      // Check if this will execute immediately (limit price is at or below market price)
+      if (currentMarketTick > 0) {
+        // Determine token order to calculate prices correctly
+        const isProjectToken0 = projectToken.address.toLowerCase() < nativeToken.address.toLowerCase();
 
-        toast({
-          title: "⚠️ Will Execute Immediately",
-          description: `Your limit price (${targetPriceFormatted} ${nativeToken.symbol}/${projectToken.symbol}) is below the current market price (${currentMarketPrice} ${nativeToken.symbol}/${projectToken.symbol}). This will execute immediately as a market sell.`,
-          variant: "destructive"
-        });
+        // Calculate current market price based on token order
+        const currentMarketPrice = isProjectToken0
+          ? Math.pow(1.0001, currentMarketTick)
+          : 1 / Math.pow(1.0001, currentMarketTick);
 
-        // Ask user if they want to proceed
-        if (!confirm("This limit order will execute immediately. Do you want to proceed?")) {
-          return;
+        // For a limit sell order, we want to sell when price goes up
+        // So we check if our limit price is at or below current market price
+        const willExecuteImmediately = isProjectToken0
+          ? tickUpper <= currentMarketTick  // If project token is token0, lower tick = lower price
+          : tickLower >= currentMarketTick; // If project token is token1, higher tick = lower price
+
+        if (willExecuteImmediately) {
+          const currentMarketPriceFormatted = currentMarketPrice.toFixed(8);
+          const targetPriceFormatted = targetPriceFloat.toFixed(8);
+
+          toast({
+            title: "⚠️ Will Execute Immediately",
+            description: `Your limit price (${targetPriceFormatted} ${nativeToken.symbol}/${projectToken.symbol}) is at or below the current market price (${currentMarketPriceFormatted} ${nativeToken.symbol}/${projectToken.symbol}). This will execute immediately as a market sell.`,
+            variant: "destructive"
+          });
+
+          // Ask user if they want to proceed
+          if (!confirm("This limit order will execute immediately. Do you want to proceed?")) {
+            return;
+          }
         }
       }
 
@@ -1680,9 +1685,9 @@ export function AddLiquidity({
           currentTick = Number(slot0[1]);
           currentPrice = Math.pow(1.0001, currentTick);
 
-          // Log the actual pool fee for debugging (but we're forcing fee 500)
+          // Log the actual pool fee for debugging (but we're forcing fee 10000)
           const rawPoolFee = Number(slot0[3]);
-          console.log("🔍 Raw pool fee from slot0[3]:", rawPoolFee, "(using forced fee 500)");
+          console.log("🔍 Raw pool fee from slot0[3]:", rawPoolFee, "(using forced fee 10000 - 1%)");
 
           console.log("🔍 Pool state check:", {
             poolAddress,
@@ -1812,7 +1817,13 @@ export function AddLiquidity({
               >
                 Trading Options
               </a>
+
             );
+            {uniswapUrl && (
+              <ExternalLink ref={uniswapUrl} className="text-sm text-green-600 hover:text-green-800">
+                View on Uniswap
+              </ExternalLink>
+            )}
           } else {
             return "Trading Options";
           }
@@ -1844,49 +1855,21 @@ export function AddLiquidity({
         </Button>
       </div>
 
-      {/* Price Information */}
-      <div className="mb-4 p-3 bg-white rounded-lg border">
-        <h3 className="text-sm font-medium text-gray-900 mb-2">Price Information</h3>
-        <div className="space-y-1 text-sm text-gray-600">
-          <p>
-            Juicebox Issuance Price:{" "}
-            {priceInfo.issuancePrice ? (
-              <span className="font-medium">
-                {priceInfo.issuancePrice.toLocaleString(undefined, {
-                  maximumSignificantDigits: 8,
-                })}{" "}
-                {projectToken.symbol} per {nativeToken.symbol}
-              </span>
-            ) : (
-              <span className="text-gray-400">Loading...</span>
-            )}
-          </p>
-
-          {priceInfo.poolPrice ? (
-            <p>
-              Current Pool Price:{" "}
-              <span className="font-medium">
-                {priceInfo.poolPrice.toLocaleString(undefined, {
-                  maximumSignificantDigits: 8,
-                })}{" "}
-                {projectToken.symbol} per {nativeToken.symbol}
-              </span>
-            </p>
-          ) : (
-            <p className="text-amber-600">
-              Pool not initialized. Set initial price below issuance price.
-            </p>
-          )}
-        </div>
-      </div>
-
       {/* Tab Content */}
       {activeTab === "market" && (
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium mb-2">
-              Amount of {projectToken.symbol} to sell
-            </label>
+            {priceInfo.poolPrice ? (
+              <div className="text-sm">
+                <label className="block text-sm font-medium mb-2">
+                  {(1 / priceInfo.poolPrice).toFixed(8)} {nativeToken.symbol} per {projectToken.symbol}
+                </label>
+              </div>
+            ) : (
+              <div className="text-sm text-blue-600">
+                Loading market price...
+              </div>
+            )}
             <input
               type="number"
               value={marketSellAmount}
@@ -2079,7 +2062,17 @@ export function AddLiquidity({
             <input
               type="number"
               value={nativeAmount}
-              onChange={(e) => setNativeAmount(e.target.value)}
+              onChange={(e) => {
+                setNativeAmount(e.target.value);
+                // For LP tab, automatically calculate balanced project token amount
+                if (activeTab === "lp" && priceInfo.poolPrice && e.target.value) {
+                  const nativeAmountFloat = parseFloat(e.target.value);
+                  if (!isNaN(nativeAmountFloat)) {
+                    const balancedProjectAmount = nativeAmountFloat * priceInfo.poolPrice;
+                    setProjectAmount(balancedProjectAmount.toFixed(6));
+                  }
+                }
+              }}
               placeholder={`Enter ${nativeToken.symbol} amount`}
               className="w-full p-2 border rounded"
               disabled={isLoading}
@@ -2152,7 +2145,17 @@ export function AddLiquidity({
             <input
               type="number"
               value={projectAmount}
-              onChange={(e) => setProjectAmount(e.target.value)}
+              onChange={(e) => {
+                setProjectAmount(e.target.value);
+                // For LP tab, automatically calculate balanced native token amount
+                if (activeTab === "lp" && priceInfo.poolPrice && e.target.value) {
+                  const projectAmountFloat = parseFloat(e.target.value);
+                  if (!isNaN(projectAmountFloat)) {
+                    const balancedNativeAmount = projectAmountFloat / priceInfo.poolPrice;
+                    setNativeAmount(balancedNativeAmount.toFixed(6));
+                  }
+                }
+              }}
               placeholder={`Enter ${projectToken.symbol} amount`}
               className="w-full p-2 border rounded"
               disabled={isLoading}

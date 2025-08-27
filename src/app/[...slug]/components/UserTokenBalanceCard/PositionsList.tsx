@@ -199,6 +199,8 @@ export function PositionsList({ projectToken, nativeToken }: PositionsListProps)
   const [processingPosition, setProcessingPosition] = useState<bigint | null>(null);
   const [hiddenPositions, setHiddenPositions] = useState<Set<string>>(new Set());
   const [showHidden, setShowHidden] = useState(false);
+  const [showActivePositions, setShowActivePositions] = useState(true);
+  const [showClosedPositions, setShowClosedPositions] = useState(false);
   const [feeCheckResults, setFeeCheckResults] = useState<Map<string, { collectable: boolean; error?: string }>>(new Map());
   const [calculatedFees, setCalculatedFees] = useState<Map<string, { fee0: bigint; fee1: bigint }>>(new Map());
   const [ethPrice, setEthPrice] = useState<number | null>(null);
@@ -1084,242 +1086,327 @@ export function PositionsList({ projectToken, nativeToken }: PositionsListProps)
     return <div className="p-4 text-gray-500">No positions found in this pool.</div>;
   }
 
+  // Separate active and closed positions
+  const activePositions = positions.filter(position => {
+    const hasLiquidity = position.liquidity > 0n;
+    const hasFees = position.tokensOwed0 > 0n || position.tokensOwed1 > 0n;
+    return hasLiquidity || (hasFees && feeCheckResults.get(position.tokenId.toString())?.collectable);
+  });
+
+  const closedPositions = positions.filter(position => {
+    const hasLiquidity = position.liquidity > 0n;
+    const hasFees = position.tokensOwed0 > 0n || position.tokensOwed1 > 0n;
+    return !hasLiquidity && (!hasFees || !feeCheckResults.get(position.tokenId.toString())?.collectable);
+  });
+
   // Filter positions based on visibility settings
-  const visiblePositions = positions.filter(position => {
+  const visibleActivePositions = activePositions.filter(position => {
     const isHidden = hiddenPositions.has(position.tokenId.toString());
     return showHidden || !isHidden;
   });
 
-  const hiddenCount = positions.filter(pos => hiddenPositions.has(pos.tokenId.toString())).length;
+  const visibleClosedPositions = closedPositions.filter(position => {
+    const isHidden = hiddenPositions.has(position.tokenId.toString());
+    return showHidden || !isHidden;
+  });
+
+  const hiddenActiveCount = activePositions.filter(pos => hiddenPositions.has(pos.tokenId.toString())).length;
+  const hiddenClosedCount = closedPositions.filter(pos => hiddenPositions.has(pos.tokenId.toString())).length;
+
+  // Position rendering component to avoid code duplication
+  const renderPosition = (position: Position) => {
+    // Format token amounts with proper decimals
+    const formatTokenAmount = (amount: bigint, decimals: number) => {
+      if (amount === 0n) return "0";
+
+      const amountFloat = parseFloat(amount.toString()) / Math.pow(10, decimals);
+
+      // For very small amounts, show more precision
+      if (amountFloat < 0.000001) {
+        return amountFloat.toExponential(6);
+      } else if (amountFloat < 0.001) {
+        return amountFloat.toFixed(8);
+      } else if (amountFloat < 1) {
+        return amountFloat.toFixed(6);
+      } else {
+        return amountFloat.toFixed(4);
+      }
+    };
+
+    const projectTokenAmount = formatTokenAmount(position.tokensOwed0, projectToken.decimals);
+    const nativeTokenAmount = formatTokenAmount(position.tokensOwed1, nativeToken.decimals);
+
+    // Format limit price
+    const limitPriceFormatted = position.limitPrice
+      ? position.limitPrice.toFixed(8)
+      : "N/A";
+
+    const isHidden = hiddenPositions.has(position.tokenId.toString());
+    const positionState = getPositionState(position);
+    const feeCheck = feeCheckResults.get(position.tokenId.toString());
+    const calculatedFee = calculatedFees.get(position.tokenId.toString());
+
+    return (
+      <div key={position.tokenId.toString()} className={`p-3 border rounded-lg ${isHidden ? "bg-gray-100 opacity-75" : "bg-zinc-50"}`}>
+        {/* Header */}
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-2">
+            <p className="text-sm font-medium">Position #{position.tokenId.toString()}</p>
+            {position.isLimitOrder && (
+              <span className="px-2 py-1 text-xs bg-gray-100 text-gray-800 rounded-full">
+                Limit Order
+              </span>
+            )}
+            <span className="px-2 py-1 text-xs bg-gray-100 text-gray-800 rounded-full">
+              {positionState.status}
+            </span>
+            {isHidden && (
+              <span className="px-2 py-1 text-xs bg-gray-200 text-gray-600 rounded-full">
+                Hidden
+              </span>
+            )}
+          </div>
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={() => togglePositionVisibility(position.tokenId)}
+          >
+            {isHidden ? "Show" : "Hide"}
+          </Button>
+        </div>
+
+        {/* Position Value & Fees Combined */}
+        <div className="grid grid-cols-2 gap-3 mb-3">
+          <div className="bg-white rounded-lg p-2 border">
+            <h4 className="text-xs font-medium text-gray-700 mb-1">Position</h4>
+            <div className="space-y-1 text-xs">
+              <div className="flex justify-between">
+                <span>{position.token0Symbol}</span>
+                <span className="font-medium">{projectTokenAmount}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>{position.token1Symbol}</span>
+                <span className="font-medium">{nativeTokenAmount}</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-lg p-2 border">
+            <h4 className="text-xs font-medium text-gray-700 mb-1">Fees earned</h4>
+            <div className="space-y-1 text-xs">
+              <div className="flex justify-between">
+                <span>{position.token0Symbol}</span>
+                <span className="font-medium">
+                  {calculatedFee && calculatedFee.fee0 > 0n
+                    ? formatTokenAmount(calculatedFee.fee0, projectToken.decimals)
+                    : "0"
+                  }
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span>{position.token1Symbol}</span>
+                <span className="font-medium">
+                  {calculatedFee && calculatedFee.fee1 > 0n
+                    ? formatTokenAmount(calculatedFee.fee1, nativeToken.decimals)
+                    : "0"
+                  }
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Price Range Section - Only show for active positions */}
+        {position.liquidity > 0n && (
+          <div className="mb-3">
+            <h4 className="text-xs font-medium text-gray-700 mb-1">Price Range</h4>
+            {(() => {
+              // Calculate price using correct Uniswap V3 formula
+              const rawPriceLower = Math.pow(1.0001, position.tickLower);
+              const rawPriceUpper = Math.pow(1.0001, position.tickUpper);
+
+              // For WETH/$SCORES pair, we want price per SCORES
+              const isToken0Eth = position.token0.toLowerCase() === nativeToken.address.toLowerCase();
+
+              // Calculate both prices
+              const priceLower = isToken0Eth ? (1 / rawPriceLower) : rawPriceLower;
+              const priceUpper = isToken0Eth ? (1 / rawPriceUpper) : rawPriceUpper;
+
+              // Use the lower of the two for min price, higher for max price
+              const minPrice = Math.min(priceLower, priceUpper);
+              const maxPrice = Math.max(priceLower, priceUpper);
+
+              // Get real market price from pool or use cached value
+              const positionKey = position.tokenId.toString();
+              let marketPrice = currentMarketPrices[positionKey];
+
+              if (marketPrice === undefined) {
+                // Use fallback for now, will be updated by useEffect
+                marketPrice = 0.004141;
+              }
+
+              // Convert to USD if ETH price is available
+              const minPriceUSD = isToken0Eth && ethPrice ? minPrice * ethPrice : minPrice;
+              const maxPriceUSD = isToken0Eth && ethPrice ? maxPrice * ethPrice : maxPrice;
+              const marketPriceFinal = isToken0Eth && ethPrice ? marketPrice * ethPrice : marketPrice;
+
+              // Debug logging
+              console.log(`Position ${position.tokenId} chart prices:`, {
+                minPriceUSD,
+                maxPriceUSD,
+                marketPriceFinal,
+                isToken0Eth,
+                ethPrice
+              });
+
+              return (
+                <PriceRangeChart
+                  minPrice={minPriceUSD}
+                  maxPrice={maxPriceUSD}
+                  marketPrice={marketPriceFinal}
+                  tokenSymbol={position.token1Symbol || "Token"}
+                />
+              );
+            })()}
+          </div>
+        )}
+
+        {/* Compact Metadata */}
+        <div className="mb-3 text-xs text-gray-500 space-y-1">
+          <div className="flex justify-between">
+            <span>Liquidity:</span>
+            <span>{formatEther(position.liquidity)} ({getLiquidityPercentage(position.liquidity)})</span>
+          </div>
+          <div className="flex justify-between">
+            <span>Fee tier:</span>
+            <span>{position.fee / 10000}%</span>
+          </div>
+          {positionState.description && (
+            <div className="text-xs text-gray-600 mt-1">
+              {positionState.description}
+            </div>
+          )}
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex gap-2">
+          {position.liquidity > 0n && (
+            <Button
+              size="sm"
+              variant="outline"
+              disabled={processingPosition === position.tokenId}
+              onClick={() => handleClosePosition(position)}
+            >
+              {processingPosition === position.tokenId ? "Closing..." :
+               position.isLimitOrder ? "Withdraw ETH" : "Close Position"}
+            </Button>
+          )}
+
+          {/* Improved fee claiming logic */}
+          {(position.tokensOwed0 > 0n || position.tokensOwed1 > 0n) && feeCheck?.collectable ? (
+            <Button
+              size="sm"
+              variant="outline"
+              disabled={processingPosition === position.tokenId}
+              onClick={() => handleClaimFees(position)}
+            >
+              {processingPosition === position.tokenId ? "Claiming..." : "Claim Fees"}
+            </Button>
+          ) : (position.tokensOwed0 > 0n || position.tokensOwed1 > 0n) && !feeCheck?.collectable ? (
+            <span className="text-xs text-gray-500 px-2 py-1 border border-gray-200 rounded">
+              Fees not collectable
+            </span>
+          ) : (
+            <span className="text-xs text-gray-500 px-2 py-1">
+              No fees to collect
+            </span>
+          )}
+        </div>
+      </div>
+    );
+  };
 
   return (
-    <div className="mt-4 space-y-4">
+    <div className="mt-4 space-y-6">
       <div className="flex justify-between items-center">
         <h3 className="text-lg font-medium">Your Positions</h3>
-        {hiddenCount > 0 && (
+        {(hiddenActiveCount > 0 || hiddenClosedCount > 0) && (
           <Button
             size="sm"
             variant="outline"
             onClick={toggleShowHidden}
           >
-            {showHidden ? "Hide" : "Show"} Hidden ({hiddenCount})
+            {showHidden ? "Hide" : "Show"} Hidden ({hiddenActiveCount + hiddenClosedCount})
           </Button>
         )}
       </div>
 
-      <div className="space-y-2">
-        {visiblePositions.map((position) => {
-          // Format token amounts with proper decimals
-          const formatTokenAmount = (amount: bigint, decimals: number) => {
-            if (amount === 0n) return "0";
-
-            const amountFloat = parseFloat(amount.toString()) / Math.pow(10, decimals);
-
-            // For very small amounts, show more precision
-            if (amountFloat < 0.000001) {
-              return amountFloat.toExponential(6);
-            } else if (amountFloat < 0.001) {
-              return amountFloat.toFixed(8);
-            } else if (amountFloat < 1) {
-              return amountFloat.toFixed(6);
-            } else {
-              return amountFloat.toFixed(4);
-            }
-          };
-
-          const projectTokenAmount = formatTokenAmount(position.tokensOwed0, projectToken.decimals);
-          const nativeTokenAmount = formatTokenAmount(position.tokensOwed1, nativeToken.decimals);
-
-          // Format limit price
-          const limitPriceFormatted = position.limitPrice
-            ? position.limitPrice.toFixed(8)
-            : "N/A";
-
-          const isHidden = hiddenPositions.has(position.tokenId.toString());
-          const positionState = getPositionState(position);
-          const feeCheck = feeCheckResults.get(position.tokenId.toString());
-          const calculatedFee = calculatedFees.get(position.tokenId.toString());
-
-          return (
-            <div key={position.tokenId.toString()} className={`p-3 border rounded-lg ${isHidden ? "bg-gray-100 opacity-75" : "bg-zinc-50"}`}>
-              {/* Header */}
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-2">
-                  <p className="text-sm font-medium">Position #{position.tokenId.toString()}</p>
-                  {position.isLimitOrder && (
-                    <span className="px-2 py-1 text-xs bg-gray-100 text-gray-800 rounded-full">
-                      Limit Order
-                    </span>
-                  )}
-                  <span className="px-2 py-1 text-xs bg-gray-100 text-gray-800 rounded-full">
-                    {positionState.status}
-                  </span>
-                  {isHidden && (
-                    <span className="px-2 py-1 text-xs bg-gray-200 text-gray-600 rounded-full">
-                      Hidden
-                    </span>
-                  )}
-                </div>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  onClick={() => togglePositionVisibility(position.tokenId)}
-                >
-                  {isHidden ? "Show" : "Hide"}
-                </Button>
-              </div>
-
-              {/* Position Value & Fees Combined */}
-              <div className="grid grid-cols-2 gap-3 mb-3">
-                <div className="bg-white rounded-lg p-2 border">
-                  <h4 className="text-xs font-medium text-gray-700 mb-1">Position</h4>
-                  <div className="space-y-1 text-xs">
-                    <div className="flex justify-between">
-                      <span>{position.token0Symbol}</span>
-                      <span className="font-medium">{projectTokenAmount}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>{position.token1Symbol}</span>
-                      <span className="font-medium">{nativeTokenAmount}</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-white rounded-lg p-2 border">
-                  <h4 className="text-xs font-medium text-gray-700 mb-1">Fees earned</h4>
-                  <div className="space-y-1 text-xs">
-                    <div className="flex justify-between">
-                      <span>{position.token0Symbol}</span>
-                      <span className="font-medium">
-                        {calculatedFee && calculatedFee.fee0 > 0n
-                          ? formatTokenAmount(calculatedFee.fee0, projectToken.decimals)
-                          : "0"
-                        }
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>{position.token1Symbol}</span>
-                      <span className="font-medium">
-                        {calculatedFee && calculatedFee.fee1 > 0n
-                          ? formatTokenAmount(calculatedFee.fee1, nativeToken.decimals)
-                          : "0"
-                        }
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-                            {/* Price Range Section - Only show for active positions */}
-              {position.liquidity > 0n && (
-                <div className="mb-3">
-                  <h4 className="text-xs font-medium text-gray-700 mb-1">Price Range</h4>
-                  {(() => {
-                    // Calculate price using correct Uniswap V3 formula
-                    const rawPriceLower = Math.pow(1.0001, position.tickLower);
-                    const rawPriceUpper = Math.pow(1.0001, position.tickUpper);
-
-                    // For WETH/$SCORES pair, we want price per SCORES
-                    const isToken0Eth = position.token0.toLowerCase() === nativeToken.address.toLowerCase();
-
-                    // Calculate both prices
-                    const priceLower = isToken0Eth ? (1 / rawPriceLower) : rawPriceLower;
-                    const priceUpper = isToken0Eth ? (1 / rawPriceUpper) : rawPriceUpper;
-
-                    // Use the lower of the two for min price, higher for max price
-                    const minPrice = Math.min(priceLower, priceUpper);
-                    const maxPrice = Math.max(priceLower, priceUpper);
-
-                    // Get real market price from pool or use cached value
-                    const positionKey = position.tokenId.toString();
-                    let marketPrice = currentMarketPrices[positionKey];
-
-                    if (marketPrice === undefined) {
-                      // Use fallback for now, will be updated by useEffect
-                      marketPrice = 0.004141;
-                    }
-
-                    // Convert to USD if ETH price is available
-                    const minPriceUSD = isToken0Eth && ethPrice ? minPrice * ethPrice : minPrice;
-                    const maxPriceUSD = isToken0Eth && ethPrice ? maxPrice * ethPrice : maxPrice;
-                    const marketPriceFinal = isToken0Eth && ethPrice ? marketPrice * ethPrice : marketPrice;
-
-                    // Debug logging
-                    console.log(`Position ${position.tokenId} chart prices:`, {
-                      minPriceUSD,
-                      maxPriceUSD,
-                      marketPriceFinal,
-                      isToken0Eth,
-                      ethPrice
-                    });
-
-                    return (
-                      <PriceRangeChart
-                        minPrice={minPriceUSD}
-                        maxPrice={maxPriceUSD}
-                        marketPrice={marketPriceFinal}
-                        tokenSymbol={position.token1Symbol || "Token"}
-                      />
-                    );
-                  })()}
-                </div>
-              )}
-
-              {/* Compact Metadata */}
-              <div className="mb-3 text-xs text-gray-500 space-y-1">
-                <div className="flex justify-between">
-                  <span>Liquidity:</span>
-                  <span>{formatEther(position.liquidity)} ({getLiquidityPercentage(position.liquidity)})</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Fee tier:</span>
-                  <span>{position.fee / 10000}%</span>
-                </div>
-                {positionState.description && (
-                  <div className="text-xs text-gray-600 mt-1">
-                    {positionState.description}
-                  </div>
-                )}
-              </div>
-
-              {/* Action Buttons */}
-              <div className="flex gap-2">
-                {position.liquidity > 0n && (
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    disabled={processingPosition === position.tokenId}
-                    onClick={() => handleClosePosition(position)}
-                  >
-                    {processingPosition === position.tokenId ? "Closing..." :
-                     position.isLimitOrder ? "Withdraw ETH" : "Close Position"}
-                  </Button>
-                )}
-
-                {/* Improved fee claiming logic */}
-                {(position.tokensOwed0 > 0n || position.tokensOwed1 > 0n) && feeCheck?.collectable ? (
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    disabled={processingPosition === position.tokenId}
-                    onClick={() => handleClaimFees(position)}
-                  >
-                    {processingPosition === position.tokenId ? "Claiming..." : "Claim Fees"}
-                  </Button>
-                ) : (position.tokensOwed0 > 0n || position.tokensOwed1 > 0n) && !feeCheck?.collectable ? (
-                  <span className="text-xs text-gray-500 px-2 py-1 border border-gray-200 rounded">
-                    Fees not collectable
-                  </span>
-                ) : (
-                  <span className="text-xs text-gray-500 px-2 py-1">
-                    No fees to collect
-                  </span>
-                )}
-              </div>
+      {/* Active Positions Section */}
+      {activePositions.length > 0 && (
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => setShowActivePositions(!showActivePositions)}
+                className="p-0 h-auto"
+              >
+                <span className="text-base">{showActivePositions ? "▼" : "▶"}</span>
+              </Button>
+              <h4 className="text-md font-medium">Active Positions ({activePositions.length})</h4>
             </div>
-          );
-        })}
-      </div>
-    </div>
+            {hiddenActiveCount > 0 && (
+              <span className="text-xs text-gray-500">
+                {hiddenActiveCount} hidden
+              </span>
+            )}
+          </div>
+
+          {showActivePositions && (
+            <div className="space-y-2">
+              {visibleActivePositions.map(renderPosition)}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Closed Positions Section */}
+      {closedPositions.length > 0 && (
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => setShowClosedPositions(!showClosedPositions)}
+                className="p-0 h-auto"
+              >
+                <span className="text-base">{showClosedPositions ? "▼" : "▶"}</span>
+              </Button>
+              <h4 className="text-md font-medium">Closed Positions ({closedPositions.length})</h4>
+            </div>
+            {hiddenClosedCount > 0 && (
+              <span className="text-xs text-gray-500">
+                {hiddenClosedCount} hidden
+              </span>
+            )}
+          </div>
+
+          {showClosedPositions && (
+            <div className="space-y-2">
+              {visibleClosedPositions.map(renderPosition)}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* No positions message */}
+      {activePositions.length === 0 && closedPositions.length === 0 && (
+        <div className="p-4 text-gray-500 text-center">
+          No positions found in this pool.
+        </div>
+      )}
+        </div>
   );
 }
