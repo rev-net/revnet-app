@@ -83,7 +83,7 @@ export function parseDeployData(
     tokenAddress = NATIVE_TOKEN as `0x${string}`;
     tokenDecimals = NATIVE_TOKEN_DECIMALS;
     baseCurrency = ETH_CURRENCY_ID;
-    swapTerminal = jbProjectDeploymentAddresses.JBMultiTerminal[extra.chainId];
+    swapTerminal = jbProjectDeploymentAddresses.JBSwapTerminal[extra.chainId];
   }
 
   const accountingContextsToAccept = [
