@@ -40,11 +40,12 @@
     "dompurify": "^3.2.4",
     "forge-run-parser": "^1.0.3",
     "formik": "^2.4.5",
+    "formik-validator-zod": "^2.2.0",
     "fpnum": "^1.0.0",
     "graphql": "^16.8.0",
     "graphql-tag": "^2.0.0",
     "juice-sdk-core": "^1.8.9-beta",
-    "juice-sdk-react": "^1.9.16-beta",
+    "juice-sdk-react": "^2.0.0",
     "lucide-react": "^0.395.0",
     "next": "^14.2.4",
     "react": "^18.2.0",
@@ -55,7 +56,8 @@
     "tailwind-merge": "^2.2.0",
     "tailwindcss-animate": "^1.0.6",
     "viem": "^2.22.9",
-    "wagmi": "^2.14.8"
+    "wagmi": "^2.14.8",
+    "zod": "^4.1.4"
   },
   "devDependencies": {
     "@babel/core": "^7.22.17",
@@ -77,6 +79,7 @@
     "eslint-config-prettier": "^10.1.5",
     "postcss": "^8.4.33",
     "prettier": "^3.5.3",
+    "prettier-plugin-organize-imports": "^4.2.0",
     "prettier-plugin-tailwindcss": "^0.6.11",
     "tailwindcss": "^3.4.1",
     "typescript": "^5.0.4"

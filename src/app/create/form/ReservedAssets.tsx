@@ -1,15 +1,7 @@
-import { useFormikContext } from "formik";
-import { RevnetFormData } from "../types";
+import { useCreateForm } from "./useCreateForm";
 
-export function AssetsSection({
-  disabled = false
-}: {
-  disabled?: boolean
-}) {
-  const { setFieldValue, values } = useFormikContext<RevnetFormData>();
-
-  const revnetTokenSymbol =
-    values.tokenSymbol?.length > 0 ? `$${values.tokenSymbol}` : "token";
+export function AssetsSection({ disabled = false }: { disabled?: boolean }) {
+  const { setFieldValue, revnetTokenSymbol } = useCreateForm();
 
   return (
     <>
@@ -20,7 +12,9 @@ export function AssetsSection({
         </p>
       </div>
       <div className="mb-4 col-span-2">
-        <span className="font-semibold text-md mr-4">Choose your reserve asset</span>
+        <span className="font-semibold text-md mr-4">
+          Choose your reserve asset
+        </span>
         <div className="flex flex-row gap-8 mt-2">
           <label className="flex items-center gap-2">
             <input

@@ -1,24 +1,10 @@
-import { useFormikContext } from "formik";
-import { useState, useEffect } from "react";
-import { RevnetFormData } from "../types";
-import { FieldGroup } from "./Fields";
 import { IpfsImageUploader } from "@/components/IpfsFileUploader";
 import { ipfsUri } from "@/lib/ipfs";
+import { FieldGroup } from "./Fields";
+import { useCreateForm } from "./useCreateForm";
 
-export function DetailsPage({
-  disabled = false
-}: {
-  disabled?: boolean
-}) {
-  const { setFieldValue } =
-    useFormikContext<RevnetFormData>();
-
-  const [tokenSymbol, setTokenSymbol] = useState("TOKEN");
-
-  // Set Formik field value on component mount
-  useEffect(() => {
-    setFieldValue("tokenSymbol", tokenSymbol);
-  }, [setFieldValue, tokenSymbol]);
+export function DetailsPage({ disabled = false }: { disabled?: boolean }) {
+  const { setFieldValue } = useCreateForm();
 
   return (
     <>
@@ -35,11 +21,6 @@ export function DetailsPage({
             id="tokenSymbol"
             name="tokenSymbol"
             label="Ticker"
-            value={tokenSymbol}
-            onChange={(e: any) => {
-              setTokenSymbol(e.target.value);
-              setFieldValue("tokenSymbol", e.target.value);
-            }} // Updates state
             prefix="$"
             disabled={disabled}
           />

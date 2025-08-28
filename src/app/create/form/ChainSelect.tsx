@@ -1,4 +1,3 @@
-import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
@@ -6,28 +5,26 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { format } from "date-fns";
-import { Field as FormikField, useFormikContext } from "formik";
+import { toast } from "@/components/ui/use-toast";
+import { Field as FormikField } from "formik";
 import { JB_CHAINS, JBChainId } from "juice-sdk-core";
-import { RelayrPostBundleResponse, useGetRelayrTxQuote } from "juice-sdk-react";
 import { useState } from "react";
 import {
-  mainnet,
-  optimism,
-  base,
   arbitrum,
   arbitrumSepolia,
+  base,
   baseSepolia,
+  mainnet,
+  optimism,
   optimismSepolia,
   sepolia,
 } from "viem/chains";
-import { PayAndDeploy } from "../buttons/PayAndDeploy";
 import { QuoteButton } from "../buttons/QuoteButton";
-import { RevnetFormData } from "../types";
 import { ChainAutoIssuance } from "./ChainAutoIssuance";
 import { ChainOperator } from "./ChainOperator";
 import { ChainSplits } from "./ChainSplits";
 import { Divider } from "./Divider";
+import { useCreateForm } from "./useCreateForm";
 
 const TESTNETS: JBChainId[] = [
   sepolia.id,
@@ -36,63 +33,56 @@ const TESTNETS: JBChainId[] = [
   baseSepolia.id,
 ];
 
-const MAINNETS: JBChainId[] = [
-  mainnet.id,
-  optimism.id,
-  base.id,
-  arbitrum.id,
-];
+const MAINNETS: JBChainId[] = [mainnet.id, optimism.id, base.id, arbitrum.id];
 
 export function ChainSelect({
   disabled = false,
   validBundle = false,
-  relayrResponse,
-  isLoading = false,
 }: {
   disabled?: boolean;
   validBundle?: boolean;
-  relayrResponse?: RelayrPostBundleResponse;
-  isLoading?: boolean;
 }) {
   const [environment, setEnvironment] = useState("production");
-  const { values, setFieldValue, submitForm } =
-    useFormikContext<RevnetFormData>();
 
-  const getRelayrTxQuote = useGetRelayrTxQuote();
+  const {
+    revnetTokenSymbol,
+    values,
+    setFieldValue,
+    submitForm,
+    isSubmitting,
+    isValid,
+  } = useCreateForm();
 
   const handleChainSelect = (chainId: JBChainId, checked: boolean) => {
     setFieldValue(
       "chainIds",
       checked
         ? [...values.chainIds, chainId]
-        : values.chainIds.filter((id) => id !== chainId)
+        : values.chainIds.filter((id) => id !== chainId),
     );
   };
-
-  const revnetTokenSymbol =
-    values.tokenSymbol?.length > 0 ? `$${values.tokenSymbol}` : "token";
 
   return (
     <>
       <div className="md:col-span-1">
-        <h2 className="font-bold text-lg mb-2">4. Deploy</h2>
-        <p className="text-zinc-600 text-lg">
+        <h2 className="mb-2 text-lg font-bold">4. Deploy</h2>
+        <p className="text-lg text-zinc-600">
           Pick which chains your revnet will accept money on and issue{" "}
           {revnetTokenSymbol} from.
         </p>
-        <p className="text-zinc-600 text-lg mt-2">
+        <p className="mt-2 text-lg text-zinc-600">
           Holders of {revnetTokenSymbol} can cash out on any of the selected
           chains, and can move their {revnetTokenSymbol} between chains at any
           time.
         </p>
-        <p className="text-zinc-600 text-lg mt-2">
+        <p className="mt-2 text-lg text-zinc-600">
           The Operator you set in your revnet's terms will also be able to add
           new chains to the revnet later.
         </p>
       </div>
       <div className="md:col-span-2">
         <div className="flex flex-col gap-4">
-          <div className="text-left text-black-500 font-semibold">
+          <div className="text-black-500 text-left font-semibold">
             Choose your chains
           </div>
           <div className="max-w-56">
@@ -116,12 +106,12 @@ export function ChainSelect({
               </SelectContent>
             </Select>
           </div>
-          <div className="flex flex-wrap gap-6 mt-4">
+          <div className="mt-4 flex flex-wrap gap-6">
             {environment === "production" ? (
               <>
                 {Object.values(JB_CHAINS)
                   .filter(({ chain }) =>
-                    MAINNETS.includes(chain.id as JBChainId)
+                    MAINNETS.includes(chain.id as JBChainId),
                   )
                   .map(({ chain, name }) => (
                     <label key={chain.id} className="flex items-center gap-2">
@@ -132,12 +122,12 @@ export function ChainSelect({
                         disabled={disabled}
                         className="disabled:opacity-50"
                         checked={values.chainIds.includes(
-                          Number(chain.id) as JBChainId
+                          Number(chain.id) as JBChainId,
                         )}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                           handleChainSelect(
                             chain.id as JBChainId,
-                            e.target.checked
+                            e.target.checked,
                           );
                         }}
                       />
@@ -149,7 +139,7 @@ export function ChainSelect({
               <>
                 {Object.values(JB_CHAINS)
                   .filter(({ chain }) =>
-                    TESTNETS.includes(chain.id as JBChainId)
+                    TESTNETS.includes(chain.id as JBChainId),
                   )
                   .map(({ chain, name }) => (
                     <label key={chain.id} className="flex items-center gap-2">
@@ -160,12 +150,12 @@ export function ChainSelect({
                         disabled={disabled}
                         className="disabled:opacity-50"
                         checked={values.chainIds.includes(
-                          Number(chain.id) as JBChainId
+                          Number(chain.id) as JBChainId,
                         )}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                           handleChainSelect(
                             chain.id as JBChainId,
-                            e.target.checked
+                            e.target.checked,
                           );
                         }}
                       />
@@ -202,37 +192,20 @@ export function ChainSelect({
             )}
 
           <QuoteButton
-            isLoading={isLoading}
+            isLoading={isSubmitting}
             validBundle={validBundle}
-            onSubmit={submitForm}
+            onSubmit={() => {
+              if (!isValid) {
+                toast({
+                  variant: "destructive",
+                  title: "Validation error",
+                  description: "Please fix the errors and try again.",
+                });
+              } else {
+                submitForm();
+              }
+            }}
           />
-          {relayrResponse && (
-            <div className="flex flex-col items-start">
-              <div className="text-xs italic mt-2">
-                Quote valid until{" "}
-                {format(
-                  relayrResponse.payment_info[0].payment_deadline,
-                  "h:mm:ss aaa"
-                )}
-                .
-                <Button
-                  variant="link"
-                  size="sm"
-                  className="italic text-xs px-1"
-                  disabled={isLoading}
-                  onClick={() => getRelayrTxQuote.reset()}
-                >
-                  clear quote
-                </Button>
-              </div>
-              <div className="mt-4">
-                <PayAndDeploy
-                  relayrResponse={relayrResponse}
-                  revnetTokenSymbol={revnetTokenSymbol}
-                />
-              </div>
-            </div>
-          )}
         </div>
       </div>
     </>
