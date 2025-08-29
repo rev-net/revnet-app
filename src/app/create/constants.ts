@@ -21,7 +21,6 @@ export const DEFAULT_FORM_DATA: RevnetFormData = {
   logoUri: "",
   reserveAsset: "ETH",
 
-  tokenName: "",
   tokenSymbol: "TOKEN",
 
   stages: [],
@@ -35,7 +34,6 @@ export const TEST_FORM_DATA: RevnetFormData = {
     "This is a test revnet for development purposes. It demonstrates various features and configurations available in the revnet system.",
   logoUri: "",
 
-  tokenName: "Test Token",
   tokenSymbol: "TEST",
   reserveAsset: "ETH",
 
@@ -240,7 +238,6 @@ export const SHORTER_TEST_FORM_DATA: RevnetFormData = {
   name: "Donuts",
   description: "Donuts are delicious",
   logoUri: "",
-  tokenName: "Donuts",
   tokenSymbol: "DONUTS",
   reserveAsset: "ETH",
   stages: [
