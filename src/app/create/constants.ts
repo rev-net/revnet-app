@@ -21,12 +21,11 @@ export const DEFAULT_FORM_DATA: RevnetFormData = {
   logoUri: "",
   reserveAsset: "ETH",
 
-  tokenName: "",
-  tokenSymbol: "",
+  tokenSymbol: "TOKEN",
 
   stages: [],
   chainIds: [],
-  operator: []
+  operator: [],
 };
 
 export const TEST_FORM_DATA: RevnetFormData = {
@@ -35,7 +34,6 @@ export const TEST_FORM_DATA: RevnetFormData = {
     "This is a test revnet for development purposes. It demonstrates various features and configurations available in the revnet system.",
   logoUri: "",
 
-  tokenName: "Test Token",
   tokenSymbol: "TEST",
   reserveAsset: "ETH",
 
@@ -51,22 +49,46 @@ export const TEST_FORM_DATA: RevnetFormData = {
           percentage: "6",
           defaultBeneficiary: "0x1234567890123456789012345678901234567890",
           beneficiary: [
-            { chainId: 11155111, address: "0x1234567890123456789012345678901234567890" },
-            { chainId: 11155420, address: "0x1234567890123456789012345678901234567890" },
-            { chainId: 84532, address: "0x1234567890123456789012345678901234567890" },
-            { chainId: 421614, address: "0x1234567890123456789012345678901234567890" }
-          ]
+            {
+              chainId: 11155111,
+              address: "0x1234567890123456789012345678901234567890",
+            },
+            {
+              chainId: 11155420,
+              address: "0x1234567890123456789012345678901234567890",
+            },
+            {
+              chainId: 84532,
+              address: "0x1234567890123456789012345678901234567890",
+            },
+            {
+              chainId: 421614,
+              address: "0x1234567890123456789012345678901234567890",
+            },
+          ],
         },
         {
           percentage: "4",
           defaultBeneficiary: "0x0987654321098765432109876543210987654321",
           beneficiary: [
-            { chainId: 11155111, address: "0x0987654321098765432109876543210987654321" },
-            { chainId: 11155420, address: "0x0987654321098765432109876543210987654321" },
-            { chainId: 84532, address: "0x0987654321098765432109876543210987654321" },
-            { chainId: 421614, address: "0x0987654321098765432109876543210987654321" }
-          ]
-        }
+            {
+              chainId: 11155111,
+              address: "0x0987654321098765432109876543210987654321",
+            },
+            {
+              chainId: 11155420,
+              address: "0x0987654321098765432109876543210987654321",
+            },
+            {
+              chainId: 84532,
+              address: "0x0987654321098765432109876543210987654321",
+            },
+            {
+              chainId: 421614,
+              address: "0x0987654321098765432109876543210987654321",
+            },
+          ],
+        },
       ],
       autoIssuance: [
         {
@@ -92,12 +114,24 @@ export const TEST_FORM_DATA: RevnetFormData = {
           percentage: "10",
           defaultBeneficiary: "0x1234567890123456789012345678901234567890",
           beneficiary: [
-            { chainId: 11155111, address: "0x1234567890123456789012345678901234567890" },
-            { chainId: 11155420, address: "0x1234567890123456789012345678901234567890" },
-            { chainId: 84532, address: "0x1234567890123456789012345678901234567890" },
-            { chainId: 421614, address: "0x1234567890123456789012345678901234567890" }
-          ]
-        }
+            {
+              chainId: 11155111,
+              address: "0x1234567890123456789012345678901234567890",
+            },
+            {
+              chainId: 11155420,
+              address: "0x1234567890123456789012345678901234567890",
+            },
+            {
+              chainId: 84532,
+              address: "0x1234567890123456789012345678901234567890",
+            },
+            {
+              chainId: 421614,
+              address: "0x1234567890123456789012345678901234567890",
+            },
+          ],
+        },
       ],
       autoIssuance: [
         {
@@ -123,22 +157,46 @@ export const TEST_FORM_DATA: RevnetFormData = {
           percentage: "5",
           defaultBeneficiary: "0x1234567890123456789012345678901234567890",
           beneficiary: [
-            { chainId: 11155111, address: "0x1234567890123456789012345678901234567890" },
-            { chainId: 11155420, address: "0x1234567890123456789012345678901234567890" },
-            { chainId: 84532, address: "0x1234567890123456789012345678901234567890" },
-            { chainId: 421614, address: "0x1234567890123456789012345678901234567890" }
-          ]
+            {
+              chainId: 11155111,
+              address: "0x1234567890123456789012345678901234567890",
+            },
+            {
+              chainId: 11155420,
+              address: "0x1234567890123456789012345678901234567890",
+            },
+            {
+              chainId: 84532,
+              address: "0x1234567890123456789012345678901234567890",
+            },
+            {
+              chainId: 421614,
+              address: "0x1234567890123456789012345678901234567890",
+            },
+          ],
         },
         {
           percentage: "5",
           defaultBeneficiary: "0x0987654321098765432109876543210987654321",
           beneficiary: [
-            { chainId: 11155111, address: "0x0987654321098765432109876543210987654321" },
-            { chainId: 11155420, address: "0x0987654321098765432109876543210987654321" },
-            { chainId: 84532, address: "0x0987654321098765432109876543210987654321" },
-            { chainId: 421614, address: "0x0987654321098765432109876543210987654321" }
-          ]
-        }
+            {
+              chainId: 11155111,
+              address: "0x0987654321098765432109876543210987654321",
+            },
+            {
+              chainId: 11155420,
+              address: "0x0987654321098765432109876543210987654321",
+            },
+            {
+              chainId: 84532,
+              address: "0x0987654321098765432109876543210987654321",
+            },
+            {
+              chainId: 421614,
+              address: "0x0987654321098765432109876543210987654321",
+            },
+          ],
+        },
       ],
       autoIssuance: [
         {
@@ -159,29 +217,27 @@ export const TEST_FORM_DATA: RevnetFormData = {
   operator: [
     {
       chainId: "11155111",
-      address: "0x1234567890123456789012345678901234567890"
+      address: "0x1234567890123456789012345678901234567890",
     },
     {
       chainId: "11155420",
-      address: "0x0987654321098765432109876543210987654321"
+      address: "0x0987654321098765432109876543210987654321",
     },
     {
       chainId: "84532",
-      address: "0xabcdef0123456789abcdef0123456789abcdef01"
+      address: "0xabcdef0123456789abcdef0123456789abcdef01",
     },
     {
       chainId: "421614",
-      address: "0xfedcba9876543210fedcba9876543210fedcba98"
-    }
-  ]
+      address: "0xfedcba9876543210fedcba9876543210fedcba98",
+    },
+  ],
 } as const;
-
 
 export const SHORTER_TEST_FORM_DATA: RevnetFormData = {
   name: "Donuts",
   description: "Donuts are delicious",
   logoUri: "",
-  tokenName: "Donuts",
   tokenSymbol: "DONUTS",
   reserveAsset: "ETH",
   stages: [
@@ -209,7 +265,7 @@ export const SHORTER_TEST_FORM_DATA: RevnetFormData = {
         },
       ],
       stageStart: "0",
-    }
+    },
   ],
   chainIds: [],
   operator: [],

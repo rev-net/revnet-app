@@ -1,29 +1,22 @@
-import { FieldArray, useFormikContext } from "formik";
-import {
-  ExclamationCircleIcon,
-  PencilSquareIcon,
-  LockClosedIcon,
-  TrashIcon
-} from "@heroicons/react/24/outline";
 import { MAX_RULESET_COUNT } from "@/app/constants";
 import { Button } from "@/components/ui/button";
-import { PlusIcon } from "@heroicons/react/24/solid";
-import { RevnetFormData } from "../types";
-import { AddStageDialog } from "./AddStageDialog";
-import { formatTokenSymbol } from "@/lib/utils";
 import { commaNumber } from "@/lib/number";
+import { formatTokenSymbol } from "@/lib/utils";
+import {
+  ExclamationCircleIcon,
+  LockClosedIcon,
+  PencilSquareIcon,
+  TrashIcon,
+} from "@heroicons/react/24/outline";
+import { PlusIcon } from "@heroicons/react/24/solid";
+import { FieldArray } from "formik";
+import { AddStageDialog } from "./AddStageDialog";
+import { useCreateForm } from "./useCreateForm";
 
-export function Stages({
-  disabled = false
-}: {
-  disabled?: boolean
-}) {
-  const { values  } = useFormikContext<RevnetFormData>();
+export function Stages({ disabled = false }: { disabled?: boolean }) {
+  const { values, revnetTokenSymbol } = useCreateForm();
 
   const hasStages = values.stages.length > 0;
-
-  const revnetTokenSymbolCapitalized =
-    values.tokenSymbol?.length > 0 ? `$${values.tokenSymbol}` : "Token";
 
   const maxStageReached = values.stages.length >= MAX_RULESET_COUNT;
   const canAddStage = !hasStages || !maxStageReached;
@@ -33,8 +26,8 @@ export function Stages({
       <div className="md:col-span-1">
         <h2 className="font-bold text-lg mb-2">3. Terms</h2>
         <p className="text-zinc-600 text-lg">
-          {revnetTokenSymbolCapitalized} issuance and cash out terms evolve over
-          time automatically in stages.
+          <span className="capitalize">{revnetTokenSymbol}</span> issuance and
+          cash out terms evolve over time automatically in stages.
         </p>
         <p className="text-zinc-600 text-lg mt-2">
           Staged terms can't be edited once deployed.
@@ -66,10 +59,12 @@ export function Stages({
                               arrayHelpers.replace(index, newStage);
                             }}
                           >
-                            <Button variant="ghost" size="sm" disabled={disabled}>
-                              {disabled ? (
-                                null
-                              ) : (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              disabled={disabled}
+                            >
+                              {disabled ? null : (
                                 <PencilSquareIcon className="h-4 w-4" />
                               )}
                             </Button>
@@ -91,25 +86,42 @@ export function Stages({
                       </div>
                       <dl className="text-md text-zinc-600 grid grid-cols-[max-content_1fr] gap-x-4 gap-y-1">
                         <dt className="font-medium">Duration</dt>
-                        <dd>{duration === 0 ? 'Forever' : `${duration} days`}</dd>
+                        <dd>
+                          {duration === 0 ? "Forever" : `${duration} days`}
+                        </dd>
                         <dt className="font-medium">Paid Issuance</dt>
                         <dd>
-                          {stage.initialIssuance} {formatTokenSymbol(values.tokenSymbol) ?? "tokens"} / {reserveAsset}
-                          {(Number(stage.priceCeilingIncreasePercentage) > 0 && Number(stage.priceCeilingIncreaseFrequency) > 0) &&
-                            ` cut ${stage.priceCeilingIncreasePercentage}% every ${stage.priceCeilingIncreaseFrequency} days`
-                          }
+                          {stage.initialIssuance}{" "}
+                          {formatTokenSymbol(values.tokenSymbol) ?? "tokens"} /{" "}
+                          {reserveAsset}
+                          {Number(stage.priceCeilingIncreasePercentage) > 0 &&
+                            Number(stage.priceCeilingIncreaseFrequency) > 0 &&
+                            ` cut ${stage.priceCeilingIncreasePercentage}% every ${stage.priceCeilingIncreaseFrequency} days`}
                           {(() => {
-                            const splitSum = stage.splits.reduce((sum, split) => sum + (Number(split.percentage) || 0), 0);
-                            return splitSum === 0 ? '' : `, ${splitSum}% split limit`;
+                            const splitSum = stage.splits.reduce(
+                              (sum, split) =>
+                                sum + (Number(split.percentage) || 0),
+                              0,
+                            );
+                            return splitSum === 0
+                              ? ""
+                              : `, ${splitSum}% split limit`;
                           })()}
                         </dd>
                         <dt className="font-medium">Auto issuance</dt>
-                        <dd>{stage.autoIssuance.reduce((sum, autoIssuance) => sum + (Number(autoIssuance.amount) || 0), 0) === 0
-                          ? 'none'
-                          : `${commaNumber(stage.autoIssuance.reduce((sum, autoIssuance) => sum + (Number(autoIssuance.amount) || 0), 0))} ${formatTokenSymbol(values.tokenSymbol) ?? "tokens"} auto issuance`}
+                        <dd>
+                          {stage.autoIssuance.reduce(
+                            (sum, autoIssuance) =>
+                              sum + (Number(autoIssuance.amount) || 0),
+                            0,
+                          ) === 0
+                            ? "none"
+                            : `${commaNumber(stage.autoIssuance.reduce((sum, autoIssuance) => sum + (Number(autoIssuance.amount) || 0), 0))} ${formatTokenSymbol(values.tokenSymbol) ?? "tokens"} auto issuance`}
                         </dd>
                         <dt className="font-medium">Cash out tax</dt>
-                        <dd>{(Number(stage.priceFloorTaxIntensity) / 100 || 0)}</dd>
+                        <dd>
+                          {Number(stage.priceFloorTaxIntensity) / 100 || 0}
+                        </dd>
                       </dl>
                     </div>
                   );

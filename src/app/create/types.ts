@@ -31,7 +31,6 @@ export type RevnetFormData = {
   description: string;
   logoUri?: string;
 
-  tokenName: string;
   tokenSymbol: string;
 
   stages: StageData[];
