@@ -2,7 +2,7 @@ import { RelayrPostBundleResponse } from "juice-sdk-react";
 import { useTestData } from "../helpers/useTestData";
 import { ChainSelect } from "./ChainSelect";
 import { Divider } from "./Divider";
-import { DetailsPage } from "./ProjectDetails";
+import { ProjectDetails } from "./ProjectDetails";
 import { QuoteResponse } from "./QuoteResponse";
 import { AssetsSection } from "./ReservedAssets";
 import { Stages } from "./Stages";
@@ -22,7 +22,7 @@ export function DeployRevnetForm({
 
   return (
     <div className="mx-auto my-20 max-w-6xl gap-x-6 gap-y-6 px-4 sm:px-8 md:grid md:grid-cols-3 xl:gap-y-0 xl:px-0">
-      <DetailsPage disabled={validBundle} />
+      <ProjectDetails disabled={validBundle} />
       <Divider />
       <AssetsSection disabled={validBundle} />
       <Divider />

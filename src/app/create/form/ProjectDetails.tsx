@@ -3,7 +3,7 @@ import { ipfsUri } from "@/lib/ipfs";
 import { FieldGroup } from "./Fields";
 import { useCreateForm } from "./useCreateForm";
 
-export function DetailsPage({ disabled = false }: { disabled?: boolean }) {
+export function ProjectDetails({ disabled = false }: { disabled?: boolean }) {
   const { setFieldValue } = useCreateForm();
 
   return (
@@ -21,6 +21,7 @@ export function DetailsPage({ disabled = false }: { disabled?: boolean }) {
             id="tokenSymbol"
             name="tokenSymbol"
             label="Ticker"
+            maxLength={10}
             prefix="$"
             disabled={disabled}
           />
