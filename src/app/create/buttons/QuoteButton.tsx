@@ -40,14 +40,12 @@ const getButtonContent = (
 interface QuoteButtonProps {
   isLoading: boolean;
   validBundle: boolean;
-  disabled?: boolean;
   onSubmit: () => void;
 }
 
 export function QuoteButton({
   isLoading,
   validBundle,
-  disabled,
   onSubmit,
 }: QuoteButtonProps) {
   const buttonContent = getButtonContent(isLoading, validBundle);
@@ -56,7 +54,7 @@ export function QuoteButton({
     <Button
       type="submit"
       size="lg"
-      disabled={disabled || isLoading}
+      disabled={isLoading}
       className={twMerge(
         "text-color-black bg-transparent border border-black hover:bg-zinc-100 disabled:bg-gray-100 w-[220px]",
         buttonContent.className,
