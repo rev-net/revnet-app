@@ -8,7 +8,7 @@ import {
 import { toast } from "@/components/ui/use-toast";
 import { Field as FormikField } from "formik";
 import { JB_CHAINS, JBChainId } from "juice-sdk-core";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   arbitrum,
   arbitrumSepolia,
@@ -20,6 +20,7 @@ import {
   sepolia,
 } from "viem/chains";
 import { QuoteButton } from "../buttons/QuoteButton";
+import { formatFormErrors } from "../helpers/formatFormErrors";
 import { ChainAutoIssuance } from "./ChainAutoIssuance";
 import { ChainOperator } from "./ChainOperator";
 import { ChainSplits } from "./ChainSplits";
@@ -51,6 +52,7 @@ export function ChainSelect({
     submitForm,
     isSubmitting,
     isValid,
+    errors,
   } = useCreateForm();
 
   const handleChainSelect = (chainId: JBChainId, checked: boolean) => {
@@ -60,7 +62,44 @@ export function ChainSelect({
         ? [...values.chainIds, chainId]
         : values.chainIds.filter((id) => id !== chainId),
     );
+
+    // If removed, delete also operator for that chain
+    if (!checked) {
+      setFieldValue(
+        "operator",
+        values.operator.filter((o) => Number(o.chainId) !== chainId),
+      );
+    }
   };
+
+  // If only one chain is selected, set the chainId for auto issuance to the selected chain
+  useEffect(() => {
+    if (values.chainIds.length > 1) return;
+
+    const chainId = values.chainIds[0];
+    if (!chainId) return;
+
+    const stagesWithAutoIssuance = values.stages.filter(
+      (s) => s.autoIssuance.length > 0,
+    );
+
+    if (stagesWithAutoIssuance.length === 0) return;
+
+    stagesWithAutoIssuance.forEach((stage, stageIndex) => {
+      stage.autoIssuance.forEach((issuance, index) => {
+        if (issuance.chainId !== chainId) {
+          console.debug(
+            `Changing chainId for auto issuance (${stageIndex + 1}.${index + 1}) to ${chainId}`,
+          );
+
+          setFieldValue(
+            `stages.${stageIndex}.autoIssuance.${index}.chainId`,
+            chainId,
+          );
+        }
+      });
+    });
+  }, [values.chainIds, values.stages, setFieldValue]);
 
   return (
     <>
@@ -195,14 +234,15 @@ export function ChainSelect({
             isLoading={isSubmitting}
             validBundle={validBundle}
             onSubmit={() => {
+              submitForm();
+
               if (!isValid) {
                 toast({
                   variant: "destructive",
-                  title: "Validation error",
-                  description: "Please fix the errors and try again.",
+                  title: "Please fix the errors and try again.",
+                  description: formatFormErrors(errors),
                 });
-              } else {
-                submitForm();
+                console.debug(errors);
               }
             }}
           />

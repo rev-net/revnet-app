@@ -16,8 +16,8 @@ import { revDeployerAbi, revDeployerAddress } from "revnet-sdk";
 import { encodeFunctionData } from "viem";
 import { useAccount } from "wagmi";
 import { DEFAULT_FORM_DATA } from "./constants";
-import { createFormSchema } from "./form/createFormSchema";
 import { DeployRevnetForm } from "./form/DeployRevnetForm";
+import { createSchema } from "./helpers/createSchema";
 import { parseDeployData } from "./helpers/parseDeployData";
 import { pinProjectMetadata } from "./helpers/pinProjectMetaData";
 import { RevnetFormData } from "./types";
@@ -117,7 +117,8 @@ export default function Page() {
       <Nav />
       <Formik
         initialValues={DEFAULT_FORM_DATA}
-        validate={withZodSchema(createFormSchema) as any}
+        isInitialValid={false}
+        validate={withZodSchema(createSchema) as any}
         onSubmit={async (formData: RevnetFormData, { setSubmitting }) => {
           try {
             setSubmitting(true);
