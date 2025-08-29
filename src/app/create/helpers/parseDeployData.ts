@@ -23,7 +23,32 @@ import {
   parseUnits,
   zeroAddress,
 } from "viem";
+import {
+  arbitrum,
+  arbitrumSepolia,
+  base,
+  baseSepolia,
+  mainnet,
+  optimism,
+  optimismSepolia,
+  sepolia,
+} from "viem/chains";
 import { RevnetFormData } from "../types";
+
+// ToDo: Replace with values coming from jbProjectDeploymentAddresses
+const JBSwapTerminal1_1 = {
+  [mainnet.id]: "0x64834ff3c2c18a715c635dd022227a9a8d9e8b73",
+  [sepolia.id]: "0x4b75f7c7e9bd65807cbc56419641155c2660b65c",
+
+  [arbitrum.id]: "0x21e6d82921fce3798a96134eddc2e7cd67c12769",
+  [arbitrumSepolia.id]: "0x97e7430c4e1ee242a604d8529195ae06b121cbc6",
+
+  [base.id]: "0xe4036d0cd05951689e1bb8667f5364874dc2fbfb",
+  [baseSepolia.id]: "0xae33d0b3a5e1f2d52f50cd589458c84e2f1ea916",
+
+  [optimism.id]: "0x817b87ab3cad4f84f8dc9c98b8f219404dca9927",
+  [optimismSepolia.id]: "0x6c5debbdb7365c9ed1ef4529823c3113d47e1842",
+} as const;
 
 export function parseDeployData(
   _formData: RevnetFormData,
@@ -78,7 +103,7 @@ export function parseDeployData(
       "0x0000000000000000000000000000000000000000";
     tokenDecimals = USDC_DECIMALS;
     baseCurrency = JB_CURRENCY_USD;
-    swapTerminal = jbProjectDeploymentAddresses.JBSwapTerminal[extra.chainId]; // ToDo: Replace with 1_1
+    swapTerminal = JBSwapTerminal1_1[extra.chainId];
   } else {
     tokenAddress = NATIVE_TOKEN as `0x${string}`;
     tokenDecimals = NATIVE_TOKEN_DECIMALS;
