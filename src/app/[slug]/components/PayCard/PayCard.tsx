@@ -1,5 +1,7 @@
-import { SelectedSuckerProvider } from "./SelectedSuckerContext";
+"use client";
+
 import { PayForm } from "./PayForm";
+import { SelectedSuckerProvider } from "./SelectedSuckerContext";
 
 export function PayCard() {
   return (

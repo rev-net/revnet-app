@@ -27,3 +27,14 @@ export const SUBGRAPH_URLS = {
   ...MAINNET_SUBGRAPH_URLS,
   ...TESTNET_SUBGRAPH_URLS,
 };
+
+const bendystrawUrl = `${process.env.NEXT_PUBLIC_BENDYSTRAW_URL}`;
+const testnetBendystrawUrl = `${process.env.NEXT_PUBLIC_TESTNET_BENDYSTRAW_URL}`;
+
+export function getBendystrawUrl(chainId: number): string {
+  const isMainnet = [mainnet, base, arbitrum, optimism].some(
+    (c) => c.id === chainId,
+  );
+
+  return isMainnet ? bendystrawUrl : testnetBendystrawUrl;
+}

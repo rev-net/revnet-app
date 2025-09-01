@@ -5,6 +5,8 @@ query Project($projectId: Float!, $chainId: Float!) {
     handle
     createdAt
     suckerGroupId
+    logoUri
+    name
   }
 }
 

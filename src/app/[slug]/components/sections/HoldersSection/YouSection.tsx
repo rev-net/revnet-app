@@ -1,19 +1,10 @@
-import { NativeTokenValue } from "@/components/NativeTokenValue";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { useProjectBaseToken } from "@/hooks/useProjectBaseToken";
+import { useSuckersTokenSurplus } from "@/hooks/useSuckersTokenSurplus";
 import { formatPortion } from "@/lib/utils";
 import { formatUnits } from "juice-sdk-core";
 import { useSuckersUserTokenBalance } from "juice-sdk-react";
-import { UserTokenBalanceDatum } from "../../../UserTokenBalanceCard/UserTokenBalanceDatum";
-import { useMemo, Fragment } from "react";
-import { Loader2 } from 'lucide-react';
-import { JB_CHAINS } from "juice-sdk-core";
-import { JBChainId } from "juice-sdk-react";
-import { useProjectBaseToken } from "@/hooks/useProjectBaseToken";
-import { useSuckersTokenSurplus } from "@/hooks/useSuckersTokenSurplus";
+import { useMemo } from "react";
+import { UserTokenBalanceDatum } from "../../UserTokenBalanceCard/UserTokenBalanceDatum";
 
 export function YouSection({ totalSupply }: { totalSupply: bigint }) {
   const balanceQuery = useSuckersUserTokenBalance();
@@ -23,33 +14,40 @@ export function YouSection({ totalSupply }: { totalSupply: bigint }) {
 
   const totalBalance = useMemo(
     () => balances?.reduce((acc, curr) => acc + curr.balance.value, 0n) || 0n,
-    [balances]
+    [balances],
   );
 
   // Use the sucker token surplus hook with our token map
-  const { data: surpluses, isLoading: surplusLoading } = useSuckersTokenSurplus(baseToken.tokenMap);
+  const { data: surpluses, isLoading: surplusLoading } = useSuckersTokenSurplus(
+    baseToken.tokenMap,
+  );
 
   // Calculate user's cashout value for each chain based on their token balance
   const userCashoutValues = useMemo(() => {
     if (!surpluses || !balances) return [];
-    
-    return surpluses.map(surplus => {
+
+    return surpluses.map((surplus) => {
       // Find the user's balance for this chain
-      const userBalance = balances.find(b => b.chainId === surplus.chainId);
-      if (!userBalance || !surplus.surplus) return { chainId: surplus.chainId, cashoutValue: 0n };
-      
+      const userBalance = balances.find((b) => b.chainId === surplus.chainId);
+      if (!userBalance || !surplus.surplus)
+        return { chainId: surplus.chainId, cashoutValue: 0n };
+
       // Calculate user's proportional share of the surplus
       // This assumes the surplus is proportional to token holdings
-      const userCashoutValue = totalSupply > 0n 
-        ? (surplus.surplus * userBalance.balance.value) / totalSupply 
-        : 0n;
-      
+      const userCashoutValue =
+        totalSupply > 0n
+          ? (surplus.surplus * userBalance.balance.value) / totalSupply
+          : 0n;
+
       return { chainId: surplus.chainId, cashoutValue: userCashoutValue };
     });
   }, [surpluses, balances, totalSupply]);
 
   // Calculate total user cashout value across all chains
-  const totalUserCashoutValue = userCashoutValues.reduce((acc, value) => acc + value.cashoutValue, 0n);
+  const totalUserCashoutValue = userCashoutValues.reduce(
+    (acc, value) => acc + value.cashoutValue,
+    0n,
+  );
 
   const displayQuoteValue = totalUserCashoutValue;
   const isLoadingDisplayQuote = surplusLoading;
@@ -64,13 +62,14 @@ export function YouSection({ totalSupply }: { totalSupply: bigint }) {
       ? Number(formatUnits(adjustedDisplayValue, baseToken.decimals)).toFixed(5)
       : null;
 
-
   return (
     <>
       <div className="grid grid-cols-1 gap-x-8 overflow-x-scrolltext-md gap-1">
         {/* Left Column */}
         <div className="sm:col-span-1 sm:px-0 grid grid-cols-2 sm:grid-cols-4">
-          <dt className="text-md font-medium leading-6 text-zinc-900">Balance</dt>
+          <dt className="text-md font-medium leading-6 text-zinc-900">
+            Balance
+          </dt>
           <dd className="text-zinc-600">
             <UserTokenBalanceDatum />
           </dd>
