@@ -150,14 +150,16 @@ export default function Page() {
               .
             </li>
             <li>
-              Support the $REV network{" "}
               <Link
                 href="/eth:3"
+                aria-label="Support the REV network"
                 target="_blank"
                 rel="noopener norefererr"
-                className="underline"
               >
-                here
+                Support the $REV network{" "}
+                <span className="underline">
+                  here
+                </span>
               </Link>
               , we run as a revnet ourselves.
             </li>
