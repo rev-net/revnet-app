@@ -1,14 +1,8 @@
+import { sortChains } from "@/lib/utils";
 import { JB_CHAINS } from "juice-sdk-core";
 import { JBChainId } from "juice-sdk-react";
 import { ChainLogo } from "./ChainLogo";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "./ui/select";
-import { sortChains } from "@/lib/utils";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 
 interface ChainSelectorProps {
   value: JBChainId;
@@ -17,12 +11,7 @@ interface ChainSelectorProps {
   options: JBChainId[];
 }
 
-export const ChainSelector = ({
-  value,
-  onChange,
-  disabled,
-  options,
-}: ChainSelectorProps) => {
+export const ChainSelector = ({ value, onChange, disabled, options }: ChainSelectorProps) => {
   const chainOptions = sortChains(options);
 
   return (
@@ -47,11 +36,7 @@ export const ChainSelector = ({
       </SelectTrigger>
       <SelectContent>
         {chainOptions.map((chainId) => (
-          <SelectItem
-            key={chainId}
-            value={chainId.toString()}
-            className="flex items-center gap-2"
-          >
+          <SelectItem key={chainId} value={chainId.toString()} className="flex items-center gap-2">
             <div className="flex items-center gap-2">
               <ChainLogo chainId={chainId as JBChainId} />
               <span>{JB_CHAINS[chainId as JBChainId].name}</span>

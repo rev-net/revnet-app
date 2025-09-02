@@ -29,8 +29,8 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { twMerge } from "tailwind-merge";
-import { GoToProjectButton } from "./GoToProjectButton";
 import { Hash } from "viem";
+import { GoToProjectButton } from "./GoToProjectButton";
 
 interface PaymentAndDeploySectionProps {
   relayrResponse: RelayrPostBundleResponse;
@@ -41,20 +41,14 @@ const statusToIcon = (status: string) => {
   if (status === "Pending")
     return <CircleDashedIcon className="w-5 h-5 text-amber-400 animate-spin" />;
   if (status === "Mempool")
-    return (
-      <CircleDotDashedIcon className="w-5 h-5 text-blue-400 animate-spin" />
-    );
+    return <CircleDotDashedIcon className="w-5 h-5 text-blue-400 animate-spin" />;
   if (status === "Included")
     return <CircleDotIcon className="w-5 h-5 text-cyan-400 animate-spin" />;
-  if (status === "Success")
-    return <CheckCircle className="w-5 h-5 text-emerald-500 fade-in-50" />;
+  if (status === "Success") return <CheckCircle className="w-5 h-5 text-emerald-500 fade-in-50" />;
   return <CircleXIcon className="w-5 h-5 text-red-500 fade-in-50" />;
 };
 
-export function PayAndDeploy({
-  relayrResponse,
-  revnetTokenSymbol,
-}: PaymentAndDeploySectionProps) {
+export function PayAndDeploy({ relayrResponse, revnetTokenSymbol }: PaymentAndDeploySectionProps) {
   const [paymentIndex, setPaymentIndex] = useState<number>(0);
   const [payIsProcessing, setPayIsProcessing] = useState(false);
   const { sendRelayrTx } = useSendRelayrTx();
@@ -64,28 +58,21 @@ export function PayAndDeploy({
 
   return (
     <div>
-      <div className="text-left text-black-500 font-semibold">
-        How would you like to pay?
-      </div>
+      <div className="text-left text-black-500 font-semibold">How would you like to pay?</div>
       <div className="max-w-sm">
-        <Select
-          onValueChange={(v) => setPaymentIndex(Number(v))}
-          defaultValue="0"
-        >
+        <Select onValueChange={(v) => setPaymentIndex(Number(v))} defaultValue="0">
           <SelectTrigger>
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            {(relayrResponse.payment_info as ChainPayment[]).map(
-              (payment, index) => {
-                return (
-                  <SelectItem value={String(index)} key={payment.chain}>
-                    {formatHexEther(payment?.amount)} {symbol} on{" "}
-                    {JB_CHAINS[payment.chain as JBChainId].name}
-                  </SelectItem>
-                );
-              }
-            )}
+            {(relayrResponse.payment_info as ChainPayment[]).map((payment, index) => {
+              return (
+                <SelectItem value={String(index)} key={payment.chain}>
+                  {formatHexEther(payment?.amount)} {symbol} on{" "}
+                  {JB_CHAINS[payment.chain as JBChainId].name}
+                </SelectItem>
+              );
+            })}
           </SelectContent>
         </Select>
       </div>
@@ -112,14 +99,12 @@ export function PayAndDeploy({
         >
           Pay and ship
           {!!bundleResponse ? (
-            <CheckCircle
-              className={"h-4 w-4 ml-2 fill-none text-emerald-500"}
-            />
+            <CheckCircle className={"h-4 w-4 ml-2 fill-none text-emerald-500"} />
           ) : (
             <FastForwardIcon
               className={twMerge(
                 "h-4 w-4 fill-white ml-2",
-                payIsProcessing ? "animate-spin" : "animate-pulse"
+                payIsProcessing ? "animate-spin" : "animate-pulse",
               )}
             />
           )}
@@ -128,9 +113,8 @@ export function PayAndDeploy({
       {!!bundleResponse && (
         <div className="mt-10 flex flex-col space-y-2">
           <div className="text-left text-zinc-500 mb-2">
-            Your revnet is made up of components deployed on each blockchain
-            where it'll accept funds and issue {revnetTokenSymbol} from. These
-            transactions take 1-2 minutes to settle.
+            Your revnet is made up of components deployed on each blockchain where it'll accept
+            funds and issue {revnetTokenSymbol} from. These transactions take 1-2 minutes to settle.
           </div>
           <div className="grid grid-cols-3 gap-4 font-semibold border-b mb-2">
             <div>Network</div>
@@ -160,13 +144,10 @@ export function PayAndDeploy({
                     <div className="animate-pulse italic">generating...</div>
                   )}
                 </div>
-              )
+              ),
           )}
           <GoToProjectButton
-            txHash={
-              (bundleResponse.transactions[0].status?.data as { hash: Hash })
-                ?.hash
-            }
+            txHash={(bundleResponse.transactions[0].status?.data as { hash: Hash })?.hash}
             chainId={bundleResponse.transactions[0].request.chain}
           />
         </div>

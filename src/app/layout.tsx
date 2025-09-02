@@ -27,11 +27,7 @@ const simplonMono = localFont({
 
 export const revalidate = 300;
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
       <head>

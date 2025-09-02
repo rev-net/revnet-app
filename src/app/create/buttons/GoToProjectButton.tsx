@@ -6,13 +6,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { useTransactionReceipt } from "wagmi";
 
-export function GoToProjectButton({
-  txHash,
-  chainId,
-}: {
-  txHash?: string;
-  chainId: JBChainId;
-}) {
+export function GoToProjectButton({ txHash, chainId }: { txHash?: string; chainId: JBChainId }) {
   const [isLoading, setIsLoading] = useState(false);
 
   const { data } = useTransactionReceipt({
@@ -20,17 +14,12 @@ export function GoToProjectButton({
     hash: txHash as `0x${string}`,
   });
 
-  const projectId = data?.logs[0]?.topics[1]
-    ? Number(data.logs[0].topics[1])
-    : undefined;
+  const projectId = data?.logs[0]?.topics[1] ? Number(data.logs[0].topics[1]) : undefined;
   const chain = JB_CHAINS[chainId].slug;
   const projectUrl = `/${chain}:${projectId}`;
   return (
     <div className="max-w-fit">
-      <Link
-        href={projectUrl}
-        className={!projectId ? "pointer-events-none" : ""}
-      >
+      <Link href={projectUrl} className={!projectId ? "pointer-events-none" : ""}>
         <Button
           type="submit"
           size="lg"
@@ -40,9 +29,7 @@ export function GoToProjectButton({
           onClick={() => setIsLoading(true)}
         >
           Go to your revnet
-          <FastForwardIcon
-            className={"h-4 w-4 fill-white ml-2 animate-pulse"}
-          />
+          <FastForwardIcon className={"h-4 w-4 fill-white ml-2 animate-pulse"} />
         </Button>
       </Link>
     </div>

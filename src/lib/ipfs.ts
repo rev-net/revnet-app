@@ -2,8 +2,7 @@ const IPFS_URL_REGEX = /ipfs:\/\/(.+)/;
 
 // This is an open gateway. It exposes any ipfs content, not just the content we pin.
 // Use when fetching public content (like images).
-export const OPEN_IPFS_GATEWAY_HOSTNAME =
-  process.env.NEXT_PUBLIC_INFURA_IPFS_HOSTNAME;
+export const OPEN_IPFS_GATEWAY_HOSTNAME = process.env.NEXT_PUBLIC_INFURA_IPFS_HOSTNAME;
 
 const PUBLIC_IPFS_GATEWAY_HOSTNAME = "ipfs.io";
 
@@ -39,8 +38,7 @@ export function ipfsUri(cid: string, path?: string) {
  */
 export const cidFromUrl = (url: string) => url.split("/").pop();
 
-export const cidFromIpfsUri = (ipfsUri: string) =>
-  ipfsUri.match(IPFS_URL_REGEX)?.[1];
+export const cidFromIpfsUri = (ipfsUri: string) => ipfsUri.match(IPFS_URL_REGEX)?.[1];
 
 /**
  * Returns a native IPFS link (`ipfs://`) as a https link.
@@ -58,7 +56,5 @@ export function isIpfsUri(url: string) {
 }
 
 export function isIpfsCid(cid: string) {
-  return (
-    cid.startsWith("Qm") || cid.startsWith("bafy") || cid.startsWith("bafk")
-  );
+  return cid.startsWith("Qm") || cid.startsWith("bafy") || cid.startsWith("bafk");
 }

@@ -70,9 +70,7 @@ export function ParticipantsPieChart({
     return participants?.map((participant, idx) => {
       return {
         address: participant?.address,
-        balanceFormatted: new JBProjectToken(
-          BigInt(participant?.balance)
-        ).toFloat(),
+        balanceFormatted: new JBProjectToken(BigInt(participant?.balance)).toFloat(),
         balance: new JBProjectToken(BigInt(participant?.balance)),
         fill: COLORS[idx % COLORS.length],
       };
@@ -82,7 +80,7 @@ export function ParticipantsPieChart({
   // TODO maybe can remove this when balance=0 bug fixed in subgraph
   const totalBalance = participants?.reduce(
     (acc, participant) => acc + BigInt(participant?.balance),
-    BigInt(0)
+    BigInt(0),
   );
   if (totalBalance === 0n) return null;
 

@@ -42,19 +42,19 @@ export function useChartData({
     getPrevRulesetWeight({
       weight: ruleset?.weight.value ?? 0n,
       weightCutPercent: Number(ruleset?.weightCutPercent.value ?? 0n),
-    })
+    }),
   );
   const nextWeight = new RulesetWeight(
     getNextRulesetWeight({
       weight: ruleset?.weight.value ?? 0n,
       weightCutPercent: Number(ruleset?.weightCutPercent.value ?? 0n),
-    })
+    }),
   );
   const nextNextWeight = new RulesetWeight(
     getNextRulesetWeight({
       weight: nextWeight.value ?? 0n,
       weightCutPercent: Number(ruleset?.weightCutPercent.value ?? 0n),
-    })
+    }),
   );
 
   const prevPrice = getTokenBtoAQuote(new Ether(ONE_ETHER), 18, {
@@ -85,7 +85,7 @@ export function useChartData({
       ...generateDateRange(
         new Date(Number(startBuffer) * 1000),
         new Date(Number(currentFcStart) * 1000),
-        steps
+        steps,
       )
         .map((d, i) => {
           return {
@@ -99,7 +99,7 @@ export function useChartData({
       ...generateDateRange(
         new Date(Number(currentFcStart) * 1000),
         new Date(Number(currentFcEnd) * 1000),
-        steps
+        steps,
       ).map((d, i) => {
         return {
           fc: 2,
@@ -112,7 +112,7 @@ export function useChartData({
       ...generateDateRange(
         new Date(Number(currentFcEnd) * 1000),
         new Date(Number(nextFcEnd) * 1000),
-        steps
+        steps,
       ).map((d, i) => {
         return {
           fc: 3,
@@ -125,7 +125,7 @@ export function useChartData({
       ...generateDateRange(
         new Date(Number(nextFcEnd) * 1000),
         new Date(Number(nextNextFcEnd) * 1000),
-        steps
+        steps,
       ).map((d, i) => {
         return {
           fc: 4,

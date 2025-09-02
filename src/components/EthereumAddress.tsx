@@ -2,15 +2,12 @@ import { useEnsName } from "@/hooks/ens/useEnsName";
 import { formatEthAddress } from "@/lib/utils";
 import Image from "next/image";
 import { twMerge } from "tailwind-merge";
-import EtherscanLink from "./EtherscanLink";
 import { Address, Chain } from "viem";
+import EtherscanLink from "./EtherscanLink";
 
 const STAMP_FYI_BASE_URL = "https://cdn.stamp.fyi";
 
-export function ensAvatarUrlForAddress(
-  address: string,
-  { size }: { size?: number } = {}
-) {
+export function ensAvatarUrlForAddress(address: string, { size }: { size?: number } = {}) {
   let url = `${STAMP_FYI_BASE_URL}/avatar/${address}`;
   if (size) {
     url += `?s=${size}`;
@@ -33,7 +30,7 @@ export function EthereumAddress({
   withEnsAvatar?: boolean;
   avatarProps?: { size?: "sm" | "md" };
   className?: string;
-  chain?: Chain
+  chain?: Chain;
 }) {
   const { data } = useEnsName(address, { enabled: withEnsName });
   const formattedAddress = short ? formatEthAddress(address) : address;
@@ -56,7 +53,7 @@ export function EthereumAddress({
           alt={ensName ?? address}
           className={twMerge(
             "inline-block mr-2 rounded-full",
-            avatarSize === "md" ? "w-9 h-9" : "w-6 h-6"
+            avatarSize === "md" ? "w-9 h-9" : "w-6 h-6",
           )}
           width={avatarDimensions}
           height={avatarDimensions}

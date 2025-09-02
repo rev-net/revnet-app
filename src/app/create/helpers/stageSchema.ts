@@ -11,9 +11,7 @@ export const chainIdSchema = z.union([z.string(), z.number()]);
 export const splitSchema = z.object({
   percentage: z.coerce.string().min(1, "Percentage is required"),
   defaultBeneficiary: addressSchema,
-  beneficiary: z
-    .array(z.object({ chainId: chainIdSchema, address: addressSchema }))
-    .optional(),
+  beneficiary: z.array(z.object({ chainId: chainIdSchema, address: addressSchema })).optional(),
 });
 
 export const stageSchema = z.object({
@@ -22,12 +20,8 @@ export const stageSchema = z.object({
   priceCeilingIncreasePercentage: z
     .string()
     .min(1, "Price ceiling increase percentage is required"),
-  priceCeilingIncreaseFrequency: z
-    .string()
-    .min(1, "Price ceiling increase frequency is required"),
-  priceFloorTaxIntensity: z.coerce
-    .string()
-    .min(1, "Price floor tax intensity is required"),
+  priceCeilingIncreaseFrequency: z.string().min(1, "Price ceiling increase frequency is required"),
+  priceFloorTaxIntensity: z.coerce.string().min(1, "Price floor tax intensity is required"),
 
   autoIssuance: z.array(
     z.object({

@@ -1,6 +1,5 @@
-import { useChain, useJBChainId } from "juice-sdk-react";
-import { optimismSepolia } from "viem/chains";
-import { sepolia } from "viem/chains";
+import { useJBChainId } from "juice-sdk-react";
+import { optimismSepolia, sepolia } from "viem/chains";
 
 export function useNativeTokenSymbol() {
   const symbols: { [k: number]: string } = {

@@ -19,7 +19,10 @@ export function AdditionalCollateralSection({
 }) {
   return (
     <div className="mt-2 text-sm text-gray-700 space-y-1 ml-2 mb-4">
-      <p>Use appreciated collateral from existing loans to increase your borrowing power without adding new tokens.</p>
+      <p>
+        Use appreciated collateral from existing loans to increase your borrowing power without
+        adding new tokens.
+      </p>
       <LoanDetailsTable
         revnetId={BigInt(projectId)}
         address={address}

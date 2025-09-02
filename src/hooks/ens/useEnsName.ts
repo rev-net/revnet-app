@@ -1,6 +1,6 @@
 import { Address, isAddress, PublicClient } from "viem";
-import { sepolia, mainnet } from "viem/chains";
-import { useChainId, usePublicClient } from "wagmi";
+import { mainnet, sepolia } from "viem/chains";
+import { usePublicClient } from "wagmi";
 import { useQuery } from "wagmi/query";
 
 const ENS_IDEAS_BASE_URL = "https://api.ensideas.com";
@@ -12,7 +12,7 @@ const ENS_IDEAS_BASE_URL = "https://api.ensideas.com";
  */
 async function resolveAddressEnsIdeas(addressOrEnsName: string) {
   const response: { name: string | null; address: string } = await fetch(
-    `${ENS_IDEAS_BASE_URL}/ens/resolve/${addressOrEnsName}`
+    `${ENS_IDEAS_BASE_URL}/ens/resolve/${addressOrEnsName}`,
   ).then((res) => res.json());
 
   return response;
@@ -27,7 +27,7 @@ async function resolveAddressEnsIdeas(addressOrEnsName: string) {
  */
 async function resolveAddress(
   address: Address,
-  { chainId, publicClient }: { chainId: number; publicClient: PublicClient }
+  { chainId, publicClient }: { chainId: number; publicClient: PublicClient },
 ) {
   if (chainId === sepolia.id) {
     const data = await publicClient.getEnsName({ address });
@@ -43,10 +43,7 @@ async function resolveAddress(
 /**
  * Try to resolve an address to an ENS name.
  */
-export function useEnsName(
-  address: string | undefined,
-  { enabled }: { enabled?: boolean } = {}
-) {
+export function useEnsName(address: string | undefined, { enabled }: { enabled?: boolean } = {}) {
   const chainId = mainnet.id;
   const publicClient = usePublicClient({ chainId });
 

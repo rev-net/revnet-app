@@ -12,9 +12,7 @@ export function AssetsSection({ disabled = false }: { disabled?: boolean }) {
         </p>
       </div>
       <div className="mb-4 col-span-2">
-        <span className="font-semibold text-md mr-4">
-          Choose your reserve asset
-        </span>
+        <span className="font-semibold text-md mr-4">Choose your reserve asset</span>
         <div className="flex flex-row gap-8 mt-2">
           <label className="flex items-center gap-2">
             <input

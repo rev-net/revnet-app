@@ -17,9 +17,7 @@ export function QuoteResponse(props: Props) {
   return (
     <div className="flex flex-col items-start md:col-span-2 md:col-start-2">
       <div className="mt-2 text-xs italic">
-        Quote valid until{" "}
-        {format(relayrResponse.payment_info[0].payment_deadline, "h:mm:ss aaa")}
-        .
+        Quote valid until {format(relayrResponse.payment_info[0].payment_deadline, "h:mm:ss aaa")}.
         <Button
           variant="link"
           size="sm"
@@ -31,10 +29,7 @@ export function QuoteResponse(props: Props) {
         </Button>
       </div>
       <div className="mt-4">
-        <PayAndDeploy
-          relayrResponse={relayrResponse}
-          revnetTokenSymbol={revnetTokenSymbol}
-        />
+        <PayAndDeploy relayrResponse={relayrResponse} revnetTokenSymbol={revnetTokenSymbol} />
       </div>
     </div>
   );

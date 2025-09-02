@@ -18,6 +18,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useToast } from "@/components/ui/use-toast";
+import { ProjectDocument, SuckerGroupDocument } from "@/generated/graphql";
+import { useBendystrawQuery } from "@/graphql/useBendystrawQuery";
+import { useProjectBaseToken } from "@/hooks/useProjectBaseToken";
 import { FixedInt } from "fpnum";
 import {
   DEFAULT_METADATA,
@@ -28,22 +32,16 @@ import {
 } from "juice-sdk-core";
 import {
   JBChainId,
-  NativeTokenValue,
   useJBChainId,
-  useJBContractContext,
   useJBTokenContext,
+  useSuckers,
   useSuckersUserTokenBalance,
   useTokenCashOutQuoteEth,
   useWriteJbMultiTerminalCashOutTokensOf,
 } from "juice-sdk-react";
 import { PropsWithChildren, useState } from "react";
-import { Address, parseUnits, erc20Abi } from "viem";
-import { useAccount, useWaitForTransactionReceipt, usePublicClient, useWalletClient } from "wagmi";
-import { useProjectBaseToken } from "@/hooks/useProjectBaseToken";
-import { useToast } from "@/components/ui/use-toast";
-import { useBendystrawQuery } from "@/graphql/useBendystrawQuery";
-import { ProjectDocument, SuckerGroupDocument } from "@/generated/graphql";
-import { useSuckers } from "juice-sdk-react";
+import { Address, erc20Abi, parseUnits } from "viem";
+import { useAccount, usePublicClient, useWaitForTransactionReceipt, useWalletClient } from "wagmi";
 
 export function RedeemDialog({
   projectId,
@@ -63,7 +61,9 @@ export function RedeemDialog({
   // const {
   //   contracts: { primaryNativeTerminal },
   // } = useJBContractContext();
-  const primaryNativeTerminal = {data: "0xdb9644369c79c3633cde70d2df50d827d7dc7dbc"};
+  const primaryNativeTerminal = {
+    data: "0xdb9644369c79c3633cde70d2df50d827d7dc7dbc",
+  };
   const { address } = useAccount();
   const { data: balances } = useSuckersUserTokenBalance();
   const [cashOutChainId, setCashOutChainId] = useState<string>();
@@ -78,45 +78,53 @@ export function RedeemDialog({
   const { token } = useJBTokenContext();
 
   // Get the selected sucker based on cashOutChainId
-  const selectedSucker = cashOutChainId 
-    ? suckers?.find(s => s.peerChainId === Number(cashOutChainId))
-    : suckers?.find(s => s.peerChainId === chainId);
+  const selectedSucker = cashOutChainId
+    ? suckers?.find((s) => s.peerChainId === Number(cashOutChainId))
+    : suckers?.find((s) => s.peerChainId === chainId);
 
   // Get the correct project ID for the selected chain
   const effectiveProjectId = selectedSucker?.projectId || projectId;
 
   // Get the suckerGroupId from the current project
-  const { data: projectData } = useBendystrawQuery(ProjectDocument, {
-    chainId: Number(chainId),
-    projectId: Number(projectId),
-  }, {
-    enabled: !!chainId && !!projectId,
-  });
+  const { data: projectData } = useBendystrawQuery(
+    ProjectDocument,
+    {
+      chainId: Number(chainId),
+      projectId: Number(projectId),
+    },
+    {
+      enabled: !!chainId && !!projectId,
+    },
+  );
   const suckerGroupId = projectData?.project?.suckerGroupId;
 
   // Get all projects in the sucker group with their token data
-  const { data: suckerGroupData } = useBendystrawQuery(SuckerGroupDocument, {
-    id: suckerGroupId ?? "",
-  }, {
-    enabled: !!suckerGroupId,
-  });
+  const { data: suckerGroupData } = useBendystrawQuery(
+    SuckerGroupDocument,
+    {
+      id: suckerGroupId ?? "",
+    },
+    {
+      enabled: !!suckerGroupId,
+    },
+  );
 
   // Get the correct decimals for the selected chain's token from bendystraw data
   const getDecimalsForChain = (targetChainId: number) => {
     if (!suckerGroupData?.suckerGroup?.projects?.items) {
       return NATIVE_TOKEN_DECIMALS; // fallback to 18
     }
-    
+
     const projectForChain = suckerGroupData.suckerGroup.projects.items.find(
-      project => project.chainId === targetChainId
+      (project) => project.chainId === targetChainId,
     );
-    
+
     return projectForChain?.decimals || NATIVE_TOKEN_DECIMALS;
   };
 
   // Use project token decimals, not base token decimals
   const projectTokenDecimals = token?.data?.decimals || NATIVE_TOKEN_DECIMALS;
-  
+
   const redeemAmountBN = redeemAmount
     ? JBProjectToken.parse(redeemAmount, projectTokenDecimals).value
     : 0n;
@@ -135,31 +143,29 @@ export function RedeemDialog({
     chainId: selectedSucker?.peerChainId as JBChainId,
   });
   const loading = isWriteLoading || isTxLoading;
-  const selectedBalance = balances?.find(
-    (b) => b.chainId === Number(cashOutChainId)
-  );
-  const valid =
-    redeemAmountBN > 0n &&
-    (selectedBalance?.balance.value ?? 0n) >= redeemAmountBN;
+  const selectedBalance = balances?.find((b) => b.chainId === Number(cashOutChainId));
+  const valid = redeemAmountBN > 0n && (selectedBalance?.balance.value ?? 0n) >= redeemAmountBN;
 
   // Get the correct token address for the selected chain
   const getTokenForChain = (targetChainId: number) => {
     if (!suckerGroupData?.suckerGroup?.projects?.items) {
       return NATIVE_TOKEN; // fallback to NATIVE_TOKEN
     }
-    
+
     const projectForChain = suckerGroupData.suckerGroup.projects.items.find(
-      project => project.chainId === targetChainId
+      (project) => project.chainId === targetChainId,
     );
-    
+
     if (projectForChain?.token) {
       return projectForChain.token as `0x${string}`;
     }
-    
+
     return NATIVE_TOKEN; // fallback to NATIVE_TOKEN
   };
 
-  const selectedChainToken = cashOutChainId ? getTokenForChain(Number(cashOutChainId)) : NATIVE_TOKEN;
+  const selectedChainToken = cashOutChainId
+    ? getTokenForChain(Number(cashOutChainId))
+    : NATIVE_TOKEN;
   const isNative = selectedChainToken === "0x000000000000000000000000000000000000eeee";
 
   // Determine what token to receive from cashout
@@ -180,10 +186,7 @@ export function RedeemDialog({
               ) : (
                 <>
                   <div className="mb-5 w-[65%]">
-                    <span className="text-sm text-black font-medium">
-                      {" "}
-                      Your {tokenSymbol}
-                    </span>
+                    <span className="text-sm text-black font-medium"> Your {tokenSymbol}</span>
                     <div className="mt-1 border border-zinc-200 p-3 bg-zinc-50">
                       {balances?.map((balance, index) => (
                         <div key={index} className="flex justify-between gap-2">
@@ -214,9 +217,7 @@ export function RedeemDialog({
                               "pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 z-10"
                             }
                           >
-                            <span className="text-zinc-500 sm:text-md">
-                              {tokenSymbol}
-                            </span>
+                            <span className="text-zinc-500 sm:text-md">{tokenSymbol}</span>
                           </div>
                         </div>
                       </div>
@@ -235,13 +236,8 @@ export function RedeemDialog({
                                     key={balance.chainId}
                                   >
                                     <div className="flex items-center gap-2">
-                                      <ChainLogo
-                                        chainId={balance.chainId as JBChainId}
-                                      />
-                                      {
-                                        JB_CHAINS[balance.chainId as JBChainId]
-                                          .name
-                                      }
+                                      <ChainLogo chainId={balance.chainId as JBChainId} />
+                                      {JB_CHAINS[balance.chainId as JBChainId].name}
                                     </div>
                                   </SelectItem>
                                 );
@@ -276,9 +272,7 @@ export function RedeemDialog({
                     </div>
                   ) : null} */}
 
-                  {isTxLoading ? (
-                    <div>Transaction submitted, awaiting confirmation...</div>
-                  ) : null}
+                  {isTxLoading ? <div>Transaction submitted, awaiting confirmation...</div> : null}
                 </>
               )}
             </div>
@@ -289,7 +283,13 @@ export function RedeemDialog({
                 targetChainId={selectedSucker?.peerChainId as JBChainId}
                 loading={loading || isApproving}
                 onClick={async () => {
-                  if (!primaryNativeTerminal?.data || !address || !redeemAmountBN || !walletClient || !publicClient) {
+                  if (
+                    !primaryNativeTerminal?.data ||
+                    !address ||
+                    !redeemAmountBN ||
+                    !walletClient ||
+                    !publicClient
+                  ) {
                     console.error("Missing required data for cashout");
                     return;
                   }
@@ -321,9 +321,7 @@ export function RedeemDialog({
                     const args = [
                       address, // holder
                       effectiveProjectId, // project id (use the correct project ID for the selected chain)
-                      redeemAmount
-                        ? parseUnits(redeemAmount, NATIVE_TOKEN_DECIMALS)
-                        : 0n, // cash out count
+                      redeemAmount ? parseUnits(redeemAmount, NATIVE_TOKEN_DECIMALS) : 0n, // cash out count
                       tokenToReceive, // token to reclaim (what you want to receive)
                       0n, // min tokens reclaimed
                       address, // beneficiary
@@ -337,7 +335,8 @@ export function RedeemDialog({
                     });
                   } catch (err) {
                     setIsApproving(false);
-                    const errMsg = err instanceof Error ? err.message : "Unknown error during cashout";
+                    const errMsg =
+                      err instanceof Error ? err.message : "Unknown error during cashout";
                     console.error("Cashout failed:", err);
                     toast({
                       variant: "destructive",

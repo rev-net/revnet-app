@@ -1,13 +1,5 @@
-import { JB_CHAINS, JBChainId, NATIVE_TOKEN_DECIMALS, JBProjectToken } from "juice-sdk-core";
-import { useBendystrawQuery } from "@/graphql/useBendystrawQuery";
-import { LoansByAccountDocument, ProjectDocument, SuckerGroupDocument } from "@/generated/graphql";
-import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
-import { formatSeconds } from "@/lib/utils";
-import { formatUnits } from "viem";
-import { useJBTokenContext, useJBChainId } from "juice-sdk-react";
-import { useReadRevLoansBorrowableAmountFrom } from "revnet-sdk";
-import { USDC_ADDRESSES } from "@/app/constants";
-import { getTokenSymbolFromAddress, getTokenConfigForChain } from "@/lib/tokenUtils";
+import { ChainLogo } from "@/components/ChainLogo";
+import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
@@ -16,9 +8,15 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { ChainLogo } from "@/components/ChainLogo";
-import { Button } from "@/components/ui/button";
-import { useProjectBaseToken } from "@/hooks/useProjectBaseToken";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { LoansByAccountDocument, ProjectDocument, SuckerGroupDocument } from "@/generated/graphql";
+import { useBendystrawQuery } from "@/graphql/useBendystrawQuery";
+import { getTokenConfigForChain, getTokenSymbolFromAddress } from "@/lib/tokenUtils";
+import { formatSeconds } from "@/lib/utils";
+import { JB_CHAINS, JBChainId } from "juice-sdk-core";
+import { useJBChainId, useJBTokenContext } from "juice-sdk-react";
+import { useReadRevLoansBorrowableAmountFrom } from "revnet-sdk";
+import { formatUnits } from "viem";
 
 // Constants for loan calculations and display
 const LOAN_CONSTANTS = {
@@ -31,15 +29,15 @@ const LOAN_CONSTANTS = {
 } as const;
 
 // Separate component for each loan row to avoid Rules of Hooks violation
-function LoanRow({ 
-  loan, 
-  revnetId, 
-  tokenSymbol, 
-  selectedLoanId, 
-  now, 
-  onSelectLoan, 
+function LoanRow({
+  loan,
+  revnetId,
+  tokenSymbol,
+  selectedLoanId,
+  now,
+  onSelectLoan,
   onReallocateLoan,
-  suckerGroupData
+  suckerGroupData,
 }: {
   loan: any;
   revnetId: bigint;
@@ -54,7 +52,7 @@ function LoanRow({
   const projectTokenDecimals = token?.data?.decimals ?? 18;
 
   const chainTokenConfig = getTokenConfigForChain(suckerGroupData, loan.chainId);
-  
+
   const baseTokenSymbol = getTokenSymbolFromAddress(chainTokenConfig.token);
   const baseTokenDecimals = chainTokenConfig.decimals;
 
@@ -63,21 +61,25 @@ function LoanRow({
   // Calculate headroom: current value of collateral - borrowed amount
   const { data: currentCollateralValue } = useReadRevLoansBorrowableAmountFrom({
     chainId: loan.chainId as JBChainId,
-    args: [revnetId, BigInt(loan.collateral), BigInt(baseTokenDecimals), BigInt(chainTokenConfig.currency)],
+    args: [
+      revnetId,
+      BigInt(loan.collateral),
+      BigInt(baseTokenDecimals),
+      BigInt(chainTokenConfig.currency),
+    ],
   });
 
-  const headroom = currentCollateralValue && currentCollateralValue > BigInt(loan.borrowAmount)
-    ? currentCollateralValue - BigInt(loan.borrowAmount)
-    : 0n;
+  const headroom =
+    currentCollateralValue && currentCollateralValue > BigInt(loan.borrowAmount)
+      ? currentCollateralValue - BigInt(loan.borrowAmount)
+      : 0n;
 
   const headroomAmount = Number(formatUnits(headroom, baseTokenDecimals)).toFixed(6);
 
   return (
-    <TableRow
-      className={`hover:bg-zinc-100 ${selectedLoanId === loan.id ? "bg-zinc-100" : ""}`}
-    >
+    <TableRow className={`hover:bg-zinc-100 ${selectedLoanId === loan.id ? "bg-zinc-100" : ""}`}>
       <TableCell className="whitespace-nowrap px-3 py-2">
-        {(loan.chainId in JB_CHAINS) ? (
+        {loan.chainId in JB_CHAINS ? (
           <ChainLogo chainId={loan.chainId as JBChainId} width={15} height={15} />
         ) : (
           <span>{loan.chainId}</span>
@@ -95,8 +97,11 @@ function LoanRow({
       </TableCell>
       <TableCell className="text-left px-3 py-2">
         <span className="whitespace-nowrap">
-          {Number(formatUnits(BigInt(loan.collateral), projectTokenDecimals)).toFixed(LOAN_CONSTANTS.DECIMAL_PLACES.COLLATERAL_AMOUNT)}&nbsp;{tokenSymbol}
-        </span> 
+          {Number(formatUnits(BigInt(loan.collateral), projectTokenDecimals)).toFixed(
+            LOAN_CONSTANTS.DECIMAL_PLACES.COLLATERAL_AMOUNT,
+          )}
+          &nbsp;{tokenSymbol}
+        </span>
       </TableCell>
       <TableCell className="text-left px-3 py-2">
         <span className="whitespace-nowrap">
@@ -154,48 +159,60 @@ export function LoanDetailsTable({
   selectedLoanId?: string;
 }) {
   const currentChainId = useJBChainId();
-  
+
   // Get project data to find sucker group ID
-  const { data: projectData } = useBendystrawQuery(ProjectDocument, {
-    chainId: Number(currentChainId),
-    projectId: Number(revnetId),
-  }, {
-    enabled: !!currentChainId && !!revnetId,
-    pollInterval: 10000
-  });
-  
+  const { data: projectData } = useBendystrawQuery(
+    ProjectDocument,
+    {
+      chainId: Number(currentChainId),
+      projectId: Number(revnetId),
+    },
+    {
+      enabled: !!currentChainId && !!revnetId,
+      pollInterval: 10000,
+    },
+  );
+
   const suckerGroupId = projectData?.project?.suckerGroupId;
-  
+
   // Get sucker group data for token mapping
-  const { data: suckerGroupData } = useBendystrawQuery(SuckerGroupDocument, {
-    id: suckerGroupId ?? "",
-  }, {
-    enabled: !!suckerGroupId,
-    pollInterval: 10000
-  });
-  
+  const { data: suckerGroupData } = useBendystrawQuery(
+    SuckerGroupDocument,
+    {
+      id: suckerGroupId ?? "",
+    },
+    {
+      enabled: !!suckerGroupId,
+      pollInterval: 10000,
+    },
+  );
+
   // Get all loans for the user
-  const { data } = useBendystrawQuery(LoansByAccountDocument, {
-    owner: address,
-  }, {
-    pollInterval: LOAN_CONSTANTS.POLL_INTERVAL, // Refresh every 3 seconds
-  });
+  const { data } = useBendystrawQuery(
+    LoansByAccountDocument,
+    {
+      owner: address,
+    },
+    {
+      pollInterval: LOAN_CONSTANTS.POLL_INTERVAL, // Refresh every 3 seconds
+    },
+  );
 
   if (!data?.loans?.items) return null;
 
   const now = Math.floor(Date.now() / 1000);
-  
+
   // Get all project IDs for this revnet across all chains
-  const revnetProjectIds = suckerGroupData?.suckerGroup?.projects?.items
-    ?.map(project => Number(project.projectId)) || [Number(revnetId)];
+  const revnetProjectIds = suckerGroupData?.suckerGroup?.projects?.items?.map((project) =>
+    Number(project.projectId),
+  ) || [Number(revnetId)];
 
   // Filter loans to only show those from this revnet's projects
-  const filteredLoans = data.loans.items.filter((loan) => 
-    revnetProjectIds.includes(Number(loan.projectId))
+  const filteredLoans = data.loans.items.filter((loan) =>
+    revnetProjectIds.includes(Number(loan.projectId)),
   );
-  
-  if (!filteredLoans.length)
-    return null;
+
+  if (!filteredLoans.length) return null;
 
   const sortedLoans = [...filteredLoans].sort((a, b) => {
     const timeA = a.prepaidDuration - (now - Number(a.createdAt));
@@ -205,35 +222,39 @@ export function LoanDetailsTable({
   return (
     <>
       {title && <p className="text-md font-semibold mt-6 mb-4 text-black">{title}</p>}
-      <div className={LOAN_CONSTANTS.TABLE_MAX_HEIGHT + " overflow-auto bg-zinc-50 border border-zinc-200"}>
+      <div
+        className={
+          LOAN_CONSTANTS.TABLE_MAX_HEIGHT + " overflow-auto bg-zinc-50 border border-zinc-200"
+        }
+      >
         <div className="flex flex-col p-2 overflow-x-auto">
           <div className="min-w-full">
             <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="text-left px-3 py-2">Chain</TableHead>
-                <TableHead className="text-left px-3 py-2">Borrowed</TableHead>
-                <TableHead className="text-left px-3 py-2">Locked Collateral</TableHead>
-                <TableHead className="text-left px-3 py-2">Refinanceable</TableHead>
-                <TableHead className="text-left px-3 py-2">Fees Increase In</TableHead>
-                <TableHead className="text-left px-3 py-2">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {sortedLoans.map((loan) => (
-                <LoanRow
-                  key={`${loan.id}-${loan.createdAt}`}
-                  loan={loan}
-                  revnetId={revnetId}
-                  tokenSymbol={tokenSymbol}
-                  selectedLoanId={selectedLoanId}
-                  now={now}
-                  onSelectLoan={onSelectLoan}
-                  onReallocateLoan={onReallocateLoan}
-                  suckerGroupData={suckerGroupData}
-                />
-              ))}
-            </TableBody>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="text-left px-3 py-2">Chain</TableHead>
+                  <TableHead className="text-left px-3 py-2">Borrowed</TableHead>
+                  <TableHead className="text-left px-3 py-2">Locked Collateral</TableHead>
+                  <TableHead className="text-left px-3 py-2">Refinanceable</TableHead>
+                  <TableHead className="text-left px-3 py-2">Fees Increase In</TableHead>
+                  <TableHead className="text-left px-3 py-2">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {sortedLoans.map((loan) => (
+                  <LoanRow
+                    key={`${loan.id}-${loan.createdAt}`}
+                    loan={loan}
+                    revnetId={revnetId}
+                    tokenSymbol={tokenSymbol}
+                    selectedLoanId={selectedLoanId}
+                    now={now}
+                    onSelectLoan={onSelectLoan}
+                    onReallocateLoan={onReallocateLoan}
+                    suckerGroupData={suckerGroupData}
+                  />
+                ))}
+              </TableBody>
             </Table>
           </div>
         </div>

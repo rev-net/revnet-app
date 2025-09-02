@@ -6,11 +6,7 @@ import { wagmiConfig } from "@/lib/wagmiConfig";
 import { getPublicClient } from "@wagmi/core";
 import { Formik } from "formik";
 import { withZodSchema } from "formik-validator-zod";
-import {
-  createSalt,
-  MappableAsset,
-  parseSuckerDeployerConfig,
-} from "juice-sdk-core";
+import { createSalt, MappableAsset, parseSuckerDeployerConfig } from "juice-sdk-core";
 import { useGetRelayrTxQuote } from "juice-sdk-react";
 import { revDeployerAbi, revDeployerAddress } from "revnet-sdk";
 import { encodeFunctionData } from "viem";
@@ -34,9 +30,7 @@ export default function Page() {
     }
 
     const reserveAsset =
-      formData.reserveAsset === "USDC"
-        ? MappableAsset.USDC
-        : MappableAsset.NATIVE;
+      formData.reserveAsset === "USDC" ? MappableAsset.USDC : MappableAsset.NATIVE;
 
     // Upload metadata
     const metadataCid = await pinProjectMetadata({
@@ -51,11 +45,9 @@ export default function Page() {
     const relayrTransactions = [];
 
     for (const chainId of formData.chainIds) {
-      const suckerDeployerConfig = parseSuckerDeployerConfig(
-        chainId,
-        formData.chainIds,
-        [reserveAsset],
-      );
+      const suckerDeployerConfig = parseSuckerDeployerConfig(chainId, formData.chainIds, [
+        reserveAsset,
+      ]);
       const deployData = parseDeployData(formData, {
         metadataCid,
         chainId,
@@ -88,13 +80,7 @@ export default function Page() {
         args: deployData,
       });
 
-      console.log(
-        "create::deploy calldata",
-        chainId,
-        gasEstimate,
-        encodedData,
-        deployData,
-      );
+      console.log("create::deploy calldata", chainId, gasEstimate, encodedData, deployData);
 
       relayrTransactions.push({
         data: {

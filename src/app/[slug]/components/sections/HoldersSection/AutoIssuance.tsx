@@ -1,9 +1,5 @@
-import { useState, useEffect } from "react";
-import { useWaitForTransactionReceipt } from "wagmi";
-import { format } from "date-fns";
-import { useJBTokenContext } from "juice-sdk-react";
-import { useWriteRevDeployerAutoIssueFor } from "revnet-sdk";
-import { formatUnits } from "juice-sdk-core";
+import { EthereumAddress } from "@/components/EthereumAddress";
+import EtherscanLink from "@/components/EtherscanLink";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -13,13 +9,17 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { formatTokenSymbol } from "@/lib/utils";
-import { commaNumber } from "@/lib/number";
-import { EthereumAddress } from "@/components/EthereumAddress";
-import { useAutoIssuances } from "@/hooks/useAutoIssuances";
 import { toast } from "@/components/ui/use-toast";
-import EtherscanLink from "@/components/EtherscanLink";
+import { useAutoIssuances } from "@/hooks/useAutoIssuances";
+import { commaNumber } from "@/lib/number";
+import { formatTokenSymbol } from "@/lib/utils";
+import { format } from "date-fns";
+import { formatUnits } from "juice-sdk-core";
+import { useJBTokenContext } from "juice-sdk-react";
 import { CheckIcon } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useWriteRevDeployerAutoIssueFor } from "revnet-sdk";
+import { useWaitForTransactionReceipt } from "wagmi";
 
 export function AutoIssuance() {
   const { token } = useJBTokenContext();
@@ -43,11 +43,8 @@ export function AutoIssuance() {
     }
   }, [isSuccess]);
 
-  if (autoIssuances?.length === 0) return (
-    <div className="text-center text-zinc-400">
-      No autoissuances
-    </div>
-  );
+  if (autoIssuances?.length === 0)
+    return <div className="text-center text-zinc-400">No autoissuances</div>;
 
   return (
     <div className="max-h-96 overflow-auto bg-zinc-50 border-zinc-200 border mb-4">
@@ -89,9 +86,7 @@ export function AutoIssuance() {
                     </div>
                   </TableCell>
                   <TableCell>
-                    {commaNumber(
-                      formatUnits(autoIssuance.count, token?.data?.decimals || 18)
-                    )}{" "}
+                    {commaNumber(formatUnits(autoIssuance.count, token?.data?.decimals || 18))}{" "}
                     {formatTokenSymbol(token)}
                   </TableCell>
                   <TableCell>
@@ -109,24 +104,21 @@ export function AutoIssuance() {
                         <CheckIcon className="w-4 h-4 text-teal-500" />
                       </div>
                     ) : (
-                    <Button
-                      disabled={(autoIssuance?.startsAt || 0) >= now}
-                      loading={
-                        (isPending || isLoading) &&
-                        autoIssueId === autoIssuance.id
-                      }
-                      onClick={() => {
-                        writeContract({
-                          args: [
-                            BigInt(autoIssuance.projectId),
-                            autoIssuance.stageId,
-                            autoIssuance.beneficiary as `0x${string}`,
-                          ],
-                        });
-                        setAutoIssueId(autoIssuance.id);
-                      }}
-                    >
-                      Distribute
+                      <Button
+                        disabled={(autoIssuance?.startsAt || 0) >= now}
+                        loading={(isPending || isLoading) && autoIssueId === autoIssuance.id}
+                        onClick={() => {
+                          writeContract({
+                            args: [
+                              BigInt(autoIssuance.projectId),
+                              autoIssuance.stageId,
+                              autoIssuance.beneficiary as `0x${string}`,
+                            ],
+                          });
+                          setAutoIssueId(autoIssuance.id);
+                        }}
+                      >
+                        Distribute
                       </Button>
                     )}
                   </TableCell>

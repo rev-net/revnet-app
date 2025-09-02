@@ -1,13 +1,13 @@
 "use client";
 
+import EtherscanLink from "@/components/EtherscanLink";
+import { useFarcasterProfile } from "@/components/FarcasterAvatarContext";
+import sdk from "@farcaster/frame-sdk";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { twMerge } from "tailwind-merge";
-import EtherscanLink from "@/components/EtherscanLink";
 import { Address, Chain } from "viem";
-import { useFarcasterProfile } from "@/components/FarcasterAvatarContext";
 import { ensAvatarUrlForAddress } from "./EthereumAddress"; // or the correct relative path
-import sdk from "@farcaster/frame-sdk";
 
 // Assuming FarcasterProfile is defined in this file
 interface FarcasterProfile {
@@ -36,9 +36,7 @@ export default function FarcasterAvatar({
   chain?: Chain;
 }) {
   const profile = useFarcasterProfile(address);
-  const formattedAddress = short
-    ? `${address.slice(0, 6)}...${address.slice(-4)}`
-    : address;
+  const formattedAddress = short ? `${address.slice(0, 6)}...${address.slice(-4)}` : address;
 
   const renderValue =
     profile?.platform === "farcaster"
@@ -76,7 +74,7 @@ export default function FarcasterAvatar({
       className={twMerge(
         "inline-block rounded-full",
         avatarSize === "md" ? "w-9 h-9" : "w-6 h-6",
-        withAvatar && !profile?.social?.uid ? "mr-2" : ""
+        withAvatar && !profile?.social?.uid ? "mr-2" : "",
       )}
       width={avatarDimensions}
       height={avatarDimensions}
@@ -88,7 +86,7 @@ export default function FarcasterAvatar({
       className={twMerge(
         "inline-block rounded-full",
         avatarSize === "md" ? "w-9 h-9" : "w-6 h-6",
-        withAvatar && !profile?.social?.uid ? "mr-2" : ""
+        withAvatar && !profile?.social?.uid ? "mr-2" : "",
       )}
       width={avatarDimensions}
       height={avatarDimensions}

@@ -1,5 +1,5 @@
-import { useBendystrawQuery } from "@/graphql/useBendystrawQuery";
 import { LoansDetailsByAccountDocument } from "@/generated/graphql";
+import { useBendystrawQuery } from "@/graphql/useBendystrawQuery";
 
 export function LoanSelectDropdown({
   revnetId,
@@ -24,12 +24,16 @@ export function LoanSelectDropdown({
     chainId: number;
   }) => void;
 }) {
-  const { data } = useBendystrawQuery(LoansDetailsByAccountDocument, {
-    owner: address,
-    projectId: Number(revnetId),
-  }, {
-    pollInterval: 5000,
-  });
+  const { data } = useBendystrawQuery(
+    LoansDetailsByAccountDocument,
+    {
+      owner: address,
+      projectId: Number(revnetId),
+    },
+    {
+      pollInterval: 5000,
+    },
+  );
 
   if (!data?.loans?.items?.length) return null;
 
@@ -44,9 +48,7 @@ export function LoanSelectDropdown({
   return (
     <div className="grid grid-cols-7 gap-2 mt-4">
       <div className="col-span-4">
-        <label className="block text-gray-700 text-sm font-bold mb-1">
-          Select Loan
-        </label>
+        <label className="block text-gray-700 text-sm font-bold mb-1">Select Loan</label>
         <select
           value={selectedLoanId ?? ""}
           onChange={(e) => {
@@ -62,7 +64,7 @@ export function LoanSelectDropdown({
           <option value="" disabled>
             Choose a loan to repay
           </option>
-          {Array.from(new Map(sortedLoans.map(loan => [loan.id, loan])).values()).map((loan) => {
+          {Array.from(new Map(sortedLoans.map((loan) => [loan.id, loan])).values()).map((loan) => {
             const borrowEth = (Number(loan.borrowAmount) / 1e18).toFixed(4);
             return (
               <option key={loan.id} value={loan.id}>

@@ -30,12 +30,7 @@ export function PayForm() {
 
   const tokenB = token?.data;
 
-  if (
-    token.isLoading ||
-    ruleset.isLoading ||
-    rulesetMetadata.isLoading ||
-    !tokenB
-  ) {
+  if (token.isLoading || ruleset.isLoading || rulesetMetadata.isLoading || !tokenB) {
     return "Loading...";
   }
   const _amountA = {
@@ -73,22 +68,14 @@ export function PayForm() {
 
             if (!ruleset?.data || !rulesetMetadata?.data) return;
 
-            const value = parseUnits(
-              `${parseFloat(valueRaw)}` as `${number}`,
-              tokenA.decimals,
-            );
-            const amountBQuote = getTokenAToBQuote(
-              new FixedInt(value, tokenA.decimals),
-              {
-                weight: ruleset.data.weight,
-                reservedPercent: rulesetMetadata.data.reservedPercent,
-              },
-            );
+            const value = parseUnits(`${parseFloat(valueRaw)}` as `${number}`, tokenA.decimals);
+            const amountBQuote = getTokenAToBQuote(new FixedInt(value, tokenA.decimals), {
+              weight: ruleset.data.weight,
+              reservedPercent: rulesetMetadata.data.reservedPercent,
+            });
 
             setAmountB(formatUnits(amountBQuote.payerTokens, tokenB.decimals));
-            setAmountC(
-              formatUnits(amountBQuote.reservedTokens, tokenB.decimals),
-            );
+            setAmountC(formatUnits(amountBQuote.reservedTokens, tokenB.decimals));
           }}
           value={amountA}
           currency={tokenA?.symbol}

@@ -26,12 +26,10 @@ export function Stages({ disabled = false }: { disabled?: boolean }) {
       <div className="md:col-span-1">
         <h2 className="font-bold text-lg mb-2">3. Terms</h2>
         <p className="text-zinc-600 text-lg">
-          <span className="capitalize">{revnetTokenSymbol}</span> issuance and
-          cash out terms evolve over time automatically in stages.
+          <span className="capitalize">{revnetTokenSymbol}</span> issuance and cash out terms evolve
+          over time automatically in stages.
         </p>
-        <p className="text-zinc-600 text-lg mt-2">
-          Staged terms can't be edited once deployed.
-        </p>
+        <p className="text-zinc-600 text-lg mt-2">Staged terms can't be edited once deployed.</p>
       </div>
       <FieldArray
         name="stages"
@@ -59,14 +57,8 @@ export function Stages({ disabled = false }: { disabled?: boolean }) {
                               arrayHelpers.replace(index, newStage);
                             }}
                           >
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              disabled={disabled}
-                            >
-                              {disabled ? null : (
-                                <PencilSquareIcon className="h-4 w-4" />
-                              )}
+                            <Button variant="ghost" size="sm" disabled={disabled}>
+                              {disabled ? null : <PencilSquareIcon className="h-4 w-4" />}
                             </Button>
                           </AddStageDialog>
 
@@ -86,51 +78,40 @@ export function Stages({ disabled = false }: { disabled?: boolean }) {
                       </div>
                       <dl className="text-md text-zinc-600 grid grid-cols-[max-content_1fr] gap-x-4 gap-y-1">
                         <dt className="font-medium">Duration</dt>
-                        <dd>
-                          {duration === 0 ? "Forever" : `${duration} days`}
-                        </dd>
+                        <dd>{duration === 0 ? "Forever" : `${duration} days`}</dd>
                         <dt className="font-medium">Paid Issuance</dt>
                         <dd>
                           {stage.initialIssuance}{" "}
-                          {formatTokenSymbol(values.tokenSymbol) ?? "tokens"} /{" "}
-                          {reserveAsset}
+                          {formatTokenSymbol(values.tokenSymbol) ?? "tokens"} / {reserveAsset}
                           {Number(stage.priceCeilingIncreasePercentage) > 0 &&
                             Number(stage.priceCeilingIncreaseFrequency) > 0 &&
                             ` cut ${stage.priceCeilingIncreasePercentage}% every ${stage.priceCeilingIncreaseFrequency} days`}
                           {(() => {
                             const splitSum = stage.splits.reduce(
-                              (sum, split) =>
-                                sum + (Number(split.percentage) || 0),
+                              (sum, split) => sum + (Number(split.percentage) || 0),
                               0,
                             );
-                            return splitSum === 0
-                              ? ""
-                              : `, ${splitSum}% split limit`;
+                            return splitSum === 0 ? "" : `, ${splitSum}% split limit`;
                           })()}
                         </dd>
                         <dt className="font-medium">Auto issuance</dt>
                         <dd>
                           {stage.autoIssuance.reduce(
-                            (sum, autoIssuance) =>
-                              sum + (Number(autoIssuance.amount) || 0),
+                            (sum, autoIssuance) => sum + (Number(autoIssuance.amount) || 0),
                             0,
                           ) === 0
                             ? "none"
                             : `${commaNumber(stage.autoIssuance.reduce((sum, autoIssuance) => sum + (Number(autoIssuance.amount) || 0), 0))} ${formatTokenSymbol(values.tokenSymbol) ?? "tokens"} auto issuance`}
                         </dd>
                         <dt className="font-medium">Cash out tax</dt>
-                        <dd>
-                          {Number(stage.priceFloorTaxIntensity) / 100 || 0}
-                        </dd>
+                        <dd>{Number(stage.priceFloorTaxIntensity) / 100 || 0}</dd>
                       </dl>
                     </div>
                   );
                 })}
               </div>
             ) : (
-              <div className="text-left text-black-500 font-semibold mb-4">
-                Add stages
-              </div>
+              <div className="text-left text-black-500 font-semibold mb-4">Add stages</div>
             )}
 
             <AddStageDialog
@@ -149,13 +130,13 @@ export function Stages({ disabled = false }: { disabled?: boolean }) {
             </AddStageDialog>
             {maxStageReached ? (
               <div className="text-md text-orange-900 mt-2 flex gap-1 p-2 bg-orange-50">
-                <ExclamationCircleIcon className="h-4 w-4" /> You've added the
-                maximum number of stages.
+                <ExclamationCircleIcon className="h-4 w-4" /> You've added the maximum number of
+                stages.
               </div>
             ) : !canAddStage ? (
               <div className="text-md text-orange-900 mt-2 flex gap-1 p-2 bg-orange-50">
-                <ExclamationCircleIcon className="h-4 w-4" /> Your last stage is
-                indefinite. Set a duration to add another stage.
+                <ExclamationCircleIcon className="h-4 w-4" /> Your last stage is indefinite. Set a
+                duration to add another stage.
               </div>
             ) : null}
           </div>

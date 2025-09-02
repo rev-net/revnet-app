@@ -10,13 +10,15 @@ export function getTokenSymbolFromAddress(tokenAddress: string): string {
   if (tokenAddress?.toLowerCase() === "0x000000000000000000000000000000000000eeee") {
     return "ETH";
   }
-  
+
   // Check for USDC (case insensitive)
-  const isUsdc = Object.values(USDC_ADDRESSES).map(addr => addr.toLowerCase()).includes(tokenAddress?.toLowerCase() as `0x${string}`);
+  const isUsdc = Object.values(USDC_ADDRESSES)
+    .map((addr) => addr.toLowerCase())
+    .includes(tokenAddress?.toLowerCase() as `0x${string}`);
   if (isUsdc) {
     return "USDC";
   }
-  
+
   return "TOKEN";
 }
 
@@ -40,26 +42,26 @@ export function getTokenConfigForChain(suckerGroupData: any, targetChainId: numb
     return {
       token: "0x000000000000000000000000000000000000EEEe" as `0x${string}`,
       currency: 1,
-      decimals: 18
+      decimals: 18,
     };
   }
-  
+
   const projectForChain = suckerGroupData.suckerGroup.projects.items.find(
-    (project: any) => project.chainId === targetChainId
+    (project: any) => project.chainId === targetChainId,
   );
-  
+
   if (projectForChain?.token) {
     return {
       token: projectForChain.token as `0x${string}`,
       currency: Number(projectForChain.currency),
-      decimals: projectForChain.decimals || 18
+      decimals: projectForChain.decimals || 18,
     };
   }
-  
+
   return {
     token: "0x000000000000000000000000000000000000EEEe" as `0x${string}`,
     currency: 1,
-    decimals: 18
+    decimals: 18,
   };
 }
 
@@ -73,4 +75,4 @@ export function createTokenConfigGetter(suckerGroupData: any) {
   return (targetChainId: number): TokenConfig => {
     return getTokenConfigForChain(suckerGroupData, targetChainId);
   };
-} 
+}

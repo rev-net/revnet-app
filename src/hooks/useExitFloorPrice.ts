@@ -23,20 +23,16 @@ export function useExitFloorPrice() {
     chainId,
     args: [projectId],
   });
-  const { data: tokensReserved } =
-    useReadJbControllerPendingReservedTokenBalanceOf({
-      chainId,
-      address: contracts.controller.data ?? undefined,
-      args: [projectId],
-    });
+  const { data: tokensReserved } = useReadJbControllerPendingReservedTokenBalanceOf({
+    chainId,
+    address: contracts.controller.data ?? undefined,
+    args: [projectId],
+  });
 
   const totalSupplyFormatted =
-    totalTokenSupply && token?.data
-      ? formatUnits(totalTokenSupply, token.data.decimals)
-      : null;
+    totalTokenSupply && token?.data ? formatUnits(totalTokenSupply, token.data.decimals) : null;
 
-  const exitLeadingZeroes =
-    totalSupplyFormatted?.split(".")[1]?.match(/^0+/)?.[0]?.length ?? 0;
+  const exitLeadingZeroes = totalSupplyFormatted?.split(".")[1]?.match(/^0+/)?.[0]?.length ?? 0;
 
   // if total supply is less than 1, use a decimal for the exit price base unit (0.1, 0.01, 0.001, etc.)
   // if total supply is greater than 1, use 1 for the exit price base unit.
@@ -54,17 +50,17 @@ export function useExitFloorPrice() {
     nativeTokenSurplus &&
     exitFloorPriceUnit &&
     rulesetMetadata?.data
-      ? BigInt(getTokenCashOutQuoteEth(
-        parseUnits(exitFloorPriceUnit as `${number}`, token.data.decimals),
-        {
-          overflowWei: nativeTokenSurplus,
-          totalSupply: totalTokenSupply,
-          cashOutTaxRate: Number(
-            rulesetMetadata?.data?.cashOutTaxRate.value ?? 0n
+      ? BigInt(
+          getTokenCashOutQuoteEth(
+            parseUnits(exitFloorPriceUnit as `${number}`, token.data.decimals),
+            {
+              overflowWei: nativeTokenSurplus,
+              totalSupply: totalTokenSupply,
+              cashOutTaxRate: Number(rulesetMetadata?.data?.cashOutTaxRate.value ?? 0n),
+              tokensReserved,
+            },
           ),
-          tokensReserved,
-        }
-      )) * 10n
+        ) * 10n
       : null;
 
   return exitFloorPrice;

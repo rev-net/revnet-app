@@ -1,23 +1,12 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import {
-  ParticipantsDocument,
-  ProjectDocument,
-  SuckerGroupDocument,
-} from "@/generated/graphql";
+import { ParticipantsDocument, ProjectDocument, SuckerGroupDocument } from "@/generated/graphql";
 import { useBendystrawQuery } from "@/graphql/useBendystrawQuery";
 import { useTotalOutstandingTokens } from "@/hooks/useTotalOutstandingTokens";
-import {
-  getTokenConfigForChain,
-  getTokenSymbolFromAddress,
-} from "@/lib/tokenUtils";
+import { getTokenConfigForChain, getTokenSymbolFromAddress } from "@/lib/tokenUtils";
 import { formatTokenSymbol } from "@/lib/utils";
-import {
-  useJBChainId,
-  useJBContractContext,
-  useJBTokenContext,
-} from "juice-sdk-react";
+import { useJBChainId, useJBContractContext, useJBTokenContext } from "juice-sdk-react";
 import { useState } from "react";
 import { twJoin } from "tailwind-merge";
 import { DistributeReservedTokensButton } from "../../DistributeReservedTokensButton";
@@ -59,10 +48,7 @@ export function HoldersSection() {
   );
 
   // Get token configuration for the current chain
-  const chainTokenConfig = getTokenConfigForChain(
-    suckerGroupData,
-    Number(chainId),
-  );
+  const chainTokenConfig = getTokenConfigForChain(suckerGroupData, Number(chainId));
   const baseTokenSymbol = getTokenSymbolFromAddress(chainTokenConfig.token);
   const baseTokenDecimals = chainTokenConfig.decimals;
 
@@ -84,16 +70,9 @@ export function HoldersSection() {
           ...acc,
           [participant.address]: {
             address: participant.address,
-            balance:
-              BigInt(existingParticipant?.balance ?? 0) +
-              BigInt(participant.balance ?? 0),
-            volume:
-              BigInt(existingParticipant?.volume ?? 0) +
-              BigInt(participant.volume ?? 0),
-            chains: [
-              ...(acc[participant.address]?.chains ?? []),
-              participant.chainId,
-            ],
+            balance: BigInt(existingParticipant?.balance ?? 0) + BigInt(participant.balance ?? 0),
+            volume: BigInt(existingParticipant?.volume ?? 0) + BigInt(participant.volume ?? 0),
+            chains: [...(acc[participant.address]?.chains ?? []), participant.chainId],
           },
         };
       },
@@ -104,10 +83,7 @@ export function HoldersSection() {
     return (
       <Button
         variant={participantsView === view ? "tab-selected" : "bottomline"}
-        className={twJoin(
-          "text-md text-zinc-400",
-          participantsView === view && "text-inherit",
-        )}
+        className={twJoin("text-md text-zinc-400", participantsView === view && "text-inherit")}
         onClick={() => setParticipantsView(view)}
       >
         {label}
@@ -134,9 +110,8 @@ export function HoldersSection() {
         <div className={participantsView === "all" ? "" : "hidden"}>
           <div className="space-y-4 p-2 pb-0 sm:pb-2">
             <p className="text-md text-black font-light italic">
-              {formatTokenSymbol(token)} owners are accounts who either paid in,
-              received splits, received auto issuance, or traded for them on the
-              secondary market.
+              {formatTokenSymbol(token)} owners are accounts who either paid in, received splits,
+              received auto issuance, or traded for them on the secondary market.
             </p>
           </div>
           <div className="flex sm:flex-row flex-col max-h-140 sm:items-start items-center sm:border-t border-zinc-200">

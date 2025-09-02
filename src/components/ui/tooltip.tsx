@@ -1,43 +1,43 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import * as TooltipPrimitive from "@radix-ui/react-tooltip"
-import { cn } from "@/lib/utils"
+import { cn } from "@/lib/utils";
+import * as TooltipPrimitive from "@radix-ui/react-tooltip";
+import * as React from "react";
 
 type TooltipTriggerContextType = {
-  open: boolean
-  setOpen: React.Dispatch<React.SetStateAction<boolean>>
-}
+  open: boolean;
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+};
 
 const TooltipTriggerContext = React.createContext<TooltipTriggerContextType>({
   open: false,
   setOpen: () => {},
-})
+});
 
 const useIsMobile = () => {
-  const [isMobile, setIsMobile] = React.useState(false)
+  const [isMobile, setIsMobile] = React.useState(false);
 
   React.useEffect(() => {
     const checkIsMobile = () => {
-      setIsMobile(window.innerWidth < 768)
-    }
+      setIsMobile(window.innerWidth < 768);
+    };
 
-    checkIsMobile()
-    window.addEventListener("resize", checkIsMobile)
-    return () => window.removeEventListener("resize", checkIsMobile)
-  }, [])
+    checkIsMobile();
+    window.addEventListener("resize", checkIsMobile);
+    return () => window.removeEventListener("resize", checkIsMobile);
+  }, []);
 
-  return isMobile
-}
+  return isMobile;
+};
 
-const TooltipProvider = TooltipPrimitive.Provider
+const TooltipProvider = TooltipPrimitive.Provider;
 
 const Tooltip = React.forwardRef<
   React.ElementRef<typeof TooltipPrimitive.Root>,
   React.ComponentPropsWithoutRef<typeof TooltipPrimitive.Root>
 >(({ children, ...props }, ref) => {
-  const [open, setOpen] = React.useState<boolean>(props.defaultOpen ?? false)
-  const isMobile = useIsMobile()
+  const [open, setOpen] = React.useState<boolean>(props.defaultOpen ?? false);
+  const isMobile = useIsMobile();
 
   return (
     <TooltipPrimitive.Root
@@ -50,16 +50,16 @@ const Tooltip = React.forwardRef<
         {children}
       </TooltipTriggerContext.Provider>
     </TooltipPrimitive.Root>
-  )
-})
-Tooltip.displayName = "Tooltip"
+  );
+});
+Tooltip.displayName = "Tooltip";
 
 const TooltipTrigger = React.forwardRef<
   React.ElementRef<typeof TooltipPrimitive.Trigger>,
   React.ComponentPropsWithoutRef<typeof TooltipPrimitive.Trigger>
 >(({ children, ...props }, ref) => {
-  const isMobile = useIsMobile()
-  const { setOpen } = React.useContext(TooltipTriggerContext)
+  const isMobile = useIsMobile();
+  const { setOpen } = React.useContext(TooltipTriggerContext);
 
   return (
     <TooltipPrimitive.Trigger
@@ -67,17 +67,17 @@ const TooltipTrigger = React.forwardRef<
       {...props}
       onClick={(e) => {
         if (isMobile) {
-          e.preventDefault()
-          setOpen(true)
+          e.preventDefault();
+          setOpen(true);
         }
-        props.onClick?.(e)
+        props.onClick?.(e);
       }}
     >
       {children}
     </TooltipPrimitive.Trigger>
-  )
-})
-TooltipTrigger.displayName = "TooltipTrigger"
+  );
+});
+TooltipTrigger.displayName = "TooltipTrigger";
 
 const TooltipContent = React.forwardRef<
   React.ElementRef<typeof TooltipPrimitive.Content>,
@@ -94,12 +94,12 @@ const TooltipContent = React.forwardRef<
       className={cn(
         "z-50 border border-zinc-200 bg-white px-3 py-1.5 text-sm text-zinc-950 shadow-md dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-50",
         isMobile && "fixed -translate-x-1/4 w-60 max-h-64 overflow-y-auto",
-        className
+        className,
       )}
       {...props}
     />
   );
 });
-TooltipContent.displayName = TooltipPrimitive.Content.displayName
+TooltipContent.displayName = TooltipPrimitive.Content.displayName;
 
-export { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider }
+export { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger };

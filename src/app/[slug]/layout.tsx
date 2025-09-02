@@ -79,10 +79,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   });
 }
 
-export default function SlugLayout({
-  children,
-  params,
-}: PropsWithChildren<Props>) {
+export default function SlugLayout({ children, params }: PropsWithChildren<Props>) {
   const { chainId, projectId } = parseSlug(params.slug);
 
   return (

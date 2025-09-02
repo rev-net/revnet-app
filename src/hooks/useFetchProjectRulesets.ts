@@ -1,10 +1,10 @@
-import { useState, useEffect, useCallback } from "react";
+import { MAX_RULESET_COUNT } from "@/app/constants";
+import { decodeRulesetMetadata, RulesetMetadata } from "@/lib/utils";
+import { wagmiConfig } from "@/lib/wagmiConfig";
+import { readContract } from "@wagmi/core";
 import { SuckerPair } from "juice-sdk-core";
 import { JBChainId, jbRulesetsAbi, jbRulesetsAddress } from "juice-sdk-react";
-import { readContract } from "@wagmi/core";
-import { MAX_RULESET_COUNT } from "@/app/constants";
-import { wagmiConfig } from "@/lib/wagmiConfig";
-import { decodeRulesetMetadata, RulesetMetadata } from "@/lib/utils";
+import { useCallback, useEffect, useState } from "react";
 
 type RuleSet = {
   cycleNumber: number;
@@ -23,7 +23,9 @@ type SuckerPairWithRulesets = SuckerPair & {
 };
 
 export function useFetchProjectRulesets(suckers: SuckerPair[] | undefined | null) {
-  const [suckerPairsWithRulesets, setSuckerPairsWithRulesets] = useState<SuckerPairWithRulesets[] | undefined>(undefined);
+  const [suckerPairsWithRulesets, setSuckerPairsWithRulesets] = useState<
+    SuckerPairWithRulesets[] | undefined
+  >(undefined);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<any | null>(null);
 
@@ -39,16 +41,19 @@ export function useFetchProjectRulesets(suckers: SuckerPair[] | undefined | null
             abi: jbRulesetsAbi,
             functionName: "allOf",
             args: [sucker.projectId, 0n, BigInt(MAX_RULESET_COUNT)],
-          })
-        )
+          }),
+        ),
       );
       if (allRuleSets.length === 0) return undefined;
       const pairsWithRulesets = suckers.map((sucker, index) => ({
         ...sucker,
-        rulesets: allRuleSets[index].slice().reverse().map((ruleset) => ({
-          ...ruleset,
-          metadata: decodeRulesetMetadata(ruleset.metadata),
-        })),
+        rulesets: allRuleSets[index]
+          .slice()
+          .reverse()
+          .map((ruleset) => ({
+            ...ruleset,
+            metadata: decodeRulesetMetadata(ruleset.metadata),
+          })),
       }));
       setSuckerPairsWithRulesets(pairsWithRulesets);
     } catch (error) {

@@ -7,10 +7,7 @@ export type InfuraPinResponse = {
   Hash: string;
 };
 
-export const pinFile = async (
-  file: File | Blob | string,
-  options?: { signal?: AbortSignal },
-) => {
+export const pinFile = async (file: File | Blob | string, options?: { signal?: AbortSignal }) => {
   const formData = new FormData();
   formData.append("file", file);
 
@@ -45,9 +42,7 @@ export function IpfsImageUploader({
     },
   });
 
-  const handleFileChange = async (
-    event: React.ChangeEvent<HTMLInputElement>,
-  ) => {
+  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
     uploadFile.mutate(file);
@@ -67,13 +62,9 @@ export function IpfsImageUploader({
         onChange={handleFileChange}
         accept="image/jpeg,image/png"
       />
-      {uploadFile.isPending && (
-        <div className="text-md text-gray-500">Uploading...</div>
-      )}
+      {uploadFile.isPending && <div className="text-md text-gray-500">Uploading...</div>}
       {uploadFile.error && (
-        <div className="text-md text-red-500">
-          Logo upload failed, try again.
-        </div>
+        <div className="text-md text-red-500">Logo upload failed, try again.</div>
       )}
       {uploadFile.data && (
         <div className="mt-3 overflow-hidden">

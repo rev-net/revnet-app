@@ -19,7 +19,6 @@ export default function MiniHeaderCard({
   handle,
   peerChainId,
 }: MiniHeaderCardProps) {
-
   return (
     <div className="flex items-center gap-4 mb-2">
       {logoUri ? (

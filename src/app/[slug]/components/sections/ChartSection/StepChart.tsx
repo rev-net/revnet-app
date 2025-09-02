@@ -1,6 +1,6 @@
 import { MAX_RULESET_COUNT } from "@/app/constants";
 import { Button } from "@/components/ui/button";
-import { WeightCutPercent, Ether, RulesetWeight } from "juice-sdk-core";
+import { Ether, RulesetWeight, WeightCutPercent } from "juice-sdk-core";
 import {
   useJBChainId,
   useJBContractContext,
@@ -28,9 +28,7 @@ const INITIAL_SELECTED_STAGE = -1;
 const STEPS = 50;
 
 const StepChart = () => {
-  const [selectedStage, setSelectedStage] = useState<number>(
-    INITIAL_SELECTED_STAGE
-  );
+  const [selectedStage, setSelectedStage] = useState<number>(INITIAL_SELECTED_STAGE);
 
   const { projectId } = useJBContractContext();
   const { rulesetMetadata } = useJBRulesetContext();
@@ -55,7 +53,7 @@ const StepChart = () => {
   const stages = rulesets?.reverse();
   const nextStageIdx = Math.max(
     stages?.findIndex((stage) => stage.start > Date.now() / 1000) ?? -1,
-    1 // lower bound should be 1 (the minimum 'next stage' is 1)
+    1, // lower bound should be 1 (the minimum 'next stage' is 1)
   );
   const currentStageIdx = nextStageIdx - 1;
 
@@ -83,7 +81,7 @@ const StepChart = () => {
               variant="ghost"
               className={twJoin(
                 "text-sm font-normal",
-                selectedStage === idx && "font-medium underline"
+                selectedStage === idx && "font-medium underline",
               )}
               key={ruleset.id.toString() + idx}
               onClick={() => setSelectedStage(idx)}
@@ -110,10 +108,7 @@ const StepChart = () => {
               tickLine={false}
               tick={
                 ruleset?.data ? (
-                  <CustomChartXTick
-                    renderData={chartData}
-                    ruleset={ruleset.data}
-                  />
+                  <CustomChartXTick renderData={chartData} ruleset={ruleset.data} />
                 ) : undefined
               }
               interval={0}

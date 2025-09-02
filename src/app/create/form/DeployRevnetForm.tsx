@@ -30,10 +30,7 @@ export function DeployRevnetForm({
       <Divider />
       <ChainSelect validBundle={validBundle} disabled={validBundle} />
       {relayrResponse && (
-        <QuoteResponse
-          relayrResponse={relayrResponse}
-          reset={resetRelayrResponse}
-        />
+        <QuoteResponse relayrResponse={relayrResponse} reset={resetRelayrResponse} />
       )}
     </div>
   );

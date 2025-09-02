@@ -8,9 +8,11 @@ import {
 export function useNativeTokenSurplus() {
   const {
     projectId,
-   // contracts: { primaryNativeTerminal },
+    // contracts: { primaryNativeTerminal },
   } = useJBContractContext();
-  const primaryNativeTerminal = {data: "0xdb9644369c79c3633cde70d2df50d827d7dc7dbc"};
+  const primaryNativeTerminal = {
+    data: "0xdb9644369c79c3633cde70d2df50d827d7dc7dbc",
+  };
   const chainId = useJBChainId();
 
   return useReadJbMultiTerminalCurrentSurplusOf({

@@ -1,6 +1,6 @@
-import React, { createContext, useContext, useState, ReactNode } from "react";
 import { SuckerPair } from "juice-sdk-core";
 import { useJBChainId, useJBContractContext } from "juice-sdk-react";
+import React, { createContext, ReactNode, useContext, useState } from "react";
 
 interface SelectedSuckerContextType {
   selectedSucker: SuckerPair | undefined;

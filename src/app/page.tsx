@@ -1,28 +1,17 @@
 "use client";
 import { Button } from "@/components/ui/button";
+import { sdk } from "@farcaster/frame-sdk";
 import { JB_CHAINS } from "juice-sdk-core";
 import Image from "next/image";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { mainnet } from "viem/chains";
-import { sdk } from "@farcaster/frame-sdk";
-import { use, useEffect, useState } from "react";
 
-const RevLink = ({
-  network,
-  id,
-  text,
-}: {
-  network: string;
-  id: number;
-  text: string;
-}) => {
+const RevLink = ({ network, id, text }: { network: string; id: number; text: string }) => {
   return (
     <span>
       $
-      <Link
-        href={`/${network}:${id}`}
-        className="underline hover:text-black/70"
-      >
+      <Link href={`/${network}:${id}`} className="underline hover:text-black/70">
         {text}
       </Link>
     </span>
@@ -34,7 +23,11 @@ const Pipe = () => {
 };
 
 export default function Page() {
-  const [user, setUser] = useState<{ fid: number; pfp: string, userName: string } | null>(null);
+  const [user, setUser] = useState<{
+    fid: number;
+    pfp: string;
+    userName: string;
+  } | null>(null);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -43,15 +36,19 @@ export default function Page() {
       try {
         await sdk.actions.addFrame();
       } catch (error) {
-        if (error){
+        if (error) {
           console.log("User rejected the mini app addition or domain manifest JSON is invalid");
           // Handle the rejection here
         }
       }
 
-      const ctx = (await sdk.context);
+      const ctx = await sdk.context;
       if (ctx?.user) {
-        setUser({ fid: ctx.user.fid, pfp: ctx.user.pfpUrl || "", userName: ctx.user.username || "" });
+        setUser({
+          fid: ctx.user.fid,
+          pfp: ctx.user.pfpUrl || "",
+          userName: ctx.user.username || "",
+        });
       }
     };
     fetchUser();
@@ -65,12 +62,7 @@ export default function Page() {
         </div>
       )}
       <div className="flex flex-col items-left justify-left">
-        <Image
-          src="/assets/img/revnet-full-bw.svg"
-          width={840}
-          height={240}
-          alt="Revnet logo"
-        />
+        <Image src="/assets/img/revnet-full-bw.svg" width={840} height={240} alt="Revnet logo" />
         <span className="sr-only">Revnet</span>
         <div className="text-xl md:text-2xl mt-8 font-medium text-left">
           Tokenize revenues and fundraises. 100% autonomous.
@@ -106,10 +98,7 @@ export default function Page() {
         </ol>
       </div>
       <div className="mt-4 max-w-prose text-lg text-left">
-        <p>
-          Simple enough for startups, powerful enough for global orgs and
-          brands.
-        </p>
+        <p>Simple enough for startups, powerful enough for global orgs and brands.</p>
 
         <div>
           <ul className="list-disc list-outside ml-6 sm:ml-10 mt-4">
@@ -151,12 +140,7 @@ export default function Page() {
             </li>
             <li>
               Support the $REV network{" "}
-              <Link
-                href="/eth:3"
-                target="_blank"
-                rel="noopener norefererr"
-                className="underline"
-              >
+              <Link href="/eth:3" target="_blank" rel="noopener norefererr" className="underline">
                 here
               </Link>
               , we run as a revnet ourselves.

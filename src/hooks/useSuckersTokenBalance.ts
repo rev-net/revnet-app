@@ -1,18 +1,14 @@
 import {
-    getProjectTerminalStore,
-    readJbDirectoryPrimaryTerminalOf,
-    readJbTerminalStoreBalanceOf,
-    JBChainId,
-    NATIVE_TOKEN
+  getProjectTerminalStore,
+  JBChainId,
+  NATIVE_TOKEN,
+  readJbDirectoryPrimaryTerminalOf,
+  readJbTerminalStoreBalanceOf,
 } from "juice-sdk-core";
+import { useJBChainId, useJBContractContext, useSuckers } from "juice-sdk-react";
 import { zeroAddress } from "viem";
 import { useConfig } from "wagmi";
 import { useQuery } from "wagmi/query";
-import {
-    useJBChainId,
-    useJBContractContext,
-    useSuckers
-} from "juice-sdk-react";
 
 /**
  * Return the current surplus of JB Native token across each sucker on all chains for the current project.
@@ -27,11 +23,14 @@ export function useSuckersTokenBalance(tokens?: Record<number, `0x${string}`>) {
   const pairs = suckersQuery.data;
 
   // Default tokens map using NATIVE_TOKEN for all chains if not provided
-  const defaultTokens = Object.keys(pairs || {}).reduce((acc, chainIdStr) => {
-    const chainId = Number(chainIdStr);
-    acc[chainId] = NATIVE_TOKEN as `0x${string}`;
-    return acc;
-  }, {} as Record<number, `0x${string}`>);
+  const defaultTokens = Object.keys(pairs || {}).reduce(
+    (acc, chainIdStr) => {
+      const chainId = Number(chainIdStr);
+      acc[chainId] = NATIVE_TOKEN as `0x${string}`;
+      return acc;
+    },
+    {} as Record<number, `0x${string}`>,
+  );
 
   const finalTokens = tokens || defaultTokens;
 
@@ -71,7 +70,7 @@ export function useSuckersTokenBalance(tokens?: Record<number, `0x${string}`>) {
           });
 
           return { balance, chainId: peerChainId, projectId };
-        })
+        }),
       );
 
       return balances;
