@@ -1,11 +1,10 @@
 import { Footer } from "@/components/layout/Footer";
 import { Toaster } from "@/components/ui/toaster";
+import type { Metadata } from "next";
+import { headers } from "next/headers";
 import { twMerge } from "tailwind-merge";
 import "./globals.css";
 import { Providers } from "./providers";
-import { headers } from "next/headers";
-import type { Metadata } from "next";
-
 
 import localFont from "next/font/local";
 
@@ -43,20 +42,19 @@ export default function RootLayout({
         className={twMerge(
           simplonNorm.variable,
           simplonMono.variable,
-          "bg-zinc-25 text-zinc-950 font-sans min-h-screen tracking-[0.015em]"
+          "text-zinc-950 font-sans min-h-screen tracking-[0.015em]",
         )}
       >
-          <Providers>
+        <Providers>
           <main className="min-h-screen">{children}</main>
           <Footer />
-          </Providers>
+        </Providers>
 
         <Toaster />
       </body>
     </html>
   );
 }
-
 
 export async function generateMetadata(): Promise<Metadata> {
   const headersList = headers();

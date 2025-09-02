@@ -1,7 +1,6 @@
 import { ConnectKitButton } from "@/components/ConnectKitButton";
 import Image from "next/image";
 import Link from "next/link";
-import { ChainBadge } from "../ChainBadge";
 
 export function Nav() {
   return (

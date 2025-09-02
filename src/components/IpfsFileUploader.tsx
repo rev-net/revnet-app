@@ -26,7 +26,6 @@ export const pinFile = async (
   }
 
   const data: InfuraPinResponse = await res.json();
-  console.debug({ data });
   return data;
 };
 

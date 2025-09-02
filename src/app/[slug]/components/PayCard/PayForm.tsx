@@ -1,21 +1,16 @@
+"use client";
+
+import { useProjectAccountingContext } from "@/hooks/useProjectAccountingContext";
 import { useTokenA } from "@/hooks/useTokenA";
+import { formatTokenSymbol } from "@/lib/utils";
+import { Field, Formik } from "formik";
 import { FixedInt } from "fpnum";
 import { getTokenAToBQuote, getTokenBtoAQuote } from "juice-sdk-core";
-import {
-  Field,
-  Formik,
-} from "formik";
-import {
-  useJBContractContext,
-  useJBRulesetContext,
-  useJBTokenContext,
-} from "juice-sdk-react";
+import { useJBRulesetContext, useJBTokenContext } from "juice-sdk-react";
 import { useState } from "react";
 import { formatUnits, parseEther, parseUnits } from "viem";
 import { PayDialog } from "./PayDialog";
 import { PayInput } from "./PayInput";
-import { formatTokenSymbol } from "@/lib/utils";
-import { useProjectAccountingContext } from "@/hooks/useProjectAccountingContext";
 
 export function PayForm() {
   const tokenA = useTokenA();
@@ -27,13 +22,20 @@ export function PayForm() {
   const [amountB, setAmountB] = useState<string>("");
   const [amountC, setAmountC] = useState<string>("");
 
-  const primaryNativeTerminal ={data: "0xdb9644369c79c3633cde70d2df50d827d7dc7dbc"}
-  const { ruleset, rulesetMetadata} = useJBRulesetContext();
+  const primaryNativeTerminal = {
+    data: "0xdb9644369c79c3633cde70d2df50d827d7dc7dbc",
+  };
+  const { ruleset, rulesetMetadata } = useJBRulesetContext();
   const { data: accountingContext } = useProjectAccountingContext();
-  
+
   const tokenB = token?.data;
 
-  if (token.isLoading || ruleset.isLoading || rulesetMetadata.isLoading || !tokenB) {
+  if (
+    token.isLoading ||
+    ruleset.isLoading ||
+    rulesetMetadata.isLoading ||
+    !tokenB
+  ) {
     return "Loading...";
   }
   const _amountA = {
@@ -49,7 +51,7 @@ export function PayForm() {
     setAmountA("");
     setAmountB("");
     setAmountC("");
-    setResetKey(prev => prev + 1); // Force PayDialog to remount
+    setResetKey((prev) => prev + 1); // Force PayDialog to remount
   }
 
   return (
@@ -73,18 +75,20 @@ export function PayForm() {
 
             const value = parseUnits(
               `${parseFloat(valueRaw)}` as `${number}`,
-              tokenA.decimals
+              tokenA.decimals,
             );
             const amountBQuote = getTokenAToBQuote(
               new FixedInt(value, tokenA.decimals),
               {
                 weight: ruleset.data.weight,
                 reservedPercent: rulesetMetadata.data.reservedPercent,
-              }
+              },
             );
 
             setAmountB(formatUnits(amountBQuote.payerTokens, tokenB.decimals));
-            setAmountC(formatUnits(amountBQuote.reservedTokens, tokenB.decimals));
+            setAmountC(
+              formatUnits(amountBQuote.reservedTokens, tokenB.decimals),
+            );
           }}
           value={amountA}
           currency={tokenA?.symbol}
@@ -122,10 +126,7 @@ export function PayForm() {
       </div>
 
       <div className="flex flex-row">
-        <Formik
-          initialValues={{ }}
-          onSubmit={() => {}}
-        >
+        <Formik initialValues={{}} onSubmit={() => {}}>
           <Field
             component="textarea"
             id="memo"
@@ -145,7 +146,10 @@ export function PayForm() {
               amountA={_amountA}
               amountB={_amountB}
               memo={memo}
-              paymentToken={(accountingContext?.project?.token as `0x${string}`) || "0x000000000000000000000000000000000000eeee"}
+              paymentToken={
+                (accountingContext?.project?.token as `0x${string}`) ||
+                "0x000000000000000000000000000000000000eeee"
+              }
               disabled={!amountA}
               onSuccess={() => {
                 resetForm();

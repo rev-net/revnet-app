@@ -1,4 +1,5 @@
-import { sdk } from "@farcaster/frame-sdk";
+"use client";
+
 import { ChainLogo } from "@/components/ChainLogo";
 import EtherscanLink from "@/components/EtherscanLink";
 import FarcasterAvatar from "@/components/FarcasterAvatar";
@@ -11,30 +12,23 @@ import {
   SuckerGroupDocument,
 } from "@/generated/graphql";
 import { useBendystrawQuery } from "@/graphql/useBendystrawQuery";
+import {
+  getTokenConfigForChain,
+  getTokenSymbolFromAddress,
+} from "@/lib/tokenUtils";
 import { formatTokenSymbol } from "@/lib/utils";
-import { getTokenSymbolFromAddress, getTokenConfigForChain } from "@/lib/tokenUtils";
+import { sdk } from "@farcaster/frame-sdk";
 import { formatDistance } from "date-fns";
-import { Ether, JB_CHAINS, JBProjectToken } from "juice-sdk-core";
-import { formatUnits } from "viem";
-import { USDC_ADDRESSES } from "@/app/constants";
+import { JB_CHAINS, JBProjectToken } from "juice-sdk-core";
 import {
   JBChainId,
   useJBChainId,
   useJBContractContext,
   useJBTokenContext,
 } from "juice-sdk-react";
-import { useState, useEffect } from "react";
-import { Address } from "viem";
-import { Loader2 } from 'lucide-react';
-
-type PayActivityItemData = {
-  id: string;
-  amount: Ether;
-  beneficiary: Address;
-  beneficiaryTokenCount?: JBProjectToken;
-  timestamp: number;
-  txHash: string;
-};
+import { Loader2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Address, formatUnits } from "viem";
 
 function PayActivityItem(
   payEvent: Pick<
@@ -45,7 +39,7 @@ function PayActivityItem(
     | "timestamp"
     | "txHash"
     | "memo"
-  > & { chainId: JBChainId; identity?: any; suckerGroupData?: any }
+  > & { chainId: JBChainId; identity?: any; suckerGroupData?: any },
 ) {
   const { token } = useJBTokenContext();
   const composeCast = sdk.actions.composeCast;
@@ -65,18 +59,23 @@ function PayActivityItem(
   if (!token?.data || !payEvent) return null;
 
   // Get token configuration for this event's chain
-  const chainTokenConfig = getTokenConfigForChain(payEvent.suckerGroupData, payEvent.chainId);
+  const chainTokenConfig = getTokenConfigForChain(
+    payEvent.suckerGroupData,
+    payEvent.chainId,
+  );
   const baseTokenSymbol = getTokenSymbolFromAddress(chainTokenConfig.token);
   const baseTokenDecimals = chainTokenConfig.decimals;
 
   // Format amount using correct decimals
-  const formattedAmount = Number(formatUnits(BigInt(payEvent.amount), baseTokenDecimals)).toFixed(6);
+  const formattedAmount = Number(
+    formatUnits(BigInt(payEvent.amount), baseTokenDecimals),
+  ).toFixed(6);
 
   const activityItemData = {
     amount: formattedAmount,
     beneficiary: payEvent.beneficiary,
     beneficiaryTokenCount: new JBProjectToken(
-      BigInt(payEvent.newlyIssuedTokenCount)
+      BigInt(payEvent.newlyIssuedTokenCount),
     ),
     memo: payEvent.memo,
   };
@@ -157,7 +156,7 @@ function RedeemActivityItem(
   cashOutEvent: Pick<
     CashOutTokensEvent,
     "reclaimAmount" | "beneficiary" | "txHash" | "timestamp" | "cashOutCount"
-  > & { chainId: JBChainId; identity?: any; suckerGroupData?: any }
+  > & { chainId: JBChainId; identity?: any; suckerGroupData?: any },
 ) {
   const { token } = useJBTokenContext();
   const composeCast = sdk.actions.composeCast;
@@ -175,12 +174,17 @@ function RedeemActivityItem(
   if (!token?.data || !cashOutEvent) return null;
 
   // Get token configuration for this event's chain
-  const chainTokenConfig = getTokenConfigForChain(cashOutEvent.suckerGroupData, cashOutEvent.chainId);
+  const chainTokenConfig = getTokenConfigForChain(
+    cashOutEvent.suckerGroupData,
+    cashOutEvent.chainId,
+  );
   const baseTokenSymbol = getTokenSymbolFromAddress(chainTokenConfig.token);
   const baseTokenDecimals = chainTokenConfig.decimals;
 
   // Format amount using correct decimals
-  const formattedAmount = Number(formatUnits(BigInt(cashOutEvent.reclaimAmount), baseTokenDecimals)).toFixed(6);
+  const formattedAmount = Number(
+    formatUnits(BigInt(cashOutEvent.reclaimAmount), baseTokenDecimals),
+  ).toFixed(6);
 
   const activityItemData = {
     amount: formattedAmount,
@@ -199,7 +203,7 @@ function RedeemActivityItem(
     new Date(),
     {
       addSuffix: true,
-    }
+    },
   );
 
   const embedUrl = typeof window !== "undefined" ? window.location.href : "";
@@ -246,7 +250,11 @@ export function ActivityFeed() {
   const chainId = useJBChainId();
   const [isOpen, setIsOpen] = useState(true);
 
-  const { data: project, isLoading: projectLoading, error: projectError } = useBendystrawQuery(ProjectDocument, {
+  const {
+    data: project,
+    isLoading: projectLoading,
+    error: projectError,
+  } = useBendystrawQuery(ProjectDocument, {
     chainId: Number(chainId),
     projectId: Number(projectId),
   });
@@ -254,33 +262,38 @@ export function ActivityFeed() {
   const suckerGroupId = project?.project?.suckerGroupId;
 
   // Get sucker group data for token mapping
-  const { data: suckerGroupData, isLoading: suckerGroupLoading, error: suckerGroupError } = useBendystrawQuery(SuckerGroupDocument, {
-    id: suckerGroupId ?? "",
-  }, {
-    enabled: !!suckerGroupId,
-    pollInterval: 10000
-  });
+  const {
+    data: suckerGroupData,
+    isLoading: suckerGroupLoading,
+    error: suckerGroupError,
+  } = useBendystrawQuery(
+    SuckerGroupDocument,
+    {
+      id: suckerGroupId ?? "",
+    },
+    {
+      enabled: !!suckerGroupId,
+      pollInterval: 10000,
+    },
+  );
 
   const queryParams = {
     orderBy: "timestamp",
     orderDirection: "desc",
     where: {
       suckerGroupId,
-      OR: [
-        { payEvent_not: null },
-        { cashOutTokensEvent_not: null }
-      ],
+      OR: [{ payEvent_not: null }, { cashOutTokensEvent_not: null }],
     },
   };
 
-  const { data: activityEvents, isLoading: activityLoading, error: activityError } = useBendystrawQuery(
-    ActivityEventsDocument,
-    queryParams,
-    {
-      pollInterval: 5000,
-      enabled: !!suckerGroupId,
-    }
-  );
+  const {
+    data: activityEvents,
+    isLoading: activityLoading,
+    error: activityError,
+  } = useBendystrawQuery(ActivityEventsDocument, queryParams, {
+    pollInterval: 5000,
+    enabled: !!suckerGroupId,
+  });
 
   return (
     <FarcasterProfilesProvider
@@ -291,7 +304,7 @@ export function ActivityFeed() {
                 (e?.payEvent?.beneficiary ||
                   e?.cashOutTokensEvent?.beneficiary) as `0x${string}`,
               ]
-            : []
+            : [],
         ) ?? []
       }
     >
@@ -300,7 +313,6 @@ export function ActivityFeed() {
           {activityEvents?.activityEvents.items &&
           activityEvents.activityEvents.items.length > 0 ? (
             activityEvents.activityEvents.items?.map((event) => {
-              
               if (event?.payEvent) {
                 return (
                   <PayActivityItem
@@ -328,11 +340,14 @@ export function ActivityFeed() {
             <div>
               <Loader2 className="animate-spin" size={64} />
               <p className="text-sm text-zinc-500 mt-2">
-                {activityLoading ? "Loading activity events..." : "No pay or cash out events yet"}
+                {activityLoading
+                  ? "Loading activity events..."
+                  : "No pay or cash out events yet"}
               </p>
               {!activityLoading && (
                 <p className="text-xs text-zinc-400 mt-1">
-                  Activity feed will show when users pay into or cash out of this project
+                  Activity feed will show when users pay into or cash out of
+                  this project
                 </p>
               )}
             </div>
