@@ -106,14 +106,15 @@ export function parseDeployData(
     },
   ];
 
-  const poolConfigurations = [
-    {
-      token: tokenAddress,
-      fee: 10_000,
-      twapWindow: 2 * 60 * 60 * 24,
-      twapSlippageTolerance: 9000,
-    },
-  ];
+  // No pool configurations so the operator can set it later depending on liquidity constraints
+  // const poolConfigurations = [
+  //   {
+  //     token: tokenAddress,
+  //     fee: 10_000,
+  //     twapWindow: 2 * 60 * 60 * 24,
+  //     twapSlippageTolerance: 9000,
+  //   },
+  // ];
 
   const stageConfigurations = formData.stages.map((stage, idx) => {
     console.log(`~~~~~~~~~~~~~~~~~~~~~~~~~~ Stage ${idx + 1} ~~~~~~~~~~~~~~~~~~~~~~~~~~`);
@@ -216,7 +217,7 @@ export function parseDeployData(
     ],
     {
       hook: jbProjectDeploymentAddresses.JBBuybackHook[extra.chainId as JBChainId] as Address,
-      poolConfigurations,
+      poolConfigurations: [],
     },
     {
       deployerConfigurations: extra.suckerDeployerConfig.deployerConfigurations,
