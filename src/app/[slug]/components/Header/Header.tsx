@@ -4,7 +4,6 @@ import { ChainLogo } from "@/components/ChainLogo";
 import EtherscanLink from "@/components/EtherscanLink";
 import { ParticipantsDocument, ProjectDocument, SuckerGroupDocument } from "@/generated/graphql";
 import { useBendystrawQuery } from "@/graphql/useBendystrawQuery";
-// import { useTotalOutstandingTokens } from "@/hooks/useTotalOutstandingTokens";
 import { ipfsUriToGatewayUrl } from "@/lib/ipfs";
 import { formatTokenSymbol } from "@/lib/utils";
 import { ForwardIcon } from "@heroicons/react/24/solid";
@@ -21,6 +20,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useMemo } from "react";
 import { TvlDatum } from "./TvlDatum";
+
 export function Header() {
   const { projectId } = useJBContractContext();
   const chainId = useJBChainId();

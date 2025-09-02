@@ -1,5 +1,5 @@
-import { HoldersSection } from "../components/sections/HoldersSection/HoldersSection";
+import { OwnersSection } from "./components/OwnersSection";
 
 export default function Owners() {
-  return <HoldersSection />;
+  return <OwnersSection />;
 }
