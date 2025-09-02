@@ -1,5 +1,18 @@
-import { ActivityFeed } from "./components/ActivityFeed";
+import { parseSlug } from "@/lib/slug";
+import { notFound } from "next/navigation";
+import { ActivityFeed } from "./components/ActivityFeed/ActivityFeed";
+import { getProject } from "./getProject";
 
-export default function Page() {
-  return <ActivityFeed />;
+interface Props {
+  params: { slug: string };
+}
+
+export default async function Page(props: Props) {
+  const { slug } = props.params;
+  const { chainId, projectId } = parseSlug(slug);
+
+  const project = await getProject(projectId, chainId);
+  if (!project) notFound();
+
+  return <ActivityFeed suckerGroupId={project.suckerGroupId} />;
 }

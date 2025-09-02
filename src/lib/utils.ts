@@ -58,11 +58,7 @@ export function etherscanLink(
 
 export function formatEthAddress(
   address: string,
-  opts: {
-    truncateTo?: number;
-  } = {
-    truncateTo: 4,
-  },
+  opts: { truncateTo?: number } = { truncateTo: 4 },
 ) {
   if (!opts.truncateTo) return address;
 

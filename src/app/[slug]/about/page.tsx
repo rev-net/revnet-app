@@ -1,4 +1,4 @@
-import { DescriptionSection } from "../components/sections/DescriptionSection/DescriptionSection";
+import { DescriptionSection } from "./components/DescriptionSection";
 
 export default function About() {
   return <DescriptionSection />;

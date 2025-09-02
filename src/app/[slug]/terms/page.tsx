@@ -1,5 +1,5 @@
-import { NetworkDetailsTable } from "../components/NetworkDetailsTable";
+import { TermsTable } from "./components/TermsTable";
 
 export default function Terms() {
-  return <NetworkDetailsTable />;
+  return <TermsTable />;
 }
