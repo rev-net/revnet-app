@@ -1,9 +1,5 @@
 // https://github.com/rev-net/revnet-core/blob/main/script/Deploy.s.sol
-import {
-  JB_CURRENCY_USD,
-  USDC_ADDRESSES,
-  USDC_DECIMALS,
-} from "@/app/constants";
+import { JB_CURRENCY_USD, USDC_ADDRESSES, USDC_DECIMALS } from "@/app/constants";
 import {
   CashOutTaxRate,
   ETH_CURRENCY_ID,
@@ -17,12 +13,7 @@ import {
 } from "juice-sdk-core";
 import { jbPricesAddress } from "juice-sdk-react";
 import { revDeployerAbi, revLoansAddress } from "revnet-sdk";
-import {
-  Address,
-  ContractFunctionParameters,
-  parseUnits,
-  zeroAddress,
-} from "viem";
+import { Address, ContractFunctionParameters, parseUnits, zeroAddress } from "viem";
 import {
   arbitrum,
   arbitrumSepolia,
@@ -69,38 +60,25 @@ export function parseDeployData(
     timestamp: number;
     salt: `0x${string}`;
   },
-): ContractFunctionParameters<
-  typeof revDeployerAbi,
-  "nonpayable",
-  "deployWith721sFor"
->["args"] {
+): ContractFunctionParameters<typeof revDeployerAbi, "nonpayable", "deployWith721sFor">["args"] {
   // hack: stringfy numbers
-  const formData: RevnetFormData = JSON.parse(
-    JSON.stringify(_formData),
-    (_, value) => (typeof value === "number" ? String(value) : value),
+  const formData: RevnetFormData = JSON.parse(JSON.stringify(_formData), (_, value) =>
+    typeof value === "number" ? String(value) : value,
   );
-  console.log(
-    "======================================================================",
-  );
-  console.log(
-    `\t\t\t\tChainId ${extra.chainId} (${JB_CHAINS[extra.chainId]?.name})`,
-  );
-  console.log(
-    "======================================================================",
-  );
+  console.log("======================================================================");
+  console.log(`\t\t\t\tChainId ${extra.chainId} (${JB_CHAINS[extra.chainId]?.name})`);
+  console.log("======================================================================");
   let prevStart = 0;
   const operator =
-    formData?.operator.find((c) => Number(c.chainId) === Number(extra.chainId))
-      ?.address || formData.stages[0].initialOperator;
+    formData?.operator.find((c) => Number(c.chainId) === Number(extra.chainId))?.address ||
+    formData.stages[0].initialOperator;
   console.log({ operator, extra });
   console.log(`[ Operator ] ${operator}`);
 
   // Determine asset settings based on reserveAsset
   let baseCurrency, tokenAddress, tokenDecimals, swapTerminal;
   if (formData.reserveAsset === "USDC") {
-    tokenAddress =
-      USDC_ADDRESSES[extra.chainId] ||
-      "0x0000000000000000000000000000000000000000";
+    tokenAddress = USDC_ADDRESSES[extra.chainId] || "0x0000000000000000000000000000000000000000";
     tokenDecimals = USDC_DECIMALS;
     baseCurrency = JB_CURRENCY_USD;
     swapTerminal = JBSwapTerminal1_1[extra.chainId];
@@ -115,10 +93,7 @@ export function parseDeployData(
     {
       token: tokenAddress,
       decimals: tokenDecimals,
-      currency: parseInt(
-        tokenAddress.toLowerCase().replace(/^0x/, "").slice(-8),
-        16,
-      ),
+      currency: parseInt(tokenAddress.toLowerCase().replace(/^0x/, "").slice(-8), 16),
     },
   ];
 
@@ -141,46 +116,36 @@ export function parseDeployData(
   ];
 
   const stageConfigurations = formData.stages.map((stage, idx) => {
-    console.log(
-      `~~~~~~~~~~~~~~~~~~~~~~~~~~ Stage ${idx + 1} ~~~~~~~~~~~~~~~~~~~~~~~~~~`,
-    );
+    console.log(`~~~~~~~~~~~~~~~~~~~~~~~~~~ Stage ${idx + 1} ~~~~~~~~~~~~~~~~~~~~~~~~~~`);
     const lengthSeconds = Number(stage.stageStart) * 86400;
     const bufferSeconds = 600;
-    const startsAtOrAfter =
-      idx === 0 ? extra.timestamp + bufferSeconds : prevStart + lengthSeconds;
+    const startsAtOrAfter = idx === 0 ? extra.timestamp + bufferSeconds : prevStart + lengthSeconds;
     prevStart = startsAtOrAfter;
     console.log(
       `[ startsAtOrAfter ] ${new Date(
         startsAtOrAfter * 1000,
       ).toLocaleString()} (${startsAtOrAfter})`,
     );
-    const autoIssuances = stage.autoIssuance.map(
-      (autoIssuance, autoIssuanceIdx) => {
-        console.log(
-          `[ AUTOISSUANCE ${autoIssuanceIdx + 1} ]\n\t\t${
-            autoIssuance.beneficiary
-          } ${autoIssuance.amount} ${autoIssuance.chainId}`,
-        );
-        return {
-          chainId: autoIssuance.chainId,
-          count: autoIssuance.amount ? parseUnits(autoIssuance.amount, 18) : 0n,
-          beneficiary: autoIssuance.beneficiary as Address,
-        };
-      },
-    );
+    const autoIssuances = stage.autoIssuance.map((autoIssuance, autoIssuanceIdx) => {
+      console.log(
+        `[ AUTOISSUANCE ${autoIssuanceIdx + 1} ]\n\t\t${
+          autoIssuance.beneficiary
+        } ${autoIssuance.amount} ${autoIssuance.chainId}`,
+      );
+      return {
+        chainId: autoIssuance.chainId,
+        count: autoIssuance.amount ? parseUnits(autoIssuance.amount, 18) : 0n,
+        beneficiary: autoIssuance.beneficiary as Address,
+      };
+    });
 
     if (autoIssuances.length === 0) {
       console.log("\t\tNo auto issuance for this stage");
     }
 
-    console.log(
-      "----------------------------------------------------------------",
-    );
+    console.log("----------------------------------------------------------------");
     const splitPercent =
-      stage.splits.reduce(
-        (sum, split) => sum + (Number(split.percentage) || 0),
-        0,
-      ) * 100;
+      stage.splits.reduce((sum, split) => sum + (Number(split.percentage) || 0), 0) * 100;
     const splits = stage.splits.map((split, splitIdx) => {
       let beneficiary = split.beneficiary?.find(
         (b) => Number(b?.chainId) === Number(extra.chainId),
@@ -192,9 +157,7 @@ export function parseDeployData(
       const percent = Math.round(
         (Number(split.percentage) * 100 * SPLITS_TOTAL_PERCENT) / splitPercent,
       );
-      console.log(
-        `[ SPLIT ${splitIdx + 1} ]\n\t\t${beneficiary} ${split.percentage}%`,
-      );
+      console.log(`[ SPLIT ${splitIdx + 1} ]\n\t\t${beneficiary} ${split.percentage}%`);
       return {
         preferAddToBalance: false,
         lockedUntil: 0,
@@ -205,9 +168,7 @@ export function parseDeployData(
       };
     });
     console.log({ SPLITS_TOTAL_PERCENT, splitPercent, splits });
-    console.log(
-      "----------------------------------------------------------------",
-    );
+    console.log("----------------------------------------------------------------");
 
     return {
       startsAtOrAfter,
@@ -220,12 +181,8 @@ export function parseDeployData(
           : 0n,
       issuanceCutFrequency: Number(stage.priceCeilingIncreaseFrequency) * 86400, // seconds
       issuanceCutPercent:
-        Number(
-          WeightCutPercent.parse(stage.priceCeilingIncreasePercentage, 9).value,
-        ) / 100,
-      cashOutTaxRate:
-        Number(CashOutTaxRate.parse(stage.priceFloorTaxIntensity, 4).value) /
-        100, //
+        Number(WeightCutPercent.parse(stage.priceCeilingIncreasePercentage, 9).value) / 100,
+      cashOutTaxRate: Number(CashOutTaxRate.parse(stage.priceFloorTaxIntensity, 4).value) / 100, //
       extraMetadata: 0, // ??
     };
   });
@@ -258,9 +215,7 @@ export function parseDeployData(
       },
     ],
     {
-      hook: jbProjectDeploymentAddresses.JBBuybackHook[
-        extra.chainId as JBChainId
-      ] as Address,
+      hook: jbProjectDeploymentAddresses.JBBuybackHook[extra.chainId as JBChainId] as Address,
       poolConfigurations,
     },
     {

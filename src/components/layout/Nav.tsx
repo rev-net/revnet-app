@@ -8,12 +8,7 @@ export function Nav() {
       <div className="flex justify-between items-center px-4 sm:container py-3">
         <div className="flex items-center gap-2">
           <Link href="/" className="italic">
-            <Image
-              src="/assets/img/small-bw.svg"
-              width={60}
-              height={60}
-              alt="Revnet logo"
-            />
+            <Image src="/assets/img/small-bw.svg" width={60} height={60} alt="Revnet logo" />
           </Link>
         </div>
         <ConnectKitButton />

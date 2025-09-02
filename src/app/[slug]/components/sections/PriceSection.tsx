@@ -16,9 +16,7 @@ export function PriceSection({ className }: { className?: string }) {
   const baseToken = useProjectBaseToken();
 
   // Use the sucker token surplus hook with our token map
-  const { data: surpluses, isLoading: surplusLoading } = useSuckersTokenSurplus(
-    baseToken.tokenMap,
-  );
+  const { data: surpluses, isLoading: surplusLoading } = useSuckersTokenSurplus(baseToken.tokenMap);
   const boostRecipient = useBoostRecipient();
 
   if (!ruleset?.data || !rulesetMetadata?.data) {

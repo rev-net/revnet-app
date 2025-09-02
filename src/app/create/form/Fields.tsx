@@ -1,9 +1,4 @@
-import {
-  FieldAttributes,
-  Field as FormikField,
-  useField,
-  useFormikContext,
-} from "formik";
+import { FieldAttributes, Field as FormikField, useField, useFormikContext } from "formik";
 import { ReactNode } from "react";
 import { twMerge } from "tailwind-merge";
 
@@ -77,19 +72,12 @@ export function FieldGroup(
 
   return (
     <div className={props.className}>
-      <label
-        htmlFor={props.name}
-        className="block text-md font-semibold leading-6 mb-1"
-      >
+      <label htmlFor={props.name} className="block text-md font-semibold leading-6 mb-1">
         {props.label}
       </label>
-      {props.description ? (
-        <p className="text-md text-zinc-600 mb-3">{props.description}</p>
-      ) : null}
+      {props.description ? <p className="text-md text-zinc-600 mb-3">{props.description}</p> : null}
       <Field {...props} />
-      {showError && (
-        <p className="text-red-500 mt-1 mb-1.5 text-sm">{meta.error}</p>
-      )}
+      {showError && <p className="text-red-500 mt-1 mb-1.5 text-sm">{meta.error}</p>}
     </div>
   );
 }

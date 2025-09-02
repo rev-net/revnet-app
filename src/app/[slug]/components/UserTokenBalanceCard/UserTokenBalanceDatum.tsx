@@ -1,15 +1,7 @@
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { formatTokenSymbol } from "@/lib/utils";
 import { JB_CHAINS, JBProjectToken } from "juice-sdk-core";
-import {
-  JBChainId,
-  useJBTokenContext,
-  useSuckersUserTokenBalance,
-} from "juice-sdk-react";
+import { JBChainId, useJBTokenContext, useSuckersUserTokenBalance } from "juice-sdk-react";
 
 export function UserTokenBalanceDatum({ className }: { className?: string }) {
   const balanceQuery = useSuckersUserTokenBalance();
@@ -18,7 +10,7 @@ export function UserTokenBalanceDatum({ className }: { className?: string }) {
   const totalBalance = new JBProjectToken(
     balances?.reduce((acc, curr) => {
       return acc + curr.balance.value;
-    }, 0n) ?? 0n
+    }, 0n) ?? 0n,
   );
   const { token } = useJBTokenContext();
   const tokenSymbol = formatTokenSymbol(token);

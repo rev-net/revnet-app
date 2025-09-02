@@ -1,22 +1,22 @@
 "use client";
 
-import React from 'react';
-import { usePathname } from 'next/navigation';
-import dynamic from 'next/dynamic';
+import dynamic from "next/dynamic";
+import { usePathname } from "next/navigation";
+import React from "react";
 
 const DynamicAppSpecificProviders = dynamic(
-  () => import('./AppSpecificProviders').then(mod => mod.AppSpecificProviders),
+  () => import("./AppSpecificProviders").then((mod) => mod.AppSpecificProviders),
   {
     ssr: false,
     loading: () => null,
-  }
+  },
 );
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
   // Don't load providers for splash
-  const isSplashPage = pathname === '/';
+  const isSplashPage = pathname === "/";
   if (isSplashPage) {
     return <>{children}</>;
   }

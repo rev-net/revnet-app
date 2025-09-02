@@ -1,8 +1,7 @@
 "use client";
 import { Badge } from "@/components/ui/badge";
-import { optimismSepolia } from "viem/chains";
-import { sepolia } from "viem/chains";
 import { useChain } from "juice-sdk-react";
+import { optimismSepolia, sepolia } from "viem/chains";
 
 const NAMES: {
   [chainId: number]: string;

@@ -1,24 +1,23 @@
-import { useState, useEffect } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ButtonWithWallet } from "@/components/ButtonWithWallet";
-import { Label } from "@/components/ui/label";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
-import { useAccount, useWaitForTransactionReceipt, usePublicClient, useWalletClient } from "wagmi";
-import { Address, erc20Abi } from "viem";
-import {
-  useWriteRevLoansRepayLoan,
-  useSimulateRevLoansRepayLoan,
-  useReadRevLoansLoanOf,
-  revLoansAddress
-} from "revnet-sdk";
-import { JBChainId } from "juice-sdk-core";
-import { useJBTokenContext, useJBChainId } from "juice-sdk-react";
-import { formatTokenSymbol } from "@/lib/utils";
-import { formatUnits, parseUnits } from "viem";
-import { useBendystrawQuery } from "@/graphql/useBendystrawQuery";
 import { ProjectDocument, SuckerGroupDocument } from "@/generated/graphql";
-import { getTokenSymbolFromAddress, getTokenConfigForChain } from "@/lib/tokenUtils";
+import { useBendystrawQuery } from "@/graphql/useBendystrawQuery";
+import { getTokenConfigForChain, getTokenSymbolFromAddress } from "@/lib/tokenUtils";
+import { formatTokenSymbol } from "@/lib/utils";
+import { JBChainId } from "juice-sdk-core";
+import { useJBChainId, useJBTokenContext } from "juice-sdk-react";
+import { useEffect, useState } from "react";
+import {
+  revLoansAddress,
+  useReadRevLoansLoanOf,
+  useSimulateRevLoansRepayLoan,
+  useWriteRevLoansRepayLoan,
+} from "revnet-sdk";
+import { Address, erc20Abi, formatUnits, parseUnits } from "viem";
+import { useAccount, usePublicClient, useWaitForTransactionReceipt, useWalletClient } from "wagmi";
 
 export function RepayDialog({
   loanId,
@@ -48,12 +47,12 @@ export function RepayDialog({
   const currentChainId = useJBChainId();
   const publicClient = usePublicClient();
   const { data: walletClient } = useWalletClient();
-  
+
   // Check allowance for non-ETH base tokens before simulation
   const [allowanceChecked, setAllowanceChecked] = useState(false);
   const [hasSufficientAllowance, setHasSufficientAllowance] = useState(true);
   const [allowanceError, setAllowanceError] = useState<string>("");
-  
+
   // Fetch loan data first to get the project ID
   const { data: loanData, isLoading: isLoadingLoan } = useReadRevLoansLoanOf({
     chainId: chainId as JBChainId,
@@ -61,29 +60,37 @@ export function RepayDialog({
   });
 
   // Get project data to find sucker group ID using the project ID
-  const { data: projectData } = useBendystrawQuery(ProjectDocument, {
-    chainId: Number(currentChainId),
-    projectId: Number(projectId), // Use the passed project ID
-  }, {
-    enabled: !!currentChainId && !!projectId,
-    pollInterval: 10000
-  });
-  
+  const { data: projectData } = useBendystrawQuery(
+    ProjectDocument,
+    {
+      chainId: Number(currentChainId),
+      projectId: Number(projectId), // Use the passed project ID
+    },
+    {
+      enabled: !!currentChainId && !!projectId,
+      pollInterval: 10000,
+    },
+  );
+
   const suckerGroupId = projectData?.project?.suckerGroupId;
-  
+
   // Get sucker group data for token mapping
-  const { data: suckerGroupData } = useBendystrawQuery(SuckerGroupDocument, {
-    id: suckerGroupId ?? "",
-  }, {
-    enabled: !!suckerGroupId,
-    pollInterval: 10000
-  });
-  
+  const { data: suckerGroupData } = useBendystrawQuery(
+    SuckerGroupDocument,
+    {
+      id: suckerGroupId ?? "",
+    },
+    {
+      enabled: !!suckerGroupId,
+      pollInterval: 10000,
+    },
+  );
+
   // Get token configuration for this loan's chain
   const chainTokenConfig = getTokenConfigForChain(suckerGroupData, chainId);
   const baseTokenSymbol = getTokenSymbolFromAddress(chainTokenConfig.token);
   const baseTokenDecimals = chainTokenConfig.decimals;
-  
+
   // Repay loan hook
   const { writeContractAsync: repayLoanAsync, isPending: isRepaying } = useWriteRevLoansRepayLoan();
 
@@ -95,7 +102,9 @@ export function RepayDialog({
   // ===== HELPER FUNCTIONS =====
   const formatCollateralAmount = (amountWei: bigint) => {
     const amountTokens = formatUnits(amountWei, projectTokenDecimals);
-    return Number(amountTokens).toFixed(6).replace(/\.?0+$/, "");
+    return Number(amountTokens)
+      .toFixed(6)
+      .replace(/\.?0+$/, "");
   };
 
   const calculateCollateralAmount = (input: string, maxCollateral: bigint): bigint => {
@@ -108,13 +117,14 @@ export function RepayDialog({
   };
 
   // Simulation arguments - only run if allowance is sufficient for non-ETH tokens
-  const shouldRunSimulation = !isLoadingLoan && 
-    loanData && 
-    collateralToReturn && 
-    userAddress && 
+  const shouldRunSimulation =
+    !isLoadingLoan &&
+    loanData &&
+    collateralToReturn &&
+    userAddress &&
     allowanceChecked && // Ensure allowance check has completed
     (baseTokenSymbol === "ETH" || hasSufficientAllowance);
-    
+
   const simulationArgs = shouldRunSimulation
     ? [
         BigInt(loanId),
@@ -126,12 +136,11 @@ export function RepayDialog({
           amount: 0n,
           expiration: 0,
           nonce: 0,
-          signature: "0x0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000" as `0x${string}`,
-        }
+          signature:
+            "0x0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000" as `0x${string}`,
+        },
       ]
     : undefined;
-
-
 
   // Always call the hook, but pass undefined args when we shouldn't simulate
   const {
@@ -140,18 +149,33 @@ export function RepayDialog({
     error: simulationError,
   } = useSimulateRevLoansRepayLoan({
     chainId: chainId as JBChainId,
-    args: shouldRunSimulation && simulationArgs ? (simulationArgs as unknown as readonly [bigint, bigint, bigint, `0x${string}`, { sigDeadline: bigint; amount: bigint; expiration: number; nonce: number; signature: `0x${string}`; }]) : undefined,
+    args:
+      shouldRunSimulation && simulationArgs
+        ? (simulationArgs as unknown as readonly [
+            bigint,
+            bigint,
+            bigint,
+            `0x${string}`,
+            {
+              sigDeadline: bigint;
+              amount: bigint;
+              expiration: number;
+              nonce: number;
+              signature: `0x${string}`;
+            },
+          ])
+        : undefined,
     value: baseTokenSymbol === "ETH" ? loanData?.amount : 0n, // Only send ETH value for ETH-based projects
   });
 
   // Extract the exact amount from simulation result for display purposes only
   const exactRepayAmount = (() => {
     if (!simulationResult?.result) return undefined;
-    
+
     // Try to extract amount from simulation result
     if (Array.isArray(simulationResult.result) && simulationResult.result.length >= 2) {
       const remainingLoanAmount = simulationResult.result[1]?.amount;
-      
+
       if (remainingLoanAmount !== undefined && loanData) {
         // Calculate payment amount: original loan - remaining loan
         const paymentAmount = loanData.amount - BigInt(remainingLoanAmount);
@@ -159,16 +183,26 @@ export function RepayDialog({
       }
       return undefined;
     }
-    
+
     // Try direct result if it's not an array
-    if (simulationResult.result && typeof simulationResult.result === 'object' && 'amount' in simulationResult.result) {
+    if (
+      simulationResult.result &&
+      typeof simulationResult.result === "object" &&
+      "amount" in simulationResult.result
+    ) {
       const remainingLoanAmount = simulationResult.result.amount;
-      if (remainingLoanAmount !== undefined && loanData && (typeof remainingLoanAmount === 'string' || typeof remainingLoanAmount === 'number' || typeof remainingLoanAmount === 'bigint')) {
+      if (
+        remainingLoanAmount !== undefined &&
+        loanData &&
+        (typeof remainingLoanAmount === "string" ||
+          typeof remainingLoanAmount === "number" ||
+          typeof remainingLoanAmount === "bigint")
+      ) {
         const paymentAmount = loanData.amount - BigInt(remainingLoanAmount);
         return paymentAmount;
       }
     }
-    
+
     return undefined;
   })();
 
@@ -189,7 +223,7 @@ export function RepayDialog({
       try {
         const baseTokenAddress = chainTokenConfig.token;
         const revLoansContractAddress = revLoansAddress[chainId as JBChainId];
-        
+
         const allowance = await publicClient.readContract({
           address: baseTokenAddress,
           abi: erc20Abi,
@@ -199,7 +233,9 @@ export function RepayDialog({
 
         if (BigInt(allowance) < loanData.amount) {
           setHasSufficientAllowance(false);
-          setAllowanceError(`To calculate your repayment cost, we need permission for this loan. You will not be charged until you confirm repayment.`);
+          setAllowanceError(
+            `To calculate your repayment cost, we need permission for this loan. You will not be charged until you confirm repayment.`,
+          );
         } else {
           setHasSufficientAllowance(true);
           setAllowanceError("");
@@ -213,7 +249,15 @@ export function RepayDialog({
     };
 
     checkAllowance();
-  }, [loanData, userAddress, publicClient, baseTokenSymbol, chainTokenConfig, chainId, baseTokenDecimals]);
+  }, [
+    loanData,
+    userAddress,
+    publicClient,
+    baseTokenSymbol,
+    chainTokenConfig,
+    chainId,
+    baseTokenDecimals,
+  ]);
 
   // ===== EFFECTS =====
 
@@ -228,7 +272,9 @@ export function RepayDialog({
     const inputCollateral = Number(collateralToReturn);
 
     if (inputCollateral > maxCollateralDisplay) {
-      setCollateralError(`Cannot return more than ${formatCollateralAmount(loanData.collateral)} ${tokenSymbol}`);
+      setCollateralError(
+        `Cannot return more than ${formatCollateralAmount(loanData.collateral)} ${tokenSymbol}`,
+      );
     } else if (inputCollateral <= 0) {
       setCollateralError("Collateral amount must be greater than 0");
     } else {
@@ -284,20 +330,20 @@ export function RepayDialog({
       setRepayStatus("approving");
       const baseTokenAddress = chainTokenConfig.token;
       const revLoansContractAddress = revLoansAddress[chainId as JBChainId];
-      
+
       const approveHash = await walletClient.writeContract({
         address: baseTokenAddress,
         abi: erc20Abi,
         functionName: "approve",
         args: [revLoansContractAddress as Address, loanData.amount],
       });
-      
+
       await publicClient.waitForTransactionReceipt({ hash: approveHash });
-      
+
       // Reset allowance check to trigger re-check
       setAllowanceChecked(false);
       setRepayStatus("idle");
-      
+
       toast({
         title: "Approval Successful",
         description: "Token allowance approved. You can now proceed with repayment.",
@@ -327,15 +373,16 @@ export function RepayDialog({
 
       const loanIdBigInt = BigInt(loanId);
       const maxRepayBorrowAmount = loanData.amount; // Use full loan amount as ceiling
-      const collateralCountToReturn = calculateCollateralAmount(collateralToReturn, loanData.collateral);
-
-
+      const collateralCountToReturn = calculateCollateralAmount(
+        collateralToReturn,
+        loanData.collateral,
+      );
 
       // Check allowance for USDC-based projects
       if (baseTokenSymbol !== "ETH") {
         const baseTokenAddress = chainTokenConfig.token;
         const revLoansContractAddress = revLoansAddress[chainId as JBChainId];
-        
+
         const allowance = await publicClient.readContract({
           address: baseTokenAddress,
           abi: erc20Abi,
@@ -345,18 +392,18 @@ export function RepayDialog({
 
         if (BigInt(allowance) < maxRepayBorrowAmount) {
           setRepayStatus("approving");
-          
+
           if (!walletClient) {
             throw new Error("Wallet client not available");
           }
-          
+
           const approveHash = await walletClient.writeContract({
             address: baseTokenAddress,
             abi: erc20Abi,
             functionName: "approve",
             args: [revLoansContractAddress as Address, maxRepayBorrowAmount],
           });
-          
+
           await publicClient.waitForTransactionReceipt({ hash: approveHash });
           setRepayStatus("waiting-signature");
         }
@@ -374,10 +421,11 @@ export function RepayDialog({
             amount: 0n,
             expiration: 0,
             nonce: 0,
-            signature: "0x0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000" as `0x${string}`,
+            signature:
+              "0x0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000" as `0x${string}`,
           },
         ],
-        value: baseTokenSymbol === "ETH" ? (exactRepayAmount || loanData?.amount) : 0n,
+        value: baseTokenSymbol === "ETH" ? exactRepayAmount || loanData?.amount : 0n,
       });
 
       setRepayTxHash(txHash);
@@ -402,9 +450,13 @@ export function RepayDialog({
             key={pct}
             type="button"
             onClick={() => {
-              const collateralInTokens = Number(formatUnits(loanData.collateral, projectTokenDecimals));
+              const collateralInTokens = Number(
+                formatUnits(loanData.collateral, projectTokenDecimals),
+              );
               const portion = collateralInTokens * (pct / 100);
-              setCollateralToReturn(portion < 0.000001 ? "0" : portion.toFixed(6).replace(/\.?0+$/, ""));
+              setCollateralToReturn(
+                portion < 0.000001 ? "0" : portion.toFixed(6).replace(/\.?0+$/, ""),
+              );
             }}
             className="h-8 px-3 text-xs text-zinc-700 border border-zinc-300 rounded-md bg-white hover:bg-zinc-100"
           >
@@ -430,16 +482,14 @@ export function RepayDialog({
 
     const messages = {
       "waiting-signature": "Waiting for wallet confirmation...",
-      "approving": "Approving token allowance...",
-      "pending": "Repayment pending...",
-      "success": "Repayment successful!",
-      "error": "Something went wrong during repayment."
+      approving: "Approving token allowance...",
+      pending: "Repayment pending...",
+      success: "Repayment successful!",
+      error: "Something went wrong during repayment.",
     };
 
     return (
-      <p className="text-sm text-zinc-600 mt-2">
-        {messages[repayStatus as keyof typeof messages]}
-      </p>
+      <p className="text-sm text-zinc-600 mt-2">{messages[repayStatus as keyof typeof messages]}</p>
     );
   };
 
@@ -484,7 +534,10 @@ export function RepayDialog({
         <div className="text-sm text-zinc-700 space-y-4">
           <div className="grid grid-cols-7 gap-2">
             <div className="col-span-4">
-              <Label htmlFor="collateral-to-return" className="block text-gray-700 text-sm font-bold mb-1">
+              <Label
+                htmlFor="collateral-to-return"
+                className="block text-gray-700 text-sm font-bold mb-1"
+              >
                 How much {tokenSymbol} collateral do you want back?
               </Label>
               <Input
@@ -494,22 +547,24 @@ export function RepayDialog({
                 value={collateralToReturn}
                 onChange={(e) => {
                   const value = e.target.value;
-                  
+
                   // Allow empty input for clearing
                   if (value === "") {
                     setCollateralToReturn("");
                     return;
                   }
-                  
+
                   // Limit decimal places to 8 digits
-                  const decimalIndex = value.indexOf('.');
+                  const decimalIndex = value.indexOf(".");
                   if (decimalIndex !== -1 && value.length - decimalIndex - 1 > 8) {
                     return; // Don't update if too many decimal places
                   }
-                  
+
                   const numValue = Number(value);
-                  const maxValue = loanData ? Number(formatUnits(loanData.collateral, projectTokenDecimals)) : 0;
-                  
+                  const maxValue = loanData
+                    ? Number(formatUnits(loanData.collateral, projectTokenDecimals))
+                    : 0;
+
                   // Only validate max if it's a valid number
                   if (!isNaN(numValue)) {
                     // Prevent entering more than available collateral
@@ -526,16 +581,12 @@ export function RepayDialog({
                 placeholder="Enter collateral amount to return"
                 className={collateralError ? "border-red-500" : ""}
               />
-              {collateralError && (
-                <p className="text-xs text-red-500 mt-1">
-                  {collateralError}
-                </p>
-              )}
+              {collateralError && <p className="text-xs text-red-500 mt-1">{collateralError}</p>}
 
               {renderPercentageButtons()}
             </div>
           </div>
-          
+
           <div className="mt-4">
             <Label className="block text-gray-700 text-sm font-bold mb-1">
               Repayment Breakdown
@@ -547,21 +598,38 @@ export function RepayDialog({
                     <tbody className="space-y-1">
                       <tr>
                         <td className="pr-4">Original amount borrowed:</td>
-                        <td className="font-semibold text-right">{formatUnits(loanData.amount, baseTokenDecimals)} {baseTokenSymbol}</td>
+                        <td className="font-semibold text-right">
+                          {formatUnits(loanData.amount, baseTokenDecimals)} {baseTokenSymbol}
+                        </td>
                       </tr>
                       <tr>
-                        <td className="pr-4">Amount of collateral you want back ({(Number(collateralToReturn) / Number(formatUnits(loanData.collateral, projectTokenDecimals)) * 100).toFixed(1)}%):</td>
-                        <td className="font-semibold text-right">{collateralToReturn} {tokenSymbol}</td>
+                        <td className="pr-4">
+                          Amount of collateral you want back (
+                          {(
+                            (Number(collateralToReturn) /
+                              Number(formatUnits(loanData.collateral, projectTokenDecimals))) *
+                            100
+                          ).toFixed(1)}
+                          %):
+                        </td>
+                        <td className="font-semibold text-right">
+                          {collateralToReturn} {tokenSymbol}
+                        </td>
                       </tr>
                       {!isSimulating && !simulationError && exactRepayAmount && (
                         <>
                           <tr>
                             <td className="pr-4">Amount to pay now:</td>
-                            <td className="font-semibold text-right">{formatUnits(exactRepayAmount, baseTokenDecimals)} {baseTokenSymbol}</td>
+                            <td className="font-semibold text-right">
+                              {formatUnits(exactRepayAmount, baseTokenDecimals)} {baseTokenSymbol}
+                            </td>
                           </tr>
                           <tr>
                             <td className="pr-4">Amount rolled into new loan id:</td>
-                            <td className="font-semibold text-right">{formatUnits(loanData.amount - exactRepayAmount, baseTokenDecimals)} {baseTokenSymbol}</td>
+                            <td className="font-semibold text-right">
+                              {formatUnits(loanData.amount - exactRepayAmount, baseTokenDecimals)}{" "}
+                              {baseTokenSymbol}
+                            </td>
                           </tr>
                         </>
                       )}
@@ -574,26 +642,33 @@ export function RepayDialog({
                 {simulationError && shouldRunSimulation && (
                   <p className="text-sm text-red-500 mt-2">Error: {simulationError.message}</p>
                 )}
-                {!isSimulating && !simulationError && !exactRepayAmount && !hasSufficientAllowance && baseTokenSymbol !== "ETH" && (
-                  <p className="text-sm text-red-500 mt-2">Please approve token allowance to see exact repayment amounts</p>
-                )}
-                {!isSimulating && !simulationError && !exactRepayAmount && (hasSufficientAllowance || baseTokenSymbol === "ETH") && (
-                  <p className="text-sm text-zinc-500 mt-2">Contract will calculate exact amounts</p>
-                )}
+                {!isSimulating &&
+                  !simulationError &&
+                  !exactRepayAmount &&
+                  !hasSufficientAllowance &&
+                  baseTokenSymbol !== "ETH" && (
+                    <p className="text-sm text-red-500 mt-2">
+                      Please approve token allowance to see exact repayment amounts
+                    </p>
+                  )}
+                {!isSimulating &&
+                  !simulationError &&
+                  !exactRepayAmount &&
+                  (hasSufficientAllowance || baseTokenSymbol === "ETH") && (
+                    <p className="text-sm text-zinc-500 mt-2">
+                      Contract will calculate exact amounts
+                    </p>
+                  )}
               </div>
             )}
           </div>
-                    {/* Allowance Error Display */}
-                    {allowanceChecked && !hasSufficientAllowance && baseTokenSymbol !== "ETH" && (
+          {/* Allowance Error Display */}
+          {allowanceChecked && !hasSufficientAllowance && baseTokenSymbol !== "ETH" && (
             <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
               <div className="flex items-start gap-3">
                 <div className="flex-1">
-                  <p className="text-sm text-red-700 font-medium mb-2">
-                    Token Approval Required
-                  </p>
-                  <p className="text-sm text-red-600 mb-3">
-                    {allowanceError}
-                  </p>
+                  <p className="text-sm text-red-700 font-medium mb-2">Token Approval Required</p>
+                  <p className="text-sm text-red-600 mb-3">{allowanceError}</p>
                   <ButtonWithWallet
                     targetChainId={chainId as JBChainId}
                     loading={repayStatus === "approving"}
@@ -610,7 +685,9 @@ export function RepayDialog({
           <div className="flex flex-col items-end pt-2">
             <ButtonWithWallet
               targetChainId={chainId as JBChainId}
-              loading={isRepaying || repayStatus === "waiting-signature" || repayStatus === "pending"}
+              loading={
+                isRepaying || repayStatus === "waiting-signature" || repayStatus === "pending"
+              }
               onClick={handleRepay}
               disabled={
                 !finalRepayAmount ||

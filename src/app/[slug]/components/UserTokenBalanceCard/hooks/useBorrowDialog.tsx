@@ -1,40 +1,36 @@
-import { useEffect, useState, useCallback } from "react";
+import { useToast } from "@/components/ui/use-toast";
 import { useHasBorrowPermission } from "@/hooks/useHasBorrowPermission";
 import { generateFeeData } from "@/lib/feeHelpers";
-import { toWei } from "@/lib/utils";
-import { useAccount, useWaitForTransactionReceipt, usePublicClient } from "wagmi";
-import { useWalletClient } from "wagmi";
-import { useToast } from "@/components/ui/use-toast";
-import { formatUnits, parseUnits, Address, erc20Abi } from "viem";
+import { useCallback, useEffect, useState } from "react";
+import { Address, erc20Abi, formatUnits, parseUnits } from "viem";
+import { useAccount, usePublicClient, useWaitForTransactionReceipt, useWalletClient } from "wagmi";
 
+import { ProjectDocument, SuckerGroupDocument } from "@/generated/graphql";
+import { useBendystrawQuery } from "@/graphql/useBendystrawQuery";
+import { useProjectBaseToken } from "@/hooks/useProjectBaseToken";
+import { createTokenConfigGetter, getTokenSymbolFromAddress } from "@/lib/tokenUtils";
 import {
+  JB_TOKEN_DECIMALS,
   JBChainId,
   jbPermissionsAbi,
   NATIVE_TOKEN_DECIMALS,
-  JB_TOKEN_DECIMALS
 } from "juice-sdk-core";
 import {
-  useJBContractContext,
-  useSuckersUserTokenBalance,
-  useJBTokenContext,
   useJBChainId,
+  useJBContractContext,
+  useJBTokenContext,
+  useSuckersUserTokenBalance,
 } from "juice-sdk-react";
 import {
-  useReadRevLoansBorrowableAmountFrom,
-  useReadRevDeployerPermissions,
-  useWriteRevLoansBorrowFrom,
   revLoansAddress,
   useReadRevDeployerFee,
+  useReadRevDeployerPermissions,
+  useReadRevLoansBorrowableAmountFrom,
   useReadRevLoansRevPrepaidFeePercent,
-  useWriteRevLoansRepayLoan,
+  useWriteRevLoansBorrowFrom,
   useWriteRevLoansReallocateCollateralFromLoan,
+  useWriteRevLoansRepayLoan,
 } from "revnet-sdk";
-import { useProjectBaseToken } from "@/hooks/useProjectBaseToken";
-import { useBendystrawQuery } from "@/graphql/useBendystrawQuery";
-import { ProjectDocument, SuckerGroupDocument } from "@/generated/graphql";
-import { USDC_ADDRESSES } from "@/app/constants";
-import { getTokenSymbolFromAddress, createTokenConfigGetter } from "@/lib/tokenUtils";
-
 
 // Types
 type BorrowState =
@@ -87,7 +83,9 @@ export function useBorrowDialog({
   const [prepaidPercent, setPrepaidPercent] = useState("2.5");
   const [nativeToWallet, setNativeToWallet] = useState(0);
   const [grossBorrowedNative, setGrossBorrowedNative] = useState(0);
-  const [internalSelectedLoan, setInternalSelectedLoan] = useState<any | null>(selectedLoan ?? null);
+  const [internalSelectedLoan, setInternalSelectedLoan] = useState<any | null>(
+    selectedLoan ?? null,
+  );
 
   // Repay-related state
   const [repayStatus, setRepayStatus] = useState<RepayState>("idle");
@@ -103,69 +101,82 @@ export function useBorrowDialog({
   const {
     //contracts: { primaryNativeTerminal },
   } = useJBContractContext();
-  const primaryNativeTerminal = {data: "0xdb9644369c79c3633cde70d2df50d827d7dc7dbc"};
+  const primaryNativeTerminal = {
+    data: "0xdb9644369c79c3633cde70d2df50d827d7dc7dbc",
+  };
   const chainId = useJBChainId();
-  
+
   // Account and wallet hooks
   const { address } = useAccount();
   const { data: walletClient } = useWalletClient();
   const publicClient = usePublicClient();
-  
+
   // ===== PHASE 1: BASE TOKEN CONTEXT =====
-  
+
   // Get base token information
   const baseToken = useProjectBaseToken();
 
   // Get sucker group data for token mapping
-  const { data: projectData, isLoading: projectLoading } = useBendystrawQuery(ProjectDocument, {
-    chainId: Number(chainId),
-    projectId: Number(projectId),
-  }, {
-    enabled: !!chainId && !!projectId,
-    pollInterval: 10000
-  });
+  const { data: projectData, isLoading: projectLoading } = useBendystrawQuery(
+    ProjectDocument,
+    {
+      chainId: Number(chainId),
+      projectId: Number(projectId),
+    },
+    {
+      enabled: !!chainId && !!projectId,
+      pollInterval: 10000,
+    },
+  );
   const suckerGroupId = projectData?.project?.suckerGroupId;
 
-  const { data: suckerGroupData, isLoading: suckerGroupLoading } = useBendystrawQuery(SuckerGroupDocument, {
-    id: suckerGroupId ?? "",
-  }, {
-    enabled: !!suckerGroupId,
-    pollInterval: 10000
-  });
-  
+  const { data: suckerGroupData, isLoading: suckerGroupLoading } = useBendystrawQuery(
+    SuckerGroupDocument,
+    {
+      id: suckerGroupId ?? "",
+    },
+    {
+      enabled: !!suckerGroupId,
+      pollInterval: 10000,
+    },
+  );
+
   // ===== PHASE 1: TOKEN RESOLUTION FUNCTION =====
   // Get the correct token configuration for a specific chain
-  const getTokenConfigForChain = useCallback(createTokenConfigGetter(suckerGroupData), [suckerGroupData]);
-  
+  const getTokenConfigForChain = useCallback(createTokenConfigGetter(suckerGroupData), [
+    suckerGroupData,
+  ]);
+
   // Data hooks
   const { data: balances } = useSuckersUserTokenBalance();
   const { data: resolvedPermissionsAddress } = useReadRevDeployerPermissions({
-    chainId: cashOutChainId ? Number(cashOutChainId) as JBChainId : undefined,
+    chainId: cashOutChainId ? (Number(cashOutChainId) as JBChainId) : undefined,
   });
 
   // Fee-related hooks
   const { data: revDeployerFee } = useReadRevDeployerFee({
-    chainId: cashOutChainId ? Number(cashOutChainId) as JBChainId : undefined,
+    chainId: cashOutChainId ? (Number(cashOutChainId) as JBChainId) : undefined,
   });
   const { data: revPrepaidFeePercent } = useReadRevLoansRevPrepaidFeePercent({
-    chainId: cashOutChainId ? Number(cashOutChainId) as JBChainId : undefined,
+    chainId: cashOutChainId ? (Number(cashOutChainId) as JBChainId) : undefined,
   });
 
   // ===== DERIVED VALUES (needed by callbacks) =====
   const projectTokenDecimals = token?.data?.decimals ?? JB_TOKEN_DECIMALS;
-  
-  const selectedBalance = balances?.find(
-    (b) => b.chainId === Number(cashOutChainId)
-  );
-  
+
+  const selectedBalance = balances?.find((b) => b.chainId === Number(cashOutChainId));
+
   const userProjectTokenBalance = selectedBalance?.balance.value ?? 0n;
-  
+
   // Dynamically determine the correct projectId based on the selected chain
-  const effectiveProjectId = selectedBalance?.projectId ? BigInt(selectedBalance.projectId) : projectId;
+  const effectiveProjectId = selectedBalance?.projectId
+    ? BigInt(selectedBalance.projectId)
+    : projectId;
 
   // Calculate total fixed fees from contract values (in basis points)
-  const totalFixedFees = (revDeployerFee ? Number(revDeployerFee) : 0) + 
-                        (revPrepaidFeePercent ? Number(revPrepaidFeePercent) : 0);
+  const totalFixedFees =
+    (revDeployerFee ? Number(revDeployerFee) : 0) +
+    (revPrepaidFeePercent ? Number(revPrepaidFeePercent) : 0);
 
   // Used for estimating how much Native could be borrowed if both
   // the existing loan's collateral and new collateral were combined into one.
@@ -175,90 +186,94 @@ export function useBorrowDialog({
       : undefined;
 
   // Collateral to return logic for repay tab
-  const remainingCollateral = internalSelectedLoan && collateralToReturn
-    ? BigInt(internalSelectedLoan.collateral) - parseUnits(collateralToReturn, projectTokenDecimals)
-    : undefined;
+  const remainingCollateral =
+    internalSelectedLoan && collateralToReturn
+      ? BigInt(internalSelectedLoan.collateral) -
+        parseUnits(collateralToReturn, projectTokenDecimals)
+      : undefined;
 
   // ===== PHASE 2: UPDATE CONTRACT CALLS =====
-  
+
   // Get token configuration for the selected chain
-  const selectedChainTokenConfig = cashOutChainId ? getTokenConfigForChain(Number(cashOutChainId)) : null;
-  
+  const selectedChainTokenConfig = cashOutChainId
+    ? getTokenConfigForChain(Number(cashOutChainId))
+    : null;
+
   // Borrow-related hooks
   const {
     data: borrowableAmountRaw,
     error: borrowableError,
     isLoading: isBorrowableLoading,
   } = useReadRevLoansBorrowableAmountFrom({
-    chainId: cashOutChainId ? Number(cashOutChainId) as JBChainId : undefined,
-    args: cashOutChainId && selectedChainTokenConfig
-      ? [
-          effectiveProjectId,
-          userProjectTokenBalance,
-          BigInt(selectedChainTokenConfig.decimals),
-          BigInt(selectedChainTokenConfig.currency),
-        ] as const
-      : undefined,
+    chainId: cashOutChainId ? (Number(cashOutChainId) as JBChainId) : undefined,
+    args:
+      cashOutChainId && selectedChainTokenConfig
+        ? ([
+            effectiveProjectId,
+            userProjectTokenBalance,
+            BigInt(selectedChainTokenConfig.decimals),
+            BigInt(selectedChainTokenConfig.currency),
+          ] as const)
+        : undefined,
   });
 
   const { data: estimatedBorrowFromInputOnly } = useReadRevLoansBorrowableAmountFrom({
-    chainId: cashOutChainId ? Number(cashOutChainId) as JBChainId : undefined,
-    args: collateralAmount && selectedChainTokenConfig
-      ? [
-          effectiveProjectId,
-          parseUnits(collateralAmount, projectTokenDecimals),
-          BigInt(selectedChainTokenConfig.decimals),
-          BigInt(selectedChainTokenConfig.currency),
-        ]
-      : undefined,
+    chainId: cashOutChainId ? (Number(cashOutChainId) as JBChainId) : undefined,
+    args:
+      collateralAmount && selectedChainTokenConfig
+        ? [
+            effectiveProjectId,
+            parseUnits(collateralAmount, projectTokenDecimals),
+            BigInt(selectedChainTokenConfig.decimals),
+            BigInt(selectedChainTokenConfig.currency),
+          ]
+        : undefined,
   });
 
   // Reallocation-related hooks
   const { data: selectedLoanReallocAmount } = useReadRevLoansBorrowableAmountFrom({
-    chainId: cashOutChainId ? Number(cashOutChainId) as JBChainId : undefined,
-    args: totalReallocationCollateral && selectedChainTokenConfig
-      ? [
-          // Use the same project ID as the loan table for consistency
-          projectId,
-          totalReallocationCollateral,
-          BigInt(selectedChainTokenConfig.decimals),
-          BigInt(selectedChainTokenConfig.currency),
-        ]
-      : undefined,
+    chainId: cashOutChainId ? (Number(cashOutChainId) as JBChainId) : undefined,
+    args:
+      totalReallocationCollateral && selectedChainTokenConfig
+        ? [
+            // Use the same project ID as the loan table for consistency
+            projectId,
+            totalReallocationCollateral,
+            BigInt(selectedChainTokenConfig.decimals),
+            BigInt(selectedChainTokenConfig.currency),
+          ]
+        : undefined,
   });
 
   const { data: currentBorrowableOnSelectedCollateral } = useReadRevLoansBorrowableAmountFrom({
-    chainId: cashOutChainId ? Number(cashOutChainId) as JBChainId : undefined,
-    args: internalSelectedLoan && selectedChainTokenConfig
-      ? [
-          // Use the same project ID as the loan table for consistency
-          projectId,
-          BigInt(internalSelectedLoan.collateral),
-          BigInt(selectedChainTokenConfig.decimals),
-          BigInt(selectedChainTokenConfig.currency),
-        ]
-      : undefined,
+    chainId: cashOutChainId ? (Number(cashOutChainId) as JBChainId) : undefined,
+    args:
+      internalSelectedLoan && selectedChainTokenConfig
+        ? [
+            // Use the same project ID as the loan table for consistency
+            projectId,
+            BigInt(internalSelectedLoan.collateral),
+            BigInt(selectedChainTokenConfig.decimals),
+            BigInt(selectedChainTokenConfig.currency),
+          ]
+        : undefined,
   });
 
   // Repay-related hooks
-  const {
-    data: estimatedRepayAmountForCollateral,
-    isLoading: isEstimatingRepayment,
-  } = useReadRevLoansBorrowableAmountFrom({
-    chainId: internalSelectedLoan?.chainId,
-    args: internalSelectedLoan
-      ? [
-          effectiveProjectId,
-          BigInt(internalSelectedLoan.collateral),
-          BigInt(JB_TOKEN_DECIMALS), // TODO confirm this is correct
-          BigInt(ETH_CURRENCY_ID), // TODO: This should also be dynamic
-        ]
-      : undefined,
-  });
+  const { data: estimatedRepayAmountForCollateral, isLoading: isEstimatingRepayment } =
+    useReadRevLoansBorrowableAmountFrom({
+      chainId: internalSelectedLoan?.chainId,
+      args: internalSelectedLoan
+        ? [
+            effectiveProjectId,
+            BigInt(internalSelectedLoan.collateral),
+            BigInt(JB_TOKEN_DECIMALS), // TODO confirm this is correct
+            BigInt(ETH_CURRENCY_ID), // TODO: This should also be dynamic
+          ]
+        : undefined,
+    });
 
-  const {
-    data: estimatedNewBorrowableAmount,
-  } = useReadRevLoansBorrowableAmountFrom({
+  const { data: estimatedNewBorrowableAmount } = useReadRevLoansBorrowableAmountFrom({
     chainId: internalSelectedLoan?.chainId,
     args:
       internalSelectedLoan && remainingCollateral !== undefined
@@ -272,11 +287,7 @@ export function useBorrowDialog({
   });
 
   // Transaction hooks
-  const {
-    writeContract,
-    isPending: isWriteLoading,
-    data,
-  } = useWriteRevLoansBorrowFrom();
+  const { writeContract, isPending: isWriteLoading, data } = useWriteRevLoansBorrowFrom();
 
   const {
     writeContractAsync: reallocateCollateralAsync,
@@ -292,9 +303,10 @@ export function useBorrowDialog({
     hash: txHash,
   });
 
-  const { isLoading: isReallocationTxLoading, isSuccess: isReallocationSuccess } = useWaitForTransactionReceipt({
-    hash: reallocationTxHash,
-  });
+  const { isLoading: isReallocationTxLoading, isSuccess: isReallocationSuccess } =
+    useWaitForTransactionReceipt({
+      hash: reallocationTxHash,
+    });
 
   const { isLoading: isRepayTxLoading, isSuccess: isRepaySuccess } = useWaitForTransactionReceipt({
     hash: repayTxHash,
@@ -329,46 +341,62 @@ export function useBorrowDialog({
       : 0n;
 
   // Calculate borrowable amount for just the new loan (headroom + additional collateral)
-  const newLoanCollateral = collateralHeadroom + (collateralAmount ? parseUnits(collateralAmount, projectTokenDecimals) : 0n);
+  const newLoanCollateral =
+    collateralHeadroom +
+    (collateralAmount ? parseUnits(collateralAmount, projectTokenDecimals) : 0n);
   const { data: newLoanBorrowableAmount } = useReadRevLoansBorrowableAmountFrom({
-    chainId: cashOutChainId ? Number(cashOutChainId) as JBChainId : undefined,
-    args: newLoanCollateral > 0n && selectedChainTokenConfig
-      ? [
-          // Use the same project ID as the loan table for consistency
-          projectId,
-          newLoanCollateral,
-          BigInt(selectedChainTokenConfig.decimals),
-          BigInt(selectedChainTokenConfig.currency),
-        ]
-      : undefined,
+    chainId: cashOutChainId ? (Number(cashOutChainId) as JBChainId) : undefined,
+    args:
+      newLoanCollateral > 0n && selectedChainTokenConfig
+        ? [
+            // Use the same project ID as the loan table for consistency
+            projectId,
+            newLoanCollateral,
+            BigInt(selectedChainTokenConfig.decimals),
+            BigInt(selectedChainTokenConfig.currency),
+          ]
+        : undefined,
   });
 
-  const collateralCountToTransfer = internalSelectedLoan && currentBorrowableOnSelectedCollateral
-    ? BigInt(
-        Math.floor(
-          Number(collateralHeadroom) /
-            (Number(currentBorrowableOnSelectedCollateral) / Number(internalSelectedLoan.collateral))
+  const collateralCountToTransfer =
+    internalSelectedLoan && currentBorrowableOnSelectedCollateral
+      ? BigInt(
+          Math.floor(
+            Number(collateralHeadroom) /
+              (Number(currentBorrowableOnSelectedCollateral) /
+                Number(internalSelectedLoan.collateral)),
+          ),
         )
-      )
-    : BigInt(0);
+      : BigInt(0);
 
   // ===== PHASE 4: UPDATE FEE CALCULATIONS =====
-  
+
   // For reallocation, use the total borrowable amount for combined collateral
-  const borrowAmountForFeeCalculation = internalSelectedLoan && selectedLoanReallocAmount
-    ? Number(formatUnits(selectedLoanReallocAmount, selectedChainTokenConfig?.decimals || NATIVE_TOKEN_DECIMALS))
-    : grossBorrowedNative;
-    
-  const feeData = generateFeeData({ 
-    grossBorrowedEth: borrowAmountForFeeCalculation, 
-    prepaidPercent 
+  const borrowAmountForFeeCalculation =
+    internalSelectedLoan && selectedLoanReallocAmount
+      ? Number(
+          formatUnits(
+            selectedLoanReallocAmount,
+            selectedChainTokenConfig?.decimals || NATIVE_TOKEN_DECIMALS,
+          ),
+        )
+      : grossBorrowedNative;
+
+  const feeData = generateFeeData({
+    grossBorrowedEth: borrowAmountForFeeCalculation,
+    prepaidPercent,
   });
 
   // Fee calculation for the new loan simulation (not the combined total)
-  const newLoanFeeData = newLoanBorrowableAmount 
-    ? generateFeeData({ 
-        grossBorrowedEth: Number(formatUnits(newLoanBorrowableAmount, selectedChainTokenConfig?.decimals || NATIVE_TOKEN_DECIMALS)), 
-        prepaidPercent 
+  const newLoanFeeData = newLoanBorrowableAmount
+    ? generateFeeData({
+        grossBorrowedEth: Number(
+          formatUnits(
+            newLoanBorrowableAmount,
+            selectedChainTokenConfig?.decimals || NATIVE_TOKEN_DECIMALS,
+          ),
+        ),
+        prepaidPercent,
       })
     : feeData;
 
@@ -382,47 +410,53 @@ export function useBorrowDialog({
 
   // ===== CALLBACK HOOKS (must be before any conditional logic) =====
   // Reset internal state when dialog closes or set tab on open
-  const handleOpenChange = useCallback((open: boolean) => {
-    setIsDialogOpen(open);
-    if (open) {
-      setSelectedTab(defaultTab ?? "borrow");
-    } else {
-      // Clear all form state
-      setCollateralAmount("");
-      setPrepaidPercent("2.5");
-      setNativeToWallet(0);
-      setGrossBorrowedNative(0);
-      
-      // Clear all status states
-      setBorrowStatus("idle");
-      setRepayStatus("idle");
-      setRepayAmount("");
-      setCollateralToReturn("");
-      setRepayTxHash(undefined);
-      
-      // Clear chain selection and loan data
-      setCashOutChainId(undefined);
-      setSelectedChainId(undefined);
-      setInternalSelectedLoan(null);
-      
-      // Clear UI state
-      setShowChart(false);
-      setShowInfo(false);
-      setShowOtherCollateral(false);
-      setShowLoanDetailsTable(true);
-      setShowRefinanceLoanDetailsTable(true);
-      setShowingWaitingMessage(false);
-    }
-  }, [defaultTab]);
+  const handleOpenChange = useCallback(
+    (open: boolean) => {
+      setIsDialogOpen(open);
+      if (open) {
+        setSelectedTab(defaultTab ?? "borrow");
+      } else {
+        // Clear all form state
+        setCollateralAmount("");
+        setPrepaidPercent("2.5");
+        setNativeToWallet(0);
+        setGrossBorrowedNative(0);
 
-  const handleChainSelection = useCallback((chainId: number) => {
-    const selected = balances?.find((b) => b.chainId === chainId);
-    const collateral = selected ? formatUnits(selected.balance.value, projectTokenDecimals) : "0";
-    setSelectedChainId(chainId);
-    setCashOutChainId(chainId.toString());
-    setCollateralAmount(collateral);
-    setInternalSelectedLoan(null);
-  }, [balances, projectTokenDecimals]);
+        // Clear all status states
+        setBorrowStatus("idle");
+        setRepayStatus("idle");
+        setRepayAmount("");
+        setCollateralToReturn("");
+        setRepayTxHash(undefined);
+
+        // Clear chain selection and loan data
+        setCashOutChainId(undefined);
+        setSelectedChainId(undefined);
+        setInternalSelectedLoan(null);
+
+        // Clear UI state
+        setShowChart(false);
+        setShowInfo(false);
+        setShowOtherCollateral(false);
+        setShowLoanDetailsTable(true);
+        setShowRefinanceLoanDetailsTable(true);
+        setShowingWaitingMessage(false);
+      }
+    },
+    [defaultTab],
+  );
+
+  const handleChainSelection = useCallback(
+    (chainId: number) => {
+      const selected = balances?.find((b) => b.chainId === chainId);
+      const collateral = selected ? formatUnits(selected.balance.value, projectTokenDecimals) : "0";
+      setSelectedChainId(chainId);
+      setCashOutChainId(chainId.toString());
+      setCollateralAmount(collateral);
+      setInternalSelectedLoan(null);
+    },
+    [balances, projectTokenDecimals],
+  );
 
   const handleLoanSelection = useCallback((loanId: string, loanData: any) => {
     setInternalSelectedLoan(loanData);
@@ -435,10 +469,11 @@ export function useBorrowDialog({
   }, []);
 
   const handleBorrow = useCallback(async () => {
-    
     // Get token configuration for the selected chain
-    const selectedChainTokenConfig = cashOutChainId ? getTokenConfigForChain(Number(cashOutChainId)) : null;
-    
+    const selectedChainTokenConfig = cashOutChainId
+      ? getTokenConfigForChain(Number(cashOutChainId))
+      : null;
+
     // Validate that we have token configuration for the selected chain
     if (!selectedChainTokenConfig) {
       setBorrowStatus("error");
@@ -449,8 +484,12 @@ export function useBorrowDialog({
       });
       return;
     }
-    
-    if (internalSelectedLoan && collateralAmount !== undefined && !isNaN(Number(collateralAmount))) {
+
+    if (
+      internalSelectedLoan &&
+      collateralAmount !== undefined &&
+      !isNaN(Number(collateralAmount))
+    ) {
       // Reallocation path - allow 0 additional capital
       if (
         !internalSelectedLoan ||
@@ -466,30 +505,35 @@ export function useBorrowDialog({
       // Fix the parameter calculations based on the guidance:
       // Calculate the safe transfer amount to avoid under-collateralization
       const principalCover = BigInt(internalSelectedLoan.borrowAmount);
-      const maxRemovable = currentBorrowableOnSelectedCollateral ? 
-        currentBorrowableOnSelectedCollateral - principalCover : 0n;
-      
+      const maxRemovable = currentBorrowableOnSelectedCollateral
+        ? currentBorrowableOnSelectedCollateral - principalCover
+        : 0n;
+
       // Only transfer the safe amount (or less)
       const collateralCountToTransfer = maxRemovable > 0n ? maxRemovable : 0n;
-      
+
       // collateralCountToAdd: The amount of collateral to add to the new loan (can be 0)
       // Should be in project token decimals, not base token decimals
       const collateralCountToAdd = parseUnits(collateralAmount || "0", projectTokenDecimals);
-      
+
       // feePercent: The fee percent for the new loan
       const feePercent = BigInt(Math.round(parseFloat(prepaidPercent) * 10));
-      
+
       // Validate that the reallocation won't result in a borrow amount less than the original
-      if (selectedLoanReallocAmount !== undefined && selectedLoanReallocAmount < BigInt(internalSelectedLoan.borrowAmount)) {
+      if (
+        selectedLoanReallocAmount !== undefined &&
+        selectedLoanReallocAmount < BigInt(internalSelectedLoan.borrowAmount)
+      ) {
         setBorrowStatus("error");
         toast({
           variant: "destructive",
           title: "Invalid Reallocation",
-          description: "Adding this collateral would result in a borrow amount less than your original loan. Please add more collateral.",
+          description:
+            "Adding this collateral would result in a borrow amount less than your original loan. Please add more collateral.",
         });
         return;
       }
-      
+
       // Set minBorrowAmount to 0 as per the guidance
       const minBorrowAmount = 0n;
 
@@ -513,14 +557,14 @@ export function useBorrowDialog({
 
           if (BigInt(allowance) < newLoanBorrowableAmount) {
             setBorrowStatus("approving");
-            
+
             const approveHash = await walletClient.writeContract({
               address: baseTokenAddress,
               abi: erc20Abi,
               functionName: "approve",
               args: [revLoansContractAddress as Address, newLoanBorrowableAmount],
             });
-            
+
             await publicClient.waitForTransactionReceipt({ hash: approveHash });
             setBorrowStatus("waiting-signature");
           }
@@ -546,7 +590,8 @@ export function useBorrowDialog({
         toast({
           variant: "destructive",
           title: "Reallocation Failed",
-          description: err instanceof Error ? err.message : "An error occurred during loan adjustment",
+          description:
+            err instanceof Error ? err.message : "An error occurred during loan adjustment",
         });
       }
     } else {
@@ -605,7 +650,12 @@ export function useBorrowDialog({
         const baseTokenSymbol = getTokenSymbolFromAddress(selectedChainTokenConfig.token);
 
         // Check allowance for non-ETH base tokens (for standard borrow)
-        if (baseTokenSymbol !== "ETH" && publicClient && walletClient && estimatedBorrowFromInputOnly) {
+        if (
+          baseTokenSymbol !== "ETH" &&
+          publicClient &&
+          walletClient &&
+          estimatedBorrowFromInputOnly
+        ) {
           const baseTokenAddress = selectedChainTokenConfig.token;
           const revLoansContractAddress = revLoansAddress[Number(cashOutChainId) as JBChainId];
 
@@ -618,14 +668,14 @@ export function useBorrowDialog({
 
           if (BigInt(allowance) < estimatedBorrowFromInputOnly) {
             setBorrowStatus("approving");
-            
+
             const approveHash = await walletClient.writeContract({
               address: baseTokenAddress,
               abi: erc20Abi,
               functionName: "approve",
               args: [revLoansContractAddress as Address, estimatedBorrowFromInputOnly],
             });
-            
+
             await publicClient.waitForTransactionReceipt({ hash: approveHash });
             setBorrowStatus("waiting-signature");
           }
@@ -736,7 +786,9 @@ export function useBorrowDialog({
       const currentTxHash = txHash || reallocationTxHash;
       toast({
         title: "Success",
-        description: isReallocationSuccess ? "Loan adjusted successfully!" : "Loan created successfully!",
+        description: isReallocationSuccess
+          ? "Loan adjusted successfully!"
+          : "Loan created successfully!",
       });
       setTimeout(() => {
         handleOpenChange(false);
@@ -744,7 +796,16 @@ export function useBorrowDialog({
     } else {
       setBorrowStatus("error");
     }
-  }, [txHash, reallocationTxHash, isTxLoading, isReallocationTxLoading, isSuccess, isReallocationSuccess, toast, handleOpenChange]);
+  }, [
+    txHash,
+    reallocationTxHash,
+    isTxLoading,
+    isReallocationTxLoading,
+    isSuccess,
+    isReallocationSuccess,
+    toast,
+    handleOpenChange,
+  ]);
 
   // Calculate native to wallet and gross borrowed
   useEffect(() => {
@@ -753,18 +814,33 @@ export function useBorrowDialog({
       setGrossBorrowedNative(0);
       return;
     }
-    
+
     // Get token configuration for the selected chain
-    const selectedChainTokenConfig = cashOutChainId ? getTokenConfigForChain(Number(cashOutChainId)) : null;
+    const selectedChainTokenConfig = cashOutChainId
+      ? getTokenConfigForChain(Number(cashOutChainId))
+      : null;
     const tokenDecimals = selectedChainTokenConfig?.decimals || NATIVE_TOKEN_DECIMALS;
-    
-    const percent = Number(formatUnits(parseUnits(collateralAmount, projectTokenDecimals), projectTokenDecimals)) / Number(formatUnits(userProjectTokenBalance, projectTokenDecimals));
-    const estimatedRaw = borrowableAmountRaw ? Number(formatUnits(borrowableAmountRaw, tokenDecimals)) : 0;
+
+    const percent =
+      Number(
+        formatUnits(parseUnits(collateralAmount, projectTokenDecimals), projectTokenDecimals),
+      ) / Number(formatUnits(userProjectTokenBalance, projectTokenDecimals));
+    const estimatedRaw = borrowableAmountRaw
+      ? Number(formatUnits(borrowableAmountRaw, tokenDecimals))
+      : 0;
     const adjusted = estimatedRaw * percent;
-    const afterNetworkFee = adjusted * (1 - (totalFixedFees / 1000));
+    const afterNetworkFee = adjusted * (1 - totalFixedFees / 1000);
     setNativeToWallet(afterNetworkFee);
     setGrossBorrowedNative(adjusted);
-  }, [collateralAmount, userProjectTokenBalance, borrowableAmountRaw, totalFixedFees, projectTokenDecimals, cashOutChainId, getTokenConfigForChain]);
+  }, [
+    collateralAmount,
+    userProjectTokenBalance,
+    borrowableAmountRaw,
+    totalFixedFees,
+    projectTokenDecimals,
+    cashOutChainId,
+    getTokenConfigForChain,
+  ]);
 
   // Repay status effects
   useEffect(() => {
@@ -793,7 +869,9 @@ export function useBorrowDialog({
   }, [borrowStatus]);
 
   useEffect(() => {
-    if (["success", "error", "error-permission-denied", "error-loan-canceled"].includes(borrowStatus)) {
+    if (
+      ["success", "error", "error-permission-denied", "error-loan-canceled"].includes(borrowStatus)
+    ) {
       const timeout = setTimeout(() => setBorrowStatus("idle"), 5000);
       return () => clearTimeout(timeout);
     }
@@ -806,16 +884,24 @@ export function useBorrowDialog({
 
   // Recalculate repayAmount when collateralToReturn, estimatedNewBorrowableAmount, or selectedLoan changes
   useEffect(() => {
-    if (!internalSelectedLoan || !collateralToReturn || estimatedNewBorrowableAmount === undefined) return;
+    if (!internalSelectedLoan || !collateralToReturn || estimatedNewBorrowableAmount === undefined)
+      return;
 
     // Get token configuration for the loan's chain
-    const loanChainTokenConfig = internalSelectedLoan?.chainId ? getTokenConfigForChain(internalSelectedLoan.chainId) : null;
+    const loanChainTokenConfig = internalSelectedLoan?.chainId
+      ? getTokenConfigForChain(internalSelectedLoan.chainId)
+      : null;
     const tokenDecimals = loanChainTokenConfig?.decimals || NATIVE_TOKEN_DECIMALS;
 
     const correctedBorrowAmount = BigInt(internalSelectedLoan.borrowAmount);
     const repayAmountWei = correctedBorrowAmount - estimatedNewBorrowableAmount;
     setRepayAmount(formatUnits(repayAmountWei, tokenDecimals));
-  }, [collateralToReturn, estimatedNewBorrowableAmount, internalSelectedLoan, getTokenConfigForChain]);
+  }, [
+    collateralToReturn,
+    estimatedNewBorrowableAmount,
+    internalSelectedLoan,
+    getTokenConfigForChain,
+  ]);
 
   // ===== RETURN VALUES =====
   return {
@@ -879,18 +965,20 @@ export function useBorrowDialog({
     setShowOtherCollateral,
     setCollateralToReturn,
     setInternalSelectedLoan,
-    
+
     // Additional exports needed by component
     balances,
     primaryNativeTerminal,
     address,
     setSelectedChainId,
     setCashOutChainId,
-    
+
     // ===== PHASE 5: BASE TOKEN EXPORTS =====
     baseToken,
     selectedChainTokenConfig,
     getTokenConfigForChain,
-    selectedChainTokenSymbol: selectedChainTokenConfig ? getTokenSymbolFromAddress(selectedChainTokenConfig.token) : "ETH",
+    selectedChainTokenSymbol: selectedChainTokenConfig
+      ? getTokenSymbolFromAddress(selectedChainTokenConfig.token)
+      : "ETH",
   };
 }

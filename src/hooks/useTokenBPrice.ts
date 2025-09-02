@@ -1,6 +1,6 @@
+import { getTokenBPrice } from "juice-sdk-core";
 import { useJBRulesetContext } from "juice-sdk-react";
 import { useTokenA } from "./useTokenA";
-import { getTokenBPrice } from "juice-sdk-core";
 
 /**
  * Returns the current price of token B in terms of token A.

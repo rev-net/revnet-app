@@ -23,16 +23,15 @@ export function ReallocationConfirmBox({
   tokenSymbol: string;
   onComplete: () => void;
 }) {
-  const {
-    writeContractAsync: reallocateCollateralAsync,
-    isPending: isReallocating,
-  } = useWriteRevLoansReallocateCollateralFromLoan();
+  const { writeContractAsync: reallocateCollateralAsync, isPending: isReallocating } =
+    useWriteRevLoansReallocateCollateralFromLoan();
 
   return (
     <div className="mt-4 border p-4 rounded bg-yellow-50 text-sm text-yellow-900">
       <p className="mb-2">
-        You are reallocating {Number(pendingReallocation.collateralCountToTransfer) / 1e18} {tokenSymbol} and adding{" "}
-        {Number(pendingReallocation.collateralCountToAdd) / 1e18} {tokenSymbol} to borrow again.
+        You are reallocating {Number(pendingReallocation.collateralCountToTransfer) / 1e18}{" "}
+        {tokenSymbol} and adding {Number(pendingReallocation.collateralCountToAdd) / 1e18}{" "}
+        {tokenSymbol} to borrow again.
       </p>
       <button
         onClick={async () => {

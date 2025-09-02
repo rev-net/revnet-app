@@ -1,9 +1,9 @@
 import { ButtonWithWallet } from "@/components/ButtonWithWallet";
 import { useToast } from "@/components/ui/use-toast";
 import {
+  useJBChainId,
   useJBContractContext,
   useWriteJbControllerSendReservedTokensToSplitsOf,
-  useJBChainId,
 } from "juice-sdk-react";
 import { useWaitForTransactionReceipt } from "wagmi";
 
@@ -15,16 +15,15 @@ export function DistributeReservedTokensButton() {
   } = useJBContractContext();
   const chainId = useJBChainId();
 
-  const { writeContract, isPending, data } =
-    useWriteJbControllerSendReservedTokensToSplitsOf({
-      mutation: {
-        onSuccess() {
-          toast({
-            title: "Transaction submitted.",
-          });
-        },
+  const { writeContract, isPending, data } = useWriteJbControllerSendReservedTokensToSplitsOf({
+    mutation: {
+      onSuccess() {
+        toast({
+          title: "Transaction submitted.",
+        });
       },
-    });
+    },
+  });
 
   const {
     data: txData,

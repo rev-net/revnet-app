@@ -13,13 +13,7 @@ export function LoanDurationSlider({
       <label className="text-sm font-medium text-zinc-900">
         Lock duration: {value} month{value !== 1 ? "s" : ""}
       </label>
-      <Slider
-        min={3}
-        max={120}
-        step={1}
-        value={[value]}
-        onValueChange={([v]) => onChange(v)}
-      />
+      <Slider min={3} max={120} step={1} value={[value]} onValueChange={([v]) => onChange(v)} />
       <div className="text-xs text-muted-foreground">
         Locking tokens for longer reduces future fees. Max: 120 months.
       </div>

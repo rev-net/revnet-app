@@ -1,8 +1,6 @@
-import { PropsWithChildren } from "react";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { formatUnits } from "viem";
-import { NATIVE_TOKEN_DECIMALS, JBChainId } from "juice-sdk-core";
+import { USDC_ADDRESSES } from "@/app/constants";
+import { ButtonWithWallet } from "@/components/ButtonWithWallet";
+import { ChainLogo } from "@/components/ChainLogo";
 import {
   Dialog,
   DialogContent,
@@ -12,14 +10,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { ButtonWithWallet } from "@/components/ButtonWithWallet";
-import { SimulatedLoanCard } from "../SimulatedLoanCard";
-import { LoanFeeChart } from "../LoanFeeChart";
-import { ImportantInfo } from "./ImportantInfo";
-import { useBorrowDialog } from "./hooks/useBorrowDialog";
-import { useEffect, useCallback } from "react";
-import { ChainLogo } from "@/components/ChainLogo";
-import { JB_CHAINS } from "juice-sdk-core";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -27,7 +19,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { USDC_ADDRESSES } from "@/app/constants";
+import { JB_CHAINS, JBChainId, NATIVE_TOKEN_DECIMALS } from "juice-sdk-core";
+import { PropsWithChildren, useCallback, useEffect } from "react";
+import { formatUnits } from "viem";
+import { LoanFeeChart } from "../LoanFeeChart";
+import { SimulatedLoanCard } from "../SimulatedLoanCard";
+import { ImportantInfo } from "./ImportantInfo";
+import { useBorrowDialog } from "./hooks/useBorrowDialog";
 
 export function BorrowDialog({
   projectId,
@@ -39,7 +37,6 @@ export function BorrowDialog({
   tokenSymbol: string;
   selectedLoan?: any;
 }>) {
-  
   const borrowDialog = useBorrowDialog({
     projectId,
     tokenSymbol,
@@ -85,33 +82,50 @@ export function BorrowDialog({
 
   // ===== PHASE 3: DYNAMIC TOKEN SYMBOL =====
   // Get the correct token symbol for the selected chain
-  const getTokenSymbolForChain = useCallback((targetChainId: number) => {
-    const chainTokenConfig = getTokenConfigForChain(targetChainId);
-    
-    // Get the actual token symbol from the bendystraw data
-    if (chainTokenConfig?.token?.toLowerCase() === "0x000000000000000000000000000000000000eeee") {
-      return "ETH";
-    }
-    
-    // For other tokens, check if it's a known USDC address (case insensitive)
-    const isUsdc = Object.values(USDC_ADDRESSES).map(addr => addr.toLowerCase()).includes(chainTokenConfig?.token?.toLowerCase() as `0x${string}`);
-    const symbol = isUsdc ? "USDC" : "TOKEN";
-    return symbol;
-  }, [getTokenConfigForChain]);
-  
-  const selectedChainTokenSymbol = cashOutChainId ? getTokenSymbolForChain(Number(cashOutChainId)) : baseToken.symbol;
-  
+  const getTokenSymbolForChain = useCallback(
+    (targetChainId: number) => {
+      const chainTokenConfig = getTokenConfigForChain(targetChainId);
+
+      // Get the actual token symbol from the bendystraw data
+      if (chainTokenConfig?.token?.toLowerCase() === "0x000000000000000000000000000000000000eeee") {
+        return "ETH";
+      }
+
+      // For other tokens, check if it's a known USDC address (case insensitive)
+      const isUsdc = Object.values(USDC_ADDRESSES)
+        .map((addr) => addr.toLowerCase())
+        .includes(chainTokenConfig?.token?.toLowerCase() as `0x${string}`);
+      const symbol = isUsdc ? "USDC" : "TOKEN";
+      return symbol;
+    },
+    [getTokenConfigForChain],
+  );
+
+  const selectedChainTokenSymbol = cashOutChainId
+    ? getTokenSymbolForChain(Number(cashOutChainId))
+    : baseToken.symbol;
+
   // Handle chain selection - exactly like RedeemDialog
-  const handleChainSelect = useCallback((chainId: string) => {
-    const selected = balances?.find((b: any) => b.chainId === Number(chainId));
-    if (selected) {
-      const collateral = formatUnits(selected.balance.value, projectTokenDecimals);
-      setSelectedChainId(Number(chainId));
-      setCashOutChainId(chainId);
-      setCollateralAmount(collateral);
-      setInternalSelectedLoan(null);
-    }
-  }, [balances, projectTokenDecimals, setSelectedChainId, setCashOutChainId, setCollateralAmount, setInternalSelectedLoan]);
+  const handleChainSelect = useCallback(
+    (chainId: string) => {
+      const selected = balances?.find((b: any) => b.chainId === Number(chainId));
+      if (selected) {
+        const collateral = formatUnits(selected.balance.value, projectTokenDecimals);
+        setSelectedChainId(Number(chainId));
+        setCashOutChainId(chainId);
+        setCollateralAmount(collateral);
+        setInternalSelectedLoan(null);
+      }
+    },
+    [
+      balances,
+      projectTokenDecimals,
+      setSelectedChainId,
+      setCashOutChainId,
+      setCollateralAmount,
+      setInternalSelectedLoan,
+    ],
+  );
 
   // Restore chain selection if it gets reset while dialog is open
   useEffect(() => {
@@ -136,9 +150,7 @@ export function BorrowDialog({
         <div>
           {/* Holdings Overview Section - Static like RedeemDialog */}
           <div className="mb-5 w-[65%]">
-            <span className="text-sm text-black font-medium">
-              Your {tokenSymbol}
-            </span>
+            <span className="text-sm text-black font-medium">Your {tokenSymbol}</span>
             <div className="mt-1 border border-zinc-200 p-3 bg-zinc-50">
               {balances?.map((balance, index) => (
                 <div key={index} className="flex justify-between gap-2">
@@ -164,26 +176,32 @@ export function BorrowDialog({
                     name="collateral-amount"
                     type="number"
                     step="0.0001"
-                    max={selectedBalance ? Number(formatUnits(selectedBalance.balance.value, projectTokenDecimals)) : undefined}
+                    max={
+                      selectedBalance
+                        ? Number(formatUnits(selectedBalance.balance.value, projectTokenDecimals))
+                        : undefined
+                    }
                     value={collateralAmount}
                     onChange={(e) => {
                       const value = e.target.value;
-                      
+
                       // Allow empty input for clearing
                       if (value === "") {
                         setCollateralAmount("");
                         return;
                       }
-                      
+
                       // Limit decimal places to 8 digits
-                      const decimalIndex = value.indexOf('.');
+                      const decimalIndex = value.indexOf(".");
                       if (decimalIndex !== -1 && value.length - decimalIndex - 1 > 8) {
                         return; // Don't update if too many decimal places
                       }
-                      
+
                       const numValue = Number(value);
-                      const maxValue = selectedBalance ? Number(formatUnits(selectedBalance.balance.value, projectTokenDecimals)) : 0;
-                      
+                      const maxValue = selectedBalance
+                        ? Number(formatUnits(selectedBalance.balance.value, projectTokenDecimals))
+                        : 0;
+
                       // Only validate max if it's a valid number
                       if (!isNaN(numValue)) {
                         // Prevent entering more than available balance
@@ -199,23 +217,20 @@ export function BorrowDialog({
                     }}
                     placeholder={
                       cashOutChainId && selectedBalance
-                        ? Number(formatUnits(selectedBalance.balance.value, projectTokenDecimals)).toFixed(8)
+                        ? Number(
+                            formatUnits(selectedBalance.balance.value, projectTokenDecimals),
+                          ).toFixed(8)
                         : "Enter amount"
                     }
                     className="mt-2"
                   />
                   <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 z-10">
-                    <span className="text-zinc-500 sm:text-md">
-                      {tokenSymbol}
-                    </span>
+                    <span className="text-zinc-500 sm:text-md">{tokenSymbol}</span>
                   </div>
                 </div>
               </div>
               <div className="col-span-3">
-                <Select 
-                  onValueChange={handleChainSelect} 
-                  value={cashOutChainId || ""}
-                >
+                <Select onValueChange={handleChainSelect} value={cashOutChainId || ""}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select chain">
                       {cashOutChainId && (
@@ -231,18 +246,10 @@ export function BorrowDialog({
                       ?.filter((b) => b.balance.value > 0n)
                       .map((balance) => {
                         return (
-                          <SelectItem
-                            value={balance.chainId.toString()}
-                            key={balance.chainId}
-                          >
+                          <SelectItem value={balance.chainId.toString()} key={balance.chainId}>
                             <div className="flex items-center gap-2">
-                              <ChainLogo
-                                chainId={balance.chainId as JBChainId}
-                              />
-                              {
-                                JB_CHAINS[balance.chainId as JBChainId]
-                                  .name
-                              }
+                              <ChainLogo chainId={balance.chainId as JBChainId} />
+                              {JB_CHAINS[balance.chainId as JBChainId].name}
                             </div>
                           </SelectItem>
                         );
@@ -260,7 +267,11 @@ export function BorrowDialog({
                       type="button"
                       onClick={() => {
                         if (selectedBalance) {
-                          const value = Number(formatUnits(selectedBalance.balance.value, projectTokenDecimals)) * (pct / 100);
+                          const value =
+                            Number(
+                              formatUnits(selectedBalance.balance.value, projectTokenDecimals),
+                            ) *
+                            (pct / 100);
                           setCollateralAmount(value.toFixed(6));
                         }
                       }}
@@ -273,7 +284,9 @@ export function BorrowDialog({
                     type="button"
                     onClick={() => {
                       if (selectedBalance) {
-                        const maxValue = Number(formatUnits(selectedBalance.balance.value, projectTokenDecimals));
+                        const maxValue = Number(
+                          formatUnits(selectedBalance.balance.value, projectTokenDecimals),
+                        );
                         setCollateralAmount(maxValue.toFixed(8));
                       }
                     }}
@@ -293,15 +306,13 @@ export function BorrowDialog({
               internalSelectedLoan && selectedLoanReallocAmount
                 ? selectedLoanReallocAmount - BigInt(internalSelectedLoan.borrowAmount)
                 : estimatedBorrowFromInputOnly;
-            
+
             // Use correct decimals for the selected chain
             const tokenDecimals = selectedChainTokenConfig?.decimals || NATIVE_TOKEN_DECIMALS;
             const simulatedAmountBorrowed = effectiveBorrowableAmount
               ? Number(formatUnits(effectiveBorrowableAmount, tokenDecimals))
               : 0;
             const simulatedGrossBorrowedEth = simulatedAmountBorrowed;
-
-
 
             if (collateralAmount && !isNaN(Number(collateralAmount))) {
               return (
@@ -375,7 +386,8 @@ export function BorrowDialog({
                   {borrowStatus === "pending" && "Creating loan..."}
                   {borrowStatus === "reallocation-pending" && "Adjusting loan..."}
                   {borrowStatus === "success" && "Loan created successfully!"}
-                  {borrowStatus === "error-permission-denied" && "Permission was not granted. Please approve to proceed."}
+                  {borrowStatus === "error-permission-denied" &&
+                    "Permission was not granted. Please approve to proceed."}
                   {borrowStatus === "error-loan-canceled" && "Loan creation was canceled."}
                   {borrowStatus === "error" && "Something went wrong during loan creation."}
                 </p>
@@ -395,7 +407,7 @@ export function BorrowDialog({
             </ButtonWithWallet>
           </DialogFooter>
         </div>
-       </DialogContent>
-      </Dialog>
-    );
-  }
+      </DialogContent>
+    </Dialog>
+  );
+}

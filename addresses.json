@@ -1,1 +1,38 @@
-{"JBController":{"sepolia":"0x719c79da361Ce133e9621a6f682Eff5DAB44E016","optimismSepolia":"0x8c392FeF6bfEca79de5b7b43CDEe08B3Bd9d4ac4"},"JBDirectory":{"sepolia":"0x499ca8d58C84509f665f19722ccC5e77B4615ACD","optimismSepolia":"0x3bFfAFD76C495cFf542Cef8aA26fC9e35c8f3778"},"JBMultiTerminal":{"sepolia":"0xc1Ce30883c7C25050BFE1F3e9139842bAc809E3a","optimismSepolia":"0x98aB3D768D8134c57c963EE0ddd316F0E277f033"},"JBRulesets":{"sepolia":"0x9e5e08Af158b4E4fdb77ee68873FE9Ac582BF4bC","optimismSepolia":"0xF1a10C55D13bFea9d1CFE47540F6eC7b84f8377D"},"JBPermissions":{"sepolia":"0xDd68353f90B9c82eF1e6adf1F0f458c5f02534d6","optimismSepolia":"0x7DF9C20A66dDAb3346ff8EAD69e6127e36722764"},"JBProjects":{"sepolia":"0x3bFfAFD76C495cFf542Cef8aA26fC9e35c8f3778","optimismSepolia":"0xDd68353f90B9c82eF1e6adf1F0f458c5f02534d6"},"JBSplits":{"sepolia":"0xF1a10C55D13bFea9d1CFE47540F6eC7b84f8377D","optimismSepolia":"0x499ca8d58C84509f665f19722ccC5e77B4615ACD"},"JBTokens":{"sepolia":"0x1A38F9f596E656f35F767B34Cf057f6fbe67F80A","optimismSepolia":"0x9e5e08Af158b4E4fdb77ee68873FE9Ac582BF4bC"},"JBTerminalStore":{"sepolia":"0x0EE03cc18403862D2Bf17c8E65A28Bf0685Ce041","optimismSepolia":"0xEACa4242B1DaAf00cC61431F32dE22e8fB76386F"}}
+{
+  "JBController": {
+    "sepolia": "0x719c79da361Ce133e9621a6f682Eff5DAB44E016",
+    "optimismSepolia": "0x8c392FeF6bfEca79de5b7b43CDEe08B3Bd9d4ac4"
+  },
+  "JBDirectory": {
+    "sepolia": "0x499ca8d58C84509f665f19722ccC5e77B4615ACD",
+    "optimismSepolia": "0x3bFfAFD76C495cFf542Cef8aA26fC9e35c8f3778"
+  },
+  "JBMultiTerminal": {
+    "sepolia": "0xc1Ce30883c7C25050BFE1F3e9139842bAc809E3a",
+    "optimismSepolia": "0x98aB3D768D8134c57c963EE0ddd316F0E277f033"
+  },
+  "JBRulesets": {
+    "sepolia": "0x9e5e08Af158b4E4fdb77ee68873FE9Ac582BF4bC",
+    "optimismSepolia": "0xF1a10C55D13bFea9d1CFE47540F6eC7b84f8377D"
+  },
+  "JBPermissions": {
+    "sepolia": "0xDd68353f90B9c82eF1e6adf1F0f458c5f02534d6",
+    "optimismSepolia": "0x7DF9C20A66dDAb3346ff8EAD69e6127e36722764"
+  },
+  "JBProjects": {
+    "sepolia": "0x3bFfAFD76C495cFf542Cef8aA26fC9e35c8f3778",
+    "optimismSepolia": "0xDd68353f90B9c82eF1e6adf1F0f458c5f02534d6"
+  },
+  "JBSplits": {
+    "sepolia": "0xF1a10C55D13bFea9d1CFE47540F6eC7b84f8377D",
+    "optimismSepolia": "0x499ca8d58C84509f665f19722ccC5e77B4615ACD"
+  },
+  "JBTokens": {
+    "sepolia": "0x1A38F9f596E656f35F767B34Cf057f6fbe67F80A",
+    "optimismSepolia": "0x9e5e08Af158b4E4fdb77ee68873FE9Ac582BF4bC"
+  },
+  "JBTerminalStore": {
+    "sepolia": "0x0EE03cc18403862D2Bf17c8E65A28Bf0685Ce041",
+    "optimismSepolia": "0xEACa4242B1DaAf00cC61431F32dE22e8fB76386F"
+  }
+}

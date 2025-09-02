@@ -1,11 +1,8 @@
-import {
-  useTokenCashOutQuoteEth,
-  JBChainId,
-} from "juice-sdk-react";
-import { useEffect, useState, useCallback, useMemo } from "react";
+import { JBChainId, useTokenCashOutQuoteEth } from "juice-sdk-react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 export interface IndividualBalanceEntry {
-  balance: { value: bigint; };
+  balance: { value: bigint };
   chainId: JBChainId;
   projectId: bigint;
 }
@@ -29,12 +26,9 @@ const SingleBalanceQuoteFetcher: React.FC<SingleBalanceQuoteFetcherProps> = ({
   itemKey,
   onQuoteStateUpdate,
 }) => {
-  const { data: quote, isLoading} = useTokenCashOutQuoteEth(
-    balanceItem.balance.value,
-    {
-      chainId: balanceItem.chainId,
-    }
-  );
+  const { data: quote, isLoading } = useTokenCashOutQuoteEth(balanceItem.balance.value, {
+    chainId: balanceItem.chainId,
+  });
 
   // Report state changes back to the parent hook
   useEffect(() => {
@@ -47,7 +41,9 @@ const SingleBalanceQuoteFetcher: React.FC<SingleBalanceQuoteFetcherProps> = ({
 // Custom Hook: useSumQuotes
 export function useSumQuotes(balances: IndividualBalanceEntry[] | undefined) {
   // Stores the quote state (data + loading) for each balance item
-  const [individualQuoteStates, setIndividualQuoteStates] = useState<Map<string, IndividualQuoteState>>(new Map());
+  const [individualQuoteStates, setIndividualQuoteStates] = useState<
+    Map<string, IndividualQuoteState>
+  >(new Map());
   // Overall loading state for the sum
   const [isSumLoading, setIsSumLoading] = useState(false);
 
@@ -58,7 +54,11 @@ export function useSumQuotes(balances: IndividualBalanceEntry[] | undefined) {
       setIndividualQuoteStates((prevMap) => {
         const existingState = prevMap.get(key);
         // Avoid unnecessary state updates if the reported state is identical
-        if (existingState && existingState.isLoading === state.isLoading && existingState.quote === state.quote) {
+        if (
+          existingState &&
+          existingState.isLoading === state.isLoading &&
+          existingState.quote === state.quote
+        ) {
           return prevMap;
         }
         const newMap = new Map(prevMap);
@@ -66,17 +66,17 @@ export function useSumQuotes(balances: IndividualBalanceEntry[] | undefined) {
         return newMap;
       });
     },
-    [] // No dependencies, so this callback is stable
+    [], // No dependencies, so this callback is stable
   );
 
   // Effect to reconcile individualQuoteStates with the current `balances` list.
   useEffect(() => {
     if (balances && balances.length > 0) {
       const newBalanceKeys = new Set(
-        balances.map(b => `${b.chainId.toString()}-${b.projectId.toString()}`)
+        balances.map((b) => `${b.chainId.toString()}-${b.projectId.toString()}`),
       );
 
-      setIndividualQuoteStates(prevStates => {
+      setIndividualQuoteStates((prevStates) => {
         const nextStates = new Map<string, IndividualQuoteState>();
         let changed = false;
 
@@ -91,18 +91,17 @@ export function useSumQuotes(balances: IndividualBalanceEntry[] | undefined) {
 
         // Check if any keys were removed
         if (prevStates.size !== nextStates.size && !changed) {
-             for(const oldKey of prevStates.keys()){
-                 if(!newBalanceKeys.has(oldKey)){
-                     changed = true;
-                     break;
-                 }
-             }
-        }
-        
-        if (prevStates.size === 0 && balances.length > 0) {
-            changed = true;
+          for (const oldKey of prevStates.keys()) {
+            if (!newBalanceKeys.has(oldKey)) {
+              changed = true;
+              break;
+            }
+          }
         }
 
+        if (prevStates.size === 0 && balances.length > 0) {
+          changed = true;
+        }
 
         return changed ? nextStates : prevStates; // If no structural changes, keep old map.
       });
@@ -117,24 +116,30 @@ export function useSumQuotes(balances: IndividualBalanceEntry[] | undefined) {
   // Memoize the fetcher elements.
   // Only create fetchers for balances that don't yet have a finalized quote.
   const fetcherElements = useMemo(() => {
-    if (!balances || balances.length > 0 === false) { // Ensure balances is not empty array
+    if (!balances || balances.length > 0 === false) {
+      // Ensure balances is not empty array
       return null;
     }
 
     // Filter balances: only create a fetcher if we don't have a "good" quote.
     // "Good" quote = exists in map, not loading, and quote is defined.
-    const balancesToFetch = balances.filter(bal => {
+    const balancesToFetch = balances.filter((bal) => {
       const itemKey = `${bal.chainId.toString()}-${bal.projectId.toString()}`;
       const currentState = individualQuoteStates.get(itemKey);
       // Fetch if:
       // 1. No state exists for this item yet OR
       // 2. State exists but it's currently loading OR
       // 3. State exists, not loading, but quote is undefined (e.g., an error occurred, or it's 0 and we want to re-check)
-      const needsFetching = !currentState || currentState.isLoading || currentState.quote === undefined;
+      const needsFetching =
+        !currentState || currentState.isLoading || currentState.quote === undefined;
       return needsFetching;
     });
 
-    if (balancesToFetch.length === 0 && balances.length > 0 && individualQuoteStates.size >= balances.length) {
+    if (
+      balancesToFetch.length === 0 &&
+      balances.length > 0 &&
+      individualQuoteStates.size >= balances.length
+    ) {
       // All balances have some state, and none need fetching according to filter.
       // This might mean all quotes are loaded.
       return null;

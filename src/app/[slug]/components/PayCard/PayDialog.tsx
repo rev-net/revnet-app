@@ -18,30 +18,19 @@ import {
 } from "@/components/ui/select";
 import { Stat } from "@/components/ui/stat";
 import { useToast } from "@/components/ui/use-toast";
-import {
-  JB_CHAINS,
-  JBChainId,
-  NATIVE_TOKEN,
-  TokenAmountType,
-} from "juice-sdk-core";
+import { ProjectDocument, SuckerGroupDocument } from "@/generated/graphql";
+import { useBendystrawQuery } from "@/graphql/useBendystrawQuery";
+import { JB_CHAINS, JBChainId, TokenAmountType } from "juice-sdk-core";
 import {
   useJBChainId,
   useJBContractContext,
   useSuckers,
   useWriteJbMultiTerminalPay,
 } from "juice-sdk-react";
-import { USDC_ADDRESSES } from "@/app/constants";
 import { useEffect, useState } from "react";
-import { Address, erc20Abi } from "viem";
-import {
-  useAccount,
-  useWaitForTransactionReceipt,
-  usePublicClient,
-  useWalletClient,
-} from "wagmi";
+import { erc20Abi } from "viem";
+import { useAccount, usePublicClient, useWaitForTransactionReceipt, useWalletClient } from "wagmi";
 import { useSelectedSucker } from "./SelectedSuckerContext";
-import { useBendystrawQuery } from "@/graphql/useBendystrawQuery";
-import { ProjectDocument, SuckerGroupDocument } from "@/generated/graphql";
 
 export function PayDialog({
   amountA,
@@ -59,14 +48,24 @@ export function PayDialog({
   onSuccess?: () => void;
 }) {
   const { projectId } = useJBContractContext();
-  const primaryNativeTerminal = { data: "0xdb9644369c79c3633cde70d2df50d827d7dc7dbc" };
+  const primaryNativeTerminal = {
+    data: "0xdb9644369c79c3633cde70d2df50d827d7dc7dbc",
+  };
   const { address } = useAccount();
   const value = amountA.amount.value;
-  const { isError, error, writeContract, isPending: isWriteLoading, data } = useWriteJbMultiTerminalPay();
+  const {
+    isError,
+    error,
+    writeContract,
+    isPending: isWriteLoading,
+    data,
+  } = useWriteJbMultiTerminalPay();
   const chainId = useJBChainId();
   const { selectedSucker, setSelectedSucker } = useSelectedSucker();
   const txHash = data;
-  const { isLoading: isTxLoading, isSuccess } = useWaitForTransactionReceipt({ hash: txHash });
+  const { isLoading: isTxLoading, isSuccess } = useWaitForTransactionReceipt({
+    hash: txHash,
+  });
   const { toast } = useToast();
   const suckersQuery = useSuckers();
   const suckers = suckersQuery.data;
@@ -75,35 +74,43 @@ export function PayDialog({
   const [isApproving, setIsApproving] = useState(false);
 
   // Get the suckerGroupId from the current project
-  const { data: projectData } = useBendystrawQuery(ProjectDocument, {
-    chainId: Number(chainId),
-    projectId: Number(projectId),
-  }, {
-    enabled: !!chainId && !!projectId,
-  });
+  const { data: projectData } = useBendystrawQuery(
+    ProjectDocument,
+    {
+      chainId: Number(chainId),
+      projectId: Number(projectId),
+    },
+    {
+      enabled: !!chainId && !!projectId,
+    },
+  );
   const suckerGroupId = projectData?.project?.suckerGroupId;
 
   // Get all projects in the sucker group with their token data
-  const { data: suckerGroupData } = useBendystrawQuery(SuckerGroupDocument, {
-    id: suckerGroupId ?? "",
-  }, {
-    enabled: !!suckerGroupId,
-  });
+  const { data: suckerGroupData } = useBendystrawQuery(
+    SuckerGroupDocument,
+    {
+      id: suckerGroupId ?? "",
+    },
+    {
+      enabled: !!suckerGroupId,
+    },
+  );
 
   // Get the correct token address for the selected chain
   const getTokenForChain = (targetChainId: number) => {
     if (!suckerGroupData?.suckerGroup?.projects?.items) {
       return paymentToken; // fallback to original paymentToken
     }
-    
+
     const projectForChain = suckerGroupData.suckerGroup.projects.items.find(
-      project => project.chainId === targetChainId
+      (project) => project.chainId === targetChainId,
     );
-    
+
     if (projectForChain?.token) {
       return projectForChain.token as `0x${string}`;
     }
-    
+
     return paymentToken; // fallback to original paymentToken
   };
 
@@ -141,7 +148,14 @@ export function PayDialog({
   const loading = isWriteLoading || isTxLoading || isApproving;
 
   const handlePay = async () => {
-    if (!primaryNativeTerminal?.data || !address || !selectedSucker || !walletClient || !publicClient) return;
+    if (
+      !primaryNativeTerminal?.data ||
+      !address ||
+      !selectedSucker ||
+      !walletClient ||
+      !publicClient
+    )
+      return;
 
     // Get the correct token for the selected chain
     const chainToken = getTokenForChain(selectedSucker.peerChainId);
@@ -172,15 +186,7 @@ export function PayDialog({
       writeContract?.({
         chainId: selectedSucker.peerChainId,
         address: primaryNativeTerminal.data as `0x${string}`,
-        args: [
-          selectedSucker.projectId,
-          chainToken,
-          value,
-          address,
-          0n,
-          memo || "",
-          "0x0",
-        ],
+        args: [selectedSucker.projectId, chainToken, value, address, 0n, memo || "", "0x0"],
         value: isNative ? value : 0n,
       });
     } catch (err) {
@@ -238,7 +244,11 @@ export function PayDialog({
                     </SelectTrigger>
                     <SelectContent>
                       {suckers.map((s, index) => (
-                        <SelectItem key={s.peerChainId} value={String(index)} className="flex items-center gap-2">
+                        <SelectItem
+                          key={s.peerChainId}
+                          value={String(index)}
+                          className="flex items-center gap-2"
+                        >
                           <div className="flex items-center gap-2">
                             <ChainLogo chainId={s.peerChainId as JBChainId} />
                             <span>{JB_CHAINS[s.peerChainId as JBChainId].name}</span>

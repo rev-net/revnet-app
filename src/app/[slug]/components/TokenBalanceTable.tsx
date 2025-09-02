@@ -1,10 +1,17 @@
-import { JBChainId, NATIVE_TOKEN_DECIMALS } from "juice-sdk-core";
-import { useReadRevLoansBorrowableAmountFrom } from "revnet-sdk";
-import { useBendystrawQuery } from "@/graphql/useBendystrawQuery";
-import { LoansByAccountDocument } from "@/generated/graphql";
-import { useEffect, useMemo, useCallback } from "react";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ChainLogo } from "@/components/ChainLogo";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { LoansByAccountDocument } from "@/generated/graphql";
+import { useBendystrawQuery } from "@/graphql/useBendystrawQuery";
+import { JBChainId, NATIVE_TOKEN_DECIMALS } from "juice-sdk-core";
+import { useCallback, useEffect, useMemo } from "react";
+import { useReadRevLoansBorrowableAmountFrom } from "revnet-sdk";
 
 // ===== TYPES =====
 type ColumnType = "chain" | "holding" | "borrowable" | "debt" | "collateral";
@@ -45,7 +52,7 @@ interface TokenBalanceTableProps {
 
 // ===== CONSTANTS =====
 const DEFAULT_COLUMNS: ColumnType[] = ["chain", "holding", "borrowable", "debt", "collateral"];
-  const ETH_CURRENCY_ID = 1n;
+const ETH_CURRENCY_ID = 1n;
 
 // ===== UTILITY FUNCTIONS =====
 function formatAmount(value?: bigint): string {
@@ -53,10 +60,10 @@ function formatAmount(value?: bigint): string {
 }
 
 function summarizeLoansByChain(
-  loans?: Array<{ chainId: number; collateral: string; borrowAmount: string }>
+  loans?: Array<{ chainId: number; collateral: string; borrowAmount: string }>,
 ): Record<number, LoanSummary> {
   if (!loans) return {};
-  
+
   return loans.reduce<Record<number, LoanSummary>>((acc, loan) => {
     const { chainId, collateral, borrowAmount } = loan;
     if (!acc[chainId]) {
@@ -77,8 +84,6 @@ function useLoanSummary(address: string) {
   return useMemo(() => summarizeLoansByChain(data?.loans?.items), [data?.loans?.items]);
 }
 
-
-
 // ===== COMPONENTS =====
 function TokenBalanceRow({
   chainId,
@@ -94,44 +99,51 @@ function TokenBalanceRow({
     args: [projectId, balanceValue, BigInt(NATIVE_TOKEN_DECIMALS), ETH_CURRENCY_ID],
   });
 
-  const renderCell = useCallback((column: ColumnType) => {
-    switch (column) {
-      case "chain":
-        return (
-          <TableCell key={column} className="whitespace-nowrap w-32 px-3 py-2">
-            <div className="flex items-center">
-              <ChainLogo chainId={chainId} width={14} height={14} />
-            </div>
-          </TableCell>
-        );
-      case "holding":
-        return (
-          <TableCell key={column} className="text-left px-3 py-2">
-            <span className="whitespace-nowrap">{formatAmount(balanceValue)} {tokenSymbol}</span>
-          </TableCell>
-        );
-      case "borrowable":
-        return (
-          <TableCell key={column} className="text-left px-3 py-2">
-            <span className="whitespace-nowrap">{formatAmount(borrowableAmount)} ETH</span>
-          </TableCell>
-        );
-      case "debt":
-        return (
-          <TableCell key={column} className="text-left px-3 py-2">
-            <span className="whitespace-nowrap">{formatAmount(summary?.borrowAmount)} ETH</span>
-          </TableCell>
-        );
-      case "collateral":
-        return (
-          <TableCell key={column} className="text-left px-3 py-2">
-            <span className="whitespace-nowrap">{formatAmount(summary?.collateral)} {tokenSymbol}</span>
-          </TableCell>
-        );
-      default:
-        return null;
-    }
-  }, [chainId, balanceValue, tokenSymbol, borrowableAmount, summary]);
+  const renderCell = useCallback(
+    (column: ColumnType) => {
+      switch (column) {
+        case "chain":
+          return (
+            <TableCell key={column} className="whitespace-nowrap w-32 px-3 py-2">
+              <div className="flex items-center">
+                <ChainLogo chainId={chainId} width={14} height={14} />
+              </div>
+            </TableCell>
+          );
+        case "holding":
+          return (
+            <TableCell key={column} className="text-left px-3 py-2">
+              <span className="whitespace-nowrap">
+                {formatAmount(balanceValue)} {tokenSymbol}
+              </span>
+            </TableCell>
+          );
+        case "borrowable":
+          return (
+            <TableCell key={column} className="text-left px-3 py-2">
+              <span className="whitespace-nowrap">{formatAmount(borrowableAmount)} ETH</span>
+            </TableCell>
+          );
+        case "debt":
+          return (
+            <TableCell key={column} className="text-left px-3 py-2">
+              <span className="whitespace-nowrap">{formatAmount(summary?.borrowAmount)} ETH</span>
+            </TableCell>
+          );
+        case "collateral":
+          return (
+            <TableCell key={column} className="text-left px-3 py-2">
+              <span className="whitespace-nowrap">
+                {formatAmount(summary?.collateral)} {tokenSymbol}
+              </span>
+            </TableCell>
+          );
+        default:
+          return null;
+      }
+    },
+    [chainId, balanceValue, tokenSymbol, borrowableAmount, summary],
+  );
 
   return <>{columns.map(renderCell)}</>;
 }
@@ -139,19 +151,25 @@ function TokenBalanceRow({
 function TableHeaderRow({ columns }: { columns: ColumnType[] }) {
   const getHeaderText = useCallback((column: ColumnType) => {
     switch (column) {
-      case "chain": return "Chain";
-      case "holding": return "Balance";
-      case "borrowable": return "Borrowable";
-      case "debt": return "Debt";
-      case "collateral": return "Collateral";
-      default: return "";
+      case "chain":
+        return "Chain";
+      case "holding":
+        return "Balance";
+      case "borrowable":
+        return "Borrowable";
+      case "debt":
+        return "Debt";
+      case "collateral":
+        return "Collateral";
+      default:
+        return "";
     }
   }, []);
 
   return (
     <TableRow>
       <TableHead className="w-4 px-3 py-2" />
-      {columns.map(column => (
+      {columns.map((column) => (
         <TableHead key={column} className="text-left px-3 py-2">
           {getHeaderText(column)}
         </TableHead>
@@ -192,18 +210,21 @@ function TableRowItem({
   const isSelectable = borrowableAmount && borrowableAmount > 0n;
 
   const checked = selectedChainId === chainId;
-  
+
   const handleRowClick = useCallback(() => {
     if (isSelectable) {
       onCheckRow?.(chainId, true);
     }
   }, [chainId, onCheckRow, isSelectable]);
 
-  const handleRadioChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    if (isSelectable && e.target.checked) {
-      onCheckRow?.(chainId, true);
-    }
-  }, [chainId, onCheckRow, isSelectable]);
+  const handleRadioChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      if (isSelectable && e.target.checked) {
+        onCheckRow?.(chainId, true);
+      }
+    },
+    [chainId, onCheckRow, isSelectable],
+  );
 
   // Only show chains that have token balance
   if (balance.balance.value === 0n) return null;
@@ -211,7 +232,7 @@ function TableRowItem({
   return (
     <TableRow
       key={index}
-      className={`${isSelectable ? 'cursor-pointer hover:bg-zinc-100' : 'cursor-not-allowed opacity-60'} ${checked ? "bg-zinc-100" : ""}`}
+      className={`${isSelectable ? "cursor-pointer hover:bg-zinc-100" : "cursor-not-allowed opacity-60"} ${checked ? "bg-zinc-100" : ""}`}
       onClick={handleRowClick}
     >
       <TableCell className="text-center px-3 py-2">
@@ -221,7 +242,7 @@ function TableRowItem({
           checked={checked}
           disabled={!isSelectable}
           onChange={handleRadioChange}
-          className={!isSelectable ? 'opacity-50' : ''}
+          className={!isSelectable ? "opacity-50" : ""}
         />
       </TableCell>
       <TokenBalanceRow
@@ -254,10 +275,10 @@ export function TokenBalanceTable({
   // Check if selected chain has no borrowable amount, if not auto-select one that does
   useEffect(() => {
     if (selectedChainId && balances && onAutoselectRow) {
-      const selectedBalance = balances.find(b => b.chainId === selectedChainId);
+      const selectedBalance = balances.find((b) => b.chainId === selectedChainId);
       if (selectedBalance && selectedBalance.balance.value === 0n) {
         // Selected chain has no balance, find first chain with balance
-        const firstWithBalance = balances.find(b => b.balance.value > 0n);
+        const firstWithBalance = balances.find((b) => b.balance.value > 0n);
         if (firstWithBalance) {
           onAutoselectRow(firstWithBalance.chainId);
         }
@@ -267,8 +288,12 @@ export function TokenBalanceTable({
 
   // Auto-select first chain with balance if no chain is selected
   useEffect(() => {
-    if ((selectedChainId === undefined || selectedChainId === null) && balances && onAutoselectRow) {
-      const firstWithBalance = balances.find(b => b.balance.value > 0n);
+    if (
+      (selectedChainId === undefined || selectedChainId === null) &&
+      balances &&
+      onAutoselectRow
+    ) {
+      const firstWithBalance = balances.find((b) => b.balance.value > 0n);
       if (firstWithBalance) {
         onAutoselectRow(firstWithBalance.chainId);
       }
@@ -280,9 +305,7 @@ export function TokenBalanceTable({
 
   return (
     <div className="w-full max-w-md mb-5">
-      <label className="block text-gray-700 text-sm font-bold mb-1">
-        On which chain?
-      </label>
+      <label className="block text-gray-700 text-sm font-bold mb-1">On which chain?</label>
       <div className="max-h-96 overflow-auto bg-zinc-50 border border-zinc-200">
         <div className="flex flex-col overflow-x-auto">
           <div className="min-w-full">

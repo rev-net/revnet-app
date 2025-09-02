@@ -19,10 +19,10 @@ export const ChainLogo = ({
       width={width ?? 20}
       height={height ?? 20}
       style={{
-          minWidth: width ?? 20,
-          minHeight: height ?? 20,
-          flexShrink: 0,
-        }}
+        minWidth: width ?? 20,
+        minHeight: height ?? 20,
+        flexShrink: 0,
+      }}
     />
   );
 };

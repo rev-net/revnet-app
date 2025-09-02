@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 
 type ChainId = 1 | 10 | 8453 | 42161;
 
@@ -129,7 +129,9 @@ export async function GET(req: Request) {
   // Fetch ETH price
   let ethPrice = 0;
   try {
-    const priceRes = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd");
+    const priceRes = await fetch(
+      "https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd",
+    );
     const priceJson = await priceRes.json();
     ethPrice = priceJson.ethereum.usd;
   } catch {}

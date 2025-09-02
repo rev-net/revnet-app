@@ -1,11 +1,11 @@
 import {
-  ResponsiveContainer,
-  LineChart,
   CartesianGrid,
+  Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
   XAxis,
   YAxis,
-  Tooltip,
-  Line,
 } from "recharts";
 // Removed useNativeTokenSymbol import - using tokenSymbol prop instead
 
@@ -33,17 +33,19 @@ export function LoanFeeChart({
   displayMonths: number;
 }) {
   // Ensure feeData is valid and has reasonable values
-  const validFeeData = feeData?.filter(item => 
-    item && 
-    typeof item.year === 'number' && 
-    typeof item.totalCost === 'number' &&
-    item.totalCost >= 0 &&
-    item.totalCost < Number.MAX_SAFE_INTEGER
-  ) || [];
+  const validFeeData =
+    feeData?.filter(
+      (item) =>
+        item &&
+        typeof item.year === "number" &&
+        typeof item.totalCost === "number" &&
+        item.totalCost >= 0 &&
+        item.totalCost < Number.MAX_SAFE_INTEGER,
+    ) || [];
 
   // Calculate max cost from original feeData to ensure proper domain
-  const maxCost = feeData?.length > 0 ? Math.max(...feeData.map(d => d.totalCost || 0)) : 0;
-  const minCost = grossBorrowedNative + (grossBorrowedNative * 0.035); // borrowed amount + fixed fee
+  const maxCost = feeData?.length > 0 ? Math.max(...feeData.map((d) => d.totalCost || 0)) : 0;
+  const minCost = grossBorrowedNative + grossBorrowedNative * 0.035; // borrowed amount + fixed fee
 
   return (
     <div className="mt-2">
@@ -71,7 +73,11 @@ export function LoanFeeChart({
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis
               dataKey="year"
-              label={{ value: "Time (years)", position: "insideBottom", offset: -5 }}
+              label={{
+                value: "Time (years)",
+                position: "insideBottom",
+                offset: -5,
+              }}
               type="number"
               domain={[0, 10]}
               ticks={[...Array(11).keys()]}
@@ -83,7 +89,7 @@ export function LoanFeeChart({
                 angle: -90,
                 position: "insideLeft",
                 offset: 0,
-                style: { textAnchor: "middle" }
+                style: { textAnchor: "middle" },
               }}
               domain={[minCost, maxCost * 1.1]}
               tick={false}
@@ -91,15 +97,12 @@ export function LoanFeeChart({
             <Tooltip
               formatter={(value: number, _name: string, props) => {
                 if (props?.payload?.year >= 9.99) {
-                  return [
-                    "—",
-                    "No collateral can be reclaimed at this time",
-                  ];
+                  return ["—", "No collateral can be reclaimed at this time"];
                 }
-                
+
                 // value is the totalCost (fees) at this point in time
                 // This represents how much native token you need to pay to unlock your collateral
-                const costToUnlock = value;  
+                const costToUnlock = value;
                 // Use collateralTokenSymbol for collateral amount, tokenSymbol for fees
                 const collateralSymbol = collateralTokenSymbol || tokenSymbol;
                 return [

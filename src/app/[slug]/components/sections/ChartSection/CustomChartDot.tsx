@@ -9,7 +9,7 @@ export const CustomChartDot = (
     };
     currentPrice: Ether;
     datapointIndex: number;
-  }
+  },
 ) => {
   const { cx, cy, payload } = props;
   if (

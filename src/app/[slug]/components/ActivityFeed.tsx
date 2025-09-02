@@ -12,20 +12,12 @@ import {
   SuckerGroupDocument,
 } from "@/generated/graphql";
 import { useBendystrawQuery } from "@/graphql/useBendystrawQuery";
-import {
-  getTokenConfigForChain,
-  getTokenSymbolFromAddress,
-} from "@/lib/tokenUtils";
+import { getTokenConfigForChain, getTokenSymbolFromAddress } from "@/lib/tokenUtils";
 import { formatTokenSymbol } from "@/lib/utils";
 import { sdk } from "@farcaster/frame-sdk";
 import { formatDistance } from "date-fns";
 import { JB_CHAINS, JBProjectToken } from "juice-sdk-core";
-import {
-  JBChainId,
-  useJBChainId,
-  useJBContractContext,
-  useJBTokenContext,
-} from "juice-sdk-react";
+import { JBChainId, useJBChainId, useJBContractContext, useJBTokenContext } from "juice-sdk-react";
 import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Address, formatUnits } from "viem";
@@ -33,12 +25,7 @@ import { Address, formatUnits } from "viem";
 function PayActivityItem(
   payEvent: Pick<
     PayEvent,
-    | "amount"
-    | "beneficiary"
-    | "newlyIssuedTokenCount"
-    | "timestamp"
-    | "txHash"
-    | "memo"
+    "amount" | "beneficiary" | "newlyIssuedTokenCount" | "timestamp" | "txHash" | "memo"
   > & { chainId: JBChainId; identity?: any; suckerGroupData?: any },
 ) {
   const { token } = useJBTokenContext();
@@ -59,24 +46,19 @@ function PayActivityItem(
   if (!token?.data || !payEvent) return null;
 
   // Get token configuration for this event's chain
-  const chainTokenConfig = getTokenConfigForChain(
-    payEvent.suckerGroupData,
-    payEvent.chainId,
-  );
+  const chainTokenConfig = getTokenConfigForChain(payEvent.suckerGroupData, payEvent.chainId);
   const baseTokenSymbol = getTokenSymbolFromAddress(chainTokenConfig.token);
   const baseTokenDecimals = chainTokenConfig.decimals;
 
   // Format amount using correct decimals
-  const formattedAmount = Number(
-    formatUnits(BigInt(payEvent.amount), baseTokenDecimals),
-  ).toFixed(6);
+  const formattedAmount = Number(formatUnits(BigInt(payEvent.amount), baseTokenDecimals)).toFixed(
+    6,
+  );
 
   const activityItemData = {
     amount: formattedAmount,
     beneficiary: payEvent.beneficiary,
-    beneficiaryTokenCount: new JBProjectToken(
-      BigInt(payEvent.newlyIssuedTokenCount),
-    ),
+    beneficiaryTokenCount: new JBProjectToken(BigInt(payEvent.newlyIssuedTokenCount)),
     memo: payEvent.memo,
   };
 
@@ -104,9 +86,7 @@ function PayActivityItem(
         <div className="flex items-center gap-1">
           <div className="text-md text-zinc-500 ml-7">
             {activityItemData.amount} {baseTokenSymbol}{" "}
-            <span className="border border-teal-600 bg-teal-50 text-teal-600 px-1 py-0.5">
-              in
-            </span>{" "}
+            <span className="border border-teal-600 bg-teal-50 text-teal-600 px-1 py-0.5">in</span>{" "}
             on{" "}
           </div>
           <ChainLogo chainId={payEvent.chainId} width={15} height={15} />
@@ -142,9 +122,7 @@ function PayActivityItem(
               {activityItemData.memo}
             </button>
           ) : (
-            <div className="text-lg text-black-500 font-medium">
-              {activityItemData.memo}
-            </div>
+            <div className="text-lg text-black-500 font-medium">{activityItemData.memo}</div>
           )}
         </div>
       )}
@@ -198,13 +176,9 @@ function RedeemActivityItem(
 
   const shareText = `⏩ ${handle} redeemed ${activityItemData.cashOutCount?.format(2)} ${token.data.symbol} for ${activityItemData.amount} ${baseTokenSymbol}`;
 
-  const formattedDate = formatDistance(
-    cashOutEvent.timestamp * 1000,
-    new Date(),
-    {
-      addSuffix: true,
-    },
-  );
+  const formattedDate = formatDistance(cashOutEvent.timestamp * 1000, new Date(), {
+    addSuffix: true,
+  });
 
   const embedUrl = typeof window !== "undefined" ? window.location.href : "";
 
@@ -300,10 +274,7 @@ export function ActivityFeed() {
       addresses={
         activityEvents?.activityEvents.items?.flatMap((e) =>
           e?.payEvent || e?.cashOutTokensEvent
-            ? [
-                (e?.payEvent?.beneficiary ||
-                  e?.cashOutTokensEvent?.beneficiary) as `0x${string}`,
-              ]
+            ? [(e?.payEvent?.beneficiary || e?.cashOutTokensEvent?.beneficiary) as `0x${string}`]
             : [],
         ) ?? []
       }
@@ -340,14 +311,11 @@ export function ActivityFeed() {
             <div>
               <Loader2 className="animate-spin" size={64} />
               <p className="text-sm text-zinc-500 mt-2">
-                {activityLoading
-                  ? "Loading activity events..."
-                  : "No pay or cash out events yet"}
+                {activityLoading ? "Loading activity events..." : "No pay or cash out events yet"}
               </p>
               {!activityLoading && (
                 <p className="text-xs text-zinc-400 mt-1">
-                  Activity feed will show when users pay into or cash out of
-                  this project
+                  Activity feed will show when users pay into or cash out of this project
                 </p>
               )}
             </div>

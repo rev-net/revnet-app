@@ -29,12 +29,10 @@ export function ParticipantsTable({
   baseTokenSymbol?: string;
   baseTokenDecimals?: number;
 }) {
-
-  if (participants.length === 0) return (
-    <div className="text-center text-zinc-400">
-      No owners yet. Pay in to become an owner.
-    </div>
-  );
+  if (participants.length === 0)
+    return (
+      <div className="text-center text-zinc-400">No owners yet. Pay in to become an owner.</div>
+    );
   return (
     <Table>
       <TableHeader>
@@ -74,7 +72,7 @@ export function ParticipantsTable({
                 {prettyNumber(
                   formatUnits(participant.balance, token.decimals, {
                     fractionDigits: 3,
-                  })
+                  }),
                 )}{" "}
                 {formatTokenSymbol(token.symbol)} {" | "}
                 <span className="font-bold">
@@ -88,17 +86,15 @@ export function ParticipantsTable({
             <TableCell className="whitespace-nowrap pr-20">
               <div className="flex items-center gap-1">
                 {participant.chains.map((chain) => (
-                  <ChainLogo
-                    chainId={chain}
-                    key={chain}
-                    width={14}
-                    height={14}
-                  />
+                  <ChainLogo chainId={chain} key={chain} width={14} height={14} />
                 ))}
               </div>
             </TableCell>
             <TableCell className="whitespace-nowrap">
-              {formatUnits(participant.volume, baseTokenDecimals, { fractionDigits: 3 })} {baseTokenSymbol}
+              {formatUnits(participant.volume, baseTokenDecimals, {
+                fractionDigits: 3,
+              })}{" "}
+              {baseTokenSymbol}
             </TableCell>
           </TableRow>
         ))}

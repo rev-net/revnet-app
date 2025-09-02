@@ -2,7 +2,7 @@
 
 /** @type {import("prettier").Config} */
 const config = {
-  printWidth: 80,
+  printWidth: 100,
   semi: true, // Add semicolons at the end of statements (safer, more common)
   quoteProps: "as-needed", // Only add quotes around object properties where required
   jsxSingleQuote: false, // Use double quotes in JSX attributes (common React preference)

@@ -1,8 +1,8 @@
 import { etherscanLink, formatEthAddress } from "@/lib/utils";
 import { useChain } from "juice-sdk-react";
 import { twMerge } from "tailwind-merge";
-import { ExternalLink } from "./ExternalLink";
 import { Chain } from "viem";
+import { ExternalLink } from "./ExternalLink";
 
 const EtherscanLink: React.FC<
   React.PropsWithChildren<{
@@ -10,16 +10,14 @@ const EtherscanLink: React.FC<
     className?: string;
     type?: "tx" | "address" | "token";
     truncateTo?: number;
-    chain?: Chain
+    chain?: Chain;
   }>
 > = ({ className, value, type = "address", truncateTo, chain, children }) => {
   const connectedChain = useChain();
-  const chainToLink = chain || connectedChain
+  const chainToLink = chain || connectedChain;
   if (!value) return null;
 
-  const renderValue = truncateTo
-    ? formatEthAddress(value, { truncateTo })
-    : value;
+  const renderValue = truncateTo ? formatEthAddress(value, { truncateTo }) : value;
 
   return (
     <ExternalLink

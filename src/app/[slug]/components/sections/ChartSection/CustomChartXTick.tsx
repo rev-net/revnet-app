@@ -16,21 +16,13 @@ export const CustomChartXTick = (props: {
 
   return (
     <g transform={`translate(${x},${y})`}>
-      <text
-        x={0}
-        y={0}
-        dy={16}
-        textAnchor="middle"
-        fill="#71717A"
-        fontSize={"0.75rem"}
-      >
+      <text x={0} y={0} dy={16} textAnchor="middle" fill="#71717A" fontSize={"0.75rem"}>
         {formatDistance(
-          Number(props.ruleset.start) * 1000 +
-            Number(props.ruleset.duration) * (d.fc - 2) * 1000,
+          Number(props.ruleset.start) * 1000 + Number(props.ruleset.duration) * (d.fc - 2) * 1000,
           new Date(),
           {
             addSuffix: true,
-          }
+          },
         )}
       </text>
     </g>

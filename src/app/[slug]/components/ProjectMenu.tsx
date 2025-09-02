@@ -26,8 +26,7 @@ function MenuOption({ href, children }: PropsWithChildren<{ href: string }>) {
       <Link
         href={`/${decodeURIComponent(params.slug)}/${href}`}
         className={clsx("text-xl sm:text-2xl font-medium transition-all", {
-          "text-black underline decoration-teal-500 underline-offset-8 decoration-2":
-            isSelected,
+          "text-black underline decoration-teal-500 underline-offset-8 decoration-2": isSelected,
           "text-zinc-500 hover:text-zinc-800": !isSelected,
         })}
       >

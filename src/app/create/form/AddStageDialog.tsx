@@ -7,11 +7,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { toast } from "@/components/ui/use-toast";
 import { commaNumber } from "@/lib/number";
 import { TrashIcon } from "@heroicons/react/24/outline";
@@ -48,18 +44,14 @@ function NotesSection({
       >
         <div className="font-sm">{title}</div>
         <span
-          className={`transform transition-transform font-sm ${
-            isOpen ? "rotate-90" : "rotate-0"
-          }`}
+          className={`transform transition-transform font-sm ${isOpen ? "rotate-90" : "rotate-0"}`}
         >
           ▶
         </span>
       </button>
 
       {/* Dropdown Content */}
-      {isOpen && (
-        <div className="mt-2 pl-4 text-gray-600 text-md">{children}</div>
-      )}
+      {isOpen && <div className="mt-2 pl-4 text-gray-600 text-md">{children}</div>}
     </div>
   );
 }
@@ -127,10 +119,8 @@ export function AddStageDialog({
                 setSubmitting(true);
                 // Set Formik values from UI state
                 if (enableCut) {
-                  newValues.priceCeilingIncreasePercentage =
-                    String(uiCutPercentage);
-                  newValues.priceCeilingIncreaseFrequency =
-                    String(uiCutFrequency);
+                  newValues.priceCeilingIncreasePercentage = String(uiCutPercentage);
+                  newValues.priceCeilingIncreaseFrequency = String(uiCutFrequency);
                 } else {
                   newValues.priceCeilingIncreasePercentage = "0";
                   newValues.priceCeilingIncreaseFrequency = "0";
@@ -151,9 +141,7 @@ export function AddStageDialog({
           >
             {({ values, isValid, errors }) => {
               // Handler for checkbox toggle
-              const handleCutToggle = (
-                e: React.ChangeEvent<HTMLInputElement>,
-              ) => {
+              const handleCutToggle = (e: React.ChangeEvent<HTMLInputElement>) => {
                 const checked = e.target.checked;
                 setEnableCut(checked);
                 if (checked) {
@@ -173,8 +161,7 @@ export function AddStageDialog({
                         1. {revnetTokenSymbol} issuance
                       </div>
                       <p className="text-md text-zinc-500 mt-3">
-                        How many {revnetTokenSymbol} to issue when receiving{" "}
-                        {reserveAsset}.
+                        How many {revnetTokenSymbol} to issue when receiving {reserveAsset}.
                       </p>
                       <div className="flex flex-wrap md:flex-nowrap gap-2 sm:gap-2 items-center text-md text-zinc-600 mt-2">
                         {/* Styled number input with suffix for initialIssuance */}
@@ -187,8 +174,7 @@ export function AddStageDialog({
                             className="h-9 w-full pr-24 px-3 text-md"
                           />
                           <span className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 text-md pointer-events-none">
-                            {revnetTokenSymbol} /{" "}
-                            {reserveAsset == "USDC" ? "USD" : reserveAsset}
+                            {revnetTokenSymbol} / {reserveAsset == "USDC" ? "USD" : reserveAsset}
                           </span>
                         </div>
                         <div className="flex items-center gap-2 w-full md:w-auto">
@@ -209,10 +195,7 @@ export function AddStageDialog({
                             </>
                           ) : (
                             <>
-                              <label
-                                htmlFor="uiCutPercentage"
-                                className="whitespace-nowrap"
-                              >
+                              <label htmlFor="uiCutPercentage" className="whitespace-nowrap">
                                 cut
                               </label>
                               <input
@@ -289,20 +272,14 @@ export function AddStageDialog({
                                     required
                                     placeholder="100"
                                   />
-                                  <label
-                                    htmlFor={`splits.${index}.defaultBeneficiary`}
-                                  >
-                                    to
-                                  </label>
+                                  <label htmlFor={`splits.${index}.defaultBeneficiary`}>to</label>
                                   <Field
                                     id={`splits.${index}.defaultBeneficiary`}
                                     name={`splits.${index}.defaultBeneficiary`}
                                     className="h-9"
                                     placeholder="0x"
                                     required
-                                    defaultValue={
-                                      stages[0]?.initialOperator || ""
-                                    }
+                                    defaultValue={stages[0]?.initialOperator || ""}
                                   />
                                   <Button
                                     variant="ghost"
@@ -333,15 +310,13 @@ export function AddStageDialog({
                           <div className="text-sm font-medium text-zinc-500 mt-4 border-l border-zinc-300 pl-2 py-1 px-1">
                             Total split limit of{" "}
                             {values.splits.reduce(
-                              (sum, split) =>
-                                sum + (Number(split.percentage) || 0),
+                              (sum, split) => sum + (Number(split.percentage) || 0),
                               0,
                             )}
                             %, payer always receives{" "}
                             {100 -
                               values.splits.reduce(
-                                (sum, split) =>
-                                  sum + (Number(split.percentage) || 0),
+                                (sum, split) => sum + (Number(split.percentage) || 0),
                                 0,
                               )}
                             % of issuance.
@@ -349,8 +324,7 @@ export function AddStageDialog({
                         )}
                         {values.splits.length == 0 && (
                           <div className="text-sm font-medium text-zinc-500 mt-4 border-l border-zinc-300 pl-2 py-1 px-1">
-                            Without splits, the payer always receives 100% of
-                            issuance.
+                            Without splits, the payer always receives 100% of issuance.
                           </div>
                         )}
                         {values.splits.length > 0 && (
@@ -365,9 +339,7 @@ export function AddStageDialog({
                               id="initialOperator"
                               name="initialOperator"
                               className=""
-                              placeholder={
-                                stageIdx > 0 ? stages[0].initialOperator : "0x"
-                              }
+                              placeholder={stageIdx > 0 ? stages[0].initialOperator : "0x"}
                               disabled={stageIdx > 0}
                             />
                             {stageIdx > 0 && (
@@ -386,16 +358,14 @@ export function AddStageDialog({
                           <ul className="list-disc list-inside space-y-2">
                             <li className="flex">
                               <span className="mr-2">•</span>
-                              Cutting issuance by 50% means to double the price
-                              – a halvening effect.
+                              Cutting issuance by 50% means to double the price – a halvening
+                              effect.
                             </li>
                             <li className="flex">
                               <span className="mr-2">•</span>
-                              If there's a market for {revnetTokenSymbol} /{" "}
-                              {reserveAsset} offering a better price, all{" "}
-                              {reserveAsset} paid in will be used to buyback
-                              instead of feeding the revnet. Uniswap is used as
-                              the market.
+                              If there's a market for {revnetTokenSymbol} / {reserveAsset} offering
+                              a better price, all {reserveAsset} paid in will be used to buyback
+                              instead of feeding the revnet. Uniswap is used as the market.
                             </li>
                             <li className="flex">
                               <span className="mr-2">•</span>
@@ -404,9 +374,8 @@ export function AddStageDialog({
                             <li className="flex">
                               <span className="mr-2">•</span>
                               <span>
-                                You can write and deploy a custom split hook
-                                that automatically receives and processes the
-                                split {revnetTokenSymbol}. See{" "}
+                                You can write and deploy a custom split hook that automatically
+                                receives and processes the split {revnetTokenSymbol}. See{" "}
                                 <a
                                   className="inline underline"
                                   target="_blank"
@@ -419,21 +388,18 @@ export function AddStageDialog({
                             </li>
                             <li className="flex">
                               <span className="mr-2">•</span>
-                              If there are splits, the operator can change the
-                              distribution of the split limit to new
-                              destinations at any time.
+                              If there are splits, the operator can change the distribution of the
+                              split limit to new destinations at any time.
                             </li>
                             <li className="flex">
                               <span className="mr-2">•</span>
-                              The operator can be a multisig, a DAO, an LLC, a
-                              core team, an airdrop stockpile, a staking rewards
-                              contract, or some other address.
+                              The operator can be a multisig, a DAO, an LLC, a core team, an airdrop
+                              stockpile, a staking rewards contract, or some other address.
                             </li>
                             <li className="flex">
                               <span className="mr-2">•</span>
-                              The operator is set once and is not bound by
-                              stages. The operator can hand off this
-                              responsibility to another address at any time, or
+                              The operator is set once and is not bound by stages. The operator can
+                              hand off this responsibility to another address at any time, or
                               relinquish it altogether.
                             </li>
                           </ul>
@@ -444,8 +410,7 @@ export function AddStageDialog({
                         render={(arrayHelpers) => (
                           <div>
                             <p className="text-md text-zinc-500 mt-10">
-                              Optionally, auto-issue {revnetTokenSymbol} when
-                              the stage starts.
+                              Optionally, auto-issue {revnetTokenSymbol} when the stage starts.
                             </p>
                             {values.autoIssuance?.map((_, index) => (
                               <div
@@ -471,11 +436,7 @@ export function AddStageDialog({
                                     {revnetTokenSymbol}
                                   </span>
                                 </div>
-                                <label
-                                  htmlFor={`autoIssuance.${index}.beneficiary`}
-                                >
-                                  to
-                                </label>
+                                <label htmlFor={`autoIssuance.${index}.beneficiary`}>to</label>
                                 <Field
                                   id={`autoIssuance.${index}.beneficiary`}
                                   name={`autoIssuance.${index}.beneficiary`}
@@ -510,8 +471,7 @@ export function AddStageDialog({
                                 Total auto issuance of{" "}
                                 {commaNumber(
                                   values.autoIssuance?.reduce(
-                                    (sum, issuance) =>
-                                      sum + (Number(issuance.amount) || 0),
+                                    (sum, issuance) => sum + (Number(issuance.amount) || 0),
                                     0,
                                   ),
                                 )}{" "}
@@ -532,19 +492,16 @@ export function AddStageDialog({
                       2. {revnetTokenSymbol} cash outs
                     </div>
                     <p className="text-md text-zinc-500 mt-3">
-                      The only way for anyone to access the {reserveAsset} used
-                      to issue {revnetTokenSymbol} is by cashing out or taking
-                      out a loan from the revnet using their {revnetTokenSymbol}
-                      .
+                      The only way for anyone to access the {reserveAsset} used to issue{" "}
+                      {revnetTokenSymbol} is by cashing out or taking out a loan from the revnet
+                      using their {revnetTokenSymbol}.
                     </p>
                     <p className="text-md text-zinc-500 mt-3">
-                      A tax can be added that makes cashing out and loans more
-                      expensive, while rewarding {revnetTokenSymbol} holders who
-                      stick around as others cash out.
+                      A tax can be added that makes cashing out and loans more expensive, while
+                      rewarding {revnetTokenSymbol} holders who stick around as others cash out.
                     </p>
                     <p className="text-md text-zinc-500 mt-3">
-                      A light tax is recommended to add an incentive while
-                      maintaining liquidity.
+                      A light tax is recommended to add an incentive while maintaining liquidity.
                     </p>
                     <div className="space-y-2 mt-6">
                       <div className="flex justify-between relative w-full">
@@ -580,45 +537,40 @@ export function AddStageDialog({
                     </div>
                     <div className="text-sm font-medium text-zinc-500 mt-4 border-l border-zinc-300 pl-2 py-1 px-1">
                       Cashing out 10% of {revnetTokenSymbol} gets{" "}
-                      {calculateYield(Number(values.priceFloorTaxIntensity))}%
-                      of the revnet's {reserveAsset}.
+                      {calculateYield(Number(values.priceFloorTaxIntensity))}% of the revnet's{" "}
+                      {reserveAsset}.
                     </div>
                     <NotesSection>
                       <div className="text-zinc-600 text-md mt-4 italic">
                         <ul className="list-disc list-inside space-y-2">
                           <li className="flex">
                             <span className="mr-2">•</span>
-                            The heavier the tax, the less that can be accessed
-                            by cashing out or taking out a loan at any given
-                            time, and the more that is left to share between
-                            remaining holders who cash out later.
+                            The heavier the tax, the less that can be accessed by cashing out or
+                            taking out a loan at any given time, and the more that is left to share
+                            between remaining holders who cash out later.
                           </li>
 
                           <li className="flex">
                             <span className="mr-2">•</span>
-                            Loans are an automated source of revenue for{" "}
-                            {revnetTokenSymbol}. By making loans more expensive,
-                            a heavier cash out tax reduces potential loan
-                            revenue.
+                            Loans are an automated source of revenue for {revnetTokenSymbol}. By
+                            making loans more expensive, a heavier cash out tax reduces potential
+                            loan revenue.
                           </li>
                           <li className="flex">
                             <span className="mr-2">•</span>
-                            Given 100 {reserveAsset} in the revnet, 100 total
-                            supply of {revnetTokenSymbol}, and 10{" "}
-                            {revnetTokenSymbol} being cashed out, a tax rate of
-                            0 would yield a cash out value of 10 {reserveAsset},
-                            0.2 would yield 8.2 {reserveAsset}, 0.5 would yield
-                            5.5 {reserveAsset}, and 0.8 would yield 2.8{" "}
-                            {reserveAsset}.
+                            Given 100 {reserveAsset} in the revnet, 100 total supply of{" "}
+                            {revnetTokenSymbol}, and 10 {revnetTokenSymbol} being cashed out, a tax
+                            rate of 0 would yield a cash out value of 10 {reserveAsset}, 0.2 would
+                            yield 8.2 {reserveAsset}, 0.5 would yield 5.5 {reserveAsset}, and 0.8
+                            would yield 2.8 {reserveAsset}.
                           </li>
                           <li className="flex">
                             <span className="mr-2">•</span>
-                            The formula for the amount of {reserveAsset}{" "}
-                            received when cashing out is `(ax/s) * ((1-r) +
-                            xr/s)` where: `r` is the cash out tax rate, `a` is
-                            the amount in the revnet being accessed, `s` is the
-                            current token supply of {revnetTokenSymbol}, `x` is
-                            the amount of {revnetTokenSymbol} being cashed out.
+                            The formula for the amount of {reserveAsset} received when cashing out
+                            is `(ax/s) * ((1-r) + xr/s)` where: `r` is the cash out tax rate, `a` is
+                            the amount in the revnet being accessed, `s` is the current token supply
+                            of {revnetTokenSymbol}, `x` is the amount of {revnetTokenSymbol} being
+                            cashed out.
                           </li>
                         </ul>
                       </div>
@@ -640,10 +592,7 @@ export function AddStageDialog({
                         <ul className="list-disc list-inside">
                           <li className="flex">
                             <span className="mr-2">•</span>
-                            <div>
-                              Days must be a multiple of this stage's issuance
-                              cut rate.
-                            </div>
+                            <div>Days must be a multiple of this stage's issuance cut rate.</div>
                           </li>
                         </ul>
                       </NotesSection>

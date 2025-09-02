@@ -18,9 +18,7 @@ export function YouSection({ totalSupply }: { totalSupply: bigint }) {
   );
 
   // Use the sucker token surplus hook with our token map
-  const { data: surpluses, isLoading: surplusLoading } = useSuckersTokenSurplus(
-    baseToken.tokenMap,
-  );
+  const { data: surpluses, isLoading: surplusLoading } = useSuckersTokenSurplus(baseToken.tokenMap);
 
   // Calculate user's cashout value for each chain based on their token balance
   const userCashoutValues = useMemo(() => {
@@ -29,15 +27,12 @@ export function YouSection({ totalSupply }: { totalSupply: bigint }) {
     return surpluses.map((surplus) => {
       // Find the user's balance for this chain
       const userBalance = balances.find((b) => b.chainId === surplus.chainId);
-      if (!userBalance || !surplus.surplus)
-        return { chainId: surplus.chainId, cashoutValue: 0n };
+      if (!userBalance || !surplus.surplus) return { chainId: surplus.chainId, cashoutValue: 0n };
 
       // Calculate user's proportional share of the surplus
       // This assumes the surplus is proportional to token holdings
       const userCashoutValue =
-        totalSupply > 0n
-          ? (surplus.surplus * userBalance.balance.value) / totalSupply
-          : 0n;
+        totalSupply > 0n ? (surplus.surplus * userBalance.balance.value) / totalSupply : 0n;
 
       return { chainId: surplus.chainId, cashoutValue: userCashoutValue };
     });
@@ -53,9 +48,7 @@ export function YouSection({ totalSupply }: { totalSupply: bigint }) {
   const isLoadingDisplayQuote = surplusLoading;
 
   const adjustedDisplayValue =
-    displayQuoteValue !== undefined
-      ? (displayQuoteValue * 975n) / 1000n
-      : undefined;
+    displayQuoteValue !== undefined ? (displayQuoteValue * 975n) / 1000n : undefined;
 
   const formattedValueString =
     adjustedDisplayValue !== undefined
@@ -67,20 +60,14 @@ export function YouSection({ totalSupply }: { totalSupply: bigint }) {
       <div className="grid grid-cols-1 gap-x-8 overflow-x-scrolltext-md gap-1">
         {/* Left Column */}
         <div className="sm:col-span-1 sm:px-0 grid grid-cols-2 sm:grid-cols-4">
-          <dt className="text-md font-medium leading-6 text-zinc-900">
-            Balance
-          </dt>
+          <dt className="text-md font-medium leading-6 text-zinc-900">Balance</dt>
           <dd className="text-zinc-600">
             <UserTokenBalanceDatum />
           </dd>
         </div>
         <div className="sm:col-span-1 sm:px-0 grid grid-cols-2 sm:grid-cols-4">
-          <dt className="text-md font-medium leading-6 text-zinc-900">
-            Ownership
-          </dt>
-          <dd className="text-zinc-600">
-            {formatPortion(totalBalance, totalSupply)}%
-          </dd>
+          <dt className="text-md font-medium leading-6 text-zinc-900">Ownership</dt>
+          <dd className="text-zinc-600">{formatPortion(totalBalance, totalSupply)}%</dd>
         </div>
         {/* comment out for now until fixed
         <div className="sm:col-span-1 sm:px-0 grid grid-cols-2 sm:grid-cols-4">

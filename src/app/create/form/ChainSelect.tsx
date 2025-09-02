@@ -27,12 +27,7 @@ import { ChainSplits } from "./ChainSplits";
 import { Divider } from "./Divider";
 import { useCreateForm } from "./useCreateForm";
 
-const TESTNETS: JBChainId[] = [
-  sepolia.id,
-  arbitrumSepolia.id,
-  optimismSepolia.id,
-  baseSepolia.id,
-];
+const TESTNETS: JBChainId[] = [sepolia.id, arbitrumSepolia.id, optimismSepolia.id, baseSepolia.id];
 
 const MAINNETS: JBChainId[] = [mainnet.id, optimism.id, base.id, arbitrum.id];
 
@@ -45,22 +40,13 @@ export function ChainSelect({
 }) {
   const [environment, setEnvironment] = useState("production");
 
-  const {
-    revnetTokenSymbol,
-    values,
-    setFieldValue,
-    submitForm,
-    isSubmitting,
-    isValid,
-    errors,
-  } = useCreateForm();
+  const { revnetTokenSymbol, values, setFieldValue, submitForm, isSubmitting, isValid, errors } =
+    useCreateForm();
 
   const handleChainSelect = (chainId: JBChainId, checked: boolean) => {
     setFieldValue(
       "chainIds",
-      checked
-        ? [...values.chainIds, chainId]
-        : values.chainIds.filter((id) => id !== chainId),
+      checked ? [...values.chainIds, chainId] : values.chainIds.filter((id) => id !== chainId),
     );
 
     // If removed, delete also operator for that chain
@@ -79,9 +65,7 @@ export function ChainSelect({
     const chainId = values.chainIds[0];
     if (!chainId) return;
 
-    const stagesWithAutoIssuance = values.stages.filter(
-      (s) => s.autoIssuance.length > 0,
-    );
+    const stagesWithAutoIssuance = values.stages.filter((s) => s.autoIssuance.length > 0);
 
     if (stagesWithAutoIssuance.length === 0) return;
 
@@ -92,10 +76,7 @@ export function ChainSelect({
             `Changing chainId for auto issuance (${stageIndex + 1}.${index + 1}) to ${chainId}`,
           );
 
-          setFieldValue(
-            `stages.${stageIndex}.autoIssuance.${index}.chainId`,
-            chainId,
-          );
+          setFieldValue(`stages.${stageIndex}.autoIssuance.${index}.chainId`, chainId);
         }
       });
     });
@@ -106,24 +87,20 @@ export function ChainSelect({
       <div className="md:col-span-1">
         <h2 className="mb-2 text-lg font-bold">4. Deploy</h2>
         <p className="text-lg text-zinc-600">
-          Pick which chains your revnet will accept money on and issue{" "}
-          {revnetTokenSymbol} from.
+          Pick which chains your revnet will accept money on and issue {revnetTokenSymbol} from.
         </p>
         <p className="mt-2 text-lg text-zinc-600">
-          Holders of {revnetTokenSymbol} can cash out on any of the selected
-          chains, and can move their {revnetTokenSymbol} between chains at any
-          time.
+          Holders of {revnetTokenSymbol} can cash out on any of the selected chains, and can move
+          their {revnetTokenSymbol} between chains at any time.
         </p>
         <p className="mt-2 text-lg text-zinc-600">
-          The Operator you set in your revnet's terms will also be able to add
-          new chains to the revnet later.
+          The Operator you set in your revnet's terms will also be able to add new chains to the
+          revnet later.
         </p>
       </div>
       <div className="md:col-span-2">
         <div className="flex flex-col gap-4">
-          <div className="text-black-500 text-left font-semibold">
-            Choose your chains
-          </div>
+          <div className="text-black-500 text-left font-semibold">Choose your chains</div>
           <div className="max-w-56">
             <Select
               onValueChange={(v) => {
@@ -149,9 +126,7 @@ export function ChainSelect({
             {environment === "production" ? (
               <>
                 {Object.values(JB_CHAINS)
-                  .filter(({ chain }) =>
-                    MAINNETS.includes(chain.id as JBChainId),
-                  )
+                  .filter(({ chain }) => MAINNETS.includes(chain.id as JBChainId))
                   .map(({ chain, name }) => (
                     <label key={chain.id} className="flex items-center gap-2">
                       <FormikField
@@ -160,14 +135,9 @@ export function ChainSelect({
                         value={chain.id}
                         disabled={disabled}
                         className="disabled:opacity-50"
-                        checked={values.chainIds.includes(
-                          Number(chain.id) as JBChainId,
-                        )}
+                        checked={values.chainIds.includes(Number(chain.id) as JBChainId)}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                          handleChainSelect(
-                            chain.id as JBChainId,
-                            e.target.checked,
-                          );
+                          handleChainSelect(chain.id as JBChainId, e.target.checked);
                         }}
                       />
                       {name}
@@ -177,9 +147,7 @@ export function ChainSelect({
             ) : (
               <>
                 {Object.values(JB_CHAINS)
-                  .filter(({ chain }) =>
-                    TESTNETS.includes(chain.id as JBChainId),
-                  )
+                  .filter(({ chain }) => TESTNETS.includes(chain.id as JBChainId))
                   .map(({ chain, name }) => (
                     <label key={chain.id} className="flex items-center gap-2">
                       <FormikField
@@ -188,14 +156,9 @@ export function ChainSelect({
                         value={chain.id}
                         disabled={disabled}
                         className="disabled:opacity-50"
-                        checked={values.chainIds.includes(
-                          Number(chain.id) as JBChainId,
-                        )}
+                        checked={values.chainIds.includes(Number(chain.id) as JBChainId)}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                          handleChainSelect(
-                            chain.id as JBChainId,
-                            e.target.checked,
-                          );
+                          handleChainSelect(chain.id as JBChainId, e.target.checked);
                         }}
                       />
                       {name}
@@ -207,21 +170,19 @@ export function ChainSelect({
         </div>
         {/* Quote and Depoly */}
         <div className="mt-10">
-          {((values.chainIds.length > 0 &&
-            !values.stages[0]?.initialOperator) ||
+          {((values.chainIds.length > 0 && !values.stages[0]?.initialOperator) ||
             values.chainIds.length > 1) && (
             <>
               <ChainOperator disabled={validBundle} />
               <Divider />
             </>
           )}
-          {values.chainIds.length > 1 &&
-            values.stages.some((stage) => stage.splits.length > 0) && (
-              <>
-                <ChainSplits disabled={validBundle} />
-                <Divider />
-              </>
-            )}
+          {values.chainIds.length > 1 && values.stages.some((stage) => stage.splits.length > 0) && (
+            <>
+              <ChainSplits disabled={validBundle} />
+              <Divider />
+            </>
+          )}
           {values.chainIds.length > 1 &&
             values.stages.some((stage) => stage.autoIssuance.length > 0) && (
               <>

@@ -2,11 +2,7 @@
 
 import { ChainLogo } from "@/components/ChainLogo";
 import EtherscanLink from "@/components/EtherscanLink";
-import {
-  ParticipantsDocument,
-  ProjectDocument,
-  SuckerGroupDocument,
-} from "@/generated/graphql";
+import { ParticipantsDocument, ProjectDocument, SuckerGroupDocument } from "@/generated/graphql";
 import { useBendystrawQuery } from "@/graphql/useBendystrawQuery";
 // import { useTotalOutstandingTokens } from "@/hooks/useTotalOutstandingTokens";
 import { ipfsUriToGatewayUrl } from "@/lib/ipfs";
@@ -23,8 +19,8 @@ import {
 } from "juice-sdk-react";
 import Image from "next/image";
 import Link from "next/link";
-import { TvlDatum } from "./TvlDatum";
 import { useMemo } from "react";
+import { TvlDatum } from "./TvlDatum";
 export function Header() {
   const { projectId } = useJBContractContext();
   const chainId = useJBChainId();
@@ -44,15 +40,14 @@ export function Header() {
       suckerGroupId: suckerGroup.data?.suckerGroup?.id,
       balance_gt: 0,
     },
-    limit: 1000 // TODO will break once more than 1000 participants exist
+    limit: 1000, // TODO will break once more than 1000 participants exist
   });
 
   const contributorsCount = useMemo(() => {
     // de-dupe participants who are on multiple chains
     const participantWallets = participants?.participants.items.reduce(
-      (acc, curr) =>
-        acc.includes(curr.address) ? acc : [...acc, curr.address],
-      [] as string[]
+      (acc, curr) => (acc.includes(curr.address) ? acc : [...acc, curr.address]),
+      [] as string[],
     );
 
     return participantWallets?.length;
@@ -114,19 +109,14 @@ export function Header() {
               {suckers?.map((pair) => {
                 if (!pair) return null;
 
-                const networkSlug =
-                  JB_CHAINS[pair?.peerChainId as JBChainId].slug;
+                const networkSlug = JB_CHAINS[pair?.peerChainId as JBChainId].slug;
                 return (
                   <Link
                     className="underline"
                     key={networkSlug}
                     href={`/${networkSlug}:${pair.projectId}`}
                   >
-                    <ChainLogo
-                      chainId={pair.peerChainId as JBChainId}
-                      width={18}
-                      height={18}
-                    />
+                    <ChainLogo chainId={pair.peerChainId as JBChainId} width={18} height={18} />
                   </Link>
                 );
               })}
@@ -135,12 +125,8 @@ export function Header() {
           <div className="flex sm:flex-row flex-col sm:items-center items-leading sm:gap-4 items-start">
             <TvlDatum />
             <div className="sm:text-xl text-lg">
-              <span className="font-medium text-black-500">
-                {contributorsCount ?? 0}
-              </span>{" "}
-              <span className="text-zinc-500">
-                {contributorsCount === 1 ? "owner" : "owners"}
-              </span>
+              <span className="font-medium text-black-500">{contributorsCount ?? 0}</span>{" "}
+              <span className="text-zinc-500">{contributorsCount === 1 ? "owner" : "owners"}</span>
             </div>
             {/* <div className="sm:text-xl text-lg">
               <span className="font-medium text-black-500">

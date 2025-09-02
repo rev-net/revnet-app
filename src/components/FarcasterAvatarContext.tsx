@@ -1,12 +1,6 @@
 "use client";
 
-import {
-  createContext,
-  useContext,
-  useEffect,
-  useState,
-  ReactNode,
-} from "react";
+import { createContext, ReactNode, useContext, useEffect, useState } from "react";
 import { Address } from "viem";
 
 type FarcasterProfile = {
@@ -53,9 +47,7 @@ export function FarcasterProfilesProvider({
   useEffect(() => {
     if (!addresses.length) return;
 
-    const normalized = Array.from(
-      new Set(addresses.map((a) => a.toLowerCase()))
-    ).sort();
+    const normalized = Array.from(new Set(addresses.map((a) => a.toLowerCase()))).sort();
 
     const fetchProfiles = async () => {
       const result: FarcasterProfilesContextType = {};
@@ -68,7 +60,7 @@ export function FarcasterProfilesProvider({
           lookupMap[lower] = lower;
           return [`farcaster,${addr}`, `ethereum,${addr}`, `ens,${addr}`];
         });
-       /*  const url = `/api/farcaster/profile?batch=${encodeURIComponent(
+        /*  const url = `/api/farcaster/profile?batch=${encodeURIComponent(
           JSON.stringify(ids)
         )}`; */
         const url = `https://api.web3.bio/profile/batch/${encodeURIComponent(JSON.stringify(ids))}`;
@@ -76,9 +68,10 @@ export function FarcasterProfilesProvider({
           const res = await fetch(url);
           const data = await res.json();
           for (const item of data) {
-            const match = Object.keys(lookupMap).find(
-              (lookupAddr) => item.address?.toLowerCase() === lookupAddr
-            ) ?? item.address?.toLowerCase();
+            const match =
+              Object.keys(lookupMap).find(
+                (lookupAddr) => item.address?.toLowerCase() === lookupAddr,
+              ) ?? item.address?.toLowerCase();
 
             if (!match) continue;
 

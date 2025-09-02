@@ -1,41 +1,30 @@
 "use client";
 
- type RevnetProject = {
-   projectId: string;
-   handle: string;
-   metadataUri: string;
-   logoUri?: string;
-   name?: string;
-   description?: string;
-   projectTagline?: string;
-   tags?: string[];
-   infoUri?: string;
- };
+type RevnetProject = {
+  projectId: string;
+  handle: string;
+  metadataUri: string;
+  logoUri?: string;
+  name?: string;
+  description?: string;
+  projectTagline?: string;
+  tags?: string[];
+  infoUri?: string;
+};
 import { Button } from "@/components/ui/button";
+import { sdk } from "@farcaster/frame-sdk";
 import { request } from "graphql-request";
-import { SUBGRAPH_URLS } from "../../graphql/constants";
 import Image from "next/image";
 import Link from "next/link";
-import { sdk } from "@farcaster/frame-sdk";
 import { useEffect, useState } from "react";
+import { SUBGRAPH_URLS } from "../../graphql/constants";
 import MiniHeaderCard from "./MiniHeaderCard";
 
-const RevLink = ({
-  network,
-  id,
-  text,
-}: {
-  network: string;
-  id: number;
-  text: string;
-}) => {
+const RevLink = ({ network, id, text }: { network: string; id: number; text: string }) => {
   return (
     <span>
       $
-      <Link
-        href={`/${network}:${id}`}
-        className="underline hover:text-black/70"
-      >
+      <Link href={`/${network}:${id}`} className="underline hover:text-black/70">
         {text}
       </Link>
     </span>
@@ -43,7 +32,11 @@ const RevLink = ({
 };
 
 export default function Page() {
-  const [user, setUser] = useState<{ fid: number; pfp: string, userName: string } | null>(null);
+  const [user, setUser] = useState<{
+    fid: number;
+    pfp: string;
+    userName: string;
+  } | null>(null);
   const [projects, setProjects] = useState<RevnetProject[]>([]);
 
   useEffect(() => {
@@ -53,15 +46,19 @@ export default function Page() {
       try {
         await sdk.actions.addFrame();
       } catch (error) {
-        if (error){
+        if (error) {
           console.log("User rejected the mini app addition or domain manifest JSON is invalid");
           // Handle the rejection here
         }
       }
 
-      const ctx = (await sdk.context);
+      const ctx = await sdk.context;
       if (ctx?.user) {
-        setUser({ fid: ctx.user.fid, pfp: ctx.user.pfpUrl || "", userName: ctx.user.username || "" });
+        setUser({
+          fid: ctx.user.fid,
+          pfp: ctx.user.pfpUrl || "",
+          userName: ctx.user.username || "",
+        });
       }
     };
     fetchUser();
@@ -86,7 +83,7 @@ export default function Page() {
       try {
         const data: { projects: RevnetProject[] } = await request(subgraphUrl, query);
         const projectsWithLogos = await Promise.all(
-        (data.projects || []).map(async (p: RevnetProject) => {
+          (data.projects || []).map(async (p: RevnetProject) => {
             let logoUri: string | undefined;
             let name: string | undefined;
             let description: string | undefined;
@@ -113,13 +110,19 @@ export default function Page() {
                 console.error("Failed to fetch metadata from IPFS for project", p.projectId, err);
               }
             }
-            return { ...p, logoUri, name, description, projectTagline, tags, infoUri };
-          })
+            return {
+              ...p,
+              logoUri,
+              name,
+              description,
+              projectTagline,
+              tags,
+              infoUri,
+            };
+          }),
         );
 
-        const withDescriptions = projectsWithLogos.filter(
-          (p) => p.projectTagline || p.description
-        );
+        const withDescriptions = projectsWithLogos.filter((p) => p.projectTagline || p.description);
         setProjects(withDescriptions.sort((a, b) => Number(b.projectId) - Number(a.projectId)));
       } catch (err) {
         console.error("Failed to fetch projects:", err);
@@ -137,12 +140,7 @@ export default function Page() {
         </div>
       )}
       <div className="flex flex-col items-left justify-left">
-        <Image
-          src="/assets/img/revnet-full-bw.svg"
-          width={840}
-          height={240}
-          alt="Revnet logo"
-        />
+        <Image src="/assets/img/revnet-full-bw.svg" width={840} height={240} alt="Revnet logo" />
         <span className="sr-only">Revnet</span>
         <div className="text-xl md:text-2xl mt-8 font-medium text-left">
           Tokenize revenues and fundraises. 100% autonomous.
@@ -181,7 +179,10 @@ export default function Page() {
               {Array.isArray(p.tags) && p.tags.length > 0 && (
                 <div className="mt-2 flex flex-wrap gap-1">
                   {p.tags?.slice(0, 3).map((tag) => (
-                    <span key={tag} className="text-xs bg-zinc-100 px-2 py-0.5 rounded-full text-zinc-600">
+                    <span
+                      key={tag}
+                      className="text-xs bg-zinc-100 px-2 py-0.5 rounded-full text-zinc-600"
+                    >
                       {tag}
                     </span>
                   ))}

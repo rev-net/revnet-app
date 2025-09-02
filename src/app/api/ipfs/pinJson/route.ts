@@ -1,4 +1,3 @@
-import { NextApiRequest, NextApiResponse } from "next";
 import { NextRequest } from "next/server";
 
 export type InfuraPinResponse = {
@@ -10,14 +9,13 @@ const INFURA_IPFS_PROJECT_ID = process.env.INFURA_IPFS_PROJECT_ID;
 const INFURA_IPFS_API_SECRET = process.env.INFURA_IPFS_API_SECRET;
 
 const AUTH_HEADER = `Basic ${Buffer.from(
-  `${INFURA_IPFS_PROJECT_ID}:${INFURA_IPFS_API_SECRET}`
+  `${INFURA_IPFS_PROJECT_ID}:${INFURA_IPFS_API_SECRET}`,
 ).toString("base64")}`;
 
 const DEV_ORIGIN = "http://localhost:3000";
 const MAINNET_ORIGIN = "https://juicebox.money";
 
-const origin =
-  process.env.NODE_ENV === "development" ? DEV_ORIGIN : MAINNET_ORIGIN;
+const origin = process.env.NODE_ENV === "development" ? DEV_ORIGIN : MAINNET_ORIGIN;
 
 /**
  * https://docs.infura.io/infura/networks/ipfs/http-api-methods/pin
