@@ -35,17 +35,18 @@ const getButtonContent = (isLoading: boolean, validBundle: boolean): ButtonConte
 interface QuoteButtonProps {
   isLoading: boolean;
   validBundle: boolean;
+  disabled: boolean;
   onSubmit: () => void;
 }
 
-export function QuoteButton({ isLoading, validBundle, onSubmit }: QuoteButtonProps) {
+export function QuoteButton({ isLoading, validBundle, disabled, onSubmit }: QuoteButtonProps) {
   const buttonContent = getButtonContent(isLoading, validBundle);
 
   return (
     <Button
       type="submit"
       size="lg"
-      disabled={isLoading}
+      disabled={isLoading || disabled}
       className={twMerge(
         "text-color-black bg-transparent border border-black hover:bg-zinc-100 disabled:bg-gray-100 w-[220px]",
         buttonContent.className,
