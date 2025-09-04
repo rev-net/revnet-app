@@ -190,10 +190,10 @@ export function ChainSelect({
                 <Divider />
               </>
             )}
-
           <QuoteButton
             isLoading={isSubmitting}
             validBundle={validBundle}
+            disabled={disabled}
             onSubmit={() => {
               submitForm();
 
@@ -207,6 +207,7 @@ export function ChainSelect({
               }
             }}
           />
+          <div className="text-sm text-red-500 mt-1.5">Coming soon!</div>
         </div>
       </div>
     </>

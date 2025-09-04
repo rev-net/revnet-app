@@ -19,16 +19,25 @@ export function DeployRevnetForm({
   useTestData();
 
   const validBundle = !!relayrResponse?.bundle_uuid;
+  // const disabled = validBundle -- uncomment this to enable form
+  const disabled = true;
 
   return (
     <div className="mx-auto my-20 max-w-6xl gap-x-6 gap-y-6 px-4 sm:px-8 md:grid md:grid-cols-3 xl:gap-y-0 xl:px-0">
-      <ProjectDetails disabled={validBundle} />
+      <div className="col-span-full flex justify-center mb-6">
+        <div className="bg-red-100 px-4 py-2.5 rounded-xl max-w-screen-md text-red-950 text-sm">
+          <strong className="font-semibold">Important</strong>
+          <span className="font-normal"> &bull; </span> Revnet creation is temporarily paused and
+          will resume soon.
+        </div>
+      </div>
+      <ProjectDetails disabled={disabled} />
       <Divider />
-      <AssetsSection disabled={validBundle} />
+      <AssetsSection disabled={disabled} />
       <Divider />
-      <Stages disabled={validBundle} />
+      <Stages disabled={disabled} />
       <Divider />
-      <ChainSelect validBundle={validBundle} disabled={validBundle} />
+      <ChainSelect validBundle={validBundle} disabled={disabled} />
       {relayrResponse && (
         <QuoteResponse relayrResponse={relayrResponse} reset={resetRelayrResponse} />
       )}
