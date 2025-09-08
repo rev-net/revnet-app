@@ -5,8 +5,8 @@ import { useTokenA } from "@/hooks/useTokenA";
 import { formatTokenSymbol } from "@/lib/utils";
 import { Field, Formik } from "formik";
 import { FixedInt } from "fpnum";
-import { getTokenAToBQuote, getTokenBtoAQuote } from "juice-sdk-core";
-import { useJBRulesetContext, useJBTokenContext } from "juice-sdk-react";
+import { getTokenAToBQuote, getTokenBtoAQuote, NATIVE_TOKEN } from "juice-sdk-core";
+import { useJBContractContext, useJBRulesetContext, useJBTokenContext } from "juice-sdk-react";
 import { useState } from "react";
 import { formatUnits, parseEther, parseUnits } from "viem";
 import { PayDialog } from "./PayDialog";
@@ -22,9 +22,10 @@ export function PayForm() {
   const [amountB, setAmountB] = useState<string>("");
   const [amountC, setAmountC] = useState<string>("");
 
-  const primaryNativeTerminal = {
-    data: "0xdb9644369c79c3633cde70d2df50d827d7dc7dbc",
-  };
+  const {
+    contracts: { primaryNativeTerminal },
+  } = useJBContractContext();
+
   const { ruleset, rulesetMetadata } = useJBRulesetContext();
   const { data: accountingContext } = useProjectAccountingContext();
 
@@ -134,8 +135,7 @@ export function PayForm() {
               amountB={_amountB}
               memo={memo}
               paymentToken={
-                (accountingContext?.project?.token as `0x${string}`) ||
-                "0x000000000000000000000000000000000000eeee"
+                (accountingContext?.project?.token as `0x${string}`) || NATIVE_TOKEN.toLowerCase()
               }
               disabled={!amountA}
               onSuccess={() => {
