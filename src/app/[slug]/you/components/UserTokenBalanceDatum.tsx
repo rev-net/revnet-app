@@ -22,8 +22,8 @@ export function UserTokenBalanceDatum({ className }: { className?: string }) {
         {totalBalance?.format(6) ?? 0} {tokenSymbol}
       </TooltipTrigger>
       <TooltipContent className="w-64">
-        {balances?.map((balance, index) => (
-          <div key={index} className="flex justify-between gap-2">
+        {balances?.map((balance) => (
+          <div key={balance.chainId} className="flex justify-between gap-2">
             {JB_CHAINS[balance.chainId as JBChainId].name}
             <span className="font-medium">
               {balance.balance?.format(6)} {tokenSymbol}

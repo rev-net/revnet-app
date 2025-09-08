@@ -1,13 +1,14 @@
 import { USDC_ADDRESSES } from "@/app/constants";
+import { NATIVE_TOKEN } from "juice-sdk-core";
 
 /**
  * Get token symbol from token address
  * @param tokenAddress - The token address to resolve
  * @returns The token symbol (ETH, USDC, or TOKEN as fallback)
  */
-export function getTokenSymbolFromAddress(tokenAddress: string): string {
+export function getTokenSymbolFromAddress(tokenAddress: string) {
   // Check for ETH (case insensitive)
-  if (tokenAddress?.toLowerCase() === "0x000000000000000000000000000000000000eeee") {
+  if (tokenAddress?.toLowerCase() === NATIVE_TOKEN.toLowerCase()) {
     return "ETH";
   }
 
@@ -15,9 +16,8 @@ export function getTokenSymbolFromAddress(tokenAddress: string): string {
   const isUsdc = Object.values(USDC_ADDRESSES)
     .map((addr) => addr.toLowerCase())
     .includes(tokenAddress?.toLowerCase() as `0x${string}`);
-  if (isUsdc) {
-    return "USDC";
-  }
+
+  if (isUsdc) return "USDC";
 
   return "TOKEN";
 }
@@ -40,7 +40,7 @@ export interface TokenConfig {
 export function getTokenConfigForChain(suckerGroupData: any, targetChainId: number): TokenConfig {
   if (!suckerGroupData?.suckerGroup?.projects?.items) {
     return {
-      token: "0x000000000000000000000000000000000000EEEe" as `0x${string}`,
+      token: NATIVE_TOKEN.toLowerCase() as `0x${string}`,
       currency: 1,
       decimals: 18,
     };
@@ -59,20 +59,8 @@ export function getTokenConfigForChain(suckerGroupData: any, targetChainId: numb
   }
 
   return {
-    token: "0x000000000000000000000000000000000000EEEe" as `0x${string}`,
+    token: NATIVE_TOKEN.toLowerCase() as `0x${string}`,
     currency: 1,
     decimals: 18,
-  };
-}
-
-/**
- * Create a token config getter function that uses the provided sucker group data
- * This is useful for components that have access to sucker group data via hooks
- * @param suckerGroupData - The sucker group data
- * @returns A function that takes a chain ID and returns token config
- */
-export function createTokenConfigGetter(suckerGroupData: any) {
-  return (targetChainId: number): TokenConfig => {
-    return getTokenConfigForChain(suckerGroupData, targetChainId);
   };
 }

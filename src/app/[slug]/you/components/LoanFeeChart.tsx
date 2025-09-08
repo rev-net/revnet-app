@@ -7,7 +7,6 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-// Removed useNativeTokenSymbol import - using tokenSymbol prop instead
 
 export function LoanFeeChart({
   prepaidPercent,

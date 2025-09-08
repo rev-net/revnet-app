@@ -6,7 +6,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { ProjectDocument, SuckerGroupDocument } from "@/generated/graphql";
 import { useBendystrawQuery } from "@/graphql/useBendystrawQuery";
 import { getTokenConfigForChain, getTokenSymbolFromAddress } from "@/lib/tokenUtils";
-import { formatTokenSymbol } from "@/lib/utils";
+import { formatTokenSymbol, formatWalletError } from "@/lib/utils";
 import { JBChainId } from "juice-sdk-core";
 import { useJBChainId, useJBTokenContext } from "juice-sdk-react";
 import { useEffect, useState } from "react";
@@ -62,14 +62,8 @@ export function RepayDialog({
   // Get project data to find sucker group ID using the project ID
   const { data: projectData } = useBendystrawQuery(
     ProjectDocument,
-    {
-      chainId: Number(currentChainId),
-      projectId: Number(projectId), // Use the passed project ID
-    },
-    {
-      enabled: !!currentChainId && !!projectId,
-      pollInterval: 10000,
-    },
+    { chainId: Number(currentChainId), projectId: Number(projectId) },
+    { enabled: !!currentChainId && !!projectId, pollInterval: 10000 },
   );
 
   const suckerGroupId = projectData?.project?.suckerGroupId;
@@ -77,13 +71,8 @@ export function RepayDialog({
   // Get sucker group data for token mapping
   const { data: suckerGroupData } = useBendystrawQuery(
     SuckerGroupDocument,
-    {
-      id: suckerGroupId ?? "",
-    },
-    {
-      enabled: !!suckerGroupId,
-      pollInterval: 10000,
-    },
+    { id: suckerGroupId ?? "" },
+    { enabled: !!suckerGroupId, pollInterval: 10000 },
   );
 
   // Get token configuration for this loan's chain
@@ -234,7 +223,7 @@ export function RepayDialog({
         if (BigInt(allowance) < loanData.amount) {
           setHasSufficientAllowance(false);
           setAllowanceError(
-            `To calculate your repayment cost, we need permission for this loan. You will not be charged until you confirm repayment.`,
+            "To calculate your repayment cost, we need permission for this loan. You will not be charged until you confirm repayment.",
           );
         } else {
           setHasSufficientAllowance(true);
@@ -353,7 +342,7 @@ export function RepayDialog({
       toast({
         variant: "destructive",
         title: "Approval Failed",
-        description: error.message || "An error occurred during approval",
+        description: formatWalletError(error),
       });
     }
   };
@@ -434,7 +423,7 @@ export function RepayDialog({
       toast({
         variant: "destructive",
         title: "Repayment Failed",
-        description: error.message || "An error occurred during repayment",
+        description: formatWalletError(error),
       });
     }
   };
