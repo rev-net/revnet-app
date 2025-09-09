@@ -67,7 +67,7 @@ export function ReallocateDialog({
     setShowInfo,
     balances,
     selectedChainTokenSymbol,
-    getTokenConfigForChain,
+    tokenConfigForChain,
   } = reallocateDialog;
 
   // Get the borrowable amount for the specific loan's chain
@@ -94,7 +94,7 @@ export function ReallocateDialog({
 
   // Get the correct base token configuration for the loan's chain
   const loanChainTokenConfig = selectedLoan?.chainId
-    ? getTokenConfigForChain(selectedLoan.chainId)
+    ? tokenConfigForChain(selectedLoan.chainId)
     : null;
   const baseTokenDecimals = loanChainTokenConfig?.decimals || NATIVE_TOKEN_DECIMALS;
   const existingBorrowed = selectedLoan
@@ -291,12 +291,6 @@ export function ReallocateDialog({
                   : 0
               }
               prepaidPercent={prepaidPercent}
-              grossBorrowedNative={
-                newLoanBorrowableAmount
-                  ? Number(formatUnits(newLoanBorrowableAmount, NATIVE_TOKEN_DECIMALS)) +
-                    totalFixedFees
-                  : 0
-              }
               feeData={newLoanFeeData || []}
               totalFixedFees={totalFixedFees}
             />
@@ -308,7 +302,7 @@ export function ReallocateDialog({
               <button
                 type="button"
                 onClick={() => setShowChart(!showChart)}
-                className="flex items-center gap-2 text-left block text-gray-700 text-sm font-bold"
+                className="flex items-center gap-2 text-left text-gray-700 text-sm font-bold"
               >
                 <span>Fee Structure for New Loan</span>
                 <span
@@ -352,7 +346,7 @@ export function ReallocateDialog({
               <button
                 type="button"
                 onClick={() => setShowInfo(!showInfo)}
-                className="flex items-center gap-2 text-left block text-gray-700 text-sm font-bold"
+                className="flex items-center gap-2 text-left text-gray-700 text-sm font-bold"
               >
                 <span>Important Info</span>
                 <span

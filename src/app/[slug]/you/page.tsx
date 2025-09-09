@@ -1,12 +1,29 @@
+import { parseSlug } from "@/lib/slug";
+import { notFound } from "next/navigation";
+import { getProject } from "../getProject";
+import { getSuckerGroup } from "../getSuckerGroup";
 import { UserTokenBalanceCard } from "./components/UserTokenBalanceCard";
 import { YouSection } from "./components/YouSection";
 
-export default function YouPage() {
+interface Props {
+  params: { slug: string };
+}
+
+export default async function YouPage(props: Props) {
+  const { slug } = props.params;
+  const { chainId, projectId } = parseSlug(slug);
+
+  const project = await getProject(projectId, chainId);
+  if (!project) notFound();
+
+  const suckerGroup = await getSuckerGroup(project.suckerGroupId, chainId);
+  if (!suckerGroup) notFound();
+
   return (
     <>
       <YouSection />
 
-      <UserTokenBalanceCard />
+      <UserTokenBalanceCard projects={suckerGroup.projects?.items ?? []} />
     </>
   );
 }

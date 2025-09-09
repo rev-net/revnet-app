@@ -1,14 +1,11 @@
 import { useToast } from "@/components/ui/use-toast";
-import { useHasBorrowPermission } from "@/hooks/useHasBorrowPermission";
-import { generateFeeData } from "@/lib/feeHelpers";
-import { useCallback, useEffect, useState } from "react";
-import { Address, erc20Abi, formatUnits, parseUnits } from "viem";
-import { useAccount, usePublicClient, useWaitForTransactionReceipt, useWalletClient } from "wagmi";
-
 import { ProjectDocument, SuckerGroupDocument } from "@/generated/graphql";
 import { useBendystrawQuery } from "@/graphql/useBendystrawQuery";
+import { useHasBorrowPermission } from "@/hooks/useHasBorrowPermission";
 import { useProjectBaseToken } from "@/hooks/useProjectBaseToken";
-import { createTokenConfigGetter, getTokenSymbolFromAddress } from "@/lib/tokenUtils";
+import { generateFeeData } from "@/lib/feeHelpers";
+import { getTokenConfigForChain, getTokenSymbolFromAddress } from "@/lib/tokenUtils";
+import { formatWalletError } from "@/lib/utils";
 import {
   JB_TOKEN_DECIMALS,
   JBChainId,
@@ -21,6 +18,7 @@ import {
   useJBTokenContext,
   useSuckersUserTokenBalance,
 } from "juice-sdk-react";
+import { useCallback, useEffect, useState } from "react";
 import {
   revLoansAddress,
   useReadRevDeployerFee,
@@ -31,6 +29,8 @@ import {
   useWriteRevLoansReallocateCollateralFromLoan,
   useWriteRevLoansRepayLoan,
 } from "revnet-sdk";
+import { Address, erc20Abi, formatUnits, parseUnits } from "viem";
+import { useAccount, usePublicClient, useWaitForTransactionReceipt, useWalletClient } from "wagmi";
 
 // Types
 type BorrowState =
@@ -99,11 +99,9 @@ export function useBorrowDialog({
   // Context hooks
   const { token } = useJBTokenContext();
   const {
-    //contracts: { primaryNativeTerminal },
+    contracts: { primaryNativeTerminal },
   } = useJBContractContext();
-  const primaryNativeTerminal = {
-    data: "0xdb9644369c79c3633cde70d2df50d827d7dc7dbc",
-  };
+
   const chainId = useJBChainId();
 
   // Account and wallet hooks
@@ -143,9 +141,12 @@ export function useBorrowDialog({
 
   // ===== PHASE 1: TOKEN RESOLUTION FUNCTION =====
   // Get the correct token configuration for a specific chain
-  const getTokenConfigForChain = useCallback(createTokenConfigGetter(suckerGroupData), [
-    suckerGroupData,
-  ]);
+  const tokenConfigForChain = useCallback(
+    (chainId: string | number) => {
+      return getTokenConfigForChain(suckerGroupData, Number(chainId));
+    },
+    [suckerGroupData],
+  );
 
   // Data hooks
   const { data: balances } = useSuckersUserTokenBalance();
@@ -196,7 +197,7 @@ export function useBorrowDialog({
 
   // Get token configuration for the selected chain
   const selectedChainTokenConfig = cashOutChainId
-    ? getTokenConfigForChain(Number(cashOutChainId))
+    ? tokenConfigForChain(Number(cashOutChainId))
     : null;
 
   // Borrow-related hooks
@@ -470,9 +471,7 @@ export function useBorrowDialog({
 
   const handleBorrow = useCallback(async () => {
     // Get token configuration for the selected chain
-    const selectedChainTokenConfig = cashOutChainId
-      ? getTokenConfigForChain(Number(cashOutChainId))
-      : null;
+    const selectedChainTokenConfig = cashOutChainId ? tokenConfigForChain(cashOutChainId) : null;
 
     // Validate that we have token configuration for the selected chain
     if (!selectedChainTokenConfig) {
@@ -590,8 +589,7 @@ export function useBorrowDialog({
         toast({
           variant: "destructive",
           title: "Reallocation Failed",
-          description:
-            err instanceof Error ? err.message : "An error occurred during loan adjustment",
+          description: formatWalletError(err),
         });
       }
     } else {
@@ -718,7 +716,7 @@ export function useBorrowDialog({
         toast({
           variant: "destructive",
           title: "Borrow Failed",
-          description: err instanceof Error ? err.message : "An error occurred during borrowing",
+          description: formatWalletError(err),
         });
       }
     }
@@ -816,9 +814,7 @@ export function useBorrowDialog({
     }
 
     // Get token configuration for the selected chain
-    const selectedChainTokenConfig = cashOutChainId
-      ? getTokenConfigForChain(Number(cashOutChainId))
-      : null;
+    const selectedChainTokenConfig = cashOutChainId ? tokenConfigForChain(cashOutChainId) : null;
     const tokenDecimals = selectedChainTokenConfig?.decimals || NATIVE_TOKEN_DECIMALS;
 
     const percent =
@@ -839,7 +835,7 @@ export function useBorrowDialog({
     totalFixedFees,
     projectTokenDecimals,
     cashOutChainId,
-    getTokenConfigForChain,
+    tokenConfigForChain,
   ]);
 
   // Repay status effects
@@ -889,19 +885,14 @@ export function useBorrowDialog({
 
     // Get token configuration for the loan's chain
     const loanChainTokenConfig = internalSelectedLoan?.chainId
-      ? getTokenConfigForChain(internalSelectedLoan.chainId)
+      ? tokenConfigForChain(internalSelectedLoan.chainId)
       : null;
     const tokenDecimals = loanChainTokenConfig?.decimals || NATIVE_TOKEN_DECIMALS;
 
     const correctedBorrowAmount = BigInt(internalSelectedLoan.borrowAmount);
     const repayAmountWei = correctedBorrowAmount - estimatedNewBorrowableAmount;
     setRepayAmount(formatUnits(repayAmountWei, tokenDecimals));
-  }, [
-    collateralToReturn,
-    estimatedNewBorrowableAmount,
-    internalSelectedLoan,
-    getTokenConfigForChain,
-  ]);
+  }, [collateralToReturn, estimatedNewBorrowableAmount, internalSelectedLoan, tokenConfigForChain]);
 
   // ===== RETURN VALUES =====
   return {
@@ -976,7 +967,7 @@ export function useBorrowDialog({
     // ===== PHASE 5: BASE TOKEN EXPORTS =====
     baseToken,
     selectedChainTokenConfig,
-    getTokenConfigForChain,
+    tokenConfigForChain,
     selectedChainTokenSymbol: selectedChainTokenConfig
       ? getTokenSymbolFromAddress(selectedChainTokenConfig.token)
       : "ETH",

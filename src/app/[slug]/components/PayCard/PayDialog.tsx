@@ -20,7 +20,8 @@ import { Stat } from "@/components/ui/stat";
 import { useToast } from "@/components/ui/use-toast";
 import { ProjectDocument, SuckerGroupDocument } from "@/generated/graphql";
 import { useBendystrawQuery } from "@/graphql/useBendystrawQuery";
-import { JB_CHAINS, JBChainId, TokenAmountType } from "juice-sdk-core";
+import { formatWalletError } from "@/lib/utils";
+import { JB_CHAINS, JBChainId, NATIVE_TOKEN, TokenAmountType } from "juice-sdk-core";
 import {
   useJBChainId,
   useJBContractContext,
@@ -47,10 +48,11 @@ export function PayDialog({
   disabled?: boolean;
   onSuccess?: () => void;
 }) {
-  const { projectId } = useJBContractContext();
-  const primaryNativeTerminal = {
-    data: "0xdb9644369c79c3633cde70d2df50d827d7dc7dbc",
-  };
+  const {
+    projectId,
+    contracts: { primaryNativeTerminal },
+  } = useJBContractContext();
+
   const { address } = useAccount();
   const value = amountA.amount.value;
   const {
@@ -58,17 +60,14 @@ export function PayDialog({
     error,
     writeContract,
     isPending: isWriteLoading,
-    data,
+    data: hash,
   } = useWriteJbMultiTerminalPay();
   const chainId = useJBChainId();
   const { selectedSucker, setSelectedSucker } = useSelectedSucker();
-  const txHash = data;
-  const { isLoading: isTxLoading, isSuccess } = useWaitForTransactionReceipt({
-    hash: txHash,
-  });
+  const { isLoading: isTxLoading, isSuccess } = useWaitForTransactionReceipt({ hash });
   const { toast } = useToast();
-  const suckersQuery = useSuckers();
-  const suckers = suckersQuery.data;
+  const { data: suckers } = useSuckers();
+
   const publicClient = usePublicClient();
   const { data: walletClient } = useWalletClient();
   const [isApproving, setIsApproving] = useState(false);
@@ -89,12 +88,8 @@ export function PayDialog({
   // Get all projects in the sucker group with their token data
   const { data: suckerGroupData } = useBendystrawQuery(
     SuckerGroupDocument,
-    {
-      id: suckerGroupId ?? "",
-    },
-    {
-      enabled: !!suckerGroupId,
-    },
+    { id: suckerGroupId ?? "" },
+    { enabled: !!suckerGroupId },
   );
 
   // Get the correct token address for the selected chain
@@ -130,7 +125,7 @@ export function PayDialog({
       toast({
         variant: "destructive",
         title: "Error",
-        description: error.message || "An error occurred while processing your contribution",
+        description: formatWalletError(error),
       });
     }
   }, [isError, error, toast]);
@@ -159,7 +154,7 @@ export function PayDialog({
 
     // Get the correct token for the selected chain
     const chainToken = getTokenForChain(selectedSucker.peerChainId);
-    const isNative = chainToken === "0x000000000000000000000000000000000000eeee";
+    const isNative = chainToken === NATIVE_TOKEN.toLowerCase();
 
     try {
       if (!isNative) {
@@ -191,12 +186,11 @@ export function PayDialog({
       });
     } catch (err) {
       setIsApproving(false);
-      const errMsg = err instanceof Error ? err.message : "Unknown error during payment";
       console.error("Payment failed:", err);
       toast({
         variant: "destructive",
         title: "Payment Failed",
-        description: errMsg,
+        description: formatWalletError(err),
       });
     }
   };

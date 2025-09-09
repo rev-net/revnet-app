@@ -20,7 +20,9 @@ export function YouSection() {
   );
 
   // Use the sucker token surplus hook with our token map
-  const { data: surpluses, isLoading: surplusLoading } = useSuckersTokenSurplus(baseToken.tokenMap);
+  const { data: surpluses, isLoading: isLoadingDisplayQuote } = useSuckersTokenSurplus(
+    baseToken.tokenMap,
+  );
 
   // Calculate user's cashout value for each chain based on their token balance
   const userCashoutValues = useMemo(() => {
@@ -46,15 +48,12 @@ export function YouSection() {
     0n,
   );
 
-  const displayQuoteValue = totalUserCashoutValue;
-  const isLoadingDisplayQuote = surplusLoading;
-
-  const adjustedDisplayValue =
-    displayQuoteValue !== undefined ? (displayQuoteValue * 975n) / 1000n : undefined;
+  const displayQuoteValue =
+    totalUserCashoutValue !== undefined ? (totalUserCashoutValue * 975n) / 1000n : undefined;
 
   const formattedValueString =
-    adjustedDisplayValue !== undefined
-      ? Number(formatUnits(adjustedDisplayValue, baseToken.decimals)).toFixed(5)
+    displayQuoteValue !== undefined
+      ? Number(formatUnits(displayQuoteValue, baseToken.decimals)).toFixed(5)
       : null;
 
   return (
@@ -93,7 +92,7 @@ export function YouSection() {
                     <>
                       {userCashoutValues.map((cashoutValue, index) => {
                         const chainName = JB_CHAINS[cashoutValue.chainId as JBChainId]?.name || `Chain ${cashoutValue.chainId}`;
-                        
+
                         if (cashoutValue.cashoutValue > 0n) {
                           const adjustedCashoutValue = (cashoutValue.cashoutValue * 975n) / 1000n;
                           const formattedCashoutValue = Number(formatUnits(adjustedCashoutValue, baseToken.decimals)).toFixed(5);
@@ -104,7 +103,7 @@ export function YouSection() {
                             </div>
                           );
                         }
-                        
+
                         return (
                           <div key={index} className="flex justify-between gap-2">
                             <span>{chainName}</span>
