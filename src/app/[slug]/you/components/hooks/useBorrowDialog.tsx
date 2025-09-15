@@ -7,10 +7,14 @@ import { generateFeeData } from "@/lib/feeHelpers";
 import { getTokenConfigForChain, getTokenSymbolFromAddress } from "@/lib/tokenUtils";
 import { formatWalletError } from "@/lib/utils";
 import {
+  getRevnetLoanContract,
   JB_TOKEN_DECIMALS,
   JBChainId,
   jbPermissionsAbi,
   NATIVE_TOKEN_DECIMALS,
+  revDeployerAbi,
+  revLoansAbi,
+  RevnetCoreContracts,
 } from "juice-sdk-core";
 import {
   useJBChainId,
@@ -19,18 +23,15 @@ import {
   useSuckersUserTokenBalance,
 } from "juice-sdk-react";
 import { useCallback, useEffect, useState } from "react";
-import {
-  revLoansAddress,
-  useReadRevDeployerFee,
-  useReadRevDeployerPermissions,
-  useReadRevLoansBorrowableAmountFrom,
-  useReadRevLoansRevPrepaidFeePercent,
-  useWriteRevLoansBorrowFrom,
-  useWriteRevLoansReallocateCollateralFromLoan,
-  useWriteRevLoansRepayLoan,
-} from "revnet-sdk";
 import { Address, erc20Abi, formatUnits, parseUnits } from "viem";
-import { useAccount, usePublicClient, useWaitForTransactionReceipt, useWalletClient } from "wagmi";
+import {
+  useAccount,
+  usePublicClient,
+  useReadContract,
+  useWaitForTransactionReceipt,
+  useWalletClient,
+  useWriteContract,
+} from "wagmi";
 
 // Types
 type BorrowState =
@@ -100,6 +101,8 @@ export function useBorrowDialog({
   const { token } = useJBTokenContext();
   const {
     contracts: { primaryNativeTerminal },
+    contractAddress,
+    version,
   } = useJBContractContext();
 
   const chainId = useJBChainId();
@@ -151,15 +154,28 @@ export function useBorrowDialog({
 
   // Data hooks
   const { data: balances } = useSuckersUserTokenBalance();
-  const { data: resolvedPermissionsAddress } = useReadRevDeployerPermissions({
+  const { data: resolvedPermissionsAddress } = useReadContract({
+    abi: revDeployerAbi,
+    functionName: "PERMISSIONS",
+    address: contractAddress(RevnetCoreContracts.REVDeployer),
     chainId: cashOutChainId ? (Number(cashOutChainId) as JBChainId) : undefined,
   });
 
   // Fee-related hooks
-  const { data: revDeployerFee } = useReadRevDeployerFee({
+  const { data: revDeployerFee } = useReadContract({
+    abi: revDeployerAbi,
+    functionName: "FEE",
+    address: contractAddress(RevnetCoreContracts.REVDeployer),
     chainId: cashOutChainId ? (Number(cashOutChainId) as JBChainId) : undefined,
   });
-  const { data: revPrepaidFeePercent } = useReadRevLoansRevPrepaidFeePercent({
+
+  const { data: revPrepaidFeePercent } = useReadContract({
+    abi: revLoansAbi,
+    functionName: "REV_PREPAID_FEE_PERCENT",
+    address: getRevnetLoanContract(
+      version,
+      cashOutChainId ? (Number(cashOutChainId) as JBChainId) : undefined,
+    ),
     chainId: cashOutChainId ? (Number(cashOutChainId) as JBChainId) : undefined,
   });
 
@@ -206,7 +222,13 @@ export function useBorrowDialog({
     data: borrowableAmountRaw,
     error: borrowableError,
     isLoading: isBorrowableLoading,
-  } = useReadRevLoansBorrowableAmountFrom({
+  } = useReadContract({
+    abi: revLoansAbi,
+    functionName: "borrowableAmountFrom",
+    address: getRevnetLoanContract(
+      version,
+      cashOutChainId ? (Number(cashOutChainId) as JBChainId) : undefined,
+    ),
     chainId: cashOutChainId ? (Number(cashOutChainId) as JBChainId) : undefined,
     args:
       cashOutChainId && selectedChainTokenConfig
@@ -219,7 +241,13 @@ export function useBorrowDialog({
         : undefined,
   });
 
-  const { data: estimatedBorrowFromInputOnly } = useReadRevLoansBorrowableAmountFrom({
+  const { data: estimatedBorrowFromInputOnly } = useReadContract({
+    abi: revLoansAbi,
+    functionName: "borrowableAmountFrom",
+    address: getRevnetLoanContract(
+      version,
+      cashOutChainId ? (Number(cashOutChainId) as JBChainId) : undefined,
+    ),
     chainId: cashOutChainId ? (Number(cashOutChainId) as JBChainId) : undefined,
     args:
       collateralAmount && selectedChainTokenConfig
@@ -233,7 +261,13 @@ export function useBorrowDialog({
   });
 
   // Reallocation-related hooks
-  const { data: selectedLoanReallocAmount } = useReadRevLoansBorrowableAmountFrom({
+  const { data: selectedLoanReallocAmount } = useReadContract({
+    abi: revLoansAbi,
+    functionName: "borrowableAmountFrom",
+    address: getRevnetLoanContract(
+      version,
+      cashOutChainId ? (Number(cashOutChainId) as JBChainId) : undefined,
+    ),
     chainId: cashOutChainId ? (Number(cashOutChainId) as JBChainId) : undefined,
     args:
       totalReallocationCollateral && selectedChainTokenConfig
@@ -247,7 +281,13 @@ export function useBorrowDialog({
         : undefined,
   });
 
-  const { data: currentBorrowableOnSelectedCollateral } = useReadRevLoansBorrowableAmountFrom({
+  const { data: currentBorrowableOnSelectedCollateral } = useReadContract({
+    abi: revLoansAbi,
+    functionName: "borrowableAmountFrom",
+    address: getRevnetLoanContract(
+      version,
+      cashOutChainId ? (Number(cashOutChainId) as JBChainId) : undefined,
+    ),
     chainId: cashOutChainId ? (Number(cashOutChainId) as JBChainId) : undefined,
     args:
       internalSelectedLoan && selectedChainTokenConfig
@@ -263,7 +303,15 @@ export function useBorrowDialog({
 
   // Repay-related hooks
   const { data: estimatedRepayAmountForCollateral, isLoading: isEstimatingRepayment } =
-    useReadRevLoansBorrowableAmountFrom({
+    useReadContract({
+      abi: revLoansAbi,
+      functionName: "borrowableAmountFrom",
+      address: getRevnetLoanContract(
+        version,
+        internalSelectedLoan?.chainId
+          ? (Number(internalSelectedLoan.chainId) as JBChainId)
+          : undefined,
+      ),
       chainId: internalSelectedLoan?.chainId,
       args: internalSelectedLoan
         ? [
@@ -275,7 +323,15 @@ export function useBorrowDialog({
         : undefined,
     });
 
-  const { data: estimatedNewBorrowableAmount } = useReadRevLoansBorrowableAmountFrom({
+  const { data: estimatedNewBorrowableAmount } = useReadContract({
+    abi: revLoansAbi,
+    functionName: "borrowableAmountFrom",
+    address: getRevnetLoanContract(
+      version,
+      internalSelectedLoan?.chainId
+        ? (Number(internalSelectedLoan.chainId) as JBChainId)
+        : undefined,
+    ),
     chainId: internalSelectedLoan?.chainId,
     args:
       internalSelectedLoan && remainingCollateral !== undefined
@@ -289,15 +345,13 @@ export function useBorrowDialog({
   });
 
   // Transaction hooks
-  const { writeContract, isPending: isWriteLoading, data } = useWriteRevLoansBorrowFrom();
+  const { writeContractAsync, isPending: isWriteLoading, data } = useWriteContract();
 
   const {
     writeContractAsync: reallocateCollateralAsync,
     isPending: isReallocating,
     data: reallocationTxHash,
-  } = useWriteRevLoansReallocateCollateralFromLoan();
-
-  const { writeContractAsync: repayLoanAsync, isPending: isRepaying } = useWriteRevLoansRepayLoan();
+  } = useWriteContract();
 
   // Transaction status hooks
   const txHash = data;
@@ -318,7 +372,7 @@ export function useBorrowDialog({
   const userHasPermission = useHasBorrowPermission({
     address: address as `0x${string}`,
     projectId: effectiveProjectId,
-    chainId: cashOutChainId ? Number(cashOutChainId) : undefined,
+    chainId: cashOutChainId ? (Number(cashOutChainId) as JBChainId) : undefined,
     resolvedPermissionsAddress: resolvedPermissionsAddress as `0x${string}`,
     skip: false,
   });
@@ -346,7 +400,13 @@ export function useBorrowDialog({
   const newLoanCollateral =
     collateralHeadroom +
     (collateralAmount ? parseUnits(collateralAmount, projectTokenDecimals) : 0n);
-  const { data: newLoanBorrowableAmount } = useReadRevLoansBorrowableAmountFrom({
+  const { data: newLoanBorrowableAmount } = useReadContract({
+    abi: revLoansAbi,
+    functionName: "borrowableAmountFrom",
+    address: getRevnetLoanContract(
+      version,
+      cashOutChainId ? (Number(cashOutChainId) as JBChainId) : undefined,
+    ),
     chainId: cashOutChainId ? (Number(cashOutChainId) as JBChainId) : undefined,
     args:
       newLoanCollateral > 0n && selectedChainTokenConfig
@@ -546,7 +606,10 @@ export function useBorrowDialog({
         // Check allowance for non-ETH base tokens
         if (baseTokenSymbol !== "ETH" && publicClient && walletClient && newLoanBorrowableAmount) {
           const baseTokenAddress = selectedChainTokenConfig.token;
-          const revLoansContractAddress = revLoansAddress[Number(cashOutChainId) as JBChainId];
+          const revLoansContractAddress = getRevnetLoanContract(
+            version,
+            cashOutChainId ? (Number(cashOutChainId) as JBChainId) : undefined,
+          );
 
           const allowance = await publicClient.readContract({
             address: baseTokenAddress,
@@ -571,6 +634,12 @@ export function useBorrowDialog({
         }
 
         await reallocateCollateralAsync({
+          abi: revLoansAbi,
+          functionName: "reallocateCollateralFromLoan",
+          address: getRevnetLoanContract(
+            version,
+            cashOutChainId ? (Number(cashOutChainId) as JBChainId) : undefined,
+          ),
           chainId: Number(cashOutChainId) as JBChainId,
           args: [
             internalSelectedLoan.id,
@@ -621,7 +690,10 @@ export function useBorrowDialog({
               args: [
                 address as `0x${string}`,
                 {
-                  operator: revLoansAddress[Number(cashOutChainId) as JBChainId],
+                  operator: getRevnetLoanContract(
+                    version,
+                    cashOutChainId ? (Number(cashOutChainId) as JBChainId) : undefined,
+                  ),
                   projectId: effectiveProjectId,
                   permissionIds: [1],
                 },
@@ -656,7 +728,10 @@ export function useBorrowDialog({
           estimatedBorrowFromInputOnly
         ) {
           const baseTokenAddress = selectedChainTokenConfig.token;
-          const revLoansContractAddress = revLoansAddress[Number(cashOutChainId) as JBChainId];
+          const revLoansContractAddress = getRevnetLoanContract(
+            version,
+            cashOutChainId ? (Number(cashOutChainId) as JBChainId) : undefined,
+          );
 
           const allowance = await publicClient.readContract({
             address: baseTokenAddress,
@@ -691,14 +766,20 @@ export function useBorrowDialog({
           BigInt(feeBasisPoints),
         ] as const;
 
-        if (!writeContract) {
+        if (!writeContractAsync) {
           setBorrowStatus("error");
           return;
         }
 
         try {
           setBorrowStatus("waiting-signature");
-          await writeContract({
+          await writeContractAsync({
+            abi: revLoansAbi,
+            functionName: "borrowFrom",
+            address: getRevnetLoanContract(
+              version,
+              cashOutChainId ? (Number(cashOutChainId) as JBChainId) : undefined,
+            ),
             chainId: Number(cashOutChainId) as JBChainId,
             args,
           });
@@ -736,13 +817,14 @@ export function useBorrowDialog({
     userHasPermission,
     borrowableAmountRaw,
     resolvedPermissionsAddress,
-    writeContract,
+    writeContractAsync,
     effectiveProjectId,
     estimatedBorrowFromInputOnly,
     newLoanBorrowableAmount,
     selectedChainTokenConfig,
     publicClient,
     projectTokenDecimals,
+    version,
   ]);
 
   // ===== EFFECTS =====

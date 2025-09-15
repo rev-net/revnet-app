@@ -1,14 +1,9 @@
-query ActivityEvents(
-  $where: activityEventFilter
-  $orderBy: String
-  $orderDirection: String
-) {
+query ActivityEvents($where: activityEventFilter, $orderBy: String, $orderDirection: String) {
   activityEvents(
     where: $where
     orderBy: $orderBy
     orderDirection: $orderDirection
-    limit: 1000
-    # TODO implement paging
+    limit: 1000 # TODO implement paging
   ) {
     items {
       id
@@ -32,6 +27,7 @@ query ActivityEvents(
           id
           projectId
           handle
+          version
         }
       }
       cashOutTokensEvent {
@@ -47,6 +43,7 @@ query ActivityEvents(
           id
           projectId
           handle
+          version
         }
       }
     }

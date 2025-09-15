@@ -11,9 +11,9 @@ interface Props {
 
 export default async function YouPage(props: Props) {
   const { slug } = props.params;
-  const { chainId, projectId } = parseSlug(slug);
+  const { chainId, projectId, version } = parseSlug(slug);
 
-  const project = await getProject(projectId, chainId);
+  const project = await getProject(projectId, chainId, version);
   if (!project) notFound();
 
   const suckerGroup = await getSuckerGroup(project.suckerGroupId, chainId);

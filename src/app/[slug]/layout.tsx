@@ -51,8 +51,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     });
   }
 
-  const { projectId, chainId } = parseSlug(slug);
-  const project = projectId ? await getProject(projectId, chainId) : null;
+  const { projectId, chainId, version } = parseSlug(slug);
+  const project = projectId ? await getProject(projectId, chainId, version) : null;
   const imageUrl = project?.logoUri || `${origin}/assets/img/rev-og-191-1.png`;
 
   const frame = {
@@ -80,10 +80,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default function SlugLayout({ children, params }: PropsWithChildren<Props>) {
-  const { chainId, projectId } = parseSlug(params.slug);
+  const { chainId, projectId, version } = parseSlug(params.slug);
 
   return (
-    <ProjectProviders chainId={chainId} projectId={projectId}>
+    <ProjectProviders chainId={chainId} projectId={projectId} version={version}>
       <Nav />
       <div className="w-full px-4 sm:container pt-6">
         <Header />

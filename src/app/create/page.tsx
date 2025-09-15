@@ -6,9 +6,14 @@ import { wagmiConfig } from "@/lib/wagmiConfig";
 import { getPublicClient } from "@wagmi/core";
 import { Formik } from "formik";
 import { withZodSchema } from "formik-validator-zod";
-import { createSalt, MappableAsset, parseSuckerDeployerConfig } from "juice-sdk-core";
+import {
+  createSalt,
+  jbContractAddress,
+  MappableAsset,
+  parseSuckerDeployerConfig,
+  revDeployerAbi,
+} from "juice-sdk-core";
 import { useGetRelayrTxQuote } from "juice-sdk-react";
-import { revDeployerAbi, revDeployerAddress } from "revnet-sdk";
 import { encodeFunctionData } from "viem";
 import { useAccount } from "wagmi";
 import { DEFAULT_FORM_DATA } from "./constants";
@@ -74,7 +79,7 @@ export default function Page() {
 
       // Estimate gas for the transaction if it were to be send directly to the revDeployer.
       const gasEstimate = await publicClient.estimateContractGas({
-        address: revDeployerAddress[chainId],
+        address: jbContractAddress["5"]["REVDeployer"][chainId],
         abi: revDeployerAbi,
         functionName: "deployWith721sFor",
         args: deployData,
@@ -85,7 +90,7 @@ export default function Page() {
       relayrTransactions.push({
         data: {
           from: address,
-          to: revDeployerAddress[chainId],
+          to: jbContractAddress["5"]["REVDeployer"][chainId],
           value: 0n,
           // Use the estimated gas but add a buffer for the trustedForwarder.
           gas: gasEstimate + BigInt(120_000n),

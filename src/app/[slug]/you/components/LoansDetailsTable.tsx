@@ -13,10 +13,10 @@ import { LoansByAccountDocument, ProjectDocument, SuckerGroupDocument } from "@/
 import { useBendystrawQuery } from "@/graphql/useBendystrawQuery";
 import { getTokenConfigForChain, getTokenSymbolFromAddress } from "@/lib/tokenUtils";
 import { formatSeconds } from "@/lib/utils";
-import { JB_CHAINS, JBChainId } from "juice-sdk-core";
-import { useJBChainId, useJBTokenContext } from "juice-sdk-react";
-import { useReadRevLoansBorrowableAmountFrom } from "revnet-sdk";
+import { getRevnetLoanContract, JB_CHAINS, JBChainId, revLoansAbi } from "juice-sdk-core";
+import { useJBChainId, useJBContractContext, useJBTokenContext } from "juice-sdk-react";
 import { formatUnits } from "viem";
+import { useReadContract } from "wagmi";
 
 // Constants for loan calculations and display
 const LOAN_CONSTANTS = {
@@ -49,6 +49,7 @@ function LoanRow({
   suckerGroupData?: any;
 }) {
   const { token } = useJBTokenContext();
+  const { version } = useJBContractContext();
   const projectTokenDecimals = token?.data?.decimals ?? 18;
 
   const chainTokenConfig = getTokenConfigForChain(suckerGroupData, loan.chainId);
@@ -59,8 +60,11 @@ function LoanRow({
   const borrowAmount = Number(formatUnits(BigInt(loan.borrowAmount), baseTokenDecimals)).toFixed(4);
 
   // Calculate headroom: current value of collateral - borrowed amount
-  const { data: currentCollateralValue } = useReadRevLoansBorrowableAmountFrom({
+  const { data: currentCollateralValue } = useReadContract({
+    abi: revLoansAbi,
     chainId: loan.chainId as JBChainId,
+    functionName: "borrowableAmountFrom",
+    address: getRevnetLoanContract(version, loan.chainId as JBChainId),
     args: [
       revnetId,
       BigInt(loan.collateral),

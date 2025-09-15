@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Project } from "@/generated/graphql";
 import { formatTokenSymbol } from "@/lib/utils";
-import { JBProjectToken, NATIVE_TOKEN } from "juice-sdk-core";
+import { JBChainId, JBProjectToken, NATIVE_TOKEN } from "juice-sdk-core";
 import {
   useJBChainId,
   useJBContractContext,
@@ -46,7 +46,7 @@ export function UserTokenBalanceCard(props: Props) {
   );
 
   const [selectedLoanId, setSelectedLoanId] = useState<string | null>(null);
-  const [selectedChainId, setSelectedChainId] = useState<number | null>(null);
+  const [selectedChainId, setSelectedChainId] = useState<JBChainId | null>(null);
   const [showRepayDialog, setShowRepayDialog] = useState(false);
   const borrowDialogTriggerRef = useRef<HTMLButtonElement | null>(null);
   const [reallocateLoan, setReallocateLoan] = useState<any>(null);
@@ -100,7 +100,7 @@ export function UserTokenBalanceCard(props: Props) {
             tokenSymbol={tokenSymbol}
             onSelectLoan={(loanId, chainId) => {
               setSelectedLoanId(loanId);
-              setSelectedChainId(chainId);
+              setSelectedChainId(chainId as JBChainId);
               setShowRepayDialog(true);
             }}
             onReallocateLoan={(loan) => {

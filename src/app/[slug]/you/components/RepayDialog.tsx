@@ -7,17 +7,19 @@ import { ProjectDocument, SuckerGroupDocument } from "@/generated/graphql";
 import { useBendystrawQuery } from "@/graphql/useBendystrawQuery";
 import { getTokenConfigForChain, getTokenSymbolFromAddress } from "@/lib/tokenUtils";
 import { formatTokenSymbol, formatWalletError } from "@/lib/utils";
-import { JBChainId } from "juice-sdk-core";
-import { useJBChainId, useJBTokenContext } from "juice-sdk-react";
+import { getRevnetLoanContract, JBChainId, revLoansAbi } from "juice-sdk-core";
+import { useJBChainId, useJBContractContext, useJBTokenContext } from "juice-sdk-react";
 import { useEffect, useState } from "react";
-import {
-  revLoansAddress,
-  useReadRevLoansLoanOf,
-  useSimulateRevLoansRepayLoan,
-  useWriteRevLoansRepayLoan,
-} from "revnet-sdk";
 import { Address, erc20Abi, formatUnits, parseUnits } from "viem";
-import { useAccount, usePublicClient, useWaitForTransactionReceipt, useWalletClient } from "wagmi";
+import {
+  useAccount,
+  usePublicClient,
+  useReadContract,
+  useSimulateContract,
+  useWaitForTransactionReceipt,
+  useWalletClient,
+  useWriteContract,
+} from "wagmi";
 
 export function RepayDialog({
   loanId,
@@ -27,7 +29,7 @@ export function RepayDialog({
   onOpenChange,
 }: {
   loanId: string;
-  chainId: number;
+  chainId: JBChainId;
   projectId: bigint;
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -47,6 +49,7 @@ export function RepayDialog({
   const currentChainId = useJBChainId();
   const publicClient = usePublicClient();
   const { data: walletClient } = useWalletClient();
+  const { version } = useJBContractContext();
 
   // Check allowance for non-ETH base tokens before simulation
   const [allowanceChecked, setAllowanceChecked] = useState(false);
@@ -54,8 +57,11 @@ export function RepayDialog({
   const [allowanceError, setAllowanceError] = useState<string>("");
 
   // Fetch loan data first to get the project ID
-  const { data: loanData, isLoading: isLoadingLoan } = useReadRevLoansLoanOf({
-    chainId: chainId as JBChainId,
+  const { data: loanData, isLoading: isLoadingLoan } = useReadContract({
+    abi: revLoansAbi,
+    functionName: "loanOf",
+    address: getRevnetLoanContract(version, chainId),
+    chainId,
     args: [BigInt(loanId)],
   });
 
@@ -85,7 +91,7 @@ export function RepayDialog({
   const baseTokenDecimals = chainTokenConfig.decimals;
 
   // Repay loan hook
-  const { writeContractAsync: repayLoanAsync, isPending: isRepaying } = useWriteRevLoansRepayLoan();
+  const { writeContractAsync: repayLoanAsync, isPending: isRepaying } = useWriteContract();
 
   // Transaction status tracking
   const { isLoading: isRepayTxLoading, isSuccess: isRepaySuccess } = useWaitForTransactionReceipt({
@@ -140,8 +146,11 @@ export function RepayDialog({
     data: simulationResult,
     isLoading: isSimulating,
     error: simulationError,
-  } = useSimulateRevLoansRepayLoan({
-    chainId: chainId as JBChainId,
+  } = useSimulateContract({
+    abi: revLoansAbi,
+    functionName: "repayLoan",
+    address: getRevnetLoanContract(version, chainId),
+    chainId,
     args:
       shouldRunSimulation && simulationArgs
         ? (simulationArgs as unknown as readonly [
@@ -215,7 +224,7 @@ export function RepayDialog({
 
       try {
         const baseTokenAddress = chainTokenConfig.token;
-        const revLoansContractAddress = revLoansAddress[chainId as JBChainId];
+        const revLoansContractAddress = getRevnetLoanContract(version, chainId);
 
         const allowance = await publicClient.readContract({
           address: baseTokenAddress,
@@ -250,6 +259,7 @@ export function RepayDialog({
     chainTokenConfig,
     chainId,
     baseTokenDecimals,
+    version,
   ]);
 
   // ===== EFFECTS =====
@@ -322,7 +332,7 @@ export function RepayDialog({
     try {
       setRepayStatus("approving");
       const baseTokenAddress = chainTokenConfig.token;
-      const revLoansContractAddress = revLoansAddress[chainId as JBChainId];
+      const revLoansContractAddress = getRevnetLoanContract(version, chainId);
 
       const approveHash = await walletClient.writeContract({
         address: baseTokenAddress,
@@ -374,7 +384,7 @@ export function RepayDialog({
       // Check allowance for USDC-based projects
       if (baseTokenSymbol !== "ETH") {
         const baseTokenAddress = chainTokenConfig.token;
-        const revLoansContractAddress = revLoansAddress[chainId as JBChainId];
+        const revLoansContractAddress = getRevnetLoanContract(version, chainId);
 
         const allowance = await publicClient.readContract({
           address: baseTokenAddress,
@@ -403,7 +413,10 @@ export function RepayDialog({
       }
 
       const txHash = await repayLoanAsync({
-        chainId: chainId as JBChainId,
+        abi: revLoansAbi,
+        functionName: "repayLoan",
+        address: getRevnetLoanContract(version, chainId),
+        chainId,
         args: [
           loanIdBigInt,
           maxRepayBorrowAmount,

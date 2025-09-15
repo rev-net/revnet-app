@@ -21,16 +21,23 @@ import { useToast } from "@/components/ui/use-toast";
 import { ProjectDocument, SuckerGroupDocument } from "@/generated/graphql";
 import { useBendystrawQuery } from "@/graphql/useBendystrawQuery";
 import { formatWalletError } from "@/lib/utils";
-import { JB_CHAINS, JBChainId, NATIVE_TOKEN, TokenAmountType } from "juice-sdk-core";
 import {
-  useJBChainId,
-  useJBContractContext,
-  useSuckers,
-  useWriteJbMultiTerminalPay,
-} from "juice-sdk-react";
+  JB_CHAINS,
+  JBChainId,
+  jbMultiTerminalAbi,
+  NATIVE_TOKEN,
+  TokenAmountType,
+} from "juice-sdk-core";
+import { useJBChainId, useJBContractContext, useSuckers } from "juice-sdk-react";
 import { useEffect, useState } from "react";
 import { erc20Abi } from "viem";
-import { useAccount, usePublicClient, useWaitForTransactionReceipt, useWalletClient } from "wagmi";
+import {
+  useAccount,
+  usePublicClient,
+  useWaitForTransactionReceipt,
+  useWalletClient,
+  useWriteContract,
+} from "wagmi";
 import { useSelectedSucker } from "./SelectedSuckerContext";
 
 export function PayDialog({
@@ -61,7 +68,8 @@ export function PayDialog({
     writeContract,
     isPending: isWriteLoading,
     data: hash,
-  } = useWriteJbMultiTerminalPay();
+  } = useWriteContract();
+
   const chainId = useJBChainId();
   const { selectedSucker, setSelectedSucker } = useSelectedSucker();
   const { isLoading: isTxLoading, isSuccess } = useWaitForTransactionReceipt({ hash });
@@ -180,6 +188,8 @@ export function PayDialog({
       }
 
       writeContract?.({
+        abi: jbMultiTerminalAbi,
+        functionName: "pay",
         chainId: selectedSucker.peerChainId,
         address: primaryNativeTerminal.data as `0x${string}`,
         args: [selectedSucker.projectId, chainToken, value, address, 0n, memo || "", "0x0"],

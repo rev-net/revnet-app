@@ -1,45 +1,20 @@
 // https://github.com/rev-net/revnet-core/blob/main/script/Deploy.s.sol
-import { JB_CURRENCY_USD, USDC_ADDRESSES, USDC_DECIMALS } from "@/app/constants";
+import { USDC_ADDRESSES, USDC_DECIMALS } from "@/app/constants";
 import {
   CashOutTaxRate,
   ETH_CURRENCY_ID,
   JB_CHAINS,
   JBChainId,
-  jbProjectDeploymentAddresses,
+  jbContractAddress,
   NATIVE_TOKEN,
   NATIVE_TOKEN_DECIMALS,
+  revDeployerAbi,
   SPLITS_TOTAL_PERCENT,
+  USD_CURRENCY_ID,
   WeightCutPercent,
 } from "juice-sdk-core";
-import { jbPricesAddress } from "juice-sdk-react";
-import { revDeployerAbi, revLoansAddress } from "revnet-sdk";
 import { Address, ContractFunctionParameters, parseUnits, zeroAddress } from "viem";
-import {
-  arbitrum,
-  arbitrumSepolia,
-  base,
-  baseSepolia,
-  mainnet,
-  optimism,
-  optimismSepolia,
-  sepolia,
-} from "viem/chains";
 import { RevnetFormData } from "../types";
-
-// ToDo: Replace with values coming from jbProjectDeploymentAddresses
-const JBSwapTerminal1_1 = {
-  [mainnet.id]: "0x64834ff3c2c18a715c635dd022227a9a8d9e8b73",
-  [sepolia.id]: "0x4b75f7c7e9bd65807cbc56419641155c2660b65c",
-
-  [arbitrum.id]: "0x21e6d82921fce3798a96134eddc2e7cd67c12769",
-  [arbitrumSepolia.id]: "0x97e7430c4e1ee242a604d8529195ae06b121cbc6",
-
-  [base.id]: "0xe4036d0cd05951689e1bb8667f5364874dc2fbfb",
-  [baseSepolia.id]: "0xae33d0b3a5e1f2d52f50cd589458c84e2f1ea916",
-
-  [optimism.id]: "0x817b87ab3cad4f84f8dc9c98b8f219404dca9927",
-  [optimismSepolia.id]: "0x6c5debbdb7365c9ed1ef4529823c3113d47e1842",
-} as const;
 
 export function parseDeployData(
   _formData: RevnetFormData,
@@ -76,17 +51,16 @@ export function parseDeployData(
   console.log(`[ Operator ] ${operator}`);
 
   // Determine asset settings based on reserveAsset
-  let baseCurrency, tokenAddress, tokenDecimals, swapTerminal;
+  let baseCurrency, tokenAddress, tokenDecimals;
+  const swapTerminal = jbContractAddress[5].JBSwapTerminalRegistry[extra.chainId];
   if (formData.reserveAsset === "USDC") {
-    tokenAddress = USDC_ADDRESSES[extra.chainId] || "0x0000000000000000000000000000000000000000";
+    tokenAddress = USDC_ADDRESSES[extra.chainId];
     tokenDecimals = USDC_DECIMALS;
-    baseCurrency = JB_CURRENCY_USD;
-    swapTerminal = JBSwapTerminal1_1[extra.chainId];
+    baseCurrency = USD_CURRENCY_ID(5);
   } else {
-    tokenAddress = NATIVE_TOKEN as `0x${string}`;
+    tokenAddress = NATIVE_TOKEN;
     tokenDecimals = NATIVE_TOKEN_DECIMALS;
     baseCurrency = ETH_CURRENCY_ID;
-    swapTerminal = jbProjectDeploymentAddresses.JBSwapTerminal[extra.chainId];
   }
 
   const accountingContextsToAccept = [
@@ -100,21 +74,9 @@ export function parseDeployData(
   const loanSources = [
     {
       token: tokenAddress,
-      terminal: jbProjectDeploymentAddresses.JBMultiTerminal[
-        extra?.chainId as JBChainId
-      ] as Address,
+      terminal: jbContractAddress[5].JBMultiTerminal[extra?.chainId as JBChainId] as Address,
     },
   ];
-
-  // No pool configurations so the operator can set it later depending on liquidity constraints
-  // const poolConfigurations = [
-  //   {
-  //     token: tokenAddress,
-  //     fee: 10_000,
-  //     twapWindow: 2 * 60 * 60 * 24,
-  //     twapSlippageTolerance: 9000,
-  //   },
-  // ];
 
   const stageConfigurations = formData.stages.map((stage, idx) => {
     console.log(`~~~~~~~~~~~~~~~~~~~~~~~~~~ Stage ${idx + 1} ~~~~~~~~~~~~~~~~~~~~~~~~~~`);
@@ -200,24 +162,29 @@ export function parseDeployData(
       baseCurrency: baseCurrency,
       splitOperator: operator as Address,
       stageConfigurations,
-      loans: revLoansAddress[extra.chainId as JBChainId] as Address,
+      loans: jbContractAddress["5"]["REVLoans"][extra.chainId],
       loanSources,
     },
     [
       {
-        terminal: jbProjectDeploymentAddresses.JBMultiTerminal[
-          extra.chainId as JBChainId
-        ] as Address,
+        terminal: jbContractAddress[5].JBMultiTerminal[extra.chainId],
         accountingContextsToAccept,
       },
       {
-        terminal: swapTerminal as Address,
+        terminal: swapTerminal,
         accountingContextsToAccept,
       },
     ],
     {
-      hook: jbProjectDeploymentAddresses.JBBuybackHook[extra.chainId as JBChainId] as Address,
-      poolConfigurations: [],
+      dataHook: jbContractAddress[5].JBBuybackHookRegistry[extra.chainId],
+      hookToConfigure: jbContractAddress[5].JBBuybackHook[extra.chainId],
+      poolConfigurations: [
+        {
+          token: tokenAddress,
+          fee: 10_000,
+          twapWindow: 2 * 60 * 60 * 24,
+        },
+      ],
     },
     {
       deployerConfigurations: extra.suckerDeployerConfig.deployerConfigurations,
@@ -234,7 +201,7 @@ export function parseDeployData(
           tiers: [],
           currency: baseCurrency,
           decimals: tokenDecimals,
-          prices: jbPricesAddress[extra.chainId as JBChainId],
+          prices: jbContractAddress[5].JBPrices[extra.chainId],
         },
         reserveBeneficiary: zeroAddress,
         flags: {

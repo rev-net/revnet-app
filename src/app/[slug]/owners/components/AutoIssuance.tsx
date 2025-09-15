@@ -16,20 +16,20 @@ import { useAutoIssuances } from "@/hooks/useAutoIssuances";
 import { commaNumber } from "@/lib/number";
 import { formatTokenSymbol } from "@/lib/utils";
 import { format } from "date-fns";
-import { formatUnits } from "juice-sdk-core";
-import { useJBTokenContext } from "juice-sdk-react";
+import { formatUnits, revDeployerAbi, RevnetCoreContracts } from "juice-sdk-core";
+import { useJBContractContext, useJBTokenContext } from "juice-sdk-react";
 import { CheckIcon } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useWriteRevDeployerAutoIssueFor } from "revnet-sdk";
-import { useWaitForTransactionReceipt } from "wagmi";
+import { useWaitForTransactionReceipt, useWriteContract } from "wagmi";
 
 export function AutoIssuance() {
   const { token } = useJBTokenContext();
   const autoIssuances = useAutoIssuances();
   const now = Math.floor(new Date().getTime() / 1000);
   const [autoIssueId, setAutoIssueId] = useState<string | null>(null);
+  const { contractAddress } = useJBContractContext();
 
-  const { writeContract, isPending, data } = useWriteRevDeployerAutoIssueFor();
+  const { writeContract, isPending, data } = useWriteContract();
 
   const { isLoading, isSuccess } = useWaitForTransactionReceipt({
     hash: data,
@@ -111,6 +111,9 @@ export function AutoIssuance() {
                         loading={(isPending || isLoading) && autoIssueId === autoIssuance.id}
                         onClick={() => {
                           writeContract({
+                            abi: revDeployerAbi,
+                            functionName: "autoIssueFor",
+                            address: contractAddress(RevnetCoreContracts.REVDeployer),
                             args: [
                               BigInt(autoIssuance.projectId),
                               autoIssuance.stageId,

@@ -1,10 +1,12 @@
 import {
+  getJBContractAddress,
   JBChainId,
-  readJbDirectoryPrimaryTerminalOf,
-  readJbMultiTerminalCurrentSurplusOf,
+  JBCoreContracts,
+  jbDirectoryAbi,
+  jbMultiTerminalAbi,
 } from "juice-sdk-core";
-
 import { useJBChainId, useJBContractContext, useSuckers } from "juice-sdk-react";
+import { getContract } from "viem";
 import { useConfig } from "wagmi";
 import { useQuery } from "wagmi/query";
 
@@ -17,10 +19,9 @@ export function useSuckersTokenSurplus(
   const config = useConfig();
 
   const chainId = useJBChainId();
-  const { projectId } = useJBContractContext();
+  const { projectId, version } = useJBContractContext();
 
-  const suckersQuery = useSuckers();
-  const pairs = suckersQuery.data;
+  const { data: pairs = [], isLoading, isError } = useSuckers();
 
   // Create a stable tokenMap key for the query key
   const tokenMapKey =
@@ -70,35 +71,30 @@ export function useSuckersTokenSurplus(
 
           const { token, currency, decimals } = tokenConfig;
 
-          const terminal = await readJbDirectoryPrimaryTerminalOf(config, {
-            chainId: Number(peerChainId) as JBChainId,
-            args: [projectId, token],
+          const directory = getContract({
+            address: getJBContractAddress(JBCoreContracts.JBDirectory, version, chainId),
+            abi: jbDirectoryAbi,
+            client: config.getClient({ chainId: peerChainId }),
           });
 
-          let surplus;
+          const terminal = getContract({
+            address: await directory.read.primaryTerminalOf([projectId, token]),
+            abi: jbMultiTerminalAbi,
+            client: config.getClient({ chainId: peerChainId }),
+          });
+
           try {
-            surplus = await readJbMultiTerminalCurrentSurplusOf(config, {
-              chainId: Number(peerChainId) as JBChainId,
-              address: terminal,
-              args: [
-                projectId,
-                [
-                  {
-                    token: token,
-                    decimals: decimals,
-                    currency: currency,
-                  },
-                ],
-                BigInt(decimals),
-                BigInt(currency),
-              ],
-            });
+            const surplus = await terminal.read.currentSurplusOf([
+              projectId,
+              [{ token: token, decimals: decimals, currency: currency }],
+              BigInt(decimals),
+              BigInt(currency),
+            ]);
+            return { surplus, chainId: peerChainId, projectId };
           } catch (error) {
             console.error(`Error getting surplus for chain ${peerChainId}:`, error);
             return { surplus: null, chainId: peerChainId, projectId };
           }
-
-          return { surplus, chainId: peerChainId, projectId };
         }),
       );
 
@@ -115,8 +111,8 @@ export function useSuckersTokenSurplus(
   });
 
   return {
-    isLoading: surplusQuery.isLoading || suckersQuery.isLoading,
-    isError: surplusQuery.isError || suckersQuery.isError,
+    isLoading: surplusQuery.isLoading || isLoading,
+    isError: surplusQuery.isError || isError,
     data: surplusQuery.data as
       | { surplus: bigint; chainId: JBChainId; projectId: bigint }[]
       | undefined,

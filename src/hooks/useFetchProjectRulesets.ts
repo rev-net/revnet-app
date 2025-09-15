@@ -2,8 +2,8 @@ import { MAX_RULESET_COUNT } from "@/app/constants";
 import { decodeRulesetMetadata, RulesetMetadata } from "@/lib/utils";
 import { wagmiConfig } from "@/lib/wagmiConfig";
 import { readContract } from "@wagmi/core";
-import { SuckerPair } from "juice-sdk-core";
-import { JBChainId, jbRulesetsAbi, jbRulesetsAddress } from "juice-sdk-react";
+import { JBCoreContracts, jbRulesetsAbi, SuckerPair } from "juice-sdk-core";
+import { useJBContractContext } from "juice-sdk-react";
 import { useCallback, useEffect, useState } from "react";
 
 type RuleSet = {
@@ -28,6 +28,7 @@ export function useFetchProjectRulesets(suckers: SuckerPair[] | undefined | null
   >(undefined);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<any | null>(null);
+  const { contractAddress } = useJBContractContext();
 
   const fetchRuleSets = useCallback(async () => {
     if (!suckers) return undefined;
@@ -37,7 +38,7 @@ export function useFetchProjectRulesets(suckers: SuckerPair[] | undefined | null
         suckers.map((sucker) =>
           readContract(wagmiConfig, {
             chainId: sucker.peerChainId,
-            address: jbRulesetsAddress[sucker.peerChainId as JBChainId],
+            address: contractAddress(JBCoreContracts.JBRulesets, sucker.peerChainId),
             abi: jbRulesetsAbi,
             functionName: "allOf",
             args: [sucker.projectId, 0n, BigInt(MAX_RULESET_COUNT)],
@@ -62,7 +63,7 @@ export function useFetchProjectRulesets(suckers: SuckerPair[] | undefined | null
     } finally {
       setIsLoading(false);
     }
-  }, [suckers]);
+  }, [suckers, contractAddress]);
 
   useEffect(() => {
     if (!suckers) return undefined;

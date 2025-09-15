@@ -10,6 +10,7 @@ query LoansByAccount($owner: String!) {
       chainId
       createdAt
       id
+      version
     }
   }
 }
@@ -26,6 +27,7 @@ query LoansDetailsByAccount($owner: String!, $projectId: Int!) {
       token
       chainId
       id
+      version
     }
   }
 }
