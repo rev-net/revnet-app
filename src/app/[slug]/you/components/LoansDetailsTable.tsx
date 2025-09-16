@@ -166,6 +166,7 @@ export function LoanDetailsTable({
     {
       chainId: Number(currentChainId),
       projectId: Number(revnetId),
+      version: 4 // TODO dynamic version
     },
     {
       enabled: !!currentChainId && !!revnetId,

@@ -1,0 +1,1 @@
+export type Version = 4 | 5

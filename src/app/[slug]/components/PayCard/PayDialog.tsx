@@ -78,6 +78,7 @@ export function PayDialog({
     {
       chainId: Number(chainId),
       projectId: Number(projectId),
+      version: 4 // TODO dynamic version
     },
     {
       enabled: !!chainId && !!projectId,

@@ -26,6 +26,7 @@ export function useHasBorrowPermission({
     chainId: chainId as number,
     projectId: Number(projectId),
     operator: operator as string,
+    version: 4 // TODO dynamic version
   });
 
   return data?.permissionHolder?.permissions?.includes(1) ?? undefined;

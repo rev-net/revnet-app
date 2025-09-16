@@ -1,5 +1,5 @@
-query Project($projectId: Float!, $chainId: Float!) {
-  project(projectId: $projectId, chainId: $chainId) {
+query Project($projectId: Float!, $chainId: Float!, $version: Float!) {
+  project(projectId: $projectId, chainId: $chainId, version: $version) {
     projectId
     metadataUri
     handle
@@ -25,8 +25,8 @@ query Projects($where: projectFilter) {
   }
 }
 
-query ProjectAccountingContext($chainId: Float!, $projectId: Float!) {
-  project(chainId: $chainId, projectId: $projectId) {
+query ProjectAccountingContext($chainId: Float!, $projectId: Float!, $version: Float!) {
+  project(chainId: $chainId, projectId: $projectId, version: $version) {
     token
     decimals
     currency

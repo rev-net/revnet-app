@@ -17,6 +17,7 @@ export function TvlDatum() {
     {
       chainId: Number(chainId),
       projectId: Number(projectId),
+      version: 4 // TODO dynamic version
     },
     {
       enabled: !!chainId && !!projectId,

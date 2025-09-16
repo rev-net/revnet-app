@@ -9,5 +9,6 @@ export function useProjectAccountingContext() {
   return useBendystrawQuery(ProjectAccountingContextDocument, {
     chainId: Number(chainId),
     projectId: Number(projectId),
+    version: 4 // TODO dynamic version
   });
 }

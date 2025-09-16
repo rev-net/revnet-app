@@ -30,6 +30,7 @@ export function Header() {
   const project = useBendystrawQuery(ProjectDocument, {
     chainId: Number(chainId),
     projectId: Number(projectId),
+    version: 4 // TODO dynamic version
   });
   const suckerGroup = useBendystrawQuery(SuckerGroupDocument, {
     id: project.data?.project?.suckerGroupId ?? "",

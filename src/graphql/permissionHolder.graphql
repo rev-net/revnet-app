@@ -3,12 +3,14 @@ query HasPermission(
   $chainId: Float!
   $projectId: Float!
   $operator: String!
+  $version: Float!
 ) {
   permissionHolder(
     account: $account
     chainId: $chainId
     projectId: $projectId
     operator: $operator
+    version: $version
   ) {
     permissions
   }

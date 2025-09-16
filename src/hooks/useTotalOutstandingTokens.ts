@@ -9,6 +9,7 @@ export function useTotalOutstandingTokens() {
   const { data } = useBendystrawQuery(ProjectDocument, {
     projectId: Number(projectId),
     chainId: Number(chainId),
+    version: 4 // TODO dynamic version
   });
 
   const { data: suckerGroup } = useBendystrawQuery(SuckerGroupDocument, {
