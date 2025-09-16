@@ -163,6 +163,7 @@ export function LoanDetailsTable({
   selectedLoanId?: string;
 }) {
   const currentChainId = useJBChainId();
+  const { version } = useJBContractContext();
 
   // Get project data to find sucker group ID
   const { data: projectData } = useBendystrawQuery(
@@ -170,7 +171,7 @@ export function LoanDetailsTable({
     {
       chainId: Number(currentChainId),
       projectId: Number(revnetId),
-      version: 4 // TODO dynamic version
+      version,
     },
     {
       enabled: !!currentChainId && !!revnetId,

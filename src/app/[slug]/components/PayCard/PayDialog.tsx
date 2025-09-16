@@ -58,6 +58,7 @@ export function PayDialog({
   const {
     projectId,
     contracts: { primaryNativeTerminal },
+    version,
   } = useJBContractContext();
 
   const { address } = useAccount();
@@ -83,14 +84,8 @@ export function PayDialog({
   // Get the suckerGroupId from the current project
   const { data: projectData } = useBendystrawQuery(
     ProjectDocument,
-    {
-      chainId: Number(chainId),
-      projectId: Number(projectId),
-      version: 4 // TODO dynamic version
-    },
-    {
-      enabled: !!chainId && !!projectId,
-    },
+    { chainId: Number(chainId), projectId: Number(projectId), version },
+    { enabled: !!chainId && !!projectId },
   );
   const suckerGroupId = projectData?.project?.suckerGroupId;
 

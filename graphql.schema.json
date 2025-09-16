@@ -1,7 +1,8 @@
 {
   "__schema": {
     "queryType": {
-      "name": "Query"
+      "name": "Query",
+      "kind": "OBJECT"
     },
     "mutationType": null,
     "subscriptionType": null,
@@ -10,6 +11,7 @@
         "kind": "SCALAR",
         "name": "BigInt",
         "description": null,
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -20,6 +22,7 @@
         "kind": "SCALAR",
         "name": "Boolean",
         "description": "The `Boolean` scalar type represents `true` or `false`.",
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -30,6 +33,7 @@
         "kind": "SCALAR",
         "name": "Float",
         "description": "The `Float` scalar type represents signed double-precision fractional values as specified by [IEEE 754](https://en.wikipedia.org/wiki/IEEE_floating_point).",
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -40,6 +44,7 @@
         "kind": "SCALAR",
         "name": "Int",
         "description": "The `Int` scalar type represents non-fractional signed whole numeric values. Int can represent values between -(2^31) and 2^31 - 1.",
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -50,6 +55,7 @@
         "kind": "SCALAR",
         "name": "JSON",
         "description": "The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).",
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -60,6 +66,7 @@
         "kind": "OBJECT",
         "name": "Meta",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "status",
@@ -83,6 +90,7 @@
         "kind": "OBJECT",
         "name": "PageInfo",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "endCursor",
@@ -150,6 +158,7 @@
         "kind": "OBJECT",
         "name": "Query",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "_meta",
@@ -4665,6 +4674,7 @@
         "kind": "SCALAR",
         "name": "String",
         "description": "The `String` scalar type represents textual data, represented as UTF-8 character sequences. The String type is most often used by GraphQL to represent free-form human-readable text.",
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -4675,6 +4685,7 @@
         "kind": "OBJECT",
         "name": "__Directive",
         "description": "A Directive provides a way to describe alternate runtime execution and type validation behavior in a GraphQL document.\n\nIn some cases, you need to provide options to alter GraphQL's execution behavior in ways field arguments will not suffice, such as conditionally including or skipping a field. Directives provide this by describing additional information to the executor.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "name",
@@ -4791,6 +4802,7 @@
         "kind": "ENUM",
         "name": "__DirectiveLocation",
         "description": "A Directive can be adjacent to many parts of the GraphQL language, a __DirectiveLocation describes one such possible adjacencies.",
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -4916,6 +4928,7 @@
         "kind": "OBJECT",
         "name": "__EnumValue",
         "description": "One possible value for a given Enum. Enum values are unique values, not a placeholder for a string or numeric value. However an Enum value is returned in a JSON response as a string.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "name",
@@ -4983,6 +4996,7 @@
         "kind": "OBJECT",
         "name": "__Field",
         "description": "Object and Interface types are described by a list of Fields, each of which has a name, potentially a list of arguments, and a return type.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "name",
@@ -5103,6 +5117,7 @@
         "kind": "OBJECT",
         "name": "__InputValue",
         "description": "Arguments provided to Fields or Directives and the input fields of an InputObject are represented as Input Values which describe their type and optionally a default value.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "name",
@@ -5198,6 +5213,7 @@
         "kind": "OBJECT",
         "name": "__Schema",
         "description": "A GraphQL Schema defines the capabilities of a GraphQL server. It exposes all available types and directives on the server, as well as the entry points for query, mutation, and subscription operations.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "description",
@@ -5309,6 +5325,7 @@
         "kind": "OBJECT",
         "name": "__Type",
         "description": "The fundamental unit of any GraphQL Schema is the type. There are many kinds of types in GraphQL as represented by the `__TypeKind` enum.\n\nDepending on the kind of a type, certain fields describe information about that type. Scalar types provide no information beyond a name, description and optional `specifiedByURL`, while Enum types provide their values. Object and Interface types provide the fields they describe. Abstract types, Union and Interface, provide the Object types possible at runtime. List and NonNull types compose other types.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "kind",
@@ -5512,6 +5529,18 @@
             },
             "isDeprecated": false,
             "deprecationReason": null
+          },
+          {
+            "name": "isOneOf",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
           }
         ],
         "inputFields": null,
@@ -5523,6 +5552,7 @@
         "kind": "ENUM",
         "name": "__TypeKind",
         "description": "An enum describing what kind of type a given `__Type` is.",
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -5582,6 +5612,7 @@
         "kind": "OBJECT",
         "name": "_sucker",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "address",
@@ -5669,6 +5700,7 @@
         "kind": "INPUT_OBJECT",
         "name": "_suckerFilter",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -6152,6 +6184,7 @@
         "kind": "OBJECT",
         "name": "_suckerPage",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "items",
@@ -6219,6 +6252,7 @@
         "kind": "OBJECT",
         "name": "activityEvent",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "addToBalanceEvent",
@@ -6610,6 +6644,7 @@
         "kind": "INPUT_OBJECT",
         "name": "activityEventFilter",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -10069,6 +10104,7 @@
         "kind": "OBJECT",
         "name": "activityEventPage",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "items",
@@ -10136,6 +10172,7 @@
         "kind": "ENUM",
         "name": "activityEventType",
         "description": null,
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -10261,6 +10298,7 @@
         "kind": "OBJECT",
         "name": "addToBalanceEvent",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "amount",
@@ -10504,6 +10542,7 @@
         "kind": "INPUT_OBJECT",
         "name": "addToBalanceEventFilter",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -12171,6 +12210,7 @@
         "kind": "OBJECT",
         "name": "addToBalanceEventPage",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "items",
@@ -12238,6 +12278,7 @@
         "kind": "OBJECT",
         "name": "autoIssueEvent",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "beneficiary",
@@ -12453,6 +12494,7 @@
         "kind": "INPUT_OBJECT",
         "name": "autoIssueEventFilter",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -13864,6 +13906,7 @@
         "kind": "OBJECT",
         "name": "autoIssueEventPage",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "items",
@@ -13931,6 +13974,7 @@
         "kind": "OBJECT",
         "name": "borrowLoanEvent",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "beneficiary",
@@ -14242,6 +14286,7 @@
         "kind": "INPUT_OBJECT",
         "name": "borrowLoanEventFilter",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -16349,6 +16394,7 @@
         "kind": "OBJECT",
         "name": "borrowLoanEventPage",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "items",
@@ -16416,6 +16462,7 @@
         "kind": "OBJECT",
         "name": "burnEvent",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "amount",
@@ -16615,6 +16662,7 @@
         "kind": "INPUT_OBJECT",
         "name": "burnEventFilter",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -17898,6 +17946,7 @@
         "kind": "OBJECT",
         "name": "burnEventPage",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "items",
@@ -17965,6 +18014,7 @@
         "kind": "OBJECT",
         "name": "cashOutTokensEvent",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "beneficiary",
@@ -18292,6 +18342,7 @@
         "kind": "INPUT_OBJECT",
         "name": "cashOutTokensEventFilter",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -20503,6 +20554,7 @@
         "kind": "OBJECT",
         "name": "cashOutTokensEventPage",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "items",
@@ -20570,6 +20622,7 @@
         "kind": "OBJECT",
         "name": "decorateBannyEvent",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "backgroundId",
@@ -20793,6 +20846,7 @@
         "kind": "INPUT_OBJECT",
         "name": "decorateBannyEventFilter",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -22156,6 +22210,7 @@
         "kind": "OBJECT",
         "name": "decorateBannyEventPage",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "items",
@@ -22223,6 +22278,7 @@
         "kind": "OBJECT",
         "name": "deployErc20Event",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "caller",
@@ -22454,6 +22510,7 @@
         "kind": "INPUT_OBJECT",
         "name": "deployErc20EventFilter",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -24041,6 +24098,7 @@
         "kind": "OBJECT",
         "name": "deployErc20EventPage",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "items",
@@ -24108,6 +24166,7 @@
         "kind": "OBJECT",
         "name": "liquidateLoanEvent",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "borrowAmount",
@@ -24323,6 +24382,7 @@
         "kind": "INPUT_OBJECT",
         "name": "liquidateLoanEventFilter",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -25734,6 +25794,7 @@
         "kind": "OBJECT",
         "name": "liquidateLoanEventPage",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "items",
@@ -25801,6 +25862,7 @@
         "kind": "OBJECT",
         "name": "loan",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "beneficiary",
@@ -26060,6 +26122,7 @@
         "kind": "INPUT_OBJECT",
         "name": "loanFilter",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -27783,6 +27846,7 @@
         "kind": "OBJECT",
         "name": "loanPage",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "items",
@@ -27850,6 +27914,7 @@
         "kind": "OBJECT",
         "name": "mintNftEvent",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "beneficiary",
@@ -28137,6 +28202,7 @@
         "kind": "INPUT_OBJECT",
         "name": "mintNftEventFilter",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -29908,6 +29974,7 @@
         "kind": "OBJECT",
         "name": "mintNftEventPage",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "items",
@@ -29975,6 +30042,7 @@
         "kind": "OBJECT",
         "name": "mintTokensEvent",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "beneficiary",
@@ -30234,6 +30302,7 @@
         "kind": "INPUT_OBJECT",
         "name": "mintTokensEventFilter",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -32005,6 +32074,7 @@
         "kind": "OBJECT",
         "name": "mintTokensEventPage",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "items",
@@ -32072,6 +32142,7 @@
         "kind": "OBJECT",
         "name": "nft",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "category",
@@ -32323,6 +32394,7 @@
         "kind": "INPUT_OBJECT",
         "name": "nftFilter",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -33766,6 +33838,7 @@
         "kind": "OBJECT",
         "name": "nftHook",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "address",
@@ -34063,6 +34136,7 @@
         "kind": "INPUT_OBJECT",
         "name": "nftHookFilter",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -34906,6 +34980,7 @@
         "kind": "OBJECT",
         "name": "nftHookPage",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "items",
@@ -34973,6 +35048,7 @@
         "kind": "OBJECT",
         "name": "nftPage",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "items",
@@ -35040,6 +35116,7 @@
         "kind": "OBJECT",
         "name": "nftTier",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "allowOwnerMint",
@@ -35424,6 +35501,7 @@
         "kind": "INPUT_OBJECT",
         "name": "nftTierFilter",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -37419,6 +37497,7 @@
         "kind": "OBJECT",
         "name": "nftTierPage",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "items",
@@ -37486,6 +37565,7 @@
         "kind": "OBJECT",
         "name": "participant",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "address",
@@ -37838,6 +37918,7 @@
         "kind": "INPUT_OBJECT",
         "name": "participantFilter",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -39337,6 +39418,7 @@
         "kind": "OBJECT",
         "name": "participantPage",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "items",
@@ -39404,6 +39486,7 @@
         "kind": "OBJECT",
         "name": "participantSnapshot",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "address",
@@ -39607,6 +39690,7 @@
         "kind": "INPUT_OBJECT",
         "name": "participantSnapshotFilter",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -40946,6 +41030,7 @@
         "kind": "OBJECT",
         "name": "participantSnapshotPage",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "items",
@@ -41013,6 +41098,7 @@
         "kind": "OBJECT",
         "name": "payEvent",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "amount",
@@ -41296,6 +41382,7 @@
         "kind": "INPUT_OBJECT",
         "name": "payEventFilter",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -43275,6 +43362,7 @@
         "kind": "OBJECT",
         "name": "payEventPage",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "items",
@@ -43342,6 +43430,7 @@
         "kind": "OBJECT",
         "name": "permissionHolder",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "account",
@@ -43465,6 +43554,7 @@
         "kind": "INPUT_OBJECT",
         "name": "permissionHolderFilter",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -44132,6 +44222,7 @@
         "kind": "OBJECT",
         "name": "permissionHolderPage",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "items",
@@ -44199,6 +44290,7 @@
         "kind": "OBJECT",
         "name": "project",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "addToBalanceEvents",
@@ -46303,6 +46395,7 @@
         "kind": "OBJECT",
         "name": "projectCreateEvent",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "caller",
@@ -46486,6 +46579,7 @@
         "kind": "INPUT_OBJECT",
         "name": "projectCreateEventFilter",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -47689,6 +47783,7 @@
         "kind": "OBJECT",
         "name": "projectCreateEventPage",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "items",
@@ -47756,6 +47851,7 @@
         "kind": "INPUT_OBJECT",
         "name": "projectFilter",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -52535,6 +52631,7 @@
         "kind": "OBJECT",
         "name": "projectMoment",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "balance",
@@ -52702,6 +52799,7 @@
         "kind": "INPUT_OBJECT",
         "name": "projectMomentFilter",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -53681,6 +53779,7 @@
         "kind": "OBJECT",
         "name": "projectMomentPage",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "items",
@@ -53748,6 +53847,7 @@
         "kind": "OBJECT",
         "name": "projectPage",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "items",
@@ -53815,6 +53915,7 @@
         "kind": "OBJECT",
         "name": "reallocateLoanEvent",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "caller",
@@ -54046,6 +54147,7 @@
         "kind": "INPUT_OBJECT",
         "name": "reallocateLoanEventFilter",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -55561,6 +55663,7 @@
         "kind": "OBJECT",
         "name": "reallocateLoanEventPage",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "items",
@@ -55628,6 +55731,7 @@
         "kind": "OBJECT",
         "name": "repayLoanEvent",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "caller",
@@ -55875,6 +55979,7 @@
         "kind": "INPUT_OBJECT",
         "name": "repayLoanEventFilter",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -57494,6 +57599,7 @@
         "kind": "OBJECT",
         "name": "repayLoanEventPage",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "items",
@@ -57561,6 +57667,7 @@
         "kind": "OBJECT",
         "name": "sendPayoutToSplitEvent",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "amount",
@@ -57920,6 +58027,7 @@
         "kind": "INPUT_OBJECT",
         "name": "sendPayoutToSplitEventFilter",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -60267,6 +60375,7 @@
         "kind": "OBJECT",
         "name": "sendPayoutToSplitEventPage",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "items",
@@ -60334,6 +60443,7 @@
         "kind": "OBJECT",
         "name": "sendPayoutsEvent",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "amount",
@@ -60661,6 +60771,7 @@
         "kind": "INPUT_OBJECT",
         "name": "sendPayoutsEventFilter",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -62800,6 +62911,7 @@
         "kind": "OBJECT",
         "name": "sendPayoutsEventPage",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "items",
@@ -62867,6 +62979,7 @@
         "kind": "OBJECT",
         "name": "sendReservedTokensToSplitEvent",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "beneficiary",
@@ -63194,6 +63307,7 @@
         "kind": "INPUT_OBJECT",
         "name": "sendReservedTokensToSplitEventFilter",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -65333,6 +65447,7 @@
         "kind": "OBJECT",
         "name": "sendReservedTokensToSplitEventPage",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "items",
@@ -65400,6 +65515,7 @@
         "kind": "OBJECT",
         "name": "sendReservedTokensToSplitsEvent",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "caller",
@@ -65663,6 +65779,7 @@
         "kind": "INPUT_OBJECT",
         "name": "sendReservedTokensToSplitsEventFilter",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -67410,6 +67527,7 @@
         "kind": "OBJECT",
         "name": "sendReservedTokensToSplitsEventPage",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "items",
@@ -67477,6 +67595,7 @@
         "kind": "OBJECT",
         "name": "storeAutoIssuanceAmountEvent",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "beneficiary",
@@ -67692,6 +67811,7 @@
         "kind": "INPUT_OBJECT",
         "name": "storeAutoIssuanceAmountEventFilter",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -69103,6 +69223,7 @@
         "kind": "OBJECT",
         "name": "storeAutoIssuanceAmountEventPage",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "items",
@@ -69170,6 +69291,7 @@
         "kind": "OBJECT",
         "name": "suckerGroup",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "addresses",
@@ -69546,6 +69668,7 @@
         "kind": "INPUT_OBJECT",
         "name": "suckerGroupFilter",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -71389,6 +71512,7 @@
         "kind": "OBJECT",
         "name": "suckerGroupMoment",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "balance",
@@ -71672,6 +71796,7 @@
         "kind": "INPUT_OBJECT",
         "name": "suckerGroupMomentFilter",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -73507,6 +73632,7 @@
         "kind": "OBJECT",
         "name": "suckerGroupMomentPage",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "items",
@@ -73574,6 +73700,7 @@
         "kind": "OBJECT",
         "name": "suckerGroupPage",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "items",
@@ -73641,6 +73768,7 @@
         "kind": "OBJECT",
         "name": "useAllowanceEvent",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "amount",
@@ -73948,6 +74076,7 @@
         "kind": "INPUT_OBJECT",
         "name": "useAllowanceEventFilter",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -76055,6 +76184,7 @@
         "kind": "OBJECT",
         "name": "useAllowanceEventPage",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "items",
@@ -76122,6 +76252,7 @@
         "kind": "OBJECT",
         "name": "wallet",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "address",
@@ -76367,6 +76498,7 @@
         "kind": "INPUT_OBJECT",
         "name": "walletFilter",
         "description": null,
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -76850,6 +76982,7 @@
         "kind": "OBJECT",
         "name": "walletPage",
         "description": null,
+        "isOneOf": null,
         "fields": [
           {
             "name": "items",

@@ -30,16 +30,18 @@ export function PayOnSelect() {
       <span className="text-md text-black-700">on</span>
       <Select
         onValueChange={(value: string) => {
-          setSelectedSucker(suckers?.find((sucker) => sucker.peerChainId === value) || undefined);
+          setSelectedSucker(
+            suckers?.find((sucker) => sucker.peerChainId === Number(value)) || undefined,
+          );
         }}
-        defaultValue={selectedSucker?.peerChainId}
+        defaultValue={selectedSucker?.peerChainId.toString()}
       >
         <SelectTrigger className="underline bg-transparent border-none p-0 h-auto text-md text-black-700">
           <SelectValue placeholder="pick a chain" />
         </SelectTrigger>
         <SelectContent>
           {suckers?.map((sucker) => (
-            <SelectItem key={sucker.peerChainId} value={sucker.peerChainId}>
+            <SelectItem key={sucker.peerChainId} value={sucker.peerChainId.toString()}>
               {JB_CHAINS[sucker.peerChainId as JBChainId]?.name}
             </SelectItem>
           ))}

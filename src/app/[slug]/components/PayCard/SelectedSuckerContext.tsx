@@ -1,4 +1,4 @@
-import { SuckerPair } from "juice-sdk-core";
+import { JBChainId, SuckerPair } from "juice-sdk-core";
 import { useJBChainId, useJBContractContext } from "juice-sdk-react";
 import React, { createContext, ReactNode, useContext, useState } from "react";
 
@@ -13,7 +13,7 @@ export const SelectedSuckerProvider = ({ children }: { children: ReactNode }) =>
   const chainId = useJBChainId();
   const { projectId } = useJBContractContext();
   const [selectedSucker, setSelectedSucker] = useState<SuckerPair | undefined>(() => {
-    return { peerChainId: chainId, projectId };
+    return { peerChainId: chainId as JBChainId, projectId };
   });
 
   return (

@@ -70,6 +70,7 @@ export function RedeemDialog({
   const [redeemAmount, setRedeemAmount] = useState<string>();
   const {
     contracts: { primaryNativeTerminal },
+    version,
   } = useJBContractContext();
 
   const { address } = useAccount();
@@ -95,11 +96,7 @@ export function RedeemDialog({
   // Get the suckerGroupId from the current project
   const { data: projectData } = useBendystrawQuery(
     ProjectDocument,
-    { 
-      chainId: Number(chainId), 
-      projectId: Number(projectId),
-      version: 4 // TODO dynamic version
-     },
+    { chainId: Number(chainId), projectId: Number(projectId), version },
     { enabled: !!chainId && !!projectId },
   );
   const suckerGroupId = projectData?.project?.suckerGroupId;

@@ -22,7 +22,7 @@ import { useMemo } from "react";
 import { TvlDatum } from "./TvlDatum";
 
 export function Header() {
-  const { projectId } = useJBContractContext();
+  const { projectId, version } = useJBContractContext();
   const chainId = useJBChainId();
   const { metadata } = useJBProjectMetadataContext();
   const { token } = useJBTokenContext();
@@ -30,7 +30,7 @@ export function Header() {
   const project = useBendystrawQuery(ProjectDocument, {
     chainId: Number(chainId),
     projectId: Number(projectId),
-    version: 4 // TODO dynamic version
+    version,
   });
   const suckerGroup = useBendystrawQuery(SuckerGroupDocument, {
     id: project.data?.project?.suckerGroupId ?? "",

@@ -68,11 +68,7 @@ export function RepayDialog({
   // Get project data to find sucker group ID using the project ID
   const { data: projectData } = useBendystrawQuery(
     ProjectDocument,
-    { 
-      chainId: Number(currentChainId), 
-      projectId: Number(projectId),
-      version: 4 // TODO dynamic version
-    },
+    { chainId: Number(currentChainId), projectId: Number(projectId), version },
     { enabled: !!currentChainId && !!projectId, pollInterval: 10000 },
   );
 
