@@ -13,8 +13,12 @@ export function ChainOperator({ disabled = false }: { disabled?: boolean }) {
   useEffect(() => {
     values.chainIds.forEach((chain, index) => {
       setFieldValue(`operator.${index}.chainId`, chain);
+      // Initialize the address field if it's empty
+      if (!values.operator?.[index]?.address) {
+        setFieldValue(`operator.${index}.address`, values.stages[0]?.initialOperator || "");
+      }
     });
-  }, [values.chainIds, setFieldValue]);
+  }, [values.chainIds, setFieldValue, values.stages, values.operator]);
 
   return (
     <>
@@ -48,7 +52,6 @@ export function ChainOperator({ disabled = false }: { disabled?: boolean }) {
                   <Field
                     id={`operator.${chainIndex}.address`}
                     name={`operator.${chainIndex}.address`}
-                    defaultValue={values.stages[0]?.initialOperator || ""}
                     className="h-9 w-full"
                     placeholder="0x"
                     disabled={disabled}
