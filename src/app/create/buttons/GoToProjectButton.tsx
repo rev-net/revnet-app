@@ -16,7 +16,7 @@ export function GoToProjectButton({ txHash, chainId }: { txHash?: string; chainI
 
   const projectId = data?.logs[0]?.topics[1] ? Number(data.logs[0].topics[1]) : undefined;
   const chain = JB_CHAINS[chainId].slug;
-  const projectUrl = `/${chain}:${projectId}`;
+  const projectUrl = `/v5/${chain}:${projectId}`;
   return (
     <div className="max-w-fit">
       <Link href={projectUrl} className={!projectId ? "pointer-events-none" : ""}>
