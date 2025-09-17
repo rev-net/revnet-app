@@ -5,10 +5,10 @@ import { format } from "date-fns";
 import { useJBContractContext } from "juice-sdk-react";
 
 export function Creation() {
-  const { projectId } = useJBContractContext();
+  const { projectId, version } = useJBContractContext();
 
   const { data: projectCreateEvent } = useBendystrawQuery(ProjectCreateEventDocument, {
-    where: { projectId: Number(projectId) },
+    where: { projectId: Number(projectId), version },
   });
 
   const { txHash, timestamp } = projectCreateEvent?.projectCreateEvents.items?.[0] ?? {};

@@ -198,6 +198,7 @@ export function LoanDetailsTable({
     LoansByAccountDocument,
     {
       owner: address,
+      version,
     },
     {
       pollInterval: LOAN_CONSTANTS.POLL_INTERVAL, // Refresh every 3 seconds
