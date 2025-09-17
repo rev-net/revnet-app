@@ -29,6 +29,7 @@ import {
   DEFAULT_METADATA,
   formatUnits,
   JB_CHAINS,
+  jbMultiTerminalAbi,
   JBProjectToken,
   NATIVE_TOKEN,
   NATIVE_TOKEN_DECIMALS,
@@ -41,11 +42,16 @@ import {
   useSuckers,
   useSuckersUserTokenBalance,
   useTokenCashOutQuoteEth,
-  useWriteJbMultiTerminalCashOutTokensOf,
 } from "juice-sdk-react";
 import { PropsWithChildren, useState } from "react";
 import { Address, erc20Abi, parseUnits } from "viem";
-import { useAccount, usePublicClient, useWaitForTransactionReceipt, useWalletClient } from "wagmi";
+import {
+  useAccount,
+  usePublicClient,
+  useWaitForTransactionReceipt,
+  useWalletClient,
+  useWriteContract,
+} from "wagmi";
 
 export function RedeemDialog({
   projectId,
@@ -64,6 +70,7 @@ export function RedeemDialog({
   const [redeemAmount, setRedeemAmount] = useState<string>();
   const {
     contracts: { primaryNativeTerminal },
+    version,
   } = useJBContractContext();
 
   const { address } = useAccount();
@@ -89,11 +96,7 @@ export function RedeemDialog({
   // Get the suckerGroupId from the current project
   const { data: projectData } = useBendystrawQuery(
     ProjectDocument,
-    { 
-      chainId: Number(chainId), 
-      projectId: Number(projectId),
-      version: 4 // TODO dynamic version
-     },
+    { chainId: Number(chainId), projectId: Number(projectId), version },
     { enabled: !!chainId && !!projectId },
   );
   const suckerGroupId = projectData?.project?.suckerGroupId;
@@ -112,11 +115,7 @@ export function RedeemDialog({
     ? JBProjectToken.parse(redeemAmount, projectTokenDecimals).value
     : 0n;
 
-  const {
-    writeContractAsync,
-    isPending: isWriteLoading,
-    data: hash,
-  } = useWriteJbMultiTerminalCashOutTokensOf();
+  const { writeContractAsync, isPending: isWriteLoading, data: hash } = useWriteContract();
 
   const { isLoading: isTxLoading, isSuccess } = useWaitForTransactionReceipt({ hash });
   const { data: redeemQuote } = useTokenCashOutQuoteEth(redeemAmountBN, {
@@ -316,8 +315,9 @@ export function RedeemDialog({
                       address, // beneficiary
                       DEFAULT_METADATA, // metadata
                     ] as const;
-
                     await writeContractAsync?.({
+                      abi: jbMultiTerminalAbi,
+                      functionName: "cashOutTokensOf",
                       chainId: selectedSucker?.peerChainId as JBChainId,
                       address: primaryNativeTerminal.data as `0x${string}`,
                       args,

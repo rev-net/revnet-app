@@ -1,4 +1,4 @@
-import { calcPrepaidFee } from "revnet-sdk";
+import { calcPrepaidFee } from "juice-sdk-core";
 
 export function generateFeeData({
   grossBorrowedEth,

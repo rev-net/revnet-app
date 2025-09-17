@@ -21,7 +21,7 @@ export function OwnersSection() {
   const chainId = useJBChainId();
 
   const [participantsView, setParticipantsView] = useState<TableView>("all");
-  const { projectId } = useJBContractContext();
+  const { projectId, version } = useJBContractContext();
   const { token } = useJBTokenContext();
 
   const totalOutstandingTokens = useTotalOutstandingTokens();
@@ -29,7 +29,7 @@ export function OwnersSection() {
   const project = useBendystrawQuery(ProjectDocument, {
     projectId: Number(projectId),
     chainId: Number(chainId),
-    version: 4 // TODO dynamic version
+    version,
   });
 
   const suckerGroupId = project.data?.project?.suckerGroupId;

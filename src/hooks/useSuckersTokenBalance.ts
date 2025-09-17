@@ -1,12 +1,11 @@
 import {
+  getPrimaryNativeTerminal,
   getProjectTerminalStore,
-  JBChainId,
+  jbTerminalStoreAbi,
   NATIVE_TOKEN,
-  readJbDirectoryPrimaryTerminalOf,
-  readJbTerminalStoreBalanceOf,
 } from "juice-sdk-core";
 import { useJBChainId, useJBContractContext, useSuckers } from "juice-sdk-react";
-import { zeroAddress } from "viem";
+import { getContract } from "viem";
 import { useConfig } from "wagmi";
 import { useQuery } from "wagmi/query";
 
@@ -17,10 +16,9 @@ export function useSuckersTokenBalance(tokens?: Record<number, `0x${string}`>) {
   const config = useConfig();
 
   const chainId = useJBChainId();
-  const { projectId } = useJBContractContext();
+  const { projectId, version } = useJBContractContext();
 
-  const suckersQuery = useSuckers();
-  const pairs = suckersQuery.data;
+  const { data: pairs = [], isLoading, isError } = useSuckers();
 
   // Default tokens map using NATIVE_TOKEN for all chains if not provided
   const defaultTokens = Object.keys(pairs || {}).reduce(
@@ -56,18 +54,17 @@ export function useSuckersTokenBalance(tokens?: Record<number, `0x${string}`>) {
           const { peerChainId, projectId } = pair;
           const token = finalTokens[peerChainId];
           const [terminal, store] = await Promise.all([
-            readJbDirectoryPrimaryTerminalOf(config, {
-              chainId: Number(peerChainId) as JBChainId,
-              args: [projectId, token],
-            }), // TODO should probably be api'd and cached one day
-            getProjectTerminalStore(config, peerChainId, projectId),
+            getPrimaryNativeTerminal(config, peerChainId, projectId, version),
+            getProjectTerminalStore(config, peerChainId, projectId, version),
           ]);
 
-          const balance = await readJbTerminalStoreBalanceOf(config, {
-            chainId: Number(peerChainId) as JBChainId,
+          const contract = getContract({
             address: store,
-            args: [terminal ?? zeroAddress, projectId, token],
+            abi: jbTerminalStoreAbi,
+            client: config.getClient({ chainId: peerChainId }),
           });
+
+          const balance = await contract.read.balanceOf([terminal, projectId, token]);
 
           return { balance, chainId: peerChainId, projectId };
         }),
@@ -78,8 +75,8 @@ export function useSuckersTokenBalance(tokens?: Record<number, `0x${string}`>) {
   });
 
   return {
-    isLoading: balanceQuery.isLoading || suckersQuery.isLoading,
-    isError: balanceQuery.isError || suckersQuery.isError,
+    isLoading: balanceQuery.isLoading || isLoading,
+    isError: balanceQuery.isError || isError,
     data: balanceQuery.data as
       | { balance: bigint; chainId: number; projectId: bigint }[]
       | undefined,

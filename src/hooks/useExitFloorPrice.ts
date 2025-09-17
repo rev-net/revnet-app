@@ -1,31 +1,41 @@
-import { formatUnits, getTokenCashOutQuoteEth } from "juice-sdk-core";
+import {
+  formatUnits,
+  getTokenCashOutQuoteEth,
+  jbControllerAbi,
+  JBCoreContracts,
+  jbTokensAbi,
+} from "juice-sdk-core";
 import {
   useJBChainId,
   useJBContractContext,
   useJBRulesetContext,
   useJBTokenContext,
-  useReadJbControllerPendingReservedTokenBalanceOf,
-  useReadJbTokensTotalSupplyOf,
 } from "juice-sdk-react";
 import { parseUnits } from "viem";
+import { useReadContract } from "wagmi";
 import { useNativeTokenSurplus } from "./useTokenASurplus";
 
 /**
  * @todo not sure if this works properly
  */
 export function useExitFloorPrice() {
-  const { projectId, contracts } = useJBContractContext();
+  const { projectId, contracts, contractAddress } = useJBContractContext();
   const { token } = useJBTokenContext();
   const { rulesetMetadata } = useJBRulesetContext();
   const { data: nativeTokenSurplus } = useNativeTokenSurplus();
   const chainId = useJBChainId();
-  const { data: totalTokenSupply } = useReadJbTokensTotalSupplyOf({
+  const { data: totalTokenSupply } = useReadContract({
+    abi: jbTokensAbi,
+    functionName: "totalSupplyOf",
+    address: contractAddress(JBCoreContracts.JBTokens),
     chainId,
     args: [projectId],
   });
-  const { data: tokensReserved } = useReadJbControllerPendingReservedTokenBalanceOf({
-    chainId,
+  const { data: tokensReserved } = useReadContract({
+    abi: jbControllerAbi,
+    functionName: "pendingReservedTokenBalanceOf",
     address: contracts.controller.data ?? undefined,
+    chainId,
     args: [projectId],
   });
 

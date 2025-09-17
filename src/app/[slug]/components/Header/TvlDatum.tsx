@@ -8,7 +8,7 @@ import { JBChainId, useEtherPrice, useJBChainId, useJBContractContext } from "ju
 import { Loader2 } from "lucide-react";
 
 export function TvlDatum() {
-  const { projectId } = useJBContractContext();
+  const { projectId, version } = useJBContractContext();
   const chainId = useJBChainId();
 
   // Get the suckerGroupId from the current project
@@ -17,7 +17,7 @@ export function TvlDatum() {
     {
       chainId: Number(chainId),
       projectId: Number(projectId),
-      version: 4 // TODO dynamic version
+      version,
     },
     {
       enabled: !!chainId && !!projectId,

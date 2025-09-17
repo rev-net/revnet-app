@@ -9,18 +9,21 @@ import { useTokenA } from "@/hooks/useTokenA";
 import { commaNumber } from "@/lib/number";
 import { formatTokenSymbol, rulesetStartDate } from "@/lib/utils";
 import { differenceInDays, formatDate } from "date-fns";
-import { CashOutTaxRate, ReservedPercent, RulesetWeight, WeightCutPercent } from "juice-sdk-core";
 import {
-  useJBChainId,
-  useJBContractContext,
-  useJBTokenContext,
-  useReadJbControllerGetRulesetOf,
-  useReadJbRulesetsAllOf,
-  useReadJbSplitsSplitsOf,
-} from "juice-sdk-react";
+  CashOutTaxRate,
+  jbControllerAbi,
+  JBCoreContracts,
+  jbRulesetsAbi,
+  jbSplitsAbi,
+  ReservedPercent,
+  RulesetWeight,
+  WeightCutPercent,
+} from "juice-sdk-core";
+import { useJBChainId, useJBContractContext, useJBTokenContext } from "juice-sdk-react";
 import { useState } from "react";
 import { twJoin } from "tailwind-merge";
 import { formatUnits } from "viem";
+import { useReadContract } from "wagmi";
 import { PriceSection } from "./PriceSection";
 
 export function TermsTable() {
@@ -29,6 +32,7 @@ export function TermsTable() {
   const {
     projectId,
     contracts: { controller },
+    contractAddress,
   } = useJBContractContext();
   const chainId = useJBChainId();
 
@@ -36,7 +40,10 @@ export function TermsTable() {
   const tokenA = useTokenA();
 
   // TODO(perf) duplicate call, move to a new context
-  const { data: rulesets } = useReadJbRulesetsAllOf({
+  const { data: rulesets } = useReadContract({
+    abi: jbRulesetsAbi,
+    functionName: "allOf",
+    address: contractAddress(JBCoreContracts.JBRulesets),
     chainId,
     args: [projectId, 0n, BigInt(MAX_RULESET_COUNT)],
     query: {
@@ -56,7 +63,9 @@ export function TermsTable() {
 
   const selectedStage = rulesets?.[selectedStageIdx];
 
-  const selectedStageMetadata = useReadJbControllerGetRulesetOf({
+  const selectedStageMetadata = useReadContract({
+    abi: jbControllerAbi,
+    functionName: "getRulesetOf",
     chainId,
     address: controller.data ?? undefined,
     args: selectedStage?.id ? [projectId, BigInt(selectedStage.id)] : undefined,
@@ -71,8 +80,11 @@ export function TermsTable() {
     },
   });
 
-  const { data: selectedStateReservedTokenSplits } = useReadJbSplitsSplitsOf({
+  const { data: selectedStateReservedTokenSplits } = useReadContract({
+    abi: jbSplitsAbi,
+    functionName: "splitsOf",
     chainId,
+    address: contractAddress(JBCoreContracts.JBSplits),
     args:
       selectedStage && selectedStage
         ? [projectId, BigInt(selectedStage.id), RESERVED_TOKEN_SPLIT_GROUP_ID]

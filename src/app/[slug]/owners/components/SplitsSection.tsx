@@ -23,23 +23,29 @@ import {
 import { useBoostRecipient } from "@/hooks/useBoostRecipient";
 import { useFetchProjectRulesets } from "@/hooks/useFetchProjectRulesets";
 import { formatTokenSymbol } from "@/lib/utils";
-import { JB_CHAINS, SuckerPair, formatUnits, jbProjectDeploymentAddresses } from "juice-sdk-core";
+import {
+  JBCoreContracts,
+  JB_CHAINS,
+  SuckerPair,
+  formatUnits,
+  jbControllerAbi,
+  jbSplitsAbi,
+} from "juice-sdk-core";
 import {
   JBChainId,
   useJBChainId,
   useJBContractContext,
   useJBRulesetContext,
   useJBTokenContext,
-  useReadJbControllerPendingReservedTokenBalanceOf,
-  useReadJbSplitsSplitsOf,
   useSuckers,
 } from "juice-sdk-react";
 import { useEffect, useState } from "react";
 import { twJoin } from "tailwind-merge";
 import { Address } from "viem";
+import { useReadContract } from "wagmi";
 
 export function SplitsSection() {
-  const { projectId } = useJBContractContext();
+  const { projectId, contractAddress } = useJBContractContext();
   const chainId = useJBChainId();
   const { ruleset } = useJBRulesetContext();
   const { token } = useJBTokenContext();
@@ -60,8 +66,11 @@ export function SplitsSection() {
   const currentStageIdx = nextStageIdx - 1;
   const splitLimit =
     selectedSuckerRulesets?.[selectedStageIdx]?.metadata.reservedPercent.formatPercentage();
-  const { data: reservedTokenSplits, isLoading: isLoadingSplits } = useReadJbSplitsSplitsOf({
+  const { data: reservedTokenSplits, isLoading: isLoadingSplits } = useReadContract({
     chainId: selectedSucker?.peerChainId as JBChainId | undefined,
+    abi: jbSplitsAbi,
+    address: contractAddress(JBCoreContracts.JBSplits, selectedSucker?.peerChainId),
+    functionName: "splitsOf",
     args:
       ruleset &&
       ruleset?.data &&
@@ -75,12 +84,13 @@ export function SplitsSection() {
           ]
         : undefined,
   });
-  const { data: pendingReserveTokenBalance } = useReadJbControllerPendingReservedTokenBalanceOf({
+
+  const { data: pendingReserveTokenBalance } = useReadContract({
+    abi: jbControllerAbi,
+    functionName: "pendingReservedTokenBalanceOf",
     chainId: selectedSucker?.peerChainId,
     address: selectedSucker?.peerChainId
-      ? (jbProjectDeploymentAddresses.JBController[
-          selectedSucker.peerChainId as JBChainId
-        ] as Address)
+      ? contractAddress(JBCoreContracts.JBController, selectedSucker.peerChainId)
       : undefined,
     args: ruleset && ruleset?.data ? [projectId] : undefined,
   });

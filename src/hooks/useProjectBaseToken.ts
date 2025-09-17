@@ -15,7 +15,7 @@ export type BaseTokenInfo = {
 };
 
 export function useProjectBaseToken(): BaseTokenInfo {
-  const { projectId } = useJBContractContext();
+  const { projectId, version } = useJBContractContext();
   const chainId = useJBChainId();
 
   // Get the suckerGroupId from the current project
@@ -24,7 +24,7 @@ export function useProjectBaseToken(): BaseTokenInfo {
     {
       chainId: Number(chainId),
       projectId: Number(projectId),
-      version: 4 // TODO dynamic version
+      version,
     },
     {
       enabled: !!chainId && !!projectId,
