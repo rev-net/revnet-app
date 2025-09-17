@@ -10,16 +10,16 @@ import { useMemo } from "react";
 import { useReadContract } from "wagmi";
 
 export function useAutoIssuances() {
-  const { projectId, contractAddress } = useJBContractContext();
+  const { projectId, contractAddress, version } = useJBContractContext();
 
   const chainId = useJBChainId();
 
   const { data: autoIssuancesData } = useBendystrawQuery(StoreAutoIssuanceAmountEventsDocument, {
-    where: { projectId: Number(projectId), chainId },
+    where: { projectId: Number(projectId), chainId, version },
   });
 
   const { data: autoIssueEventsQuery } = useBendystrawQuery(AutoIssueEventsDocument, {
-    where: { projectId: Number(projectId), chainId },
+    where: { projectId: Number(projectId), chainId, version },
   });
 
   const { data: rulesets } = useReadContract({

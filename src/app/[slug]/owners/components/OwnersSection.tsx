@@ -55,6 +55,14 @@ export function OwnersSection() {
     },
   });
 
+  console.debug({
+    participantsQuery,
+    suckerGroupData,
+    chainTokenConfig,
+    baseTokenSymbol,
+    baseTokenDecimals,
+  });
+
   const participantsDataAggregate =
     participantsQuery.data?.participants.items?.reduce(
       (acc, participant) => {
