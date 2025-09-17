@@ -65,7 +65,7 @@ export function ActivityFeed(props: { suckerGroupId: string }) {
           })
         ) : (
           <div>
-            <Loader2 className="animate-spin" size={64} />
+            {activityLoading && <Loader2 className="animate-spin" size={64} />}
             <p className="text-sm text-zinc-500 mt-2">
               {activityLoading ? "Loading activity events..." : "No pay or cash out events yet"}
             </p>
