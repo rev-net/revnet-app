@@ -170,6 +170,7 @@ export function AddStageDialog({
                             id="initialIssuance"
                             name="initialIssuance"
                             min="0"
+                            step="any"
                             type="number"
                             className="h-9 w-full pr-24 px-3 text-md"
                           />
@@ -429,6 +430,7 @@ export function AddStageDialog({
                                     name={`autoIssuance.${index}.amount`}
                                     type="number"
                                     min="0"
+                                    step="any"
                                     className="h-9 w-40 pr-16 pl-2"
                                     required
                                   />
