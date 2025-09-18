@@ -11,10 +11,13 @@ export function ProjectProviders(
     version: JBVersion;
   }>,
 ) {
+  const bendystrawUrl = `${process.env.NEXT_PUBLIC_BENDYSTRAW_URL}`.split("/");
+
   return (
     <JBProjectProvider
       {...props}
       ctxProps={{ metadata: { ipfsGatewayHostname: OPEN_IPFS_GATEWAY_HOSTNAME } }}
+      bendystraw={{ apiKey: bendystrawUrl[bendystrawUrl.length - 1] }}
     />
   );
 }

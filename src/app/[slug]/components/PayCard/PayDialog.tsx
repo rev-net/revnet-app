@@ -19,7 +19,6 @@ import {
 import { Stat } from "@/components/ui/stat";
 import { useToast } from "@/components/ui/use-toast";
 import { ProjectDocument, SuckerGroupDocument } from "@/generated/graphql";
-import { useBendystrawQuery } from "@/graphql/useBendystrawQuery";
 import { formatWalletError } from "@/lib/utils";
 import {
   JB_CHAINS,
@@ -28,7 +27,12 @@ import {
   NATIVE_TOKEN,
   TokenAmountType,
 } from "juice-sdk-core";
-import { useJBChainId, useJBContractContext, useSuckers } from "juice-sdk-react";
+import {
+  useBendystrawQuery,
+  useJBChainId,
+  useJBContractContext,
+  useSuckers,
+} from "juice-sdk-react";
 import { useEffect, useState } from "react";
 import { erc20Abi } from "viem";
 import {

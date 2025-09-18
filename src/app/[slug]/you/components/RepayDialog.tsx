@@ -4,11 +4,15 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
 import { ProjectDocument, SuckerGroupDocument } from "@/generated/graphql";
-import { useBendystrawQuery } from "@/graphql/useBendystrawQuery";
 import { getTokenConfigForChain, getTokenSymbolFromAddress } from "@/lib/tokenUtils";
 import { formatTokenSymbol, formatWalletError } from "@/lib/utils";
 import { getRevnetLoanContract, JBChainId, revLoansAbi } from "juice-sdk-core";
-import { useJBChainId, useJBContractContext, useJBTokenContext } from "juice-sdk-react";
+import {
+  useBendystrawQuery,
+  useJBChainId,
+  useJBContractContext,
+  useJBTokenContext,
+} from "juice-sdk-react";
 import { useEffect, useState } from "react";
 import { Address, erc20Abi, formatUnits, parseUnits } from "viem";
 import {

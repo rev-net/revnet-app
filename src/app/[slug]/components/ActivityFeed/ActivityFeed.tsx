@@ -2,8 +2,7 @@
 
 import { ProfilesProvider } from "@/components/ProfilesContext";
 import { ActivityEventsDocument, SuckerGroupDocument } from "@/generated/graphql";
-import { useBendystrawQuery } from "@/graphql/useBendystrawQuery";
-import { JBChainId } from "juice-sdk-react";
+import { JBChainId, useBendystrawQuery } from "juice-sdk-react";
 import { Loader2 } from "lucide-react";
 import { PayActivityItem } from "./PayActivityItem";
 import { RedeemActivityItem } from "./RedeemActivityItem";

@@ -3,13 +3,13 @@
 import { ChainLogo } from "@/components/ChainLogo";
 import EtherscanLink from "@/components/EtherscanLink";
 import { ParticipantsDocument, ProjectDocument, SuckerGroupDocument } from "@/generated/graphql";
-import { useBendystrawQuery } from "@/graphql/useBendystrawQuery";
 import { ipfsUriToGatewayUrl } from "@/lib/ipfs";
 import { formatTokenSymbol } from "@/lib/utils";
 import { ForwardIcon } from "@heroicons/react/24/solid";
 import { JB_CHAINS } from "juice-sdk-core";
 import {
   JBChainId,
+  useBendystrawQuery,
   useJBChainId,
   useJBContractContext,
   useJBProjectMetadataContext,

@@ -1,6 +1,5 @@
 import { useToast } from "@/components/ui/use-toast";
 import { ProjectDocument, SuckerGroupDocument } from "@/generated/graphql";
-import { useBendystrawQuery } from "@/graphql/useBendystrawQuery";
 import { useHasBorrowPermission } from "@/hooks/useHasBorrowPermission";
 import { useProjectBaseToken } from "@/hooks/useProjectBaseToken";
 import { generateFeeData } from "@/lib/feeHelpers";
@@ -17,6 +16,7 @@ import {
   RevnetCoreContracts,
 } from "juice-sdk-core";
 import {
+  useBendystrawQuery,
   useJBChainId,
   useJBContractContext,
   useJBTokenContext,

@@ -2,11 +2,15 @@
 
 import { Button } from "@/components/ui/button";
 import { ParticipantsDocument, ProjectDocument, SuckerGroupDocument } from "@/generated/graphql";
-import { useBendystrawQuery } from "@/graphql/useBendystrawQuery";
 import { useTotalOutstandingTokens } from "@/hooks/useTotalOutstandingTokens";
 import { getTokenConfigForChain, getTokenSymbolFromAddress } from "@/lib/tokenUtils";
 import { formatTokenSymbol } from "@/lib/utils";
-import { useJBChainId, useJBContractContext, useJBTokenContext } from "juice-sdk-react";
+import {
+  useBendystrawQuery,
+  useJBChainId,
+  useJBContractContext,
+  useJBTokenContext,
+} from "juice-sdk-react";
 import { useState } from "react";
 import { twJoin } from "tailwind-merge";
 import { AutoIssuance } from "./AutoIssuance";

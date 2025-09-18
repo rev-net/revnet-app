@@ -55,7 +55,7 @@ export function useSuckersTokenBalance(tokens?: Record<number, `0x${string}`>) {
           const token = finalTokens[peerChainId];
           const [terminal, store] = await Promise.all([
             getPrimaryNativeTerminal(config, peerChainId, projectId, version),
-            getProjectTerminalStore(config, peerChainId, projectId, version),
+            getProjectTerminalStore(peerChainId, version),
           ]);
 
           const contract = getContract({

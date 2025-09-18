@@ -1,8 +1,7 @@
 import EtherscanLink from "@/components/EtherscanLink";
 import { ProjectCreateEventDocument } from "@/generated/graphql";
-import { useBendystrawQuery } from "@/graphql/useBendystrawQuery";
 import { format } from "date-fns";
-import { useJBContractContext } from "juice-sdk-react";
+import { useBendystrawQuery, useJBContractContext } from "juice-sdk-react";
 
 export function Creation() {
   const { projectId, version } = useJBContractContext();

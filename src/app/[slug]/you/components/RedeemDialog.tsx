@@ -20,7 +20,6 @@ import {
 } from "@/components/ui/select";
 import { useToast } from "@/components/ui/use-toast";
 import { ProjectDocument, SuckerGroupDocument } from "@/generated/graphql";
-import { useBendystrawQuery } from "@/graphql/useBendystrawQuery";
 import { useProjectBaseToken } from "@/hooks/useProjectBaseToken";
 import { getTokenConfigForChain } from "@/lib/tokenUtils";
 import { formatWalletError } from "@/lib/utils";
@@ -36,6 +35,7 @@ import {
 } from "juice-sdk-core";
 import {
   JBChainId,
+  useBendystrawQuery,
   useJBChainId,
   useJBContractContext,
   useJBTokenContext,

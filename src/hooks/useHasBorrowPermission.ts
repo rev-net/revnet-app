@@ -1,7 +1,6 @@
 import { HasPermissionDocument } from "@/generated/graphql";
-import { useBendystrawQuery } from "@/graphql/useBendystrawQuery";
 import { getRevnetLoanContract, JBChainId } from "juice-sdk-core";
-import { useJBContractContext } from "juice-sdk-react";
+import { useBendystrawQuery, useJBContractContext } from "juice-sdk-react";
 
 export function useHasBorrowPermission({
   address,
