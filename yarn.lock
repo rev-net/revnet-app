@@ -5624,6 +5624,13 @@ graphql-request@^6.0.0:
     "@graphql-typed-document-node/core" "^3.2.0"
     cross-fetch "^3.1.5"
 
+graphql-request@^7.2.0:
+  version "7.2.0"
+  resolved "https://registry.yarnpkg.com/graphql-request/-/graphql-request-7.2.0.tgz#af4aa25f27a087dd4fc93a4ff54a0f59c4487269"
+  integrity sha512-0GR7eQHBFYz372u9lxS16cOtEekFlZYB2qOyq8wDvzRmdRSJ0mgUVX1tzNcIzk3G+4NY+mGtSz411wZdeDF/+A==
+  dependencies:
+    "@graphql-typed-document-node/core" "^3.2.0"
+
 graphql-tag@^2.0.0, graphql-tag@^2.11.0:
   version "2.12.6"
   resolved "https://registry.yarnpkg.com/graphql-tag/-/graphql-tag-2.12.6.tgz#d441a569c1d2537ef10ca3d1633b48725329b5f1"
@@ -6330,18 +6337,20 @@ json5@^2.2.3:
     object.assign "^4.1.4"
     object.values "^1.1.6"
 
-juice-sdk-core@^2.0.0:
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/juice-sdk-core/-/juice-sdk-core-2.0.0.tgz#08a99b64fe8b4c61e8139399bfaad0746ad9b63c"
-  integrity sha512-r/2KGEXuwNL0cJiZjFBpQQ2+5RNe95XVDnAInWC1bA/RlM5O9zfAm4i3sLYFq9FD8BMiFiXRmVEmYyBC6Cwg1A==
+juice-sdk-core@^2.1.0:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/juice-sdk-core/-/juice-sdk-core-2.1.0.tgz#7f7a3a0b2ec0bc4b773d7c18b8377324c41d2ad2"
+  integrity sha512-FGmDvINWu+/9ru4k9tC0zM+UUtrY1oN55Ml7HRGKAoe5iNSoCpiodwZPzY02UZkJY3Fo13E8GhclQJgZchVMYQ==
   dependencies:
     bs58 "^5.0.0"
     fpnum "^1.0.0"
 
-juice-sdk-react@^4.0.0:
-  version "4.0.0"
-  resolved "https://registry.yarnpkg.com/juice-sdk-react/-/juice-sdk-react-4.0.0.tgz#c6b2dd3014b8a74015756ce8ce81d1fd1384f1cb"
-  integrity sha512-HH3n9jEjpt7Ott/9Rd/6wrChJVMvP/hAtFbjb8bs6wG45FuFe5AwipyKv+niGh/uhKZIz5mZN9mK6Vra+At90Q==
+juice-sdk-react@^5.0.0:
+  version "5.0.0"
+  resolved "https://registry.yarnpkg.com/juice-sdk-react/-/juice-sdk-react-5.0.0.tgz#00985e88ac5181110979c5113d55b8be630d8b76"
+  integrity sha512-YElckCW3O3S6pabkzD9L98a4dbPiRkOGTqBCgHGxQFBpJwY0hVzky+i4DLhYT1Grf5VS80fv4RW5AiIh+ddVcg==
+  dependencies:
+    graphql-request "^7.2.0"
 
 keccak@^3.0.3:
   version "3.0.4"

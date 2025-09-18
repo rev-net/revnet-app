@@ -3,9 +3,8 @@ import {
   AutoIssueEventsDocument,
   StoreAutoIssuanceAmountEventsDocument,
 } from "@/generated/graphql";
-import { useBendystrawQuery } from "@/graphql/useBendystrawQuery";
 import { JBCoreContracts, jbRulesetsAbi } from "juice-sdk-core";
-import { useJBChainId, useJBContractContext } from "juice-sdk-react";
+import { useBendystrawQuery, useJBChainId, useJBContractContext } from "juice-sdk-react";
 import { useMemo } from "react";
 import { useReadContract } from "wagmi";
 

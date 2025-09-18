@@ -1,8 +1,7 @@
 import { USDC_ADDRESSES } from "@/app/constants";
 import { ProjectDocument, SuckerGroupDocument } from "@/generated/graphql";
-import { useBendystrawQuery } from "@/graphql/useBendystrawQuery";
 import { JBChainId, NATIVE_TOKEN_DECIMALS } from "juice-sdk-core";
-import { useJBChainId, useJBContractContext } from "juice-sdk-react";
+import { useBendystrawQuery, useJBChainId, useJBContractContext } from "juice-sdk-react";
 
 export type BaseTokenInfo = {
   tokenType: "ETH" | "USDC" | "MIXED";

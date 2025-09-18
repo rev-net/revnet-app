@@ -10,11 +10,15 @@ import {
 } from "@/components/ui/table";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { LoansByAccountDocument, ProjectDocument, SuckerGroupDocument } from "@/generated/graphql";
-import { useBendystrawQuery } from "@/graphql/useBendystrawQuery";
 import { getTokenConfigForChain, getTokenSymbolFromAddress } from "@/lib/tokenUtils";
 import { formatSeconds } from "@/lib/utils";
 import { getRevnetLoanContract, JB_CHAINS, JBChainId, revLoansAbi } from "juice-sdk-core";
-import { useJBChainId, useJBContractContext, useJBTokenContext } from "juice-sdk-react";
+import {
+  useBendystrawQuery,
+  useJBChainId,
+  useJBContractContext,
+  useJBTokenContext,
+} from "juice-sdk-react";
 import { formatUnits } from "viem";
 import { useReadContract } from "wagmi";
 

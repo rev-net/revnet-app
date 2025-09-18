@@ -1,10 +1,15 @@
 import { USDC_ADDRESSES } from "@/app/constants";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { ProjectDocument, SuckerGroupDocument } from "@/generated/graphql";
-import { useBendystrawQuery } from "@/graphql/useBendystrawQuery";
 import { useSuckersTokenSurplus } from "@/hooks/useSuckersTokenSurplus";
 import { formatUnits, JB_CHAINS, NATIVE_TOKEN_DECIMALS } from "juice-sdk-core";
-import { JBChainId, useEtherPrice, useJBChainId, useJBContractContext } from "juice-sdk-react";
+import {
+  JBChainId,
+  useBendystrawQuery,
+  useEtherPrice,
+  useJBChainId,
+  useJBContractContext,
+} from "juice-sdk-react";
 import { Loader2 } from "lucide-react";
 
 export function TvlDatum() {
