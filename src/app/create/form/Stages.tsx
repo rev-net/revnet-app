@@ -78,7 +78,15 @@ export function Stages({ disabled = false }: { disabled?: boolean }) {
                       </div>
                       <dl className="text-md text-zinc-600 grid grid-cols-[max-content_1fr] gap-x-4 gap-y-1">
                         <dt className="font-medium">Duration</dt>
-                        <dd>{duration === 0 ? "Forever" : `${duration} days`}</dd>
+                        <dd>
+                          {duration === 0 ? "Forever" : `${duration} days`}
+                          {duration === 0 && index <= 1 && (
+                            <>
+                              {" "}
+                              <span>( add another stage to change it )</span>
+                            </>
+                          )}
+                        </dd>
                         <dt className="font-medium">Paid Issuance</dt>
                         <dd>
                           {stage.initialIssuance}{" "}
