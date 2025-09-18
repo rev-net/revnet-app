@@ -6345,10 +6345,10 @@ juice-sdk-core@^2.1.0:
     bs58 "^5.0.0"
     fpnum "^1.0.0"
 
-juice-sdk-react@^5.0.0:
-  version "5.0.0"
-  resolved "https://registry.yarnpkg.com/juice-sdk-react/-/juice-sdk-react-5.0.0.tgz#00985e88ac5181110979c5113d55b8be630d8b76"
-  integrity sha512-YElckCW3O3S6pabkzD9L98a4dbPiRkOGTqBCgHGxQFBpJwY0hVzky+i4DLhYT1Grf5VS80fv4RW5AiIh+ddVcg==
+juice-sdk-react@^5.0.1:
+  version "5.0.1"
+  resolved "https://registry.yarnpkg.com/juice-sdk-react/-/juice-sdk-react-5.0.1.tgz#66d886c187d87f8b8620963e57551b5be6741f75"
+  integrity sha512-QNZg/tggnydPSpOD9Vlb9nltPpAijEdjZ6MpTs833tQYoyFfcjw0MkaMsoYPGLOVt4XUuOqiC8L1ELtRqGcs1w==
   dependencies:
     graphql-request "^7.2.0"
 
