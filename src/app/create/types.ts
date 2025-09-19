@@ -23,6 +23,7 @@ export type StageData = {
     }[];
   }[];
   stageStart: string;
+  stageStartCuts?: string;
 };
 
 export type RevnetFormData = {

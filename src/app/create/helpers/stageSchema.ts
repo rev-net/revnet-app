@@ -32,4 +32,5 @@ export const stageSchema = z.object({
 
   splits: z.array(splitSchema),
   stageStart: z.coerce.string().min(1, "Stage start is required"),
+  stageStartCuts: z.coerce.string().optional(),
 });

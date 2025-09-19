@@ -18,10 +18,11 @@ import { defaultStageData } from "../constants";
 import { formatFormErrors } from "../helpers/formatFormErrors";
 import { stageSchema } from "../helpers/stageSchema";
 import { StageData } from "../types";
-import { Field, FieldGroup } from "./Fields";
+import { Field } from "./Fields";
+import { StartTimeField } from "./StartTimeField";
 import { useCreateForm } from "./useCreateForm";
 
-function NotesSection({
+export function NotesSection({
   title = "[ ? ]",
   children,
 }: {
@@ -112,7 +113,7 @@ export function AddStageDialog({
         </DialogHeader>
         <div className="mt-8">
           <Formik
-            initialValues={{ ...(initialValues ?? defaultStageData) }}
+            initialValues={initialValues ?? getDefaultStageData(stageIdx, stages)}
             validate={withZodSchema(stageSchema) as any}
             onSubmit={(newValues, { setSubmitting }) => {
               try {
@@ -125,6 +126,7 @@ export function AddStageDialog({
                   newValues.priceCeilingIncreasePercentage = "0";
                   newValues.priceCeilingIncreaseFrequency = "0";
                 }
+
                 onSave(newValues);
                 setOpen(false);
               } catch (e: any) {
@@ -578,28 +580,7 @@ export function AddStageDialog({
                       </div>
                     </NotesSection>
                   </div>
-                  {stageIdx > 0 && (
-                    <div className="pb-7">
-                      <FieldGroup
-                        id="stageStart"
-                        name="stageStart"
-                        label="4. Start Time"
-                        suffix="days"
-                        min="1"
-                        type="number"
-                        description="How many days after the last stage's start time should this stage start?"
-                        width="w-32"
-                      />
-                      <NotesSection>
-                        <ul className="list-disc list-inside">
-                          <li className="flex">
-                            <span className="mr-2">•</span>
-                            <div>Days must be a multiple of this stage's issuance cut rate.</div>
-                          </li>
-                        </ul>
-                      </NotesSection>
-                    </div>
-                  )}
+                  <StartTimeField stageIdx={stageIdx} stages={stages} />
 
                   <DialogFooter>
                     <Button
@@ -627,4 +608,22 @@ export function AddStageDialog({
       </DialogContent>
     </Dialog>
   );
+}
+
+function getDefaultStageData(stageIdx: number, stages: StageData[]) {
+  if (stageIdx === 0) return defaultStageData;
+
+  const previousStage = stages[stageIdx - 1];
+  const previousStageHasCuts = Number(previousStage.priceCeilingIncreaseFrequency) > 0;
+
+  if (previousStageHasCuts) {
+    const daysPerCut = Number(previousStage.priceCeilingIncreaseFrequency);
+    return {
+      ...defaultStageData,
+      stageStartCuts: "3",
+      stageStart: String(3 * daysPerCut), // Default 3 cuts worth of days
+    };
+  }
+
+  return defaultStageData;
 }
