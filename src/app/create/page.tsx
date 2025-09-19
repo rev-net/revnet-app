@@ -21,6 +21,7 @@ import { DeployRevnetForm } from "./form/DeployRevnetForm";
 import { createSchema } from "./helpers/createSchema";
 import { parseDeployData } from "./helpers/parseDeployData";
 import { pinProjectMetadata } from "./helpers/pinProjectMetaData";
+import { calculateFinalStageStarts } from "./helpers/recalculateStageStarts";
 import { RevnetFormData } from "./types";
 
 export default function Page() {
@@ -113,7 +114,10 @@ export default function Page() {
         onSubmit={async (formData: RevnetFormData, { setSubmitting }) => {
           try {
             setSubmitting(true);
-            await deployProject?.(formData);
+            await deployProject({
+              ...formData,
+              stages: calculateFinalStageStarts(formData.stages),
+            });
           } catch (e: any) {
             toast({
               variant: "destructive",

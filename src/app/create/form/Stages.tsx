@@ -10,6 +10,7 @@ import {
 } from "@heroicons/react/24/outline";
 import { PlusIcon } from "@heroicons/react/24/solid";
 import { FieldArray } from "formik";
+import { getCurrentStageDuration, getResolvedIssuance } from "../helpers/calculatePickupIssuance";
 import { AddStageDialog } from "./AddStageDialog";
 import { useCreateForm } from "./useCreateForm";
 
@@ -21,6 +22,19 @@ export function Stages({ disabled = false }: { disabled?: boolean }) {
   const maxStageReached = values.stages.length >= MAX_RULESET_COUNT;
   const canAddStage = !hasStages || !maxStageReached;
   const reserveAsset = values.reserveAsset == "USDC" ? "USD" : "ETH";
+
+  const getDynamicDuration = (currentStageIndex: number): number => {
+    if (currentStageIndex >= values.stages.length - 1) {
+      return 0; // Last stage is forever
+    }
+
+    const nextStage = values.stages[currentStageIndex + 1];
+    const currentStage = values.stages[currentStageIndex];
+
+    const duration = getCurrentStageDuration(nextStage, currentStage);
+    return Number(duration);
+  };
+
   return (
     <>
       <div className="md:col-span-1">
@@ -38,13 +52,7 @@ export function Stages({ disabled = false }: { disabled?: boolean }) {
             {values.stages.length > 0 ? (
               <div className="divide-y mb-2">
                 {values.stages.map((stage, index) => {
-                  // Calculate duration
-                  let duration;
-                  if (index < values.stages.length - 1) {
-                    duration = values.stages[index + 1].stageStart;
-                  } else {
-                    duration = 0;
-                  }
+                  const duration = getDynamicDuration(index);
                   return (
                     <div className="py-4" key={index}>
                       <div className="mb-1 flex justify-between items-center">
@@ -89,8 +97,11 @@ export function Stages({ disabled = false }: { disabled?: boolean }) {
                         </dd>
                         <dt className="font-medium">Paid Issuance</dt>
                         <dd>
-                          {stage.initialIssuance}{" "}
+                          {getResolvedIssuance(stage, index, values.stages)}{" "}
                           {formatTokenSymbol(values.tokenSymbol) ?? "tokens"} / {reserveAsset}
+                          {stage.pickUpFromPrevious && index > 0 && (
+                            <span className="text-xs text-gray-500 italic"> (pickup)</span>
+                          )}
                           {Number(stage.priceCeilingIncreasePercentage) > 0 &&
                             Number(stage.priceCeilingIncreaseFrequency) > 0 &&
                             ` cut ${stage.priceCeilingIncreasePercentage}% every ${stage.priceCeilingIncreaseFrequency} days`}

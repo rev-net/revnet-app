@@ -3,6 +3,7 @@ import { JBChainId } from "juice-sdk-core";
 export type StageData = {
   initialOperator?: string; // only one operator (technically per chain) not per stage
   initialIssuance: string;
+  pickUpFromPrevious?: boolean;
 
   priceCeilingIncreasePercentage: string;
   priceCeilingIncreaseFrequency: string;
@@ -23,6 +24,7 @@ export type StageData = {
     }[];
   }[];
   stageStart: string;
+  stageStartCuts?: string;
 };
 
 export type RevnetFormData = {
