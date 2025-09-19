@@ -15,10 +15,12 @@ import { FieldArray, Form, Formik } from "formik";
 import { withZodSchema } from "formik-validator-zod";
 import { useState } from "react";
 import { defaultStageData } from "../constants";
+import { getResolvedIssuance } from "../helpers/calculatePickupIssuance";
 import { formatFormErrors } from "../helpers/formatFormErrors";
 import { stageSchema } from "../helpers/stageSchema";
 import { StageData } from "../types";
 import { Field } from "./Fields";
+import { PickupFromPreviousStage } from "./PickupFromPreviousStage";
 import { StartTimeField } from "./StartTimeField";
 import { useCreateForm } from "./useCreateForm";
 
@@ -141,7 +143,7 @@ export function AddStageDialog({
               }
             }}
           >
-            {({ values, isValid, errors }) => {
+            {({ values, isValid, errors, setFieldValue }) => {
               // Handler for checkbox toggle
               const handleCutToggle = (e: React.ChangeEvent<HTMLInputElement>) => {
                 const checked = e.target.checked;
@@ -155,6 +157,7 @@ export function AddStageDialog({
                 }
                 // Do not reset values on uncheck, just hide the fields
               };
+
               return (
                 <Form>
                   <div className="pb-10">
@@ -165,6 +168,13 @@ export function AddStageDialog({
                       <p className="text-md text-zinc-500 mt-3">
                         How many {revnetTokenSymbol} to issue when receiving {reserveAsset}.
                       </p>
+
+                      <PickupFromPreviousStage
+                        stageIdx={stageIdx}
+                        values={values}
+                        setFieldValue={setFieldValue}
+                      />
+
                       <div className="flex flex-wrap md:flex-nowrap gap-2 sm:gap-2 items-center text-md text-zinc-600 mt-2">
                         {/* Styled number input with suffix for initialIssuance */}
                         <div className="relative w-full sm:w-[210px] lg:w-[210px] xl:w-[210px]">
@@ -174,7 +184,17 @@ export function AddStageDialog({
                             min="0"
                             step="any"
                             type="number"
-                            className="h-9 w-full pr-24 px-3 text-md"
+                            className={`h-9 w-full pr-24 px-3 text-md ${
+                              values.pickUpFromPrevious
+                                ? "bg-gray-50 text-gray-600 cursor-not-allowed"
+                                : ""
+                            }`}
+                            readOnly={values.pickUpFromPrevious}
+                            value={
+                              values.pickUpFromPrevious
+                                ? getResolvedIssuance(values, stageIdx, stages)
+                                : values.initialIssuance
+                            }
                           />
                           <span className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 text-md pointer-events-none">
                             {revnetTokenSymbol} / {reserveAsset == "USDC" ? "USD" : reserveAsset}
