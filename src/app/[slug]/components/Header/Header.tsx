@@ -98,7 +98,11 @@ export function Header() {
           <div className="flex flex-col items-baseline sm:flex-row sm:gap-2 mb-2">
             <span className="text-3xl font-bold">
               {token?.data ? (
-                <EtherscanLink value={token.data.address} type="token">
+                <EtherscanLink
+                  value={token.data.address}
+                  type="token"
+                  chain={chainId ? JB_CHAINS[chainId].chain : undefined}
+                >
                   {formatTokenSymbol(token)}
                 </EtherscanLink>
               ) : null}
