@@ -20,10 +20,8 @@ import {
 } from "@/components/ui/select";
 import { useToast } from "@/components/ui/use-toast";
 import { ProjectDocument, SuckerGroupDocument } from "@/generated/graphql";
-import { useProjectBaseToken } from "@/hooks/useProjectBaseToken";
 import { getTokenConfigForChain } from "@/lib/tokenUtils";
 import { formatWalletError } from "@/lib/utils";
-import { FixedInt } from "fpnum";
 import {
   DEFAULT_METADATA,
   formatUnits,
@@ -41,10 +39,9 @@ import {
   useJBTokenContext,
   useSuckers,
   useSuckersUserTokenBalance,
-  useTokenCashOutQuoteEth,
 } from "juice-sdk-react";
 import { PropsWithChildren, useState } from "react";
-import { Address, erc20Abi, parseUnits } from "viem";
+import { erc20Abi, parseUnits } from "viem";
 import {
   useAccount,
   usePublicClient,
@@ -53,21 +50,16 @@ import {
   useWriteContract,
 } from "wagmi";
 
-export function RedeemDialog({
-  projectId,
-  creditBalance,
-  tokenSymbol,
-  primaryTerminalEth,
-  disabled,
-  children,
-}: PropsWithChildren<{
-  creditBalance: FixedInt<number>;
-  tokenSymbol: string;
+interface Props {
   projectId: bigint;
-  primaryTerminalEth: Address;
+  tokenSymbol: string;
   disabled?: boolean;
-}>) {
+}
+
+export function RedeemDialog(props: PropsWithChildren<Props>) {
+  const { projectId, tokenSymbol, disabled, children } = props;
   const [redeemAmount, setRedeemAmount] = useState<string>();
+
   const {
     contracts: { primaryNativeTerminal },
     version,
@@ -81,7 +73,6 @@ export function RedeemDialog({
   const { toast } = useToast();
   const publicClient = usePublicClient();
   const { data: walletClient } = useWalletClient();
-  const baseToken = useProjectBaseToken();
   const { data: suckers } = useSuckers();
   const { token } = useJBTokenContext();
 
@@ -118,14 +109,14 @@ export function RedeemDialog({
   const { writeContractAsync, isPending: isWriteLoading, data: hash } = useWriteContract();
 
   const { isLoading: isTxLoading, isSuccess } = useWaitForTransactionReceipt({ hash });
-  const { data: redeemQuote } = useTokenCashOutQuoteEth(redeemAmountBN, {
-    chainId: selectedSucker?.peerChainId as JBChainId,
-  });
+  // const { data: redeemQuote } = useTokenCashOutQuoteEth(redeemAmountBN, {
+  //   chainId: selectedSucker?.peerChainId as JBChainId,
+  // });
   const loading = isWriteLoading || isTxLoading;
   const { balance } = balances.find((b) => b.chainId === Number(cashOutChainId)) || {
     balance: { value: 0n },
   };
-  const maxRedeemAmount = balance ? Number(formatUnits(balance.value, projectTokenDecimals)) : 0;
+  const maxRedeemAmount = balance ? formatUnits(balance.value, projectTokenDecimals) : "0";
 
   const valid = redeemAmountBN > 0n && redeemAmountBN <= balance.value;
 
@@ -224,7 +215,11 @@ export function RedeemDialog({
                                     description: "Please select a chain first.",
                                   });
                                 }
-                                setRedeemAmount((maxRedeemAmount * (pct / 100)).toFixed(8));
+                                setRedeemAmount(
+                                  pct === 100
+                                    ? maxRedeemAmount
+                                    : (Number(maxRedeemAmount) * (pct / 100)).toFixed(8),
+                                );
                               }}
                               className="h-10 px-3 text-sm text-zinc-700 border border-zinc-300 rounded-md bg-white hover:bg-zinc-100"
                             >
