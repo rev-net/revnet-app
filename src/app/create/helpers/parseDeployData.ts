@@ -139,9 +139,11 @@ export function parseDeployData(
       splitPercent,
       splits,
       initialIssuance:
-        stage.initialIssuance && stage.initialIssuance !== ""
-          ? parseUnits(`${stage.initialIssuance}`, 18)
-          : 0n,
+        stage.pickUpFromPrevious && idx > 0
+          ? 1n // "Pick up from previous stage"
+          : stage.initialIssuance && stage.initialIssuance !== ""
+            ? parseUnits(`${stage.initialIssuance}`, 18)
+            : 0n,
       issuanceCutFrequency: Number(stage.priceCeilingIncreaseFrequency) * 86400, // seconds
       issuanceCutPercent:
         Number(WeightCutPercent.parse(stage.priceCeilingIncreasePercentage, 9).value) / 100,

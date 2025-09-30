@@ -17,6 +17,7 @@ export const splitSchema = z.object({
 export const stageSchema = z.object({
   initialOperator: z.string().optional(),
   initialIssuance: z.coerce.string().min(1, "Initial issuance is required"),
+  pickUpFromPrevious: z.boolean().optional(),
   priceCeilingIncreasePercentage: z
     .string()
     .min(1, "Price ceiling increase percentage is required"),
@@ -32,4 +33,5 @@ export const stageSchema = z.object({
 
   splits: z.array(splitSchema),
   stageStart: z.coerce.string().min(1, "Stage start is required"),
+  stageStartCuts: z.coerce.string().optional(),
 });

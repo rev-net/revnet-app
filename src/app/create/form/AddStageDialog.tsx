@@ -15,13 +15,16 @@ import { FieldArray, Form, Formik } from "formik";
 import { withZodSchema } from "formik-validator-zod";
 import { useState } from "react";
 import { defaultStageData } from "../constants";
+import { getResolvedIssuance } from "../helpers/calculatePickupIssuance";
 import { formatFormErrors } from "../helpers/formatFormErrors";
 import { stageSchema } from "../helpers/stageSchema";
 import { StageData } from "../types";
-import { Field, FieldGroup } from "./Fields";
+import { Field } from "./Fields";
+import { PickupFromPreviousStage } from "./PickupFromPreviousStage";
+import { StartTimeField } from "./StartTimeField";
 import { useCreateForm } from "./useCreateForm";
 
-function NotesSection({
+export function NotesSection({
   title = "[ ? ]",
   children,
 }: {
@@ -112,7 +115,7 @@ export function AddStageDialog({
         </DialogHeader>
         <div className="mt-8">
           <Formik
-            initialValues={{ ...(initialValues ?? defaultStageData) }}
+            initialValues={initialValues ?? getDefaultStageData(stageIdx, stages)}
             validate={withZodSchema(stageSchema) as any}
             onSubmit={(newValues, { setSubmitting }) => {
               try {
@@ -125,6 +128,7 @@ export function AddStageDialog({
                   newValues.priceCeilingIncreasePercentage = "0";
                   newValues.priceCeilingIncreaseFrequency = "0";
                 }
+
                 onSave(newValues);
                 setOpen(false);
               } catch (e: any) {
@@ -139,7 +143,7 @@ export function AddStageDialog({
               }
             }}
           >
-            {({ values, isValid, errors }) => {
+            {({ values, isValid, errors, setFieldValue }) => {
               // Handler for checkbox toggle
               const handleCutToggle = (e: React.ChangeEvent<HTMLInputElement>) => {
                 const checked = e.target.checked;
@@ -153,6 +157,7 @@ export function AddStageDialog({
                 }
                 // Do not reset values on uncheck, just hide the fields
               };
+
               return (
                 <Form>
                   <div className="pb-10">
@@ -163,6 +168,13 @@ export function AddStageDialog({
                       <p className="text-md text-zinc-500 mt-3">
                         How many {revnetTokenSymbol} to issue when receiving {reserveAsset}.
                       </p>
+
+                      <PickupFromPreviousStage
+                        stageIdx={stageIdx}
+                        values={values}
+                        setFieldValue={setFieldValue}
+                      />
+
                       <div className="flex flex-wrap md:flex-nowrap gap-2 sm:gap-2 items-center text-md text-zinc-600 mt-2">
                         {/* Styled number input with suffix for initialIssuance */}
                         <div className="relative w-full sm:w-[210px] lg:w-[210px] xl:w-[210px]">
@@ -172,7 +184,17 @@ export function AddStageDialog({
                             min="0"
                             step="any"
                             type="number"
-                            className="h-9 w-full pr-24 px-3 text-md"
+                            className={`h-9 w-full pr-24 px-3 text-md ${
+                              values.pickUpFromPrevious
+                                ? "bg-gray-50 text-gray-600 cursor-not-allowed"
+                                : ""
+                            }`}
+                            readOnly={values.pickUpFromPrevious}
+                            value={
+                              values.pickUpFromPrevious
+                                ? getResolvedIssuance(values, stageIdx, stages)
+                                : values.initialIssuance
+                            }
                           />
                           <span className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 text-md pointer-events-none">
                             {revnetTokenSymbol} / {reserveAsset == "USDC" ? "USD" : reserveAsset}
@@ -578,28 +600,7 @@ export function AddStageDialog({
                       </div>
                     </NotesSection>
                   </div>
-                  {stageIdx > 0 && (
-                    <div className="pb-7">
-                      <FieldGroup
-                        id="stageStart"
-                        name="stageStart"
-                        label="4. Start Time"
-                        suffix="days"
-                        min="1"
-                        type="number"
-                        description="How many days after the last stage's start time should this stage start?"
-                        width="w-32"
-                      />
-                      <NotesSection>
-                        <ul className="list-disc list-inside">
-                          <li className="flex">
-                            <span className="mr-2">•</span>
-                            <div>Days must be a multiple of this stage's issuance cut rate.</div>
-                          </li>
-                        </ul>
-                      </NotesSection>
-                    </div>
-                  )}
+                  <StartTimeField stageIdx={stageIdx} stages={stages} />
 
                   <DialogFooter>
                     <Button
@@ -627,4 +628,22 @@ export function AddStageDialog({
       </DialogContent>
     </Dialog>
   );
+}
+
+function getDefaultStageData(stageIdx: number, stages: StageData[]) {
+  if (stageIdx === 0) return defaultStageData;
+
+  const previousStage = stages[stageIdx - 1];
+  const previousStageHasCuts = Number(previousStage.priceCeilingIncreaseFrequency) > 0;
+
+  if (previousStageHasCuts) {
+    const daysPerCut = Number(previousStage.priceCeilingIncreaseFrequency);
+    return {
+      ...defaultStageData,
+      stageStartCuts: "3",
+      stageStart: String(3 * daysPerCut), // Default 3 cuts worth of days
+    };
+  }
+
+  return defaultStageData;
 }
