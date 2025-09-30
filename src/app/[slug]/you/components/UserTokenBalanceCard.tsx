@@ -56,12 +56,7 @@ export function UserTokenBalanceCard(props: Props) {
     <>
       <div className="flex flex-row gap-2 mt-2">
         {token?.data?.symbol && creditBalance && primaryNativeTerminal.data ? (
-          <RedeemDialog
-            projectId={projectId}
-            creditBalance={creditBalance}
-            tokenSymbol={tokenSymbol}
-            primaryTerminalEth={primaryNativeTerminal.data}
-          >
+          <RedeemDialog projectId={projectId} tokenSymbol={tokenSymbol}>
             <Button variant="outline" disabled={creditBalance.value === 0n}>
               Cash out
             </Button>
