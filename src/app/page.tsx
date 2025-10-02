@@ -11,7 +11,7 @@ const RevLink = ({ network, id, text }: { network: string; id: number; text: str
   return (
     <span>
       $
-      <Link href={`/${network}:${id}`} className="underline hover:text-black/70">
+      <Link href={`/v5:${network}:${id}`} className="underline hover:text-black/70">
         {text}
       </Link>
     </span>
@@ -140,7 +140,12 @@ export default function Page() {
             </li>
             <li>
               Support the $REV network{" "}
-              <Link href="/eth:3" target="_blank" rel="noopener norefererr" className="underline">
+              <Link
+                href="/v5:eth:3"
+                target="_blank"
+                rel="noopener norefererr"
+                className="underline"
+              >
                 here
               </Link>
               , we run as a revnet ourselves.
