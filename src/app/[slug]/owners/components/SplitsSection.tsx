@@ -43,6 +43,8 @@ import { useEffect, useState } from "react";
 import { twJoin } from "tailwind-merge";
 import { Address } from "viem";
 import { useReadContract } from "wagmi";
+import { ChangeSplitRecipientsDialog } from "./ChangeSplitRecipientsDialog";
+import { DistributeReservedTokensButton } from "./DistributeReservedTokensButton";
 
 export function SplitsSection() {
   const { projectId, contractAddress } = useJBContractContext();
@@ -248,6 +250,13 @@ export function SplitsSection() {
             </TableBody>
           </Table>
         </div>
+      </div>
+      <div className="flex gap-2 mt-4">
+        <DistributeReservedTokensButton />
+        <ChangeSplitRecipientsDialog
+          stageId={selectedStageIdx}
+          initialChainId={selectedSucker?.peerChainId as JBChainId}
+        />
       </div>
     </>
   );
