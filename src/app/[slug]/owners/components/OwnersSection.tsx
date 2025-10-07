@@ -14,7 +14,6 @@ import {
 import { useState } from "react";
 import { twJoin } from "tailwind-merge";
 import { AutoIssuance } from "./AutoIssuance";
-import { DistributeReservedTokensButton } from "./DistributeReservedTokensButton";
 import { ParticipantsPieChart } from "./ParticipantsPieChart";
 import { ParticipantsTable } from "./ParticipantsTable";
 import { SplitsSection } from "./SplitsSection";
@@ -57,14 +56,6 @@ export function OwnersSection() {
       suckerGroupId: project.data?.project?.suckerGroupId,
       balance_gt: 0,
     },
-  });
-
-  console.debug({
-    participantsQuery,
-    suckerGroupData,
-    chainTokenConfig,
-    baseTokenSymbol,
-    baseTokenDecimals,
   });
 
   const participantsDataAggregate =
@@ -144,7 +135,6 @@ export function OwnersSection() {
         {/* Splits Section */}
         <div className={participantsView === "splits" ? "" : "hidden"}>
           <SplitsSection />
-          <DistributeReservedTokensButton />
         </div>
 
         {/* Auto issuance */}
