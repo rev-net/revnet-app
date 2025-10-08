@@ -228,7 +228,7 @@ export function SplitsSection() {
                       </div>
                     </TableCell>
                     <TableCell>
-                      {formatUnits(BigInt((split.percent * Number(splitLimit)) / 100), 7)}%
+                      {formatUnits((BigInt(split.percent) * BigInt(Number(splitLimit))) / 100n, 7)}%
                       <span className="text-zinc-500 ml-2">
                         ({formatUnits(BigInt(split.percent), 7)}% of limit)
                       </span>
