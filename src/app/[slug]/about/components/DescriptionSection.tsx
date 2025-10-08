@@ -1,8 +1,10 @@
 "use client";
 
+import { useUserPermissions } from "@/hooks/useUserPermissions";
 import DOMPurify from "dompurify";
 import { useJBProjectMetadataContext } from "juice-sdk-react";
 import { useEffect } from "react";
+import { EditMetadataDialog } from "./EditMetadataDialog";
 
 const RichPreview = ({ source }: { source: string }) => {
   useEffect(() => {
@@ -36,12 +38,21 @@ const RichPreview = ({ source }: { source: string }) => {
 
 export function DescriptionSection() {
   const { metadata } = useJBProjectMetadataContext();
+  const { hasPermission } = useUserPermissions();
 
   const { description } = metadata?.data ?? {};
+  const canEditMetadata = hasPermission("SET_PROJECT_URI");
 
   return (
-    <div className="text-gray-600 text-base max-w-screen-sm">
-      <RichPreview source={description || ""} />
+    <div className="max-w-screen-sm">
+      <div className="text-gray-600 text-base">
+        <RichPreview source={description || ""} />
+      </div>
+      {canEditMetadata && (
+        <div className="mt-4">
+          <EditMetadataDialog />
+        </div>
+      )}
     </div>
   );
 }
