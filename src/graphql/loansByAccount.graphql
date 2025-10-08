@@ -1,5 +1,5 @@
-query LoansByAccount($owner: String!) {
-  loans(where: { owner: $owner }) {
+query LoansByAccount($owner: String!, $version: Int!) {
+  loans(where: { owner: $owner, version: $version }) {
     items {
       borrowAmount
       collateral
@@ -17,8 +17,8 @@ query LoansByAccount($owner: String!) {
   }
 }
 
-query LoansDetailsByAccount($owner: String!, $projectId: Int!) {
-  loans(where: { owner: $owner, projectId: $projectId }) {
+query LoansDetailsByAccount($owner: String!, $projectId: Int!, $version: Int!) {
+  loans(where: { owner: $owner, projectId: $projectId, version: $version }) {
     items {
       borrowAmount
       collateral
