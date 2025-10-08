@@ -2,7 +2,6 @@
 
 import { FieldGroup } from "@/app/create/form/Fields";
 import { pinProjectMetadata } from "@/app/create/helpers/pinProjectMetaData";
-import { ButtonWithWallet } from "@/components/ButtonWithWallet";
 import { IpfsImageUploader } from "@/components/IpfsFileUploader";
 import { Button } from "@/components/ui/button";
 import {
@@ -15,14 +14,24 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { useToast } from "@/components/ui/use-toast";
+import { Project } from "@/generated/graphql";
 import { ipfsUri } from "@/lib/ipfs";
+import { formatWalletError } from "@/lib/utils";
+import { wagmiConfig } from "@/lib/wagmiConfig";
+import { getPublicClient } from "@wagmi/core";
 import { Formik } from "formik";
 import { withZodSchema } from "formik-validator-zod";
-import { jbControllerAbi, JBCoreContracts } from "juice-sdk-core";
-import { useJBChainId, useJBContractContext, useJBProjectMetadataContext } from "juice-sdk-react";
+import { JBChainId, jbControllerAbi, JBCoreContracts } from "juice-sdk-core";
+import {
+  useGetRelayrTxQuote,
+  useJBContractContext,
+  useJBProjectMetadataContext,
+  useSendRelayrTx,
+} from "juice-sdk-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import { useAccount, useWaitForTransactionReceipt, useWriteContract } from "wagmi";
+import { useCallback, useEffect, useState } from "react";
+import { encodeFunctionData } from "viem";
+import { useAccount, useSwitchChain, useWaitForTransactionReceipt, useWriteContract } from "wagmi";
 import { z } from "zod";
 
 const metadataSchema = z.object({
@@ -33,40 +42,50 @@ const metadataSchema = z.object({
 
 type MetadataFormData = z.infer<typeof metadataSchema>;
 
-export function EditMetadataDialog() {
+interface Props {
+  projects: Array<Pick<Project, "projectId" | "token" | "chainId">>;
+}
+
+export function EditMetadataDialog({ projects }: Props) {
   const [open, setOpen] = useState(false);
   const { metadata } = useJBProjectMetadataContext();
-  const { projectId, contractAddress } = useJBContractContext();
-  const chainId = useJBChainId();
+  const { contractAddress } = useJBContractContext();
   const { toast } = useToast();
   const router = useRouter();
-  const { address } = useAccount();
+  const { address, chainId: connectedChainId } = useAccount();
+  const { switchChainAsync } = useSwitchChain();
   const [callbackCalled, setCallbackCalled] = useState(false);
+
+  const { getRelayrTxQuote, reset: resetRelayr } = useGetRelayrTxQuote();
+  const { sendRelayrTx } = useSendRelayrTx();
 
   const { writeContractAsync, isPending, data: txHash } = useWriteContract();
 
   const { isLoading: isTxLoading, isSuccess } = useWaitForTransactionReceipt({ hash: txHash });
 
-  useEffect(() => {
-    if (!open || !isSuccess || callbackCalled) return;
-
+  const onSuccess = useCallback(() => {
+    setOpen(false);
+    setCallbackCalled(true);
     toast({
       title: "Metadata updated!",
       description: "New data will be visible shortly.",
     });
-
-    setOpen(false);
-    setCallbackCalled(true);
-
     setTimeout(() => {
       (metadata as any).refetch();
+      router.refresh();
     }, 5000);
-  }, [isSuccess, open, router, toast, metadata, callbackCalled]);
+  }, [toast, metadata, router]);
+
+  useEffect(() => {
+    if (!open || !isSuccess || callbackCalled) return;
+    onSuccess();
+  }, [isSuccess, open, callbackCalled, onSuccess]);
 
   const handleSubmit = async (values: MetadataFormData, { setSubmitting }: any) => {
     try {
       if (!address) throw new Error("Please connect your wallet");
-      if (!chainId) throw new Error("Chain ID not available");
+
+      setSubmitting(true);
 
       const metadataCid = await pinProjectMetadata({
         name: values.name,
@@ -75,28 +94,87 @@ export function EditMetadataDialog() {
       });
 
       const metadataUri = ipfsUri(metadataCid);
-
       setCallbackCalled(false);
 
-      await writeContractAsync({
-        abi: jbControllerAbi,
-        functionName: "setUriOf",
-        chainId,
-        address: contractAddress(JBCoreContracts.JBController),
-        args: [projectId, metadataUri],
-      });
+      // Single chain - use direct writeContract
+      if (projects.length === 1) {
+        const project = projects[0];
+        const chainId = project.chainId as JBChainId;
+
+        if (connectedChainId !== chainId) {
+          await switchChainAsync?.({ chainId });
+        }
+
+        await writeContractAsync({
+          abi: jbControllerAbi,
+          functionName: "setUriOf",
+          chainId,
+          address: contractAddress(JBCoreContracts.JBController, chainId),
+          args: [BigInt(project.projectId), metadataUri],
+        });
+
+        toast({
+          title: "Transaction submitted",
+          description: "Awaiting confirmation...",
+        });
+
+        return;
+      }
+
+      // Multi-chain - use relayr
+      const relayrTransactions = [];
+
+      for (const project of projects) {
+        const chainId = project.chainId as JBChainId;
+
+        const controller = contractAddress(JBCoreContracts.JBController, chainId);
+        const args = [BigInt(project.projectId), metadataUri] as const;
+
+        const gasEstimate = await getPublicClient(wagmiConfig, { chainId }).estimateContractGas({
+          address: controller,
+          abi: jbControllerAbi,
+          functionName: "setUriOf",
+          args,
+          account: address,
+        });
+
+        relayrTransactions.push({
+          data: {
+            from: address,
+            to: controller,
+            value: 0n,
+            gas: gasEstimate + 50_000n,
+            data: encodeFunctionData({ abi: jbControllerAbi, functionName: "setUriOf", args }),
+          },
+          chainId,
+        });
+      }
+
+      const quote = await getRelayrTxQuote(relayrTransactions);
+      if (!quote) throw new Error("Failed to get relayr tx quote");
+
+      await sendRelayrTx?.(quote.payment_info[0]);
 
       toast({
-        title: "Transaction submitted",
-        description: "Awaiting confirmation...",
+        title: "Metadata updated!",
+        description: "New data will be visible shortly.",
       });
+
+      setOpen(false);
+      setCallbackCalled(true);
+      resetRelayr();
+
+      setTimeout(() => {
+        (metadata as any).refetch();
+      }, 5000);
     } catch (e: any) {
       toast({
         variant: "destructive",
         title: "Error",
-        description: e.message || "Failed to update metadata",
+        description: formatWalletError(e) || "Failed to update metadata",
       });
       console.error(e);
+    } finally {
       setSubmitting(false);
     }
   };
@@ -119,65 +197,63 @@ export function EditMetadataDialog() {
           onSubmit={handleSubmit}
           enableReinitialize
         >
-          {({ handleSubmit, setFieldValue, isSubmitting }) => (
-            <form onSubmit={handleSubmit}>
-              <DialogHeader>
-                <DialogTitle>Edit metadata</DialogTitle>
-                <DialogDescription>
-                  Update the project name, logo, and description.
-                </DialogDescription>
-              </DialogHeader>
+          {({ handleSubmit, setFieldValue, isSubmitting }) => {
+            const isLoading = isSubmitting || isPending || isTxLoading;
+            return (
+              <form onSubmit={handleSubmit}>
+                <DialogHeader>
+                  <DialogTitle>Edit metadata</DialogTitle>
+                  <DialogDescription>
+                    Update the project name, logo, and description.
+                  </DialogDescription>
+                </DialogHeader>
 
-              <div className="space-y-4 py-4">
-                <FieldGroup id="name" name="name" label="Name" />
+                <div className="space-y-4 py-4">
+                  <FieldGroup id="name" name="name" label="Name" />
 
-                <div>
-                  <label
-                    className="block mb-1 text-md font-semibold text-gray-900 dark:text-white"
-                    htmlFor="logo_input"
-                  >
-                    Logo
-                  </label>
-                  <p className="text-sm text-zinc-500 mb-2">
-                    Upload a new logo or leave unchanged to keep the current one.
-                  </p>
-                  <IpfsImageUploader
-                    onUploadSuccess={(cid) => {
-                      setFieldValue("logoUri", ipfsUri(cid));
-                    }}
-                    disabled={isSubmitting || isPending || isTxLoading}
+                  <div>
+                    <label
+                      className="block mb-1 text-md font-semibold text-gray-900 dark:text-white"
+                      htmlFor="logo_input"
+                    >
+                      Logo
+                    </label>
+                    <p className="text-sm text-zinc-500 mb-2">
+                      Upload a new logo or leave unchanged to keep the current one.
+                    </p>
+                    <IpfsImageUploader
+                      onUploadSuccess={(cid) => {
+                        setFieldValue("logoUri", ipfsUri(cid));
+                      }}
+                      disabled={isLoading}
+                    />
+                  </div>
+
+                  <FieldGroup
+                    id="description"
+                    name="description"
+                    label="Description"
+                    component="textarea"
+                    rows={4}
                   />
                 </div>
 
-                <FieldGroup
-                  id="description"
-                  name="description"
-                  label="Description"
-                  component="textarea"
-                  rows={4}
-                />
-              </div>
-
-              <DialogFooter>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setOpen(false)}
-                  disabled={isSubmitting || isPending || isTxLoading}
-                >
-                  Cancel
-                </Button>
-                <ButtonWithWallet
-                  type="submit"
-                  targetChainId={chainId}
-                  loading={isSubmitting || isPending || isTxLoading}
-                  disabled={isSubmitting || isPending || isTxLoading}
-                >
-                  Save changes
-                </ButtonWithWallet>
-              </DialogFooter>
-            </form>
-          )}
+                <DialogFooter>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setOpen(false)}
+                    disabled={isLoading}
+                  >
+                    Cancel
+                  </Button>
+                  <Button type="submit" loading={isLoading} disabled={isLoading}>
+                    Save changes
+                  </Button>
+                </DialogFooter>
+              </form>
+            );
+          }}
         </Formik>
       </DialogContent>
     </Dialog>
