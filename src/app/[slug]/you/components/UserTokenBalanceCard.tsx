@@ -86,24 +86,23 @@ export function UserTokenBalanceCard(props: Props) {
         )}
       </div>
       {address && projectId && chainId ? (
-        <>
-          <LoanDetailsTable
-            title="Your loans"
-            revnetId={projectId}
-            address={address}
-            chainId={0}
-            tokenSymbol={tokenSymbol}
-            onSelectLoan={(loanId, chainId) => {
-              setSelectedLoanId(loanId);
-              setSelectedChainId(chainId as JBChainId);
-              setShowRepayDialog(true);
-            }}
-            onReallocateLoan={(loan) => {
-              setReallocateLoan(loan);
-              setShowReallocateDialog(true);
-            }}
-          />
-        </>
+        <LoanDetailsTable
+          title="Your loans"
+          revnetId={projectId}
+          address={address}
+          chainId={0}
+          tokenSymbol={tokenSymbol}
+          projects={projects}
+          onSelectLoan={(loanId, chainId) => {
+            setSelectedLoanId(loanId);
+            setSelectedChainId(chainId as JBChainId);
+            setShowRepayDialog(true);
+          }}
+          onReallocateLoan={(loan) => {
+            setReallocateLoan(loan);
+            setShowReallocateDialog(true);
+          }}
+        />
       ) : null}
 
       {/* Reallocate Dialog - Only render when we have a loan */}

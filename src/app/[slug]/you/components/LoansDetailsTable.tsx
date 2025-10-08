@@ -9,7 +9,12 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { LoansByAccountDocument, ProjectDocument, SuckerGroupDocument } from "@/generated/graphql";
+import {
+  LoansByAccountDocument,
+  Project,
+  ProjectDocument,
+  SuckerGroupDocument,
+} from "@/generated/graphql";
 import { getTokenConfigForChain, getTokenSymbolFromAddress } from "@/lib/tokenUtils";
 import { formatSeconds } from "@/lib/utils";
 import { getRevnetLoanContract, JB_CHAINS, JBChainId, revLoansAbi } from "juice-sdk-core";
@@ -156,6 +161,7 @@ export function LoanDetailsTable({
   tokenSymbol,
   title,
   selectedLoanId,
+  projects,
 }: {
   revnetId: bigint;
   address: string;
@@ -165,6 +171,7 @@ export function LoanDetailsTable({
   tokenSymbol: string;
   title?: string;
   selectedLoanId?: string;
+  projects: Array<Pick<Project, "projectId" | "token">>;
 }) {
   const currentChainId = useJBChainId();
   const { version } = useJBContractContext();
@@ -214,9 +221,7 @@ export function LoanDetailsTable({
   const now = Math.floor(Date.now() / 1000);
 
   // Get all project IDs for this revnet across all chains
-  const revnetProjectIds = suckerGroupData?.suckerGroup?.projects?.items?.map((project) =>
-    Number(project.projectId),
-  ) || [Number(revnetId)];
+  const revnetProjectIds = projects.map((project) => Number(project.projectId));
 
   // Filter loans to only show those from this revnet's projects
   const filteredLoans = data.loans.items.filter((loan) =>
