@@ -3,6 +3,7 @@
 import { FieldGroup } from "@/app/create/form/Fields";
 import { pinProjectMetadata } from "@/app/create/helpers/pinProjectMetaData";
 import { IpfsImageUploader } from "@/components/IpfsFileUploader";
+import { RelayrPaymentSelect } from "@/components/RelayrPaymentSelect";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -15,6 +16,7 @@ import {
 } from "@/components/ui/dialog";
 import { useToast } from "@/components/ui/use-toast";
 import { Project } from "@/generated/graphql";
+import { useTokenA } from "@/hooks/useTokenA";
 import { ipfsUri } from "@/lib/ipfs";
 import { formatWalletError } from "@/lib/utils";
 import { wagmiConfig } from "@/lib/wagmiConfig";
@@ -23,6 +25,8 @@ import { Formik } from "formik";
 import { withZodSchema } from "formik-validator-zod";
 import { JBChainId, jbControllerAbi, JBCoreContracts } from "juice-sdk-core";
 import {
+  ChainPayment,
+  RelayrPostBundleResponse,
   useGetRelayrTxQuote,
   useJBContractContext,
   useJBProjectMetadataContext,
@@ -55,17 +59,27 @@ export function EditMetadataDialog({ projects }: Props) {
   const { address, chainId: connectedChainId } = useAccount();
   const { switchChainAsync } = useSwitchChain();
   const [callbackCalled, setCallbackCalled] = useState(false);
+  const { symbol: tokenSymbol } = useTokenA();
 
   const { getRelayrTxQuote, reset: resetRelayr } = useGetRelayrTxQuote();
   const { sendRelayrTx } = useSendRelayrTx();
+  const [relayrQuote, setRelayrQuote] = useState<RelayrPostBundleResponse | null>(null);
+  const [selectedPayment, selectPayment] = useState<ChainPayment | null>(null);
 
   const { writeContractAsync, isPending, data: txHash } = useWriteContract();
 
   const { isLoading: isTxLoading, isSuccess } = useWaitForTransactionReceipt({ hash: txHash });
 
+  const resetQuote = useCallback(() => {
+    setRelayrQuote(null);
+    selectPayment(null);
+    resetRelayr();
+  }, [resetRelayr, selectPayment, setRelayrQuote]);
+
   const onSuccess = useCallback(() => {
     setOpen(false);
-    setCallbackCalled(true);
+    resetQuote();
+
     toast({
       title: "Metadata updated!",
       description: "New data will be visible shortly.",
@@ -74,11 +88,12 @@ export function EditMetadataDialog({ projects }: Props) {
       (metadata as any).refetch();
       router.refresh();
     }, 5000);
-  }, [toast, metadata, router]);
+  }, [toast, metadata, router, resetQuote]);
 
   useEffect(() => {
     if (!open || !isSuccess || callbackCalled) return;
     onSuccess();
+    setCallbackCalled(true);
   }, [isSuccess, open, callbackCalled, onSuccess]);
 
   const handleSubmit = async (values: MetadataFormData, { setSubmitting }: any) => {
@@ -153,20 +168,8 @@ export function EditMetadataDialog({ projects }: Props) {
       const quote = await getRelayrTxQuote(relayrTransactions);
       if (!quote) throw new Error("Failed to get relayr tx quote");
 
-      await sendRelayrTx?.(quote.payment_info[0]);
-
-      toast({
-        title: "Metadata updated!",
-        description: "New data will be visible shortly.",
-      });
-
-      setOpen(false);
-      setCallbackCalled(true);
-      resetRelayr();
-
-      setTimeout(() => {
-        (metadata as any).refetch();
-      }, 5000);
+      setRelayrQuote(quote);
+      selectPayment(quote.payment_info[0]);
     } catch (e: any) {
       toast({
         variant: "destructive",
@@ -179,8 +182,35 @@ export function EditMetadataDialog({ projects }: Props) {
     }
   };
 
+  const handlePayAndSubmit = async () => {
+    if (!relayrQuote || !selectedPayment || !sendRelayrTx) return;
+
+    try {
+      await sendRelayrTx(selectedPayment);
+
+      toast({
+        title: "Metadata updated!",
+        description: "New data will be visible shortly.",
+      });
+      onSuccess();
+    } catch (e: any) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: formatWalletError(e) || "Failed to submit transaction",
+      });
+      console.error(e);
+    }
+  };
+
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog
+      open={open}
+      onOpenChange={(isOpen) => {
+        setOpen(isOpen);
+        resetQuote();
+      }}
+    >
       <DialogTrigger asChild>
         <Button variant="outline" size="sm">
           Edit metadata
@@ -219,7 +249,7 @@ export function EditMetadataDialog({ projects }: Props) {
                       Logo
                     </label>
                     <p className="text-sm text-zinc-500 mb-2">
-                      Upload a new logo or leave unchanged to keep the current one.
+                      Leave empty to keep the current one.
                     </p>
                     <IpfsImageUploader
                       onUploadSuccess={(cid) => {
@@ -238,6 +268,18 @@ export function EditMetadataDialog({ projects }: Props) {
                   />
                 </div>
 
+                {relayrQuote && (
+                  <div className="py-4">
+                    <RelayrPaymentSelect
+                      payments={relayrQuote.payment_info}
+                      tokenSymbol={tokenSymbol}
+                      selectedPayment={selectedPayment}
+                      onSelectPayment={selectPayment}
+                      disabled={isLoading}
+                    />
+                  </div>
+                )}
+
                 <DialogFooter>
                   <Button
                     type="button"
@@ -247,9 +289,20 @@ export function EditMetadataDialog({ projects }: Props) {
                   >
                     Cancel
                   </Button>
-                  <Button type="submit" loading={isLoading} disabled={isLoading}>
-                    Save changes
-                  </Button>
+                  {relayrQuote ? (
+                    <Button
+                      type="button"
+                      onClick={handlePayAndSubmit}
+                      loading={isLoading}
+                      disabled={isLoading}
+                    >
+                      Pay and submit
+                    </Button>
+                  ) : (
+                    <Button type="submit" loading={isLoading} disabled={isLoading}>
+                      {projects.length > 1 ? "Get quote" : "Save changes"}
+                    </Button>
+                  )}
                 </DialogFooter>
               </form>
             );

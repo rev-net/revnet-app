@@ -1,19 +1,12 @@
 import EtherscanLink from "@/components/EtherscanLink";
+import { RelayrPaymentSelect } from "@/components/RelayrPaymentSelect";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { useToast } from "@/components/ui/use-toast";
 import { useTokenA } from "@/hooks/useTokenA";
-import { formatHexEther } from "@/lib/utils";
-import { JB_CHAINS } from "juice-sdk-core";
+import { formatWalletError } from "@/lib/utils";
+import { JB_CHAINS, JBChainId } from "juice-sdk-core";
 import {
   ChainPayment,
-  JBChainId,
   RelayrPostBundleResponse,
   useGetRelayrTxBundle,
   useSendRelayrTx,
@@ -49,7 +42,7 @@ const statusToIcon = (status: string) => {
 };
 
 export function PayAndDeploy({ relayrResponse, revnetTokenSymbol }: PaymentAndDeploySectionProps) {
-  const [paymentIndex, setPaymentIndex] = useState<number>(0);
+  const [selectedPayment, selectPayment] = useState<ChainPayment | null>(null);
   const [payIsProcessing, setPayIsProcessing] = useState(false);
   const { sendRelayrTx } = useSendRelayrTx();
   const { startPolling, response: bundleResponse } = useGetRelayrTxBundle();
@@ -58,24 +51,13 @@ export function PayAndDeploy({ relayrResponse, revnetTokenSymbol }: PaymentAndDe
 
   return (
     <div>
-      <div className="text-left text-black-500 font-semibold">How would you like to pay?</div>
-      <div className="max-w-sm">
-        <Select onValueChange={(v) => setPaymentIndex(Number(v))} defaultValue="0">
-          <SelectTrigger>
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {(relayrResponse.payment_info as ChainPayment[]).map((payment, index) => {
-              return (
-                <SelectItem value={String(index)} key={payment.chain}>
-                  {formatHexEther(payment?.amount)} {symbol} on{" "}
-                  {JB_CHAINS[payment.chain as JBChainId].name}
-                </SelectItem>
-              );
-            })}
-          </SelectContent>
-        </Select>
-      </div>
+      <RelayrPaymentSelect
+        payments={relayrResponse.payment_info}
+        tokenSymbol={symbol}
+        selectedPayment={selectedPayment}
+        onSelectPayment={selectPayment}
+        disabled={payIsProcessing}
+      />
       <div className="flex md:col-span-3 mt-4">
         <Button
           type="submit"
@@ -85,13 +67,14 @@ export function PayAndDeploy({ relayrResponse, revnetTokenSymbol }: PaymentAndDe
           onClick={async () => {
             setPayIsProcessing(true);
             try {
-              await sendRelayrTx?.(relayrResponse.payment_info[paymentIndex]);
+              if (!selectedPayment || !sendRelayrTx) throw new Error("No payment selected");
+              await sendRelayrTx(selectedPayment);
               startPolling(relayrResponse.bundle_uuid);
             } catch (e: any) {
               setPayIsProcessing(false);
               toast({
                 title: "Error",
-                description: e.message,
+                description: formatWalletError(e),
                 variant: "destructive",
               });
             }
