@@ -66,7 +66,7 @@ export function RedeemDialog(props: PropsWithChildren<Props>) {
   } = useJBContractContext();
 
   const { address } = useAccount();
-  const { data: balances = [] } = useSuckersUserTokenBalance();
+  const { data: balances } = useSuckersUserTokenBalance();
   const [cashOutChainId, setCashOutChainId] = useState<string>();
   const chainId = useJBChainId();
   const [isApproving, setIsApproving] = useState(false);
@@ -113,7 +113,7 @@ export function RedeemDialog(props: PropsWithChildren<Props>) {
   //   chainId: selectedSucker?.peerChainId as JBChainId,
   // });
   const loading = isWriteLoading || isTxLoading;
-  const { balance } = balances.find((b) => b.chainId === Number(cashOutChainId)) || {
+  const { balance } = balances?.find((b) => b.chainId === Number(cashOutChainId)) || {
     balance: { value: 0n },
   };
   const maxRedeemAmount = balance ? formatUnits(balance.value, projectTokenDecimals) : "0";
@@ -151,7 +151,7 @@ export function RedeemDialog(props: PropsWithChildren<Props>) {
                   <div className="mb-5 w-[65%]">
                     <span className="text-sm text-black font-medium"> Your {tokenSymbol}</span>
                     <div className="mt-1 border border-zinc-200 p-3 bg-zinc-50">
-                      {balances.map((balance) => (
+                      {balances?.map((balance) => (
                         <div key={balance.chainId} className="flex justify-between gap-2">
                           {JB_CHAINS[balance.chainId as JBChainId].name}
                           <span className="font-medium">
@@ -174,7 +174,7 @@ export function RedeemDialog(props: PropsWithChildren<Props>) {
                           </SelectTrigger>
                           <SelectContent>
                             {balances
-                              .filter((b) => b.balance.value > 0n)
+                              ?.filter((b) => b.balance.value > 0n)
                               .map((balance) => {
                                 return (
                                   <SelectItem

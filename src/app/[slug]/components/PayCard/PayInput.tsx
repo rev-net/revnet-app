@@ -1,17 +1,38 @@
 import * as React from "react";
 
+import { Currency } from "@/lib/currency";
 import { cn } from "@/lib/utils";
+import { CurrencySelector } from "./CurrencySelector";
 import { PayOnSelect } from "./PayOnSelect";
+import { useSelectedSucker } from "./SelectedSuckerContext";
 
 export interface PayInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label: string;
   withPayOnSelect?: boolean;
   currency?: string;
   inputClassName?: string;
+  currencies?: Currency[];
+  selectedCurrency?: Currency;
+  onSelectCurrency?: (currency: Currency) => void;
 }
 
 const PayInput = React.forwardRef<HTMLInputElement, PayInputProps>(
-  ({ className, inputClassName, label, type, currency, withPayOnSelect, ...props }, ref) => {
+  (
+    {
+      className,
+      inputClassName,
+      label,
+      type,
+      currency,
+      withPayOnSelect,
+      currencies,
+      selectedCurrency,
+      onSelectCurrency,
+      ...props
+    },
+    ref,
+  ) => {
+    const { selectedSucker } = useSelectedSucker();
     return (
       <div
         className={cn(
@@ -35,7 +56,16 @@ const PayInput = React.forwardRef<HTMLInputElement, PayInputProps>(
             {...props}
           />
         </div>
-        <span className="text-right select-none text-lg">{currency}</span>
+        {currencies && selectedCurrency && onSelectCurrency ? (
+          <CurrencySelector
+            currencies={currencies}
+            selectedCurrency={selectedCurrency}
+            onSelectCurrency={onSelectCurrency}
+            chainId={selectedSucker.peerChainId}
+          />
+        ) : (
+          <span className="text-right select-none text-lg">{currency}</span>
+        )}
       </div>
     );
   },

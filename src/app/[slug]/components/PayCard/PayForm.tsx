@@ -1,45 +1,99 @@
 "use client";
 
-import { useProjectAccountingContext } from "@/hooks/useProjectAccountingContext";
-import { useTokenA } from "@/hooks/useTokenA";
+import { useCurrencyPrice } from "@/hooks/useCurrencyPrice";
+import { useProjectBaseToken } from "@/hooks/useProjectBaseToken";
+import {
+  Currency,
+  determineConversion,
+  fromProjectCurrencyAmount,
+  getCurrenciesForChain,
+  toProjectCurrencyAmount,
+} from "@/lib/currency";
 import { formatTokenSymbol } from "@/lib/utils";
 import { Field, Formik } from "formik";
 import { FixedInt } from "fpnum";
-import { getTokenAToBQuote, getTokenBtoAQuote, NATIVE_TOKEN } from "juice-sdk-core";
+import {
+  ETH_CURRENCY_ID,
+  getTokenAToBQuote,
+  getTokenBtoAQuote,
+  USD_CURRENCY_ID,
+} from "juice-sdk-core";
 import { useJBContractContext, useJBRulesetContext, useJBTokenContext } from "juice-sdk-react";
-import { useState } from "react";
-import { formatUnits, parseEther, parseUnits } from "viem";
+import { useCallback, useMemo, useState } from "react";
+import { formatUnits, parseUnits } from "viem";
 import { PayDialog } from "./PayDialog";
 import { PayInput } from "./PayInput";
+import { useSelectedSucker } from "./SelectedSuckerContext";
 
 export function PayForm() {
-  const tokenA = useTokenA();
   const { token } = useJBTokenContext();
+  const { version } = useJBContractContext();
   const [memo, setMemo] = useState<string>();
   const [resetKey, setResetKey] = useState(0);
+  const { selectedSucker } = useSelectedSucker();
 
   const [amountA, setAmountA] = useState<string>("");
   const [amountB, setAmountB] = useState<string>("");
   const [amountC, setAmountC] = useState<string>("");
 
-  const {
-    contracts: { primaryNativeTerminal },
-  } = useJBContractContext();
-
   const { ruleset, rulesetMetadata } = useJBRulesetContext();
-  const { data: accountingContext } = useProjectAccountingContext();
+  const baseToken = useProjectBaseToken();
 
   const tokenB = token?.data;
+  const chainId = selectedSucker.peerChainId;
+
+  const currencies = useMemo(() => getCurrenciesForChain(chainId), [chainId]);
+  const [selectedCurrency, setSelectedCurrency] = useState<Currency>(currencies[0]);
+
+  const { price: usdToEthPrice } = useCurrencyPrice(
+    USD_CURRENCY_ID(version),
+    ETH_CURRENCY_ID,
+    chainId,
+  );
+
+  const updateTokenAToBQuote = useCallback(
+    (valueRaw: string, currency: Currency) => {
+      if (!ruleset?.data || !rulesetMetadata?.data || !tokenB) return;
+
+      try {
+        const amountInProjectCurrency = toProjectCurrencyAmount(
+          valueRaw,
+          determineConversion(baseToken.isNative, currency.isNative),
+          usdToEthPrice,
+          baseToken.decimals,
+        );
+
+        const amountBQuote = getTokenAToBQuote(
+          new FixedInt(amountInProjectCurrency, baseToken.decimals),
+          {
+            weight: ruleset.data.weight,
+            reservedPercent: rulesetMetadata.data.reservedPercent,
+          },
+        );
+
+        setAmountB(formatUnits(amountBQuote.payerTokens, tokenB.decimals));
+        setAmountC(formatUnits(amountBQuote.reservedTokens, tokenB.decimals));
+      } catch (err) {
+        console.error("Failed to calculate quote:", err);
+      }
+    },
+    [ruleset, rulesetMetadata, tokenB, baseToken, usdToEthPrice],
+  );
 
   if (token.isLoading || ruleset.isLoading || rulesetMetadata.isLoading || !tokenB) {
     return "Loading...";
   }
+
   const _amountA = {
-    amount: new FixedInt(parseUnits(amountA, tokenA.decimals), tokenA.decimals), // ✅ Use correct decimals
-    symbol: tokenA.symbol,
+    amount: new FixedInt(
+      parseUnits(amountA || "0", selectedCurrency.decimals),
+      selectedCurrency.decimals,
+    ),
+    symbol: selectedCurrency.symbol,
   };
+
   const _amountB = {
-    amount: new FixedInt(parseEther(amountB), tokenB.decimals),
+    amount: new FixedInt(parseUnits(amountB || "0", tokenB.decimals), tokenB.decimals),
     symbol: formatTokenSymbol(token),
   };
 
@@ -67,19 +121,16 @@ export function PayForm() {
               return;
             }
 
-            if (!ruleset?.data || !rulesetMetadata?.data) return;
-
-            const value = parseUnits(`${parseFloat(valueRaw)}` as `${number}`, tokenA.decimals);
-            const amountBQuote = getTokenAToBQuote(new FixedInt(value, tokenA.decimals), {
-              weight: ruleset.data.weight,
-              reservedPercent: rulesetMetadata.data.reservedPercent,
-            });
-
-            setAmountB(formatUnits(amountBQuote.payerTokens, tokenB.decimals));
-            setAmountC(formatUnits(amountBQuote.reservedTokens, tokenB.decimals));
+            updateTokenAToBQuote(valueRaw, selectedCurrency);
           }}
           value={amountA}
-          currency={tokenA?.symbol}
+          currency={selectedCurrency.symbol}
+          currencies={currencies}
+          selectedCurrency={selectedCurrency}
+          onSelectCurrency={(currency) => {
+            setSelectedCurrency(currency);
+            if (amountA) updateTokenAToBQuote(amountA, currency);
+          }}
         />
         <PayInput
           label="You get"
@@ -98,12 +149,26 @@ export function PayForm() {
 
             if (!ruleset?.data || !rulesetMetadata?.data) return;
 
-            const amountAQuote = getTokenBtoAQuote(value, tokenA.decimals, {
-              weight: ruleset.data.weight,
-              reservedPercent: rulesetMetadata.data.reservedPercent,
-            });
+            try {
+              const amountAQuote = getTokenBtoAQuote(value, baseToken.decimals, {
+                weight: ruleset.data.weight,
+                reservedPercent: rulesetMetadata.data.reservedPercent,
+              });
 
-            setAmountA(amountAQuote.format());
+              const converted = fromProjectCurrencyAmount(
+                amountAQuote.value,
+                determineConversion(baseToken.isNative, selectedCurrency.isNative),
+                usdToEthPrice,
+              );
+
+              if (converted) {
+                setAmountA(formatUnits(converted.amount, converted.decimals));
+              } else {
+                setAmountA(amountAQuote.format());
+              }
+            } catch (err) {
+              console.error("Failed to calculate quote:", err);
+            }
           }}
           value={amountB}
           currency={formatTokenSymbol(token)}
@@ -128,15 +193,13 @@ export function PayForm() {
           />
         </Formik>
         <div className="w-[150px] flex">
-          {primaryNativeTerminal?.data ? (
+          {selectedCurrency ? (
             <PayDialog
               key={resetKey}
               amountA={_amountA}
               amountB={_amountB}
               memo={memo}
-              paymentToken={
-                (accountingContext?.project?.token as `0x${string}`) || NATIVE_TOKEN.toLowerCase()
-              }
+              currency={selectedCurrency}
               disabled={!amountA}
               onSuccess={() => {
                 resetForm();
