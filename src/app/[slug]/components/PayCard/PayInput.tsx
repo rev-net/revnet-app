@@ -1,19 +1,19 @@
 import * as React from "react";
 
-import { Currency } from "@/lib/currency";
+import { Token } from "@/lib/token";
 import { cn } from "@/lib/utils";
-import { CurrencySelector } from "./CurrencySelector";
 import { PayOnSelect } from "./PayOnSelect";
 import { useSelectedSucker } from "./SelectedSuckerContext";
+import { TokenSelector } from "./TokenSelector";
 
 export interface PayInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label: string;
   withPayOnSelect?: boolean;
-  currency?: string;
+  tokenSymbol?: string;
   inputClassName?: string;
-  currencies?: Currency[];
-  selectedCurrency?: Currency;
-  onSelectCurrency?: (currency: Currency) => void;
+  tokens?: Token[];
+  selectedToken?: Token;
+  onSelectToken?: (token: Token) => void;
 }
 
 const PayInput = React.forwardRef<HTMLInputElement, PayInputProps>(
@@ -23,11 +23,11 @@ const PayInput = React.forwardRef<HTMLInputElement, PayInputProps>(
       inputClassName,
       label,
       type,
-      currency,
+      tokenSymbol,
       withPayOnSelect,
-      currencies,
-      selectedCurrency,
-      onSelectCurrency,
+      tokens,
+      selectedToken,
+      onSelectToken,
       ...props
     },
     ref,
@@ -56,15 +56,15 @@ const PayInput = React.forwardRef<HTMLInputElement, PayInputProps>(
             {...props}
           />
         </div>
-        {currencies && selectedCurrency && onSelectCurrency ? (
-          <CurrencySelector
-            currencies={currencies}
-            selectedCurrency={selectedCurrency}
-            onSelectCurrency={onSelectCurrency}
+        {tokens && selectedToken && onSelectToken ? (
+          <TokenSelector
+            tokens={tokens}
+            selectedToken={selectedToken}
+            onSelectToken={onSelectToken}
             chainId={selectedSucker.peerChainId}
           />
         ) : (
-          <span className="text-right select-none text-lg">{currency}</span>
+          <span className="text-right select-none text-lg">{tokenSymbol}</span>
         )}
       </div>
     );
