@@ -21,13 +21,13 @@ import {
 } from "@/components/ui/select";
 import { Stat } from "@/components/ui/stat";
 import { useToast } from "@/components/ui/use-toast";
-import { Currency } from "@/lib/currency";
+import { Token } from "@/lib/token";
 import { formatWalletError } from "@/lib/utils";
 import {
   JB_CHAINS,
   JBCoreContracts,
   jbDirectoryAbi,
-  jbMultiTerminalAbi,
+  jbSwapTerminalAbi,
   TokenAmountType,
 } from "juice-sdk-core";
 import { useJBContractContext, useSuckers } from "juice-sdk-react";
@@ -42,41 +42,31 @@ import {
 } from "wagmi";
 import { useSelectedSucker } from "./SelectedSuckerContext";
 
-export function PayDialog({
-  amountA,
-  amountB,
-  memo,
-  currency,
-  disabled,
-  onSuccess,
-}: {
+interface Props {
   amountA: TokenAmountType;
   amountB: TokenAmountType;
   memo: string | undefined;
-  currency: Currency;
+  token: Token;
   disabled?: boolean;
   onSuccess?: () => void;
-}) {
+}
+
+export function PayDialog(props: Props) {
+  const { amountA, amountB, memo, token, disabled, onSuccess } = props;
   const { contractAddress } = useJBContractContext();
   const { address } = useAccount();
-  const { isError, error, writeContract, isPending, data: hash } = useWriteContract();
-
-  const value = amountA.amount.value;
-
+  const { writeContractAsync, isPending, data: hash } = useWriteContract();
+  const { data: suckers } = useSuckers();
   const { selectedSucker, setSelectedSucker } = useSelectedSucker();
   const { peerChainId: chainId, projectId } = selectedSucker;
-  const {
-    isLoading: isTxLoading,
-    isSuccess,
-    isError: isTxError,
-    error: txError,
-  } = useWaitForTransactionReceipt({ hash });
+  const { isLoading: isTxLoading, isSuccess, error } = useWaitForTransactionReceipt({ hash });
   const { toast } = useToast();
-  const { data: suckers } = useSuckers();
 
   const publicClient = usePublicClient({ chainId });
   const { data: walletClient } = useWalletClient();
   const [isApproving, setIsApproving] = useState(false);
+
+  const value = amountA.amount.value;
 
   // Auto-reset after successful payment
   useEffect(() => {
@@ -87,24 +77,9 @@ export function PayDialog({
   }, [isSuccess, onSuccess]);
 
   useEffect(() => {
-    if (isError && error) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: formatWalletError(error),
-      });
-    }
-  }, [isError, error, toast]);
-
-  useEffect(() => {
-    if (isTxError && txError) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: formatWalletError(txError),
-      });
-    }
-  }, [isTxError, txError, toast]);
+    if (!error) return;
+    toast({ variant: "destructive", title: "Error", description: formatWalletError(error) });
+  }, [error, toast]);
 
   const loading = isPending || isTxLoading || isApproving;
 
@@ -118,13 +93,12 @@ export function PayDialog({
         client: publicClient,
       });
 
-      const terminal = await directory.read.primaryTerminalOf([projectId, currency.address]);
+      const terminal = await directory.read.primaryTerminalOf([projectId, token.address]);
+      if (!terminal) throw new Error(`No terminal found for ${token.symbol}`);
 
-      if (!terminal) throw new Error(`No terminal found for ${currency.symbol}`);
-
-      if (!currency.isNative) {
+      if (!token.isNative) {
         const allowance = await publicClient.readContract({
-          address: currency.address,
+          address: token.address,
           abi: erc20Abi,
           functionName: "allowance",
           args: [address, terminal],
@@ -133,7 +107,7 @@ export function PayDialog({
         if (BigInt(allowance) < BigInt(value)) {
           setIsApproving(true);
           const hash = await walletClient.writeContract({
-            address: currency.address,
+            address: token.address,
             abi: erc20Abi,
             functionName: "approve",
             args: [terminal, value],
@@ -143,13 +117,13 @@ export function PayDialog({
         }
       }
 
-      writeContract?.({
-        abi: jbMultiTerminalAbi,
+      await writeContractAsync?.({
+        abi: jbSwapTerminalAbi,
         functionName: "pay",
         chainId,
         address: terminal,
-        args: [projectId, currency.address, value, address, 0n, memo || "", "0x0"],
-        value: currency.isNative ? value : 0n,
+        args: [projectId, token.address, value, address, 0n, memo || "", "0x0"],
+        value: token.isNative ? value : 0n,
       });
     } catch (err) {
       setIsApproving(false);
