@@ -68,7 +68,7 @@ export function usePaymentQuote(chainId: JBChainId) {
 
       const value = FixedInt.parse(valueRaw, tokenB.decimals);
 
-      const amountAQuote = getTokenBtoAQuote(value, baseToken.decimals, {
+      const amountAQuote = getTokenBtoAQuote(value, tokenB.decimals, {
         weight: ruleset.data.weight,
         reservedPercent: rulesetMetadata.data.reservedPercent,
       });
