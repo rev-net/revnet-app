@@ -2,49 +2,53 @@
 
 import { ButtonWithWallet } from "@/components/ButtonWithWallet";
 import { useToast } from "@/components/ui/use-toast";
-import { jbControllerAbi } from "juice-sdk-core";
-import { useJBChainId, useJBContractContext } from "juice-sdk-react";
+import { formatWalletError } from "@/lib/utils";
+import { JBChainId, jbControllerAbi } from "juice-sdk-core";
+import { useJBContractContext } from "juice-sdk-react";
 import { useWaitForTransactionReceipt, useWriteContract } from "wagmi";
 
-export function DistributeReservedTokensButton() {
+interface Props {
+  chainId: JBChainId;
+}
+
+export function DistributeReservedTokensButton(props: Props) {
+  const { chainId } = props;
+
   const { toast } = useToast();
+
   const {
     projectId,
     contracts: { controller },
   } = useJBContractContext();
-  const chainId = useJBChainId();
 
-  const { writeContract, isPending, data } = useWriteContract({
-    mutation: {
-      onSuccess() {
-        toast({ title: "Transaction submitted." });
-      },
-    },
-  });
+  const { writeContractAsync, isPending, data: hash } = useWriteContract();
 
-  const { isLoading } = useWaitForTransactionReceipt({ hash: data });
+  const { isLoading } = useWaitForTransactionReceipt({ hash });
 
   return (
     <ButtonWithWallet
       variant="outline"
       loading={isPending || isLoading}
       targetChainId={chainId}
-      onClick={() => {
-        if (!controller.data) {
-          return;
-        }
+      onClick={async () => {
+        try {
+          if (!controller.data || !writeContractAsync || !projectId) {
+            throw new Error("Missing data. Please try again.");
+          }
 
-        if (!projectId) {
-          return;
-        }
+          await writeContractAsync({
+            abi: jbControllerAbi,
+            functionName: "sendReservedTokensToSplitsOf",
+            chainId,
+            address: controller.data,
+            args: [projectId],
+          });
 
-        writeContract?.({
-          abi: jbControllerAbi,
-          functionName: "sendReservedTokensToSplitsOf",
-          chainId,
-          address: controller.data,
-          args: [projectId],
-        });
+          toast({ title: "Transaction submitted." });
+        } catch (e) {
+          console.error(e);
+          toast({ variant: "destructive", title: "Error", description: formatWalletError(e) });
+        }
       }}
     >
       Distribute pending splits

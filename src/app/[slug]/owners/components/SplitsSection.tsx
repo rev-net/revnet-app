@@ -54,13 +54,14 @@ export function SplitsSection() {
   const boostRecipient = useBoostRecipient();
   const [selectedSucker, setSelectedSucker] = useState<SuckerPair>();
   const [selectedStageIdx, setSelectedStageIdx] = useState<number>(0);
-  const suckersQuery = useSuckers();
-  const suckers = suckersQuery.data;
+  const { data: suckers } = useSuckers();
   const { suckerPairsWithRulesets, isLoading: isLoadingRuleSets } =
     useFetchProjectRulesets(suckers);
+
   const selectedSuckerRulesets = suckerPairsWithRulesets?.find(
     (sucker) => sucker.peerChainId === selectedSucker?.peerChainId,
   )?.rulesets;
+
   const nextStageIdx = Math.max(
     selectedSuckerRulesets?.findIndex((stage) => stage.start > Date.now() / 1000) ?? -1,
     1, // lower bound should be 1 (the minimum 'next stage' is 1)
@@ -68,6 +69,7 @@ export function SplitsSection() {
   const currentStageIdx = nextStageIdx - 1;
   const splitLimit =
     selectedSuckerRulesets?.[selectedStageIdx]?.metadata.reservedPercent.formatPercentage();
+
   const { data: reservedTokenSplits, isLoading: isLoadingSplits } = useReadContract({
     chainId: selectedSucker?.peerChainId as JBChainId | undefined,
     abi: jbSplitsAbi,
@@ -252,7 +254,7 @@ export function SplitsSection() {
         </div>
       </div>
       <div className="flex gap-2 mt-4">
-        <DistributeReservedTokensButton />
+        <DistributeReservedTokensButton chainId={selectedSucker?.peerChainId || chainId!} />
         <ChangeSplitRecipientsDialog
           stageId={selectedStageIdx}
           initialChainId={selectedSucker?.peerChainId as JBChainId}
