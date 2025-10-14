@@ -288,7 +288,7 @@ export function EditMetadataDialog({ projects }: Props) {
                       id="twitter"
                       name="twitter"
                       label="Twitter"
-                      placeholder="username..."
+                      placeholder="handle..."
                       autoComplete="off"
                     />
                     <FieldGroup
