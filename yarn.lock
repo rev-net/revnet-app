@@ -6337,10 +6337,10 @@ json5@^2.2.3:
     object.assign "^4.1.4"
     object.values "^1.1.6"
 
-juice-sdk-core@^2.1.1:
-  version "2.1.1"
-  resolved "https://registry.yarnpkg.com/juice-sdk-core/-/juice-sdk-core-2.1.1.tgz#1bab8d86e418c60e35bcc250ce86223608e41e08"
-  integrity sha512-wbivXVGVWHoNdwJfZVBk9BrdOSc3SywIBf2Tp6fUMwdTe0NOyd6FVz8S4JK+nETP4exbXO/f1IGIUfsuMsKVxw==
+juice-sdk-core@^2.1.2:
+  version "2.1.2"
+  resolved "https://registry.yarnpkg.com/juice-sdk-core/-/juice-sdk-core-2.1.2.tgz#a7e1984a6a4b08d7d581be97be2f8170a358a22d"
+  integrity sha512-k87vmSHXsUEEDgsHPURG8Gsx2CT3ooX5t1tiSOXlJ3yBilL8wPvJ6GLANRhHcOfgjNryhVUHAwBH/vEALO8j1A==
   dependencies:
     bs58 "^5.0.0"
     fpnum "^1.0.0"
