@@ -45,13 +45,8 @@ export async function fetchProfiles(addresses: string[], chunkSize = 10) {
         const match = chunk.find((addr) => item.address?.toLowerCase() === addr);
         if (!match) continue;
 
-        const current = profiles[match];
-        const currentPriority = current?.platform ? priority[current.platform] || 0 : 0;
-        const newPriority = item.platform ? priority[item.platform] || 0 : 0;
-
-        if (!current || newPriority > currentPriority) {
-          profiles[match] = item;
-        }
+        const current = profiles[match] ?? null;
+        profiles[match] = selectPreferredProfile(current, item);
       }
     } catch (error) {
       console.error(`Error fetching profiles for batch ${i / chunkSize + 1}:`, error);
@@ -59,4 +54,43 @@ export async function fetchProfiles(addresses: string[], chunkSize = 10) {
   }
 
   return profiles;
+}
+
+export async function fetchProfile(address: string): Promise<Profile | null> {
+  const addr = address.toLowerCase();
+  try {
+    const res = await fetch(`https://api.web3.bio/profile/${addr}`, {
+      next: { revalidate: 60 * 60 * 24 },
+    });
+
+    if (!res.ok) {
+      console.warn(`Failed to fetch profile for ${addr}: ${res.status}`);
+      return null;
+    }
+
+    const items = (await res.json()) as unknown;
+    if (!Array.isArray(items)) return null;
+    return (items as Profile[]).reduce<Profile | null>(
+      (best, item) => selectPreferredProfile(best, item),
+      null,
+    );
+  } catch (error) {
+    console.error(`Error fetching profile for ${addr}:`, error);
+    return null;
+  }
+}
+
+function selectPreferredProfile(
+  current: Profile | null | undefined,
+  candidate: Profile | null | undefined,
+): Profile | null {
+  if (!current) return candidate ?? null;
+  if (!candidate) return current ?? null;
+  const currentPriority = getPlatformPriority(current.platform);
+  const candidatePriority = getPlatformPriority(candidate.platform);
+  return candidatePriority > currentPriority ? candidate : current;
+}
+
+function getPlatformPriority(platform?: string): number {
+  return platform ? priority[platform] || 0 : 0;
 }

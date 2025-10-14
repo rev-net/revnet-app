@@ -43,6 +43,10 @@ export default function Page() {
       name: formData.name,
       description: formData.description,
       logoUri: formData.logoUri,
+      twitter: formData.twitter,
+      telegram: formData.telegram,
+      discord: formData.discord,
+      infoUri: formData.infoUri,
     });
 
     const salt = createSalt();

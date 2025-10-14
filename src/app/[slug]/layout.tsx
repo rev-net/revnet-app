@@ -7,6 +7,7 @@ import { Header } from "./components/Header/Header";
 import { PayCard } from "./components/PayCard/PayCard";
 import { ProjectMenu } from "./components/ProjectMenu";
 import { getProject } from "./getProject";
+import { getProjectOperator } from "./getProjectOperator";
 import { ProjectProviders } from "./ProjectProviders";
 
 export const revalidate = 300;
@@ -79,14 +80,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   });
 }
 
-export default function SlugLayout({ children, params }: PropsWithChildren<Props>) {
+export default async function SlugLayout({ children, params }: PropsWithChildren<Props>) {
   const { chainId, projectId, version } = parseSlug(params.slug);
+
+  const operatorPromise = getProjectOperator(Number(projectId), chainId, version);
 
   return (
     <ProjectProviders chainId={chainId} projectId={projectId} version={version}>
       <Nav />
       <div className="w-full px-4 sm:container pt-6">
-        <Header />
+        <Header operatorPromise={operatorPromise} />
       </div>
       <div className="flex gap-10 w-full px-4 sm:container pb-5 md:flex-nowrap flex-wrap mb-10">
         {/* Column 2, hide on mobile */}

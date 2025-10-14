@@ -19,6 +19,10 @@ export const DEFAULT_FORM_DATA: RevnetFormData = {
   // tagline: "",
   description: "",
   logoUri: "",
+  twitter: "",
+  telegram: "",
+  discord: "",
+  infoUri: "",
   reserveAsset: "ETH",
 
   tokenSymbol: "TOKEN",
@@ -33,6 +37,10 @@ export const TEST_FORM_DATA: RevnetFormData = {
   description:
     "This is a test revnet for development purposes. It demonstrates various features and configurations available in the revnet system.",
   logoUri: "",
+  twitter: "revnet_test",
+  telegram: "t.me/revnet_test",
+  discord: "discord.gg/revnet",
+  infoUri: "https://example.com",
 
   tokenSymbol: "TEST",
   reserveAsset: "ETH",
@@ -238,6 +246,10 @@ export const SHORTER_TEST_FORM_DATA: RevnetFormData = {
   name: "Donuts",
   description: "Donuts are delicious",
   logoUri: "",
+  twitter: "donuts_io",
+  telegram: "t.me/donuts",
+  discord: "discord.gg/donuts",
+  infoUri: "https://donuts.example",
   tokenSymbol: "DONUTS",
   reserveAsset: "ETH",
   stages: [

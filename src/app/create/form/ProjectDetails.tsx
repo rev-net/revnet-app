@@ -45,11 +45,46 @@ export function ProjectDetails({ disabled = false }: { disabled?: boolean }) {
           name="description"
           label="About"
           component="textarea"
-          rows={2}
-          className="max-w-lg"
+          rows={3}
           placeholder="What is the gist?"
           disabled={disabled}
         />
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+          <FieldGroup
+            id="twitter"
+            name="twitter"
+            label="Twitter"
+            placeholder="username..."
+            autoComplete="off"
+            disabled={disabled}
+          />
+          <FieldGroup
+            id="telegram"
+            name="telegram"
+            label="Telegram"
+            placeholder="t.me/yourchannel..."
+            autoComplete="off"
+            disabled={disabled}
+          />
+          <FieldGroup
+            id="discord"
+            name="discord"
+            label="Discord"
+            placeholder="discord.gg/your-invite..."
+            autoComplete="off"
+            disabled={disabled}
+          />
+          <FieldGroup
+            id="infoUri"
+            name="infoUri"
+            label="Website"
+            placeholder="example.com..."
+            autoComplete="off"
+            inputMode="url"
+            disabled={disabled}
+          />
+        </div>
       </div>
     </>
   );
