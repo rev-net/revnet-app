@@ -51,16 +51,18 @@ export function parseDeployData(
   console.log(`[ Operator ] ${operator}`);
 
   // Determine asset settings based on reserveAsset
-  let baseCurrency, tokenAddress, tokenDecimals;
-  const swapTerminal = jbContractAddress[5].JBSwapTerminalRegistry[extra.chainId];
+  let baseCurrency, tokenAddress, tokenDecimals, swapTerminal;
+
   if (formData.reserveAsset === "USDC") {
     tokenAddress = USDC_ADDRESSES[extra.chainId];
     tokenDecimals = USDC_DECIMALS;
     baseCurrency = USD_CURRENCY_ID(5);
+    swapTerminal = jbContractAddress[5].JBSwapTerminalUSDCRegistry[extra.chainId];
   } else {
     tokenAddress = NATIVE_TOKEN;
     tokenDecimals = NATIVE_TOKEN_DECIMALS;
     baseCurrency = ETH_CURRENCY_ID;
+    swapTerminal = jbContractAddress[5].JBSwapTerminalRegistry[extra.chainId];
   }
 
   const accountingContextsToAccept = [
