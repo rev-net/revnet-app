@@ -9,6 +9,10 @@ export const createSchema = z.object({
     .min(2, "Token symbol must be at least 2 characters")
     .max(10, "Token symbol is too long"),
   logoUri: z.string().optional(),
+  twitter: z.string().trim().optional(),
+  telegram: z.string().trim().optional(),
+  discord: z.string().trim().optional(),
+  infoUri: z.string().trim().optional(),
   reserveAsset: z.enum(["ETH", "USDC"]),
 
   stages: z.array(stageSchema).min(1, "At least one stage is required"),

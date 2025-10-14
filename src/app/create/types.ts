@@ -33,6 +33,12 @@ export type RevnetFormData = {
   description: string;
   logoUri?: string;
 
+  // Optional social and website links
+  twitter?: string;
+  telegram?: string;
+  discord?: string;
+  infoUri?: string;
+
   tokenSymbol: string;
 
   stages: StageData[];

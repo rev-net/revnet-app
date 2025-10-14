@@ -18,10 +18,10 @@ export const RichPreview = ({ source }: { source: string }) => {
   }
 
   try {
-    const purified = DOMPurify.sanitize(source);
+    const purified = DOMPurify.sanitize(source.trim());
     return (
       <div
-        className="break-words [&_a]:underline [&_a]:text-gray-600 [&_a:hover]:text-gray-800"
+        className="break-words [&_a]:underline [&_a]:underline-offset-2 [&_a:hover]:decoration-teal-500"
         dangerouslySetInnerHTML={{
           __html: purified,
         }}

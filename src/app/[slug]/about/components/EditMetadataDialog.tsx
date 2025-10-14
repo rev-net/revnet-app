@@ -42,6 +42,11 @@ const metadataSchema = z.object({
   name: z.string().trim().min(1, "Name is required").max(50, "Name is too long"),
   description: z.string().trim().min(1, "Description is required"),
   logoUri: z.string().optional(),
+  twitter: z.string().trim().optional(),
+  telegram: z.string().trim().optional(),
+  discord: z.string().trim().optional(),
+  infoUri: z.string().trim().optional(),
+  farcaster: z.string().trim().optional(),
 });
 
 type MetadataFormData = z.infer<typeof metadataSchema>;
@@ -103,9 +108,15 @@ export function EditMetadataDialog({ projects }: Props) {
       setSubmitting(true);
 
       const metadataCid = await pinProjectMetadata({
+        ...metadata?.data,
         name: values.name,
         description: values.description,
         logoUri: values.logoUri || metadata?.data?.logoUri,
+        twitter: values.twitter,
+        telegram: values.telegram,
+        discord: values.discord,
+        infoUri: values.infoUri,
+        // farcaster: values.farcaster,
       });
 
       const metadataUri = ipfsUri(metadataCid);
@@ -222,6 +233,11 @@ export function EditMetadataDialog({ projects }: Props) {
             name: metadata?.data?.name || "",
             description: metadata?.data?.description || "",
             logoUri: metadata?.data?.logoUri || "",
+            twitter: (metadata?.data as any)?.twitter || "",
+            telegram: (metadata?.data as any)?.telegram || "",
+            discord: (metadata?.data as any)?.discord || "",
+            infoUri: (metadata?.data as any)?.infoUri || "",
+            farcaster: (metadata?.data as any)?.farcaster || "",
           }}
           validate={withZodSchema(metadataSchema) as any}
           onSubmit={handleSubmit}
@@ -266,6 +282,45 @@ export function EditMetadataDialog({ projects }: Props) {
                     component="textarea"
                     rows={4}
                   />
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <FieldGroup
+                      id="twitter"
+                      name="twitter"
+                      label="Twitter"
+                      placeholder="username..."
+                      autoComplete="off"
+                    />
+                    <FieldGroup
+                      id="telegram"
+                      name="telegram"
+                      label="Telegram"
+                      placeholder="t.me/yourchannel..."
+                      autoComplete="off"
+                    />
+                    <FieldGroup
+                      id="discord"
+                      name="discord"
+                      label="Discord"
+                      placeholder="discord.gg/your-invite..."
+                      autoComplete="off"
+                    />
+                    <FieldGroup
+                      id="infoUri"
+                      name="infoUri"
+                      label="Website"
+                      placeholder="example.com..."
+                      autoComplete="off"
+                      inputMode="url"
+                    />
+                    {/* <FieldGroup
+                      id="farcaster"
+                      name="farcaster"
+                      label="Farcaster"
+                      placeholder="username..."
+                      autoComplete="off"
+                    /> */}
+                  </div>
                 </div>
 
                 {relayrQuote && (

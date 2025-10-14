@@ -4,6 +4,8 @@ import { ChainLogo } from "@/components/ChainLogo";
 import EtherscanLink from "@/components/EtherscanLink";
 import { ParticipantsDocument, ProjectDocument, SuckerGroupDocument } from "@/generated/graphql";
 import { ipfsUriToGatewayUrl } from "@/lib/ipfs";
+import { Profile } from "@/lib/profile";
+import { getProjectLinks } from "@/lib/projectLinks";
 import { formatTokenSymbol } from "@/lib/utils";
 import { ForwardIcon } from "@heroicons/react/24/solid";
 import { JB_CHAINS } from "juice-sdk-core";
@@ -18,10 +20,16 @@ import {
 } from "juice-sdk-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useMemo } from "react";
+import { Suspense, use, useMemo } from "react";
 import { TvlDatum } from "./TvlDatum";
 
-export function Header() {
+interface Props {
+  operatorPromise: Promise<Profile | null>;
+}
+
+export function Header(props: Props) {
+  const { operatorPromise } = props;
+  const operator = use(operatorPromise);
   const { projectId, version } = useJBContractContext();
   const chainId = useJBChainId();
   const { metadata } = useJBProjectMetadataContext();
@@ -63,6 +71,9 @@ export function Header() {
   //   totalSupply && token?.data
   //     ? formatUnits(totalSupply, token.data.decimals)
   //     : null;
+
+  const links = getProjectLinks(metadata?.data);
+  const website = links.find((link) => link.type === "infoUri");
 
   return (
     <header>
@@ -148,6 +159,32 @@ export function Header() {
               <span className="text-zinc-500">cash out value</span>
             </div> */}
           </div>
+          <Suspense>
+            {(operator || website) && (
+              <div className="text-[15px] text-zinc-500 mt-1.5 flex flex-wrap items-center gap-2">
+                {operator && (
+                  <span>
+                    Operator:{" "}
+                    <EtherscanLink value={operator.address}>{operator?.identity}</EtherscanLink>
+                  </span>
+                )}
+                {operator && website && <span className="text-sm opacity-50"> | </span>}
+                {website && (
+                  <span>
+                    Site:{" "}
+                    <a
+                      href={website.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="hover:underline"
+                    >
+                      {website.url.replace(/^https?:\/\//, "")}
+                    </a>
+                  </span>
+                )}
+              </div>
+            )}
+          </Suspense>
         </div>
       </div>
     </header>

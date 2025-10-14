@@ -1,0 +1,10 @@
+query ProjectOperator($chainId: Int!, $projectId: Int!, $version: Int!) {
+  permissionHolders(
+    where: { chainId: $chainId, projectId: $projectId, version: $version, isRevnetOperator: true }
+    limit: 1
+  ) {
+    items {
+      operator
+    }
+  }
+}

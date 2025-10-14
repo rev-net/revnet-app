@@ -32,7 +32,9 @@ export function ProfilesProvider(props: PropsWithChildren<{ addresses: Address[]
 
 export function useProfile(address?: Address) {
   const context = useContext(ProfilesContext);
-  if (!address || !context) return null;
+  if (!context) throw new Error("useProfile must be used within a ProfilesProvider");
+
+  if (!address) return null;
 
   return context.getProfile(address);
 }
