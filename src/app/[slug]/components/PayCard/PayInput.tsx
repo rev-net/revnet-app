@@ -1,17 +1,38 @@
 import * as React from "react";
 
+import { Token } from "@/lib/token";
 import { cn } from "@/lib/utils";
 import { PayOnSelect } from "./PayOnSelect";
+import { useSelectedSucker } from "./SelectedSuckerContext";
+import { TokenSelector } from "./TokenSelector";
 
 export interface PayInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label: string;
   withPayOnSelect?: boolean;
-  currency?: string;
+  tokenSymbol?: string;
   inputClassName?: string;
+  tokens?: Token[];
+  selectedToken?: Token;
+  onSelectToken?: (token: Token) => void;
 }
 
 const PayInput = React.forwardRef<HTMLInputElement, PayInputProps>(
-  ({ className, inputClassName, label, type, currency, withPayOnSelect, ...props }, ref) => {
+  (
+    {
+      className,
+      inputClassName,
+      label,
+      type,
+      tokenSymbol,
+      withPayOnSelect,
+      tokens,
+      selectedToken,
+      onSelectToken,
+      ...props
+    },
+    ref,
+  ) => {
+    const { selectedSucker } = useSelectedSucker();
     return (
       <div
         className={cn(
@@ -35,7 +56,16 @@ const PayInput = React.forwardRef<HTMLInputElement, PayInputProps>(
             {...props}
           />
         </div>
-        <span className="text-right select-none text-lg">{currency}</span>
+        {tokens && selectedToken && onSelectToken ? (
+          <TokenSelector
+            tokens={tokens}
+            selectedToken={selectedToken}
+            onSelectToken={onSelectToken}
+            chainId={selectedSucker.peerChainId}
+          />
+        ) : (
+          <span className="text-right select-none text-lg">{tokenSymbol}</span>
+        )}
       </div>
     );
   },

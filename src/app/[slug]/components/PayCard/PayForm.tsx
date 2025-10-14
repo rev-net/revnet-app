@@ -1,46 +1,45 @@
 "use client";
 
-import { useProjectAccountingContext } from "@/hooks/useProjectAccountingContext";
-import { useTokenA } from "@/hooks/useTokenA";
+import { usePaymentQuote } from "@/hooks/usePaymentQuote";
+import { getTokensForChain, Token } from "@/lib/token";
 import { formatTokenSymbol } from "@/lib/utils";
 import { Field, Formik } from "formik";
 import { FixedInt } from "fpnum";
-import { getTokenAToBQuote, getTokenBtoAQuote, NATIVE_TOKEN } from "juice-sdk-core";
-import { useJBContractContext, useJBRulesetContext, useJBTokenContext } from "juice-sdk-react";
-import { useState } from "react";
-import { formatUnits, parseEther, parseUnits } from "viem";
+import { useJBTokenContext } from "juice-sdk-react";
+import { useEffect, useMemo, useState } from "react";
+import { parseUnits } from "viem";
 import { PayDialog } from "./PayDialog";
 import { PayInput } from "./PayInput";
+import { useSelectedSucker } from "./SelectedSuckerContext";
 
 export function PayForm() {
-  const tokenA = useTokenA();
-  const { token } = useJBTokenContext();
+  const tokenB = useJBTokenContext().token.data;
+  const chainId = useSelectedSucker().selectedSucker.peerChainId;
+  const { tokenAToBQuote, tokenBtoAQuote } = usePaymentQuote(chainId);
+
   const [memo, setMemo] = useState<string>();
   const [resetKey, setResetKey] = useState(0);
-
   const [amountA, setAmountA] = useState<string>("");
   const [amountB, setAmountB] = useState<string>("");
   const [amountC, setAmountC] = useState<string>("");
 
-  const {
-    contracts: { primaryNativeTerminal },
-  } = useJBContractContext();
+  const tokens = useMemo(() => getTokensForChain(chainId), [chainId]);
+  const [selectedToken, setSelectedToken] = useState<Token>(tokens[0]);
 
-  const { ruleset, rulesetMetadata } = useJBRulesetContext();
-  const { data: accountingContext } = useProjectAccountingContext();
+  useEffect(() => {
+    setSelectedToken((s) => tokens.find((t) => t.symbol === s.symbol) || tokens[0]);
+  }, [tokens]);
 
-  const tokenB = token?.data;
+  if (!tokenB) return "Loading...";
 
-  if (token.isLoading || ruleset.isLoading || rulesetMetadata.isLoading || !tokenB) {
-    return "Loading...";
-  }
   const _amountA = {
-    amount: new FixedInt(parseUnits(amountA, tokenA.decimals), tokenA.decimals), // ✅ Use correct decimals
-    symbol: tokenA.symbol,
+    amount: new FixedInt(parseUnits(amountA, selectedToken.decimals), selectedToken.decimals),
+    symbol: selectedToken.symbol,
   };
+
   const _amountB = {
-    amount: new FixedInt(parseEther(amountB), tokenB.decimals),
-    symbol: formatTokenSymbol(token),
+    amount: new FixedInt(parseUnits(amountB || "0", tokenB.decimals), tokenB.decimals),
+    symbol: tokenB.symbol,
   };
 
   function resetForm() {
@@ -60,26 +59,25 @@ export function PayForm() {
           className="border-b border-zinc-200 border-t border-l border-r"
           onChange={(e) => {
             const valueRaw = e.target.value;
+            if (!valueRaw) return resetForm();
+
+            const { payerTokens, reservedTokens } = tokenAToBQuote(valueRaw, selectedToken);
             setAmountA(valueRaw);
-
-            if (!valueRaw) {
-              resetForm();
-              return;
-            }
-
-            if (!ruleset?.data || !rulesetMetadata?.data) return;
-
-            const value = parseUnits(`${parseFloat(valueRaw)}` as `${number}`, tokenA.decimals);
-            const amountBQuote = getTokenAToBQuote(new FixedInt(value, tokenA.decimals), {
-              weight: ruleset.data.weight,
-              reservedPercent: rulesetMetadata.data.reservedPercent,
-            });
-
-            setAmountB(formatUnits(amountBQuote.payerTokens, tokenB.decimals));
-            setAmountC(formatUnits(amountBQuote.reservedTokens, tokenB.decimals));
+            setAmountB(payerTokens);
+            setAmountC(reservedTokens);
           }}
           value={amountA}
-          currency={tokenA?.symbol}
+          tokens={tokens}
+          selectedToken={selectedToken}
+          onSelectToken={(token) => {
+            setSelectedToken(token);
+            if (amountA) {
+              const { payerTokens, reservedTokens } = tokenAToBQuote(amountA, selectedToken);
+              setAmountA(amountA);
+              setAmountB(payerTokens);
+              setAmountC(reservedTokens);
+            }
+          }}
         />
         <PayInput
           label="You get"
@@ -87,26 +85,12 @@ export function PayForm() {
           className="border-r border-l border-zinc-200"
           onChange={(e) => {
             const valueRaw = e.target.value;
+            if (!valueRaw) return resetForm();
             setAmountB(valueRaw);
-
-            if (!valueRaw) {
-              resetForm();
-              return;
-            }
-
-            const value = FixedInt.parse(valueRaw, tokenB.decimals);
-
-            if (!ruleset?.data || !rulesetMetadata?.data) return;
-
-            const amountAQuote = getTokenBtoAQuote(value, tokenA.decimals, {
-              weight: ruleset.data.weight,
-              reservedPercent: rulesetMetadata.data.reservedPercent,
-            });
-
-            setAmountA(amountAQuote.format());
+            setAmountA(tokenBtoAQuote(valueRaw, selectedToken));
           }}
           value={amountB}
-          currency={formatTokenSymbol(token)}
+          tokenSymbol={formatTokenSymbol(tokenB.symbol)}
         />
         <div className="flex gap-1 p-3 bg-zinc-200 border-r border-l border-zinc-300 w-full text-md text-zinc-700 overflow-x-auto whitespace-nowrap">
           Splits get {amountC || 0} {formatTokenSymbol(tokenB.symbol)}
@@ -128,15 +112,13 @@ export function PayForm() {
           />
         </Formik>
         <div className="w-[150px] flex">
-          {primaryNativeTerminal?.data ? (
+          {selectedToken ? (
             <PayDialog
               key={resetKey}
               amountA={_amountA}
               amountB={_amountB}
               memo={memo}
-              paymentToken={
-                (accountingContext?.project?.token as `0x${string}`) || NATIVE_TOKEN.toLowerCase()
-              }
+              token={selectedToken}
               disabled={!amountA}
               onSuccess={() => {
                 resetForm();

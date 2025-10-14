@@ -6,20 +6,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { JB_CHAINS } from "juice-sdk-core";
-import { JBChainId, useJBChainId, useSuckers } from "juice-sdk-react";
-import { useEffect } from "react";
+import { useSuckers } from "juice-sdk-react";
 import { useSelectedSucker } from "./SelectedSuckerContext";
 
 export function PayOnSelect() {
-  const suckersQuery = useSuckers();
-  const chainId = useJBChainId();
-  const suckers = suckersQuery.data;
+  const { data: suckers } = useSuckers();
   const { selectedSucker, setSelectedSucker } = useSelectedSucker();
-
-  useEffect(() => {
-    const defaultSucker = suckers?.find((sucker) => chainId === sucker.peerChainId);
-    setSelectedSucker(defaultSucker);
-  }, [suckers, chainId, setSelectedSucker]);
 
   if (!suckers || suckers.length <= 1) {
     return null;
@@ -30,19 +22,18 @@ export function PayOnSelect() {
       <span className="text-md text-black-700">on</span>
       <Select
         onValueChange={(value: string) => {
-          setSelectedSucker(
-            suckers?.find((sucker) => sucker.peerChainId === Number(value)) || undefined,
-          );
+          const newSucker = suckers.find((sucker) => sucker.peerChainId === Number(value));
+          if (newSucker) setSelectedSucker(newSucker);
         }}
-        defaultValue={selectedSucker?.peerChainId.toString()}
+        value={selectedSucker.peerChainId.toString()}
       >
         <SelectTrigger className="underline bg-transparent border-none p-0 h-auto text-md text-black-700">
           <SelectValue placeholder="pick a chain" />
         </SelectTrigger>
         <SelectContent>
-          {suckers?.map((sucker) => (
+          {suckers.map((sucker) => (
             <SelectItem key={sucker.peerChainId} value={sucker.peerChainId.toString()}>
-              {JB_CHAINS[sucker.peerChainId as JBChainId]?.name}
+              {JB_CHAINS[sucker.peerChainId].name}
             </SelectItem>
           ))}
         </SelectContent>
