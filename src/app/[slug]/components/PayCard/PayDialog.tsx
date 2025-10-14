@@ -94,6 +94,7 @@ export function PayDialog(props: Props) {
       });
 
       const terminal = await directory.read.primaryTerminalOf([projectId, token.address]);
+
       if (!terminal) throw new Error(`No terminal found for ${token.symbol}`);
 
       if (!token.isNative) {
@@ -117,12 +118,14 @@ export function PayDialog(props: Props) {
         }
       }
 
+      const minTokens = token.isNative ? 0n : (amountB.amount.value * 95n) / 100n;
+
       await writeContractAsync?.({
         abi: jbSwapTerminalAbi,
         functionName: "pay",
         chainId,
         address: terminal,
-        args: [projectId, token.address, value, address, 0n, memo || "", "0x0"],
+        args: [projectId, token.address, value, address, minTokens, memo || "", "0x0"],
         value: token.isNative ? value : 0n,
       });
     } catch (err) {
