@@ -6,7 +6,7 @@ import { formatTokenSymbol } from "@/lib/utils";
 import { Field, Formik } from "formik";
 import { FixedInt } from "fpnum";
 import { useJBTokenContext } from "juice-sdk-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { parseUnits } from "viem";
 import { PayDialog } from "./PayDialog";
 import { PayInput } from "./PayInput";
@@ -25,6 +25,10 @@ export function PayForm() {
 
   const tokens = useMemo(() => getTokensForChain(chainId), [chainId]);
   const [selectedToken, setSelectedToken] = useState<Token>(tokens[0]);
+
+  useEffect(() => {
+    setSelectedToken((s) => tokens.find((t) => t.symbol === s.symbol) || tokens[0]);
+  }, [tokens]);
 
   if (!tokenB) return "Loading...";
 
