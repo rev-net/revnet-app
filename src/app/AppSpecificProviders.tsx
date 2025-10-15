@@ -31,6 +31,7 @@ export function AppSpecificProviders({ children }: { children: React.ReactNode }
             "--ck-connectbutton-border-radius": "0",
             "--ck-accent-color": "#14B8A6",
             "--ck-accent-text-color": "#ffffff",
+            "--ck-connectbutton-hover-background": "#f4f4f5",
           }}
         >
           <TooltipProvider delayDuration={200} skipDelayDuration={100}>

@@ -1,6 +1,7 @@
 import { ConnectKitButton } from "@/components/ConnectKitButton";
 import Image from "next/image";
 import Link from "next/link";
+import { UserBalance } from "./UserBalance";
 
 export function Nav() {
   return (
@@ -11,7 +12,10 @@ export function Nav() {
             <Image src="/assets/img/small-bw.svg" width={60} height={60} alt="Revnet logo" />
           </Link>
         </div>
-        <ConnectKitButton />
+        <div className="flex gap-2 items-stretch">
+          <UserBalance />
+          <ConnectKitButton />
+        </div>
       </div>
     </nav>
   );

@@ -1,18 +1,14 @@
 "use client";
 
+import { formatTokenSymbol } from "@/lib/utils";
 import clsx from "clsx";
-import { JBProjectToken } from "juice-sdk-core";
-import { useSuckersUserTokenBalance } from "juice-sdk-react";
+import { useJBTokenContext } from "juice-sdk-react";
 import Link from "next/link";
 import { useParams, useSelectedLayoutSegment } from "next/navigation";
 import { PropsWithChildren } from "react";
 
 export function ProjectMenu() {
-  const { data: balances } = useSuckersUserTokenBalance();
-
-  const totalBalance = new JBProjectToken(
-    balances?.reduce((acc, curr) => acc + curr.balance.value, 0n) ?? 0n,
-  );
+  const { token } = useJBTokenContext();
 
   return (
     <ul className="flex gap-4 sm:gap-6">
@@ -20,11 +16,7 @@ export function ProjectMenu() {
       <MenuOption href="terms">Terms</MenuOption>
       <MenuOption href="owners">Owners</MenuOption>
       <MenuOption href="about">About</MenuOption>
-      {totalBalance.value > 0n && (
-        <MenuOption href="you" badge={totalBalance.format(2)}>
-          You
-        </MenuOption>
-      )}
+      <MenuOption href="you">{formatTokenSymbol(token)}</MenuOption>
     </ul>
   );
 }
@@ -39,7 +31,7 @@ function MenuOption({
   const isSelected = (segment || "") === href;
 
   return (
-    <li className="flex items-start gap-1">
+    <li className="flex items-start gap-2">
       <Link
         href={`/${decodeURIComponent(params.slug)}/${href}`}
         className={clsx("flex items-start text-xl sm:text-2xl font-medium transition-all", {
@@ -50,7 +42,9 @@ function MenuOption({
         {children}
       </Link>
       {badge && (
-        <span className="rounded-xl bg-teal-400 text-white text-xs px-1.5 py-0.5">{badge}</span>
+        <span className="rounded-xl border border-teal-400 text-teal-500 font-medium text-[13px] px-2 py-1">
+          {badge}
+        </span>
       )}
     </li>
   );
