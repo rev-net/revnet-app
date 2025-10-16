@@ -165,7 +165,7 @@ export function Header(props: Props) {
                 {operator && (
                   <span>
                     Operator:{" "}
-                    <EtherscanLink value={operator.address}>{operator?.identity}</EtherscanLink>
+                    <EtherscanLink value={operator.address}>{operator.identity}</EtherscanLink>
                   </span>
                 )}
                 {operator && website && <span className="text-sm opacity-50"> | </span>}

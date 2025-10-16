@@ -1,5 +1,8 @@
 "use server";
 
+import { formatEthAddress } from "juice-sdk-core";
+import { isAddress } from "viem";
+
 export type Profile = {
   identity?: string;
   displayName?: string;
@@ -56,15 +59,15 @@ export async function fetchProfiles(addresses: string[], chunkSize = 10) {
   return profiles;
 }
 
-export async function fetchProfile(address: string): Promise<Profile | null> {
-  const addr = address.toLowerCase();
+export async function fetchProfile(_address: string): Promise<Profile | null> {
+  const address = _address.toLowerCase();
   try {
-    const res = await fetch(`https://api.web3.bio/profile/${addr}`, {
+    const res = await fetch(`https://api.web3.bio/profile/${address}`, {
       next: { revalidate: 60 * 60 * 24 },
     });
 
     if (!res.ok) {
-      console.warn(`Failed to fetch profile for ${addr}: ${res.status}`);
+      console.warn(`Failed to fetch profile for ${address}: ${res.status}`);
       return null;
     }
 
@@ -75,7 +78,7 @@ export async function fetchProfile(address: string): Promise<Profile | null> {
       null,
     );
   } catch (error) {
-    console.error(`Error fetching profile for ${addr}:`, error);
+    console.error(`Error fetching profile for ${address}:`, error);
     return null;
   }
 }
@@ -88,7 +91,14 @@ function selectPreferredProfile(
   if (!candidate) return current ?? null;
   const currentPriority = getPlatformPriority(current.platform);
   const candidatePriority = getPlatformPriority(candidate.platform);
-  return candidatePriority > currentPriority ? candidate : current;
+  const profile = candidatePriority > currentPriority ? candidate : current;
+
+  const identity = profile?.identity || profile.address || candidate.address || "";
+
+  return {
+    ...profile,
+    identity: isAddress(identity) ? formatEthAddress(identity) : identity,
+  };
 }
 
 function getPlatformPriority(platform?: string): number {
