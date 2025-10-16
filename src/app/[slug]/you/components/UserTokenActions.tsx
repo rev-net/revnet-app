@@ -22,7 +22,7 @@ interface Props {
   projects: Array<Pick<Project, "projectId" | "token">>;
 }
 
-export function UserTokenBalanceCard(props: Props) {
+export function UserTokenActions(props: Props) {
   const { projects } = props;
 
   const {
@@ -53,8 +53,9 @@ export function UserTokenBalanceCard(props: Props) {
   const [showReallocateDialog, setShowReallocateDialog] = useState(false);
 
   return (
-    <>
-      <div className="flex flex-row gap-2 mt-2">
+    <div>
+      <h3 className="text-lg font-medium">Use your {tokenSymbol}</h3>
+      <div className="flex gap-2 mt-2">
         {token?.data?.symbol && creditBalance && primaryNativeTerminal.data ? (
           <RedeemDialog projectId={projectId} tokenSymbol={tokenSymbol}>
             <Button variant="outline" disabled={creditBalance.value === 0n}>
@@ -122,6 +123,6 @@ export function UserTokenBalanceCard(props: Props) {
           <div style={{ display: "none" }} />
         </ReallocateDialog>
       )}
-    </>
+    </div>
   );
 }

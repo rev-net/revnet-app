@@ -1,9 +1,10 @@
+import { getProjectsReclaimableSurplus } from "@/lib/reclaimableSurplus";
 import { parseSlug } from "@/lib/slug";
 import { notFound } from "next/navigation";
 import { getProject } from "../getProject";
 import { getSuckerGroup } from "../getSuckerGroup";
-import { UserTokenBalanceCard } from "./components/UserTokenBalanceCard";
-import { YouSection } from "./components/YouSection";
+import { BalanceTable } from "./components/BalanceTable";
+import { UserTokenActions } from "./components/UserTokenActions";
 
 interface Props {
   params: { slug: string };
@@ -19,11 +20,19 @@ export default async function YouPage(props: Props) {
   const suckerGroup = await getSuckerGroup(project.suckerGroupId, chainId);
   if (!suckerGroup) notFound();
 
-  return (
-    <>
-      <YouSection />
+  const projects = suckerGroup.projects?.items ?? [];
 
-      <UserTokenBalanceCard projects={suckerGroup.projects?.items ?? []} />
-    </>
+  const surplusesPromise = getProjectsReclaimableSurplus(projects);
+
+  return (
+    <div className="flex flex-col gap-6">
+      <BalanceTable
+        projects={projects}
+        surplusesPromise={surplusesPromise}
+        totalSupply={suckerGroup.tokenSupply}
+      />
+
+      <UserTokenActions projects={projects} />
+    </div>
   );
 }

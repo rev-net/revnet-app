@@ -4,11 +4,13 @@ query SuckerGroup($id: String!) {
     tokenSupply
     projects {
       items {
+        balance
         chainId
-        projectId
-        token
         currency
         decimals
+        projectId
+        token
+        tokenSupply
         version
       }
     }

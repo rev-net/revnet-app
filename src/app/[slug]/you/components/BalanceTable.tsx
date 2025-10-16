@@ -1,0 +1,208 @@
+"use client";
+
+import { ChainLogo } from "@/components/ChainLogo";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableFooter,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { Project } from "@/generated/graphql";
+import { useProjectBaseToken } from "@/hooks/useProjectBaseToken";
+import { prettyNumber } from "@/lib/number";
+import { Surplus } from "@/lib/reclaimableSurplus";
+import { formatTokenSymbol } from "@/lib/utils";
+import { FixedInt } from "fpnum";
+import { formatUnits, JB_CHAINS, JBChainId } from "juice-sdk-core";
+import { useEtherPrice, useJBTokenContext, useSuckersUserTokenBalance } from "juice-sdk-react";
+import { use, useCallback } from "react";
+import { parseUnits } from "viem";
+
+interface Props {
+  projects: Array<
+    Pick<Project, "projectId" | "token" | "chainId" | "tokenSupply" | "decimals" | "balance">
+  >;
+  surplusesPromise: Promise<Surplus[]>;
+  totalSupply: string;
+}
+
+export function BalanceTable(props: Props) {
+  const { projects, surplusesPromise, totalSupply } = props;
+  const surpluses = use(surplusesPromise);
+  const baseToken = useProjectBaseToken();
+  const { token } = useJBTokenContext();
+  const { data: userBalances } = useSuckersUserTokenBalance();
+  const { data: ethPrice } = useEtherPrice();
+
+  const tokenSymbol = formatTokenSymbol(token.data?.symbol);
+  const tokenDecimals = token.data?.decimals || 18;
+
+  const getUsdValue = useCallback(
+    (value: number) => {
+      if (baseToken.targetCurrency === "usd") return value;
+      if (!ethPrice) return 0;
+      return value * ethPrice;
+    },
+    [ethPrice, baseToken],
+  );
+
+  const totalBalance = projects.reduce((acc, project) => acc + BigInt(project.balance), 0n);
+  const totalSurplus = surpluses.reduce((acc, surplus) => acc + BigInt(surplus.value), 0n);
+  const avgUnitValue = getUnitValue(
+    { value: totalSurplus.toString(), decimals: baseToken.decimals || 18 },
+    {
+      value: totalSupply,
+      decimals: tokenDecimals,
+    },
+  );
+
+  const totalUserBalance =
+    userBalances?.reduce((acc, balance) => acc + balance.balance.value, 0n) ?? 0n;
+
+  let totalUserValue = 0;
+
+  return (
+    <div>
+      <p className="text-pretty">
+        {tokenSymbol} is issued across many blockchains. When {tokenSymbol} is moved between chains,
+        a proportional amount of the revnet's funds moves too, which rebalances each token's cash
+        out value.
+      </p>
+      <Table className="bg-zinc-50 border-zinc-200 border mt-4">
+        <TableHeader>
+          <TableRow>
+            <TableHead>Chain</TableHead>
+            <TableHead className="">Current supply</TableHead>
+            <TableHead className="">Current balance</TableHead>
+            <TableHead className="">Unit value</TableHead>
+            <TableHead className="">Your supply</TableHead>
+            <TableHead className="">Your current value</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {projects.map((project) => {
+            const { balance, tokenSupply, chainId } = project;
+
+            const surplus = surpluses.find((s) => s.chainId === chainId) || null;
+
+            const unitValue = getUnitValue(surplus, {
+              value: tokenSupply,
+              decimals: tokenDecimals,
+            });
+            const userBalance = userBalances?.find((b) => b.chainId === chainId)?.balance;
+            const userValue = (userBalance?.toFloat() || 0) * unitValue;
+
+            totalUserValue += userValue;
+
+            return (
+              <TableRow key={chainId}>
+                <TableCell className="flex items-center gap-2">
+                  <ChainLogo chainId={chainId as JBChainId} width={15} height={15} />
+                  <span>{JB_CHAINS[chainId as JBChainId]?.name ?? chainId}</span>
+                </TableCell>
+
+                <TableCell className="whitespace-nowrap">
+                  {prettyNumber(formatUnits(tokenSupply, tokenDecimals, { fractionDigits: 4 }))}{" "}
+                  {tokenSymbol}
+                </TableCell>
+
+                <TableCell className="whitespace-nowrap">
+                  {formatUnits(balance, project.decimals || 18, { fractionDigits: 4 })}{" "}
+                  {baseToken.symbol}
+                </TableCell>
+
+                <TableCell className="whitespace-nowrap">
+                  <Tooltip>
+                    <TooltipTrigger>
+                      {unitValue?.toFixed(6)} {baseToken.symbol} / {tokenSymbol}
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      {formatUsdValue(getUsdValue(unitValue))} / {tokenSymbol}
+                    </TooltipContent>
+                  </Tooltip>
+                </TableCell>
+
+                <TableCell className="whitespace-nowrap">
+                  {userBalance?.format(3)} {tokenSymbol}
+                </TableCell>
+
+                <TableCell className="whitespace-nowrap">
+                  <Tooltip>
+                    <TooltipTrigger>
+                      {userValue.toFixed(6)} {baseToken.symbol}
+                    </TooltipTrigger>
+                    <TooltipContent>{formatUsdValue(getUsdValue(userValue))}</TooltipContent>
+                  </Tooltip>
+                </TableCell>
+              </TableRow>
+            );
+          })}
+        </TableBody>
+        <TableFooter>
+          <TableRow>
+            <TableCell>Total network</TableCell>
+
+            <TableCell className="whitespace-nowrap">
+              {prettyNumber(formatUnits(BigInt(totalSupply), tokenDecimals, { fractionDigits: 4 }))}{" "}
+              {tokenSymbol}
+            </TableCell>
+
+            <TableCell className="whitespace-nowrap">
+              {formatUnits(totalBalance, baseToken.decimals || 18, { fractionDigits: 4 })}{" "}
+              {baseToken.symbol}
+            </TableCell>
+
+            <TableCell className="whitespace-nowrap">
+              <Tooltip>
+                <TooltipTrigger>
+                  {avgUnitValue?.toFixed(6)} {baseToken.symbol} / {tokenSymbol}
+                </TooltipTrigger>
+                <TooltipContent>
+                  {formatUsdValue(getUsdValue(avgUnitValue))} / {tokenSymbol}
+                </TooltipContent>
+              </Tooltip>
+            </TableCell>
+
+            <TableCell className="whitespace-nowrap">
+              {formatUnits(totalUserBalance, tokenDecimals, { fractionDigits: 3 })} {tokenSymbol}
+            </TableCell>
+
+            <TableCell className="whitespace-nowrap">
+              <Tooltip>
+                <TooltipTrigger>
+                  {totalUserValue.toFixed(6)} {baseToken.symbol}
+                </TooltipTrigger>
+                <TooltipContent>{formatUsdValue(getUsdValue(totalUserValue))}</TooltipContent>
+              </Tooltip>
+            </TableCell>
+          </TableRow>
+        </TableFooter>
+      </Table>
+    </div>
+  );
+}
+
+function getUnitValue(
+  surplus: Pick<Surplus, "value" | "decimals"> | null,
+  supply: { value: string; decimals: number },
+) {
+  if (!surplus || supply.value === "0") return 0;
+
+  const _surplus = new FixedInt(parseUnits(surplus.value, surplus.decimals), surplus.decimals);
+  const _supply = new FixedInt(parseUnits(supply.value, supply.decimals), supply.decimals);
+
+  return _surplus.toFloat() / _supply.toFloat();
+}
+
+function formatUsdValue(value: number) {
+  return value.toLocaleString("en-US", {
+    style: "currency",
+    currency: "USD",
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 4,
+  });
+}
