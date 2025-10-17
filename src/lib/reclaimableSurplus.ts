@@ -1,6 +1,5 @@
 import { type Project } from "@/generated/graphql";
 import {
-  applyJbDaoCashOutFee,
   getProjectTerminalStore,
   JBChainId,
   jbTerminalStoreAbi,
@@ -9,6 +8,7 @@ import {
 } from "juice-sdk-core";
 import { getContract } from "viem";
 import { toBaseCurrencyId } from "./currency";
+import { applyCashOutFee } from "./feeHelpers";
 import { getViemPublicClient } from "./wagmiConfig";
 
 export async function getReclaimableSurplus(
@@ -35,7 +35,7 @@ export async function getReclaimableSurplus(
       BigInt(currencyId),
     ]);
 
-    return applyJbDaoCashOutFee(surplus).toString();
+    return applyCashOutFee(surplus).toString();
   } catch (error) {
     console.debug({ chainId, projectId, tokenAmountWei, version, decimals, currencyId });
     console.error(error);
