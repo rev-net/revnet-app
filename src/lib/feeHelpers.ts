@@ -1,4 +1,5 @@
-import { calcPrepaidFee } from "juice-sdk-core";
+import { REVNET_CASHOUT_FEE_PERCENT } from "@/app/constants";
+import { calcPrepaidFee, JBDAO_CASHOUT_FEE_PERCENT } from "juice-sdk-core";
 
 export function generateFeeData({
   grossBorrowedEth,
@@ -69,4 +70,9 @@ export function generateFeeData({
   data.push({ year: MAX_YEARS, totalCost: maxCostToUnlock });
 
   return data;
+}
+
+export function applyCashOutFee(amount: bigint) {
+  const feePercent = JBDAO_CASHOUT_FEE_PERCENT + REVNET_CASHOUT_FEE_PERCENT;
+  return (amount * BigInt((1 - feePercent) * 1000)) / 1000n;
 }

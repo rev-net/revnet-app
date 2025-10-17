@@ -12,6 +12,7 @@ import {
 
 export const MAX_RULESET_COUNT = 3;
 export const RESERVED_TOKEN_SPLIT_GROUP_ID = 1n;
+export const REVNET_CASHOUT_FEE_PERCENT = 0.025;
 
 export const chainSortOrder = new Map<JBChainId, number>([
   [sepolia.id, 0],

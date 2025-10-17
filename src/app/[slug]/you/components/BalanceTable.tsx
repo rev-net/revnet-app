@@ -15,7 +15,7 @@ import { Project } from "@/generated/graphql";
 import { useProjectBaseToken } from "@/hooks/useProjectBaseToken";
 import { prettyNumber } from "@/lib/number";
 import { Surplus } from "@/lib/reclaimableSurplus";
-import { formatTokenSymbol } from "@/lib/utils";
+import { formatPortion, formatTokenSymbol } from "@/lib/utils";
 import { FixedInt } from "fpnum";
 import { formatUnits, JB_CHAINS, JBChainId } from "juice-sdk-core";
 import { useEtherPrice, useJBTokenContext, useSuckersUserTokenBalance } from "juice-sdk-react";
@@ -106,13 +106,25 @@ export function BalanceTable(props: Props) {
                 </TableCell>
 
                 <TableCell className="whitespace-nowrap">
-                  {prettyNumber(formatUnits(tokenSupply, tokenDecimals, { fractionDigits: 4 }))}{" "}
-                  {tokenSymbol}
+                  <Tooltip>
+                    <TooltipTrigger>
+                      {formatPortion(BigInt(tokenSupply), BigInt(totalSupply))}%
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      {prettyNumber(formatUnits(tokenSupply, tokenDecimals, { fractionDigits: 4 }))}{" "}
+                      {tokenSymbol}
+                    </TooltipContent>
+                  </Tooltip>
                 </TableCell>
 
                 <TableCell className="whitespace-nowrap">
-                  {formatUnits(balance, project.decimals || 18, { fractionDigits: 4 })}{" "}
-                  {baseToken.symbol}
+                  <Tooltip>
+                    <TooltipTrigger>{formatPortion(BigInt(balance), totalBalance)}%</TooltipTrigger>
+                    <TooltipContent>
+                      {formatUnits(balance, project.decimals || 18, { fractionDigits: 4 })}{" "}
+                      {baseToken.symbol}
+                    </TooltipContent>
+                  </Tooltip>
                 </TableCell>
 
                 <TableCell className="whitespace-nowrap">
@@ -126,14 +138,14 @@ export function BalanceTable(props: Props) {
                   </Tooltip>
                 </TableCell>
 
-                <TableCell className="whitespace-nowrap">
-                  {userBalance?.format(3)} {tokenSymbol}
+                <TableCell className="whitespace-nowrap text-right">
+                  {userBalance?.format(2)} {tokenSymbol}
                 </TableCell>
 
-                <TableCell className="whitespace-nowrap">
+                <TableCell className="whitespace-nowrap text-right">
                   <Tooltip>
                     <TooltipTrigger>
-                      {userValue.toFixed(6)} {baseToken.symbol}
+                      {userValue.toFixed(5)} {baseToken.symbol}
                     </TooltipTrigger>
                     <TooltipContent>{formatUsdValue(getUsdValue(userValue))}</TooltipContent>
                   </Tooltip>
@@ -144,7 +156,7 @@ export function BalanceTable(props: Props) {
         </TableBody>
         <TableFooter>
           <TableRow>
-            <TableCell>Total network</TableCell>
+            <TableCell>Total revnet</TableCell>
 
             <TableCell className="whitespace-nowrap">
               {prettyNumber(formatUnits(BigInt(totalSupply), tokenDecimals, { fractionDigits: 4 }))}{" "}
@@ -167,14 +179,14 @@ export function BalanceTable(props: Props) {
               </Tooltip>
             </TableCell>
 
-            <TableCell className="whitespace-nowrap">
-              {formatUnits(totalUserBalance, tokenDecimals, { fractionDigits: 3 })} {tokenSymbol}
+            <TableCell className="whitespace-nowrap text-right">
+              {formatUnits(totalUserBalance, tokenDecimals, { fractionDigits: 2 })} {tokenSymbol}
             </TableCell>
 
-            <TableCell className="whitespace-nowrap">
+            <TableCell className="whitespace-nowrap text-right">
               <Tooltip>
                 <TooltipTrigger>
-                  {totalUserValue.toFixed(6)} {baseToken.symbol}
+                  {totalUserValue.toFixed(5)} {baseToken.symbol}
                 </TooltipTrigger>
                 <TooltipContent>{formatUsdValue(getUsdValue(totalUserValue))}</TooltipContent>
               </Tooltip>
