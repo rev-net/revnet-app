@@ -1,6 +1,7 @@
 import { type Project } from "@/generated/graphql";
 import {
   getProjectTerminalStore,
+  JB_TOKEN_DECIMALS,
   JBChainId,
   jbTerminalStoreAbi,
   JBVersion,
@@ -50,19 +51,28 @@ export async function getProjectsReclaimableSurplus(
 ) {
   return await Promise.all(
     projects.map(async (project) => {
-      const { chainId, projectId, tokenSupply, version, currency } = project;
-      const decimals = project.decimals || NATIVE_TOKEN_DECIMALS;
+      const { chainId, projectId, tokenSupply, version, currency, decimals } = project;
       const currencyId = toBaseCurrencyId(currency, version as JBVersion);
+      const tokenDecimals = JB_TOKEN_DECIMALS;
 
       const value = await getReclaimableSurplus(
         chainId as JBChainId,
         projectId,
         tokenSupply,
         version as JBVersion,
-        decimals,
+        tokenDecimals,
         currencyId,
       );
-      return { projectId: project.projectId, value, currencyId, decimals, chainId, version };
+
+      return {
+        projectId: project.projectId,
+        value,
+        currencyId,
+        decimals: decimals || NATIVE_TOKEN_DECIMALS,
+        chainId,
+        version,
+        tokenDecimals,
+      };
     }),
   );
 }
