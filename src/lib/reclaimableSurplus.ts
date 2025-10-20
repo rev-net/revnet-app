@@ -45,19 +45,19 @@ export async function getReclaimableSurplus(
 
 export async function getProjectsReclaimableSurplus(
   projects: Array<
-    Pick<Project, "chainId" | "projectId" | "balance" | "version" | "decimals" | "currency">
+    Pick<Project, "chainId" | "projectId" | "tokenSupply" | "version" | "decimals" | "currency">
   >,
 ) {
   return await Promise.all(
     projects.map(async (project) => {
-      const { chainId, projectId, balance, version, currency } = project;
+      const { chainId, projectId, tokenSupply, version, currency } = project;
       const decimals = project.decimals || NATIVE_TOKEN_DECIMALS;
       const currencyId = toBaseCurrencyId(currency, version as JBVersion);
 
       const value = await getReclaimableSurplus(
         chainId as JBChainId,
         projectId,
-        balance,
+        tokenSupply,
         version as JBVersion,
         decimals,
         currencyId,
