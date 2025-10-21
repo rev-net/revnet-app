@@ -32,7 +32,7 @@ import {
 } from "juice-sdk-core";
 import { useJBContractContext, useSuckers } from "juice-sdk-react";
 import { useEffect, useState } from "react";
-import { erc20Abi, getContract } from "viem";
+import { erc20Abi, getContract, zeroAddress } from "viem";
 import {
   useAccount,
   usePublicClient,
@@ -95,7 +95,9 @@ export function PayDialog(props: Props) {
 
       const terminal = await directory.read.primaryTerminalOf([projectId, token.address]);
 
-      if (!terminal) throw new Error(`No terminal found for ${token.symbol}`);
+      if (!terminal || terminal === zeroAddress) {
+        throw new Error(`No terminal found for ${token.symbol}`);
+      }
 
       if (!token.isNative) {
         const allowance = await publicClient.readContract({
