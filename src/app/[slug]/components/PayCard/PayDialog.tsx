@@ -21,18 +21,13 @@ import {
 } from "@/components/ui/select";
 import { Stat } from "@/components/ui/stat";
 import { useToast } from "@/components/ui/use-toast";
+import { getPaymentTerminal } from "@/lib/paymentTerminal";
 import { Token } from "@/lib/token";
 import { formatWalletError } from "@/lib/utils";
-import {
-  JB_CHAINS,
-  JBCoreContracts,
-  jbDirectoryAbi,
-  jbSwapTerminalAbi,
-  TokenAmountType,
-} from "juice-sdk-core";
+import { JB_CHAINS, TokenAmountType } from "juice-sdk-core";
 import { useJBContractContext, useSuckers } from "juice-sdk-react";
 import { useEffect, useState } from "react";
-import { erc20Abi, getContract, zeroAddress } from "viem";
+import { erc20Abi } from "viem";
 import {
   useAccount,
   usePublicClient,
@@ -53,7 +48,7 @@ interface Props {
 
 export function PayDialog(props: Props) {
   const { amountA, amountB, memo, token, disabled, onSuccess } = props;
-  const { contractAddress } = useJBContractContext();
+  const { version } = useJBContractContext();
   const { address } = useAccount();
   const { writeContractAsync, isPending, data: hash } = useWriteContract();
   const { data: suckers } = useSuckers();
@@ -87,24 +82,20 @@ export function PayDialog(props: Props) {
     if (!address || !selectedSucker || !walletClient || !publicClient) return;
 
     try {
-      const directory = getContract({
-        address: contractAddress(JBCoreContracts.JBDirectory, chainId),
-        abi: jbDirectoryAbi,
+      const terminal = await getPaymentTerminal({
         client: publicClient,
+        version,
+        chainId,
+        projectId,
+        token,
       });
-
-      const terminal = await directory.read.primaryTerminalOf([projectId, token.address]);
-
-      if (!terminal || terminal === zeroAddress) {
-        throw new Error(`No terminal found for ${token.symbol}`);
-      }
 
       if (!token.isNative) {
         const allowance = await publicClient.readContract({
           address: token.address,
           abi: erc20Abi,
           functionName: "allowance",
-          args: [address, terminal],
+          args: [address, terminal.address],
         });
 
         if (BigInt(allowance) < BigInt(value)) {
@@ -113,7 +104,7 @@ export function PayDialog(props: Props) {
             address: token.address,
             abi: erc20Abi,
             functionName: "approve",
-            args: [terminal, value],
+            args: [terminal.address, value],
           });
           await publicClient.waitForTransactionReceipt({ hash });
           setIsApproving(false);
@@ -123,10 +114,10 @@ export function PayDialog(props: Props) {
       const minTokens = token.isNative ? 0n : (amountB.amount.value * 95n) / 100n;
 
       await writeContractAsync?.({
-        abi: jbSwapTerminalAbi,
+        abi: terminal.abi,
         functionName: "pay",
         chainId,
-        address: terminal,
+        address: terminal.address,
         args: [projectId, token.address, value, address, minTokens, memo || "", "0x0"],
         value: token.isNative ? value : 0n,
       });
