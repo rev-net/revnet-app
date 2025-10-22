@@ -13,13 +13,14 @@ import {
 import { useRef, useState } from "react";
 import { useAccount } from "wagmi";
 import { BorrowDialog } from "./BorrowDialog";
+import { BridgeDialog } from "./BridgeDialog";
 import { LoanDetailsTable } from "./LoansDetailsTable";
 import { ReallocateDialog } from "./ReallocateDialog";
 import { RedeemDialog } from "./RedeemDialog";
 import { RepayDialog } from "./RepayDialog";
 
 interface Props {
-  projects: Array<Pick<Project, "projectId" | "token">>;
+  projects: Array<Pick<Project, "projectId" | "token" | "chainId">>;
 }
 
 export function UserTokenActions(props: Props) {
@@ -71,6 +72,12 @@ export function UserTokenActions(props: Props) {
             </Button>
           </BorrowDialog>
         ) : null}
+
+        {projects.length > 1 && (
+          <BridgeDialog projects={projects}>
+            <Button variant="outline">Move between chains</Button>
+          </BridgeDialog>
+        )}
 
         {selectedLoanId && selectedChainId && (
           <RepayDialog
