@@ -54,10 +54,7 @@ export function BalanceTable(props: Props) {
   const totalSurplus = surpluses.reduce((acc, surplus) => acc + BigInt(surplus.value), 0n);
   const avgUnitValue = getUnitValue(
     { value: totalSurplus.toString(), decimals: baseToken.decimals || 18 },
-    {
-      value: totalSupply,
-      decimals: tokenDecimals,
-    },
+    { value: totalSupply, decimals: tokenDecimals },
   );
 
   const totalUserBalance =
@@ -127,10 +124,10 @@ export function BalanceTable(props: Props) {
                   </Tooltip>
                 </TableCell>
 
-                <TableCell className="whitespace-nowrap">
+                <TableCell className="whitespace-nowrap tabular-nums text-right">
                   <Tooltip>
                     <TooltipTrigger>
-                      {unitValue?.toFixed(6)} {baseToken.symbol} / {tokenSymbol}
+                      {unitValue.toFixed(6)} {baseToken.symbol} / {tokenSymbol}
                     </TooltipTrigger>
                     <TooltipContent>
                       {formatUsdValue(getUsdValue(unitValue))} / {tokenSymbol}
@@ -138,11 +135,11 @@ export function BalanceTable(props: Props) {
                   </Tooltip>
                 </TableCell>
 
-                <TableCell className="whitespace-nowrap text-right">
+                <TableCell className="whitespace-nowrap text-right tabular-nums">
                   {userBalance?.format(2)} {tokenSymbol}
                 </TableCell>
 
-                <TableCell className="whitespace-nowrap text-right">
+                <TableCell className="whitespace-nowrap text-right tabular-nums">
                   <Tooltip>
                     <TooltipTrigger>
                       {userValue.toFixed(5)} {baseToken.symbol}
@@ -168,10 +165,10 @@ export function BalanceTable(props: Props) {
               {baseToken.symbol}
             </TableCell>
 
-            <TableCell className="whitespace-nowrap">
+            <TableCell className="whitespace-nowrap tabular-nums text-right">
               <Tooltip>
                 <TooltipTrigger>
-                  {avgUnitValue?.toFixed(6)} {baseToken.symbol} / {tokenSymbol}
+                  {avgUnitValue.toFixed(6)} {baseToken.symbol} / {tokenSymbol}
                 </TooltipTrigger>
                 <TooltipContent>
                   {formatUsdValue(getUsdValue(avgUnitValue))} / {tokenSymbol}
@@ -179,11 +176,11 @@ export function BalanceTable(props: Props) {
               </Tooltip>
             </TableCell>
 
-            <TableCell className="whitespace-nowrap text-right">
+            <TableCell className="whitespace-nowrap text-right tabular-nums">
               {formatUnits(totalUserBalance, tokenDecimals, { fractionDigits: 2 })} {tokenSymbol}
             </TableCell>
 
-            <TableCell className="whitespace-nowrap text-right">
+            <TableCell className="whitespace-nowrap text-right tabular-nums">
               <Tooltip>
                 <TooltipTrigger>
                   {totalUserValue.toFixed(5)} {baseToken.symbol}
