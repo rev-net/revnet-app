@@ -1,11 +1,15 @@
 import {
   DEFAULT_NATIVE_TOKEN_SYMBOL,
+  getJBContractAddress,
   JBChainId,
+  JBCoreContracts,
+  jbTokensAbi,
+  JBVersion,
   NATIVE_TOKEN,
   NATIVE_TOKEN_DECIMALS,
   USDC_ADDRESSES,
 } from "juice-sdk-core";
-import { formatUnits } from "viem";
+import { formatUnits, getContract, PublicClient } from "viem";
 
 export interface Token {
   symbol: string;
@@ -39,7 +43,7 @@ export function getTokensForChain(chainId: JBChainId | undefined): Token[] {
   return tokens;
 }
 
-export function formatTokenAmount(amount: bigint, token: Token) {
+export function formatTokenAmount(amount: bigint, token: Pick<Token, "symbol" | "decimals">) {
   const formatted = formatUnits(amount, token.decimals);
   const { minimumFractionDigits, maximumFractionDigits } = getTokenFractionDigits(token);
   return Number(formatted).toLocaleString("en-US", {
@@ -48,10 +52,25 @@ export function formatTokenAmount(amount: bigint, token: Token) {
   });
 }
 
-function getTokenFractionDigits(token: Token) {
+function getTokenFractionDigits(token: Pick<Token, "symbol" | "decimals">) {
   if (token.symbol === "USDC")
     return { minimumFractionDigits: 2, maximumFractionDigits: 2 } as const;
   if (token.symbol === "ETH")
     return { minimumFractionDigits: 0, maximumFractionDigits: 4 } as const;
   return { minimumFractionDigits: 0, maximumFractionDigits: 2 } as const;
+}
+
+export async function getTokenAddress(
+  client: PublicClient,
+  chainId: JBChainId,
+  projectId: number,
+  version: JBVersion,
+) {
+  const jbTokens = getContract({
+    address: getJBContractAddress(JBCoreContracts.JBTokens, version, chainId),
+    abi: jbTokensAbi,
+    client,
+  });
+
+  return await jbTokens.read.tokenOf([BigInt(projectId)]);
 }

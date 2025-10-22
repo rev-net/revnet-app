@@ -16,7 +16,7 @@ const ButtonWithWallet = React.forwardRef<
   const jbChainId = useJBChainId();
   const userChainId = useChainId();
   const { isConnected } = useAccount();
-  const { switchChain, isPending } = useSwitchChain();
+  const { switchChainAsync, isPending } = useSwitchChain();
 
   const _targetChainId = targetChainId || jbChainId;
 
@@ -24,7 +24,11 @@ const ButtonWithWallet = React.forwardRef<
     return (
       <Button
         {...props}
-        onClick={() => switchChain({ chainId: _targetChainId })}
+        onClick={async (e) => {
+          e.preventDefault();
+          await switchChainAsync({ chainId: _targetChainId });
+          props.onClick?.(e);
+        }}
         loading={isPending}
       >
         {`Switch to ${JB_CHAINS[_targetChainId].name}`}

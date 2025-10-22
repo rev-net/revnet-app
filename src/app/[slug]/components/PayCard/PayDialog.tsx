@@ -21,20 +21,14 @@ import {
 } from "@/components/ui/select";
 import { Stat } from "@/components/ui/stat";
 import { useToast } from "@/components/ui/use-toast";
+import { useAllowance } from "@/hooks/useAllowance";
 import { getPaymentTerminal } from "@/lib/paymentTerminal";
 import { Token } from "@/lib/token";
 import { formatWalletError } from "@/lib/utils";
 import { JB_CHAINS, TokenAmountType } from "juice-sdk-core";
 import { useJBContractContext, useSuckers } from "juice-sdk-react";
-import { useEffect, useState } from "react";
-import { erc20Abi } from "viem";
-import {
-  useAccount,
-  usePublicClient,
-  useWaitForTransactionReceipt,
-  useWalletClient,
-  useWriteContract,
-} from "wagmi";
+import { useEffect } from "react";
+import { useAccount, usePublicClient, useWaitForTransactionReceipt, useWriteContract } from "wagmi";
 import { useSelectedSucker } from "./SelectedSuckerContext";
 
 interface Props {
@@ -58,8 +52,7 @@ export function PayDialog(props: Props) {
   const { toast } = useToast();
 
   const publicClient = usePublicClient({ chainId });
-  const { data: walletClient } = useWalletClient();
-  const [isApproving, setIsApproving] = useState(false);
+  const { ensureAllowance, isApproving } = useAllowance(chainId);
 
   const value = amountA.amount.value;
 
@@ -79,7 +72,7 @@ export function PayDialog(props: Props) {
   const loading = isPending || isTxLoading || isApproving;
 
   const handlePay = async () => {
-    if (!address || !selectedSucker || !walletClient || !publicClient) return;
+    if (!address || !selectedSucker || !publicClient) return;
 
     try {
       const terminal = await getPaymentTerminal({
@@ -91,24 +84,7 @@ export function PayDialog(props: Props) {
       });
 
       if (!token.isNative) {
-        const allowance = await publicClient.readContract({
-          address: token.address,
-          abi: erc20Abi,
-          functionName: "allowance",
-          args: [address, terminal.address],
-        });
-
-        if (BigInt(allowance) < BigInt(value)) {
-          setIsApproving(true);
-          const hash = await walletClient.writeContract({
-            address: token.address,
-            abi: erc20Abi,
-            functionName: "approve",
-            args: [terminal.address, value],
-          });
-          await publicClient.waitForTransactionReceipt({ hash });
-          setIsApproving(false);
-        }
+        await ensureAllowance(token.address, terminal.address, value);
       }
 
       const minTokens = token.isNative ? 0n : (amountB.amount.value * 95n) / 100n;
@@ -122,7 +98,6 @@ export function PayDialog(props: Props) {
         value: token.isNative ? value : 0n,
       });
     } catch (err) {
-      setIsApproving(false);
       console.error("Payment failed:", err);
       toast({
         variant: "destructive",
