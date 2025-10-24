@@ -10,6 +10,7 @@ import { PayCard } from "./components/PayCard/PayCard";
 import { ProjectMenu } from "./components/ProjectMenu";
 import { getProject } from "./getProject";
 import { getProjectOperator } from "./getProjectOperator";
+import { getSuckerGroup } from "./getSuckerGroup";
 import { ProjectProviders } from "./ProjectProviders";
 
 export const revalidate = 300;
@@ -88,6 +89,11 @@ export default async function SlugLayout({ children, params }: PropsWithChildren
   const project = await getProject(projectId, chainId, version);
   if (!project) notFound();
 
+  const suckerGroup = await getSuckerGroup(project.suckerGroupId, chainId);
+  if (!suckerGroup) notFound();
+
+  const projects = suckerGroup.projects?.items ?? [];
+
   const operatorPromise = getProjectOperator(Number(projectId), chainId, version);
 
   return (
@@ -95,7 +101,7 @@ export default async function SlugLayout({ children, params }: PropsWithChildren
       <Nav />
 
       <div className="w-full px-4 sm:container pt-6">
-        <Header operatorPromise={operatorPromise} />
+        <Header operatorPromise={operatorPromise} projects={projects} />
       </div>
       <div className="flex gap-10 w-full px-4 sm:container pb-5 md:flex-nowrap flex-wrap mb-10">
         {/* Column 2, hide on mobile */}
