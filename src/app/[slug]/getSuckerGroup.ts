@@ -21,7 +21,5 @@ export const getSuckerGroup = unstable_cache(
     }
   },
   ["getSuckerGroup"],
-  {
-    revalidate: 300, // 5 minutes in seconds
-  },
+  { revalidate: 15 },
 );

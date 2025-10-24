@@ -6,6 +6,7 @@ import {
   USDC_ADDRESSES,
 } from "juice-sdk-core";
 import { formatUnits } from "viem";
+import { isUsd } from "./currency";
 
 export interface Token {
   symbol: string;
@@ -39,19 +40,21 @@ export function getTokensForChain(chainId: JBChainId | undefined): Token[] {
   return tokens;
 }
 
-export function formatTokenAmount(amount: bigint, token: Token) {
+export function formatTokenAmount(amount: bigint, token: Pick<Token, "symbol" | "decimals">) {
   const formatted = formatUnits(amount, token.decimals);
-  const { minimumFractionDigits, maximumFractionDigits } = getTokenFractionDigits(token);
-  return Number(formatted).toLocaleString("en-US", {
-    minimumFractionDigits,
-    maximumFractionDigits,
-  });
+  return Number(formatted).toLocaleString("en-US", getTokenFractionDigits(token.symbol));
 }
 
-function getTokenFractionDigits(token: Token) {
-  if (token.symbol === "USDC")
+export function getTokenFractionDigits(symbol: string) {
+  if (isUsd(symbol)) {
     return { minimumFractionDigits: 2, maximumFractionDigits: 2 } as const;
-  if (token.symbol === "ETH")
+  }
+  if (symbol === "ETH") {
     return { minimumFractionDigits: 0, maximumFractionDigits: 4 } as const;
+  }
   return { minimumFractionDigits: 0, maximumFractionDigits: 2 } as const;
+}
+
+export function isNativeToken(address: string | null) {
+  return address?.toLowerCase() === NATIVE_TOKEN.toLowerCase();
 }
