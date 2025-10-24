@@ -11,7 +11,9 @@ query SuckerGroup($id: String!) {
         projectId
         token
         tokenSupply
+        tokenSymbol
         version
+        suckerGroupId
       }
     }
   }
