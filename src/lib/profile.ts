@@ -1,8 +1,5 @@
 "use server";
 
-import { formatEthAddress } from "juice-sdk-core";
-import { isAddress } from "viem";
-
 export type Profile = {
   identity?: string;
   displayName?: string;
@@ -91,14 +88,7 @@ function selectPreferredProfile(
   if (!candidate) return current ?? null;
   const currentPriority = getPlatformPriority(current.platform);
   const candidatePriority = getPlatformPriority(candidate.platform);
-  const profile = candidatePriority > currentPriority ? candidate : current;
-
-  const identity = profile?.identity || profile.address || candidate.address || "";
-
-  return {
-    ...profile,
-    identity: isAddress(identity) ? formatEthAddress(identity) : identity,
-  };
+  return candidatePriority > currentPriority ? candidate : current;
 }
 
 function getPlatformPriority(platform?: string): number {

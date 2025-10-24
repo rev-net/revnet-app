@@ -2,12 +2,14 @@ import { Nav } from "@/components/layout/Nav";
 import { parseSlug } from "@/lib/slug";
 import type { Metadata } from "next";
 import { headers } from "next/headers";
+import { notFound } from "next/navigation";
 import { PropsWithChildren } from "react";
 import { Header } from "./components/Header/Header";
 import { PayCard } from "./components/PayCard/PayCard";
 import { ProjectMenu } from "./components/ProjectMenu";
 import { getProject } from "./getProject";
 import { getProjectOperator } from "./getProjectOperator";
+import { getSuckerGroup } from "./getSuckerGroup";
 import { ProjectProviders } from "./ProjectProviders";
 
 export const revalidate = 300;
@@ -83,13 +85,21 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function SlugLayout({ children, params }: PropsWithChildren<Props>) {
   const { chainId, projectId, version } = parseSlug(params.slug);
 
+  const project = await getProject(projectId, chainId, version);
+  if (!project) notFound();
+
+  const suckerGroup = await getSuckerGroup(project.suckerGroupId, chainId);
+  if (!suckerGroup) notFound();
+
+  const projects = suckerGroup.projects?.items ?? [];
+
   const operatorPromise = getProjectOperator(Number(projectId), chainId, version);
 
   return (
     <ProjectProviders chainId={chainId} projectId={projectId} version={version}>
       <Nav />
       <div className="w-full px-4 sm:container pt-6">
-        <Header operatorPromise={operatorPromise} />
+        <Header operatorPromise={operatorPromise} projects={projects} />
       </div>
       <div className="flex gap-10 w-full px-4 sm:container pb-5 md:flex-nowrap flex-wrap mb-10">
         {/* Column 2, hide on mobile */}

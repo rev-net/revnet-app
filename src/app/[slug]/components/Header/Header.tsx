@@ -2,7 +2,7 @@
 
 import { ChainLogo } from "@/components/ChainLogo";
 import EtherscanLink from "@/components/EtherscanLink";
-import { ParticipantsDocument, ProjectDocument, SuckerGroupDocument } from "@/generated/graphql";
+import { ParticipantsDocument, Project } from "@/generated/graphql";
 import { ipfsUriToGatewayUrl } from "@/lib/ipfs";
 import { Profile } from "@/lib/profile";
 import { getProjectLinks } from "@/lib/projectLinks";
@@ -25,28 +25,25 @@ import { TvlDatum } from "./TvlDatum";
 
 interface Props {
   operatorPromise: Promise<Profile | null>;
+  projects: Array<
+    Pick<
+      Project,
+      "chainId" | "projectId" | "token" | "decimals" | "balance" | "suckerGroupId" | "tokenSymbol"
+    >
+  >;
 }
 
 export function Header(props: Props) {
-  const { operatorPromise } = props;
+  const { operatorPromise, projects } = props;
   const operator = use(operatorPromise);
-  const { projectId, version } = useJBContractContext();
+  const { version } = useJBContractContext();
   const chainId = useJBChainId();
   const { metadata } = useJBProjectMetadataContext();
-  const { token } = useJBTokenContext();
-
-  const project = useBendystrawQuery(ProjectDocument, {
-    chainId: Number(chainId),
-    projectId: Number(projectId),
-    version,
-  });
-  const suckerGroup = useBendystrawQuery(SuckerGroupDocument, {
-    id: project.data?.project?.suckerGroupId ?? "",
-  });
+  const { token: tokenContext } = useJBTokenContext();
 
   const { data: participants } = useBendystrawQuery(ParticipantsDocument, {
     where: {
-      suckerGroupId: suckerGroup.data?.suckerGroup?.id,
+      suckerGroupId: projects[0].suckerGroupId,
       balance_gt: 0,
     },
     limit: 1000, // TODO will break once more than 1000 participants exist
@@ -62,8 +59,7 @@ export function Header(props: Props) {
     return participantWallets?.length;
   }, [participants?.participants]);
 
-  const suckersQuery = useSuckers();
-  const suckers = suckersQuery.data;
+  const { data: suckers } = useSuckers();
   const { name: projectName, logoUri } = metadata?.data ?? {};
 
   // const totalSupply = useTotalOutstandingTokens();
@@ -84,7 +80,7 @@ export function Header(props: Props) {
               <Image
                 src={ipfsUriToGatewayUrl(logoUri)}
                 className="overflow-hidden block border border-zinc-200"
-                alt={"revnet logo"}
+                alt={`${projectName} logo`}
                 width={120}
                 height={10}
               />
@@ -93,7 +89,7 @@ export function Header(props: Props) {
               <Image
                 src={ipfsUriToGatewayUrl(logoUri)}
                 className="overflow-hidden block border border-zinc-200"
-                alt={"revnet logo"}
+                alt={`${projectName} logo`}
                 width={144}
                 height={144}
               />
@@ -108,13 +104,13 @@ export function Header(props: Props) {
         <div>
           <div className="flex flex-col items-baseline sm:flex-row sm:gap-2 mb-2">
             <span className="text-3xl font-bold">
-              {token?.data ? (
+              {tokenContext?.data ? (
                 <EtherscanLink
-                  value={token.data.address}
+                  value={tokenContext.data.address}
                   type="token"
                   chain={chainId ? JB_CHAINS[chainId].chain : undefined}
                 >
-                  {formatTokenSymbol(token)}
+                  {formatTokenSymbol(tokenContext)}
                 </EtherscanLink>
               ) : null}
             </span>
@@ -125,7 +121,7 @@ export function Header(props: Props) {
               {suckers?.map((pair) => {
                 if (!pair) return null;
 
-                const networkSlug = JB_CHAINS[pair?.peerChainId as JBChainId].slug;
+                const networkSlug = JB_CHAINS[pair?.peerChainId].slug;
                 return (
                   <Link
                     className="underline"
@@ -139,7 +135,7 @@ export function Header(props: Props) {
             </div>
           </div>
           <div className="flex sm:flex-row flex-col sm:items-center items-leading sm:gap-4 items-start">
-            <TvlDatum />
+            <TvlDatum projects={projects} />
             <div className="sm:text-xl text-lg">
               <span className="font-medium text-black-500">{contributorsCount ?? 0}</span>{" "}
               <span className="text-zinc-500">{contributorsCount === 1 ? "owner" : "owners"}</span>
@@ -165,7 +161,7 @@ export function Header(props: Props) {
                 {operator && (
                   <span>
                     Operator:{" "}
-                    <EtherscanLink value={operator.address}>{operator.identity}</EtherscanLink>
+                    <EtherscanLink value={operator.address}>{operator.displayName}</EtherscanLink>
                   </span>
                 )}
                 {operator && website && <span className="text-sm opacity-50"> | </span>}
