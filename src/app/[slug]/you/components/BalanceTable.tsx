@@ -136,7 +136,7 @@ export function BalanceTable(props: Props) {
                 </TableCell>
 
                 <TableCell className="whitespace-nowrap text-right tabular-nums">
-                  {userBalance?.format(2)} {tokenSymbol}
+                  {userBalance?.format(2) || 0} {tokenSymbol}
                 </TableCell>
 
                 <TableCell className="whitespace-nowrap text-right tabular-nums">

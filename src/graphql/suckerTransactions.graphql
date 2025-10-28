@@ -1,0 +1,20 @@
+query SuckerTransactions($suckerGroupId: String, $version: Int) {
+  suckerTransactions(where: { suckerGroupId: $suckerGroupId, version: $version }) {
+    items {
+      chainId
+      index
+      peer
+      peerChainId
+      version
+      token
+      status
+      beneficiary
+      projectId
+      projectTokenCount
+      root
+      sucker
+      suckerGroupId
+      terminalTokenAmount
+    }
+  }
+}

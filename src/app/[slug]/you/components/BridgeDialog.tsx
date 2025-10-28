@@ -33,6 +33,7 @@ import {
   useJBTokenContext,
   useSuckersUserTokenBalance,
 } from "juice-sdk-react";
+import { useRouter } from "next/navigation";
 import { PropsWithChildren, useCallback, useMemo, useState } from "react";
 import { formatUnits, getAddress, parseUnits } from "viem";
 import { useAccount, usePublicClient, useWaitForTransactionReceipt, useWriteContract } from "wagmi";
@@ -53,6 +54,7 @@ export function BridgeDialog(props: PropsWithChildren<Props>) {
   const { ensureAllowance, isApproving } = useAllowance(sourceChainId);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { address } = useAccount();
+  const router = useRouter();
   const publicClient = usePublicClient({ chainId: sourceChainId });
   const { writeContractAsync, data: hash, reset } = useWriteContract();
   const { isSuccess, isLoading } = useWaitForTransactionReceipt({
@@ -158,6 +160,7 @@ export function BridgeDialog(props: PropsWithChildren<Props>) {
           setAmount(undefined);
           setSourceChainId(sourceChains[0]);
           setTargetChainId(undefined);
+          router.refresh();
         }
       }}
     >

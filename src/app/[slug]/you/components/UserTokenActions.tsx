@@ -75,7 +75,9 @@ export function UserTokenActions(props: Props) {
 
         {projects.length > 1 && (
           <BridgeDialog projects={projects}>
-            <Button variant="outline">Move between chains</Button>
+            <Button variant="outline" disabled={creditBalance.value === 0n}>
+              Move between chains
+            </Button>
           </BridgeDialog>
         )}
 
