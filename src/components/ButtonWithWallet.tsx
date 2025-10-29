@@ -11,7 +11,7 @@ const ButtonWithWallet = React.forwardRef<
     connectWalletText?: string;
     targetChainId?: JBChainId;
     children: React.ReactNode;
-    forceChildren: boolean;
+    forceChildren?: boolean;
   } & ButtonProps
 >(({ children, connectWalletText, targetChainId, forceChildren, ...props }, ref) => {
   const jbChainId = useJBChainId();
