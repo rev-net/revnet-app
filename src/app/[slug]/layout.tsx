@@ -2,10 +2,12 @@ import { Nav } from "@/components/layout/Nav";
 import { parseSlug } from "@/lib/slug";
 import type { Metadata } from "next";
 import { headers } from "next/headers";
+import { notFound } from "next/navigation";
 import { PropsWithChildren } from "react";
 import { Header } from "./components/Header/Header";
 import { PayCard } from "./components/PayCard/PayCard";
 import { ProjectMenu } from "./components/ProjectMenu";
+import { NewProjectNotice } from "./components/RecentlyLaunchedProject";
 import { getProject } from "./getProject";
 import { getProjectOperator } from "./getProjectOperator";
 import { ProjectProviders } from "./ProjectProviders";
@@ -83,11 +85,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function SlugLayout({ children, params }: PropsWithChildren<Props>) {
   const { chainId, projectId, version } = parseSlug(params.slug);
 
+  const project = await getProject(projectId, chainId, version);
+  if (!project) notFound();
+
   const operatorPromise = getProjectOperator(Number(projectId), chainId, version);
 
   return (
     <ProjectProviders chainId={chainId} projectId={projectId} version={version}>
       <Nav />
+      <NewProjectNotice createdAt={project.createdAt} />
       <div className="w-full px-4 sm:container pt-6">
         <Header operatorPromise={operatorPromise} />
       </div>

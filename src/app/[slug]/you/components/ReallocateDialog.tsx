@@ -35,7 +35,6 @@ export function ReallocateDialog({
 }) {
   const reallocateDialog = useBorrowDialog({
     projectId,
-    tokenSymbol,
     selectedLoan,
     defaultTab: "borrow",
   });

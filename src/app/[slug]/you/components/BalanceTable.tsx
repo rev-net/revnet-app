@@ -50,7 +50,7 @@ export function BalanceTable(props: Props) {
     [ethPrice, baseToken],
   );
 
-  const totalBalance = projects.reduce((acc, project) => acc + BigInt(project.balance), 0n);
+  const totalBalance = projects.reduce((acc, project) => acc + BigInt(project.balance || 0), 0n);
   const totalSurplus = surpluses.reduce((acc, surplus) => acc + BigInt(surplus.value), 0n);
   const avgUnitValue = getUnitValue(
     { value: totalSurplus.toString(), decimals: baseToken.decimals || 18 },

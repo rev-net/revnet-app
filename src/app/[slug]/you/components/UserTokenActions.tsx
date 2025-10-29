@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Project } from "@/generated/graphql";
 import { formatTokenSymbol } from "@/lib/utils";
-import { JBChainId, JBProjectToken, NATIVE_TOKEN } from "juice-sdk-core";
+import { JBChainId, JBProjectToken } from "juice-sdk-core";
 import {
   useJBChainId,
   useJBContractContext,
@@ -41,10 +41,6 @@ export function UserTokenActions(props: Props) {
     balances?.reduce((acc, { balance }) => acc + balance.value, 0n) ?? 0n,
   );
 
-  const isEthBasedProject = projects.every(
-    (project) => project.token?.toLowerCase() === NATIVE_TOKEN.toLowerCase(),
-  );
-
   const [selectedLoanId, setSelectedLoanId] = useState<string | null>(null);
   const [selectedChainId, setSelectedChainId] = useState<JBChainId | null>(null);
   const [showRepayDialog, setShowRepayDialog] = useState(false);
@@ -64,7 +60,7 @@ export function UserTokenActions(props: Props) {
           </RedeemDialog>
         ) : null}
 
-        {token?.data?.symbol && creditBalance && primaryNativeTerminal.data && isEthBasedProject ? (
+        {token?.data?.symbol && creditBalance && primaryNativeTerminal.data ? (
           <BorrowDialog projectId={projectId} tokenSymbol={tokenSymbol}>
             <Button
               ref={borrowDialogTriggerRef}
