@@ -12,13 +12,16 @@ import {
 } from "@/components/ui/table";
 import { SuckerTransaction } from "@/generated/graphql";
 import { cn, etherscanLink } from "@/lib/utils";
-import { formatUnits, JB_CHAINS, JBChainId } from "juice-sdk-core";
+import { formatDistanceToNow } from "date-fns";
+import { formatUnits, JB_CHAINS, JB_TOKEN_DECIMALS, JBChainId } from "juice-sdk-core";
 import { ClaimButton } from "./ClaimButton";
 import { ToRemoteButton } from "./ToRemoteButton";
+import { TransactionsFilter } from "./TransactionsFilter";
 
 interface Props {
   transactions: Pick<
     SuckerTransaction,
+    | "createdAt"
     | "chainId"
     | "peerChainId"
     | "status"
@@ -36,16 +39,20 @@ interface Props {
 
 export async function SuckerTransactionsTable(props: Props) {
   const { transactions, tokenDecimals, tokenSymbol } = props;
-  if (!transactions || transactions.length === 0) return null;
+
+  const hasTransactions = transactions.length > 0;
 
   return (
     <div>
-      <h2 className="text-lg font-medium">Bridge Transactions</h2>
-      <Table className="bg-zinc-50 border-zinc-200 border mt-2.5">
+      <div className="flex items-center justify-between mb-2.5">
+        <h2 className="text-lg font-medium">Bridge Transactions</h2>
+        <TransactionsFilter />
+      </div>
+      <Table className="bg-zinc-50 border-zinc-200 border">
         <TableHeader>
           <TableRow>
-            <TableHead>From</TableHead>
-            <TableHead>To</TableHead>
+            <TableHead>Initiated</TableHead>
+            <TableHead>Chains</TableHead>
             <TableHead>Beneficiary</TableHead>
             <TableHead className="text-right">Tokens</TableHead>
             <TableHead className="text-right">Value</TableHead>
@@ -53,73 +60,81 @@ export async function SuckerTransactionsTable(props: Props) {
             <TableHead>Action</TableHead>
           </TableRow>
         </TableHeader>
+
         <TableBody>
-          {transactions.map((tx, idx) => (
-            <TableRow key={idx}>
-              <TableCell>
-                <div className="flex items-center gap-2 shrink-0">
-                  <ChainLogo chainId={tx.chainId as JBChainId} width={15} height={15} />
-                  <span>{JB_CHAINS[tx.chainId as JBChainId]?.name ?? tx.chainId}</span>
-                </div>
-              </TableCell>
-
-              <TableCell>
-                <div className="flex items-center gap-2 shrink-0">
-                  <ChainLogo chainId={tx.peerChainId as JBChainId} width={15} height={15} />
-                  <span>{JB_CHAINS[tx.peerChainId as JBChainId]?.name ?? tx.peerChainId}</span>
-                </div>
-              </TableCell>
-
-              <TableCell>
-                <Profile address={tx.beneficiary}>
-                  {({ identity, avatar }) => (
-                    <a
-                      href={etherscanLink(tx.beneficiary, {
-                        type: "address",
-                        chain: JB_CHAINS[tx.peerChainId as JBChainId].chain,
-                      })}
-                      className="flex items-center gap-2 hover:underline"
-                    >
-                      {avatar && (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
-                          src={avatar}
-                          alt={identity ?? ""}
-                          width={32}
-                          height={32}
-                          className="rounded-full size-5"
-                        />
-                      )}
-                      <span className="text-sm">{identity}</span>
-                    </a>
-                  )}
-                </Profile>
-              </TableCell>
-
-              <TableCell className="text-right tabular-nums">
-                {formatUnits(tx.projectTokenCount, tokenDecimals, { fractionDigits: 2 })}{" "}
-              </TableCell>
-
-              <TableCell className="text-right tabular-nums">
-                {formatUnits(tx.terminalTokenAmount, 18, { fractionDigits: 4 })}{" "}
-                {tokenSymbol || "ETH"}
-              </TableCell>
-
-              <TableCell>
-                <StatusBadge status={tx.status} />
-              </TableCell>
-              <TableCell>
-                {tx.status === "pending" && (
-                  <ToRemoteButton
-                    chainId={tx.chainId as JBChainId}
-                    sucker={tx.sucker as `0x${string}`}
-                    token={tx.token as `0x${string}`}
-                  />
-                )}
-                {tx.status === "claimable" && <ClaimButton transaction={tx} />}
+          {!hasTransactions && (
+            <TableRow>
+              <TableCell colSpan={7} className="text-center text-zinc-500">
+                No transactions found
               </TableCell>
             </TableRow>
-          ))}
+          )}
+          {hasTransactions &&
+            transactions.map((tx, idx) => (
+              <TableRow key={idx}>
+                <TableCell>
+                  {formatDistanceToNow(tx.createdAt * 1000, { addSuffix: true })}
+                </TableCell>
+
+                <TableCell>
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    <ChainLogo chainId={tx.chainId as JBChainId} width={20} height={20} />
+                    <span className="text-zinc-500">→</span>
+                    <ChainLogo chainId={tx.peerChainId as JBChainId} width={20} height={20} />
+                  </div>
+                </TableCell>
+
+                <TableCell>
+                  <Profile address={tx.beneficiary}>
+                    {({ identity, avatar }) => (
+                      <a
+                        href={etherscanLink(tx.beneficiary, {
+                          type: "address",
+                          chain: JB_CHAINS[tx.peerChainId as JBChainId].chain,
+                        })}
+                        className="flex items-center gap-2 hover:underline"
+                      >
+                        {avatar && (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            src={avatar}
+                            alt={identity ?? ""}
+                            width={32}
+                            height={32}
+                            className="rounded-full size-5"
+                          />
+                        )}
+                        <span className="text-sm">{identity}</span>
+                      </a>
+                    )}
+                  </Profile>
+                </TableCell>
+
+                <TableCell className="text-right tabular-nums">
+                  {formatUnits(tx.projectTokenCount, JB_TOKEN_DECIMALS, { fractionDigits: 2 })}{" "}
+                </TableCell>
+
+                <TableCell className="text-right tabular-nums">
+                  {formatUnits(tx.terminalTokenAmount, tokenDecimals, { fractionDigits: 4 })}{" "}
+                  {tokenSymbol || "ETH"}
+                </TableCell>
+
+                <TableCell>
+                  <StatusBadge status={tx.status} />
+                </TableCell>
+                <TableCell>
+                  {tx.status === "pending" && (
+                    <ToRemoteButton
+                      chainId={tx.chainId as JBChainId}
+                      sucker={tx.sucker as `0x${string}`}
+                      token={tx.token as `0x${string}`}
+                    />
+                  )}
+                  {tx.status === "claimable" && <ClaimButton transaction={tx} />}
+                  {tx.status === "claimed" && "-"}
+                </TableCell>
+              </TableRow>
+            ))}
         </TableBody>
       </Table>
     </div>

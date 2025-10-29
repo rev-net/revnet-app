@@ -24,6 +24,7 @@ import { Project } from "@/generated/graphql";
 import { jbSuckerAbi } from "@/generated/jbSuckerAbi";
 import { useAllowance } from "@/hooks/useAllowance";
 import { useSuckerPairs } from "@/hooks/useSuckerPairs";
+import { revalidateCacheTag } from "@/lib/cache";
 import { getTokenAddress } from "@/lib/token";
 import { cn, formatTokenSymbol, formatWalletError } from "@/lib/utils";
 import { FixedInt } from "fpnum";
@@ -160,7 +161,7 @@ export function BridgeDialog(props: PropsWithChildren<Props>) {
           setAmount(undefined);
           setSourceChainId(sourceChains[0]);
           setTargetChainId(undefined);
-          router.refresh();
+          revalidateCacheTag("suckerTransactions").then(router.refresh);
         }
       }}
     >

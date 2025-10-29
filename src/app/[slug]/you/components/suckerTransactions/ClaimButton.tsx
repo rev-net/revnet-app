@@ -4,6 +4,7 @@ import { ButtonWithWallet } from "@/components/ButtonWithWallet";
 import { toast } from "@/components/ui/use-toast";
 import { SuckerTransaction } from "@/generated/graphql";
 import { jbSuckerAbi } from "@/generated/jbSuckerAbi";
+import { revalidateCacheTag } from "@/lib/cache";
 import { formatClaimForContract, getClaimProofs } from "@/lib/juicerkle";
 import { formatWalletError } from "@/lib/utils";
 import { JBChainId } from "juice-sdk-core";
@@ -18,7 +19,8 @@ interface Props {
   >;
 }
 
-export function ClaimButton({ transaction }: Props) {
+export function ClaimButton(props: Props) {
+  const { transaction } = props;
   const { writeContractAsync, isPending, data: hash, reset } = useWriteContract();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { isLoading, isSuccess } = useWaitForTransactionReceipt({ hash });
@@ -29,7 +31,7 @@ export function ClaimButton({ transaction }: Props) {
     if (!isSuccess || callbackCalled) return;
     toast({ title: "Success! Tokens claimed." });
     setCallbackCalled(true);
-    setTimeout(router.refresh, 5000);
+    revalidateCacheTag("suckerTransactions", 5000).then(router.refresh);
   }, [isSuccess, callbackCalled, router]);
 
   return (
@@ -66,6 +68,7 @@ export function ClaimButton({ transaction }: Props) {
       size="sm"
       loading={isSubmitting || isPending || isLoading}
       variant="outline"
+      forceChildren
     >
       Claim
     </ButtonWithWallet>

@@ -3,6 +3,7 @@
 import { ButtonWithWallet } from "@/components/ButtonWithWallet";
 import { toast } from "@/components/ui/use-toast";
 import { jbSuckerAbi } from "@/generated/jbSuckerAbi";
+import { revalidateCacheTag } from "@/lib/cache";
 import { formatWalletError } from "@/lib/utils";
 import { JBChainId } from "juice-sdk-core";
 import { useRouter } from "next/navigation";
@@ -16,7 +17,7 @@ interface Props {
   token: `0x${string}`;
 }
 
-const payableAmount = parseEther("0.01");
+const payableAmount = parseEther("0.005"); // Fee for the bridge
 
 export function ToRemoteButton(props: Props) {
   const { chainId, sucker, token } = props;
@@ -32,7 +33,7 @@ export function ToRemoteButton(props: Props) {
     if (!isSuccess || callbackCalled) return;
     toast({ title: "Success! Bridge transaction executed." });
     setCallbackCalled(true);
-    setTimeout(router.refresh, 5000);
+    revalidateCacheTag("suckerTransactions", 5000).then(router.refresh);
   }, [isSuccess, callbackCalled, router]);
 
   return (
@@ -66,6 +67,7 @@ export function ToRemoteButton(props: Props) {
       size="sm"
       loading={isSubmitting || isPending || isLoading}
       variant="outline"
+      forceChildren
     >
       Execute
     </ButtonWithWallet>

@@ -11,8 +11,9 @@ const ButtonWithWallet = React.forwardRef<
     connectWalletText?: string;
     targetChainId?: JBChainId;
     children: React.ReactNode;
+    forceChildren: boolean;
   } & ButtonProps
->(({ children, connectWalletText, targetChainId, ...props }, ref) => {
+>(({ children, connectWalletText, targetChainId, forceChildren, ...props }, ref) => {
   const jbChainId = useJBChainId();
   const userChainId = useChainId();
   const { isConnected } = useAccount();
@@ -31,7 +32,7 @@ const ButtonWithWallet = React.forwardRef<
         }}
         loading={isPending}
       >
-        {`Switch to ${JB_CHAINS[_targetChainId].name}`}
+        {forceChildren ? children : `Switch to ${JB_CHAINS[_targetChainId].name}`}
       </Button>
     );
   }

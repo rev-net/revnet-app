@@ -7,27 +7,37 @@ interface JBClaim {
   Leaf: {
     Index: number;
     Beneficiary: string;
-    ProjectTokenAmount: string;
+    ProjectTokenCount: string;
     TerminalTokenAmount: string;
   };
   Proof: number[][];
 }
 
 export async function getClaimProofs(
-  transaction: Pick<SuckerTransaction, "chainId" | "sucker" | "token" | "beneficiary">,
+  transaction: Pick<
+    SuckerTransaction,
+    "chainId" | "sucker" | "token" | "beneficiary" | "peerChainId"
+  >,
 ): Promise<JBClaim[]> {
-  const { chainId, sucker, token, beneficiary } = transaction;
+  const { peerChainId, sucker, token, beneficiary } = transaction;
   const response = await fetch(`${JUICERKLE_API_URL}/claims`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ chainId, sucker, token, beneficiary }),
+    body: JSON.stringify({
+      chainId: peerChainId,
+      sucker: sucker.toLowerCase(),
+      token: token.toLowerCase(),
+      beneficiary: beneficiary.toLowerCase(),
+    }),
   });
 
   if (!response.ok) {
-    throw new Error(`Failed to fetch claim proofs: ${response.status} ${response.statusText}`);
+    throw new Error(await response.text());
   }
 
-  return (await response.json()) as JBClaim[];
+  const proofs = (await response.json()) as JBClaim[];
+
+  return proofs;
 }
 
 export function formatClaimForContract(claim: JBClaim) {
@@ -45,7 +55,7 @@ export function formatClaimForContract(claim: JBClaim) {
     leaf: {
       index: BigInt(claim.Leaf.Index),
       beneficiary: claim.Leaf.Beneficiary as `0x${string}`,
-      projectTokenCount: BigInt(claim.Leaf.ProjectTokenAmount),
+      projectTokenCount: BigInt(claim.Leaf.ProjectTokenCount),
       terminalTokenAmount: BigInt(claim.Leaf.TerminalTokenAmount),
     },
     proof: proof as unknown as readonly [
