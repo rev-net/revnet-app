@@ -161,7 +161,7 @@ export function BridgeDialog(props: PropsWithChildren<Props>) {
           setAmount(undefined);
           setSourceChainId(sourceChains[0]);
           setTargetChainId(undefined);
-          revalidateCacheTag("suckerTransactions").then(router.refresh);
+          revalidateCacheTag("suckerTransactions", 8000).then(router.refresh);
         }
       }}
     >
@@ -311,8 +311,8 @@ export function BridgeDialog(props: PropsWithChildren<Props>) {
                 "animate-pulse": isApproving || isLoading,
               })}
             >
-              {isApproving && "Please wait for approval confirmation..."}
-              {isLoading && "Please wait for transaction confirmation..."}
+              {isApproving && "Waiting for confirmation..."}
+              {isLoading && "Waiting for confirmation..."}
               {isSuccess &&
                 "Success! Close the dialog and check transactions in the table to complete."}
             </div>

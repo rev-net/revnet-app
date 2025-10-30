@@ -31,7 +31,7 @@ export function ClaimButton(props: Props) {
     if (!isSuccess || callbackCalled) return;
     toast({ title: "Success! Tokens claimed." });
     setCallbackCalled(true);
-    revalidateCacheTag("suckerTransactions", 5000).then(router.refresh);
+    revalidateCacheTag("suckerTransactions", 8000).then(router.refresh);
   }, [isSuccess, callbackCalled, router]);
 
   return (
