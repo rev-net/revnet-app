@@ -8,16 +8,15 @@ import { formatWalletError } from "@/lib/utils";
 import { JBChainId } from "juice-sdk-core";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { formatUnits, parseEther } from "viem";
+import { formatUnits } from "viem";
 import { useAccount, useBalance, useWaitForTransactionReceipt, useWriteContract } from "wagmi";
+import { getPayableAmount } from "../../getPayableAmount";
 
 interface Props {
   chainId: JBChainId;
   sucker: `0x${string}`;
   token: `0x${string}`;
 }
-
-const payableAmount = parseEther("0.005"); // Fee for the bridge
 
 export function ToRemoteButton(props: Props) {
   const { chainId, sucker, token } = props;
@@ -33,7 +32,7 @@ export function ToRemoteButton(props: Props) {
     if (!isSuccess || callbackCalled) return;
     toast({ title: "Success! Bridge transaction executed." });
     setCallbackCalled(true);
-    revalidateCacheTag("suckerTransactions", 5000).then(router.refresh);
+    revalidateCacheTag("suckerTransactions", 8000).then(router.refresh);
   }, [isSuccess, callbackCalled, router]);
 
   return (
@@ -43,9 +42,15 @@ export function ToRemoteButton(props: Props) {
         try {
           reset();
           setIsSubmitting(true);
-          if (!balance || balance.value < payableAmount) {
+
+          const payableAmount = await getPayableAmount(chainId, sucker, token);
+          if (!payableAmount) {
+            throw new Error("Bridging can happen as soon as 0.01 ETH is in the queue.");
+          }
+
+          if (!balance || balance.value < BigInt(payableAmount)) {
             throw new Error(
-              `Insufficient balance. You need at least ${formatUnits(payableAmount, 18)} ETH to bridge.`,
+              `Insufficient balance. You need at least ${formatUnits(BigInt(payableAmount), 18)} ETH to bridge.`,
             );
           }
           await writeContractAsync({
@@ -54,7 +59,7 @@ export function ToRemoteButton(props: Props) {
             chainId,
             address: sucker,
             args: [token],
-            value: payableAmount,
+            value: BigInt(payableAmount),
           });
         } catch (error) {
           console.error(error);
