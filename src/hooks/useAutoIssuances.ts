@@ -1,15 +1,13 @@
-import { MAX_RULESET_COUNT } from "@/app/constants";
 import {
   AutoIssueEventsDocument,
   StoreAutoIssuanceAmountEventsDocument,
 } from "@/generated/graphql";
-import { JBCoreContracts, jbRulesetsAbi } from "juice-sdk-core";
 import { useBendystrawQuery, useJBChainId, useJBContractContext } from "juice-sdk-react";
 import { useMemo } from "react";
-import { useReadContract } from "wagmi";
+import { useRulesets } from "./useRulesets";
 
 export function useAutoIssuances() {
-  const { projectId, contractAddress, version } = useJBContractContext();
+  const { projectId, version } = useJBContractContext();
 
   const chainId = useJBChainId();
 
@@ -21,13 +19,7 @@ export function useAutoIssuances() {
     where: { projectId: Number(projectId), chainId, version },
   });
 
-  const { data: rulesets } = useReadContract({
-    abi: jbRulesetsAbi,
-    functionName: "allOf",
-    address: contractAddress(JBCoreContracts.JBRulesets),
-    chainId,
-    args: [projectId, 0n, BigInt(MAX_RULESET_COUNT)],
-  });
+  const { rulesets } = useRulesets();
 
   const autoIssuances = useMemo(() => {
     return autoIssuancesData?.storeAutoIssuanceAmountEvents.items.map((autoIssuance) => {

@@ -31,7 +31,7 @@ export function RelayrPaymentSelect(props: Props) {
           disabled={disabled}
         >
           <SelectTrigger>
-            <SelectValue />
+            <SelectValue placeholder="Select chain" />
           </SelectTrigger>
           <SelectContent>
             {payments.map((payment) => {

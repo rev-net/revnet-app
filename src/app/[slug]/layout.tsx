@@ -2,8 +2,10 @@ import { Nav } from "@/components/layout/Nav";
 import { parseSlug } from "@/lib/slug";
 import type { Metadata } from "next";
 import { headers } from "next/headers";
+import { notFound } from "next/navigation";
 import { PropsWithChildren } from "react";
 import { Header } from "./components/Header/Header";
+import { NewProjectNotice } from "./components/NewProjectNotice";
 import { PayCard } from "./components/PayCard/PayCard";
 import { ProjectMenu } from "./components/ProjectMenu";
 import { getProject } from "./getProject";
@@ -83,17 +85,22 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function SlugLayout({ children, params }: PropsWithChildren<Props>) {
   const { chainId, projectId, version } = parseSlug(params.slug);
 
+  const project = await getProject(projectId, chainId, version);
+  if (!project) notFound();
+
   const operatorPromise = getProjectOperator(Number(projectId), chainId, version);
 
   return (
     <ProjectProviders chainId={chainId} projectId={projectId} version={version}>
       <Nav />
+
       <div className="w-full px-4 sm:container pt-6">
         <Header operatorPromise={operatorPromise} />
       </div>
       <div className="flex gap-10 w-full px-4 sm:container pb-5 md:flex-nowrap flex-wrap mb-10">
         {/* Column 2, hide on mobile */}
         <aside className="hidden md:w-[300px] md:block shrink-0">
+          <NewProjectNotice />
           <div className="mt-1 mb-4">
             <PayCard />
           </div>
@@ -102,6 +109,7 @@ export default async function SlugLayout({ children, params }: PropsWithChildren
         <div className="flex-1">
           {/* Render Pay and activity after header on mobile */}
           <div className="sm:hidden">
+            <NewProjectNotice />
             <div className="mt-1 mb-4">
               <PayCard />
             </div>

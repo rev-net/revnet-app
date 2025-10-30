@@ -1,6 +1,6 @@
 import { USDC_ADDRESSES } from "@/app/constants";
 import { ProjectDocument, SuckerGroupDocument } from "@/generated/graphql";
-import { JBChainId, NATIVE_TOKEN_DECIMALS } from "juice-sdk-core";
+import { ETH_CURRENCY_ID, JBChainId, NATIVE_TOKEN_DECIMALS, USD_CURRENCY_ID } from "juice-sdk-core";
 import { useBendystrawQuery, useJBChainId, useJBContractContext } from "juice-sdk-react";
 
 export type BaseTokenInfo = {
@@ -18,30 +18,18 @@ export function useProjectBaseToken(): BaseTokenInfo {
   const chainId = useJBChainId();
 
   // Get the suckerGroupId from the current project
-  const { data: projectData, isLoading: projectLoading } = useBendystrawQuery(
+  const { data: projectData } = useBendystrawQuery(
     ProjectDocument,
-    {
-      chainId: Number(chainId),
-      projectId: Number(projectId),
-      version,
-    },
-    {
-      enabled: !!chainId && !!projectId,
-      pollInterval: 10000,
-    },
+    { chainId: Number(chainId), projectId: Number(projectId), version },
+    { enabled: !!chainId && !!projectId, pollInterval: 30000 },
   );
   const suckerGroupId = projectData?.project?.suckerGroupId;
 
   // Get all projects in the sucker group with their token data
-  const { data: suckerGroupData, isLoading: suckerGroupLoading } = useBendystrawQuery(
+  const { data: suckerGroupData } = useBendystrawQuery(
     SuckerGroupDocument,
-    {
-      id: suckerGroupId ?? "",
-    },
-    {
-      enabled: !!suckerGroupId,
-      pollInterval: 10000,
-    },
+    { id: suckerGroupId ?? "" },
+    { enabled: !!suckerGroupId, pollInterval: 30000 },
   );
 
   // Transform into the format expected by useSuckersTokenSurplus
@@ -92,21 +80,21 @@ export function useProjectBaseToken(): BaseTokenInfo {
     tokenType = "USDC";
     symbol = "USD";
     decimals = 6;
-    currency = 3; // USD currency ID
+    currency = USD_CURRENCY_ID(version);
     isNative = false;
     targetCurrency = "usd";
   } else if (isAllEth) {
     tokenType = "ETH";
     symbol = "ETH";
     decimals = NATIVE_TOKEN_DECIMALS;
-    currency = 1; // ETH currency ID
+    currency = ETH_CURRENCY_ID;
     isNative = true;
     targetCurrency = "eth";
   } else {
     tokenType = "MIXED";
     symbol = "ETH"; // Default to ETH instead of TOKEN
     decimals = NATIVE_TOKEN_DECIMALS;
-    currency = 1; // Default to ETH
+    currency = ETH_CURRENCY_ID;
     isNative = false;
     targetCurrency = "eth";
   }

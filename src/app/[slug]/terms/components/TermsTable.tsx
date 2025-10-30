@@ -1,10 +1,11 @@
 "use client";
 
-import { MAX_RULESET_COUNT, RESERVED_TOKEN_SPLIT_GROUP_ID } from "@/app/constants";
+import { RESERVED_TOKEN_SPLIT_GROUP_ID } from "@/app/constants";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useAutoIssuances } from "@/hooks/useAutoIssuances";
 import { useFormattedTokenIssuance } from "@/hooks/useFormattedTokenIssuance";
+import { useRulesets } from "@/hooks/useRulesets";
 import { useTokenA } from "@/hooks/useTokenA";
 import { commaNumber } from "@/lib/number";
 import { formatTokenSymbol, rulesetStartDate } from "@/lib/utils";
@@ -13,11 +14,8 @@ import {
   CashOutTaxRate,
   jbControllerAbi,
   JBCoreContracts,
-  jbRulesetsAbi,
   jbSplitsAbi,
   ReservedPercent,
-  RulesetWeight,
-  WeightCutPercent,
 } from "juice-sdk-core";
 import { useJBChainId, useJBContractContext, useJBTokenContext } from "juice-sdk-react";
 import { useState } from "react";
@@ -39,27 +37,7 @@ export function TermsTable() {
   const { token } = useJBTokenContext();
   const tokenA = useTokenA();
 
-  // TODO(perf) duplicate call, move to a new context
-  const { data: rulesets } = useReadContract({
-    abi: jbRulesetsAbi,
-    functionName: "allOf",
-    address: contractAddress(JBCoreContracts.JBRulesets),
-    chainId,
-    args: [projectId, 0n, BigInt(MAX_RULESET_COUNT)],
-    query: {
-      select(data) {
-        return data
-          .map((ruleset) => {
-            return {
-              ...ruleset,
-              weight: new RulesetWeight(ruleset.weight),
-              weightCutPercent: new WeightCutPercent(ruleset.weightCutPercent),
-            };
-          })
-          .reverse();
-      },
-    },
-  });
+  const { rulesets } = useRulesets();
 
   const selectedStage = rulesets?.[selectedStageIdx];
 

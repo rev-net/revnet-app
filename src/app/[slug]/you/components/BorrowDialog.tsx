@@ -27,21 +27,14 @@ import { LoanFeeChart } from "./LoanFeeChart";
 import { SimulatedLoanCard } from "./SimulatedLoanCard";
 import { useBorrowDialog } from "./hooks/useBorrowDialog";
 
-export function BorrowDialog({
-  projectId,
-  tokenSymbol,
-  children,
-  selectedLoan,
-}: PropsWithChildren<{
+interface Props {
   projectId: bigint;
   tokenSymbol: string;
-  selectedLoan?: any;
-}>) {
-  const borrowDialog = useBorrowDialog({
-    projectId,
-    tokenSymbol,
-    selectedLoan,
-  });
+}
+
+export function BorrowDialog(props: PropsWithChildren<Props>) {
+  const { projectId, tokenSymbol, children } = props;
+  const borrowDialog = useBorrowDialog({ projectId });
 
   const {
     isDialogOpen,

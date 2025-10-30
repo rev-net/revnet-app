@@ -143,7 +143,7 @@ function LoanRow({
               onClick={() => onReallocateLoan(loan)}
               className="text-xs px-2 py-1"
             >
-              Reallocate
+              Refinance
             </Button>
           )}
         </div>
