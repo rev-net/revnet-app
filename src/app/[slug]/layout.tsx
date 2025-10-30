@@ -5,9 +5,9 @@ import { headers } from "next/headers";
 import { notFound } from "next/navigation";
 import { PropsWithChildren } from "react";
 import { Header } from "./components/Header/Header";
+import { NewProjectNotice } from "./components/NewProjectNotice";
 import { PayCard } from "./components/PayCard/PayCard";
 import { ProjectMenu } from "./components/ProjectMenu";
-import { NewProjectNotice } from "./components/RecentlyLaunchedProject";
 import { getProject } from "./getProject";
 import { getProjectOperator } from "./getProjectOperator";
 import { ProjectProviders } from "./ProjectProviders";
@@ -93,13 +93,14 @@ export default async function SlugLayout({ children, params }: PropsWithChildren
   return (
     <ProjectProviders chainId={chainId} projectId={projectId} version={version}>
       <Nav />
-      <NewProjectNotice createdAt={project.createdAt} />
+
       <div className="w-full px-4 sm:container pt-6">
         <Header operatorPromise={operatorPromise} />
       </div>
       <div className="flex gap-10 w-full px-4 sm:container pb-5 md:flex-nowrap flex-wrap mb-10">
         {/* Column 2, hide on mobile */}
         <aside className="hidden md:w-[300px] md:block shrink-0">
+          <NewProjectNotice />
           <div className="mt-1 mb-4">
             <PayCard />
           </div>
@@ -108,6 +109,7 @@ export default async function SlugLayout({ children, params }: PropsWithChildren
         <div className="flex-1">
           {/* Render Pay and activity after header on mobile */}
           <div className="sm:hidden">
+            <NewProjectNotice />
             <div className="mt-1 mb-4">
               <PayCard />
             </div>
