@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Project } from "@/generated/graphql";
+import { Surplus } from "@/lib/reclaimableSurplus";
 import { formatTokenSymbol } from "@/lib/utils";
 import { JBChainId, JBProjectToken } from "juice-sdk-core";
 import {
@@ -10,7 +11,7 @@ import {
   useJBTokenContext,
   useSuckersUserTokenBalance,
 } from "juice-sdk-react";
-import { useRef, useState } from "react";
+import { use, useRef, useState } from "react";
 import { useAccount } from "wagmi";
 import { BorrowDialog } from "./BorrowDialog";
 import { BridgeDialog } from "./BridgeDialog";
@@ -21,10 +22,12 @@ import { RepayDialog } from "./RepayDialog";
 
 interface Props {
   projects: Array<Pick<Project, "projectId" | "token" | "chainId">>;
+  surplusesPromise: Promise<Surplus[]>;
 }
 
 export function UserTokenActions(props: Props) {
-  const { projects } = props;
+  const { projects, surplusesPromise } = props;
+  const surpluses = use(surplusesPromise);
 
   const {
     projectId,
@@ -54,7 +57,7 @@ export function UserTokenActions(props: Props) {
       <h3 className="text-lg font-medium">Use your {tokenSymbol}</h3>
       <div className="flex gap-2 mt-2">
         {token?.data?.symbol && creditBalance && primaryNativeTerminal.data ? (
-          <RedeemDialog projectId={projectId} tokenSymbol={tokenSymbol}>
+          <RedeemDialog projectId={projectId} tokenSymbol={tokenSymbol} surpluses={surpluses}>
             <Button variant="outline" disabled={creditBalance.value === 0n}>
               Cash out
             </Button>

@@ -20,12 +20,15 @@ import {
 } from "@/components/ui/select";
 import { useToast } from "@/components/ui/use-toast";
 import { ProjectDocument, SuckerGroupDocument } from "@/generated/graphql";
+import { useProjectBaseToken } from "@/hooks/useProjectBaseToken";
+import { getUnitValue, Surplus } from "@/lib/reclaimableSurplus";
 import { getTokenConfigForChain } from "@/lib/tokenUtils";
 import { formatWalletError } from "@/lib/utils";
 import {
   DEFAULT_METADATA,
   formatUnits,
   JB_CHAINS,
+  JB_TOKEN_DECIMALS,
   jbMultiTerminalAbi,
   JBProjectToken,
   NATIVE_TOKEN,
@@ -40,7 +43,7 @@ import {
   useSuckers,
   useSuckersUserTokenBalance,
 } from "juice-sdk-react";
-import { PropsWithChildren, useState } from "react";
+import { PropsWithChildren, useMemo, useState } from "react";
 import { erc20Abi, parseUnits } from "viem";
 import {
   useAccount,
@@ -54,10 +57,11 @@ interface Props {
   projectId: bigint;
   tokenSymbol: string;
   disabled?: boolean;
+  surpluses: Surplus[];
 }
 
 export function RedeemDialog(props: PropsWithChildren<Props>) {
-  const { projectId, tokenSymbol, disabled, children } = props;
+  const { projectId, tokenSymbol, disabled, children, surpluses } = props;
   const [redeemAmount, setRedeemAmount] = useState<string>();
 
   const {
@@ -75,6 +79,7 @@ export function RedeemDialog(props: PropsWithChildren<Props>) {
   const { data: walletClient } = useWalletClient();
   const { data: suckers } = useSuckers();
   const { token } = useJBTokenContext();
+  const baseToken = useProjectBaseToken();
 
   // Get the selected sucker based on cashOutChainId
   const selectedSucker = cashOutChainId
@@ -100,7 +105,7 @@ export function RedeemDialog(props: PropsWithChildren<Props>) {
   );
 
   // Use project token decimals, not base token decimals
-  const projectTokenDecimals = token?.data?.decimals || NATIVE_TOKEN_DECIMALS;
+  const projectTokenDecimals = token?.data?.decimals || JB_TOKEN_DECIMALS;
 
   const redeemAmountBN = redeemAmount
     ? JBProjectToken.parse(redeemAmount, projectTokenDecimals).value
@@ -135,6 +140,17 @@ export function RedeemDialog(props: PropsWithChildren<Props>) {
   // For ETH projects: receive ETH (NATIVE_TOKEN)
   // For USDC projects: receive USDC (the project's base token)
   const tokenToReceive = isNative ? NATIVE_TOKEN : selectedChainToken;
+
+  const projects = suckerGroupData?.suckerGroup?.projects?.items;
+
+  const unitValue = useMemo(() => {
+    if (!cashOutChainId) return 0;
+    const surplus = surpluses.find((s) => s.chainId === Number(cashOutChainId)) || null;
+    const tokenSupply =
+      projects?.find((p) => p.chainId === Number(cashOutChainId))?.tokenSupply ?? "0";
+
+    return getUnitValue(surplus, { value: tokenSupply, decimals: projectTokenDecimals });
+  }, [cashOutChainId, projectTokenDecimals, surpluses, projects]);
 
   return (
     <Dialog open={disabled === true ? false : undefined}>
@@ -238,22 +254,14 @@ export function RedeemDialog(props: PropsWithChildren<Props>) {
                     </div>
                   ) : null}
 
-                  {/*  out until fixed 
-                  {redeemAmount && redeemAmountBN > 0n && valid ? (
+                  {redeemAmount && valid ? (
                     <div className="text-base mt-4">
                       You'll get ~{" "}
-                      {redeemQuote ? (
-                        <span className="font-medium">
-                          <NativeTokenValue 
-                            wei={((redeemQuote * 975n) / 1000n)} 
-                            decimals={isNative ? 4 : 2} 
-                          />
-                        </span>
-                      ) : (
-                        <>...</>
-                      )}
+                      <span className="font-medium">
+                        {(unitValue * Number(redeemAmount)).toFixed(5)} {baseToken.symbol}
+                      </span>
                     </div>
-                  ) : null} */}
+                  ) : null}
 
                   {isTxLoading ? <div>Transaction submitted, awaiting confirmation...</div> : null}
                 </>

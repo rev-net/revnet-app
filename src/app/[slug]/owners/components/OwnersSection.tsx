@@ -116,7 +116,7 @@ export function OwnersSection() {
               totalSupply={totalOutstandingTokens}
               token={token?.data}
             />
-            <div className="overflow-auto p-2 bg-zinc-50 rounded-tl-none border-zinc-200 sm:border-t-[0px] border w-full">
+            <div className="overflow-auto p-2 bg-zinc-50 border-zinc-200 border w-full">
               <div>
                 <ParticipantsTable
                   participants={Object.values(participantsDataAggregate)}

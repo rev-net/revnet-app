@@ -1,4 +1,5 @@
 import { type Project } from "@/generated/graphql";
+import { FixedInt } from "fpnum";
 import {
   getProjectTerminalStore,
   JB_TOKEN_DECIMALS,
@@ -7,7 +8,7 @@ import {
   JBVersion,
   NATIVE_TOKEN_DECIMALS,
 } from "juice-sdk-core";
-import { getContract } from "viem";
+import { getContract, parseUnits } from "viem";
 import { toBaseCurrencyId } from "./currency";
 import { applyCashOutFee } from "./feeHelpers";
 import { getViemPublicClient } from "./wagmiConfig";
@@ -78,3 +79,15 @@ export async function getProjectsReclaimableSurplus(
 }
 
 export type Surplus = Awaited<ReturnType<typeof getProjectsReclaimableSurplus>>[number];
+
+export function getUnitValue(
+  surplus: Pick<Surplus, "value" | "decimals"> | null,
+  supply: { value: string; decimals: number },
+) {
+  if (!surplus || supply.value === "0") return 0;
+
+  const _surplus = new FixedInt(parseUnits(surplus.value, surplus.decimals), surplus.decimals);
+  const _supply = new FixedInt(parseUnits(supply.value, supply.decimals), supply.decimals);
+
+  return _surplus.toFloat() / _supply.toFloat();
+}

@@ -14,13 +14,11 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { Project } from "@/generated/graphql";
 import { useProjectBaseToken } from "@/hooks/useProjectBaseToken";
 import { prettyNumber } from "@/lib/number";
-import { Surplus } from "@/lib/reclaimableSurplus";
+import { getUnitValue, Surplus } from "@/lib/reclaimableSurplus";
 import { formatPortion, formatTokenSymbol } from "@/lib/utils";
-import { FixedInt } from "fpnum";
 import { formatUnits, JB_CHAINS, JBChainId } from "juice-sdk-core";
 import { useEtherPrice, useJBTokenContext, useSuckersUserTokenBalance } from "juice-sdk-react";
 import { use, useCallback } from "react";
-import { parseUnits } from "viem";
 
 interface Props {
   projects: Array<
@@ -193,18 +191,6 @@ export function BalanceTable(props: Props) {
       </Table>
     </div>
   );
-}
-
-function getUnitValue(
-  surplus: Pick<Surplus, "value" | "decimals"> | null,
-  supply: { value: string; decimals: number },
-) {
-  if (!surplus || supply.value === "0") return 0;
-
-  const _surplus = new FixedInt(parseUnits(surplus.value, surplus.decimals), surplus.decimals);
-  const _supply = new FixedInt(parseUnits(supply.value, supply.decimals), supply.decimals);
-
-  return _surplus.toFloat() / _supply.toFloat();
 }
 
 function formatUsdValue(value: number) {
