@@ -31,10 +31,12 @@ export function ParticipantsTable({
   baseTokenSymbol?: string;
   baseTokenDecimals?: number;
 }) {
-  if (participants.length === 0)
+  if (participants.length === 0) {
     return (
       <div className="text-center text-zinc-400">No owners yet. Pay in to become an owner.</div>
     );
+  }
+
   return (
     <Table>
       <TableHeader>
@@ -49,7 +51,7 @@ export function ParticipantsTable({
         {participants.map((participant) => (
           <TableRow key={participant?.address}>
             <TableCell>
-              <div className="flex flex-col sm:flex-row gap-2 items-center">
+              <div className="flex flex-col sm:flex-row items-center">
                 <div className="hidden sm:flex">
                   <EthereumAddress
                     address={participant?.address as Address}
@@ -63,7 +65,6 @@ export function ParticipantsTable({
                     address={participant?.address as Address}
                     short
                     withEnsAvatar
-                    avatarProps={{ size: "sm" }}
                     withEnsName
                   />
                 </div>

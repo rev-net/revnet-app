@@ -82,7 +82,7 @@ export function ParticipantsPieChart({
   if (totalBalance === 0n) return null;
 
   return (
-    <div className="w-full sm:h-[200px] h-[140px]">
+    <div className="w-full sm:h-[320px] h-[140px]">
       <ResponsiveContainer height="100%" width="100%">
         <PieChart>
           <Pie

@@ -1,11 +1,15 @@
 import {
   DEFAULT_NATIVE_TOKEN_SYMBOL,
+  getJBContractAddress,
   JBChainId,
+  JBCoreContracts,
+  jbTokensAbi,
+  JBVersion,
   NATIVE_TOKEN,
   NATIVE_TOKEN_DECIMALS,
   USDC_ADDRESSES,
 } from "juice-sdk-core";
-import { formatUnits } from "viem";
+import { formatUnits, getContract, PublicClient } from "viem";
 import { isUsd } from "./currency";
 
 export interface Token {
@@ -57,4 +61,19 @@ export function getTokenFractionDigits(symbol: string) {
 
 export function isNativeToken(address: string | null) {
   return address?.toLowerCase() === NATIVE_TOKEN.toLowerCase();
+}
+
+export async function getTokenAddress(
+  client: PublicClient,
+  chainId: JBChainId,
+  projectId: number,
+  version: JBVersion,
+) {
+  const jbTokens = getContract({
+    address: getJBContractAddress(JBCoreContracts.JBTokens, version, chainId),
+    abi: jbTokensAbi,
+    client,
+  });
+
+  return await jbTokens.read.tokenOf([BigInt(projectId)]);
 }

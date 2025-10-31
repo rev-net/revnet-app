@@ -110,14 +110,12 @@ export function OwnersSection() {
               received auto issuance, or traded for them on the secondary market.
             </p>
           </div>
-          <div className="flex sm:flex-row flex-col max-h-140 sm:items-start items-center sm:border-t border-zinc-200">
-            <div className="w-1/3">
-              <ParticipantsPieChart
-                participants={Object.values(participantsDataAggregate)}
-                totalSupply={totalOutstandingTokens}
-                token={token?.data}
-              />
-            </div>
+          <div className="flex flex-col sm:items-start items-center sm:border-t border-zinc-200">
+            <ParticipantsPieChart
+              participants={Object.values(participantsDataAggregate)}
+              totalSupply={totalOutstandingTokens}
+              token={token?.data}
+            />
             <div className="overflow-auto p-2 bg-zinc-50 rounded-tl-none border-zinc-200 sm:border-t-[0px] border w-full">
               <div>
                 <ParticipantsTable
