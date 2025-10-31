@@ -1,8 +1,10 @@
+"use server";
+
 import { SuckerTransaction } from "@/generated/graphql";
 
 const JUICERKLE_API_URL = "https://juicerkle-production.up.railway.app";
 
-interface JBClaim {
+export interface JBClaim {
   Token: string;
   Leaf: {
     Index: number;
@@ -38,59 +40,4 @@ export async function getClaimProofs(
   const proofs = (await response.json()) as JBClaim[];
 
   return proofs;
-}
-
-export function formatClaimForContract(claim: JBClaim) {
-  const proof = claim.Proof.map((chunk) => {
-    const hex = chunk.map((byte) => byte.toString(16).padStart(2, "0")).join("");
-    return `0x${hex}` as `0x${string}`;
-  });
-
-  if (proof.length !== 32) {
-    throw new Error(`Invalid proof length: expected 32, got ${proof.length}`);
-  }
-
-  return {
-    token: claim.Token as `0x${string}`,
-    leaf: {
-      index: BigInt(claim.Leaf.Index),
-      beneficiary: claim.Leaf.Beneficiary as `0x${string}`,
-      projectTokenCount: BigInt(claim.Leaf.ProjectTokenCount),
-      terminalTokenAmount: BigInt(claim.Leaf.TerminalTokenAmount),
-    },
-    proof: proof as unknown as readonly [
-      `0x${string}`,
-      `0x${string}`,
-      `0x${string}`,
-      `0x${string}`,
-      `0x${string}`,
-      `0x${string}`,
-      `0x${string}`,
-      `0x${string}`,
-      `0x${string}`,
-      `0x${string}`,
-      `0x${string}`,
-      `0x${string}`,
-      `0x${string}`,
-      `0x${string}`,
-      `0x${string}`,
-      `0x${string}`,
-      `0x${string}`,
-      `0x${string}`,
-      `0x${string}`,
-      `0x${string}`,
-      `0x${string}`,
-      `0x${string}`,
-      `0x${string}`,
-      `0x${string}`,
-      `0x${string}`,
-      `0x${string}`,
-      `0x${string}`,
-      `0x${string}`,
-      `0x${string}`,
-      `0x${string}`,
-      `0x${string}`,
-      `0x${string}`,
-    ],
-  };
 }
