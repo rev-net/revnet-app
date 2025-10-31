@@ -5,7 +5,7 @@ import { toast } from "@/components/ui/use-toast";
 import { SuckerTransaction } from "@/generated/graphql";
 import { jbSuckerAbi } from "@/generated/jbSuckerAbi";
 import { revalidateCacheTag } from "@/lib/cache";
-import { formatClaimForContract, getClaimProofs } from "@/lib/juicerkle";
+import { getClaimProofs, JBClaim } from "@/lib/juicerkle";
 import { formatWalletError } from "@/lib/utils";
 import { JBChainId } from "juice-sdk-core";
 import { useRouter } from "next/navigation";
@@ -73,4 +73,59 @@ export function ClaimButton(props: Props) {
       Claim
     </ButtonWithWallet>
   );
+}
+
+function formatClaimForContract(claim: JBClaim) {
+  const proof = claim.Proof.map((chunk) => {
+    const hex = chunk.map((byte) => byte.toString(16).padStart(2, "0")).join("");
+    return `0x${hex}` as `0x${string}`;
+  });
+
+  if (proof.length !== 32) {
+    throw new Error(`Invalid proof length: expected 32, got ${proof.length}`);
+  }
+
+  return {
+    token: claim.Token as `0x${string}`,
+    leaf: {
+      index: BigInt(claim.Leaf.Index),
+      beneficiary: claim.Leaf.Beneficiary as `0x${string}`,
+      projectTokenCount: BigInt(claim.Leaf.ProjectTokenCount),
+      terminalTokenAmount: BigInt(claim.Leaf.TerminalTokenAmount),
+    },
+    proof: proof as unknown as readonly [
+      `0x${string}`,
+      `0x${string}`,
+      `0x${string}`,
+      `0x${string}`,
+      `0x${string}`,
+      `0x${string}`,
+      `0x${string}`,
+      `0x${string}`,
+      `0x${string}`,
+      `0x${string}`,
+      `0x${string}`,
+      `0x${string}`,
+      `0x${string}`,
+      `0x${string}`,
+      `0x${string}`,
+      `0x${string}`,
+      `0x${string}`,
+      `0x${string}`,
+      `0x${string}`,
+      `0x${string}`,
+      `0x${string}`,
+      `0x${string}`,
+      `0x${string}`,
+      `0x${string}`,
+      `0x${string}`,
+      `0x${string}`,
+      `0x${string}`,
+      `0x${string}`,
+      `0x${string}`,
+      `0x${string}`,
+      `0x${string}`,
+      `0x${string}`,
+    ],
+  };
 }
