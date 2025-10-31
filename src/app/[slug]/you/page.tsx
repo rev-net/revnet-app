@@ -50,7 +50,7 @@ export default async function YouPage(props: Props) {
         totalSupply={suckerGroup.tokenSupply}
       />
 
-      <UserTokenActions projects={projects} />
+      <UserTokenActions projects={projects} surplusesPromise={surplusesPromise} />
 
       <Suspense>
         <SuckerTransactionsTable
