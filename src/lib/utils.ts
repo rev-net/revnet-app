@@ -202,7 +202,8 @@ export function toWei(amount: string | number): bigint {
 
 export function formatWalletError(error: any, defaultMessage = "Please try again") {
   if (typeof error === "string") return error;
-  if (error.shortMessage) return error.shortMessage.replace("User rejected", "You rejected");
-  if (error.message) return error.message;
+  if (error.shortMessage)
+    return (error.shortMessage as string).replace("User rejected", "You rejected");
+  if (error.message) return error.message as string;
   return defaultMessage;
 }

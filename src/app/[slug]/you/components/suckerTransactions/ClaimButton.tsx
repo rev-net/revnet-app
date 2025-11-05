@@ -10,18 +10,28 @@ import { formatWalletError } from "@/lib/utils";
 import { JBChainId } from "juice-sdk-core";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { useWaitForTransactionReceipt, useWriteContract } from "wagmi";
+import { bytesToHex } from "viem";
+import { usePublicClient, useWaitForTransactionReceipt, useWriteContract } from "wagmi";
 
 interface Props {
   transaction: Pick<
     SuckerTransaction,
-    "chainId" | "peerChainId" | "sucker" | "peer" | "token" | "beneficiary" | "index"
+    | "chainId"
+    | "peerChainId"
+    | "sucker"
+    | "peer"
+    | "token"
+    | "beneficiary"
+    | "index"
+    | "projectTokenCount"
+    | "terminalTokenAmount"
   >;
 }
 
 export function ClaimButton(props: Props) {
   const { transaction } = props;
   const { writeContractAsync, isPending, data: hash, reset } = useWriteContract();
+  const publicClient = usePublicClient({ chainId: transaction.peerChainId as JBChainId });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { isLoading, isSuccess } = useWaitForTransactionReceipt({ hash });
   const [callbackCalled, setCallbackCalled] = useState(false);
@@ -50,12 +60,20 @@ export function ClaimButton(props: Props) {
             throw new Error("No claim proof available yet. Please try in a few minutes.");
           }
 
+          // Simulate it first, so it can throw useful error message
+          await publicClient?.simulateContract({
+            abi: jbSuckerAbi,
+            functionName: "claim",
+            address: transaction.peer as `0x${string}`,
+            args: [formatClaimForContract(claim, transaction)],
+          });
+
           await writeContractAsync({
             abi: jbSuckerAbi,
             functionName: "claim",
             chainId: transaction.peerChainId as JBChainId,
             address: transaction.peer as `0x${string}`,
-            args: [formatClaimForContract(claim)],
+            args: [formatClaimForContract(claim, transaction)],
           });
         } catch (error) {
           console.error(error);
@@ -75,11 +93,8 @@ export function ClaimButton(props: Props) {
   );
 }
 
-function formatClaimForContract(claim: JBClaim) {
-  const proof = claim.Proof.map((chunk) => {
-    const hex = chunk.map((byte) => byte.toString(16).padStart(2, "0")).join("");
-    return `0x${hex}` as `0x${string}`;
-  });
+function formatClaimForContract(claim: JBClaim, transaction: Props["transaction"]) {
+  const proof = claim.Proof.map((chunk) => bytesToHex(new Uint8Array(chunk)));
 
   if (proof.length !== 32) {
     throw new Error(`Invalid proof length: expected 32, got ${proof.length}`);
@@ -90,8 +105,8 @@ function formatClaimForContract(claim: JBClaim) {
     leaf: {
       index: BigInt(claim.Leaf.Index),
       beneficiary: claim.Leaf.Beneficiary as `0x${string}`,
-      projectTokenCount: BigInt(claim.Leaf.ProjectTokenCount),
-      terminalTokenAmount: BigInt(claim.Leaf.TerminalTokenAmount),
+      projectTokenCount: BigInt(transaction.projectTokenCount),
+      terminalTokenAmount: BigInt(transaction.terminalTokenAmount),
     },
     proof: proof as unknown as readonly [
       `0x${string}`,
