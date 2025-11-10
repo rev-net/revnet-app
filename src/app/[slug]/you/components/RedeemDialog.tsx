@@ -44,14 +44,8 @@ import {
   useSuckersUserTokenBalance,
 } from "juice-sdk-react";
 import { PropsWithChildren, useMemo, useState } from "react";
-import { erc20Abi, parseUnits } from "viem";
-import {
-  useAccount,
-  usePublicClient,
-  useWaitForTransactionReceipt,
-  useWalletClient,
-  useWriteContract,
-} from "wagmi";
+import { parseUnits } from "viem";
+import { useAccount, useWaitForTransactionReceipt, useWriteContract } from "wagmi";
 
 interface Props {
   projectId: bigint;
@@ -75,8 +69,6 @@ export function RedeemDialog(props: PropsWithChildren<Props>) {
   const chainId = useJBChainId();
   const [isApproving, setIsApproving] = useState(false);
   const { toast } = useToast();
-  const publicClient = usePublicClient();
-  const { data: walletClient } = useWalletClient();
   const { data: suckers } = useSuckers();
   const { token } = useJBTokenContext();
   const baseToken = useProjectBaseToken();
@@ -271,59 +263,34 @@ export function RedeemDialog(props: PropsWithChildren<Props>) {
           <DialogFooter>
             {!isSuccess ? (
               <ButtonWithWallet
-                targetChainId={selectedSucker?.peerChainId as JBChainId}
+                targetChainId={selectedSucker?.peerChainId}
                 loading={loading || isApproving}
                 onClick={async () => {
-                  if (
-                    !primaryNativeTerminal?.data ||
-                    !address ||
-                    !redeemAmountBN ||
-                    !walletClient ||
-                    !publicClient
-                  ) {
-                    console.error("Missing required data for cashout");
-                    return;
-                  }
-
                   try {
-                    // Check allowance for the project token (what we're redeeming)
-                    // We need allowance regardless of whether the project is ETH or USDC based
-                    // The project token address should come from the token context, not the base token
-                    const projectTokenAddress = token?.data?.address || selectedChainToken;
-                    const allowance = await publicClient.readContract({
-                      address: projectTokenAddress,
-                      abi: erc20Abi,
-                      functionName: "allowance",
-                      args: [address, primaryNativeTerminal.data as `0x${string}`],
-                    });
-
-                    if (BigInt(allowance) < redeemAmountBN) {
-                      setIsApproving(true);
-                      const hash = await walletClient.writeContract({
-                        address: projectTokenAddress,
-                        abi: erc20Abi,
-                        functionName: "approve",
-                        args: [primaryNativeTerminal.data as `0x${string}`, redeemAmountBN],
-                      });
-                      await publicClient.waitForTransactionReceipt({ hash });
-                      setIsApproving(false);
+                    if (
+                      !primaryNativeTerminal?.data ||
+                      !address ||
+                      !redeemAmountBN ||
+                      !writeContractAsync
+                    ) {
+                      console.error("Missing required data for cashout");
+                      throw new Error("Please try again");
                     }
 
-                    const args = [
-                      address, // holder
-                      effectiveProjectId, // project id (use the correct project ID for the selected chain)
-                      redeemAmount ? parseUnits(redeemAmount, NATIVE_TOKEN_DECIMALS) : 0n, // cash out count
-                      tokenToReceive, // token to reclaim (what you want to receive)
-                      0n, // min tokens reclaimed
-                      address, // beneficiary
-                      DEFAULT_METADATA, // metadata
-                    ] as const;
-                    await writeContractAsync?.({
+                    await writeContractAsync({
                       abi: jbMultiTerminalAbi,
                       functionName: "cashOutTokensOf",
-                      chainId: selectedSucker?.peerChainId as JBChainId,
-                      address: primaryNativeTerminal.data as `0x${string}`,
-                      args,
+                      chainId: selectedSucker?.peerChainId,
+                      address: primaryNativeTerminal.data,
+                      args: [
+                        address, // holder
+                        effectiveProjectId, // project id (use the correct project ID for the selected chain)
+                        redeemAmount ? parseUnits(redeemAmount, NATIVE_TOKEN_DECIMALS) : 0n, // cash out count
+                        tokenToReceive, // token to reclaim (what you want to receive)
+                        0n, // min tokens reclaimed
+                        address, // beneficiary
+                        DEFAULT_METADATA, // metadata],
+                      ],
                     });
                   } catch (err) {
                     setIsApproving(false);
