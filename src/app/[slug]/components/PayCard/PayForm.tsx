@@ -6,7 +6,7 @@ import { formatTokenSymbol } from "@/lib/utils";
 import { Field, Formik } from "formik";
 import { FixedInt } from "fpnum";
 import { useJBTokenContext } from "juice-sdk-react";
-import { useEffect, useMemo, useState } from "react";
+import { useDeferredValue, useEffect, useMemo, useState } from "react";
 import { parseUnits } from "viem";
 import { PayDialog } from "./PayDialog";
 import { PayFormQuoteDetails } from "./PayFormQuoteDetails";
@@ -28,9 +28,30 @@ export function PayForm() {
   const tokens = useMemo(() => getTokensForChain(chainId), [chainId]);
   const [selectedToken, setSelectedToken] = useState<Token>(tokens[0]);
 
+  const deferredAmountA = useDeferredValue(amountA);
+  const deferredSelectedToken = useDeferredValue(selectedToken);
+
   useEffect(() => {
     setSelectedToken((s) => tokens.find((t) => t.symbol === s.symbol) || tokens[0]);
   }, [tokens]);
+
+  useEffect(() => {
+    if (!deferredAmountA) {
+      setQuotes({ all: [] });
+      setAmountB("");
+      setAmountC("");
+      return;
+    }
+
+    tokenAToBQuote(deferredAmountA, deferredSelectedToken).then((quotes) => {
+      setQuotes(quotes);
+      if (quotes.bestOnSelectedChain) {
+        setAmountB(quotes.bestOnSelectedChain.payerTokens.format(3));
+        setAmountC(quotes.bestOnSelectedChain.reservedTokens.format(3));
+      }
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [deferredAmountA, deferredSelectedToken]);
 
   if (!tokenB) return "Loading...";
 
@@ -63,32 +84,16 @@ export function PayForm() {
           label="Pay"
           type="number"
           className="border-b border-zinc-200 border-t border-l border-r"
-          onChange={async (e) => {
+          onChange={(e) => {
             const valueRaw = e.target.value;
             setAmountA(valueRaw);
-
-            if (!valueRaw) return resetForm();
-
-            const quotes = await tokenAToBQuote(valueRaw, selectedToken);
-            setQuotes(quotes);
-
-            if (!quotes.bestOnSelectedChain || !valueRaw) return;
-            setAmountB(quotes.bestOnSelectedChain.payerTokens.format(3));
-            setAmountC(quotes.bestOnSelectedChain.reservedTokens.format(3));
+            if (!valueRaw) resetForm();
           }}
           value={amountA}
           tokens={tokens}
           selectedToken={selectedToken}
-          onSelectToken={async (token) => {
+          onSelectToken={(token) => {
             setSelectedToken(token);
-            if (amountA) {
-              const quotes = await tokenAToBQuote(amountA, token);
-              setQuotes(quotes);
-
-              if (!quotes.bestOnSelectedChain) return;
-              setAmountB(quotes.bestOnSelectedChain.payerTokens.format(3));
-              setAmountC(quotes.bestOnSelectedChain.reservedTokens.format(3));
-            }
           }}
         />
         <div className="w-full border-r border-l border-zinc-200 bg-zinc-100 p-4">
@@ -96,7 +101,7 @@ export function PayForm() {
             <div className="flex flex-col flex-1">
               <label className="text-md text-black-700">You get</label>
               <div className="text-2xl text-zinc-900">
-                {_amountA.amount._value > 0n ? amountB : "0.00"}
+                {_amountA.amount._value > 0n ? amountB || "0.00" : "0.00"}
               </div>
             </div>
             <div className="flex flex-col items-end gap-2">
