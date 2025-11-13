@@ -109,8 +109,8 @@ export function TermsTable() {
 
   const autoIssuances = useAutoIssuances();
   const getAutoIssuancesTotalForStage = () => {
-    if (!autoIssuances) return 0;
-    const stageautoIssuances = autoIssuances.filter((a) => a.stage === selectedStageIdx + 1);
+    if (!autoIssuances || !selectedStage) return 0;
+    const stageautoIssuances = autoIssuances.filter((a) => Number(a.stageId) === selectedStage.id);
     return commaNumber(
       formatUnits(
         stageautoIssuances.reduce((acc, curr) => acc + BigInt(curr.count), 0n),
