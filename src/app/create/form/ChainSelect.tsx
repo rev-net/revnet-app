@@ -65,15 +65,11 @@ export function ChainSelect({
     const chainId = values.chainIds[0];
     if (!chainId) return;
 
-    const stagesWithAutoIssuance = values.stages.filter((s) => s.autoIssuance.length > 0);
-
-    if (stagesWithAutoIssuance.length === 0) return;
-
-    stagesWithAutoIssuance.forEach((stage, stageIndex) => {
+    values.stages.forEach((stage, stageIndex) => {
       stage.autoIssuance.forEach((issuance, index) => {
-        if (issuance.chainId !== chainId) {
+        if (issuance.chainId !== chainId && issuance.amount && issuance.beneficiary) {
           console.debug(
-            `Changing chainId for auto issuance (${stageIndex + 1}.${index + 1}) to ${chainId}`,
+            `Setting chainId for auto issuance (${stageIndex + 1}.${index + 1}) to ${chainId}`,
           );
 
           setFieldValue(`stages.${stageIndex}.autoIssuance.${index}.chainId`, chainId);
