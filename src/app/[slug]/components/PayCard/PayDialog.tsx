@@ -24,6 +24,7 @@ import { Stat } from "@/components/ui/stat";
 import { useToast } from "@/components/ui/use-toast";
 import { useAllowance } from "@/hooks/useAllowance";
 import { useProjectBaseToken } from "@/hooks/useProjectBaseToken";
+import { useTokenBalances } from "@/hooks/useTokenBalances";
 import { getPaymentTerminal } from "@/lib/paymentTerminal";
 import { Pool } from "@/lib/quote";
 import { Token } from "@/lib/token";
@@ -63,6 +64,9 @@ export function PayDialog(props: Props) {
 
   const value = amountA.amount.value;
 
+  const { balances } = useTokenBalances([tokenIn], chainId);
+  const userBalance = balances.get(tokenIn.address) ?? 0n;
+
   // Auto-reset after successful payment
   useEffect(() => {
     if (isSuccess && onSuccess) {
@@ -79,11 +83,15 @@ export function PayDialog(props: Props) {
   const loading = isPending || isTxLoading || isApproving;
 
   const handlePay = async () => {
-    if (!address || !selectedSucker || !publicClient || !writeContractAsync) {
-      throw new Error("Please try again");
-    }
-
     try {
+      if (!address || !selectedSucker || !publicClient || !writeContractAsync) {
+        throw new Error("Please try again");
+      }
+
+      if (value > userBalance) {
+        throw new Error(`You don't have enough ${tokenIn.symbol} balance in your wallet`);
+      }
+
       if (pool) {
         // AMM flow
         const swapRouterAddress = UNISWAP_V3_SWAP_ROUTER_ADDRESSES[chainId];
