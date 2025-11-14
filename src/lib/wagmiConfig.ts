@@ -78,16 +78,21 @@ export const wagmiConfig = createConfig({
       appName: "REVNET",
       appLogoUrl: "https://app.revnet.eth.sucks/assets/img/small-bw.svg",
     }),
-    walletConnect({
-      projectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID!,
-      showQrModal: false,
-      metadata: {
-        name: "REVNET",
-        description: "Tokenize revenues and fundraises. 100% autonomous.",
-        url: "https://app.revnet.eth.sucks",
-        icons: ["https://app.revnet.eth.sucks/assets/img/small-bw.svg"],
-      },
-    }),
+    // Only initialize WalletConnect in the browser
+    ...(typeof window !== "undefined"
+      ? [
+          walletConnect({
+            projectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID!,
+            showQrModal: false,
+            metadata: {
+              name: "REVNET",
+              description: "Tokenize revenues and fundraises. 100% autonomous.",
+              url: "https://app.revnet.eth.sucks",
+              icons: ["https://app.revnet.eth.sucks/assets/img/small-bw.svg"],
+            },
+          }),
+        ]
+      : []),
   ],
   transports,
 });

@@ -1,40 +1,63 @@
 "use client";
 
-import { usePaymentQuote } from "@/hooks/usePaymentQuote";
+import { PaymentQuotes, usePaymentQuote } from "@/hooks/usePaymentQuote";
 import { getTokensForChain, Token } from "@/lib/token";
 import { formatTokenSymbol } from "@/lib/utils";
 import { Field, Formik } from "formik";
 import { FixedInt } from "fpnum";
 import { useJBTokenContext } from "juice-sdk-react";
-import { useEffect, useMemo, useState } from "react";
+import { useDeferredValue, useEffect, useMemo, useState } from "react";
 import { parseUnits } from "viem";
 import { PayDialog } from "./PayDialog";
+import { PayFormQuoteDetails } from "./PayFormQuoteDetails";
 import { PayInput } from "./PayInput";
 import { useSelectedSucker } from "./SelectedSuckerContext";
 
 export function PayForm() {
   const tokenB = useJBTokenContext().token.data;
   const chainId = useSelectedSucker().selectedSucker.peerChainId;
-  const { tokenAToBQuote, tokenBtoAQuote } = usePaymentQuote(chainId);
+  const { tokenAToBQuote } = usePaymentQuote(chainId);
 
   const [memo, setMemo] = useState<string>();
   const [resetKey, setResetKey] = useState(0);
   const [amountA, setAmountA] = useState<string>("");
   const [amountB, setAmountB] = useState<string>("");
   const [amountC, setAmountC] = useState<string>("");
+  const [quotes, setQuotes] = useState<PaymentQuotes>({ all: [] });
 
   const tokens = useMemo(() => getTokensForChain(chainId), [chainId]);
-  const [selectedToken, setSelectedToken] = useState<Token>(tokens[0]);
+  const [tokenIn, setTokenIn] = useState<Token>(tokens[0]);
+
+  const deferredAmountA = useDeferredValue(amountA);
+  const deferredTokenIn = useDeferredValue(tokenIn);
 
   useEffect(() => {
-    setSelectedToken((s) => tokens.find((t) => t.symbol === s.symbol) || tokens[0]);
+    setTokenIn((s) => tokens.find((t) => t.symbol === s.symbol) || tokens[0]);
   }, [tokens]);
+
+  useEffect(() => {
+    if (!deferredAmountA) {
+      setQuotes({ all: [] });
+      setAmountB("");
+      setAmountC("");
+      return;
+    }
+
+    tokenAToBQuote(deferredAmountA, deferredTokenIn).then((quotes) => {
+      setQuotes(quotes);
+      if (quotes.bestOnSelectedChain) {
+        setAmountB(quotes.bestOnSelectedChain.payerTokens.format(3));
+        setAmountC(quotes.bestOnSelectedChain.reservedTokens.format(3));
+      }
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [deferredAmountA, deferredTokenIn]);
 
   if (!tokenB) return "Loading...";
 
   const _amountA = {
-    amount: new FixedInt(parseUnits(amountA, selectedToken.decimals), selectedToken.decimals),
-    symbol: selectedToken.symbol,
+    amount: new FixedInt(parseUnits(amountA || "0", tokenIn.decimals), tokenIn.decimals),
+    symbol: tokenIn.symbol,
   };
 
   const _amountB = {
@@ -46,6 +69,7 @@ export function PayForm() {
     setAmountA("");
     setAmountB("");
     setAmountC("");
+    setQuotes({ all: [] });
     setResetKey((prev) => prev + 1); // Force PayDialog to remount
   }
 
@@ -59,39 +83,33 @@ export function PayForm() {
           className="border-b border-zinc-200 border-t border-l border-r"
           onChange={(e) => {
             const valueRaw = e.target.value;
-            if (!valueRaw) return resetForm();
-
-            const { payerTokens, reservedTokens } = tokenAToBQuote(valueRaw, selectedToken);
             setAmountA(valueRaw);
-            setAmountB(payerTokens);
-            setAmountC(reservedTokens);
+            if (!valueRaw) resetForm();
           }}
           value={amountA}
           tokens={tokens}
-          selectedToken={selectedToken}
+          selectedToken={tokenIn}
           onSelectToken={(token) => {
-            setSelectedToken(token);
-            if (amountA) {
-              const { payerTokens, reservedTokens } = tokenAToBQuote(amountA, selectedToken);
-              setAmountA(amountA);
-              setAmountB(payerTokens);
-              setAmountC(reservedTokens);
-            }
+            setTokenIn(token);
           }}
         />
-        <PayInput
-          label="You get"
-          type="number"
-          className="border-r border-l border-zinc-200"
-          onChange={(e) => {
-            const valueRaw = e.target.value;
-            if (!valueRaw) return resetForm();
-            setAmountB(valueRaw);
-            setAmountA(tokenBtoAQuote(valueRaw, selectedToken));
-          }}
-          value={amountB}
-          tokenSymbol={formatTokenSymbol(tokenB.symbol)}
-        />
+        <div className="w-full border-r border-l border-zinc-200 bg-zinc-100 p-4">
+          <div className="flex items-center justify-between mb-1">
+            <div className="flex flex-col flex-1">
+              <label className="text-md text-black-700">You get</label>
+              <div className="text-2xl text-zinc-900">
+                {_amountA.amount._value > 0n ? amountB || "0.00" : "0.00"}
+              </div>
+            </div>
+            <div className="flex flex-col items-end gap-2">
+              <span className="text-right select-none text-lg">
+                {formatTokenSymbol(tokenB.symbol)}
+              </span>
+            </div>
+          </div>
+
+          <PayFormQuoteDetails quotes={quotes} amountIn={_amountA} />
+        </div>
         <div className="flex gap-1 p-3 bg-zinc-200 border-r border-l border-zinc-300 w-full text-md text-zinc-700 overflow-x-auto whitespace-nowrap">
           Splits get {amountC || 0} {formatTokenSymbol(tokenB.symbol)}
         </div>
@@ -112,13 +130,15 @@ export function PayForm() {
           />
         </Formik>
         <div className="w-[150px] flex">
-          {selectedToken ? (
+          {tokenIn ? (
             <PayDialog
               key={resetKey}
               amountA={_amountA}
               amountB={_amountB}
               memo={memo}
-              token={selectedToken}
+              tokenIn={tokenIn}
+              tokenOut={tokenB}
+              pool={quotes.bestOnSelectedChain?.pool}
               disabled={!amountA}
               onSuccess={() => {
                 resetForm();
