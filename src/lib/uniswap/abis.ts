@@ -78,3 +78,29 @@ export const UNISWAP_V3_QUOTER_V2_ABI = [
     type: "function",
   },
 ] as const;
+
+// SwapRouter02 ABI - for exactInputSingle
+// Note: SwapRouter02 uses a different structure than SwapRouter
+export const UNISWAP_V3_SWAP_ROUTER_ABI = [
+  {
+    inputs: [
+      {
+        components: [
+          { name: "tokenIn", type: "address" },
+          { name: "tokenOut", type: "address" },
+          { name: "fee", type: "uint24" },
+          { name: "recipient", type: "address" },
+          { name: "amountIn", type: "uint256" },
+          { name: "amountOutMinimum", type: "uint256" },
+          { name: "sqrtPriceLimitX96", type: "uint160" },
+        ],
+        name: "params",
+        type: "tuple",
+      },
+    ],
+    name: "exactInputSingle",
+    outputs: [{ name: "amountOut", type: "uint256" }],
+    stateMutability: "payable",
+    type: "function",
+  },
+] as const;

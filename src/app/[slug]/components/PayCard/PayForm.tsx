@@ -26,13 +26,13 @@ export function PayForm() {
   const [quotes, setQuotes] = useState<PaymentQuotes>({ all: [] });
 
   const tokens = useMemo(() => getTokensForChain(chainId), [chainId]);
-  const [selectedToken, setSelectedToken] = useState<Token>(tokens[0]);
+  const [tokenIn, setTokenIn] = useState<Token>(tokens[0]);
 
   const deferredAmountA = useDeferredValue(amountA);
-  const deferredSelectedToken = useDeferredValue(selectedToken);
+  const deferredTokenIn = useDeferredValue(tokenIn);
 
   useEffect(() => {
-    setSelectedToken((s) => tokens.find((t) => t.symbol === s.symbol) || tokens[0]);
+    setTokenIn((s) => tokens.find((t) => t.symbol === s.symbol) || tokens[0]);
   }, [tokens]);
 
   useEffect(() => {
@@ -43,7 +43,7 @@ export function PayForm() {
       return;
     }
 
-    tokenAToBQuote(deferredAmountA, deferredSelectedToken).then((quotes) => {
+    tokenAToBQuote(deferredAmountA, deferredTokenIn).then((quotes) => {
       setQuotes(quotes);
       if (quotes.bestOnSelectedChain) {
         setAmountB(quotes.bestOnSelectedChain.payerTokens.format(3));
@@ -51,16 +51,13 @@ export function PayForm() {
       }
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [deferredAmountA, deferredSelectedToken]);
+  }, [deferredAmountA, deferredTokenIn]);
 
   if (!tokenB) return "Loading...";
 
   const _amountA = {
-    amount: new FixedInt(
-      parseUnits(amountA || "0", selectedToken.decimals),
-      selectedToken.decimals,
-    ),
-    symbol: selectedToken.symbol,
+    amount: new FixedInt(parseUnits(amountA || "0", tokenIn.decimals), tokenIn.decimals),
+    symbol: tokenIn.symbol,
   };
 
   const _amountB = {
@@ -91,9 +88,9 @@ export function PayForm() {
           }}
           value={amountA}
           tokens={tokens}
-          selectedToken={selectedToken}
+          selectedToken={tokenIn}
           onSelectToken={(token) => {
-            setSelectedToken(token);
+            setTokenIn(token);
           }}
         />
         <div className="w-full border-r border-l border-zinc-200 bg-zinc-100 p-4">
@@ -133,13 +130,15 @@ export function PayForm() {
           />
         </Formik>
         <div className="w-[150px] flex">
-          {selectedToken ? (
+          {tokenIn ? (
             <PayDialog
               key={resetKey}
               amountA={_amountA}
               amountB={_amountB}
               memo={memo}
-              token={selectedToken}
+              tokenIn={tokenIn}
+              tokenOut={tokenB}
+              pool={quotes.bestOnSelectedChain?.pool}
               disabled={!amountA}
               onSuccess={() => {
                 resetForm();

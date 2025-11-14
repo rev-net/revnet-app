@@ -68,39 +68,5 @@ export function usePaymentQuote(chainId: JBChainId) {
     }
   }
 
-  // function tokenBtoAQuote(valueRaw: string, token: Token) {
-  //   try {
-  //     if (!ruleset?.data || !rulesetMetadata?.data || !tokenB) {
-  //       throw new Error("Missing data. Please try again");
-  //     }
-
-  //     const value = FixedInt.parse(valueRaw, tokenB.decimals);
-
-  //     const amountAQuote = getTokenBtoAQuote(value, tokenB.decimals, {
-  //       weight: ruleset.data.weight,
-  //       reservedPercent: rulesetMetadata.data.reservedPercent,
-  //     });
-
-  //     const conversion = determineConversion(baseToken.isNative, token.isNative);
-  //     if (conversion === "NONE") return amountAQuote.format();
-
-  //     const converted = fromProjectCurrencyAmount(
-  //       amountAQuote.value,
-  //       determineConversion(baseToken.isNative, token.isNative),
-  //       usdToEthPrice,
-  //     );
-
-  //     if (!converted) throw new Error("Failed to convert project currency amount");
-
-  //     return formatUnits(converted.amount, converted.decimals);
-  //   } catch (err) {
-  //     toast({ variant: "destructive", title: "Error", description: formatWalletError(err) });
-  //     return "0";
-  //   }
-  // }
-
-  return {
-    tokenAToBQuote,
-    // tokenBtoAQuote,
-  };
+  return { tokenAToBQuote };
 }
