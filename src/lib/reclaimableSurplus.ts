@@ -59,7 +59,7 @@ export async function getProjectsReclaimableSurplus(
       const value = await getReclaimableSurplus(
         chainId as JBChainId,
         projectId,
-        tokenSupply,
+        BigInt(tokenSupply),
         version as JBVersion,
         tokenDecimals,
         currencyId,
