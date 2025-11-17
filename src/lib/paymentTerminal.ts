@@ -16,9 +16,10 @@ export async function getPaymentTerminal(args: {
   version: JBVersion;
   chainId: JBChainId;
   projectId: bigint;
-  token: Token;
+  tokenIn: Token;
+  baseToken: Pick<Token, "isNative">;
 }) {
-  const { client, version, chainId, projectId, token } = args;
+  const { client, version, chainId, projectId, tokenIn, baseToken } = args;
 
   const directory = getContract({
     address: getJBContractAddress(JBCoreContracts.JBDirectory, version, chainId),
@@ -26,14 +27,14 @@ export async function getPaymentTerminal(args: {
     client,
   });
 
-  const terminal = await directory.read.primaryTerminalOf([projectId, token.address]);
+  const terminal = await directory.read.primaryTerminalOf([projectId, tokenIn.address]);
 
   if (!terminal) {
-    throw new Error(`No primary terminal found for ${token.symbol}`);
+    throw new Error(`No primary terminal found for ${tokenIn.symbol}`);
   }
 
   const swapTerminal = getJBContractAddress(
-    token.isNative
+    baseToken.isNative
       ? JBSwapTerminalContracts.JBSwapTerminalRegistry
       : JBSwapTerminalContracts.JBSwapTerminalUSDCRegistry,
     version,
