@@ -72,7 +72,10 @@ export function generateFeeData({
   return data;
 }
 
-export function applyCashOutFee(amount: bigint) {
-  const feePercent = JBDAO_CASHOUT_FEE_PERCENT + REVNET_CASHOUT_FEE_PERCENT;
-  return (amount * BigInt((1 - feePercent) * 1000)) / 1000n;
+export function applyRevFee(tokenAmount: bigint) {
+  return (tokenAmount * BigInt((1 - REVNET_CASHOUT_FEE_PERCENT) * 1000)) / 1000n;
+}
+
+export function applyNanaFee(reclaimableAmount: bigint) {
+  return (reclaimableAmount * BigInt((1 - JBDAO_CASHOUT_FEE_PERCENT) * 1000)) / 1000n;
 }

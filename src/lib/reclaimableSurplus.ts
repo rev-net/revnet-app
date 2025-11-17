@@ -10,7 +10,7 @@ import {
 } from "juice-sdk-core";
 import { getContract, parseUnits } from "viem";
 import { toBaseCurrencyId } from "./currency";
-import { applyCashOutFee } from "./feeHelpers";
+import { applyNanaFee, applyRevFee } from "./feeHelpers";
 import { getViemPublicClient } from "./wagmiConfig";
 
 export async function getReclaimableSurplus(
@@ -28,16 +28,16 @@ export async function getReclaimableSurplus(
       client: getViemPublicClient(chainId),
     });
 
-    const surplus = await contract.read.currentReclaimableSurplusOf([
+    const userReclaimable = await contract.read.currentReclaimableSurplusOf([
       BigInt(projectId),
-      tokenAmountWei,
+      applyRevFee(tokenAmountWei),
       [],
       [],
       BigInt(decimals),
       BigInt(currencyId),
     ]);
 
-    return applyCashOutFee(surplus).toString();
+    return applyNanaFee(userReclaimable).toString();
   } catch (error) {
     console.debug({ chainId, projectId, tokenAmountWei, version, decimals, currencyId });
     console.error(error);
@@ -59,7 +59,7 @@ export async function getProjectsReclaimableSurplus(
       const value = await getReclaimableSurplus(
         chainId as JBChainId,
         projectId,
-        tokenSupply,
+        BigInt(tokenSupply),
         version as JBVersion,
         tokenDecimals,
         currencyId,
