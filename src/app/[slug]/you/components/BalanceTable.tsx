@@ -13,6 +13,7 @@ import {
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Project } from "@/generated/graphql";
 import { useProjectBaseToken } from "@/hooks/useProjectBaseToken";
+import { isUsd } from "@/lib/currency";
 import { prettyNumber } from "@/lib/number";
 import { getUnitValue, Surplus } from "@/lib/reclaimableSurplus";
 import { formatPortion, formatTokenSymbol } from "@/lib/utils";
@@ -41,7 +42,7 @@ export function BalanceTable(props: Props) {
 
   const getUsdValue = useCallback(
     (value: number) => {
-      if (baseToken.targetCurrency === "usd") return value;
+      if (isUsd(baseToken.targetCurrency)) return value;
       if (!ethPrice) return 0;
       return value * ethPrice;
     },
