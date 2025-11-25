@@ -20,7 +20,7 @@ export function UserBalance() {
   return (
     <Link
       className="text-black border border-zinc-200 px-2 py-1 flex items-center hover:bg-zinc-100 duration-75"
-      href={`/${decodeURIComponent(slug)}/you`}
+      href={`/${decodeURIComponent(slug)}`}
     >
       {totalBalance.format(2)}{" "}
       <span className="text-teal-500 ml-1.5 font-medium">{formatTokenSymbol(token)}</span>

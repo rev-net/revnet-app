@@ -1,22 +1,18 @@
 "use client";
 
-import { formatTokenSymbol } from "@/lib/utils";
 import clsx from "clsx";
-import { useJBTokenContext } from "juice-sdk-react";
 import Link from "next/link";
 import { useParams, useSelectedLayoutSegment } from "next/navigation";
 import { PropsWithChildren } from "react";
 
 export function ProjectMenu() {
-  const { token } = useJBTokenContext();
-
   return (
     <ul className="flex gap-4 sm:gap-6">
-      <MenuOption href="">Activity</MenuOption>
+      <MenuOption href="">Value</MenuOption>
+      <MenuOption href="activity">Activity</MenuOption>
       <MenuOption href="terms">Terms</MenuOption>
       <MenuOption href="owners">Owners</MenuOption>
       <MenuOption href="about">About</MenuOption>
-      <MenuOption href="you">{formatTokenSymbol(token)}</MenuOption>
     </ul>
   );
 }
