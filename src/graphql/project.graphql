@@ -8,6 +8,9 @@ query Project($projectId: Float!, $chainId: Float!, $version: Float!) {
     logoUri
     name
     version
+    token
+    decimals
+    currency
   }
 }
 

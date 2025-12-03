@@ -10,7 +10,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { formatUnits } from "viem";
 import { useAccount, useBalance, useWaitForTransactionReceipt, useWriteContract } from "wagmi";
-import { getPayableAmount } from "../../getPayableAmount";
+import { getPayableAmount } from "../../../getPayableAmount";
 
 interface Props {
   chainId: JBChainId;
