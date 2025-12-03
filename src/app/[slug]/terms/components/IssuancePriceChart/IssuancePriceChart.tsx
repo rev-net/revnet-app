@@ -135,6 +135,7 @@ export function IssuancePriceChart({ rulesets }: Props) {
           strokeWidth={2}
           fill="url(#priceFill)"
           connectNulls
+          isAnimationActive={false}
         />
 
         {stageAreas.map((area) => (
