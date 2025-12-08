@@ -86,7 +86,7 @@ export async function SuckerTransactionsTable(props: Props) {
 
                 <TableCell>
                   <Profile address={tx.beneficiary}>
-                    {({ identity, avatar }) => (
+                    {({ displayName, avatar }) => (
                       <a
                         href={etherscanLink(tx.beneficiary, {
                           type: "address",
@@ -98,13 +98,13 @@ export async function SuckerTransactionsTable(props: Props) {
                           // eslint-disable-next-line @next/next/no-img-element
                           <img
                             src={avatar}
-                            alt={identity ?? ""}
+                            alt={displayName ?? ""}
                             width={32}
                             height={32}
                             className="rounded-full size-5"
                           />
                         )}
-                        <span className="text-sm">{identity}</span>
+                        <span className="text-sm">{displayName}</span>
                       </a>
                     )}
                   </Profile>
