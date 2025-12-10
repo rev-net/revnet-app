@@ -1,7 +1,8 @@
-import { formatUnits } from "viem";
-import type { Ruleset } from "../../getRulesets";
-import type { ProjectionRange } from "../RangeSelector";
+import { Ruleset } from "@/app/[slug]/terms/getRulesets";
+import { calculatePriceAtTimestamp } from "@/lib/issuancePrice";
 import { createVisualScale, type VisualScale } from "./visualScale";
+
+export type ProjectionRange = "1y" | "5y" | "10y" | "20y" | "all";
 
 const SECONDS_PER_DAY = 86400;
 
@@ -29,24 +30,6 @@ export type ChartData = {
   todayVisualX: number | null;
   toReal: VisualScale["toReal"];
 };
-
-function calculatePriceAtTimestamp(timestamp: number, rulesets: Ruleset[]): number | undefined {
-  const active = rulesets.find((r, i) => {
-    const end = rulesets[i + 1]?.start ?? Infinity;
-    return timestamp >= r.start && timestamp < end;
-  });
-
-  if (!active) return undefined;
-
-  const elapsed = timestamp - active.start;
-  const cycles = active.duration > 0 ? Math.floor(elapsed / active.duration) : 0;
-  const weight = Number(formatUnits(BigInt(active.weight), 18));
-
-  if (weight <= 0) return undefined;
-
-  const currentWeight = weight * Math.pow(1 - active.weightCutPercent, cycles);
-  return currentWeight > 0 ? 1 / currentWeight : undefined;
-}
 
 function getRangeYears(range: ProjectionRange): number {
   return range === "1y" ? 1 : range === "5y" ? 5 : range === "10y" ? 10 : range === "20y" ? 20 : 50;

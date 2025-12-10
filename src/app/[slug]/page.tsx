@@ -1,9 +1,14 @@
 import { SuckerTransactionStatus } from "@/generated/graphql";
 import { getProjectsReclaimableSurplus } from "@/lib/reclaimableSurplus";
 import { parseSlug } from "@/lib/slug";
+import { parseTimeRange } from "@/lib/timeRange";
+import { NATIVE_TOKEN_DECIMALS } from "juice-sdk-core";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
+import { getAddress } from "viem";
 import { z } from "zod";
+import { getTokenPriceChartData } from "./components/TokenPrice/getTokenPriceChartData";
+import { TokenPriceChart } from "./components/TokenPrice/TokenPriceChart";
 import { BalanceTable } from "./components/Value/BalanceTable";
 import { SuckerTransactionsTable } from "./components/Value/suckerTransactions/SuckerTransactionsTable";
 import { UserTokenActions } from "./components/Value/UserTokenActions";
@@ -15,7 +20,7 @@ const statusSchema = z.enum(["pending", "claimable", "claimed"]);
 
 interface Props {
   params: { slug: string };
-  searchParams: { status?: string };
+  searchParams: { status?: string; range?: string };
 }
 
 export default async function YouPage(props: Props) {
@@ -24,13 +29,12 @@ export default async function YouPage(props: Props) {
   const { chainId, projectId, version } = parseSlug(slug);
 
   const project = await getProject(projectId, chainId, version);
-  if (!project) notFound();
+  if (!project || !project.token) notFound();
 
   const suckerGroup = await getSuckerGroup(project.suckerGroupId, chainId);
   if (!suckerGroup) notFound();
 
   const projects = suckerGroup.projects?.items ?? [];
-  const currentProject = projects.find((p) => p.chainId === chainId && p.version === version);
 
   const surplusesPromise = getProjectsReclaimableSurplus(projects);
 
@@ -42,8 +46,29 @@ export default async function YouPage(props: Props) {
     filterStatus,
   );
 
+  const range = parseTimeRange(props.searchParams.range);
+  const { chartData, hasPool } = await getTokenPriceChartData({
+    projectId,
+    chainId,
+    version,
+    range,
+    suckerGroupId: suckerGroup.id,
+    baseToken: {
+      address: getAddress(project.token),
+      symbol: project.tokenSymbol ?? "ETH",
+      decimals: project.decimals ?? NATIVE_TOKEN_DECIMALS,
+    },
+  });
+
   return (
     <div className="flex flex-col gap-8">
+      <TokenPriceChart
+        data={chartData}
+        range={range}
+        hasPool={hasPool}
+        baseTokenSymbol={project.tokenSymbol ?? "ETH"}
+      />
+
       <BalanceTable
         projects={projects}
         surplusesPromise={surplusesPromise}
@@ -55,8 +80,8 @@ export default async function YouPage(props: Props) {
       <Suspense>
         <SuckerTransactionsTable
           transactions={await suckerTransactions}
-          tokenDecimals={currentProject?.decimals ?? 18}
-          tokenSymbol={currentProject?.tokenSymbol ?? ""}
+          tokenDecimals={project.decimals ?? NATIVE_TOKEN_DECIMALS}
+          tokenSymbol={project.tokenSymbol ?? "ETH"}
         />
       </Suspense>
     </div>

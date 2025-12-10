@@ -2,6 +2,7 @@
 
 import { ChartConfig, ChartContainer, ChartTooltip } from "@/components/ui/chart";
 import { useProjectBaseToken } from "@/hooks/useProjectBaseToken";
+import { formatPrice } from "@/lib/utils";
 import { format } from "date-fns";
 import { useJBTokenContext } from "juice-sdk-react";
 import { useSearchParams } from "next/navigation";
@@ -16,8 +17,7 @@ import {
   YAxis,
 } from "recharts";
 import type { Ruleset } from "../../getRulesets";
-import type { ProjectionRange } from "../RangeSelector";
-import { prepareChartData } from "./prepareChartData";
+import { prepareChartData, ProjectionRange } from "./prepareChartData";
 
 const chartConfig = {
   price: {
@@ -27,6 +27,7 @@ const chartConfig = {
 } satisfies ChartConfig;
 
 const VALID_RANGES: ProjectionRange[] = ["1y", "5y", "10y", "20y", "all"];
+const DEFAULT_RANGE: ProjectionRange = "1y";
 
 interface Props {
   rulesets: Ruleset[];
@@ -37,7 +38,7 @@ export function IssuancePriceChart({ rulesets }: Props) {
   const rangeParam = searchParams.get("range");
   const range: ProjectionRange = VALID_RANGES.includes(rangeParam as ProjectionRange)
     ? (rangeParam as ProjectionRange)
-    : "5y";
+    : DEFAULT_RANGE;
 
   const { token } = useJBTokenContext();
   const baseToken = useProjectBaseToken();
@@ -83,7 +84,7 @@ export function IssuancePriceChart({ rulesets }: Props) {
           tickLine={false}
           axisLine={false}
           tickMargin={8}
-          tickFormatter={formatYAxis}
+          tickFormatter={formatPrice}
           width={70}
           domain={["auto", "auto"]}
         />
@@ -110,7 +111,7 @@ export function IssuancePriceChart({ rulesets }: Props) {
                   <span className="w-2 h-2 rounded-full bg-[--color-price]" />
                   <span className="text-zinc-400">Price:</span>
                   <span className="font-mono text-white">
-                    {formatPrice(value, baseToken.symbol)} / {tokenSymbol}
+                    {formatPrice(value)} {baseToken.symbol} / {tokenSymbol}
                   </span>
                 </div>
               </div>
@@ -166,20 +167,4 @@ export function IssuancePriceChart({ rulesets }: Props) {
       </AreaChart>
     </ChartContainer>
   );
-}
-
-function formatYAxis(value: number): string {
-  if (value === 0) return "0";
-  if (value < 0.000001) return value.toExponential(1);
-  if (value < 0.001) return value.toExponential(2);
-  if (value < 1) return value.toFixed(4);
-  if (value < 1000) return value.toFixed(2);
-  return value.toLocaleString("en-US", { maximumFractionDigits: 0 });
-}
-
-function formatPrice(value: number, symbol: string): string {
-  if (value === 0) return `0 ${symbol}`;
-  if (value < 0.000001) return `${value.toExponential(4)} ${symbol}`;
-  if (value < 0.001) return `${value.toPrecision(4)} ${symbol}`;
-  return `${value.toFixed(6)} ${symbol}`;
 }

@@ -1,0 +1,15 @@
+query SuckerGroupMoments($suckerGroupId: String!) {
+  suckerGroupMoments(
+    where: { suckerGroupId: $suckerGroupId }
+    orderBy: "timestamp"
+    orderDirection: "asc"
+  ) {
+    items {
+      timestamp
+      balance
+      tokenSupply
+      suckerGroupId
+      version
+    }
+  }
+}
