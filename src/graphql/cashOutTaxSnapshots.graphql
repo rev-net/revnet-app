@@ -1,0 +1,16 @@
+query CashOutTaxSnapshots($suckerGroupId: String!) {
+  cashOutTaxSnapshots(
+    where: { suckerGroupId: $suckerGroupId }
+    orderBy: "start"
+    orderDirection: "asc"
+  ) {
+    items {
+      cashOutTax
+      start
+      duration
+      rulesetId
+      suckerGroupId
+      version
+    }
+  }
+}

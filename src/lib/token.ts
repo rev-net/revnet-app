@@ -9,8 +9,10 @@ import {
   NATIVE_TOKEN_DECIMALS,
   USDC_ADDRESSES,
 } from "juice-sdk-core";
-import { formatUnits, getContract, PublicClient } from "viem";
+import { unstable_cache } from "next/cache";
+import { formatUnits, getContract } from "viem";
 import { isUsd } from "./currency";
+import { getViemPublicClient } from "./wagmiConfig";
 
 export interface Token {
   symbol: string;
@@ -63,17 +65,17 @@ export function isNativeToken(address: string | null) {
   return address?.toLowerCase() === NATIVE_TOKEN.toLowerCase();
 }
 
-export async function getTokenAddress(
-  client: PublicClient,
-  chainId: JBChainId,
-  projectId: number,
-  version: JBVersion,
-) {
-  const jbTokens = getContract({
-    address: getJBContractAddress(JBCoreContracts.JBTokens, version, chainId),
-    abi: jbTokensAbi,
-    client,
-  });
+export const getTokenAddress = unstable_cache(
+  async (chainId: JBChainId, projectId: number, version: JBVersion) => {
+    const client = getViemPublicClient(chainId);
+    const jbTokens = getContract({
+      address: getJBContractAddress(JBCoreContracts.JBTokens, version, chainId),
+      abi: jbTokensAbi,
+      client,
+    });
 
-  return await jbTokens.read.tokenOf([BigInt(projectId)]);
-}
+    return await jbTokens.read.tokenOf([BigInt(projectId)]);
+  },
+  ["tokenAddress"],
+  { revalidate: 300 }, // 5 minutes
+);

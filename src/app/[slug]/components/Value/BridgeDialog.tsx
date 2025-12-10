@@ -104,7 +104,7 @@ export function BridgeDialog(props: PropsWithChildren<Props>) {
         throw new Error("Please try again");
       }
 
-      const tokenAddress = await getTokenAddress(publicClient, sourceChainId, projectId, version);
+      const tokenAddress = await getTokenAddress(sourceChainId, projectId, version);
 
       if (!tokenAddress) {
         throw new Error("Couldn't determine token address. Please try again");

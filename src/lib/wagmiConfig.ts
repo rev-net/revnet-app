@@ -1,6 +1,6 @@
 import { farcasterFrame as miniAppConnector } from "@farcaster/frame-wagmi-connector";
 import { cache } from "react";
-import { createPublicClient } from "viem";
+import { createPublicClient, PublicClient } from "viem";
 import {
   arbitrum,
   arbitrumSepolia,
@@ -105,5 +105,5 @@ export const getViemPublicClient = cache((chainId: keyof typeof transports) => {
     batch: { multicall: true },
     chain: chains.find((chain) => chain.id === chainId),
     transport,
-  });
+  }) as PublicClient;
 });

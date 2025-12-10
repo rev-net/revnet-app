@@ -1,11 +1,20 @@
+import { RangeSelector } from "@/components/ui/range-selector";
 import { parseSlug } from "@/lib/slug";
 import { notFound } from "next/navigation";
 import { getProject } from "../getProject";
 import { CurrentIssuanceSection } from "./components/CurrentIssuanceSection";
 import { IssuancePriceChart } from "./components/IssuancePriceChart/IssuancePriceChart";
-import { RangeSelector } from "./components/RangeSelector";
+import { ProjectionRange } from "./components/IssuancePriceChart/prepareChartData";
 import { StagesTable } from "./components/StagesTable";
 import { getRulesets } from "./getRulesets";
+
+const PROJECTION_RANGES: { value: ProjectionRange; label: string }[] = [
+  { value: "1y", label: "1Y" },
+  { value: "5y", label: "5Y" },
+  { value: "10y", label: "10Y" },
+  { value: "20y", label: "20Y" },
+  { value: "all", label: "All" },
+];
 
 interface Props {
   params: { slug: string };
@@ -26,7 +35,7 @@ export default async function Terms({ params }: Props) {
           <h3 className="text-sm font-medium text-zinc-500 mb-1">Token Issuance</h3>
           <CurrentIssuanceSection />
         </div>
-        <RangeSelector />
+        <RangeSelector ranges={PROJECTION_RANGES} defaultValue="1y" />
       </div>
       <IssuancePriceChart rulesets={rulesets} />
       <StagesTable rulesets={rulesets} />

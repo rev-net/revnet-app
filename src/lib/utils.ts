@@ -207,3 +207,12 @@ export function formatWalletError(error: any, defaultMessage = "Please try again
   if (error.message) return error.message as string;
   return defaultMessage;
 }
+
+export function formatPrice(value: number): string {
+  if (value === 0) return "0";
+  if (value < 0.000001) return value.toExponential(4);
+  if (value < 0.0001) return value.toPrecision(4);
+  if (value < 1) return value.toFixed(6);
+  if (value < 1000) return value.toFixed(4);
+  return value.toLocaleString("en-US", { maximumFractionDigits: 0 });
+}
