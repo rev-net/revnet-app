@@ -1,13 +1,15 @@
 import { Nav } from "@/components/layout/Nav";
 import { parseSlug } from "@/lib/slug";
+import { NATIVE_TOKEN_DECIMALS } from "juice-sdk-core";
 import type { Metadata } from "next";
 import { headers } from "next/headers";
 import { notFound } from "next/navigation";
-import { PropsWithChildren } from "react";
+import { PropsWithChildren, Suspense } from "react";
 import { Header } from "./components/Header/Header";
 import { NewProjectNotice } from "./components/NewProjectNotice";
 import { PayCard } from "./components/PayCard/PayCard";
 import { ProjectMenu } from "./components/ProjectMenu";
+import { TokenPriceChartWrapper } from "./components/TokenPrice/TokenPriceChartWrapper";
 import { getProject } from "./getProject";
 import { getProjectOperator } from "./getProjectOperator";
 import { getSuckerGroup } from "./getSuckerGroup";
@@ -87,7 +89,7 @@ export default async function SlugLayout({ children, params }: PropsWithChildren
   const { chainId, projectId, version } = parseSlug(params.slug);
 
   const project = await getProject(projectId, chainId, version);
-  if (!project) notFound();
+  if (!project || !project.token) notFound();
 
   const suckerGroup = await getSuckerGroup(project.suckerGroupId, chainId);
   if (!suckerGroup) notFound();
@@ -122,6 +124,18 @@ export default async function SlugLayout({ children, params }: PropsWithChildren
           </div>
 
           <div className="max-w-4xl mx-auto pb-10 gap-6 flex flex-col">
+            <Suspense>
+              <TokenPriceChartWrapper
+                projectId={projectId.toString()}
+                chainId={chainId}
+                version={version}
+                suckerGroupId={suckerGroup.id}
+                token={project.token}
+                tokenSymbol={project.tokenSymbol ?? "ETH"}
+                tokenDecimals={project.decimals ?? NATIVE_TOKEN_DECIMALS}
+              />
+            </Suspense>
+
             <ProjectMenu />
 
             {children}

@@ -20,18 +20,9 @@ const TIME_RANGES: RangeOption<TimeRange>[] = [
 ];
 
 const chartConfig = {
-  issuancePrice: {
-    label: "Issuance Price",
-    color: "var(--chart-1)",
-  },
-  ammPrice: {
-    label: "Pool Price",
-    color: "var(--chart-2)",
-  },
-  floorPrice: {
-    label: "Floor Price",
-    color: "var(--chart-3)",
-  },
+  issuancePrice: { label: "Issuance Price", color: "var(--chart-1)" },
+  ammPrice: { label: "Pool Price", color: "var(--chart-2)" },
+  floorPrice: { label: "Floor Price", color: "var(--chart-3)" },
 } satisfies ChartConfig;
 
 interface Props {
@@ -39,18 +30,30 @@ interface Props {
   range: TimeRange;
   hasPool: boolean;
   baseTokenSymbol: string;
+  baseTokenDecimals: number;
+  isLoading: boolean;
 }
 
-export function TokenPriceChart({ data, range, hasPool, baseTokenSymbol }: Props) {
+export function TokenPriceChart({
+  data,
+  range,
+  hasPool,
+  baseTokenSymbol,
+  baseTokenDecimals,
+  isLoading,
+}: Props) {
   const [showIssuance, setShowIssuance] = useState(true);
   const [showAmm, setShowAmm] = useState(true);
-  const [showFloor, setShowFloor] = useState(true);
+  const [showFloor, setShowFloor] = useState(false);
 
   const filteredData = data.map((point) => ({
     timestamp: point.timestamp,
     issuancePrice: showIssuance ? point.issuancePrice : undefined,
     ammPrice: showAmm ? point.ammPrice : undefined,
     floorPrice: showFloor ? point.floorPrice : undefined,
+    totalSupply: showFloor ? point.totalSupply : undefined,
+    totalBalance: showFloor ? point.totalBalance : undefined,
+    cashOutTaxRate: showFloor ? point.cashOutTaxRate : undefined,
   }));
 
   const hasData = data.length > 0;
@@ -59,28 +62,96 @@ export function TokenPriceChart({ data, range, hasPool, baseTokenSymbol }: Props
 
   return (
     <div className="w-full">
-      <div className="flex justify-end">
+      <div className="flex flex-col gap-2.5 items-start md:flex-row md:justify-between md:items-center">
+        <div className="flex gap-1.5 md:gap-4 flex-wrap">
+          <button
+            onClick={() => setShowIssuance(!showIssuance)}
+            className={cn(
+              "flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium transition-all",
+              showIssuance
+                ? "bg-[--chart-1]/10 text-[--chart-1] ring-1 ring-[--chart-1]/30"
+                : "bg-zinc-100 text-zinc-400 hover:bg-zinc-200",
+            )}
+          >
+            <span
+              className={cn("w-2.5 h-2.5 rounded-full", {
+                "bg-[--chart-1]": showIssuance,
+                "bg-zinc-300": !showIssuance,
+              })}
+            />
+            Issuance Price
+          </button>
+
+          {hasPool && (
+            <button
+              onClick={() => setShowAmm(!showAmm)}
+              disabled={!hasAmmData}
+              className={cn(
+                "flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium transition-all",
+                !hasAmmData && "opacity-50 cursor-not-allowed",
+                showAmm && hasAmmData
+                  ? "bg-[--chart-2]/10 text-[--chart-2] ring-1 ring-[--chart-2]/30"
+                  : "bg-zinc-100 text-zinc-400 hover:bg-zinc-200",
+              )}
+            >
+              <span
+                className={cn("w-2.5 h-2.5 rounded-full", {
+                  "bg-[--chart-2]": showAmm && hasAmmData,
+                  "bg-zinc-300": !(showAmm && hasAmmData),
+                })}
+              />
+              Pool Price
+            </button>
+          )}
+
+          <button
+            onClick={() => setShowFloor(!showFloor)}
+            disabled={!hasFloorData}
+            className={cn(
+              "flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium transition-all",
+              !hasFloorData && "opacity-50 cursor-not-allowed",
+              showFloor && hasFloorData
+                ? "bg-[--chart-3]/10 text-[--chart-3] ring-1 ring-[--chart-3]/30"
+                : "bg-zinc-100 text-zinc-400 hover:bg-zinc-200",
+            )}
+          >
+            <span
+              className={cn("w-2.5 h-2.5 rounded-full", {
+                "bg-[--chart-3]": showFloor && hasFloorData,
+                "bg-zinc-300": !(showFloor && hasFloorData),
+              })}
+            />
+            Floor Price
+          </button>
+        </div>
         <RangeSelector ranges={TIME_RANGES} defaultValue="1y" />
       </div>
 
       {hasData ? (
-        <ChartContainer config={chartConfig} className="mt-6 h-[300px] w-full">
-          <LineChart data={filteredData} margin={{ left: 0, right: 12, top: 12, bottom: 0 }}>
+        <ChartContainer
+          config={chartConfig}
+          className="mt-6 aspect-[4/3] sm:aspect-[2/1] lg:aspect-[5/2] w-full"
+        >
+          <LineChart
+            data={filteredData}
+            accessibilityLayer
+            margin={{ left: -12, right: 12, top: 12, bottom: 0 }}
+          >
             <CartesianGrid strokeDasharray="3 3" vertical={false} />
             <XAxis
               dataKey="timestamp"
               tickLine={false}
               axisLine={false}
-              tickMargin={12}
+              tickMargin={8}
               tickFormatter={(timestamp) => formatXAxis(timestamp, range)}
-              minTickGap={40}
+              minTickGap={32}
             />
             <YAxis
               tickLine={false}
               axisLine={false}
               tickMargin={8}
               tickFormatter={formatPrice}
-              width={70}
+              width={60}
               domain={[0, "auto"]}
             />
             <ChartTooltip
@@ -89,6 +160,8 @@ export function TokenPriceChart({ data, range, hasPool, baseTokenSymbol }: Props
                   active={active}
                   payload={payload}
                   baseTokenSymbol={baseTokenSymbol}
+                  baseTokenDecimals={baseTokenDecimals}
+                  range={range}
                 />
               )}
             />
@@ -128,72 +201,10 @@ export function TokenPriceChart({ data, range, hasPool, baseTokenSymbol }: Props
           </LineChart>
         </ChartContainer>
       ) : (
-        <div className="h-[300px] w-full flex items-center justify-center text-zinc-500">
-          No price data available
+        <div className="aspect-[4/3] sm:aspect-[2/1] lg:aspect-[5/2] w-full flex items-center justify-center text-zinc-500">
+          {isLoading ? "Loading..." : "No price data available"}
         </div>
       )}
-
-      <div className="flex gap-4 mt-4 flex-wrap">
-        <button
-          onClick={() => setShowIssuance(!showIssuance)}
-          className={cn(
-            "flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium transition-all",
-            showIssuance
-              ? "bg-[--chart-1]/10 text-[--chart-1] ring-1 ring-[--chart-1]/30"
-              : "bg-zinc-100 text-zinc-400 hover:bg-zinc-200",
-          )}
-        >
-          <span
-            className={cn("w-2.5 h-2.5 rounded-full", {
-              "bg-[--chart-1]": showIssuance,
-              "bg-zinc-300": !showIssuance,
-            })}
-          />
-          Issuance Price
-        </button>
-
-        {hasPool && (
-          <button
-            onClick={() => setShowAmm(!showAmm)}
-            disabled={!hasAmmData}
-            className={cn(
-              "flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium transition-all",
-              !hasAmmData && "opacity-50 cursor-not-allowed",
-              showAmm && hasAmmData
-                ? "bg-[--chart-2]/10 text-[--chart-2] ring-1 ring-[--chart-2]/30"
-                : "bg-zinc-100 text-zinc-400 hover:bg-zinc-200",
-            )}
-          >
-            <span
-              className={cn("w-2.5 h-2.5 rounded-full", {
-                "bg-[--chart-2]": showAmm && hasAmmData,
-                "bg-zinc-300": !(showAmm && hasAmmData),
-              })}
-            />
-            Pool Price
-          </button>
-        )}
-
-        <button
-          onClick={() => setShowFloor(!showFloor)}
-          disabled={!hasFloorData}
-          className={cn(
-            "flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium transition-all",
-            !hasFloorData && "opacity-50 cursor-not-allowed",
-            showFloor && hasFloorData
-              ? "bg-[--chart-3]/10 text-[--chart-3] ring-1 ring-[--chart-3]/30"
-              : "bg-zinc-100 text-zinc-400 hover:bg-zinc-200",
-          )}
-        >
-          <span
-            className={cn("w-2.5 h-2.5 rounded-full", {
-              "bg-[--chart-3]": showFloor && hasFloorData,
-              "bg-zinc-300": !(showFloor && hasFloorData),
-            })}
-          />
-          Floor Price
-        </button>
-      </div>
     </div>
   );
 }

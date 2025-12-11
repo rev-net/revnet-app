@@ -70,7 +70,13 @@ export async function getFloorPriceHistory(options: FloorPriceOptions): Promise<
         baseTokenDecimals,
       );
 
-      dataPoints.push({ timestamp: moment.timestamp, floorPrice });
+      dataPoints.push({
+        timestamp: moment.timestamp,
+        floorPrice,
+        totalSupply: moment.tokenSupply,
+        totalBalance: moment.balance,
+        cashOutTaxRate: cashOutTax,
+      });
     }
 
     return dataPoints;
