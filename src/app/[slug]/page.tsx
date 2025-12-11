@@ -67,6 +67,7 @@ export default async function YouPage(props: Props) {
         range={range}
         hasPool={hasPool}
         baseTokenSymbol={project.tokenSymbol ?? "ETH"}
+        baseTokenDecimals={project.decimals ?? NATIVE_TOKEN_DECIMALS}
       />
 
       <BalanceTable

@@ -14,6 +14,10 @@ export type PriceDataPoint = {
   issuancePrice?: number;
   ammPrice?: number;
   floorPrice?: number;
+  // Floor price calculation inputs (for debugging)
+  totalSupply?: string;
+  totalBalance?: string;
+  cashOutTaxRate?: number;
 };
 
 export async function getTokenPriceChartData(params: {
@@ -96,8 +100,17 @@ function mergeDataPoints(
     const existing = merged.get(dayTs);
     if (existing) {
       existing.floorPrice = point.floorPrice;
+      existing.totalSupply = point.totalSupply;
+      existing.totalBalance = point.totalBalance;
+      existing.cashOutTaxRate = point.cashOutTaxRate;
     } else {
-      merged.set(dayTs, { timestamp: dayTs, floorPrice: point.floorPrice });
+      merged.set(dayTs, {
+        timestamp: dayTs,
+        floorPrice: point.floorPrice,
+        totalSupply: point.totalSupply,
+        totalBalance: point.totalBalance,
+        cashOutTaxRate: point.cashOutTaxRate,
+      });
     }
   }
 
@@ -105,6 +118,9 @@ function mergeDataPoints(
 
   let lastAmmPrice: number | undefined;
   let lastFloorPrice: number | undefined;
+  let lastTotalSupply: string | undefined;
+  let lastTotalBalance: string | undefined;
+  let lastCashOutTaxRate: number | undefined;
 
   for (const point of sorted) {
     if (point.ammPrice !== undefined) {
@@ -115,8 +131,14 @@ function mergeDataPoints(
 
     if (point.floorPrice !== undefined) {
       lastFloorPrice = point.floorPrice;
+      lastTotalSupply = point.totalSupply;
+      lastTotalBalance = point.totalBalance;
+      lastCashOutTaxRate = point.cashOutTaxRate;
     } else if (lastFloorPrice !== undefined) {
       point.floorPrice = lastFloorPrice;
+      point.totalSupply = lastTotalSupply;
+      point.totalBalance = lastTotalBalance;
+      point.cashOutTaxRate = lastCashOutTaxRate;
     }
   }
 

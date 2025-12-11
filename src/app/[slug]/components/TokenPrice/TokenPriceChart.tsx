@@ -39,9 +39,16 @@ interface Props {
   range: TimeRange;
   hasPool: boolean;
   baseTokenSymbol: string;
+  baseTokenDecimals: number;
 }
 
-export function TokenPriceChart({ data, range, hasPool, baseTokenSymbol }: Props) {
+export function TokenPriceChart({
+  data,
+  range,
+  hasPool,
+  baseTokenSymbol,
+  baseTokenDecimals,
+}: Props) {
   const [showIssuance, setShowIssuance] = useState(true);
   const [showAmm, setShowAmm] = useState(true);
   const [showFloor, setShowFloor] = useState(true);
@@ -51,6 +58,10 @@ export function TokenPriceChart({ data, range, hasPool, baseTokenSymbol }: Props
     issuancePrice: showIssuance ? point.issuancePrice : undefined,
     ammPrice: showAmm ? point.ammPrice : undefined,
     floorPrice: showFloor ? point.floorPrice : undefined,
+    // Pass through floor price debug fields
+    totalSupply: showFloor ? point.totalSupply : undefined,
+    totalBalance: showFloor ? point.totalBalance : undefined,
+    cashOutTaxRate: showFloor ? point.cashOutTaxRate : undefined,
   }));
 
   const hasData = data.length > 0;
@@ -89,6 +100,8 @@ export function TokenPriceChart({ data, range, hasPool, baseTokenSymbol }: Props
                   active={active}
                   payload={payload}
                   baseTokenSymbol={baseTokenSymbol}
+                  baseTokenDecimals={baseTokenDecimals}
+                  range={range}
                 />
               )}
             />
