@@ -8,5 +8,5 @@ export function toBaseCurrencyId(currency: number | string, version: JBVersion) 
 const usdSymbols = ["USDC", "USD", "USDT", "DAI"];
 
 export function isUsd(symbol: string) {
-  return usdSymbols.includes(symbol);
+  return usdSymbols.map((s) => s.toLowerCase()).includes(symbol.toLowerCase());
 }
