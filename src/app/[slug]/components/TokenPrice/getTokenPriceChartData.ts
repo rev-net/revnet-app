@@ -1,10 +1,12 @@
+"use server";
+
 import { getRulesets } from "@/app/[slug]/terms/getRulesets";
 import { getCurrentCashOutTax } from "@/lib/cashOutTax";
 import { getStartTimeForRange, TimeRange } from "@/lib/timeRange";
 import { getTokenAddress } from "@/lib/token";
 import { getUniswapPool } from "@/lib/uniswap/pool";
 import { JB_TOKEN_DECIMALS, JBChainId, JBVersion, NATIVE_TOKEN } from "juice-sdk-core";
-import { Address } from "viem";
+import { getAddress } from "viem";
 import { calculateIssuancePriceHistory } from "./calculateIssuancePriceHistory";
 import { getAmmPriceHistory } from "./getAmmPriceHistory";
 import { getFloorPriceHistory } from "./getFloorPriceHistory";
@@ -21,17 +23,17 @@ export type PriceDataPoint = {
 };
 
 export async function getTokenPriceChartData(params: {
-  projectId: bigint;
+  projectId: string;
   chainId: JBChainId;
   version: JBVersion;
   range: TimeRange;
   suckerGroupId: string;
-  baseToken: { address: Address; symbol: string; decimals: number };
+  baseToken: { address: string; symbol: string; decimals: number };
 }) {
   const { projectId, chainId, version, baseToken, suckerGroupId, range } = params;
   const startTime = getStartTimeForRange(range);
 
-  const rulesets = await getRulesets(projectId.toString(), chainId, version);
+  const rulesets = await getRulesets(projectId, chainId, version);
   const projectStart = rulesets.length > 0 ? rulesets[0].start : 0;
   const issuanceData = calculateIssuancePriceHistory(rulesets, range);
 
@@ -41,7 +43,7 @@ export async function getTokenPriceChartData(params: {
   }
 
   const pool = await getUniswapPool(
-    { address: baseToken.address, decimals: baseToken.decimals },
+    { address: getAddress(baseToken.address), decimals: baseToken.decimals },
     { address: projectTokenAddress, decimals: JB_TOKEN_DECIMALS },
     chainId,
   );
@@ -50,7 +52,7 @@ export async function getTokenPriceChartData(params: {
     ? await getAmmPriceHistory(pool.address, projectTokenAddress, chainId, range, projectStart)
     : [];
 
-  const currentCashOutTax = await getCurrentCashOutTax(projectId.toString(), chainId, version);
+  const currentCashOutTax = await getCurrentCashOutTax(projectId, chainId, version);
 
   const floorData = await getFloorPriceHistory({
     suckerGroupId,
