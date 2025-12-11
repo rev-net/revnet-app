@@ -1,8 +1,10 @@
-query SuckerGroupMoments($suckerGroupId: String!) {
+query SuckerGroupMoments($suckerGroupId: String!, $after: String) {
   suckerGroupMoments(
     where: { suckerGroupId: $suckerGroupId }
     orderBy: "timestamp"
     orderDirection: "asc"
+    limit: 1000
+    after: $after
   ) {
     items {
       timestamp
@@ -10,6 +12,10 @@ query SuckerGroupMoments($suckerGroupId: String!) {
       tokenSupply
       suckerGroupId
       version
+    }
+    pageInfo {
+      hasNextPage
+      endCursor
     }
   }
 }

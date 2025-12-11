@@ -1,12 +1,11 @@
 import {
   CashOutTaxSnapshotsDocument,
   CashOutTaxSnapshotsQuery,
-  CashOutTaxSnapshotsQueryVariables,
   SuckerGroupMomentsDocument,
   SuckerGroupMomentsQuery,
-  SuckerGroupMomentsQueryVariables,
 } from "@/generated/graphql";
 import { getBendystrawClient } from "@/graphql/bendystrawClient";
+import type { GraphQLClient } from "graphql-request";
 import { JB_TOKEN_DECIMALS } from "juice-sdk-core";
 import { parseUnits } from "viem";
 import type { PriceDataPoint } from "./getTokenPriceChartData";
@@ -20,6 +19,53 @@ type FloorPriceOptions = {
 };
 
 type CashOutTaxSnapshot = CashOutTaxSnapshotsQuery["cashOutTaxSnapshots"]["items"][number];
+type SuckerGroupMoment = SuckerGroupMomentsQuery["suckerGroupMoments"]["items"][number];
+
+async function fetchAllTaxSnapshots(
+  client: GraphQLClient,
+  suckerGroupId: string,
+): Promise<CashOutTaxSnapshot[]> {
+  const allItems: CashOutTaxSnapshot[] = [];
+  let cursor: string | undefined;
+
+  do {
+    const result = await client.request<
+      CashOutTaxSnapshotsQuery & {
+        cashOutTaxSnapshots: { pageInfo: { hasNextPage: boolean; endCursor: string | null } };
+      }
+    >(CashOutTaxSnapshotsDocument, { suckerGroupId, after: cursor });
+
+    allItems.push(...(result.cashOutTaxSnapshots?.items ?? []));
+
+    const pageInfo = result.cashOutTaxSnapshots?.pageInfo;
+    cursor = pageInfo?.hasNextPage ? (pageInfo.endCursor ?? undefined) : undefined;
+  } while (cursor);
+
+  return allItems;
+}
+
+async function fetchAllMoments(
+  client: GraphQLClient,
+  suckerGroupId: string,
+): Promise<SuckerGroupMoment[]> {
+  const allItems: SuckerGroupMoment[] = [];
+  let cursor: string | undefined;
+
+  do {
+    const result = await client.request<
+      SuckerGroupMomentsQuery & {
+        suckerGroupMoments: { pageInfo: { hasNextPage: boolean; endCursor: string | null } };
+      }
+    >(SuckerGroupMomentsDocument, { suckerGroupId, after: cursor });
+
+    allItems.push(...(result.suckerGroupMoments?.items ?? []));
+
+    const pageInfo = result.suckerGroupMoments?.pageInfo;
+    cursor = pageInfo?.hasNextPage ? (pageInfo.endCursor ?? undefined) : undefined;
+  } while (cursor);
+
+  return allItems;
+}
 
 export async function getFloorPriceHistory(options: FloorPriceOptions): Promise<PriceDataPoint[]> {
   const { suckerGroupId, chainId, baseTokenDecimals, currentCashOutTax, projectStart } = options;
@@ -27,21 +73,10 @@ export async function getFloorPriceHistory(options: FloorPriceOptions): Promise<
   try {
     const client = getBendystrawClient(chainId);
 
-    const [taxSnapshotsResult, momentsResult] = await Promise.all([
-      client.request<CashOutTaxSnapshotsQuery, CashOutTaxSnapshotsQueryVariables>(
-        CashOutTaxSnapshotsDocument,
-        { suckerGroupId },
-      ),
-      client.request<SuckerGroupMomentsQuery, SuckerGroupMomentsQueryVariables>(
-        SuckerGroupMomentsDocument,
-        { suckerGroupId },
-      ),
+    const [taxSnapshots, moments] = await Promise.all([
+      fetchAllTaxSnapshots(client, suckerGroupId),
+      fetchAllMoments(client, suckerGroupId),
     ]);
-
-    const taxSnapshots = taxSnapshotsResult.cashOutTaxSnapshots?.items ?? [];
-    const moments = momentsResult.suckerGroupMoments?.items ?? [];
-
-    const useFallbackTax = taxSnapshots.length === 0 && currentCashOutTax !== undefined;
 
     const dataPoints: PriceDataPoint[] = [];
 
@@ -55,13 +90,9 @@ export async function getFloorPriceHistory(options: FloorPriceOptions): Promise<
     }
 
     for (const moment of moments) {
-      const cashOutTax = useFallbackTax
-        ? currentCashOutTax
-        : findApplicableTaxRate(moment.timestamp, taxSnapshots);
+      const cashOutTax = findApplicableTaxRate(moment.timestamp, taxSnapshots, currentCashOutTax);
 
-      if (cashOutTax === null || cashOutTax === undefined) {
-        continue;
-      }
+      if (cashOutTax === undefined) continue;
 
       const floorPrice = calculateFloorPrice(
         BigInt(moment.balance),
@@ -114,16 +145,21 @@ function calculateFloorPrice(
   return y / 10 ** baseTokenDecimals;
 }
 
-function findApplicableTaxRate(timestamp: number, snapshots: CashOutTaxSnapshot[]): number | null {
+function findApplicableTaxRate(
+  timestamp: number,
+  snapshots: CashOutTaxSnapshot[],
+  fallback?: number,
+): number | undefined {
+  let applicableTax: number | undefined = fallback;
+
   for (const snapshot of snapshots) {
     const start = Number(snapshot.start);
-    const duration = Number(snapshot.duration);
-    const end = duration === 0 ? Infinity : start + duration;
-
-    if (timestamp >= start && timestamp < end) {
-      return snapshot.cashOutTax;
+    if (start <= timestamp) {
+      applicableTax = snapshot.cashOutTax;
+    } else {
+      break;
     }
   }
 
-  return null;
+  return applicableTax;
 }

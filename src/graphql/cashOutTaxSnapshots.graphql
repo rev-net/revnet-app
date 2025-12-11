@@ -1,8 +1,10 @@
-query CashOutTaxSnapshots($suckerGroupId: String!) {
+query CashOutTaxSnapshots($suckerGroupId: String!, $after: String) {
   cashOutTaxSnapshots(
     where: { suckerGroupId: $suckerGroupId }
     orderBy: "start"
     orderDirection: "asc"
+    limit: 1000
+    after: $after
   ) {
     items {
       cashOutTax
@@ -11,6 +13,10 @@ query CashOutTaxSnapshots($suckerGroupId: String!) {
       rulesetId
       suckerGroupId
       version
+    }
+    pageInfo {
+      hasNextPage
+      endCursor
     }
   }
 }
