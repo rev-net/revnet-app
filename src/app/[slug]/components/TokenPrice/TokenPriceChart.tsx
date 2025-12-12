@@ -2,12 +2,16 @@
 
 import { ChartConfig, ChartContainer, ChartTooltip } from "@/components/ui/chart";
 import { RangeOption, RangeSelector } from "@/components/ui/range-selector";
-import { TimeRange } from "@/lib/timeRange";
-import { cn, formatPrice } from "@/lib/utils";
+import { parseTimeRange, TimeRange } from "@/lib/timeRange";
+import { formatPrice } from "@/lib/utils";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
+import { JBChainId, JBVersion } from "juice-sdk-core";
+import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
-import { PriceDataPoint } from "./getTokenPriceChartData";
+import { ChartToggleButton } from "./ChartToggleButton";
+import { getTokenPriceChartData } from "./getTokenPriceChartData";
 import { PriceChartTooltip } from "./PriceChartTooltip";
 
 const TIME_RANGES: RangeOption<TimeRange>[] = [
@@ -26,27 +30,53 @@ const chartConfig = {
 } satisfies ChartConfig;
 
 interface Props {
-  data: PriceDataPoint[];
-  range: TimeRange;
-  hasPool: boolean;
-  baseTokenSymbol: string;
-  baseTokenDecimals: number;
-  isLoading: boolean;
+  projectId: string;
+  chainId: JBChainId;
+  version: JBVersion;
+  suckerGroupId: string;
+  token: string;
+  tokenSymbol: string;
+  tokenDecimals: number;
 }
 
 export function TokenPriceChart({
-  data,
-  range,
-  hasPool,
-  baseTokenSymbol,
-  baseTokenDecimals,
-  isLoading,
+  projectId,
+  chainId,
+  version,
+  suckerGroupId,
+  token,
+  tokenSymbol,
+  tokenDecimals,
 }: Props) {
+  const searchParams = useSearchParams();
+  const range = parseTimeRange(searchParams.get("range"));
+
+  const { data, isLoading } = useQuery({
+    queryKey: ["chartData", projectId, chainId, version, suckerGroupId, range],
+    queryFn: () =>
+      getTokenPriceChartData({
+        projectId,
+        chainId,
+        version,
+        range,
+        suckerGroupId,
+        baseToken: { address: token, symbol: tokenSymbol, decimals: tokenDecimals },
+      }),
+    placeholderData: keepPreviousData,
+  });
+
   const [showIssuance, setShowIssuance] = useState(true);
   const [showAmm, setShowAmm] = useState(true);
-  const [showFloor, setShowFloor] = useState(false);
+  const [showFloor, setShowFloor] = useState(true);
 
-  const filteredData = data.map((point) => ({
+  const chartData = data?.chartData ?? [];
+  const hasData = chartData.length > 0;
+
+  const hasPool = data?.hasPool ?? false;
+  const hasAmmData = chartData.some((d) => d.ammPrice !== undefined);
+  const hasFloorData = chartData.some((d) => d.floorPrice !== undefined);
+
+  const filteredData = chartData.map((point) => ({
     timestamp: point.timestamp,
     issuancePrice: showIssuance ? point.issuancePrice : undefined,
     ammPrice: showAmm ? point.ammPrice : undefined,
@@ -56,73 +86,32 @@ export function TokenPriceChart({
     cashOutTaxRate: showFloor ? point.cashOutTaxRate : undefined,
   }));
 
-  const hasData = data.length > 0;
-  const hasAmmData = data.some((d) => d.ammPrice !== undefined);
-  const hasFloorData = data.some((d) => d.floorPrice !== undefined);
-
   return (
     <div className="w-full">
       <div className="flex flex-col gap-2.5 items-start md:flex-row md:justify-between md:items-center">
         <div className="flex gap-1.5 md:gap-4 flex-wrap">
-          <button
+          <ChartToggleButton
+            label="Issuance Price"
+            active={showIssuance}
+            colorVar="--chart-1"
             onClick={() => setShowIssuance(!showIssuance)}
-            className={cn(
-              "flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium transition-all",
-              showIssuance
-                ? "bg-[--chart-1]/10 text-[--chart-1] ring-1 ring-[--chart-1]/30"
-                : "bg-zinc-100 text-zinc-400 hover:bg-zinc-200",
-            )}
-          >
-            <span
-              className={cn("w-2.5 h-2.5 rounded-full", {
-                "bg-[--chart-1]": showIssuance,
-                "bg-zinc-300": !showIssuance,
-              })}
-            />
-            Issuance Price
-          </button>
-
+          />
           {hasPool && (
-            <button
-              onClick={() => setShowAmm(!showAmm)}
+            <ChartToggleButton
+              label="Pool Price"
+              active={showAmm}
               disabled={!hasAmmData}
-              className={cn(
-                "flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium transition-all",
-                !hasAmmData && "opacity-50 cursor-not-allowed",
-                showAmm && hasAmmData
-                  ? "bg-[--chart-2]/10 text-[--chart-2] ring-1 ring-[--chart-2]/30"
-                  : "bg-zinc-100 text-zinc-400 hover:bg-zinc-200",
-              )}
-            >
-              <span
-                className={cn("w-2.5 h-2.5 rounded-full", {
-                  "bg-[--chart-2]": showAmm && hasAmmData,
-                  "bg-zinc-300": !(showAmm && hasAmmData),
-                })}
-              />
-              Pool Price
-            </button>
-          )}
-
-          <button
-            onClick={() => setShowFloor(!showFloor)}
-            disabled={!hasFloorData}
-            className={cn(
-              "flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium transition-all",
-              !hasFloorData && "opacity-50 cursor-not-allowed",
-              showFloor && hasFloorData
-                ? "bg-[--chart-3]/10 text-[--chart-3] ring-1 ring-[--chart-3]/30"
-                : "bg-zinc-100 text-zinc-400 hover:bg-zinc-200",
-            )}
-          >
-            <span
-              className={cn("w-2.5 h-2.5 rounded-full", {
-                "bg-[--chart-3]": showFloor && hasFloorData,
-                "bg-zinc-300": !(showFloor && hasFloorData),
-              })}
+              colorVar="--chart-2"
+              onClick={() => setShowAmm(!showAmm)}
             />
-            Floor Price
-          </button>
+          )}
+          <ChartToggleButton
+            label="Cash out Price"
+            active={showFloor}
+            disabled={!hasFloorData}
+            colorVar="--chart-3"
+            onClick={() => setShowFloor(!showFloor)}
+          />
         </div>
         <RangeSelector ranges={TIME_RANGES} defaultValue="1y" />
       </div>
@@ -159,8 +148,8 @@ export function TokenPriceChart({
                 <PriceChartTooltip
                   active={active}
                   payload={payload}
-                  baseTokenSymbol={baseTokenSymbol}
-                  baseTokenDecimals={baseTokenDecimals}
+                  baseTokenSymbol={tokenSymbol}
+                  baseTokenDecimals={tokenDecimals}
                   range={range}
                 />
               )}

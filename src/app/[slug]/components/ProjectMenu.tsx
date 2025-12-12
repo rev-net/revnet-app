@@ -9,7 +9,6 @@ export function ProjectMenu() {
   return (
     <ul className="flex gap-4 sm:gap-6">
       <MenuOption href="">About</MenuOption>
-      <MenuOption href="activity">Activity</MenuOption>
       <MenuOption href="terms">Terms</MenuOption>
       <MenuOption href="owners">Owners</MenuOption>
       <MenuOption href="ops">Ops</MenuOption>

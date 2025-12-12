@@ -130,7 +130,7 @@ export function StagesTable({ rulesets }: Props) {
   });
 
   return (
-    <div className="mt-8 border border-zinc-200 min-w-0">
+    <div className="mt-8 rounded-md border border-zinc-200 [&>div]:rounded-md [&_table]:min-w-[800px]">
       <Table>
         <TableHeader>
           <TableRow className="bg-zinc-50 hover:bg-zinc-50">
