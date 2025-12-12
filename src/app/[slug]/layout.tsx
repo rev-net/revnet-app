@@ -5,6 +5,7 @@ import type { Metadata } from "next";
 import { headers } from "next/headers";
 import { notFound } from "next/navigation";
 import { PropsWithChildren, Suspense } from "react";
+import { ActivityFeed } from "./components/ActivityFeed/ActivityFeed";
 import { Header } from "./components/Header/Header";
 import { NewProjectNotice } from "./components/NewProjectNotice";
 import { PayCard } from "./components/PayCard/PayCard";
@@ -105,24 +106,15 @@ export default async function SlugLayout({ children, params }: PropsWithChildren
       <div className="w-full px-4 sm:container pt-6">
         <Header operatorPromise={operatorPromise} projects={projects} />
       </div>
-      <div className="flex gap-10 w-full px-4 sm:container pb-5 md:flex-nowrap flex-wrap mb-10">
-        {/* Column 2, hide on mobile */}
-        <aside className="hidden md:w-[300px] md:block shrink-0">
+      <div className="flex flex-col md:flex-row gap-6 md:gap-10 w-full px-4 sm:container pb-5 mb-10">
+        <aside className="w-full md:w-[300px] shrink-0">
           <NewProjectNotice />
           <div className="mt-1 mb-4">
             <PayCard />
           </div>
+          <ActivityFeed suckerGroupId={suckerGroup.id} projects={projects} />
         </aside>
-        {/* Column 1 */}
         <div className="flex-1 min-w-0">
-          {/* Render Pay and activity after header on mobile */}
-          <div className="sm:hidden">
-            <NewProjectNotice />
-            <div className="mt-1 mb-4">
-              <PayCard />
-            </div>
-          </div>
-
           <div className="max-w-4xl mx-auto pb-10 gap-6 flex flex-col">
             <Suspense>
               <TokenPriceChart
