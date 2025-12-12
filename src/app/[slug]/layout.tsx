@@ -9,7 +9,7 @@ import { Header } from "./components/Header/Header";
 import { NewProjectNotice } from "./components/NewProjectNotice";
 import { PayCard } from "./components/PayCard/PayCard";
 import { ProjectMenu } from "./components/ProjectMenu";
-import { TokenPriceChartWrapper } from "./components/TokenPrice/TokenPriceChartWrapper";
+import { TokenPriceChart } from "./components/TokenPrice/TokenPriceChart";
 import { getProject } from "./getProject";
 import { getProjectOperator } from "./getProjectOperator";
 import { getSuckerGroup } from "./getSuckerGroup";
@@ -114,7 +114,7 @@ export default async function SlugLayout({ children, params }: PropsWithChildren
           </div>
         </aside>
         {/* Column 1 */}
-        <div className="flex-1">
+        <div className="flex-1 min-w-0">
           {/* Render Pay and activity after header on mobile */}
           <div className="sm:hidden">
             <NewProjectNotice />
@@ -125,7 +125,7 @@ export default async function SlugLayout({ children, params }: PropsWithChildren
 
           <div className="max-w-4xl mx-auto pb-10 gap-6 flex flex-col">
             <Suspense>
-              <TokenPriceChartWrapper
+              <TokenPriceChart
                 projectId={projectId.toString()}
                 chainId={chainId}
                 version={version}

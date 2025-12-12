@@ -56,7 +56,7 @@ export function IssuancePriceChart({ rulesets }: Props) {
     <ChartContainer
       key={range}
       config={chartConfig}
-      className="aspect-[2/1] sm:aspect-[3/1] w-full"
+      className="aspect-[4/3] sm:aspect-[2/1] lg:aspect-[5/2] w-full"
     >
       <AreaChart
         accessibilityLayer
