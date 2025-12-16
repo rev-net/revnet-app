@@ -54,7 +54,7 @@ export function Stages({ disabled = false }: { disabled?: boolean }) {
                 {values.stages.map((stage, index) => {
                   const duration = getDynamicDuration(index);
                   return (
-                    <div className="py-4" key={index}>
+                    <div className="py-4" key={`${stage.stageStart}-${duration}`}>
                       <div className="mb-1 flex justify-between items-center">
                         <div className="font-semibold">Stage {index + 1}</div>
                         <div className="flex">
