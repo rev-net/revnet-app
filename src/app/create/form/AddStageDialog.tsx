@@ -272,9 +272,9 @@ export function AddStageDialog({
                           name="splits"
                           render={(arrayHelpers) => (
                             <div>
-                              {values.splits.map((_, index) => (
+                              {values.splits.map((split, index) => (
                                 <div
-                                  key={index}
+                                  key={`${split.percentage}-${split.defaultBeneficiary}-${index}`}
                                   className="flex gap-2 items-center text-md text-zinc-600 mt-4"
                                 >
                                   <label
@@ -435,9 +435,9 @@ export function AddStageDialog({
                             <p className="text-md text-zinc-500 mt-10">
                               Optionally, auto-issue {revnetTokenSymbol} when the stage starts.
                             </p>
-                            {values.autoIssuance?.map((_, index) => (
+                            {values.autoIssuance?.map((autoissuance, index) => (
                               <div
-                                key={index}
+                                key={`${autoissuance.amount}-${autoissuance.beneficiary}-${index}`}
                                 className="flex gap-2 items-center text-md text-zinc-600 mt-4"
                               >
                                 <label
@@ -531,7 +531,7 @@ export function AddStageDialog({
                       <div className="flex justify-between relative w-full">
                         {steps.map((step) => (
                           <span
-                            key={Number(step) / 100}
+                            key={`${step}`}
                             className={
                               Number(step) === 0
                                 ? "text-sm"
