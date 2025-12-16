@@ -1,4 +1,5 @@
 import { useFormikContext } from "formik";
+import { useState } from "react";
 import { StageData } from "../types";
 import { NotesSection } from "./AddStageDialog";
 import { FieldGroup } from "./Fields";
@@ -10,9 +11,51 @@ interface StartTimeFieldProps {
 
 export function StartTimeField({ stageIdx, stages }: StartTimeFieldProps) {
   const { values, setFieldValue } = useFormikContext<StageData>();
+  const [useFutureStart, setUseFutureStart] = useState(Boolean(values.futureStartTimestamp));
 
   if (stageIdx === 0) {
-    return null; // First stage doesn't have start time
+    return (
+      <div className="pb-7">
+        <label className="block text-md font-semibold leading-6 mb-3">3. Start Time</label>
+        <p className="text-md text-zinc-500 mb-3">
+          By default, the revnet starts ~10 minutes after deployment.
+        </p>
+        <label className="flex items-center gap-2 cursor-pointer mb-3">
+          <input
+            type="checkbox"
+            checked={useFutureStart}
+            onChange={(e) => {
+              setUseFutureStart(e.target.checked);
+              if (!e.target.checked) {
+                setFieldValue("futureStartTimestamp", undefined);
+              }
+            }}
+            className="size-4"
+          />
+          <span className="text-md text-zinc-600">Start the revnet in the future</span>
+        </label>
+        {useFutureStart && (
+          <div className="mt-3">
+            <input
+              type="datetime-local"
+              min={new Date(Date.now() + 60 * 60 * 1000).toISOString().slice(0, 16)}
+              value={formatTimestampForInput(values.futureStartTimestamp)}
+              onChange={(e) => {
+                const timestamp = Math.floor(new Date(e.target.value).getTime() / 1000);
+                setFieldValue("futureStartTimestamp", timestamp);
+              }}
+              className="h-9 px-3 text-md border border-zinc-200 rounded bg-white"
+            />
+            {values.futureStartTimestamp && (
+              <p className="text-sm text-zinc-500 mt-2">
+                Starts at {new Date(values.futureStartTimestamp * 1000).toLocaleString()} (your
+                local time)
+              </p>
+            )}
+          </div>
+        )}
+      </div>
+    );
   }
 
   const previousStage = stages[stageIdx - 1];
@@ -25,7 +68,7 @@ export function StartTimeField({ stageIdx, stages }: StartTimeFieldProps) {
       <div className="pb-7">
         <div>
           <label htmlFor="cuts" className="block text-md font-semibold leading-6 mb-3">
-            4. Start Time
+            3. Start Time
           </label>
           <p className="text-md text-zinc-500 mb-3">
             How many issuance cuts of the previous stage before this stage starts?
@@ -76,9 +119,10 @@ export function StartTimeField({ stageIdx, stages }: StartTimeFieldProps) {
       <FieldGroup
         id="stageStart"
         name="stageStart"
-        label="4. Start Time"
+        label="3. Start Time"
         suffix="days"
-        min="1"
+        min="0.042"
+        step="any"
         type="number"
         description="How many days after the last stage's start time should this stage start?"
         width="w-32"
@@ -93,4 +137,9 @@ export function StartTimeField({ stageIdx, stages }: StartTimeFieldProps) {
       </NotesSection>
     </div>
   );
+}
+
+function formatTimestampForInput(timestamp: number | undefined): string {
+  if (!timestamp) return "";
+  return new Date(timestamp * 1000).toISOString().slice(0, 16);
 }

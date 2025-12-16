@@ -82,9 +82,16 @@ export function parseDeployData(
 
   const stageConfigurations = formData.stages.map((stage, idx) => {
     console.log(`~~~~~~~~~~~~~~~~~~~~~~~~~~ Stage ${idx + 1} ~~~~~~~~~~~~~~~~~~~~~~~~~~`);
-    const lengthSeconds = Number(stage.stageStart) * 86400;
+    const lengthSeconds = Math.floor(Number(stage.stageStart) * 86400);
     const bufferSeconds = 600;
-    const startsAtOrAfter = idx === 0 ? extra.timestamp + bufferSeconds : prevStart + lengthSeconds;
+    // Stage 0: use futureStartTimestamp if set, otherwise start in ~10 minutes
+    const futureStart = Number(formData.stages[0].futureStartTimestamp);
+    const startsAtOrAfter =
+      idx === 0
+        ? futureStart > 0
+          ? futureStart
+          : extra.timestamp + bufferSeconds
+        : prevStart + lengthSeconds;
     prevStart = startsAtOrAfter;
     console.log(
       `[ startsAtOrAfter ] ${new Date(

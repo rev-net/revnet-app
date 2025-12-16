@@ -25,6 +25,7 @@ export type StageData = {
   }[];
   stageStart: string;
   stageStartCuts?: string;
+  futureStartTimestamp?: number;
 };
 
 export type RevnetFormData = {
