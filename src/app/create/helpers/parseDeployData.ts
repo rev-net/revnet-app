@@ -153,7 +153,7 @@ export function parseDeployData(
           : stage.initialIssuance && stage.initialIssuance !== ""
             ? parseUnits(`${stage.initialIssuance}`, 18)
             : 0n,
-      issuanceCutFrequency: Number(stage.priceCeilingIncreaseFrequency) * 86400, // seconds
+      issuanceCutFrequency: Math.floor(Number(stage.priceCeilingIncreaseFrequency) * 86400), // seconds
       issuanceCutPercent:
         Number(WeightCutPercent.parse(stage.priceCeilingIncreasePercentage, 9).value) / 100,
       cashOutTaxRate: Number(CashOutTaxRate.parse(stage.priceFloorTaxIntensity, 4).value) / 100, //
