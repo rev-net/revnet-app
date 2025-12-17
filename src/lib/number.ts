@@ -1,3 +1,7 @@
+export function formatDecimals(value: number, maxDecimals: number = 6): string {
+  return parseFloat(value.toFixed(maxDecimals)).toString();
+}
+
 export function commaNumber(value: string | number): string {
   const numStr = value.toString();
   const parts = numStr.split(".");

@@ -2,8 +2,8 @@
 
 import { ChartConfig, ChartContainer, ChartTooltip } from "@/components/ui/chart";
 import { RangeOption, RangeSelector } from "@/components/ui/range-selector";
+import { formatDecimals } from "@/lib/number";
 import { parseTimeRange, TimeRange } from "@/lib/timeRange";
-import { formatPrice } from "@/lib/utils";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { JBChainId, JBVersion } from "juice-sdk-core";
@@ -24,8 +24,8 @@ const TIME_RANGES: RangeOption<TimeRange>[] = [
 ];
 
 const chartConfig = {
-  issuancePrice: { label: "Issuance Price", color: "var(--chart-1)" },
-  ammPrice: { label: "Pool Price", color: "var(--chart-2)" },
+  issuancePrice: { label: "Issuance Price", color: "var(--chart-2)" },
+  ammPrice: { label: "Pool Price", color: "var(--chart-4)" },
   floorPrice: { label: "Floor Price", color: "var(--chart-3)" },
 } satisfies ChartConfig;
 
@@ -93,7 +93,7 @@ export function TokenPriceChart({
           <ChartToggleButton
             label="Issuance Price"
             active={showIssuance}
-            colorVar="--chart-1"
+            colorVar="--chart-2"
             onClick={() => setShowIssuance(!showIssuance)}
           />
           {hasPool && (
@@ -101,7 +101,7 @@ export function TokenPriceChart({
               label="Pool Price"
               active={showAmm}
               disabled={!hasAmmData}
-              colorVar="--chart-2"
+              colorVar="--chart-4"
               onClick={() => setShowAmm(!showAmm)}
             />
           )}
@@ -124,7 +124,7 @@ export function TokenPriceChart({
           <LineChart
             data={filteredData}
             accessibilityLayer
-            margin={{ left: -12, right: 12, top: 12, bottom: 0 }}
+            margin={{ left: 12, right: 12, top: 12, bottom: 0 }}
           >
             <CartesianGrid strokeDasharray="3 3" vertical={false} />
             <XAxis
@@ -139,7 +139,7 @@ export function TokenPriceChart({
               tickLine={false}
               axisLine={false}
               tickMargin={8}
-              tickFormatter={formatPrice}
+              tickFormatter={(value) => formatDecimals(value, 6)}
               width={60}
               domain={[0, "auto"]}
             />

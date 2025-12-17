@@ -2,6 +2,7 @@
 
 import { ProfilesProvider } from "@/components/ProfilesContext";
 import { ActivityEventsDocument, SuckerGroupQuery } from "@/generated/graphql";
+import { formatDecimals } from "@/lib/number";
 import { JBProjectToken } from "juice-sdk-core";
 import { JBChainId, useBendystrawQuery } from "juice-sdk-react";
 import { Loader2 } from "lucide-react";
@@ -46,8 +47,8 @@ export function ActivityFeed({ suckerGroupId, projects }: Props) {
     const baseTokenDecimals = projectForChain.decimals ?? 18;
 
     if (event.payEvent) {
-      const amount = Number(formatUnits(BigInt(event.payEvent.amount), baseTokenDecimals)).toFixed(
-        6,
+      const amount = formatDecimals(
+        Number(formatUnits(BigInt(event.payEvent.amount), baseTokenDecimals)),
       );
       const tokenCount = new JBProjectToken(BigInt(event.payEvent.newlyIssuedTokenCount)).format(6);
 
@@ -63,9 +64,9 @@ export function ActivityFeed({ suckerGroupId, projects }: Props) {
         memo: event.payEvent.memo || undefined,
       });
     } else if (event.cashOutTokensEvent) {
-      const amount = Number(
-        formatUnits(BigInt(event.cashOutTokensEvent.reclaimAmount), baseTokenDecimals),
-      ).toFixed(6);
+      const amount = formatDecimals(
+        Number(formatUnits(BigInt(event.cashOutTokensEvent.reclaimAmount), baseTokenDecimals)),
+      );
       const tokenCount = new JBProjectToken(BigInt(event.cashOutTokensEvent.cashOutCount)).format(
         6,
       );
