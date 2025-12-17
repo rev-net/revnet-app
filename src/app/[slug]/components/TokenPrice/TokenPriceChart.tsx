@@ -24,8 +24,8 @@ const TIME_RANGES: RangeOption<TimeRange>[] = [
 ];
 
 const chartConfig = {
-  issuancePrice: { label: "Issuance Price", color: "var(--chart-1)" },
-  ammPrice: { label: "Pool Price", color: "var(--chart-2)" },
+  issuancePrice: { label: "Issuance Price", color: "var(--chart-2)" },
+  ammPrice: { label: "Pool Price", color: "var(--chart-4)" },
   floorPrice: { label: "Floor Price", color: "var(--chart-3)" },
 } satisfies ChartConfig;
 
@@ -93,7 +93,7 @@ export function TokenPriceChart({
           <ChartToggleButton
             label="Issuance Price"
             active={showIssuance}
-            colorVar="--chart-1"
+            colorVar="--chart-2"
             onClick={() => setShowIssuance(!showIssuance)}
           />
           {hasPool && (
@@ -101,7 +101,7 @@ export function TokenPriceChart({
               label="Pool Price"
               active={showAmm}
               disabled={!hasAmmData}
-              colorVar="--chart-2"
+              colorVar="--chart-4"
               onClick={() => setShowAmm(!showAmm)}
             />
           )}
