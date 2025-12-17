@@ -2,7 +2,7 @@
 
 import { ChartConfig, ChartContainer, ChartTooltip } from "@/components/ui/chart";
 import { useProjectBaseToken } from "@/hooks/useProjectBaseToken";
-import { formatPrice } from "@/lib/utils";
+import { formatDecimals } from "@/lib/number";
 import { format } from "date-fns";
 import { useJBTokenContext } from "juice-sdk-react";
 import { useSearchParams } from "next/navigation";
@@ -84,7 +84,7 @@ export function IssuancePriceChart({ rulesets }: Props) {
           tickLine={false}
           axisLine={false}
           tickMargin={8}
-          tickFormatter={formatPrice}
+          tickFormatter={(value) => formatDecimals(value, 6)}
           width={70}
           domain={["auto", "auto"]}
         />
@@ -111,7 +111,7 @@ export function IssuancePriceChart({ rulesets }: Props) {
                   <span className="w-2 h-2 rounded-full bg-[--color-price]" />
                   <span className="text-zinc-400">Price:</span>
                   <span className="font-mono text-white">
-                    {formatPrice(value)} {baseToken.symbol} / {tokenSymbol}
+                    {formatDecimals(value, 6)} {baseToken.symbol} / {tokenSymbol}
                   </span>
                 </div>
               </div>

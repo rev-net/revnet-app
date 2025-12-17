@@ -1,5 +1,5 @@
+import { formatDecimals } from "@/lib/number";
 import { TimeRange } from "@/lib/timeRange";
-import { formatPrice } from "@/lib/utils";
 import { format } from "date-fns";
 import { JB_TOKEN_DECIMALS } from "juice-sdk-core";
 import { formatUnits } from "viem";
@@ -57,7 +57,7 @@ export function PriceChartTooltip({
             {DATAKEY_LABELS[entry.dataKey ?? ""] ?? entry.dataKey}:
           </span>
           <span className="font-mono text-white">
-            {formatPrice(entry.value ?? 0)} {baseTokenSymbol}
+            {formatDecimals(entry.value ?? 0, 6)} {baseTokenSymbol}
           </span>
         </div>
       ))}

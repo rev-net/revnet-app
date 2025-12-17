@@ -2,8 +2,8 @@
 
 import { ChartConfig, ChartContainer, ChartTooltip } from "@/components/ui/chart";
 import { RangeOption, RangeSelector } from "@/components/ui/range-selector";
+import { formatDecimals } from "@/lib/number";
 import { parseTimeRange, TimeRange } from "@/lib/timeRange";
-import { formatPrice } from "@/lib/utils";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { JBChainId, JBVersion } from "juice-sdk-core";
@@ -124,7 +124,7 @@ export function TokenPriceChart({
           <LineChart
             data={filteredData}
             accessibilityLayer
-            margin={{ left: -12, right: 12, top: 12, bottom: 0 }}
+            margin={{ left: 12, right: 12, top: 12, bottom: 0 }}
           >
             <CartesianGrid strokeDasharray="3 3" vertical={false} />
             <XAxis
@@ -139,7 +139,7 @@ export function TokenPriceChart({
               tickLine={false}
               axisLine={false}
               tickMargin={8}
-              tickFormatter={formatPrice}
+              tickFormatter={(value) => formatDecimals(value, 6)}
               width={60}
               domain={[0, "auto"]}
             />
