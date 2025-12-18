@@ -11,7 +11,7 @@ export function useTokenBPrice() {
   const { ruleset, rulesetMetadata } = useJBRulesetContext();
   const tokenA = useTokenA();
 
-  if (!ruleset?.data || !rulesetMetadata?.data) {
+  if (!ruleset?.data || !rulesetMetadata?.data || !tokenA?.decimals) {
     return;
   }
 

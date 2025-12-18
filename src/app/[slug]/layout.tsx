@@ -15,6 +15,7 @@ import { getProject } from "./getProject";
 import { getProjectOperator } from "./getProjectOperator";
 import { getSuckerGroup } from "./getSuckerGroup";
 import { ProjectProviders } from "./ProjectProviders";
+import { getRulesets } from "./terms/getRulesets";
 
 export const revalidate = 300;
 
@@ -99,6 +100,10 @@ export default async function SlugLayout({ children, params }: PropsWithChildren
 
   const operatorPromise = getProjectOperator(Number(projectId), chainId, version);
 
+  const rulesets = await getRulesets(projectId.toString(), chainId, version);
+  const startDate = rulesets[0]?.start;
+  const hasStarted = !startDate || startDate <= Math.floor(Date.now() / 1000);
+
   return (
     <ProjectProviders chainId={chainId} projectId={projectId} version={version}>
       <Nav />
@@ -108,7 +113,7 @@ export default async function SlugLayout({ children, params }: PropsWithChildren
       </div>
       <div className="flex flex-col md:flex-row gap-6 md:gap-10 w-full px-4 sm:container pb-5 mb-10">
         <aside className="w-full md:w-[300px] shrink-0">
-          <NewProjectNotice />
+          {startDate && <NewProjectNotice startDate={startDate} />}
           <div className="mt-1 mb-4">
             <PayCard />
           </div>
@@ -116,17 +121,19 @@ export default async function SlugLayout({ children, params }: PropsWithChildren
         </aside>
         <div className="flex-1 min-w-0">
           <div className="max-w-4xl mx-auto pb-10 gap-6 flex flex-col">
-            <Suspense>
-              <TokenPriceChart
-                projectId={projectId.toString()}
-                chainId={chainId}
-                version={version}
-                suckerGroupId={suckerGroup.id}
-                token={project.token}
-                tokenSymbol={project.tokenSymbol ?? "ETH"}
-                tokenDecimals={project.decimals ?? NATIVE_TOKEN_DECIMALS}
-              />
-            </Suspense>
+            {hasStarted && (
+              <Suspense>
+                <TokenPriceChart
+                  projectId={projectId.toString()}
+                  chainId={chainId}
+                  version={version}
+                  suckerGroupId={suckerGroup.id}
+                  token={project.token}
+                  tokenSymbol={project.tokenSymbol ?? "ETH"}
+                  tokenDecimals={project.decimals ?? NATIVE_TOKEN_DECIMALS}
+                />
+              </Suspense>
+            )}
 
             <ProjectMenu />
 

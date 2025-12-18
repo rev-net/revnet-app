@@ -81,7 +81,7 @@ export function StagesTable({ rulesets }: Props) {
     const endDate = next ? new Date(next.start * 1000) : null;
 
     const quote = getTokenAToBQuote(
-      new FixedInt(parseUnits("1", tokenA.decimals), tokenA.decimals),
+      new FixedInt(parseUnits("1", tokenA?.decimals || 18), tokenA?.decimals || 18),
       {
         weight: new RulesetWeight(BigInt(ruleset.weight)),
         reservedPercent: new ReservedPercent(0),

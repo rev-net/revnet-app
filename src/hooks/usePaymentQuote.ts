@@ -30,11 +30,11 @@ export function usePaymentQuote(chainId: JBChainId) {
     chainId,
   );
 
-  const chainIds = Object.keys(baseToken.tokenMap).map((id) => Number(id) as JBChainId);
+  const chainIds = Object.keys(baseToken?.tokenMap ?? {}).map((id) => Number(id) as JBChainId);
 
   async function tokenAToBQuote(valueRaw: string, token: Token): Promise<PaymentQuotes> {
     try {
-      if (!ruleset?.data || !rulesetMetadata?.data || !tokenB) {
+      if (!ruleset?.data || !rulesetMetadata?.data || !tokenB || !baseToken) {
         throw new Error("Missing data. Please try again");
       }
       if (valueRaw === "0") return { all: [] };

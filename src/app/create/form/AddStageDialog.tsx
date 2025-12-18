@@ -76,7 +76,6 @@ export function AddStageDialog({
   } = useCreateForm();
 
   const [open, setOpen] = useState(false);
-  // const nativeTokenSymbol = useNativeTokenSymbol();
 
   // Move enableCut state to top level
   const [enableCut, setEnableCut] = useState(
