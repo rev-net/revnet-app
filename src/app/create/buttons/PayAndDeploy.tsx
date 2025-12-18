@@ -53,7 +53,7 @@ export function PayAndDeploy({ relayrResponse, revnetTokenSymbol }: PaymentAndDe
     <div>
       <RelayrPaymentSelect
         payments={relayrResponse.payment_info}
-        tokenSymbol={symbol}
+        tokenSymbol={symbol ?? ""}
         selectedPayment={selectedPayment}
         onSelectPayment={selectPayment}
         disabled={payIsProcessing}

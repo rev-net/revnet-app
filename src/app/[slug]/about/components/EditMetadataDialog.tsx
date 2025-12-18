@@ -323,7 +323,7 @@ export function EditMetadataDialog({ projects }: Props) {
                   </div>
                 </div>
 
-                {relayrQuote && (
+                {relayrQuote && tokenSymbol && (
                   <div className="py-4">
                     <RelayrPaymentSelect
                       payments={relayrQuote.payment_info}

@@ -1,6 +1,7 @@
 "use client";
 
 import { PaymentQuotes, usePaymentQuote } from "@/hooks/usePaymentQuote";
+import { useProjectBaseToken } from "@/hooks/useProjectBaseToken";
 import { getTokensForChain, Token } from "@/lib/token";
 import { formatTokenSymbol } from "@/lib/utils";
 import { Field, Formik } from "formik";
@@ -17,6 +18,7 @@ export function PayForm() {
   const tokenB = useJBTokenContext().token.data;
   const chainId = useSelectedSucker().selectedSucker.peerChainId;
   const { tokenAToBQuote } = usePaymentQuote(chainId);
+  const baseToken = useProjectBaseToken();
 
   const [memo, setMemo] = useState<string>();
   const [resetKey, setResetKey] = useState(0);
@@ -26,17 +28,18 @@ export function PayForm() {
   const [quotes, setQuotes] = useState<PaymentQuotes>({ all: [] });
 
   const tokens = useMemo(() => getTokensForChain(chainId), [chainId]);
-  const [tokenIn, setTokenIn] = useState<Token>(tokens[0]);
+  const [tokenIn, setTokenIn] = useState<Token | undefined>();
 
   const deferredAmountA = useDeferredValue(amountA);
   const deferredTokenIn = useDeferredValue(tokenIn);
 
   useEffect(() => {
-    setTokenIn((s) => tokens.find((t) => t.symbol === s.symbol) || tokens[0]);
-  }, [tokens]);
+    if (!baseToken) return;
+    setTokenIn((s) => tokens.find((t) => t.symbol === s?.symbol) || baseToken);
+  }, [tokens, baseToken]);
 
   useEffect(() => {
-    if (!deferredAmountA) {
+    if (!deferredAmountA || !deferredTokenIn) {
       setQuotes({ all: [] });
       setAmountB("");
       setAmountC("");
@@ -56,8 +59,11 @@ export function PayForm() {
   if (!tokenB) return "Loading...";
 
   const _amountA = {
-    amount: new FixedInt(parseUnits(amountA || "0", tokenIn.decimals), tokenIn.decimals),
-    symbol: tokenIn.symbol,
+    amount: new FixedInt(
+      parseUnits(amountA || "0", tokenIn?.decimals || tokens[0].decimals),
+      tokenIn?.decimals || tokens[0].decimals,
+    ),
+    symbol: tokenIn?.symbol,
   };
 
   const _amountB = {

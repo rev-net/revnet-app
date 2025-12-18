@@ -85,7 +85,7 @@ export function BorrowDialog(props: PropsWithChildren<Props>) {
 
   const selectedChainTokenSymbol = cashOutChainId
     ? getTokenSymbolForChain(Number(cashOutChainId))
-    : baseToken.symbol;
+    : baseToken?.symbol;
 
   // Handle chain selection - exactly like RedeemDialog
   const handleChainSelect = useCallback(
@@ -263,7 +263,7 @@ export function BorrowDialog(props: PropsWithChildren<Props>) {
             ? Number(formatUnits(effectiveBorrowableAmount, tokenDecimals))
             : 0;
 
-          if (collateralAmount && !isNaN(Number(collateralAmount))) {
+          if (collateralAmount && !isNaN(Number(collateralAmount)) && selectedChainTokenSymbol) {
             return (
               <SimulatedLoanCard
                 collateralAmount={collateralAmount}
@@ -291,7 +291,7 @@ export function BorrowDialog(props: PropsWithChildren<Props>) {
             ▶
           </span>
         </button>
-        {showChart && (
+        {showChart && selectedChainTokenSymbol && (
           <LoanFeeChart
             prepaidPercent={prepaidPercent}
             setPrepaidPercent={setPrepaidPercent}

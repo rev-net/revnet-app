@@ -8,7 +8,7 @@ export function useTokenA() {
   const baseToken = useProjectBaseToken();
 
   return {
-    symbol: baseToken.symbol,
-    decimals: baseToken.decimals,
+    symbol: baseToken?.symbol,
+    decimals: baseToken?.decimals,
   };
 }

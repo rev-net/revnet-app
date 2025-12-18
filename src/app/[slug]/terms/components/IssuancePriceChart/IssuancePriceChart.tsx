@@ -111,7 +111,7 @@ export function IssuancePriceChart({ rulesets }: Props) {
                   <span className="w-2 h-2 rounded-full bg-[--color-price]" />
                   <span className="text-zinc-400">Price:</span>
                   <span className="font-mono text-white">
-                    {formatDecimals(value, 6)} {baseToken.symbol} / {tokenSymbol}
+                    {formatDecimals(value, 6)} {baseToken?.symbol} / {tokenSymbol}
                   </span>
                 </div>
               </div>

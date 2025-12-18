@@ -250,7 +250,7 @@ export function RedeemDialog(props: PropsWithChildren<Props>) {
                     <div className="text-base mt-4">
                       You'll get ~{" "}
                       <span className="font-medium">
-                        {(unitValue * Number(redeemAmount)).toFixed(5)} {baseToken.symbol}
+                        {(unitValue * Number(redeemAmount)).toFixed(5)} {baseToken?.symbol}
                       </span>
                     </div>
                   ) : null}

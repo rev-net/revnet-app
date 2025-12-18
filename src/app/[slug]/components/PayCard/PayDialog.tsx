@@ -84,7 +84,7 @@ export function PayDialog(props: Props) {
 
   const handlePay = async () => {
     try {
-      if (!address || !selectedSucker || !publicClient || !writeContractAsync) {
+      if (!address || !selectedSucker || !publicClient || !writeContractAsync || !baseToken) {
         throw new Error("Please try again");
       }
 
