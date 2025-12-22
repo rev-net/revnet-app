@@ -1,13 +1,13 @@
-"use client";
 import { Button } from "@/components/ui/button";
-import { sdk } from "@farcaster/frame-sdk";
 import { JB_CHAINS } from "juice-sdk-core";
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { Suspense } from "react";
 import { mainnet } from "viem/chains";
+import { MiniAppHello } from "./MiniAppHello";
+import { TopProjectsTable } from "./TopProjectsTable";
 
-const RevLink = ({ network, id, text }: { network: string; id: number; text: string }) => {
+function RevLink({ network, id, text }: { network: string; id: number; text: string }) {
   return (
     <span>
       $
@@ -16,51 +16,16 @@ const RevLink = ({ network, id, text }: { network: string; id: number; text: str
       </Link>
     </span>
   );
-};
+}
 
-const Pipe = () => {
+function Pipe() {
   return <div className="text-zinc-300">{" | "}</div>;
-};
+}
 
 export default function Page() {
-  const [user, setUser] = useState<{
-    fid: number;
-    pfp: string;
-    userName: string;
-  } | null>(null);
-
-  useEffect(() => {
-    const fetchUser = async () => {
-      await sdk.actions.ready();
-
-      try {
-        await sdk.actions.addFrame();
-      } catch (error) {
-        if (error) {
-          console.log("User rejected the mini app addition or domain manifest JSON is invalid");
-          // Handle the rejection here
-        }
-      }
-
-      const ctx = await sdk.context;
-      if (ctx?.user) {
-        setUser({
-          fid: ctx.user.fid,
-          pfp: ctx.user.pfpUrl || "",
-          userName: ctx.user.username || "",
-        });
-      }
-    };
-    fetchUser();
-  }, []);
-
   return (
     <div className="container mt-40 pr-[1.5rem] pl-[1.5rem] sm:pr-[2rem] sm:pl-[2rem] sm:px-8">
-      {user?.pfp && (
-        <div className="flex items-center mb-4">
-          <span className="text-lg">Hello {user.userName}!</span>
-        </div>
-      )}
+      <MiniAppHello />
       <div className="flex flex-col items-left justify-left">
         <Image src="/assets/img/revnet-full-bw.svg" width={840} height={240} alt="Revnet logo" />
         <span className="sr-only">Revnet</span>
@@ -153,6 +118,13 @@ export default function Page() {
           </ul>
         </div>
       </div>
+
+      <div className="border border-zinc-100 mt-12"></div>
+
+
+      <Suspense>
+        <TopProjectsTable />
+      </Suspense>
     </div>
   );
 }
