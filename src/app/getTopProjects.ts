@@ -4,20 +4,16 @@ import { fetchEthPrice } from "@/lib/ethPrice";
 import { ipfsUriToGatewayUrl } from "@/lib/ipfs";
 import { JB_CHAINS, JBChainId } from "juice-sdk-core";
 import { unstable_cache } from "next/cache";
-import { mainnet } from "viem/chains";
 import { formatUnits } from "viem";
-
+import { mainnet } from "viem/chains";
 
 export async function getTopProjects() {
-  const [top, ethPrice] = await Promise.all([
-    fetchTopProjects(),
-    fetchEthPrice(),
-  ]);
+  const [top, ethPrice] = await Promise.all([fetchTopProjects(), fetchEthPrice()]);
 
   return top.suckerGroups.items
     .map((group) => {
       const project = group.projects?.items[0];
-      if (!project) return null;
+      if (!project || !project.isRevnet) return null;
 
       const symbol = project.tokenSymbol?.toUpperCase();
       if (symbol !== "ETH" && symbol !== "USDC") return null;
@@ -47,12 +43,11 @@ export async function getTopProjects() {
     });
 }
 
-
 const fetchTopProjects = unstable_cache(
   async () => {
     const client = getBendystrawClient(mainnet.id);
     return client.request<TopSuckerGroupsQuery>(TopSuckerGroupsDocument);
   },
-  ["top-projects"],
-  { revalidate: 600 } // 10 minutes
+  ["top-projects-v2"],
+  { revalidate: 600 }, // 10 minutes
 );

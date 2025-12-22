@@ -10,8 +10,8 @@ export async function TopProjectsTable() {
   }
 
   return (
-    <div className="mt-8">
-      <h2 className="text-lg font-medium mb-4">Top revnets by balance</h2>
+    <div className="mt-12">
+      <h2 className="text-lg font-medium mb-2.5 text-center">Top revnets by balance</h2>
       <table className="w-full max-w-xl text-left">
         <thead>
           <tr className="text-zinc-500 text-sm border-b border-zinc-100">
@@ -46,13 +46,19 @@ export async function TopProjectsTable() {
                   <div>
                     <div className="max-sm:text-sm font-medium truncate">{project.name}</div>
                     {project.tagline && (
-                      <div className="text-xs md:text-sm text-zinc-500 line-clamp-1">{project.tagline}</div>
+                      <div className="text-xs md:text-sm text-zinc-500 line-clamp-1">
+                        {project.tagline}
+                      </div>
                     )}
                   </div>
                 </Link>
               </td>
               <td className="py-3 text-sm md:text-base text-right tabular-nums whitespace-nowrap">
-                {project.balanceUsd.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 })}
+                {project.balanceUsd.toLocaleString("en-US", {
+                  style: "currency",
+                  currency: "USD",
+                  maximumFractionDigits: 0,
+                })}
               </td>
             </tr>
           ))}
@@ -61,4 +67,3 @@ export async function TopProjectsTable() {
     </div>
   );
 }
-

@@ -2,7 +2,7 @@ query TopSuckerGroups {
   suckerGroups(
     orderBy: "paymentsCount"
     orderDirection: "desc"
-    where: {version: 5}
+    where: { version: 5 }
     limit: 1000
   ) {
     items {
@@ -17,10 +17,10 @@ query TopSuckerGroups {
           tokenSymbol
           logoUri
           projectId
+          isRevnet
         }
       }
       version
     }
   }
 }
-
