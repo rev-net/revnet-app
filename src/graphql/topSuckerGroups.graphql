@@ -1,0 +1,26 @@
+query TopSuckerGroups {
+  suckerGroups(
+    orderBy: "paymentsCount"
+    orderDirection: "desc"
+    where: { version: 5 }
+    limit: 1000
+  ) {
+    items {
+      balance
+      projects(limit: 1, orderBy: "chainId", orderDirection: "asc") {
+        items {
+          decimals
+          currency
+          chainId
+          name
+          projectTagline
+          tokenSymbol
+          logoUri
+          projectId
+          isRevnet
+        }
+      }
+      version
+    }
+  }
+}
