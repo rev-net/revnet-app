@@ -11,11 +11,10 @@ export async function TopProjectsTable() {
 
   return (
     <div className="mt-12">
-      <h2 className="text-lg font-medium mb-2.5 text-center">Top revnets by balance</h2>
       <table className="w-full max-w-xl text-left">
         <thead>
           <tr className="text-zinc-500 text-sm border-b border-zinc-100">
-            <th className="pb-2 pr-2 font-normal w-8">#</th>
+            <th className="pb-2 pr-2 font-normal w-8"></th>
             <th className="pb-2 pr-4 font-normal">Project</th>
             <th className="pb-2 font-normal text-right">Balance</th>
           </tr>
@@ -30,7 +29,7 @@ export async function TopProjectsTable() {
               <td className="py-3 pr-4">
                 <Link
                   href={`/v5:${project.chainSlug}:${project.projectId}`}
-                  className="flex items-center gap-3 hover:opacity-70 transition-opacity"
+                  className="flex items-center gap-3 group"
                 >
                   {project.logoUrl ? (
                     <Image
@@ -38,13 +37,15 @@ export async function TopProjectsTable() {
                       alt={project.name}
                       width={32}
                       height={32}
-                      className="rounded-full object-cover shrink-0"
+                      className="rounded-full object-cover shrink-0 group-hover:opacity-70 transition-opacity"
                     />
                   ) : (
                     <div className="size-8 rounded-full bg-zinc-100 shrink-0" />
                   )}
                   <div>
-                    <div className="max-sm:text-sm font-medium truncate">{project.name}</div>
+                    <div className="max-sm:text-sm font-medium truncate group-hover:text-teal-600 transition-colors">
+                      {project.name}
+                    </div>
                     {project.tagline && (
                       <div className="text-xs md:text-sm text-zinc-500 line-clamp-1">
                         {project.tagline}
