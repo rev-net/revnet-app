@@ -1,6 +1,7 @@
 import {
   getJBContractAddress,
   JBChainId,
+  jbContractAddress,
   JBCoreContracts,
   jbDirectoryAbi,
   jbMultiTerminalAbi,
@@ -33,13 +34,7 @@ export async function getPaymentTerminal(args: {
     throw new Error(`No primary terminal found for ${tokenIn.symbol}`);
   }
 
-  const swapTerminal = getJBContractAddress(
-    baseToken.isNative
-      ? JBSwapTerminalContracts.JBSwapTerminalRegistry
-      : JBSwapTerminalContracts.JBSwapTerminalUSDCRegistry,
-    version,
-    chainId,
-  );
+  const swapTerminal = getSwapTerminalAddress(version, chainId, baseToken.isNative);
 
   if (terminal === zeroAddress) {
     return { address: swapTerminal, abi: jbSwapTerminalAbi, type: "swap" };
@@ -52,4 +47,18 @@ export async function getPaymentTerminal(args: {
     abi: isSwapTerminal ? jbSwapTerminalAbi : jbMultiTerminalAbi,
     type: isSwapTerminal ? "swap" : "multi",
   };
+}
+
+function getSwapTerminalAddress(version: JBVersion, chainId: JBChainId, isNative: boolean) {
+  if (version === 4) {
+    return jbContractAddress[4].JBSwapTerminal1_1[chainId];
+  }
+
+  return getJBContractAddress(
+    isNative
+      ? JBSwapTerminalContracts.JBSwapTerminalRegistry
+      : JBSwapTerminalContracts.JBSwapTerminalUSDCRegistry,
+    version,
+    chainId,
+  );
 }
