@@ -24,7 +24,7 @@ export function usePaymentQuote(chainId: JBChainId) {
   const { ruleset, rulesetMetadata } = useJBRulesetContext();
   const { toast } = useToast();
 
-  const { price: usdToEthPrice } = useCurrencyPrice(
+  const { price: usdToEthPrice, isLoading: isPriceLoading } = useCurrencyPrice(
     USD_CURRENCY_ID(version),
     ETH_CURRENCY_ID,
     chainId,
@@ -68,5 +68,5 @@ export function usePaymentQuote(chainId: JBChainId) {
     }
   }
 
-  return { tokenAToBQuote };
+  return { tokenAToBQuote, isPriceLoading };
 }
