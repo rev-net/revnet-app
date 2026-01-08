@@ -17,7 +17,7 @@ import { useSelectedSucker } from "./SelectedSuckerContext";
 export function PayForm() {
   const tokenB = useJBTokenContext().token.data;
   const chainId = useSelectedSucker().selectedSucker.peerChainId;
-  const { tokenAToBQuote } = usePaymentQuote(chainId);
+  const { tokenAToBQuote, isPriceLoading } = usePaymentQuote(chainId);
   const baseToken = useProjectBaseToken();
 
   const [memo, setMemo] = useState<string>();
@@ -39,6 +39,8 @@ export function PayForm() {
   }, [tokens, baseToken]);
 
   useEffect(() => {
+    if (isPriceLoading) return;
+
     if (!deferredAmountA || !deferredTokenIn) {
       setQuotes({ all: [] });
       setAmountB("");
@@ -54,7 +56,7 @@ export function PayForm() {
       }
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [deferredAmountA, deferredTokenIn]);
+  }, [deferredAmountA, deferredTokenIn, isPriceLoading]);
 
   if (!tokenB) return "Loading...";
 
