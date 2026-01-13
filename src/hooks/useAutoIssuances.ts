@@ -40,7 +40,7 @@ export function useAutoIssuances() {
       return {
         ...autoIssuance,
         startsAt: rulesets?.[rulesetIndex]?.start,
-        stage: (rulesets?.length || 0) - rulesetIndex,
+        stage: rulesetIndex + 1,
         distributed: distributed !== undefined,
         distributedTxn,
       };
