@@ -274,7 +274,7 @@ export function AddStageDialog({
                             <div>
                               {values.splits.map((split, index) => (
                                 <div
-                                  key={`${split.percentage}-${split.defaultBeneficiary}-${index}`}
+                                  key={`split-${index}`}
                                   className="flex gap-2 items-center text-md text-zinc-600 mt-4"
                                 >
                                   <label
@@ -437,7 +437,7 @@ export function AddStageDialog({
                             </p>
                             {values.autoIssuance?.map((autoissuance, index) => (
                               <div
-                                key={`${autoissuance.amount}-${autoissuance.beneficiary}-${index}`}
+                                key={`autoissuance-${index}`}
                                 className="flex gap-2 items-center text-md text-zinc-600 mt-4"
                               >
                                 <label
