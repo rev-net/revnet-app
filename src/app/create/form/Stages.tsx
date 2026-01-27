@@ -1,5 +1,6 @@
 import { MAX_RULESET_COUNT } from "@/app/constants";
 import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { commaNumber } from "@/lib/number";
 import { formatTokenSymbol } from "@/lib/utils";
 import {
@@ -87,12 +88,15 @@ export function Stages({ disabled = false }: { disabled?: boolean }) {
                       <dl className="text-md text-zinc-600 grid grid-cols-[max-content_1fr] gap-x-4 gap-y-1">
                         <dt className="font-medium">Duration</dt>
                         <dd>
-                          {duration === 0 ? "Forever" : `${duration} days`}
-                          {duration === 0 && index <= 1 && (
-                            <>
-                              {" "}
-                              <span>( add another stage to change it )</span>
-                            </>
+                          {duration === 0 ? (
+                            <Tooltip>
+                              <TooltipTrigger className="underline decoration-dotted cursor-help">
+                                Forever
+                              </TooltipTrigger>
+                              <TooltipContent>Add another stage to change it</TooltipContent>
+                            </Tooltip>
+                          ) : (
+                            `${duration} days`
                           )}
                         </dd>
                         <dt className="font-medium">Paid Issuance</dt>
