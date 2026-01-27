@@ -230,8 +230,10 @@ export function AddStageDialog({
                                 <input
                                   id="uiCutPercentage"
                                   type="number"
-                                  min="1"
+                                  inputMode="decimal"
+                                  min="0.01"
                                   max="100"
+                                  step="any"
                                   className="h-9 w-16 border-zinc-200 pr-6 pl-2"
                                   value={String(uiCutPercentage)}
                                   onChange={(e) => {
@@ -249,6 +251,7 @@ export function AddStageDialog({
                                 <input
                                   id="uiCutFrequency"
                                   type="number"
+                                  inputMode="decimal"
                                   min="0.042"
                                   step="any"
                                   className="h-9 border-zinc-200 pr-10 pl-2 w-24"
