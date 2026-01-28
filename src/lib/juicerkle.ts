@@ -43,7 +43,7 @@ export async function getClaimProofs(
     const proofs = (await response.json()) as JBClaim[];
     return { success: true, claims: proofs };
   } catch (err) {
-    const message = Error.isError(err) ? err.message : "Failed to fetch claim proofs";
+    const message = err instanceof Error ? err.message : "Failed to fetch claim proofs";
     return { success: false, error: message };
   }
 }
