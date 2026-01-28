@@ -52,11 +52,16 @@ export function ClaimButton(props: Props) {
           reset();
           setIsSubmitting(true);
 
-          const claims = await getClaimProofs(transaction);
-          const claim = claims.find((claim) => claim.Leaf.Index === transaction.index);
+          const result = await getClaimProofs(transaction);
+
+          if (!result.success || !result.claims) {
+            throw new Error(result.error);
+          }
+
+          const claim = result.claims.find((claim) => claim.Leaf.Index === transaction.index);
 
           if (!claim) {
-            console.debug({ claims });
+            console.debug({ claims: result.claims });
             throw new Error("No claim proof available yet. Please try in a few minutes.");
           }
 

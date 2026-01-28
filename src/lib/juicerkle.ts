@@ -20,24 +20,30 @@ export async function getClaimProofs(
     SuckerTransaction,
     "chainId" | "sucker" | "token" | "beneficiary" | "peerChainId"
   >,
-): Promise<JBClaim[]> {
+) {
   const { peerChainId, sucker, token, beneficiary } = transaction;
-  const response = await fetch(`${JUICERKLE_API_URL}/claims`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      chainId: peerChainId,
-      sucker: sucker.toLowerCase(),
-      token: token.toLowerCase(),
-      beneficiary: beneficiary.toLowerCase(),
-    }),
-  });
 
-  if (!response.ok) {
-    throw new Error(await response.text());
+  try {
+    const response = await fetch(`${JUICERKLE_API_URL}/claims`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        chainId: peerChainId,
+        sucker: sucker.toLowerCase(),
+        token: token.toLowerCase(),
+        beneficiary: beneficiary.toLowerCase(),
+      }),
+    });
+
+    if (!response.ok) {
+      const error = await response.text();
+      return { success: false, error };
+    }
+
+    const proofs = (await response.json()) as JBClaim[];
+    return { success: true, claims: proofs };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Failed to fetch claim proofs";
+    return { success: false, error: message };
   }
-
-  const proofs = (await response.json()) as JBClaim[];
-
-  return proofs;
 }
