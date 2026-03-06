@@ -1,19 +1,17 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { ChevronDownIcon, XMarkIcon } from "@heroicons/react/24/outline";
+import { ChevronDownIcon } from "@heroicons/react/24/outline";
 import { formatEther, parseEther, UserRejectedRequestError } from "viem";
 import {
   useAccount,
   useBalance,
-  useChainId,
-  useConnect,
-  useSwitchChain,
   useWaitForTransactionReceipt,
   useWriteContract,
 } from "wagmi";
 import { useToast } from "@/components/ui/use-toast";
-import { Button } from "@/components/ui/button";
+import { ButtonWithWallet } from "@/components/ButtonWithWallet";
+import { JBChainId } from "juice-sdk-core";
 import {
   Dialog,
   DialogContent,
@@ -64,13 +62,7 @@ export function MarkeeModal({
   const [txHash, setTxHash] = useState<`0x${string}` | undefined>();
 
   const { address } = useAccount();
-  const connectedChainId = useChainId();
-  const { connectors, connect } = useConnect();
-  const { switchChainAsync, isPending: isSwitching } = useSwitchChain();
   const { toast } = useToast();
-
-  const isOnBase = connectedChainId === MarkeeNetwork.id;
-  const isConnected = !!address;
 
   const { data: baseBalanceData } = useBalance({
     address,
@@ -153,15 +145,6 @@ export function MarkeeModal({
       setInputError("Connect your wallet before submitting.");
       return;
     }
-    if (!isOnBase) {
-      try {
-        await switchChainAsync({ chainId: MarkeeNetwork.id });
-        setInputError("Switched to Base. Please submit again.");
-      } catch {
-        setInputError("Please switch your wallet to Base mainnet first.");
-      }
-      return;
-    }
     try {
       const value = parseEther(ethAmount);
       const hash = await writeContractAsync({
@@ -187,7 +170,7 @@ export function MarkeeModal({
     }
   };
 
-  const isLoading = isPending || isConfirming || isSwitching;
+  const isLoading = isPending || isConfirming;
 
   let parsedAmount: bigint | null = null;
   if (ethAmount && !isNaN(parseFloat(ethAmount)) && parseFloat(ethAmount) > 0) {
@@ -199,9 +182,9 @@ export function MarkeeModal({
   }
 
   const hasInsufficientBalance =
-    isOnBase && baseBalance != null && parsedAmount != null && parsedAmount > baseBalance;
+    baseBalance != null && parsedAmount != null && parsedAmount > baseBalance;
 
-  const buyDisabled = isLoading || (isConnected && !isOnBase) || hasInsufficientBalance;
+  const buyDisabled = isLoading || hasInsufficientBalance;
 
   return (
     <Dialog open onOpenChange={(open) => { if (!open) onClose(); }}>
@@ -340,7 +323,7 @@ export function MarkeeModal({
           <div className="mb-4">
             <label className="block text-sm font-medium text-zinc-700 mb-2">
               ETH Amount
-              {isOnBase && baseBalance != null && (
+              {baseBalance != null && (
                 <span className="text-xs text-zinc-400 font-normal ml-2">
                   (balance: {parseFloat(formatEther(baseBalance)).toFixed(3)} ETH)
                 </span>
@@ -413,22 +396,6 @@ export function MarkeeModal({
             )}
           </div>
 
-          {/* Wrong network banner */}
-          {isConnected && !isOnBase && (
-            <div className="mb-4 rounded border border-yellow-300 bg-yellow-50 px-4 py-3 flex items-center justify-between">
-              <p className="text-sm text-yellow-700">Switch to Base to pay for the sign.</p>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => switchChainAsync({ chainId: MarkeeNetwork.id })}
-                disabled={isSwitching}
-                className="ml-3 border-yellow-500 text-yellow-700 hover:bg-yellow-100"
-              >
-                {isSwitching ? "Switching..." : "Switch to Base"}
-              </Button>
-            </div>
-          )}
-
           {/* General error */}
           {inputError && !messageError && !ethError && (
             <div className="mb-4 rounded border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-600">
@@ -438,34 +405,22 @@ export function MarkeeModal({
 
           {/* Action */}
           <div className="flex justify-center mt-5">
-            {!isConnected ? (
-              <Button
-                onClick={() => {
-                  const connector = connectors[0];
-                  if (connector) connect({ connector });
-                }}
-                className="px-8"
-              >
-                Connect Wallet
-              </Button>
-            ) : (
-              <Button
-                onClick={handleSubmit}
-                disabled={buyDisabled}
-                className={`px-8 ${
-                  buyDisabled
-                    ? "opacity-50 cursor-not-allowed"
-                    : "bg-green-600 hover:bg-green-500 text-white"
-                }`}
-                title={hasInsufficientBalance ? "Insufficient balance" : ""}
-              >
-                {isPending
-                  ? "Confirm in wallet..."
-                  : isConfirming
-                    ? "Confirming..."
-                    : "Buy Message"}
-              </Button>
-            )}
+            <ButtonWithWallet
+              targetChainId={MarkeeNetwork.id as JBChainId}
+              connectWalletText="Connect Wallet"
+              onClick={handleSubmit}
+              disabled={buyDisabled}
+              className={`px-8 ${
+                buyDisabled ? "opacity-50 cursor-not-allowed" : "bg-green-600 hover:bg-green-500 text-white"
+              }`}
+              title={hasInsufficientBalance ? "Insufficient balance" : ""}
+            >
+              {isPending
+                ? "Confirm in wallet..."
+                : isConfirming
+                  ? "Confirming..."
+                  : "Buy Message"}
+            </ButtonWithWallet>
           </div>
 
           <p className="mt-4 text-center text-xs text-zinc-400">
