@@ -1,7 +1,7 @@
 import { formatTokenSymbol } from "@/lib/utils";
 import { FixedInt } from "fpnum";
-import { ReservedPercent, RulesetWeight, getTokenAToBQuote } from "juice-sdk-core";
-import { useJBRulesetContext, useJBTokenContext } from "juice-sdk-react";
+import { ReservedPercent, RulesetWeight, getTokenAToBQuote } from "@bananapus/nana-sdk-core";
+import { useJBRulesetContext, useJBTokenContext } from "@bananapus/nana-sdk-react";
 import { formatUnits, parseUnits } from "viem";
 import { useProjectBaseToken } from "./useProjectBaseToken";
 import { useTokenA } from "./useTokenA";

@@ -2,7 +2,7 @@ import { ChainLogo } from "@/components/ChainLogo";
 import { Button } from "@/components/ui/button";
 import { sortChains } from "@/lib/utils";
 import { FieldArray, useFormikContext } from "formik";
-import { JB_CHAINS, JBChainId } from "juice-sdk-core";
+import { JB_CHAINS, JBChainId } from "@bananapus/nana-sdk-core";
 import { useState } from "react";
 import { twJoin } from "tailwind-merge";
 import type { RevnetFormData } from "../types";

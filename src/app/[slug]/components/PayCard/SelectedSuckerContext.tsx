@@ -1,5 +1,5 @@
-import { JBChainId, SuckerPair } from "juice-sdk-core";
-import { useJBChainId, useJBContractContext } from "juice-sdk-react";
+import { JBChainId, SuckerPair } from "@bananapus/nana-sdk-core";
+import { useJBChainId, useJBContractContext } from "@bananapus/nana-sdk-react";
 import React, { createContext, ReactNode, useContext, useState } from "react";
 
 interface SelectedSuckerContextType {

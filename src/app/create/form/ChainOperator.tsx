@@ -1,7 +1,7 @@
 import { ChainLogo } from "@/components/ChainLogo";
 import { sortChains } from "@/lib/utils";
 import { FieldArray, useFormikContext } from "formik";
-import { JB_CHAINS } from "juice-sdk-core";
+import { JB_CHAINS } from "@bananapus/nana-sdk-core";
 import { useEffect } from "react";
 import { RevnetFormData } from "../types";
 import { Field } from "./Fields";

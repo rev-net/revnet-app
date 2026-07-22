@@ -76,10 +76,12 @@ export function LoanFeeChart({
                 value: "Time (years)",
                 position: "insideBottom",
                 offset: -5,
+                fontSize: 14,
               }}
               type="number"
               domain={[0, 10]}
               ticks={[...Array(11).keys()]}
+              tick={{ fontSize: 14 }}
               tickFormatter={(year) => `${year}`}
             />
             <YAxis
@@ -88,7 +90,7 @@ export function LoanFeeChart({
                 angle: -90,
                 position: "insideLeft",
                 offset: 0,
-                style: { textAnchor: "middle" },
+                style: { textAnchor: "middle", fontSize: 14 },
               }}
               domain={[minCost, maxCost * 1.1]}
               tick={false}
@@ -122,7 +124,7 @@ export function LoanFeeChart({
             <Line
               type="monotone"
               dataKey="totalCost"
-              stroke="#71717a"
+              stroke="#D98909"
               strokeWidth={2}
               dot={false}
             />

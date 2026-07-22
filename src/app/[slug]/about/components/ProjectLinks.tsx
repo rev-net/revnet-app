@@ -14,7 +14,7 @@ export function ProjectLinks(props: Props) {
             href={link.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="underline hover:decoration-teal-500 underline-offset-4"
+            className="inline-flex min-h-11 items-center underline hover:decoration-teal-500 underline-offset-4"
           >
             {link.label}
           </a>

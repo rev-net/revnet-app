@@ -8,12 +8,14 @@ export function Nav() {
     <nav className="text-zinc-50 border-b border-zinc-100">
       <div className="flex justify-between items-center px-4 sm:container py-3">
         <div className="flex items-center gap-2">
-          <Link href="/" className="italic">
+          <Link href="/" className="inline-flex min-h-11 min-w-11 items-center italic">
             <Image src="/assets/img/small-bw.svg" width={60} height={60} alt="Revnet logo" />
           </Link>
         </div>
-        <div className="flex gap-2 items-stretch">
-          <UserBalance />
+        <div className="flex gap-2 items-stretch [&>button]:min-h-11">
+          <div className="hidden min-[360px]:flex">
+            <UserBalance />
+          </div>
           <ConnectKitButton />
         </div>
       </div>

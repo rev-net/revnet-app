@@ -1,4 +1,4 @@
-import { JBProjectMetadata } from "juice-sdk-core";
+import { JBProjectMetadata } from "@bananapus/nana-sdk-core";
 
 export async function pinProjectMetadata(metadata: JBProjectMetadata) {
   const { Hash } = await fetch("/api/ipfs/pinJson", {

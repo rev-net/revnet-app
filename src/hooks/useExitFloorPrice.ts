@@ -4,13 +4,13 @@ import {
   jbControllerAbi,
   JBCoreContracts,
   jbTokensAbi,
-} from "juice-sdk-core";
+} from "@bananapus/nana-sdk-core";
 import {
   useJBChainId,
   useJBContractContext,
   useJBRulesetContext,
   useJBTokenContext,
-} from "juice-sdk-react";
+} from "@bananapus/nana-sdk-react";
 import { parseUnits } from "viem";
 import { useReadContract } from "wagmi";
 import { useNativeTokenSurplus } from "./useTokenASurplus";

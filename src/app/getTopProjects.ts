@@ -2,7 +2,7 @@ import { TopSuckerGroupsDocument, TopSuckerGroupsQuery } from "@/generated/graph
 import { getBendystrawClient } from "@/graphql/bendystrawClient";
 import { fetchEthPrice } from "@/lib/ethPrice";
 import { ipfsUriToGatewayUrl } from "@/lib/ipfs";
-import { JB_CHAINS, JBChainId } from "juice-sdk-core";
+import { JB_CHAINS, JBChainId } from "@bananapus/nana-sdk-core";
 import { unstable_cache } from "next/cache";
 import { formatUnits } from "viem";
 import { mainnet } from "viem/chains";
@@ -21,7 +21,7 @@ export async function getTopProjects() {
       const balance = Number(formatUnits(BigInt(group.balance), project.decimals ?? 18));
       const balanceUsd = symbol === "ETH" ? balance * ethPrice : balance;
 
-      return { project, balanceUsd };
+      return { project, balanceUsd, version: group.version };
     })
     .filter((item) => item !== null)
     .sort((a, b) => b.balanceUsd - a.balanceUsd)
@@ -33,6 +33,7 @@ export async function getTopProjects() {
       return {
         rank: index + 1,
         projectId: project.projectId,
+        version: item.version,
         chainId: chainId,
         chainSlug: JB_CHAINS[chainId]?.slug ?? "eth",
         name: project.name ?? `Project #${project.projectId}`,

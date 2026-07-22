@@ -3,34 +3,14 @@
 import { EthereumAddress } from "@/components/EthereumAddress";
 import { Participant } from "@/generated/graphql";
 import { formatPortion } from "@/lib/utils";
-import { JBChainId, JBProjectToken } from "juice-sdk-core";
-import { useMemo } from "react";
-import { Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
+import { JBChainId, JBProjectToken } from "@bananapus/nana-sdk-core";
+import { useMemo, useState } from "react";
+import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 import { Address } from "viem";
 import { UseTokenReturnType } from "wagmi";
 
-const COLORS = [
-  "#1f77b4",
-  "#aec7e8",
-  "#ff7f0e",
-  "#ffbb78",
-  "#2ca02c",
-  "#98df8a",
-  "#d62728",
-  "#ff9896",
-  "#9467bd",
-  "#c5b0d5",
-  "#8c564b",
-  "#c49c94",
-  "#e377c2",
-  "#f7b6d2",
-  "#7f7f7f",
-  "#c7c7c7",
-  "#bcbd22",
-  "#dbdb8d",
-  "#17becf",
-  "#9edae5",
-];
+const OWNER_COLOR = "#EE6F3A"; // peel-400
+const OWNER_HOVER_COLOR = "#BD4513"; // peel-600
 
 const CustomTooltip = ({
   payload,
@@ -58,18 +38,21 @@ export function ParticipantsPieChart({
   token,
   totalSupply,
   participants,
+  showOwnerCount = false,
 }: {
   token: UseTokenReturnType["data"] | null;
   totalSupply: bigint;
   participants: (Participant & { chains: JBChainId[] })[];
+  showOwnerCount?: boolean;
 }) {
+  const [activeIndex, setActiveIndex] = useState<number | null>(null);
+
   const pieChartData = useMemo(() => {
-    return participants?.map((participant, idx) => {
+    return participants?.map((participant) => {
       return {
         address: participant?.address,
         balanceFormatted: new JBProjectToken(BigInt(participant?.balance)).toFloat(),
         balance: new JBProjectToken(BigInt(participant?.balance)),
-        fill: COLORS[idx % COLORS.length],
       };
     });
   }, [participants]);
@@ -82,7 +65,7 @@ export function ParticipantsPieChart({
   if (totalBalance === 0n) return null;
 
   return (
-    <div className="w-full sm:h-[320px] h-[140px]">
+    <div className="relative h-[240px] w-full sm:h-[360px]">
       <ResponsiveContainer height="100%" width="100%">
         <PieChart>
           <Pie
@@ -90,11 +73,32 @@ export function ParticipantsPieChart({
             dataKey="balanceFormatted"
             nameKey="address"
             innerRadius="50%"
+            outerRadius="90%"
+            stroke="#F6FEF9"
+            strokeWidth={1}
+            onMouseEnter={(_, index) => setActiveIndex(index)}
+            onMouseLeave={() => setActiveIndex(null)}
             isAnimationActive={false}
-          />
+          >
+            {pieChartData.map((item, index) => (
+              <Cell
+                key={item.address}
+                fill={index === activeIndex ? OWNER_HOVER_COLOR : OWNER_COLOR}
+                className="transition-colors duration-150"
+              />
+            ))}
+          </Pie>
           <Tooltip content={<CustomTooltip totalSupply={totalSupply} />} />
         </PieChart>
       </ResponsiveContainer>
+      {showOwnerCount ? (
+        <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
+          <span className="text-4xl font-semibold leading-none text-black tabular-nums">
+            {participants.length}
+          </span>
+          <span className="mt-2 text-sm uppercase text-melon-700">owners</span>
+        </div>
+      ) : null}
     </div>
   );
 }

@@ -2,8 +2,8 @@ import { MAX_RULESET_COUNT } from "@/app/constants";
 import { decodeRulesetMetadata, RulesetMetadata } from "@/lib/utils";
 import { wagmiConfig } from "@/lib/wagmiConfig";
 import { readContract } from "@wagmi/core";
-import { JBCoreContracts, jbRulesetsAbi, SuckerPair } from "juice-sdk-core";
-import { useJBContractContext } from "juice-sdk-react";
+import { JBCoreContracts, jbRulesetsAbi, SuckerPair } from "@bananapus/nana-sdk-core";
+import { useJBContractContext } from "@bananapus/nana-sdk-react";
 import { useCallback, useEffect, useState } from "react";
 
 type RuleSet = {

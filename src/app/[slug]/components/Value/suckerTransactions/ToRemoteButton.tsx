@@ -5,7 +5,7 @@ import { toast } from "@/components/ui/use-toast";
 import { jbSuckerAbi } from "@/generated/jbSuckerAbi";
 import { revalidateCacheTag } from "@/lib/cache";
 import { formatWalletError } from "@/lib/utils";
-import { JBChainId } from "juice-sdk-core";
+import { JBChainId } from "@bananapus/nana-sdk-core";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { formatUnits } from "viem";

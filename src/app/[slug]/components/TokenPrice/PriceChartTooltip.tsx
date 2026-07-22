@@ -1,7 +1,7 @@
 import { formatDecimals } from "@/lib/number";
 import { TimeRange } from "@/lib/timeRange";
 import { format } from "date-fns";
-import { JB_TOKEN_DECIMALS } from "juice-sdk-core";
+import { JB_TOKEN_DECIMALS } from "@bananapus/nana-sdk-core";
 import { formatUnits } from "viem";
 
 const DATAKEY_LABELS: Record<string, string> = {

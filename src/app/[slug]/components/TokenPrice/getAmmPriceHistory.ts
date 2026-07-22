@@ -1,5 +1,5 @@
 import { getStartTimeForRange, getTimeRangeConfig, type TimeRange } from "@/lib/timeRange";
-import { JBChainId } from "juice-sdk-core";
+import { JBChainId } from "@bananapus/nana-sdk-core";
 import { unstable_cache } from "next/cache";
 import { Address } from "viem";
 import { arbitrum, base, mainnet, optimism } from "viem/chains";

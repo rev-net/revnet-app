@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/select";
 import { toast } from "@/components/ui/use-toast";
 import { getTokenSymbolFromAddress } from "@/lib/tokenUtils";
-import { JB_CHAINS, JBChainId, NATIVE_TOKEN_DECIMALS } from "juice-sdk-core";
+import { JB_CHAINS, JBChainId, NATIVE_TOKEN_DECIMALS } from "@bananapus/nana-sdk-core";
 import { PropsWithChildren, useCallback, useEffect } from "react";
 import { formatUnits } from "viem";
 import { ImportantInfo } from "./ImportantInfo";

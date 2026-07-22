@@ -17,8 +17,8 @@ import { isUsd } from "@/lib/currency";
 import { prettyNumber } from "@/lib/number";
 import { getUnitValue, Surplus } from "@/lib/reclaimableSurplus";
 import { formatPortion, formatTokenSymbol } from "@/lib/utils";
-import { formatUnits, JB_CHAINS, JBChainId } from "juice-sdk-core";
-import { useEtherPrice, useJBTokenContext, useSuckersUserTokenBalance } from "juice-sdk-react";
+import { formatUnits, JB_CHAINS, JBChainId } from "@bananapus/nana-sdk-core";
+import { useEtherPrice, useJBTokenContext, useSuckersUserTokenBalance } from "@bananapus/nana-sdk-react";
 import { use, useCallback } from "react";
 
 interface Props {
@@ -69,7 +69,7 @@ export function BalanceTable(props: Props) {
         a proportional amount of the revnet's funds moves too, which rebalances each token's cash
         out value.
       </p>
-      <Table className="bg-zinc-50 border-zinc-200 border mt-4">
+      <Table className="mt-4">
         <TableHeader>
           <TableRow>
             <TableHead>Chain</TableHead>

@@ -5,6 +5,7 @@ import { ChainLogo } from "@/components/ChainLogo";
 import { EthereumAddress } from "@/components/EthereumAddress";
 import EtherscanLink from "@/components/EtherscanLink";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Select,
   SelectContent,
@@ -30,7 +31,7 @@ import {
   formatUnits,
   jbControllerAbi,
   jbSplitsAbi,
-} from "juice-sdk-core";
+} from "@bananapus/nana-sdk-core";
 import {
   JBChainId,
   useJBChainId,
@@ -38,7 +39,7 @@ import {
   useJBRulesetContext,
   useJBTokenContext,
   useSuckers,
-} from "juice-sdk-react";
+} from "@bananapus/nana-sdk-react";
 import { useEffect, useState } from "react";
 import { twJoin } from "tailwind-merge";
 import { Address } from "viem";
@@ -176,8 +177,8 @@ export function SplitsSection() {
           </div>
         </div>
       )}
-      <div className="max-h-96 overflow-auto bg-zinc-50 border-zinc-200 border mb-4">
-        <div className="flex flex-col p-2">
+      <div className="mb-4 max-h-96 overflow-auto">
+        <div className="flex flex-col">
           <Table>
             <TableHeader>
               <TableRow>
@@ -188,11 +189,13 @@ export function SplitsSection() {
             </TableHeader>
             <TableBody>
               {isLoadingRuleSets || isLoadingSplits ? (
-                <TableRow>
-                  <TableCell colSpan={2} className="text-center">
-                    Loading...
-                  </TableCell>
-                </TableRow>
+                Array.from({ length: 3 }, (_, index) => (
+                  <TableRow key={index}>
+                    <TableCell><Skeleton className="h-3 w-36" /></TableCell>
+                    <TableCell><Skeleton className="h-3 w-24" /></TableCell>
+                    <TableCell><Skeleton className="h-3 w-28" /></TableCell>
+                  </TableRow>
+                ))
               ) : (
                 reservedTokenSplits?.map((split: { beneficiary: Address; percent: number }) => (
                   <TableRow key={split.beneficiary}>

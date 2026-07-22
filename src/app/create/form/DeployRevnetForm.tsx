@@ -1,4 +1,4 @@
-import { RelayrPostBundleResponse } from "juice-sdk-react";
+import { RelayrPostBundleResponse } from "@bananapus/nana-sdk-react";
 import { useTestData } from "../helpers/useTestData";
 import { ChainSelect } from "./ChainSelect";
 import { Divider } from "./Divider";

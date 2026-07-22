@@ -3,8 +3,9 @@
 import { ChartConfig, ChartContainer, ChartTooltip } from "@/components/ui/chart";
 import { useProjectBaseToken } from "@/hooks/useProjectBaseToken";
 import { formatDecimals } from "@/lib/number";
+import { formatTokenSymbol } from "@/lib/utils";
+import { useJBTokenContext } from "@bananapus/nana-sdk-react";
 import { format } from "date-fns";
-import { useJBTokenContext } from "juice-sdk-react";
 import { useSearchParams } from "next/navigation";
 import { useMemo } from "react";
 import {
@@ -50,7 +51,7 @@ export function IssuancePriceChart({ rulesets }: Props) {
 
   if (!chartData.length) return null;
 
-  const tokenSymbol = token.data?.symbol ?? "$TOKEN";
+  const tokenSymbol = formatTokenSymbol(token);
 
   return (
     <ChartContainer
@@ -75,6 +76,7 @@ export function IssuancePriceChart({ rulesets }: Props) {
           tickLine={false}
           axisLine={false}
           tickMargin={12}
+          tick={{ fontSize: 14 }}
           tickFormatter={(v) => format(new Date(toReal(v) * 1000), "yyyy")}
           minTickGap={40}
           type="number"
@@ -84,8 +86,9 @@ export function IssuancePriceChart({ rulesets }: Props) {
           tickLine={false}
           axisLine={false}
           tickMargin={8}
+          tick={{ fontSize: 14 }}
           tickFormatter={(value) => formatDecimals(value, 6)}
-          width={70}
+          width={80}
           domain={["auto", "auto"]}
         />
         <ChartTooltip
@@ -143,13 +146,13 @@ export function IssuancePriceChart({ rulesets }: Props) {
           <ReferenceLine
             key={`line-${area.name}`}
             x={area.x1}
-            stroke="hsl(0 0% 80%)"
+            stroke="#C6EDD5"
             strokeDasharray="3 3"
             label={{
               value: area.name,
               position: "insideTopLeft",
-              fill: "hsl(0 0% 50%)",
-              fontSize: 12,
+              fill: "#3D7955",
+              fontSize: 14,
               offset: 10,
               fontWeight: 500,
             }}
@@ -159,7 +162,7 @@ export function IssuancePriceChart({ rulesets }: Props) {
         {todayVisualX !== null && (
           <ReferenceLine
             x={todayVisualX}
-            stroke="hsl(166 60% 40%)"
+            stroke="var(--chart-1)"
             strokeDasharray="4 4"
             strokeWidth={1}
           />

@@ -3,8 +3,8 @@
 import { ButtonWithWallet } from "@/components/ButtonWithWallet";
 import { useToast } from "@/components/ui/use-toast";
 import { formatWalletError } from "@/lib/utils";
-import { JBChainId, jbControllerAbi } from "juice-sdk-core";
-import { useJBContractContext } from "juice-sdk-react";
+import { JBChainId, jbControllerAbi } from "@bananapus/nana-sdk-core";
+import { useJBContractContext } from "@bananapus/nana-sdk-react";
 import { useWaitForTransactionReceipt, useWriteContract } from "wagmi";
 
 interface Props {

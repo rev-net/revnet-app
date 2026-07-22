@@ -9,8 +9,8 @@ export function Footer() {
               on the Ethereum global computer.
             </p>
             <p>
-              Huge gratitude to the ETH, JBX, REV, and UNI communities for crafting the
-              infrastructure and economy that make revnets possible.
+              Gratitude to the ETH, JBX, REV, and UNI communities for crafting the infrastructure
+              and economy that make revnets possible.
             </p>
           </div>
         </div>

@@ -2,7 +2,7 @@ import { ChainSelector } from "@/components/ChainSelector";
 import { Button } from "@/components/ui/button";
 import { formatTokenSymbol, sortChains } from "@/lib/utils";
 import { FieldArray, useFormikContext } from "formik";
-import { formatEthAddress, JBChainId } from "juice-sdk-core";
+import { formatEthAddress, JBChainId } from "@bananapus/nana-sdk-core";
 import { useEffect, useState } from "react";
 import { twJoin } from "tailwind-merge";
 import type { RevnetFormData } from "../types";

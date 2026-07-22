@@ -1,8 +1,13 @@
 import { chainSortOrder } from "@/app/constants";
+import {
+  CashOutTaxRate,
+  JBRulesetData,
+  JB_CHAINS,
+  ReservedPercent,
+} from "@bananapus/nana-sdk-core";
+import { JBChainId, JBTokenContextData } from "@bananapus/nana-sdk-react";
 import { clsx, type ClassValue } from "clsx";
 import { Duration, formatDuration, intervalToDuration } from "date-fns";
-import { CashOutTaxRate, JBRulesetData, JB_CHAINS, ReservedPercent } from "juice-sdk-core";
-import { JBChainId, JBTokenContextData } from "juice-sdk-react";
 import { twMerge } from "tailwind-merge";
 import { Address, Chain, formatEther } from "viem";
 import { mainnet } from "viem/chains";
@@ -78,18 +83,14 @@ export function formatPortion(numerator: bigint, denominator: bigint) {
   return parseFloat(((numerator * 100000n) / denominator).toString()) / 1000;
 }
 
-/**
- * Ensure token symbol has $ in front of it
- */
+/** Return a token ticker without a legacy leading dollar sign. */
 export function formatTokenSymbol(token?: JBTokenContextData["token"] | string) {
   if (typeof token === "string") {
     if (!token) return "tokens";
-    if (!token.includes("$")) return `$${token}`;
-    return token;
+    return token.replace(/^\$+/, "");
   }
-  if (!token?.data?.symbol) return "$TOKEN";
-  if (!token?.data?.symbol.includes("$")) return `$${token?.data?.symbol}`;
-  return token.data.symbol;
+  if (!token?.data?.symbol) return "TOKEN";
+  return token.data.symbol.replace(/^\$+/, "");
 }
 
 /**

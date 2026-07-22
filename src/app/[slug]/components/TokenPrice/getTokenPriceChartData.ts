@@ -2,14 +2,15 @@
 
 import { getRulesets } from "@/app/[slug]/terms/getRulesets";
 import { getCurrentCashOutTax } from "@/lib/cashOutTax";
-import { getStartTimeForRange, TimeRange } from "@/lib/timeRange";
+import { getStartTimeForRange, getTimeRangeConfig, TimeRange } from "@/lib/timeRange";
 import { getTokenAddress } from "@/lib/token";
 import { getUniswapPool } from "@/lib/uniswap/pool";
-import { JB_TOKEN_DECIMALS, JBChainId, JBVersion, NATIVE_TOKEN } from "juice-sdk-core";
+import { JB_TOKEN_DECIMALS, JBChainId, JBVersion, NATIVE_TOKEN } from "@bananapus/nana-sdk-core";
 import { getAddress } from "viem";
 import { calculateIssuancePriceHistory } from "./calculateIssuancePriceHistory";
 import { getAmmPriceHistory } from "./getAmmPriceHistory";
 import { getFloorPriceHistory } from "./getFloorPriceHistory";
+import { getV4AmmPriceHistory } from "./getV4AmmPriceHistory";
 
 export type PriceDataPoint = {
   timestamp: number;
@@ -42,15 +43,33 @@ export async function getTokenPriceChartData(params: {
     throw new Error("Could not get project token address");
   }
 
-  const pool = await getUniswapPool(
-    { address: getAddress(baseToken.address), decimals: baseToken.decimals },
-    { address: projectTokenAddress, decimals: JB_TOKEN_DECIMALS },
-    chainId,
-  );
+  // V6 buyback pools are Uniswap V4 pools identified by bytes32 pool IDs, not
+  // V3 pool addresses. Prefer Bendystraw's canonical V4 event history, then
+  // retain the legacy V3/subgraph path for older projects and deploy overlap.
+  const v4History =
+    Number(version) === 6
+      ? await getV4AmmPriceHistory({
+          projectId,
+          chainId,
+          version,
+          terminalToken: baseToken.address,
+          terminalDecimals: baseToken.decimals,
+        }).catch(() => null)
+      : null;
 
-  const ammData = pool
-    ? await getAmmPriceHistory(pool.address, projectTokenAddress, chainId, range, projectStart)
-    : [];
+  const pool = v4History?.hasPool
+    ? null
+    : await getUniswapPool(
+        { address: getAddress(baseToken.address), decimals: baseToken.decimals },
+        { address: projectTokenAddress, decimals: JB_TOKEN_DECIMALS },
+        chainId,
+      );
+
+  const ammData = v4History?.hasPool
+    ? v4History.data
+    : pool
+      ? await getAmmPriceHistory(pool.address, projectTokenAddress, chainId, range, projectStart)
+      : [];
 
   const currentCashOutTax = await getCurrentCashOutTax(projectId, chainId, version);
 
@@ -62,11 +81,17 @@ export async function getTokenPriceChartData(params: {
     projectStart,
   });
 
-  const data = mergeDataPoints(issuanceData, ammData, floorData);
+  const { interval } = getTimeRangeConfig(range);
+  const data = mergeDataPoints(issuanceData, ammData, floorData, interval);
 
   return {
     chartData: range === "all" ? data : data.filter((d) => d.timestamp >= startTime),
-    hasPool: pool !== null,
+    hasPool: !!v4History?.hasPool || pool !== null,
+    stages: rulesets.map((ruleset, index) => ({
+      name: `Stage ${index + 1}`,
+      timestamp: normalizeToInterval(ruleset.start, interval),
+    })),
+    todayTimestamp: normalizeToInterval(Math.floor(Date.now() / 1000), interval),
   };
 }
 
@@ -74,11 +99,12 @@ function mergeDataPoints(
   issuanceData: PriceDataPoint[],
   ammData: PriceDataPoint[],
   floorData: PriceDataPoint[],
+  interval: number,
 ): PriceDataPoint[] {
   const merged = new Map<number, PriceDataPoint>();
 
   for (const point of issuanceData) {
-    const dayTs = normalizeToDay(point.timestamp);
+    const dayTs = normalizeToInterval(point.timestamp, interval);
     const existing = merged.get(dayTs);
     if (existing) {
       existing.issuancePrice = point.issuancePrice;
@@ -88,7 +114,7 @@ function mergeDataPoints(
   }
 
   for (const point of ammData) {
-    const dayTs = normalizeToDay(point.timestamp);
+    const dayTs = normalizeToInterval(point.timestamp, interval);
     const existing = merged.get(dayTs);
     if (existing) {
       existing.ammPrice = point.ammPrice;
@@ -98,7 +124,7 @@ function mergeDataPoints(
   }
 
   for (const point of floorData) {
-    const dayTs = normalizeToDay(point.timestamp);
+    const dayTs = normalizeToInterval(point.timestamp, interval);
     const existing = merged.get(dayTs);
     if (existing) {
       existing.floorPrice = point.floorPrice;
@@ -147,6 +173,6 @@ function mergeDataPoints(
   return sorted;
 }
 
-function normalizeToDay(timestamp: number): number {
-  return Math.floor(timestamp / 86400) * 86400;
+function normalizeToInterval(timestamp: number, interval: number): number {
+  return Math.floor(timestamp / interval) * interval;
 }

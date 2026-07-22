@@ -12,6 +12,7 @@ query Project($projectId: Float!, $chainId: Float!, $version: Float!) {
     decimals
     currency
     tokenSymbol
+    isRevnet
   }
 }
 

@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
-import { JB_CHAINS } from "juice-sdk-core";
-import { JBChainId } from "juice-sdk-react";
+import { JB_CHAINS } from "@bananapus/nana-sdk-core";
+import { JBChainId } from "@bananapus/nana-sdk-react";
 import { FastForwardIcon } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
@@ -16,7 +16,7 @@ export function GoToProjectButton({ txHash, chainId }: { txHash?: string; chainI
 
   const projectId = data?.logs[0]?.topics[1] ? Number(data.logs[0].topics[1]) : undefined;
   const chain = JB_CHAINS[chainId].slug;
-  const projectUrl = `/v5:${chain}:${projectId}`;
+  const projectUrl = `/v6:${chain}:${projectId}`;
   return (
     <div className="max-w-fit">
       <Link href={projectUrl} className={!projectId ? "pointer-events-none" : ""}>

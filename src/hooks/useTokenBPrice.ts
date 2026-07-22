@@ -1,5 +1,5 @@
-import { getTokenBPrice } from "juice-sdk-core";
-import { useJBRulesetContext } from "juice-sdk-react";
+import { getTokenBPrice } from "@bananapus/nana-sdk-core";
+import { useJBRulesetContext } from "@bananapus/nana-sdk-react";
 import { useTokenA } from "./useTokenA";
 
 /**

@@ -1,6 +1,7 @@
 import { RangeSelector } from "@/components/ui/range-selector";
 import { parseSlug } from "@/lib/slug";
 import { notFound } from "next/navigation";
+import { V6TermsTab } from "../components/v6/terms/V6TermsTab";
 import { getProject } from "../getProject";
 import { CurrentIssuanceSection } from "./components/CurrentIssuanceSection";
 import { IssuancePriceChart } from "./components/IssuancePriceChart/IssuancePriceChart";
@@ -27,6 +28,8 @@ export default async function Terms({ params }: Props) {
   if (!project) notFound();
 
   const rulesets = await getRulesets(projectId.toString(), chainId, version);
+
+  if (version === 6) return <V6TermsTab rulesets={rulesets} />;
 
   return (
     <div className="flex flex-col min-w-0">

@@ -6,15 +6,10 @@ import { wagmiConfig } from "@/lib/wagmiConfig";
 import { getPublicClient } from "@wagmi/core";
 import { Formik } from "formik";
 import { withZodSchema } from "formik-validator-zod";
-import {
-  createSalt,
-  jbContractAddress,
-  MappableAsset,
-  parseSuckerDeployerConfig,
-  revDeployerAbi,
-} from "juice-sdk-core";
-import { useGetRelayrTxQuote } from "juice-sdk-react";
-import { encodeFunctionData } from "viem";
+import { createSalt, MappableAsset, parseSuckerDeployerConfig } from "@bananapus/nana-sdk-core";
+import { getProjectCreationFee } from "@bananapus/nana-sdk-core/v6";
+import { useGetRelayrTxQuote } from "@bananapus/nana-sdk-react";
+import { encodeFunctionData, PublicClient } from "viem";
 import { useAccount } from "wagmi";
 import { DEFAULT_FORM_DATA } from "./constants";
 import { DeployRevnetForm } from "./form/DeployRevnetForm";
@@ -55,24 +50,12 @@ export default function Page() {
     const relayrTransactions = [];
 
     for (const chainId of formData.chainIds) {
-      const suckerDeployerConfig = parseSuckerDeployerConfig(chainId, formData.chainIds, [
-        reserveAsset,
-      ]);
-      const deployData = parseDeployData(formData, {
-        metadataCid,
+      const suckerDeployerConfig = parseSuckerDeployerConfig(
         chainId,
-        suckerDeployerConfig,
-        timestamp,
-        salt,
-      });
-
-      console.log({ deployData });
-
-      const encodedData = encodeFunctionData({
-        abi: revDeployerAbi, // ABI of the contract
-        functionName: "deployWith721sFor",
-        args: deployData,
-      });
+        formData.chainIds,
+        [reserveAsset],
+        { version: 6 },
+      ) as Parameters<typeof parseDeployData>[1]["suckerDeployerConfig"];
 
       const publicClient = getPublicClient(wagmiConfig, {
         chainId: chainId,
@@ -82,26 +65,53 @@ export default function Page() {
         throw new Error("Public client not available");
       }
 
-      // Estimate gas for the transaction if it were to be send directly to the revDeployer.
-      const gasEstimate = await publicClient.estimateContractGas({
-        address: jbContractAddress["5"]["REVDeployer"][chainId],
-        abi: revDeployerAbi,
-        functionName: "deployWith721sFor",
-        args: deployData,
+      // Deploying a new revnet requires paying the exact project creation fee.
+      const creationFee = await getProjectCreationFee(publicClient as PublicClient, chainId);
+
+      const request = parseDeployData(formData, {
+        metadataCid,
+        chainId,
+        suckerDeployerConfig,
+        timestamp,
+        salt,
+        creationFee,
       });
 
-      console.log("create::deploy calldata", chainId, gasEstimate, encodedData, deployData);
+      console.log({ deployData: request.args });
+
+      const encodedData = encodeFunctionData({
+        abi: request.abi,
+        functionName: request.functionName,
+        args: request.args,
+      });
+
+      // Estimate gas for the transaction if it were to be sent directly to the revDeployer.
+      // The estimate can fail if the deployer wallet doesn't hold the creation fee on this
+      // chain, so fall back to a generous limit (Relayr re-simulates server-side).
+      const gasEstimate = await publicClient
+        .estimateContractGas({
+          account: address,
+          address: request.address,
+          abi: request.abi,
+          functionName: request.functionName,
+          args: request.args,
+          value: request.value,
+        })
+        .catch(() => 8_000_000n);
+
+      console.log("create::deploy calldata", chainId, gasEstimate, encodedData, request.args);
 
       relayrTransactions.push({
         data: {
           from: address,
-          to: jbContractAddress["5"]["REVDeployer"][chainId],
-          value: 0n,
+          to: request.address,
+          value: request.value,
           // Use the estimated gas but add a buffer for the trustedForwarder.
           gas: gasEstimate + BigInt(120_000n),
           data: encodedData,
         },
         chainId,
+        version: 6 as const,
       });
     }
 

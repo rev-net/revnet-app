@@ -34,7 +34,7 @@ import {
   jbMultiTerminalAbi,
   JBProjectToken,
   NATIVE_TOKEN,
-} from "juice-sdk-core";
+} from "@bananapus/nana-sdk-core";
 import {
   JBChainId,
   useBendystrawQuery,
@@ -43,7 +43,7 @@ import {
   useJBTokenContext,
   useSuckers,
   useSuckersUserTokenBalance,
-} from "juice-sdk-react";
+} from "@bananapus/nana-sdk-react";
 import { PropsWithChildren, useState } from "react";
 import { parseUnits } from "viem";
 import { useAccount, useWaitForTransactionReceipt, useWriteContract } from "wagmi";

@@ -14,8 +14,6 @@ import { useAutoIssuances } from "@/hooks/useAutoIssuances";
 import { useTokenA } from "@/hooks/useTokenA";
 import { commaNumber } from "@/lib/number";
 import { formatTokenSymbol } from "@/lib/utils";
-import { differenceInDays, formatDate } from "date-fns";
-import { FixedInt } from "fpnum";
 import {
   CashOutTaxRate,
   getTokenAToBQuote,
@@ -24,8 +22,10 @@ import {
   jbSplitsAbi,
   ReservedPercent,
   RulesetWeight,
-} from "juice-sdk-core";
-import { useJBChainId, useJBContractContext, useJBTokenContext } from "juice-sdk-react";
+} from "@bananapus/nana-sdk-core";
+import { useJBChainId, useJBContractContext, useJBTokenContext } from "@bananapus/nana-sdk-react";
+import { differenceInDays, formatDate } from "date-fns";
+import { FixedInt } from "fpnum";
 import { formatUnits, parseUnits } from "viem";
 import { useReadContracts } from "wagmi";
 import type { Ruleset } from "../getRulesets";
@@ -181,14 +181,18 @@ export function StagesTable({ rulesets }: Props) {
           {stages.map((stage) => (
             <TableRow
               key={stage.id}
-              className={stage.isCurrent ? "bg-orange-50/50 hover:bg-orange-50/50" : ""}
+              className={
+                stage.isCurrent
+                  ? "bg-transparent hover:bg-transparent [&>td:first-child]:shadow-[inset_4px_0_0_#EE6F3A]"
+                  : ""
+              }
             >
               <TableCell className="font-medium whitespace-nowrap px-2 py-3 first:pl-3">
-                <div className="flex items-center gap-2">
-                  <span>Stage {stage.stageNumber}</span>
-                  {stage.isCurrent && (
-                    <span className="rounded-full h-2 w-2 bg-orange-400 border-[2px] border-orange-200" />
-                  )}
+                <div className="flex flex-col">
+                  <span>{stage.stageNumber}</span>
+                  {stage.isCurrent ? (
+                    <span className="text-xs font-normal text-zinc-500">current</span>
+                  ) : null}
                 </div>
               </TableCell>
               <TableCell className="text-zinc-600 whitespace-nowrap px-2 py-3">

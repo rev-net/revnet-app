@@ -7,8 +7,7 @@ import { ipfsUriToGatewayUrl } from "@/lib/ipfs";
 import { Profile } from "@/lib/profile";
 import { getProjectLinks } from "@/lib/projectLinks";
 import { formatTokenSymbol } from "@/lib/utils";
-import { ForwardIcon } from "@heroicons/react/24/solid";
-import { JB_CHAINS } from "juice-sdk-core";
+import { JB_CHAINS } from "@bananapus/nana-sdk-core";
 import {
   JBChainId,
   useBendystrawQuery,
@@ -17,13 +16,15 @@ import {
   useJBProjectMetadataContext,
   useJBTokenContext,
   useSuckers,
-} from "juice-sdk-react";
+} from "@bananapus/nana-sdk-react";
+import { ForwardIcon } from "@heroicons/react/24/solid";
 import Image from "next/image";
 import Link from "next/link";
 import { Suspense, use, useMemo } from "react";
 import { TvlDatum } from "./TvlDatum";
 
 interface Props {
+  isRevnet: boolean;
   operatorPromise: Promise<Profile | null>;
   projects: Array<
     Pick<
@@ -34,7 +35,7 @@ interface Props {
 }
 
 export function Header(props: Props) {
-  const { operatorPromise, projects } = props;
+  const { isRevnet, operatorPromise, projects } = props;
   const operator = use(operatorPromise);
   const { version } = useJBContractContext();
   const chainId = useJBChainId();
@@ -82,7 +83,7 @@ export function Header(props: Props) {
                 className="overflow-hidden block border border-zinc-200"
                 alt={`${projectName} logo`}
                 width={120}
-                height={10}
+                height={120}
               />
             </div>
             <div className="sm:block hidden">
@@ -96,57 +97,53 @@ export function Header(props: Props) {
             </div>
           </>
         ) : (
-          <div className="rounded bg-zinc-100 h-36 w-36 flex items-center justify-center">
-            <ForwardIcon className="h-5 w-5 text-zinc-700" />
+          <div className="flex h-[120px] w-[120px] items-center justify-center rounded bg-zinc-100 sm:size-36">
+            <ForwardIcon className="h-5 w-5 text-black" />
           </div>
         )}
 
-        <div>
-          <div className="flex flex-col items-baseline sm:flex-row sm:gap-2 mb-2">
-            <span className="text-3xl font-bold">
+        <div className="min-w-0 flex-1">
+          <div className="mb-2 flex flex-col items-baseline sm:flex-row sm:gap-4">
+            <span className="font-mono text-3xl font-bold">
               {tokenContext?.data ? (
                 <EtherscanLink
                   value={tokenContext.data.address}
                   type="token"
                   chain={chainId ? JB_CHAINS[chainId].chain : undefined}
+                  className="inline-flex min-h-11 items-center"
                 >
                   {formatTokenSymbol(tokenContext)}
                 </EtherscanLink>
               ) : null}
             </span>
-            <div className="text-sm flex gap-2 items-baseline">
-              <h1 className="text-2xl font-medium">{projectName}</h1>
-            </div>
-            <div className="text-sm flex gap-2 items-baseline">
-              {suckers?.map((pair) => {
-                if (!pair) return null;
-
-                const networkSlug = JB_CHAINS[pair?.peerChainId].slug;
-                return (
-                  <Link
-                    className="underline"
-                    key={networkSlug}
-                    href={`/v${version}:${networkSlug}:${pair.projectId}`}
-                  >
-                    <ChainLogo chainId={pair.peerChainId as JBChainId} width={18} height={18} />
-                  </Link>
-                );
-              })}
-            </div>
+            <h1 className="text-3xl font-medium">{projectName}</h1>
           </div>
-          <div className="flex sm:flex-row flex-col sm:items-center items-leading sm:gap-4 items-start">
-            <TvlDatum projects={projects} />
-            <div className="sm:text-xl text-lg">
-              <span className="font-medium text-black-500">{contributorsCount ?? 0}</span>{" "}
-              <span className="text-zinc-500">{contributorsCount === 1 ? "owner" : "owners"}</span>
-            </div>
-            {/* <div className="sm:text-xl text-lg">
+          {!isRevnet ? (
+            <p className="text-base leading-relaxed text-zinc-700">
+              This project isn&apos;t a revnet. Try looking for it on{" "}
+              <Link className="underline underline-offset-4" href="https://juicebox.money">
+                https://juicebox.money
+              </Link>
+              .
+            </p>
+          ) : null}
+          {isRevnet ? (
+            <>
+              <div className="flex sm:flex-row flex-col sm:items-center items-leading sm:gap-4 items-start">
+                <TvlDatum projects={projects} />
+                <div className="sm:text-xl text-lg">
+                  <span className="font-medium text-black-500">{contributorsCount ?? 0}</span>{" "}
+                  <span className="text-zinc-500">
+                    {contributorsCount === 1 ? "owner" : "owners"}
+                  </span>
+                </div>
+                {/* <div className="sm:text-xl text-lg">
               <span className="font-medium text-black-500">
                 {`${prettyNumber(totalSupplyFormatted ?? 0)}`}
               </span>{" "}
               <span className="text-zinc-500">{formatTokenSymbol(token)} outstanding</span>
             </div> */}
-            {/* <div className="sm:text-xl text-lg">
+                {/* <div className="sm:text-xl text-lg">
               <span className="font-medium text-black-500">
                 {!cashOutLoading
                   ? `$${Number(cashOutValue).toFixed(4)}`
@@ -154,33 +151,70 @@ export function Header(props: Props) {
               </span>{" "}
               <span className="text-zinc-500">cash out value</span>
             </div> */}
-          </div>
-          <Suspense>
-            {(operator || website) && (
-              <div className="text-[15px] text-zinc-500 mt-1.5 flex flex-wrap items-center gap-2">
-                {operator && (
-                  <span>
-                    Operator:{" "}
-                    <EtherscanLink value={operator.address}>{operator.displayName}</EtherscanLink>
-                  </span>
-                )}
-                {operator && website && <span className="text-sm opacity-50"> | </span>}
-                {website && (
-                  <span>
-                    Site:{" "}
-                    <a
-                      href={website.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="hover:underline"
-                    >
-                      {website.url.replace(/^https?:\/\//, "")}
-                    </a>
-                  </span>
-                )}
               </div>
-            )}
-          </Suspense>
+              <Suspense>
+                {(operator || website || suckers?.length) && (
+                  <div className="mt-1.5 flex flex-wrap items-center text-[15px] text-zinc-700">
+                    {operator && (
+                      <span>
+                        <span className="text-zinc-500">Operator:</span>{" "}
+                        <EtherscanLink
+                          value={operator.address}
+                          className="inline-flex min-h-11 items-center font-medium text-zinc-900"
+                        >
+                          {operator.displayName}
+                        </EtherscanLink>
+                      </span>
+                    )}
+                    {operator && website ? (
+                      <span aria-hidden className="mx-2.5 text-zinc-300">
+                        |
+                      </span>
+                    ) : null}
+                    {website && (
+                      <span>
+                        <span className="text-zinc-500">Site:</span>{" "}
+                        <a
+                          href={website.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex min-h-11 items-center font-medium text-zinc-900 hover:underline"
+                        >
+                          {website.url.replace(/^https?:\/\//, "")}
+                        </a>
+                      </span>
+                    )}
+                    {(operator || website) && suckers?.length ? (
+                      <span aria-hidden className="mx-2.5 text-zinc-300">
+                        |
+                      </span>
+                    ) : null}
+                    {suckers?.length ? (
+                      <span className="inline-flex items-center gap-1.5">
+                        <span className="text-zinc-500">On:</span>
+                        {suckers.map((pair) => {
+                          const networkSlug = JB_CHAINS[pair.peerChainId].slug;
+                          return (
+                            <Link
+                              key={networkSlug}
+                              href={`/v${version}:${networkSlug}:${pair.projectId}`}
+                              className="inline-flex min-h-11 min-w-11 items-center justify-center transition-opacity hover:opacity-70"
+                            >
+                              <ChainLogo
+                                chainId={pair.peerChainId as JBChainId}
+                                width={18}
+                                height={18}
+                              />
+                            </Link>
+                          );
+                        })}
+                      </span>
+                    ) : null}
+                  </div>
+                )}
+              </Suspense>
+            </>
+          ) : null}
         </div>
       </div>
     </header>

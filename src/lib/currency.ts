@@ -1,4 +1,4 @@
-import { ETH_CURRENCY_ID, JBVersion, USD_CURRENCY_ID } from "juice-sdk-core";
+import { ETH_CURRENCY_ID, JBVersion, USD_CURRENCY_ID } from "@bananapus/nana-sdk-core";
 
 export function toBaseCurrencyId(currency: number | string, version: JBVersion) {
   if (Number(currency) === 1 || Number(currency) === 61166) return ETH_CURRENCY_ID;

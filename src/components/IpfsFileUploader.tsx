@@ -52,7 +52,7 @@ export function IpfsImageUploader({
     <div className="mb-5">
       <input
         className={twMerge(
-          "text-md focus:border-primary focus:shadow-te-primary dark:focus:border-primary block w-full rounded border border-solid border-zinc-300 bg-clip-padding px-3 py-[0.32rem] font-normal text-zinc-700 transition duration-300 ease-in-out file:-mx-3 file:-my-[0.32rem] file:overflow-hidden file:rounded-none file:border-0 file:border-solid file:border-inherit file:bg-zinc-100 file:px-3 file:py-[0.32rem] file:text-zinc-700 file:transition file:duration-150 file:ease-in-out file:[border-inline-end-width:1px] file:[margin-inline-end:0.75rem] hover:file:bg-zinc-200 focus:text-zinc-700 focus:outline-none dark:border-zinc-600 dark:text-zinc-200 dark:file:bg-zinc-700 dark:file:text-zinc-100",
+          "block w-full border-2 border-solid border-melon-300 bg-melon-25 bg-clip-padding px-2 py-[0.32rem] text-sm font-normal text-zinc-700 transition duration-300 ease-in-out file:-mx-2 file:-my-[0.32rem] file:overflow-hidden file:border-0 file:border-solid file:border-inherit file:bg-melon-50 file:px-2 file:py-[0.32rem] file:text-sm file:text-zinc-700 file:transition file:duration-150 file:ease-in-out file:[border-inline-end-width:2px] file:[margin-inline-end:0.5rem] hover:border-melon-400 hover:file:bg-melon-100 focus:border-melon-600 focus:text-zinc-700 focus:outline-none",
           (disabled || uploadFile.isPending) &&
             "cursor-not-allowed file:bg-zinc-100 file:text-zinc-400 hover:file:bg-zinc-100",
         )}

@@ -13,7 +13,7 @@ import {
 import { SuckerTransaction } from "@/generated/graphql";
 import { cn, etherscanLink } from "@/lib/utils";
 import { formatDistanceToNow } from "date-fns";
-import { formatUnits, JB_CHAINS, JB_TOKEN_DECIMALS, JBChainId } from "juice-sdk-core";
+import { formatUnits, JB_CHAINS, JB_TOKEN_DECIMALS, JBChainId } from "@bananapus/nana-sdk-core";
 import { ClaimButton } from "./ClaimButton";
 import { ToRemoteButton } from "./ToRemoteButton";
 import { TransactionsFilter } from "./TransactionsFilter";
@@ -51,7 +51,7 @@ export async function SuckerTransactionsTable(props: Props) {
         <h2 className="text-lg font-medium">Bridge Transactions</h2>
         <TransactionsFilter />
       </div>
-      <Table className="bg-zinc-50 border-zinc-200 border">
+      <Table>
         <TableHeader>
           <TableRow>
             <TableHead>Initiated</TableHead>

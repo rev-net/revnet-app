@@ -28,12 +28,13 @@ import { revalidateCacheTag } from "@/lib/cache";
 import { getTokenAddress } from "@/lib/token";
 import { cn, formatTokenSymbol, formatWalletError } from "@/lib/utils";
 import { FixedInt } from "fpnum";
-import { JB_CHAINS, JB_TOKEN_DECIMALS, JBChainId } from "juice-sdk-core";
+import { JB_CHAINS, JB_TOKEN_DECIMALS, JBChainId } from "@bananapus/nana-sdk-core";
+import { buildBridgePrepareTx } from "@bananapus/nana-sdk-core/v6";
 import {
   useJBContractContext,
   useJBTokenContext,
   useSuckersUserTokenBalance,
-} from "juice-sdk-react";
+} from "@bananapus/nana-sdk-react";
 import { useRouter } from "next/navigation";
 import { PropsWithChildren, useCallback, useMemo, useState } from "react";
 import { formatUnits, getAddress, parseUnits } from "viem";
@@ -124,13 +125,27 @@ export function BridgeDialog(props: PropsWithChildren<Props>) {
 
       const minTokens = 0n; // ToDo
 
-      await writeContractAsync({
-        abi: jbSuckerAbi,
-        functionName: "prepare",
-        address: suckerPair.local,
-        args: [amountObj.value, address, minTokens, getAddress(project.token)],
-        chainId: sourceChainId,
-      });
+      // v6 identifies the remote beneficiary as bytes32; the builder handles the padding
+      // and the opaque metadata payload.
+      if (version === 6) {
+        const request = buildBridgePrepareTx({
+          chainId: sourceChainId,
+          sucker: suckerPair.local,
+          projectTokenCount: amountObj.value,
+          beneficiary: address,
+          minTokensReclaimed: minTokens,
+          token: getAddress(project.token),
+        });
+        await writeContractAsync({ ...request, chainId: sourceChainId });
+      } else {
+        await writeContractAsync({
+          abi: jbSuckerAbi,
+          functionName: "prepare",
+          address: suckerPair.local,
+          args: [amountObj.value, address, minTokens, getAddress(project.token)],
+          chainId: sourceChainId,
+        });
+      }
     } catch (error) {
       console.error(error);
       toast({ variant: "destructive", title: "Error", description: formatWalletError(error) });

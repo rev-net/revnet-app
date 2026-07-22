@@ -7,7 +7,7 @@ import {
 } from "@/components/ui/select";
 import { toast } from "@/components/ui/use-toast";
 import { Field as FormikField } from "formik";
-import { JB_CHAINS, JBChainId } from "juice-sdk-core";
+import { JB_CHAINS, JBChainId } from "@bananapus/nana-sdk-core";
 import { useEffect, useState } from "react";
 import {
   arbitrum,
@@ -105,7 +105,7 @@ export function ChainSelect({
               defaultValue="production"
               disabled={disabled}
             >
-              <SelectTrigger className="col-span-1">
+              <SelectTrigger className="col-span-1 border-2 border-melon-300 bg-melon-25 hover:border-melon-400 focus:border-melon-600 focus:ring-0">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>

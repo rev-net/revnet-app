@@ -1,4 +1,4 @@
-import { JBProjectMetadata } from "juice-sdk-core";
+import { JBProjectMetadata } from "@bananapus/nana-sdk-core";
 
 const linkFields = ["twitter", "telegram", "discord", "infoUri", "farcaster", "x"] as const;
 type LinkField = (typeof linkFields)[number];

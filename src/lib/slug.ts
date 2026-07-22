@@ -1,4 +1,4 @@
-import { jbUrn } from "juice-sdk-core";
+import { jbUrn } from "@bananapus/nana-sdk-core";
 
 export function parseSlug(slug: string) {
   const urn = jbUrn(decodeURIComponent(slug.trim()));

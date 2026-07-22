@@ -1,8 +1,8 @@
 import { SuckerTransactionStatus } from "@/generated/graphql";
 import { getProjectsReclaimableSurplus } from "@/lib/reclaimableSurplus";
 import { parseSlug } from "@/lib/slug";
-import { NATIVE_TOKEN_DECIMALS } from "juice-sdk-core";
-import { notFound } from "next/navigation";
+import { NATIVE_TOKEN_DECIMALS } from "@bananapus/nana-sdk-core";
+import { notFound, redirect } from "next/navigation";
 import { Suspense } from "react";
 import { z } from "zod";
 import { BalanceTable } from "../components/Value/BalanceTable";
@@ -23,6 +23,9 @@ export default async function OpsPage(props: Props) {
   const { slug } = props.params;
   const { status } = props.searchParams;
   const { chainId, projectId, version } = parseSlug(slug);
+
+  // The v6 experience folds Ops into the Owners tab's subtabs.
+  if (version === 6) redirect(`/${slug}/owners`);
 
   const project = await getProject(projectId, chainId, version);
   if (!project || !project.token) notFound();

@@ -859,6 +859,21 @@
     "@babel/helper-string-parser" "^7.27.1"
     "@babel/helper-validator-identifier" "^7.27.1"
 
+"@bananapus/nana-sdk-core@^1.3.0":
+  version "1.3.0"
+  resolved "https://registry.yarnpkg.com/@bananapus/nana-sdk-core/-/nana-sdk-core-1.3.0.tgz#7e18db9111b05b0daafaae7b7eb4f4898357b543"
+  integrity sha512-rwnny4f2yFEk1q5fMz6U+ivlC7H7Utw87y3/jiBKI/BbWdRM1cVtcEbCzqkV68jE3mxuecXIaL/BK0AJesc8Zg==
+  dependencies:
+    bs58 "^5.0.0"
+    fpnum "^1.0.0"
+
+"@bananapus/nana-sdk-react@^4.0.0":
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/@bananapus/nana-sdk-react/-/nana-sdk-react-4.0.0.tgz#40b5ed2d393c581f3dd4f4ebd89ed23d7f754151"
+  integrity sha512-r5lSdkxGqF86RRjpZyOsvl9Mg6q5x7l+qrFI2E32TocU8oMAeQVxdqR366TDkcIahCjIBXnuAWqy+wOG1NmAsw==
+  dependencies:
+    graphql-request "^7.2.0"
+
 "@coinbase/wallet-sdk@4.3.6":
   version "4.3.6"
   resolved "https://registry.yarnpkg.com/@coinbase/wallet-sdk/-/wallet-sdk-4.3.6.tgz#bf9935fea404ecaa4aa5f00ea508fa01c007b3a8"
@@ -6684,21 +6699,6 @@ json5@^2.2.3:
     array.prototype.flat "^1.3.1"
     object.assign "^4.1.4"
     object.values "^1.1.6"
-
-juice-sdk-core@^2.1.2:
-  version "2.1.2"
-  resolved "https://registry.yarnpkg.com/juice-sdk-core/-/juice-sdk-core-2.1.2.tgz#a7e1984a6a4b08d7d581be97be2f8170a358a22d"
-  integrity sha512-k87vmSHXsUEEDgsHPURG8Gsx2CT3ooX5t1tiSOXlJ3yBilL8wPvJ6GLANRhHcOfgjNryhVUHAwBH/vEALO8j1A==
-  dependencies:
-    bs58 "^5.0.0"
-    fpnum "^1.0.0"
-
-juice-sdk-react@^5.0.2:
-  version "5.0.2"
-  resolved "https://registry.yarnpkg.com/juice-sdk-react/-/juice-sdk-react-5.0.2.tgz#02643e0cd70ce60319077da4678f8f1bb193f9e3"
-  integrity sha512-JrUxLygSYu3sVju9XX1SDtnNlt9gotGjhnRn7k+6UWPLop3PcgGjUoxGCCEid8Bu6y2fjrB2QNUQ0r1V2BWuWA==
-  dependencies:
-    graphql-request "^7.2.0"
 
 keccak@^3.0.3:
   version "3.0.4"

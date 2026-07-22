@@ -44,7 +44,7 @@ export function StartTimeField({ stageIdx, stages }: StartTimeFieldProps) {
                 const timestamp = Math.floor(new Date(e.target.value).getTime() / 1000);
                 setFieldValue("futureStartTimestamp", timestamp);
               }}
-              className="h-9 px-3 text-md border border-zinc-200 rounded bg-white"
+              className="h-9 border-2 border-melon-300 bg-melon-25 px-3 text-md hover:border-melon-400 focus:border-melon-600 focus:ring-0"
             />
             {values.futureStartTimestamp && (
               <p className="text-sm text-zinc-500 mt-2">
@@ -88,7 +88,7 @@ export function StartTimeField({ stageIdx, stages }: StartTimeFieldProps) {
                   setFieldValue("stageStart", String(cuts * daysPerCut)); // We need to set it, so validation works
                 }}
                 name="stageStartCuts"
-                className="h-9 w-full pr-12 px-3 text-md border border-zinc-200 rounded"
+                className="h-9 w-full border-2 border-melon-300 bg-melon-25 px-3 pr-12 text-md hover:border-melon-400 focus:border-melon-600 focus:ring-0"
               />
               <span className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 text-md pointer-events-none">
                 cuts

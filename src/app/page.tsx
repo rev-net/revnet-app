@@ -4,12 +4,13 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { MiniAppHello } from "./MiniAppHello";
 import { TopProjectsTable } from "./TopProjectsTable";
+import { TopProjectsTableSkeleton } from "@/components/loading/LoadingSkeletons";
 
 function RevLink({ network, id, text }: { network: string; id: number; text: string }) {
   return (
     <span>
       $
-      <Link href={`/v5:${network}:${id}`} className="underline hover:text-black/70">
+      <Link href={`/v6:${network}:${id}`} className="underline hover:text-black/70">
         {text}
       </Link>
     </span>
@@ -29,18 +30,18 @@ export default function Page() {
         <span className="sr-only">Revnet</span>
 
         <div className="text-xl md:text-2xl mt-8 font-medium text-left">
-          Tokenize revenues and fundraises. 100% autonomous.
+          A business model for the open web. 100% autonomous.
         </div>
 
         <div className="flex gap-4 mt-8">
           <Link href="/create">
-            <Button className="md:h-12 h-16 text-xl md:text-xl px-4 flex gap-2 bg-teal-500 hover:bg-teal-600">
+            <Button className="md:h-12 h-16 text-xl md:text-xl px-4 flex gap-2 bg-teal-500 text-melon-950 hover:bg-teal-600">
               Create yours
             </Button>
           </Link>
         </div>
 
-        <Suspense>
+        <Suspense fallback={<TopProjectsTableSkeleton />}>
           <TopProjectsTable />
         </Suspense>
       </div>
@@ -60,7 +61,7 @@ export default function Page() {
         <p>Simple enough for startups, powerful enough for global orgs and brands.</p>
 
         <div>
-          <ul className="list-disc list-outside ml-6 sm:ml-10 mt-4">
+          <ul className="mt-4 list-none [&>li]:relative [&>li]:pl-8 [&>li]:before:absolute [&>li]:before:left-1 [&>li]:before:content-['•'] sm:[&>li]:pl-10 sm:[&>li]:before:left-2">
             <li>
               Read the memo at{" "}
               <Link
@@ -98,9 +99,9 @@ export default function Page() {
               .
             </li>
             <li>
-              Support the $REV network{" "}
+              Support the REV network{" "}
               <Link
-                href="/v5:eth:3"
+                href="/v6:eth:3"
                 target="_blank"
                 rel="noopener norefererr"
                 className="underline"

@@ -9,6 +9,7 @@ query ActivityEvents($where: activityEventFilter, $orderBy: String, $orderDirect
       id
       chainId
       timestamp
+      txHash
       payEvent {
         id
         amount
@@ -45,6 +46,76 @@ query ActivityEvents($where: activityEventFilter, $orderBy: String, $orderDirect
           handle
           version
         }
+      }
+      addToBalanceEvent {
+        txHash
+        timestamp
+        from
+        amount
+        memo
+      }
+      mintTokensEvent {
+        txHash
+        timestamp
+        from
+        caller
+        beneficiary
+        beneficiaryTokenCount
+        memo
+      }
+      manualMintTokensEvent {
+        txHash
+        timestamp
+        from
+        beneficiary
+        beneficiaryTokenCount
+        memo
+      }
+      autoIssueEvent {
+        txHash
+        timestamp
+        from
+        beneficiary
+        count
+      }
+      deployErc20Event {
+        txHash
+        timestamp
+        from
+        symbol
+      }
+      projectCreateEvent {
+        txHash
+        timestamp
+        from
+      }
+      projectTransferEvent {
+        txHash
+        timestamp
+        from
+        previousOwner
+        owner
+      }
+      operatorPermissionsSetEvent {
+        txHash
+        timestamp
+        from
+        caller
+        operator
+        isRevnetOperator
+      }
+      rulesetQueuedEvent {
+        txHash
+        timestamp
+        from
+        caller
+        cycleNumber
+      }
+      buybackPoolEvent {
+        txHash
+        timestamp
+        from
+        caller
       }
     }
   }

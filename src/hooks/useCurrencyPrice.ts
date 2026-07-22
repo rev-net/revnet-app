@@ -1,7 +1,7 @@
 "use client";
 
-import { JBChainId, JBCoreContracts, jbPricesAbi } from "juice-sdk-core";
-import { useJBContractContext } from "juice-sdk-react";
+import { JBChainId, JBCoreContracts, jbPricesAbi } from "@bananapus/nana-sdk-core";
+import { useJBContractContext } from "@bananapus/nana-sdk-react";
 import { useReadContract } from "wagmi";
 
 export function useCurrencyPrice(

@@ -4,13 +4,13 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { useTokenA } from "@/hooks/useTokenA";
 import { formatWalletError } from "@/lib/utils";
-import { JB_CHAINS, JBChainId } from "juice-sdk-core";
+import { JB_CHAINS, JBChainId } from "@bananapus/nana-sdk-core";
 import {
   ChainPayment,
   RelayrPostBundleResponse,
   useGetRelayrTxBundle,
   useSendRelayrTx,
-} from "juice-sdk-react";
+} from "@bananapus/nana-sdk-react";
 import {
   CheckCircle,
   CircleDashedIcon,
@@ -63,7 +63,7 @@ export function PayAndDeploy({ relayrResponse, revnetTokenSymbol }: PaymentAndDe
           type="submit"
           size="lg"
           disabled={payIsProcessing}
-          className="disabled:text-black disabled:bg-transparent disabled:border disabled:border-black disabled:bg-gray-100 bg-teal-500 hover:bg-teal-600"
+          className="disabled:text-black disabled:bg-transparent disabled:border disabled:border-black disabled:bg-gray-100 bg-teal-500 text-melon-950 hover:bg-teal-600"
           onClick={async () => {
             setPayIsProcessing(true);
             try {
@@ -86,7 +86,7 @@ export function PayAndDeploy({ relayrResponse, revnetTokenSymbol }: PaymentAndDe
           ) : (
             <FastForwardIcon
               className={twMerge(
-                "h-4 w-4 fill-white ml-2",
+                "h-4 w-4 fill-melon-950 ml-2",
                 payIsProcessing ? "animate-spin" : "animate-pulse",
               )}
             />

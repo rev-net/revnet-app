@@ -1,5 +1,5 @@
 import { USDC_ADDRESSES } from "@/app/constants";
-import { NATIVE_TOKEN } from "juice-sdk-core";
+import { NATIVE_TOKEN } from "@bananapus/nana-sdk-core";
 
 /**
  * Get token symbol from token address

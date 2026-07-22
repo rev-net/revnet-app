@@ -1,9 +1,38 @@
 import { ProjectDocument, SuckerGroupDocument } from "@/generated/graphql";
 import { isNativeToken, Token } from "@/lib/token";
-import { JBChainId, NATIVE_TOKEN_DECIMALS } from "juice-sdk-core";
-import { useBendystrawQuery, useJBChainId, useJBContractContext } from "juice-sdk-react";
+import { getTokenSymbolFromAddress } from "@/lib/tokenUtils";
+import { JBChainId, NATIVE_TOKEN_DECIMALS } from "@bananapus/nana-sdk-core";
+import { useBendystrawQuery, useJBChainId, useJBContractContext } from "@bananapus/nana-sdk-react";
+import { useMemo } from "react";
 
-type ReturnData = Token & { tokenMap: Record<JBChainId, Token> };
+type ReturnData = Token & {
+  tokenMap: Record<JBChainId, Token>;
+  /** Accounting-context currency id for the project's base token. */
+  currency: number;
+};
+
+function resolveBaseToken(project: {
+  token?: string | null;
+  tokenSymbol?: string | null;
+  decimals?: number | null;
+  currency?: number | string | null;
+}): Token & { currency: number } {
+  const address = project.token as `0x${string}`;
+  const fromAddress = getTokenSymbolFromAddress(address);
+  // Prefer ETH/USDC labels for known reserve assets over the project ticker, and pin
+  // USDC to 6 decimals (the indexer reports the project token's 18).
+  const symbol = fromAddress === "TOKEN" ? project.tokenSymbol || "TOKEN" : fromAddress;
+  const decimals = fromAddress === "USDC" ? 6 : project.decimals || NATIVE_TOKEN_DECIMALS;
+  const isNative = isNativeToken(project.token ?? null);
+
+  return {
+    address,
+    symbol,
+    isNative,
+    decimals,
+    currency: Number(project.currency ?? (isNative ? 1 : 0)),
+  };
+}
 
 export function useProjectBaseToken(): ReturnData | undefined {
   const { projectId, version } = useJBContractContext();
@@ -21,30 +50,22 @@ export function useProjectBaseToken(): ReturnData | undefined {
     { enabled: !!data?.project?.suckerGroupId, pollInterval: 30000 },
   );
 
-  if (!data?.project) return undefined;
-  const { project } = data;
+  // Memoized so consumers can use the result in effect deps without looping.
+  return useMemo(() => {
+    if (!data?.project) return undefined;
 
-  const tokenMap =
-    suckerGroupData?.suckerGroup?.projects?.items?.reduce(
-      (acc, project) => {
-        if (project.token) {
-          acc[Number(project.chainId) as JBChainId] = {
-            address: project.token as `0x${string}`,
-            symbol: project.tokenSymbol!,
-            isNative: isNativeToken(project.token),
-            decimals: project.decimals || NATIVE_TOKEN_DECIMALS,
-          };
-        }
-        return acc;
-      },
-      {} as Record<JBChainId, Token>,
-    ) || ({} as Record<JBChainId, Token>);
+    const tokenMap =
+      suckerGroupData?.suckerGroup?.projects?.items?.reduce(
+        (acc, project) => {
+          if (project.token) {
+            const { currency: _currency, ...token } = resolveBaseToken(project);
+            acc[Number(project.chainId) as JBChainId] = token;
+          }
+          return acc;
+        },
+        {} as Record<JBChainId, Token>,
+      ) || ({} as Record<JBChainId, Token>);
 
-  return {
-    symbol: project.tokenSymbol!,
-    decimals: project.decimals!,
-    isNative: isNativeToken(project.token),
-    address: project.token as `0x${string}`,
-    tokenMap,
-  };
+    return { ...resolveBaseToken(data.project), tokenMap };
+  }, [data?.project, suckerGroupData?.suckerGroup?.projects?.items]);
 }

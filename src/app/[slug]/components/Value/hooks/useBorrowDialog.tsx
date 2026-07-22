@@ -1,5 +1,6 @@
 import { useToast } from "@/components/ui/use-toast";
 import { ProjectDocument, SuckerGroupDocument } from "@/generated/graphql";
+import { useBorrowableAmountFrom } from "@/hooks/useBorrowableAmountFrom";
 import { useHasBorrowPermission } from "@/hooks/useHasBorrowPermission";
 import { useProjectBaseToken } from "@/hooks/useProjectBaseToken";
 import { toBaseCurrencyId } from "@/lib/currency";
@@ -13,16 +14,19 @@ import {
   jbPermissionsAbi,
   NATIVE_TOKEN_DECIMALS,
   revDeployerAbi,
+  revDeployerV5Abi,
   revLoansAbi,
+  revLoansV5Abi,
   RevnetCoreContracts,
-} from "juice-sdk-core";
+} from "@bananapus/nana-sdk-core";
+import { buildBorrowTx, buildReallocateCollateralTx } from "@bananapus/nana-sdk-core/v6";
 import {
   useBendystrawQuery,
   useJBChainId,
   useJBContractContext,
   useJBTokenContext,
   useSuckersUserTokenBalance,
-} from "juice-sdk-react";
+} from "@bananapus/nana-sdk-react";
 import { useCallback, useEffect, useState } from "react";
 import { formatUnits, parseUnits } from "viem";
 import {
@@ -146,13 +150,25 @@ export function useBorrowDialog({ projectId, selectedLoan, defaultTab }: UseBorr
     chainId: cashOutChainId ? (Number(cashOutChainId) as JBChainId) : undefined,
   });
 
-  // Fee-related hooks
-  const { data: revDeployerFee } = useReadContract({
-    abi: revDeployerAbi,
+  // Fee-related hooks. v6 moved the fixed loan fee from `REVDeployer.FEE` to
+  // `REVLoans.MIN_PREPAID_FEE_PERCENT` (both 2.5%, in terms of MAX_FEE).
+  const { data: revDeployerFeeV5 } = useReadContract({
+    abi: revDeployerV5Abi,
     functionName: "FEE",
     address: contractAddress(RevnetCoreContracts.REVDeployer),
     chainId: cashOutChainId ? (Number(cashOutChainId) as JBChainId) : undefined,
+    query: { enabled: version !== 6 },
   });
+
+  const { data: minPrepaidFeePercent } = useReadContract({
+    abi: revLoansAbi,
+    functionName: "MIN_PREPAID_FEE_PERCENT",
+    address: revLoansContractAddress,
+    chainId: cashOutChainId ? (Number(cashOutChainId) as JBChainId) : undefined,
+    query: { enabled: version === 6 },
+  });
+
+  const revDeployerFee = version === 6 ? minPrepaidFeePercent : revDeployerFeeV5;
 
   const { data: revPrepaidFeePercent } = useReadContract({
     abi: revLoansAbi,
@@ -204,9 +220,7 @@ export function useBorrowDialog({ projectId, selectedLoan, defaultTab }: UseBorr
     : null;
 
   // Borrow-related hooks
-  const { data: borrowableAmountRaw } = useReadContract({
-    abi: revLoansAbi,
-    functionName: "borrowableAmountFrom",
+  const { data: borrowableAmountRaw } = useBorrowableAmountFrom({
     address: revLoansContractAddress,
     chainId: cashOutChainId ? (Number(cashOutChainId) as JBChainId) : undefined,
     args:
@@ -220,9 +234,7 @@ export function useBorrowDialog({ projectId, selectedLoan, defaultTab }: UseBorr
         : undefined,
   });
 
-  const { data: estimatedBorrowFromInputOnly } = useReadContract({
-    abi: revLoansAbi,
-    functionName: "borrowableAmountFrom",
+  const { data: estimatedBorrowFromInputOnly } = useBorrowableAmountFrom({
     address: revLoansContractAddress,
     chainId: cashOutChainId ? (Number(cashOutChainId) as JBChainId) : undefined,
     args:
@@ -237,9 +249,7 @@ export function useBorrowDialog({ projectId, selectedLoan, defaultTab }: UseBorr
   });
 
   // Reallocation-related hooks
-  const { data: selectedLoanReallocAmount } = useReadContract({
-    abi: revLoansAbi,
-    functionName: "borrowableAmountFrom",
+  const { data: selectedLoanReallocAmount } = useBorrowableAmountFrom({
     address: revLoansContractAddress,
     chainId: cashOutChainId ? (Number(cashOutChainId) as JBChainId) : undefined,
     args:
@@ -254,9 +264,7 @@ export function useBorrowDialog({ projectId, selectedLoan, defaultTab }: UseBorr
         : undefined,
   });
 
-  const { data: currentBorrowableOnSelectedCollateral } = useReadContract({
-    abi: revLoansAbi,
-    functionName: "borrowableAmountFrom",
+  const { data: currentBorrowableOnSelectedCollateral } = useBorrowableAmountFrom({
     address: revLoansContractAddress,
     chainId: cashOutChainId ? (Number(cashOutChainId) as JBChainId) : undefined,
     args:
@@ -293,9 +301,7 @@ export function useBorrowDialog({ projectId, selectedLoan, defaultTab }: UseBorr
   //       : undefined,
   //   });
 
-  const { data: estimatedNewBorrowableAmount } = useReadContract({
-    abi: revLoansAbi,
-    functionName: "borrowableAmountFrom",
+  const { data: estimatedNewBorrowableAmount } = useBorrowableAmountFrom({
     address: getRevnetLoanContract(
       version,
       internalSelectedLoan?.chainId
@@ -369,9 +375,7 @@ export function useBorrowDialog({ projectId, selectedLoan, defaultTab }: UseBorr
   const newLoanCollateral =
     collateralHeadroom +
     (collateralAmount ? parseUnits(collateralAmount, projectTokenDecimals) : 0n);
-  const { data: newLoanBorrowableAmount } = useReadContract({
-    abi: revLoansAbi,
-    functionName: "borrowableAmountFrom",
+  const { data: newLoanBorrowableAmount } = useBorrowableAmountFrom({
     address: revLoansContractAddress,
     chainId: cashOutChainId ? (Number(cashOutChainId) as JBChainId) : undefined,
     args:
@@ -566,24 +570,41 @@ export function useBorrowDialog({ projectId, selectedLoan, defaultTab }: UseBorr
       try {
         setBorrowStatus("waiting-signature");
 
-        await reallocateCollateralAsync({
-          abi: revLoansAbi,
-          functionName: "reallocateCollateralFromLoan",
-          address: revLoansContractAddress,
-          chainId: Number(cashOutChainId) as JBChainId,
-          args: [
-            internalSelectedLoan.id,
-            collateralCountToTransfer,
-            {
+        // v6 identifies the loan source by token (terminal is baked in); v4/v5 take a
+        // {token, terminal} source tuple.
+        if (version === 6) {
+          await reallocateCollateralAsync(
+            buildReallocateCollateralTx({
+              chainId: Number(cashOutChainId) as JBChainId,
+              loanId: BigInt(internalSelectedLoan.id),
+              collateralCountToTransfer,
               token: selectedChainTokenConfig.token,
-              terminal: primaryNativeTerminal.data,
-            },
-            minBorrowAmount,
-            collateralCountToAdd,
-            address,
-            feePercent,
-          ],
-        });
+              minBorrowAmount,
+              collateralCountToAdd,
+              beneficiary: address,
+              prepaidFeePercent: feePercent,
+            }),
+          );
+        } else {
+          await reallocateCollateralAsync({
+            abi: revLoansV5Abi,
+            functionName: "reallocateCollateralFromLoan",
+            address: revLoansContractAddress,
+            chainId: Number(cashOutChainId) as JBChainId,
+            args: [
+              internalSelectedLoan.id,
+              collateralCountToTransfer,
+              {
+                token: selectedChainTokenConfig.token,
+                terminal: primaryNativeTerminal.data,
+              },
+              minBorrowAmount,
+              collateralCountToAdd,
+              address,
+              feePercent,
+            ],
+          });
+        }
       } catch (err) {
         setBorrowStatus("error");
         toast({
@@ -646,18 +667,6 @@ export function useBorrowDialog({ projectId, selectedLoan, defaultTab }: UseBorr
         // collateralBigInt should be in project token decimals, not base token decimals
         const collateralBigInt = parseUnits(collateralAmount, projectTokenDecimals);
 
-        const args = [
-          effectiveProjectId,
-          {
-            token: selectedChainTokenConfig.token,
-            terminal: primaryNativeTerminal.data,
-          },
-          0n,
-          collateralBigInt,
-          address as `0x${string}`,
-          BigInt(feeBasisPoints),
-        ] as const;
-
         if (!writeContractAsync) {
           setBorrowStatus("error");
           return;
@@ -665,13 +674,40 @@ export function useBorrowDialog({ projectId, selectedLoan, defaultTab }: UseBorr
 
         try {
           setBorrowStatus("waiting-signature");
-          await writeContractAsync({
-            abi: revLoansAbi,
-            functionName: "borrowFrom",
-            address: revLoansContractAddress,
-            chainId: Number(cashOutChainId) as JBChainId,
-            args,
-          });
+          // v6 identifies the loan source by token (terminal is baked in) and takes an
+          // explicit holder; v4/v5 take a {token, terminal} source tuple.
+          if (version === 6) {
+            await writeContractAsync(
+              buildBorrowTx({
+                chainId: Number(cashOutChainId) as JBChainId,
+                revnetId: effectiveProjectId,
+                token: selectedChainTokenConfig.token,
+                minBorrowAmount: 0n,
+                collateralCount: collateralBigInt,
+                beneficiary: address as `0x${string}`,
+                prepaidFeePercent: BigInt(feeBasisPoints),
+                holder: address as `0x${string}`,
+              }),
+            );
+          } else {
+            await writeContractAsync({
+              abi: revLoansV5Abi,
+              functionName: "borrowFrom",
+              address: revLoansContractAddress,
+              chainId: Number(cashOutChainId) as JBChainId,
+              args: [
+                effectiveProjectId,
+                {
+                  token: selectedChainTokenConfig.token,
+                  terminal: primaryNativeTerminal.data,
+                },
+                0n,
+                collateralBigInt,
+                address as `0x${string}`,
+                BigInt(feeBasisPoints),
+              ],
+            });
+          }
         } catch (err) {
           setBorrowStatus("error-loan-canceled");
           toast({

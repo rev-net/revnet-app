@@ -1,7 +1,7 @@
 "use server";
 
 import { FeeAmount } from "@uniswap/v3-sdk";
-import { JBChainId } from "juice-sdk-core";
+import { JBChainId } from "@bananapus/nana-sdk-core";
 import { unstable_cache } from "next/cache";
 import { Address, formatUnits, getContract, zeroAddress } from "viem";
 import { Pool } from "../quote";

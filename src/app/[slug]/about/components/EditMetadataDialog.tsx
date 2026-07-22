@@ -20,10 +20,7 @@ import { useTokenA } from "@/hooks/useTokenA";
 import { ipfsUri } from "@/lib/ipfs";
 import { formatWalletError } from "@/lib/utils";
 import { wagmiConfig } from "@/lib/wagmiConfig";
-import { getPublicClient } from "@wagmi/core";
-import { Formik } from "formik";
-import { withZodSchema } from "formik-validator-zod";
-import { JBChainId, jbControllerAbi, JBCoreContracts } from "juice-sdk-core";
+import { JBChainId, jbControllerAbi, JBCoreContracts } from "@bananapus/nana-sdk-core";
 import {
   ChainPayment,
   RelayrPostBundleResponse,
@@ -31,7 +28,10 @@ import {
   useJBContractContext,
   useJBProjectMetadataContext,
   useSendRelayrTx,
-} from "juice-sdk-react";
+} from "@bananapus/nana-sdk-react";
+import { getPublicClient } from "@wagmi/core";
+import { Formik } from "formik";
+import { withZodSchema } from "formik-validator-zod";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { encodeFunctionData } from "viem";
@@ -53,9 +53,10 @@ type MetadataFormData = z.infer<typeof metadataSchema>;
 
 interface Props {
   projects: Array<Pick<Project, "projectId" | "token" | "chainId">>;
+  triggerVariant?: "default" | "outline";
 }
 
-export function EditMetadataDialog({ projects }: Props) {
+export function EditMetadataDialog({ projects, triggerVariant = "outline" }: Props) {
   const [open, setOpen] = useState(false);
   const { metadata } = useJBProjectMetadataContext();
   const { contractAddress } = useJBContractContext();
@@ -223,7 +224,7 @@ export function EditMetadataDialog({ projects }: Props) {
       }}
     >
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm">
+        <Button variant={triggerVariant} size="sm">
           Edit metadata
         </Button>
       </DialogTrigger>

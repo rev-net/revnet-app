@@ -1,15 +1,16 @@
 "use client";
 
+import { ChartSkeleton } from "@/components/loading/LoadingSkeletons";
 import { ChartConfig, ChartContainer, ChartTooltip } from "@/components/ui/chart";
 import { RangeOption, RangeSelector } from "@/components/ui/range-selector";
 import { formatDecimals } from "@/lib/number";
 import { parseTimeRange, TimeRange } from "@/lib/timeRange";
+import { JBChainId, JBVersion } from "@bananapus/nana-sdk-core";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
-import { JBChainId, JBVersion } from "juice-sdk-core";
 import { useSearchParams } from "next/navigation";
 import { useState } from "react";
-import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
+import { CartesianGrid, Line, LineChart, ReferenceLine, XAxis, YAxis } from "recharts";
 import { ChartToggleButton } from "./ChartToggleButton";
 import { getTokenPriceChartData } from "./getTokenPriceChartData";
 import { PriceChartTooltip } from "./PriceChartTooltip";
@@ -22,6 +23,8 @@ const TIME_RANGES: RangeOption<TimeRange>[] = [
   { value: "1y", label: "1Y" },
   { value: "all", label: "All" },
 ];
+
+const NOW_COLOR = "#EE6F3A"; // peel-400
 
 const chartConfig = {
   issuancePrice: { label: "Issuance Price", color: "var(--chart-2)" },
@@ -75,6 +78,21 @@ export function TokenPriceChart({
   const hasPool = data?.hasPool ?? false;
   const hasAmmData = chartData.some((d) => d.ammPrice !== undefined);
   const hasFloorData = chartData.some((d) => d.floorPrice !== undefined);
+  const firstTimestamp = chartData[0]?.timestamp;
+  const lastTimestamp = chartData[chartData.length - 1]?.timestamp;
+  const visibleStages =
+    firstTimestamp === undefined || lastTimestamp === undefined
+      ? []
+      : (data?.stages ?? []).filter(
+          (stage) => stage.timestamp > firstTimestamp && stage.timestamp < lastTimestamp,
+        );
+  const todayTimestamp = data?.todayTimestamp;
+  const showToday =
+    todayTimestamp !== undefined &&
+    firstTimestamp !== undefined &&
+    lastTimestamp !== undefined &&
+    todayTimestamp >= firstTimestamp &&
+    todayTimestamp <= lastTimestamp;
 
   const filteredData = chartData.map((point) => ({
     timestamp: point.timestamp,
@@ -88,8 +106,8 @@ export function TokenPriceChart({
 
   return (
     <div className="w-full">
-      <div className="flex flex-col gap-2.5 items-start md:flex-row md:justify-between md:items-center">
-        <div className="flex gap-1.5 md:gap-4 flex-wrap">
+      <div className="flex flex-col items-start gap-2.5 lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex flex-wrap gap-1.5 lg:gap-4">
           <ChartToggleButton
             label="Issuance Price"
             active={showIssuance}
@@ -124,14 +142,17 @@ export function TokenPriceChart({
           <LineChart
             data={filteredData}
             accessibilityLayer
-            margin={{ left: 12, right: 12, top: 12, bottom: 0 }}
+            margin={{ left: 12, right: 16, top: 16, bottom: 0 }}
           >
             <CartesianGrid strokeDasharray="3 3" vertical={false} />
             <XAxis
               dataKey="timestamp"
+              type="number"
+              domain={["dataMin", "dataMax"]}
               tickLine={false}
               axisLine={false}
               tickMargin={8}
+              tick={{ fontSize: 14 }}
               tickFormatter={(timestamp) => formatXAxis(timestamp, range)}
               minTickGap={32}
             />
@@ -139,8 +160,9 @@ export function TokenPriceChart({
               tickLine={false}
               axisLine={false}
               tickMargin={8}
+              tick={{ fontSize: 14 }}
               tickFormatter={(value) => formatDecimals(value, 6)}
-              width={60}
+              width={72}
               domain={[0, "auto"]}
             />
             <ChartTooltip
@@ -154,6 +176,23 @@ export function TokenPriceChart({
                 />
               )}
             />
+            {visibleStages.map((stage) => (
+              <ReferenceLine
+                key={`${stage.name}-${stage.timestamp}`}
+                x={stage.timestamp}
+                stroke="#C6EDD5"
+                strokeDasharray="3 3"
+                strokeWidth={2}
+                label={{
+                  value: stage.name,
+                  position: "insideTopRight",
+                  fill: "#3D7955",
+                  fontSize: 14,
+                  fontWeight: 500,
+                  offset: 8,
+                }}
+              />
+            ))}
             {showIssuance && (
               <Line
                 type="monotone"
@@ -187,11 +226,30 @@ export function TokenPriceChart({
                 isAnimationActive={false}
               />
             )}
+            {showToday ? (
+              <ReferenceLine
+                x={todayTimestamp}
+                stroke={NOW_COLOR}
+                strokeDasharray="4 4"
+                strokeWidth={2}
+                ifOverflow="visible"
+                label={{
+                  value: "Now",
+                  position: "insideTopRight",
+                  fill: NOW_COLOR,
+                  fontSize: 14,
+                  fontWeight: 600,
+                  offset: 8,
+                }}
+              />
+            ) : null}
           </LineChart>
         </ChartContainer>
+      ) : isLoading ? (
+        <ChartSkeleton className="mt-6 aspect-[4/3] w-full sm:aspect-[2/1] lg:aspect-[5/2]" />
       ) : (
         <div className="aspect-[4/3] sm:aspect-[2/1] lg:aspect-[5/2] w-full flex items-center justify-center text-zinc-500">
-          {isLoading ? "Loading..." : "No price data available"}
+          No price data available
         </div>
       )}
     </div>

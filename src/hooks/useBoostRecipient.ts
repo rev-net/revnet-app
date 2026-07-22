@@ -1,6 +1,6 @@
 import { RESERVED_TOKEN_SPLIT_GROUP_ID } from "@/app/constants";
-import { JBCoreContracts, jbSplitsAbi } from "juice-sdk-core";
-import { useJBChainId, useJBContractContext, useJBRulesetContext } from "juice-sdk-react";
+import { JBCoreContracts, jbSplitsAbi } from "@bananapus/nana-sdk-core";
+import { useJBChainId, useJBContractContext, useJBRulesetContext } from "@bananapus/nana-sdk-react";
 import { useReadContract } from "wagmi";
 
 export function useBoostRecipient() {

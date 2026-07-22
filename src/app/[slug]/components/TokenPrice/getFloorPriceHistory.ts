@@ -6,7 +6,7 @@ import {
 } from "@/generated/graphql";
 import { getBendystrawClient } from "@/graphql/bendystrawClient";
 import type { GraphQLClient } from "graphql-request";
-import { JB_TOKEN_DECIMALS } from "juice-sdk-core";
+import { JB_TOKEN_DECIMALS } from "@bananapus/nana-sdk-core";
 import { parseUnits } from "viem";
 import type { PriceDataPoint } from "./getTokenPriceChartData";
 

@@ -14,27 +14,125 @@
 }
 
 ::selection {
-  background: theme("colors.orange.200");
+  color: theme("colors.melon.950");
+  background: theme("colors.melon.300");
 }
 
 body {
-  background-color: white;
+  color: theme("colors.melon.950");
+  background-color: theme("colors.melon.25");
+}
+
+/* Stable, geometry-matched loading surfaces. The sweep is deliberately
+   subtle so data arrival feels calm instead of calling attention to latency. */
+.skeleton-shimmer {
+  position: relative;
+  overflow: hidden;
+  background-color: theme("colors.melon.100");
+}
+
+.skeleton-shimmer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgb(246 254 249 / 0.72),
+    transparent
+  );
+  animation: skeleton-sweep 1.5s ease-in-out infinite;
+}
+
+@keyframes skeleton-sweep {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-shimmer::after {
+    animation: none;
+  }
+}
+
+/* Hard-edged interface chrome. Intrinsically round image assets (avatars and
+   chain marks) remain round, while controls and surfaces stay square. */
+*:not(img):not(svg) {
+  border-radius: 0 !important;
+}
+
+/* Native selection controls appear throughout create, owner, operator, and
+   extras flows. Keep their selected state on the shared Melon accent instead
+   of allowing the browser/forms plugin to fall back to blue. */
+input[type="checkbox"],
+input[type="radio"] {
+  accent-color: theme("colors.melon.500");
+  color: theme("colors.melon.500");
+  border-color: theme("colors.melon.600");
+}
+
+input[type="checkbox"]:checked,
+input[type="radio"]:checked {
+  background-color: theme("colors.melon.500");
+  border-color: theme("colors.melon.500");
+}
+
+input[type="checkbox"]:focus,
+input[type="radio"]:focus {
+  --tw-ring-color: theme("colors.melon.200");
+}
+
+/* Range controls follow the same hard-edged visual language as the rest of
+   the interface instead of inheriting the browser's circular thumb. */
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 1rem;
+  height: 1rem;
+  border: 0;
+  border-radius: 0;
+  background: theme("colors.melon.500");
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 1rem;
+  height: 1rem;
+  border: 0;
+  border-radius: 0;
+  background: theme("colors.melon.500");
+}
+
+@layer components {
+  /* Keep every data table distinct from the page, including native tables
+     which do not use the shared Table component. Semantic row highlights can
+     still paint over the body surface. */
+  table,
+  table > tbody {
+    background-color: theme("colors.melon.50");
+  }
+
+  table > thead,
+  table > thead > tr {
+    background-color: theme("colors.melon.100") !important;
+  }
 }
 
 @layer base {
   :root {
-    --chart-1: oklch(0.646 0.222 41.116);
-    --chart-2: oklch(0.72 0.19 150);
-    --chart-3: oklch(0.398 0.07 227.392);
-    --chart-4: oklch(0.75 0.14 233);
-    --chart-5: oklch(0.769 0.188 70.08);
+    /* Brand chart series: Tomato / Melon / Blue / Butter / Purple. */
+    --chart-1: #f04438;
+    --chart-2: #4fa270;
+    --chart-3: #4864c8;
+    --chart-4: #d98909;
+    --chart-5: #8651e0;
   }
 
   .dark {
-    --chart-1: oklch(0.488 0.243 264.376);
-    --chart-2: oklch(0.696 0.17 162.48);
-    --chart-3: oklch(0.769 0.188 70.08);
-    --chart-4: oklch(0.627 0.265 303.9);
-    --chart-5: oklch(0.645 0.246 16.439);
+    --chart-1: #fda29b;
+    --chart-2: #86d5a5;
+    --chart-3: #9aaef5;
+    --chart-4: #ffd27a;
+    --chart-5: #c9aff4;
   }
 }

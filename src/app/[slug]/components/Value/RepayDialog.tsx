@@ -1,4 +1,5 @@
 import { ButtonWithWallet } from "@/components/ButtonWithWallet";
+import { SkeletonLines } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -6,13 +7,13 @@ import { useToast } from "@/components/ui/use-toast";
 import { ProjectDocument, SuckerGroupDocument } from "@/generated/graphql";
 import { getTokenConfigForChain, getTokenSymbolFromAddress } from "@/lib/tokenUtils";
 import { formatTokenSymbol, formatWalletError } from "@/lib/utils";
-import { getRevnetLoanContract, JBChainId, revLoansAbi } from "juice-sdk-core";
+import { getRevnetLoanContract, JBChainId, revLoansAbi } from "@bananapus/nana-sdk-core";
 import {
   useBendystrawQuery,
   useJBChainId,
   useJBContractContext,
   useJBTokenContext,
-} from "juice-sdk-react";
+} from "@bananapus/nana-sdk-react";
 import { useEffect, useState } from "react";
 import { Address, erc20Abi, formatUnits, parseUnits } from "viem";
 import {
@@ -507,8 +508,13 @@ export function RepayDialog({
           <DialogHeader>
             <DialogTitle>Repay loan</DialogTitle>
           </DialogHeader>
-          <div className="text-sm text-zinc-700 space-y-4">
-            <p>{isLoadingLoan ? "Loading loan data..." : "Checking token allowance..."}</p>
+          <div className="space-y-5" role="status" aria-label="Loading loan details">
+            <span className="sr-only">Loading loan details</span>
+            <SkeletonLines lines={3} />
+            <div className="grid grid-cols-2 gap-3">
+              <SkeletonLines lines={2} />
+              <SkeletonLines lines={2} />
+            </div>
           </div>
         </DialogContent>
       </Dialog>

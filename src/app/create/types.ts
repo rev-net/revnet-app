@@ -1,4 +1,4 @@
-import { JBChainId } from "juice-sdk-core";
+import { JBChainId } from "@bananapus/nana-sdk-core";
 
 export type StageData = {
   initialOperator?: string; // only one operator (technically per chain) not per stage

@@ -2,7 +2,7 @@
 
 import { jbSuckerAbi } from "@/generated/jbSuckerAbi";
 import { getViemPublicClient } from "@/lib/wagmiConfig";
-import { JBChainId } from "juice-sdk-core";
+import { JBChainId } from "@bananapus/nana-sdk-core";
 import { unstable_cache } from "next/cache";
 import { formatEther, parseEther } from "viem";
 

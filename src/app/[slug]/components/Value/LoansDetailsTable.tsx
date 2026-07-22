@@ -17,15 +17,15 @@ import {
 } from "@/generated/graphql";
 import { getTokenConfigForChain, getTokenSymbolFromAddress } from "@/lib/tokenUtils";
 import { formatSeconds } from "@/lib/utils";
-import { getRevnetLoanContract, JB_CHAINS, JBChainId, revLoansAbi } from "juice-sdk-core";
+import { useBorrowableAmountFrom } from "@/hooks/useBorrowableAmountFrom";
+import { getRevnetLoanContract, JB_CHAINS, JBChainId } from "@bananapus/nana-sdk-core";
 import {
   useBendystrawQuery,
   useJBChainId,
   useJBContractContext,
   useJBTokenContext,
-} from "juice-sdk-react";
+} from "@bananapus/nana-sdk-react";
 import { formatUnits } from "viem";
-import { useReadContract } from "wagmi";
 
 // Constants for loan calculations and display
 const LOAN_CONSTANTS = {
@@ -69,10 +69,8 @@ function LoanRow({
   const borrowAmount = Number(formatUnits(BigInt(loan.borrowAmount), baseTokenDecimals)).toFixed(4);
 
   // Calculate headroom: current value of collateral - borrowed amount
-  const { data: currentCollateralValue } = useReadContract({
-    abi: revLoansAbi,
+  const { data: currentCollateralValue } = useBorrowableAmountFrom({
     chainId: loan.chainId as JBChainId,
-    functionName: "borrowableAmountFrom",
     address: getRevnetLoanContract(version, loan.chainId as JBChainId),
     args: [
       revnetId,
@@ -243,7 +241,7 @@ export function LoanDetailsTable({
           LOAN_CONSTANTS.TABLE_MAX_HEIGHT + " overflow-auto bg-zinc-50 border border-zinc-200"
         }
       >
-        <div className="flex flex-col p-2 overflow-x-auto">
+        <div className="flex flex-col overflow-x-auto">
           <div className="min-w-full">
             <Table>
               <TableHeader>

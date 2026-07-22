@@ -1,6 +1,6 @@
 import { ConnectKitButton } from "connectkit";
-import { JB_CHAINS, JBChainId } from "juice-sdk-core";
-import { useJBChainId } from "juice-sdk-react";
+import { JB_CHAINS, JBChainId } from "@bananapus/nana-sdk-core";
+import { useJBChainId } from "@bananapus/nana-sdk-react";
 import React from "react";
 import { useAccount, useChainId, useSwitchChain } from "wagmi";
 import { Button, ButtonProps } from "./ui/button";

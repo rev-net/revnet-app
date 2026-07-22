@@ -15,7 +15,7 @@ export function ProjectDetails({ disabled = false }: { disabled?: boolean }) {
         <h2 className="font-bold text-lg mb-2">1. Look</h2>
       </div>
       <div className="md:col-span-2">
-        <div className="grid grid-cols-1 md:grid-cols-[2fr_1fr_2fr] sm:gap-6">
+        <div className="grid grid-cols-1 sm:gap-6 md:grid-cols-[minmax(0,2fr)_minmax(8rem,1fr)_minmax(18rem,2fr)]">
           <FieldGroup id="name" name="name" label="Name" disabled={disabled} />
           <FieldGroup
             id="tokenSymbol"

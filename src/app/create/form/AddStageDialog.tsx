@@ -19,6 +19,7 @@ import { getResolvedIssuance } from "../helpers/calculatePickupIssuance";
 import { formatFormErrors } from "../helpers/formatFormErrors";
 import { stageSchema } from "../helpers/stageSchema";
 import { StageData } from "../types";
+import { CashOutCurvePreview } from "./CashOutCurvePreview";
 import { Field } from "./Fields";
 import { PickupFromPreviousStage } from "./PickupFromPreviousStage";
 import { StartTimeField } from "./StartTimeField";
@@ -99,11 +100,6 @@ export function AddStageDialog({
 
   // Discrete values matching your radio options
   const steps = ["no tax", "light", "medium", "heavy", "extreme"];
-
-  // Calculate example yield based on selected tax rate
-  const calculateYield = (taxRate: number) => {
-    return (Number(1 - taxRate / 100 + taxRate / 100 / 10) * 10).toFixed(1);
-  };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -234,7 +230,7 @@ export function AddStageDialog({
                                   min="0.01"
                                   max="100"
                                   step="any"
-                                  className="h-9 w-16 border-zinc-200 pr-6 pl-2"
+                                  className="h-9 w-16 border-2 border-melon-300 bg-melon-25 pr-6 pl-2 hover:border-melon-400 focus:border-melon-600 focus:ring-0"
                                   value={String(uiCutPercentage)}
                                   onChange={(e) => {
                                     setUiCutPercentage(Number(e.target.value));
@@ -254,7 +250,7 @@ export function AddStageDialog({
                                   inputMode="decimal"
                                   min="0.042"
                                   step="any"
-                                  className="h-9 border-zinc-200 pr-10 pl-2 w-24"
+                                  className="h-9 w-24 border-2 border-melon-300 bg-melon-25 pr-10 pl-2 hover:border-melon-400 focus:border-melon-600 focus:ring-0"
                                   value={String(uiCutFrequency)}
                                   onChange={(e) => {
                                     setUiCutFrequency(Number(e.target.value));
@@ -557,16 +553,16 @@ export function AddStageDialog({
                           max={80}
                           step={5}
                           name="priceFloorTaxIntensity"
-                          className="w-full h-2 bg-gray-200 appearance-none cursor-pointer accent-teal-500 px-0 rounded-full"
+                          className="h-2 w-full cursor-pointer appearance-none bg-gray-200 px-0 accent-teal-500"
                           aria-label="Exit tax percentage"
                         />
                       </div>
                     </div>
-                    <div className="text-sm font-medium text-zinc-500 mt-4 border-l border-zinc-300 pl-2 py-1 px-1">
-                      Cashing out 10% of {revnetTokenSymbol} gets{" "}
-                      {calculateYield(Number(values.priceFloorTaxIntensity))}% of the revnet's{" "}
-                      {reserveAsset}.
-                    </div>
+                    <CashOutCurvePreview
+                      taxRate={Number(values.priceFloorTaxIntensity)}
+                      tokenSymbol={revnetTokenSymbol}
+                      reserveAsset={reserveAsset}
+                    />
                     <NotesSection>
                       <div className="text-zinc-600 text-md mt-4 italic">
                         <ul className="list-disc list-inside space-y-2">
@@ -608,7 +604,7 @@ export function AddStageDialog({
                   <DialogFooter>
                     <Button
                       type="submit"
-                      className="bg-teal-500 hover:bg-teal-600"
+                      className="bg-teal-500 text-melon-950 hover:bg-teal-600"
                       onClick={() => {
                         if (!isValid) {
                           toast({

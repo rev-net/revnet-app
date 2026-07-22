@@ -13,8 +13,8 @@ import {
 import { Participant } from "@/generated/graphql";
 import { prettyNumber } from "@/lib/number";
 import { formatPortion, formatTokenSymbol } from "@/lib/utils";
-import { formatUnits } from "juice-sdk-core";
-import { JBChainId } from "juice-sdk-react";
+import { formatUnits } from "@bananapus/nana-sdk-core";
+import { JBChainId } from "@bananapus/nana-sdk-react";
 import { Address } from "viem";
 import { UseTokenReturnType } from "wagmi";
 
@@ -24,12 +24,16 @@ export function ParticipantsTable({
   totalSupply,
   baseTokenSymbol = "ETH",
   baseTokenDecimals = 18,
+  condensed = false,
+  maxRows,
 }: {
   participants: (Participant & { chains: JBChainId[] })[];
   token: UseTokenReturnType["data"] | null;
   totalSupply: bigint;
   baseTokenSymbol?: string;
   baseTokenDecimals?: number;
+  condensed?: boolean;
+  maxRows?: number;
 }) {
   if (participants.length === 0) {
     return (
@@ -37,18 +41,20 @@ export function ParticipantsTable({
     );
   }
 
+  const visibleParticipants = maxRows ? participants.slice(0, maxRows) : participants;
+
   return (
-    <Table>
+    <Table className={condensed ? "min-w-[720px]" : undefined}>
       <TableHeader>
         <TableRow>
           <TableHead className="w-auto md:w-1/2">Account</TableHead>
-          <TableHead>Balance</TableHead>
+          <TableHead>{condensed ? "Share" : "Balance"}</TableHead>
           <TableHead>Chains</TableHead>
           <TableHead>Paid</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
-        {participants.map((participant) => (
+        {visibleParticipants.map((participant) => (
           <TableRow key={participant?.address}>
             <TableCell>
               <div className="flex flex-col sm:flex-row items-center">
@@ -70,7 +76,16 @@ export function ParticipantsTable({
                 </div>
               </div>
             </TableCell>
-            {token ? (
+            {token && condensed ? (
+              <TableCell className="whitespace-nowrap tabular-nums">
+                <span className="font-semibold">
+                  {participant.balance
+                    ? formatPortion(BigInt(participant.balance), totalSupply)
+                    : 0}
+                  %
+                </span>
+              </TableCell>
+            ) : token ? (
               <TableCell className="whitespace-nowrap pr-14">
                 {prettyNumber(
                   formatUnits(participant.balance, token.decimals, {

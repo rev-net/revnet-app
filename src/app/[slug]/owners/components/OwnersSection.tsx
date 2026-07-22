@@ -10,7 +10,7 @@ import {
   useJBChainId,
   useJBContractContext,
   useJBTokenContext,
-} from "juice-sdk-react";
+} from "@bananapus/nana-sdk-react";
 import { useState } from "react";
 import { twJoin } from "tailwind-merge";
 import { AutoIssuance } from "./AutoIssuance";
@@ -116,7 +116,7 @@ export function OwnersSection() {
               totalSupply={totalOutstandingTokens}
               token={token?.data}
             />
-            <div className="overflow-auto p-2 bg-zinc-50 border-zinc-200 border w-full">
+            <div className="w-full overflow-auto">
               <div>
                 <ParticipantsTable
                   participants={Object.values(participantsDataAggregate)}

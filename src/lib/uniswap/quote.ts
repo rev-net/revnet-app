@@ -1,4 +1,4 @@
-import { JBChainId, JBProjectToken } from "juice-sdk-core";
+import { JBChainId, JBProjectToken } from "@bananapus/nana-sdk-core";
 import { getContract } from "viem";
 import { Quote } from "../quote";
 import { Token } from "../token";

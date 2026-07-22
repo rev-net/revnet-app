@@ -1,7 +1,7 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
-import { RelayrPostBundleResponse } from "juice-sdk-react";
+import { RelayrPostBundleResponse } from "@bananapus/nana-sdk-react";
 import { PayAndDeploy } from "../buttons/PayAndDeploy";
 import { useCreateForm } from "./useCreateForm";
 

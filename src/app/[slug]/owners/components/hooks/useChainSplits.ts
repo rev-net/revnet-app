@@ -2,8 +2,8 @@
 
 import { RESERVED_TOKEN_SPLIT_GROUP_ID } from "@/app/constants";
 import { useFetchProjectRulesets } from "@/hooks/useFetchProjectRulesets";
-import { JBCoreContracts, jbSplitsAbi } from "juice-sdk-core";
-import { useJBContractContext, useSuckers } from "juice-sdk-react";
+import { JBCoreContracts, jbSplitsAbi } from "@bananapus/nana-sdk-core";
+import { useJBContractContext, useSuckers } from "@bananapus/nana-sdk-react";
 import { useMemo } from "react";
 import { useReadContracts } from "wagmi";
 

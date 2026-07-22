@@ -3,7 +3,7 @@
 import { Project } from "@/generated/graphql";
 import { useUserPermissions } from "@/hooks/useUserPermissions";
 import { getProjectLinks } from "@/lib/projectLinks";
-import { useJBProjectMetadataContext } from "juice-sdk-react";
+import { useJBProjectMetadataContext } from "@bananapus/nana-sdk-react";
 import { EditMetadataDialog } from "./EditMetadataDialog";
 import { ProjectLinks } from "./ProjectLinks";
 import { RichPreview } from "./RichPreview";

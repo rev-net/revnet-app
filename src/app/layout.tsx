@@ -8,14 +8,6 @@ import { Providers } from "./providers";
 
 import localFont from "next/font/local";
 
-const simplonNorm = localFont({
-  src: [
-    { path: "../../public/fonts/SimplonNorm-Light.otf", weight: "400" },
-    { path: "../../public/fonts/SimplonNorm-Regular.otf", weight: "500" },
-    { path: "../../public/fonts/SimplonNorm-Bold.otf", weight: "700" },
-  ],
-  variable: "--font-simplon-norm",
-});
 const simplonMono = localFont({
   src: [
     { path: "../../public/fonts/SimplonMono-Light.otf", weight: "400" },
@@ -36,9 +28,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body
         className={twMerge(
-          simplonNorm.variable,
           simplonMono.variable,
-          "text-zinc-950 font-sans min-h-screen tracking-[0.015em]",
+          "min-h-screen font-sans text-zinc-950",
         )}
       >
         <Providers>
@@ -74,7 +65,7 @@ export async function generateMetadata(): Promise<Metadata> {
         name: "Revnet",
         url: url.href,
         splashImageUrl: `${origin}/assets/img/small-bw-200x200.png`,
-        splashBackgroundColor: "#ffffff",
+        splashBackgroundColor: "#F6FEF9",
       },
     },
   };

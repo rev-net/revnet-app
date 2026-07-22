@@ -18,7 +18,7 @@ export function ChartToggleButton({ label, active, disabled = false, colorVar, o
       onClick={onClick}
       disabled={disabled}
       className={cn(
-        "flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium transition-all",
+        "flex min-h-11 items-center gap-2 rounded-md px-3 py-1.5 text-sm font-medium transition-all",
         disabled && "opacity-50 cursor-not-allowed",
         isActive
           ? `bg-[${colorVar}]/10 text-[${colorVar}] ring-1 ring-[${colorVar}]/30`

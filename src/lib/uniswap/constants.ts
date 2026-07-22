@@ -1,5 +1,5 @@
 import { V3_CORE_FACTORY_ADDRESSES } from "@uniswap/sdk-core";
-import { JBChainId } from "juice-sdk-core";
+import { JBChainId } from "@bananapus/nana-sdk-core";
 
 export const UNISWAP_V3_FACTORY_ADDRESSES: Partial<Record<JBChainId, `0x${string}`>> = {
   [1]: V3_CORE_FACTORY_ADDRESSES[1] as `0x${string}`,

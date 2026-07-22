@@ -8,8 +8,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { formatHexEther } from "@/lib/utils";
-import { JB_CHAINS, JBChainId } from "juice-sdk-core";
-import { ChainPayment } from "juice-sdk-react";
+import { JB_CHAINS, JBChainId } from "@bananapus/nana-sdk-core";
+import { ChainPayment } from "@bananapus/nana-sdk-react";
 
 interface Props {
   payments: ChainPayment[];

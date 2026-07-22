@@ -1,8 +1,8 @@
 "use client";
 
 import { MAX_RULESET_COUNT } from "@/app/constants";
-import { JBCoreContracts, jbRulesetsAbi, RulesetWeight, WeightCutPercent } from "juice-sdk-core";
-import { useJBChainId, useJBContractContext } from "juice-sdk-react";
+import { JBCoreContracts, jbRulesetsAbi, RulesetWeight, WeightCutPercent } from "@bananapus/nana-sdk-core";
+import { useJBChainId, useJBContractContext } from "@bananapus/nana-sdk-react";
 import { useReadContract } from "wagmi";
 
 export function useRulesets() {

@@ -1,4 +1,4 @@
-import { TokenAmountType } from "juice-sdk-core";
+import { TokenAmountType } from "@bananapus/nana-sdk-core";
 
 export function TokenAmount({
   amount,

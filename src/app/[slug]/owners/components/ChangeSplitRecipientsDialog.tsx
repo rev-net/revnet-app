@@ -13,10 +13,10 @@ import {
 } from "@/components/ui/dialog";
 import { toast } from "@/components/ui/use-toast";
 import { useUserPermissions } from "@/hooks/useUserPermissions";
+import { JB_CHAINS, JBChainId, SPLITS_TOTAL_PERCENT } from "@bananapus/nana-sdk-core";
 import { TrashIcon } from "@heroicons/react/24/outline";
 import { FieldArray, Form, Formik } from "formik";
 import { withZodSchema } from "formik-validator-zod";
-import { JB_CHAINS, JBChainId, SPLITS_TOTAL_PERCENT } from "juice-sdk-core";
 import { useEffect, useMemo, useState } from "react";
 import { changeSplitsSchema } from "./changeSplitsSchema";
 import { useChainSplits } from "./hooks/useChainSplits";
@@ -37,10 +37,11 @@ type FormData = {
 type Props = {
   stageId: number;
   initialChainId: JBChainId;
+  triggerVariant?: "default" | "outline";
 };
 
 export function ChangeSplitRecipientsDialog(props: Props) {
-  const { stageId, initialChainId } = props;
+  const { stageId, initialChainId, triggerVariant = "outline" } = props;
   const [open, setOpen] = useState(false);
 
   const { hasPermission } = useUserPermissions();
@@ -92,7 +93,7 @@ export function ChangeSplitRecipientsDialog(props: Props) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline">Change split recipients</Button>
+        <Button variant={triggerVariant}>Change split recipients</Button>
       </DialogTrigger>
       <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
@@ -246,7 +247,7 @@ export function ChangeSplitRecipientsDialog(props: Props) {
                   type="submit"
                   disabled={!isValid || isSubmitting || isPending || isTxLoading}
                   loading={isSubmitting || isPending || isTxLoading}
-                  className="bg-teal-500 hover:bg-teal-600"
+                  className="bg-teal-500 text-melon-950 hover:bg-teal-600"
                 >
                   Save changes
                 </Button>

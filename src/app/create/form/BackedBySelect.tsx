@@ -7,7 +7,7 @@ import { RevnetFormData } from "../types";
 export function BackedBySelect({ disabled = false }: { disabled?: boolean }) {
   const { values } = useFormikContext<RevnetFormData>();
   const revnetTokenSymbolCapitalized =
-    values.tokenSymbol?.length > 0 ? `$${values.tokenSymbol}` : "Tokens";
+    values.tokenSymbol?.length > 0 ? values.tokenSymbol.replace(/^\$+/, "") : "Tokens";
 
   return (
     <>

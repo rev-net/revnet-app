@@ -1,6 +1,6 @@
 import { chainIdToLogo } from "@/app/constants";
-import { JB_CHAINS } from "juice-sdk-core";
-import { JBChainId } from "juice-sdk-react";
+import { JB_CHAINS } from "@bananapus/nana-sdk-core";
+import { JBChainId } from "@bananapus/nana-sdk-react";
 import Image from "next/image";
 
 type ImageProps = React.ComponentProps<typeof Image>;

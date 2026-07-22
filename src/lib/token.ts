@@ -8,7 +8,7 @@ import {
   NATIVE_TOKEN,
   NATIVE_TOKEN_DECIMALS,
   USDC_ADDRESSES,
-} from "juice-sdk-core";
+} from "@bananapus/nana-sdk-core";
 import { formatUnits, getContract } from "viem";
 import { isUsd } from "./currency";
 import { getViemPublicClient } from "./wagmiConfig";
@@ -20,7 +20,7 @@ export interface Token {
   decimals: number;
 }
 
-export function getTokensForChain(chainId: JBChainId | undefined): Token[] {
+export function getTokensForChain(chainId: JBChainId | undefined, version?: JBVersion): Token[] {
   if (!chainId) return [];
 
   const tokens: Token[] = [
@@ -32,14 +32,19 @@ export function getTokensForChain(chainId: JBChainId | undefined): Token[] {
     },
   ];
 
-  const usdcAddress = USDC_ADDRESSES[chainId];
-  if (usdcAddress) {
-    tokens.push({
-      symbol: "USDC",
-      address: usdcAddress,
-      isNative: false,
-      decimals: 6,
-    });
+  // USDC is only offered as a cross-token payment on v6, where the router terminal
+  // registry accepts any token; a v5 project paid in USDC still gets it via its own
+  // base token (see PayForm's token selection).
+  if (version === 6) {
+    const usdcAddress = USDC_ADDRESSES[chainId];
+    if (usdcAddress) {
+      tokens.push({
+        symbol: "USDC",
+        address: usdcAddress,
+        isNative: false,
+        decimals: 6,
+      });
+    }
   }
 
   return tokens;

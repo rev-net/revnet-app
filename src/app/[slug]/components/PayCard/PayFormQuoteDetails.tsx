@@ -4,8 +4,8 @@ import { PaymentQuotes } from "@/hooks/usePaymentQuote";
 import { isUsd } from "@/lib/currency";
 import { Quote } from "@/lib/quote";
 import { formatTokenSymbol } from "@/lib/utils";
-import { JB_CHAINS, TokenAmountType } from "juice-sdk-core";
-import { useEtherPrice, useJBTokenContext } from "juice-sdk-react";
+import { JB_CHAINS, TokenAmountType } from "@bananapus/nana-sdk-core";
+import { useEtherPrice, useJBTokenContext } from "@bananapus/nana-sdk-react";
 import { useState } from "react";
 
 interface Props {

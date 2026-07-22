@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { JBChainId, NATIVE_TOKEN_DECIMALS } from "juice-sdk-core";
+import { JBChainId, NATIVE_TOKEN_DECIMALS } from "@bananapus/nana-sdk-core";
 import { useEffect } from "react";
 import { formatUnits } from "viem";
 import { ImportantInfo } from "./ImportantInfo";

@@ -4,13 +4,13 @@ import { Button } from "@/components/ui/button";
 import { Project } from "@/generated/graphql";
 import { Surplus } from "@/lib/reclaimableSurplus";
 import { formatTokenSymbol } from "@/lib/utils";
-import { JBChainId, JBProjectToken } from "juice-sdk-core";
+import { JBChainId, JBProjectToken } from "@bananapus/nana-sdk-core";
 import {
   useJBChainId,
   useJBContractContext,
   useJBTokenContext,
   useSuckersUserTokenBalance,
-} from "juice-sdk-react";
+} from "@bananapus/nana-sdk-react";
 import { use, useRef, useState } from "react";
 import { useAccount } from "wagmi";
 import { BorrowDialog } from "./BorrowDialog";

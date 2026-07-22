@@ -12,7 +12,9 @@ type RevnetProject = {
   infoUri?: string;
 };
 import { Button } from "@/components/ui/button";
+import { DiscoverGridSkeleton } from "@/components/loading/LoadingSkeletons";
 import { sdk } from "@farcaster/frame-sdk";
+import { useQuery } from "@tanstack/react-query";
 import { request } from "graphql-request";
 import Image from "next/image";
 import Link from "next/link";
@@ -31,13 +33,74 @@ const RevLink = ({ network, id, text }: { network: string; id: number; text: str
   );
 };
 
+async function fetchDiscoverProjects(): Promise<RevnetProject[]> {
+  const chainId = 1;
+  const subgraphUrl = SUBGRAPH_URLS[chainId];
+  if (!subgraphUrl) return [];
+
+  const query = `
+    query Projects {
+      projects(first: 50, orderBy: projectId, orderDirection: desc) {
+        projectId
+        handle
+        metadataUri
+      }
+    }
+  `;
+
+  const data: { projects: RevnetProject[] } = await request(subgraphUrl, query);
+  const projectsWithMetadata = await Promise.all(
+    (data.projects || []).map(async (project) => {
+      if (!project.metadataUri?.startsWith("ipfs://")) return project;
+
+      const ipfsHash = project.metadataUri.replace("ipfs://", "");
+      try {
+        // Project metadata is content-addressed, so the browser can safely
+        // reuse it across revisits instead of refetching every card.
+        const metadataRes = await fetch(`https://ipfs.io/ipfs/${ipfsHash}`, {
+          cache: "force-cache",
+        });
+        if (!metadataRes.ok) return project;
+        const metadata = await metadataRes.json();
+        const rawDescription = metadata.description || "";
+        return {
+          ...project,
+          logoUri: metadata.logoUri?.startsWith("ipfs://")
+            ? `https://${process.env.NEXT_PUBLIC_INFURA_IPFS_HOSTNAME}/ipfs/${metadata.logoUri.replace("ipfs://", "")}`
+            : metadata.logoUri,
+          name: metadata.name,
+          description: rawDescription.replace(/<[^>]*>?/gm, ""),
+          projectTagline: metadata.projectTagline,
+          tags: metadata.tags,
+          infoUri: metadata.infoUri,
+        };
+      } catch (error) {
+        console.error("Failed to fetch metadata from IPFS for project", project.projectId, error);
+        return project;
+      }
+    }),
+  );
+
+  return projectsWithMetadata
+    .filter((project) => project.projectTagline || project.description)
+    .sort((a, b) => Number(b.projectId) - Number(a.projectId));
+}
+
 export default function Page() {
   const [user, setUser] = useState<{
     fid: number;
     pfp: string;
     userName: string;
   } | null>(null);
-  const [projects, setProjects] = useState<RevnetProject[]>([]);
+  const {
+    data: projects = [],
+    isLoading: projectsLoading,
+    isError: projectsError,
+  } = useQuery({
+    queryKey: ["discover-projects", 1],
+    queryFn: fetchDiscoverProjects,
+    staleTime: 5 * 60_000,
+  });
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -64,74 +127,6 @@ export default function Page() {
     fetchUser();
   }, []);
 
-  useEffect(() => {
-    const fetchProjects = async () => {
-      const chainId = 1;
-      const subgraphUrl = SUBGRAPH_URLS[chainId];
-      if (!subgraphUrl) return;
-
-      const query = `
-        query Projects {
-          projects(first: 50, orderBy: projectId, orderDirection: desc) {
-            projectId
-            handle
-            metadataUri
-          }
-        }
-      `;
-
-      try {
-        const data: { projects: RevnetProject[] } = await request(subgraphUrl, query);
-        const projectsWithLogos = await Promise.all(
-          (data.projects || []).map(async (p: RevnetProject) => {
-            let logoUri: string | undefined;
-            let name: string | undefined;
-            let description: string | undefined;
-            let projectTagline: string | undefined;
-            let tags: string[] | undefined;
-            let infoUri: string | undefined;
-            if (p.metadataUri?.startsWith("ipfs://")) {
-              const ipfsHash = p.metadataUri.replace("ipfs://", "");
-              try {
-                const metadataRes = await fetch(`https://ipfs.io/ipfs/${ipfsHash}`);
-                const metadata = await metadataRes.json();
-                name = metadata.name;
-                const rawDesc = metadata.description || "";
-                description = rawDesc.replace(/<[^>]*>?/gm, ""); // Strip HTML tags
-                projectTagline = metadata.projectTagline;
-                tags = metadata.tags;
-                infoUri = metadata.infoUri;
-                if (metadata.logoUri?.startsWith("ipfs://")) {
-                  logoUri = `https://${process.env.NEXT_PUBLIC_INFURA_IPFS_HOSTNAME}/ipfs/${metadata.logoUri.replace("ipfs://", "")}`;
-                } else {
-                  logoUri = metadata.logoUri;
-                }
-              } catch (err) {
-                console.error("Failed to fetch metadata from IPFS for project", p.projectId, err);
-              }
-            }
-            return {
-              ...p,
-              logoUri,
-              name,
-              description,
-              projectTagline,
-              tags,
-              infoUri,
-            };
-          }),
-        );
-
-        const withDescriptions = projectsWithLogos.filter((p) => p.projectTagline || p.description);
-        setProjects(withDescriptions.sort((a, b) => Number(b.projectId) - Number(a.projectId)));
-      } catch (err) {
-        console.error("Failed to fetch projects:", err);
-      }
-    };
-
-    fetchProjects();
-  }, []);
-
   return (
     <div className="container mt-40 pr-[1.5rem] pl-[1.5rem] sm:pr-[2rem] sm:pl-[2rem] sm:px-8">
       {user?.pfp && (
@@ -148,7 +143,7 @@ export default function Page() {
         <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
           <div className="flex gap-4 mt-8">
             <Link href="/">
-              <Button className="md:h-12 h-16 text-xl md:text-xl px-4 flex gap-2 bg-teal-500 hover:bg-teal-600">
+              <Button className="md:h-12 h-16 text-xl md:text-xl px-4 flex gap-2 bg-teal-500 text-melon-950 hover:bg-teal-600">
                 Home
               </Button>
             </Link>
@@ -159,8 +154,15 @@ export default function Page() {
 
       <div className="mt-6">
         <h2 className="text-2xl font-semibold mb-4">Funding opportunities</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-          {projects.map((p) => (
+        {projectsLoading ? (
+          <DiscoverGridSkeleton />
+        ) : projectsError ? (
+          <div className="border border-zinc-200 bg-melon-50 p-5 text-sm text-zinc-600">
+            Projects are temporarily unavailable. Try again in a moment.
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+            {projects.map((p) => (
             <Link
               key={p.projectId}
               href={`/eth:${p.projectId}`}
@@ -189,8 +191,9 @@ export default function Page() {
                 </div>
               )}
             </Link>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

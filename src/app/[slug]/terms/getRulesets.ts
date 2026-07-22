@@ -7,7 +7,7 @@ import {
   jbRulesetsAbi,
   JBVersion,
   WeightCutPercent,
-} from "juice-sdk-core";
+} from "@bananapus/nana-sdk-core";
 import { unstable_cache } from "next/cache";
 import { getContract } from "viem";
 

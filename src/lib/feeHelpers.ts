@@ -1,5 +1,5 @@
 import { REVNET_CASHOUT_FEE_PERCENT } from "@/app/constants";
-import { calcPrepaidFee, JBDAO_CASHOUT_FEE_PERCENT } from "juice-sdk-core";
+import { calcPrepaidFee, JBDAO_CASHOUT_FEE_PERCENT } from "@bananapus/nana-sdk-core";
 
 export function generateFeeData({
   grossBorrowedEth,

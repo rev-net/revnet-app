@@ -7,7 +7,9 @@ export function useCreateForm() {
   const context = useFormikContext<RevnetFormData>();
 
   const revnetTokenSymbol =
-    context.values.tokenSymbol?.length > 0 ? `$${context.values.tokenSymbol}` : "token";
+    context.values.tokenSymbol?.length > 0
+      ? context.values.tokenSymbol.replace(/^\$+/, "")
+      : "token";
 
   return {
     ...context,
