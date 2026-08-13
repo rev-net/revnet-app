@@ -20,8 +20,7 @@ export function PayForm() {
   const { tokenAToBQuote, isPriceLoading } = usePaymentQuote(chainId);
   const baseToken = useProjectBaseToken();
 
-  const [memo, setMemo] = useState<string>();
-  const [resetKey, setResetKey] = useState(0);
+  const [, setMemo] = useState<string>();
   const [amountA, setAmountA] = useState<string>("");
   const [amountB, setAmountB] = useState<string>("");
   const [amountC, setAmountC] = useState<string>("");
@@ -68,17 +67,11 @@ export function PayForm() {
     symbol: tokenIn?.symbol,
   };
 
-  const _amountB = {
-    amount: new FixedInt(parseUnits(amountB || "0", tokenB.decimals), tokenB.decimals),
-    symbol: tokenB.symbol,
-  };
-
   function resetForm() {
     setAmountA("");
     setAmountB("");
     setAmountC("");
     setQuotes({ all: [] });
-    setResetKey((prev) => prev + 1); // Force PayDialog to remount
   }
 
   return (
@@ -137,24 +130,7 @@ export function PayForm() {
             placeholder="Leave a note"
           />
         </Formik>
-        <div className="w-[150px] flex">
-          {tokenIn ? (
-            <PayDialog
-              key={resetKey}
-              amountA={_amountA}
-              amountB={_amountB}
-              memo={memo}
-              tokenIn={tokenIn}
-              tokenOut={tokenB}
-              pool={quotes.bestOnSelectedChain?.pool}
-              disabled={!amountA}
-              onSuccess={() => {
-                resetForm();
-                setMemo("");
-              }}
-            />
-          ) : null}
-        </div>
+        <div className="w-[150px] flex">{tokenIn ? <PayDialog /> : null}</div>
       </div>
     </div>
   );
