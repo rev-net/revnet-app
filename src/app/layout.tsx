@@ -1,4 +1,5 @@
 import { Footer } from "@/components/layout/Footer";
+import { VersionBanner } from "@/components/layout/VersionBanner";
 import { Toaster } from "@/components/ui/toaster";
 import type { Metadata } from "next";
 import { headers } from "next/headers";
@@ -42,6 +43,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         )}
       >
         <Providers>
+          <VersionBanner />
           <main className="min-h-screen">{children}</main>
           <Footer />
         </Providers>
